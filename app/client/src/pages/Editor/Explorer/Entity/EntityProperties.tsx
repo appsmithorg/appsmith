@@ -4,7 +4,8 @@ import { isFunction } from "lodash";
 import {
   entityDefinitions,
   EntityDefinitionsOptions,
-} from "utils/autocomplete/EntityDefinitions";
+  getPropsForJSActionEntity,
+} from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
@@ -12,7 +13,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { AppState } from "@appsmith/reducers";
-import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
 import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";

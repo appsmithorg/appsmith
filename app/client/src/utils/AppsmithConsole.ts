@@ -2,7 +2,7 @@ import {
   addErrorLogInit,
   debuggerLog,
   debuggerLogInit,
-  deleteErrorLogInit,
+  deleteErrorLogsInit,
 } from "actions/debuggerActions";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -14,6 +14,16 @@ import {
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
+import { isEmpty } from "lodash";
+
+// * @param payload - payload of the error
+//  * @param severity - severity of the error
+//  * @param category - category of the error
+export interface ErrorObject {
+  payload: LogActionPayload;
+  severity?: Severity;
+  category?: LOG_CATEGORY;
+}
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
@@ -26,11 +36,11 @@ function log(ev: Log) {
       entityType: ev.source?.type,
     });
   }
-  dispatchAction(debuggerLogInit(ev));
+  dispatchAction(debuggerLogInit([ev]));
 }
 
 function getTimeStamp() {
-  return moment().format("hh:mm:ss");
+  return moment().format("HH:mm:ss");
 }
 
 function addLogs(logs: Log[]) {
@@ -82,26 +92,24 @@ function error(
   });
 }
 
-// This is used to add an error to the errors tab
-function addError(
-  payload: LogActionPayload,
-  severity = Severity.ERROR,
-  category = LOG_CATEGORY.PLATFORM_GENERATED,
-) {
-  dispatchAction(
-    addErrorLogInit({
-      ...payload,
-      severity: severity,
-      timestamp: getTimeStamp(),
-      category,
-      occurrenceCount: 1,
-    }),
-  );
+// Function used to add errors to the error tab of the debugger
+function addErrors(errors: ErrorObject[]) {
+  if (isEmpty(errors)) return;
+  const refinedErrors = errors.map((error) => ({
+    ...error.payload,
+    severity: error.severity ?? Severity.ERROR,
+    timestamp: getTimeStamp(),
+    occurrenceCount: 1,
+    category: error.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
+  }));
+
+  dispatchAction(addErrorLogInit(refinedErrors));
 }
 
-// This is used to remove an error from the errors tab
-function deleteError(id: string, analytics?: Log["analytics"]) {
-  dispatchAction(deleteErrorLogInit(id, analytics));
+// This is used to remove errors from the error tab of the debugger
+function deleteErrors(errors: { id: string; analytics?: Log["analytics"] }[]) {
+  if (isEmpty(errors)) return;
+  dispatchAction(deleteErrorLogsInit(errors));
 }
 
 export default {
@@ -109,6 +117,6 @@ export default {
   info,
   warning,
   error,
-  addError,
-  deleteError,
+  addErrors,
+  deleteErrors,
 };

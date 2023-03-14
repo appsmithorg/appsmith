@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import PagesLineIcon from "remixicon-react/PagesLineIcon";
-import { CheckboxType, Text, TextType, IconWrapper } from "design-system";
-import { Checkmark, Size, Button } from "design-system";
+import {
+  Button,
+  CheckboxType,
+  Checkmark,
+  Classes,
+  Size,
+  Text,
+  TextType,
+  IconWrapper,
+} from "design-system-old";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import { Template } from "api/TemplatesApi";
@@ -13,9 +21,8 @@ import {
   FILTER_SELECT_PAGES,
   PAGE,
   PAGES,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Classes } from "components/ads";
 
 const Wrapper = styled.div`
   width: max(300px, 25%);

@@ -6,13 +6,12 @@ import {
   FileType,
   SetProgress,
   Size,
-} from "design-system";
+  Toaster,
+  Variant,
+} from "design-system-old";
 import { StyledDialog } from "./ForkModalStyles";
-import { useSelector } from "store";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { importApplication } from "actions/applicationActions";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 
@@ -105,7 +104,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       </FilePickerWrapper>
       <ButtonWrapper>
         <ImportButton
-          // category={ButtonCategory.tertiary}
+          // category={ButtonCategory.secondary}
           cypressSelector={"t--workspace-import-app-button"}
           disabled={!appFileToBeUploaded}
           isLoading={importingApplication}

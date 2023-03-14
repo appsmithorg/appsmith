@@ -1,14 +1,15 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -18,6 +19,8 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,8 +54,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
-
-    private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
+    private final WorkspacePermission workspacePermission;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     @Autowired
     public UserWorkspaceServiceCEImpl(SessionUserService sessionUserService,
@@ -62,7 +66,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                       EmailSender emailSender,
                                       UserDataService userDataService,
                                       PermissionGroupService permissionGroupService,
-                                      TenantService tenantService) {
+                                      TenantService tenantService,
+                                      WorkspacePermission workspacePermission,
+                                      PermissionGroupPermission permissionGroupPermission) {
         this.sessionUserService = sessionUserService;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -72,12 +78,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
+        this.workspacePermission = workspacePermission;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     @Override
     public Mono<User> leaveWorkspace(String workspaceId) {
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
@@ -86,8 +94,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
+                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, permissionGroupPermission.getUnAssignPermission());
                 })
+                /*
+                 * The below switchIfEmpty will be invoked in 2 cases.
+                 * 1. Explicit Backend Invocation: The user actually didn't have access to the Workspace.
+                 * 2. User Interaction: User who is part of a UserGroup.
+                 */
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
@@ -129,7 +143,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .cache();
 
@@ -143,12 +157,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
+                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, permissionGroupPermission.getUnAssignPermission());
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                 .single()
                 .flatMap(permissionGroup -> {
-                    if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
+                    if (this.isLastAdminRoleEntity(permissionGroup)) {
                         return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
                     }
                     return Mono.just(permissionGroup);
@@ -166,7 +180,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
 
         // Get the new permission group
-        Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService.getById(changeUserGroupDTO.getNewPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+        Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService.getById(changeUserGroupDTO.getNewPermissionGroupId(), permissionGroupPermission.getAssignPermission())
                 // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
 
@@ -204,34 +218,46 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList)
                 .cache();
 
-        // Create a map of User.userId to User
-        Mono<Map<String, User>> userMapMono = userAndPermissionGroupDTOsMono
+        // get a list of user ids who are member of this workspace
+        Mono<Set<String>> userIdsMono = userAndPermissionGroupDTOsMono
                 .flatMapMany(Flux::fromIterable)
                 .map(WorkspaceMemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
-                .flatMapMany(userIds -> userRepository.findAllById(userIds))
-                .collectMap(User::getId)
                 .cache();
 
+        // Create a map of User.id to User
+        Mono<Map<String, User>> userMapMono = userIdsMono
+                .flatMapMany(userRepository::findAllById)
+                .collectMap(User::getId);
+
+        // Create a map of UserData.userUd to UserData
+        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+                // get the profile photos of the list of users
+                .flatMapMany(userIdsSet -> userDataRepository.findPhotoAssetsByUserIds(userIdsSet.stream().toList()))
+                .collectMap(UserData::getUserId);
+
         // Update name and username in the list of UserAndGroupDTO
-        userAndPermissionGroupDTOsMono = userAndPermissionGroupDTOsMono
-                .zipWith(userMapMono)
-                .map(tuple -> {
-                    List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
-                    Map<String, User> userMap = tuple.getT2();
-                    workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
-                        User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                        userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
-                        userAndPermissionGroupDTO.setUsername(user.getUsername());
-                    });
-                    return workspaceMemberInfoDTOList;
-                });
+        userAndPermissionGroupDTOsMono = Mono.zip(userAndPermissionGroupDTOsMono, userMapMono, userDataMapMono).map(tuple -> {
+            List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
+            Map<String, User> userMap = tuple.getT2();
+            Map<String, UserData> userDataMap = tuple.getT3();
+            workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
+                User user = userMap.get(userAndPermissionGroupDTO.getUserId());
+                UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
+                userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
+                userAndPermissionGroupDTO.setUsername(user.getUsername());
+                if(userData != null) {
+                    userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
+                }
+            });
+            return workspaceMemberInfoDTOList;
+        });
 
         // Sort the members by permission group
         //TODO get users sorted from DB and fill in three buckets - admin, developer and viewer
         Mono<List<WorkspaceMemberInfoDTO>> sortedListMono = userAndPermissionGroupDTOsMono
                 .map(userAndPermissionGroupDTOS -> {
-                    Collections.sort(userAndPermissionGroupDTOS, this.getWorkspaceMemberComparator());
+                    Collections.sort(userAndPermissionGroupDTOS, AppsmithComparators.getWorkspaceMemberComparator());
 
                     return userAndPermissionGroupDTOS;
                 });
@@ -243,14 +269,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     public Mono<Map<String, List<WorkspaceMemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds) {
 
         // Get default permission groups
-        Flux<PermissionGroup> permissionGroupFlux = permissionGroupService.getByDefaultWorkspaces(workspaceIds, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+        Flux<PermissionGroup> permissionGroupFlux = permissionGroupService.getByDefaultWorkspaces(workspaceIds, permissionGroupPermission.getMembersReadPermission())
                 .cache();
 
         Mono<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspacesMono = permissionGroupFlux
-                .collectMultimap(permissionGroup -> permissionGroup.getDefaultWorkspaceId(), permissionGroup -> permissionGroup)
+                .collectMultimap(PermissionGroup::getDefaultDomainId)
                 .cache();
 
-        Mono<Map<String, User>> userMapMono = permissionGroupFlux
+        Mono<Set<String>> userIdsMono = permissionGroupFlux
                 .flatMapIterable(permissionGroup -> {
                     Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
                     if (assignedToUserIds == null || assignedToUserIds.isEmpty()) {
@@ -259,9 +285,16 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return assignedToUserIds;
                 })
                 .collect(Collectors.toSet())
-                .flatMapMany(userIds -> userRepository.findAllById(userIds))
-                .collectMap(User::getId)
                 .cache();
+
+        Mono<Map<String, User>> userMapMono = userIdsMono
+                .flatMapMany(userRepository::findAllById)
+                .collectMap(User::getId);
+
+        // Create a map of UserData.userUd to UserData
+        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds)
+                .collectMap(UserData::getUserId);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux = permissionGroupsByWorkspacesMono
                 .repeat();
@@ -274,22 +307,30 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     Map<String, Collection<PermissionGroup>> collectionMap = tuple.getT2();
                     List<PermissionGroup> permissionGroups = collectionMap.get(workspaceId).stream().collect(Collectors.toList());
 
-                    Mono<List<WorkspaceMemberInfoDTO>> userAndPermissionGroupDTOsMono = Mono.just(mapPermissionGroupListToUserAndPermissionGroupDTOList(permissionGroups))
-                            .zipWith(userMapMono)
+                    Mono<List<WorkspaceMemberInfoDTO>> userAndPermissionGroupDTOsMono = Mono.zip(
+                                    Mono.just(mapPermissionGroupListToUserAndPermissionGroupDTOList(permissionGroups)),
+                                    userMapMono,
+                                    userDataMapMono
+                            )
                             .map(tuple1 -> {
                                 List<WorkspaceMemberInfoDTO> workspaceMemberInfoDTOList = tuple1.getT1();
                                 Map<String, User> userMap = tuple1.getT2();
+                                Map<String, UserData> userDataMap = tuple1.getT3();
                                 workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
                                     User user = userMap.get(userAndPermissionGroupDTO.getUserId());
+                                    UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                                     userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
+                                    if(userData != null) {
+                                        userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
+                                    }
                                 });
                                 return workspaceMemberInfoDTOList;
                             });
 
                     return Mono.zip(Mono.just(workspaceId), userAndPermissionGroupDTOsMono);
                 })
-                .collectMap(tuple -> tuple.getT1(), tuple -> tuple.getT2());
+                .collectMap(Tuple2::getT1, Tuple2::getT2);
 
         return workspaceMembersMono;
     }
@@ -311,40 +352,17 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // Get default permission groups
         return workspaceMono
-                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS));
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, permissionGroupPermission.getMembersReadPermission()));
     }
 
-    private Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
-        return new Comparator<>() {
-            @Override
-            public int compare(WorkspaceMemberInfoDTO o1, WorkspaceMemberInfoDTO o2) {
-                int order1 = getOrder(o1.getPermissionGroupName());
-                int order2 = getOrder(o2.getPermissionGroupName());
-
-                // Administrator > Developer > App viewer
-                int permissionGroupSortOrder = order1 - order2;
-
-                if (permissionGroupSortOrder != 0) {
-                    return permissionGroupSortOrder;
-                }
-
-                return o1.getUsername().compareTo(o2.getUsername());
-            }
-
-            private int getOrder(String name) {
-                if (name.startsWith(FieldName.ADMINISTRATOR)) {
-                    return 0;
-                } else if (name.startsWith(FieldName.DEVELOPER)) {
-                    return 1;
-                } else {
-                    return 2;
-                }
-            }
-        };
+    @Override
+    public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
+        return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
+                && permissionGroup.getAssignedToUserIds().size() == 1;
     }
 }

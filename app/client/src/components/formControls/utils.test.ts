@@ -289,11 +289,13 @@ describe("caculateIsHidden test", () => {
       path: "name",
       comparison: "EQUALS",
       value: "Name",
+      flagValue: "APP_TEMPLATE",
     };
     const hiddenFalsy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
       value: "Different Name",
+      flagValue: "APP_TEMPLATE",
     };
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
@@ -570,7 +572,7 @@ describe("json/form viewTypes test", () => {
             node3: { data: "value1" },
             node2: { data: "value1", viewType: ViewTypes.JSON },
             node4: {
-              data: "value2",
+              data: "value1",
               viewType: ViewTypes.JSON,
               jsonData: "value2",
               componentData: "value1",

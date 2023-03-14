@@ -12,7 +12,7 @@ import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { Button, Size } from "design-system";
+import { Button, Size } from "design-system-old";
 import FormRow from "components/editorComponents/FormRow";
 
 const MainConfiguration = styled.div`

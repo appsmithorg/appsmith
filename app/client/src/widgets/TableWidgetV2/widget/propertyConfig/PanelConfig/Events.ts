@@ -4,6 +4,7 @@ import {
   getBasePropertyPath,
   showByColumnType,
   hideByColumnType,
+  getColumnPath,
 } from "../../propertyUtils";
 
 export default {
@@ -20,7 +21,8 @@ export default {
           columnType === ColumnTypes.NUMBER ||
           columnType === ColumnTypes.CHECKBOX ||
           columnType === ColumnTypes.SWITCH ||
-          columnType === ColumnTypes.SELECT
+          columnType === ColumnTypes.SELECT ||
+          columnType === ColumnTypes.DATE
         ) || !isEditable
       );
     }
@@ -81,18 +83,24 @@ export default {
     },
     {
       propertyName: "onCheckChange",
-      label: (props: TableWidgetProps, propertyPath: string) => {
-        const basePropertyPath = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${basePropertyPath}.columnType`);
-        return columnType === ColumnTypes.SWITCH ? "onChange" : "onCheckChange";
-      },
+      label: "onChange",
       helpText: "Triggers an action when the check state is changed",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.CHECKBOX,
-          ColumnTypes.SWITCH,
-        ]);
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onCheckChange",
+      label: "onCheckChange",
+      helpText: "Triggers an action when the check state is changed",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,
@@ -126,6 +134,20 @@ export default {
       additionalAutoComplete: () => ({
         filterText: "",
       }),
+    },
+    {
+      propertyName: "onDateSelected",
+      label: "onDateSelected",
+      helpText: "Triggers an action when a date is selected in the calendar",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const path = getColumnPath(propertyPath);
+        return hideByColumnType(props, path, [ColumnTypes.DATE], true);
+      },
     },
   ],
 };

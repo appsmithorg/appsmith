@@ -2,9 +2,9 @@ import React from "react";
 
 import {
   CONTAINER_GRID_PADDING,
+  FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -15,13 +15,15 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import { compact, map, sortBy } from "lodash";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { Stylesheet } from "entities/AppTheming";
+import { Positioning } from "utils/autoLayout/constants";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
-class ContainerWidget extends BaseWidget<
+export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
 > {
@@ -66,6 +68,7 @@ class ContainerWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -109,6 +112,7 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",
@@ -147,6 +151,13 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -156,7 +167,10 @@ class ContainerWidget extends BaseWidget<
       this.props.type === "CONTAINER_WIDGET"
     ) {
       //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-      padding = CONTAINER_GRID_PADDING * 2;
+      padding =
+        this.props.positioning === Positioning.Vertical
+          ? FLEXBOX_PADDING * 2
+          : CONTAINER_GRID_PADDING * 2;
     }
     if (this.props.noPad) {
       // Widgets like ListWidget choose to have no container padding so will only have widget padding
@@ -186,6 +200,12 @@ class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
+    // Pass layout controls to children
+    childWidget.positioning =
+      childWidget?.positioning || this.props.positioning;
+    childWidget.useAutoLayout = this.props.positioning
+      ? this.props.positioning === Positioning.Vertical
+      : false;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -195,37 +215,23 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      sortBy(compact(this.props.children), (child) => child.topRow),
+      this.props.positioning !== Positioning.Fixed
+        ? this.props.children
+        : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const useAutoLayout = this.props.positioning
+      ? this.props.positioning === Positioning.Vertical
+      : false;
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidget(this.props, true) &&
+      !useAutoLayout;
     return (
-      <ContainerComponent {...props}>
-        {props.type === "CANVAS_WIDGET" &&
-          props.renderMode === RenderModes.CANVAS && (
-            <>
-              <CanvasDraggingArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                noPad={this.props.noPad}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-              <CanvasSelectionArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-            </>
-          )}
+      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
@@ -253,6 +259,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+  positioning?: Positioning;
 }
 
 export default ContainerWidget;

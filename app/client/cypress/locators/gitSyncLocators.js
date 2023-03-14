@@ -19,7 +19,7 @@ export default {
   bottomBarCommitButton: ".t--bottom-bar-commit",
   bottomBarMergeButton: ".t--bottom-bar-merge",
   bottomBarPullButton: ".t--bottom-bar-pull",
-  mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
+  mergeBranchDropdownDestination: ".merge-dropdown",
   mergeCTA: "[data-testid=t--git-merge-button]",
   loaderQuickGitAction: ".t--loader-quick-git-action",
   copySshKey: ".t--copy-ssh-key",
@@ -48,7 +48,7 @@ export default {
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
   learnMoreOnRepoLimitModal: ".t--learn-more-repo-limit-modal",
   gitSyncModalDeployTab: "[data-cy=t--tab-DEPLOY]",
-  gitPullCount: ".t--bottom-bar-pull .count",
+  gitPullCount: ".t--bottom-bar-commit .count",
   gitConnectionContainer: "[data-test=t--git-connection-container]",
   gitRemoteURLContainer: "[data-test=t--remote-url-container]",
   discardChanges: ".t--discard-button",
@@ -58,4 +58,6 @@ export default {
   regenerateSSHKeyECDSA: "[data-cy='t--regenerate-sshkey-ECDSA']",
   regenerateSSHKeyRSA: "[data-cy='t--regenerate-sshkey-RSA']",
   confirmButton: "//span[text()='Yes']",
+  mergeConflicts:
+    "//span[contains(text(), 'There are uncommitted changes present in your local branch master. Please commit them first and try again')]",
 };

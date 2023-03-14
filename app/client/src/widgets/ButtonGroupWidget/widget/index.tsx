@@ -1,18 +1,20 @@
-import React from "react";
-import { get } from "lodash";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  ButtonVariant,
-  ButtonPlacementTypes,
   ButtonPlacement,
+  ButtonPlacementTypes,
+  ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-import ButtonGroupComponent from "../component";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { get } from "lodash";
+import React from "react";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
+import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 
 class ButtonGroupWidget extends BaseWidget<
@@ -290,6 +292,7 @@ class ButtonGroupWidget extends BaseWidget<
                     },
                   ],
                 },
+                ...getResponsiveLayoutConfig(this.getWidgetType()),
                 {
                   sectionName: "Events",
                   hidden: (
@@ -325,7 +328,8 @@ class ButtonGroupWidget extends BaseWidget<
                       label: "Icon",
                       helpText: "Sets the icon to be used for a button",
                       controlType: "ICON_SELECT",
-                      isBindProperty: false,
+                      isJSConvertible: true,
+                      isBindProperty: true,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
                     },
@@ -536,6 +540,18 @@ class ButtonGroupWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        },
+      },
+    };
   }
 
   handleClick = (onClick: string | undefined, callback: () => void): void => {

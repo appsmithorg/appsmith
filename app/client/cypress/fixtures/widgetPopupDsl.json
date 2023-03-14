@@ -232,6 +232,7 @@
         "rightColumn": 18,
         "menuVariant": "PRIMARY",
         "widgetId": "33f9n054tq",
+        "menuItemsSource": "STATIC",
         "menuItems": {
             "menuItem1": {
                 "label": "First Menu Item",

@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.ResponseDTO;

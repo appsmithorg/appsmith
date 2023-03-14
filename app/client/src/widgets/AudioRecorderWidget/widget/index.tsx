@@ -1,13 +1,15 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import AudioRecorderComponent from "../component";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
+import AudioRecorderComponent from "../component";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
@@ -68,6 +70,7 @@ class AudioRecorderWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -146,6 +149,14 @@ class AudioRecorderWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

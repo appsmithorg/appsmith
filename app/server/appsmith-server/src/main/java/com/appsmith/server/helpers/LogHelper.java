@@ -37,9 +37,9 @@ public class LogHelper {
                 return;
             }
 
-            Optional<Map<String, String>> maybeContextMap = signal.getContext().getOrEmpty(CONTEXT_MAP);
+            Optional<Map<String, String>> maybeContextMap = signal.getContextView().getOrEmpty(CONTEXT_MAP);
 
-            if (!maybeContextMap.isPresent()) {
+            if (maybeContextMap.isEmpty()) {
                 log.accept(signal.get());
                 return;
             }
@@ -60,9 +60,9 @@ public class LogHelper {
             }
 
             Optional<Map<String, String>> maybeContextMap
-                    = signal.getContext().getOrEmpty(CONTEXT_MAP);
+                    = signal.getContextView().getOrEmpty(CONTEXT_MAP);
 
-            if (!maybeContextMap.isPresent()) {
+            if (maybeContextMap.isEmpty()) {
                 log.accept(signal.getThrowable());
                 return;
             }

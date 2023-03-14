@@ -5,4 +5,5 @@ public interface GitDirectories {
     String ACTION_DIRECTORY = "queries";
     String ACTION_COLLECTION_DIRECTORY = "jsobjects";
     String DATASOURCE_DIRECTORY = "datasources";
+    String JS_LIB_DIRECTORY = "jslibs";
 }

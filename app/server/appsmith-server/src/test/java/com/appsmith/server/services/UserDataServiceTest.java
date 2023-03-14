@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
@@ -43,7 +42,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -360,9 +358,6 @@ public class UserDataServiceTest {
                 .assertNext(objects -> {
                     assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
                     assertThat(objects.getT2().getId()).isNull();
-                    Mockito.verify(userChangedHandler, Mockito.times(1)).publish(
-                            objects.getT1().getUserId(), null
-                    );
                 })
                 .verifyComplete();
     }
@@ -383,39 +378,6 @@ public class UserDataServiceTest {
         Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mockFilePart);
         StepVerifier.create(userDataMono).assertNext(userData -> {
             assertThat(userData.getProfilePhotoAssetId()).isNotNull();
-            Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
-        }).verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void setCommentState_WhenParamIsInvalid_ThrowsException() {
-        StepVerifier.create(userDataService.setCommentState(null))
-                .expectError(AppsmithException.class)
-                .verify();
-        StepVerifier.create(userDataService.setCommentState(CommentOnboardingState.COMMENTED))
-                .expectError(AppsmithException.class)
-                .verify();
-        StepVerifier.create(userDataService.setCommentState(CommentOnboardingState.RESOLVED))
-                .expectError(AppsmithException.class)
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void setCommentState_WhenParamIsValid_StateIsSet() {
-        Mono<UserData> userDataMono1 = userDataService.setCommentState(CommentOnboardingState.SKIPPED).flatMap(userData ->
-                userDataService.getForCurrentUser()
-        );
-        StepVerifier.create(userDataMono1).assertNext(userData -> {
-            assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.SKIPPED);
-        }).verifyComplete();
-
-        Mono<UserData> userDataMono2 = userDataService.setCommentState(CommentOnboardingState.ONBOARDED).flatMap(userData ->
-                userDataService.getForCurrentUser()
-        );
-        StepVerifier.create(userDataMono2).assertNext(userData -> {
-            assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
     }
 

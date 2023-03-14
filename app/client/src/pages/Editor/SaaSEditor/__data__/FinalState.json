@@ -443,7 +443,7 @@
                 {
                   "label": "Headers",
                   "configProperty": "datasourceConfiguration.headers",
-                  "controlType": "KEY_VAL_INPUT"
+                  "controlType": "KEYVALUE_ARRAY"
                 },
                 {
                   "label": "Send Authentication Information Key (Do not edit)",

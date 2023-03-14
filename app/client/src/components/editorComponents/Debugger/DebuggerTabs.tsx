@@ -1,12 +1,13 @@
 import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCanvasDebuggerSelectedTab,
   showDebugger,
 } from "actions/debuggerActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";
@@ -45,7 +46,7 @@ const Container = styled.div`
     position: absolute;
     top: 0px;
     right: 0px;
-    padding: 12px 15px;
+    padding: 9px 11px;
   }
 `;
 
@@ -72,6 +73,11 @@ function DebuggerTabs() {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const selectedTab = useSelector(getSelectedCanvasDebuggerTab);
   const setSelectedTab = (tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "WIDGET_EDITOR",
+      });
+    }
     dispatch(setCanvasDebuggerSelectedTab(tabKey));
   };
   const onClose = () => dispatch(showDebugger(false));
@@ -93,7 +99,7 @@ function DebuggerTabs() {
         className="close-debugger t--close-debugger"
         name="expand-more"
         onClick={onClose}
-        size={IconSize.XXXXL}
+        size={IconSize.MEDIUM}
       />
     </Container>
   );

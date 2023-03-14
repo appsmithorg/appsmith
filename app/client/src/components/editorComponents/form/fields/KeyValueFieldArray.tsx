@@ -6,14 +6,20 @@ import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
-import { Icon, IconSize } from "design-system";
 import {
   CodeEditorBorder,
+  EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Text, Case, TextType } from "design-system";
-import { Classes } from "components/ads/common";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import {
+  Case,
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system-old";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
@@ -187,10 +193,12 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         border={CodeEditorBorder.ALL_SIDE}
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
+                        evaluatedPopUpLabel={"Key"}
                         expected={expected}
                         hoverInteraction
                         name={`${field}.key`}
                         placeholder={`Key ${index + 1}`}
+                        size={EditorSize.COMPACT_RETAIN_FORMATTING}
                         theme={props.theme}
                       />
 
@@ -211,10 +219,12 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
+                      evaluatedPopUpLabel={"Key"}
                       expected={expected}
                       hoverInteraction
                       name={`${field}.key`}
                       placeholder={`Key ${index + 1}`}
+                      size={EditorSize.COMPACT_RETAIN_FORMATTING}
                       theme={props.theme}
                     />
                   )}
@@ -226,10 +236,12 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
+                      evaluatedPopUpLabel={"Value"}
                       expected={expected}
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
+                      size={EditorSize.COMPACT_RETAIN_FORMATTING}
                       theme={props.theme}
                     />
                   </Flex>
@@ -246,6 +258,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           props.actionConfig[index].editable === undefined
                         )
                       }
+                      evaluatedPopUpLabel={"Value"}
                       expected={expected}
                       name={`${field}.value`}
                       placeholder={
@@ -262,6 +275,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         props.actionConfig[index].editable ||
                         props.actionConfig[index].editable === undefined
                       }
+                      size={EditorSize.COMPACT_RETAIN_FORMATTING}
                       theme={props.theme}
                       {...otherProps}
                       border={CodeEditorBorder.ALL_SIDE}

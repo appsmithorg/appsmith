@@ -1,3 +1,5 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import {
@@ -5,10 +7,11 @@ import {
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
-import styled from "constants/DefaultTheme";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
@@ -21,13 +24,14 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import { Colors } from "constants/Colors";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import {
-  ADD_QUERY_JS_BUTTON,
+  ADD_QUERY_JS_TOOLTIP,
   createMessage,
 } from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -78,6 +82,10 @@ export default function ExplorerSubMenu({
   const [activeItemIdx, setActiveItemIdx] = useState(0);
   useEffect(() => setShow(openMenu), [openMenu]);
   useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
   useEffect(() => {
     setQuery("");
@@ -209,24 +217,26 @@ export default function ExplorerSubMenu({
       placement="right-start"
       transitionDuration={0}
     >
-      <TooltipComponent
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={
-          <>
-            {createMessage(ADD_QUERY_JS_BUTTON)} (
-            {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-          </>
-        }
-        disabled={show}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
-      >
-        <EntityAddButton
-          className={`${className} ${show ? "selected" : ""}`}
-          onClick={() => setShow(true)}
-        />
-      </TooltipComponent>
+      {canCreateActions && (
+        <TooltipComponent
+          boundary="viewport"
+          className={EntityClassNames.TOOLTIP}
+          content={
+            <>
+              {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+              {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+            </>
+          }
+          disabled={show}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position="right"
+        >
+          <EntityAddButton
+            className={`${className} ${show ? "selected" : ""}`}
+            onClick={() => setShow(true)}
+          />
+        </TooltipComponent>
+      )}
     </Popover2>
   );
 }

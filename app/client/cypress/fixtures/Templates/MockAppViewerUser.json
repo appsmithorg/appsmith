@@ -1,0 +1,230 @@
+{
+    "responseMeta": {
+        "status": 200,
+        "success": true
+    },
+    "data": {
+        "user": {
+            "id": "63abf1f3cf1ed12127ce3b01",
+            "userPermissions": [],
+            "name": "test1@sharklasers.com",
+            "email": "test1@sharklasers.com",
+            "source": "FORM",
+            "isEnabled": true,
+            "groupIds": [],
+            "permissions": [],
+            "isAnonymous": false,
+            "tenantId": "63abe1a2cf1ed12127ce3ac4",
+            "enabled": true,
+            "username": "test1@sharklasers.com",
+            "accountNonExpired": true,
+            "accountNonLocked": true,
+            "credentialsNonExpired": true,
+            "claims": {},
+            "address": {},
+            "new": false
+        },
+        "workspaceApplications": [
+            {
+                "workspace": {
+                    "id": "63ad2c156e7a9012ada704c7",
+                    "userPermissions": [
+                        "inviteUsers:workspace",
+                        "read:workspaces",
+                        "execute:workspaceDatasources",
+                        "read:workspaceApplications"
+                    ],
+                    "name": "Untitled workspace 1",
+                    "email": "test@sharklasers.com",
+                    "plugins": [
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ecf1ed12127ce3a5a",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1c5cf1ed12127ce3af5",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19fcf1ed12127ce3a69",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ecf1ed12127ce3a55",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1c5cf1ed12127ce3af4",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ccf1ed12127ce3a38",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19fcf1ed12127ce3a64",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1a0cf1ed12127ce3a92",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1c5cf1ed12127ce3af6",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ecf1ed12127ce3a4c",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1a1cf1ed12127ce3aa3",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1a3cf1ed12127ce3ae9",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ccf1ed12127ce3a39",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19fcf1ed12127ce3a6d",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ecf1ed12127ce3a5c",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe1a0cf1ed12127ce3a8a",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19fcf1ed12127ce3a84",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ccf1ed12127ce3a3a",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19fcf1ed12127ce3a79",
+                            "status": "FREE",
+                            "new": true
+                        },
+                        {
+                            "userPermissions": [],
+                            "pluginId": "63abe19ecf1ed12127ce3a57",
+                            "status": "FREE",
+                            "new": true
+                        }
+                    ],
+                    "slug": "untitled-workspace-1",
+                    "tenantId": "63abe1a2cf1ed12127ce3ac4",
+                    "logoUrl": "/api/v1/assets/null",
+                    "new": false
+                },
+                "applications": [
+                    {
+                        "id": "63ad2c166e7a9012ada704cb",
+                        "modifiedBy": "test@sharklasers.com",
+                        "userPermissions": [
+                            "canComment:applications",
+                            "read:applications"
+                        ],
+                        "name": "Untitled application 1",
+                        "workspaceId": "63ad2c156e7a9012ada704c7",
+                        "isPublic": false,
+                        "pages": [
+                            {
+                                "id": "63ad2c166e7a9012ada704ce",
+                                "isDefault": true,
+                                "slug": "page1",
+                                "defaultPageId": "63ad2c166e7a9012ada704ce",
+                                "default": true
+                            }
+                        ],
+                        "appIsExample": false,
+                        "unreadCommentThreads": 0,
+                        "color": "#FBF4ED",
+                        "icon": "dollar",
+                        "slug": "untitled-application-1",
+                        "unpublishedCustomJSLibs": [],
+                        "publishedCustomJSLibs": [],
+                        "evaluationVersion": 2,
+                        "applicationVersion": 2,
+                        "isManualUpdate": true,
+                        "isAutoUpdate": false,
+                        "new": false,
+                        "modifiedAt": "2022-12-29T05:56:41.772Z"
+                    }
+                ],
+                "users": [
+                    {
+                        "userId": "63abf1edcf1ed12127ce3af7",
+                        "username": "test@sharklasers.com",
+                        "name": "test@sharklasers.com",
+                        "permissionGroupName": "Administrator - Untitled workspace 1",
+                        "permissionGroupId": "63ad2c156e7a9012ada704c8"
+                    },
+                    {
+                        "userId": "63abf1f3cf1ed12127ce3b01",
+                        "username": "test1@sharklasers.com",
+                        "name": "test1@sharklasers.com",
+                        "permissionGroupName": "App Viewer - Untitled workspace 1",
+                        "permissionGroupId": "63ad2c156e7a9012ada704ca"
+                    }
+                ]
+            }
+        ],
+        "newReleasesCount": "1",
+        "releaseItems": [
+            {
+                "tagName": "v1.8.15",
+                "name": "Release v1.8.15 🌈",
+                "url": "https://github.com/appsmithorg/appsmith/releases/tag/v1.8.15",
+                "descriptionHtml": "<h2>💪🏾 Improvements</h2>\n<ul>\n<li>Were your larger applications starting to feel like they took forever to load? We've shipped out a performance improvement to load these pages faster! [<a href=\"https://github.com/appsmithorg/appsmith/pull/19273\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/appsmithorg/appsmith/pull/19273/hovercard\">#19273</a>]</li>\n</ul>",
+                "publishedAt": "2022-12-28T12:36:48Z"
+            }
+        ]
+    }
+}

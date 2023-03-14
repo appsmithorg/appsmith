@@ -10,7 +10,7 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(
@@ -18,9 +18,15 @@ export function defaultOptionValueValidation(
   props: JSONFormWidgetProps,
   _: any,
 ): ValidationResponse {
-  const DEFAULT_ERROR_MESSAGE =
-    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-  const UNIQUE_ERROR_MESSAGE = "value must be unique. Duplicate values found";
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    message:
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+  };
+  const UNIQUE_ERROR_MESSAGE = {
+    name: "ValidationError",
+    message: "value must be unique. Duplicate values found",
+  };
 
   const hasUniqueValues = (arr: unknown[]) => {
     const uniqueValues = new Set(arr);
@@ -64,7 +70,7 @@ export function defaultOptionValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     };
   }
 
@@ -115,7 +121,7 @@ export function defaultOptionValueValidation(
   return {
     isValid: true,
     parsed: values,
-    messages: [""],
+    messages: [{ name: "", message: "" }],
   };
 }
 

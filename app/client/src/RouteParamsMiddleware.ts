@@ -4,6 +4,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { UpdatePageResponse } from "api/PageApi";
 import urlBuilder, {
   ApplicationURLParams,
   PageURLParams,
@@ -69,7 +70,7 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
       break;
     }
     case ReduxActionTypes.UPDATE_PAGE_SUCCESS: {
-      const page = action.payload;
+      const page: UpdatePageResponse = action.payload;
       pageParams = [
         {
           pageSlug: page.slug,

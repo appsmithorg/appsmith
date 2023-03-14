@@ -347,3 +347,5 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     JSON.stringify(prev.columns) === JSON.stringify(next.columns)
   );
 });
+
+ReactTableComponent.displayName = "ReactTableComponent";

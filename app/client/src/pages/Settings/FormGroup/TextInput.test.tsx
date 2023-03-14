@@ -3,13 +3,14 @@ import React from "react";
 import {
   SettingTypes,
   SettingSubtype,
+  Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import TextInput from "./TextInput";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
 
 let container: any = null;
-const setting = {
+const setting: Setting = {
   id: "SETTING_TEXT_INPUT_ID",
   name: "SETTING_TEXT_INPUT_ID",
   category: "test category",

@@ -17,7 +17,6 @@ export interface INJECTED_CONFIGS {
   enableGithubOAuth: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
-  disableTelemetry: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -80,9 +79,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     disableSignup: process.env.APPSMITH_SIGNUP_DISABLED
       ? process.env.APPSMITH_SIGNUP_DISABLED.length > 0
-      : false,
-    disableTelemetry: process.env.APPSMITH_DISABLE_TELEMETRY
-      ? process.env.APPSMITH_DISABLE_TELEMETRY.length > 0
       : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
@@ -148,7 +144,6 @@ const getConfig = (fromENV: string, fromWindow = "") => {
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const { APPSMITH_FEATURE_CONFIGS } = window;
   const ENV_CONFIG = getConfigsFromEnvVars();
-
   // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
   const sentryDSN = getConfig(
     ENV_CONFIG.sentry.dsn,
@@ -170,7 +165,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.fusioncharts.licenseKey,
     APPSMITH_FEATURE_CONFIGS.fusioncharts.licenseKey,
   );
-  const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
 
   const googleRecaptchaSiteKey = getConfig(
     ENV_CONFIG.googleRecaptchaSiteKey,
@@ -240,13 +234,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     algolia: {
       enabled: true,
       apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
-      apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
-      indexName: algoliaIndex.value || "test_appsmith",
+      apiKey: algoliaAPIKey.value || "dfde934d9bdc2e0b14830f1dd3cb240f",
+      indexName: algoliaIndex.value || "omnibar_docusaurus_index",
       snippetIndex: algoliaSnippetIndex.value || "snippet",
-    },
-    google: {
-      enabled: google.enabled,
-      apiKey: google.value,
     },
     googleRecaptchaSiteKey: {
       enabled: googleRecaptchaSiteKey.enabled,
@@ -261,8 +251,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     disableSignup:
       ENV_CONFIG.disableSignup || APPSMITH_FEATURE_CONFIGS.disableSignup,
-    disableTelemetry:
-      ENV_CONFIG.disableTelemetry || APPSMITH_FEATURE_CONFIGS.disableTelemetry,
     enableGoogleOAuth:
       ENV_CONFIG.enableGoogleOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Dropdown, DropdownOption, RenderOption } from "design-system";
+import { Dropdown, DropdownOption, RenderOption } from "design-system-old";
 import { AppTheme } from "entities/AppTheming";
 
 interface ThemeFontControlProps {
@@ -59,6 +59,9 @@ function ThemeFontControl(props: ThemeFontControlProps) {
           value: option,
           label: option,
         }))}
+        portalContainer={
+          document.getElementById("app-settings-portal") || undefined
+        }
         renderOption={renderOption}
         selected={{
           label: selectedOption,

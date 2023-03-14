@@ -16,7 +16,7 @@ import {
 } from "selectors/entitiesSelector";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
 
@@ -66,7 +66,6 @@ function JSCollectionLink(props: EntityLinkProps) {
       }
     }
   }, []);
-
   return (
     <Link
       entityType={props.type}
@@ -90,8 +89,8 @@ function WidgetLink(props: EntityLinkProps) {
       props.id,
       widget.type,
       widget.pageId,
+      NavigationMethod.EntityExplorer,
       props.id === selectedWidgetId,
-      widget.parentModalId,
     );
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",
@@ -158,12 +157,12 @@ function Link(props: {
         </span>
       );
     case DebuggerLinkUI.ENTITY_NAME:
-      const link =
-        props.entityType === "JSACTION"
-          ? props.name
-          : props.name + "." + props.entityType.toLowerCase();
+      const link = props.name;
       return (
-        <span className="debugger-entity-link" onClick={onClick}>
+        <span
+          className="debugger-entity-link t--debugger-log-entity-link"
+          onClick={onClick}
+        >
           {link}
         </span>
       );

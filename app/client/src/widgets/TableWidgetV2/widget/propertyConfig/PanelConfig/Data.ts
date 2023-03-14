@@ -10,10 +10,11 @@ import {
   hideByColumnType,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
@@ -78,6 +79,7 @@ export default {
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
+        updateMenuItemsSource,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
@@ -93,6 +95,8 @@ export default {
       propertyName: "alias",
       label: "Property Name",
       controlType: "INPUT_TEXT",
+      helperText: () =>
+        "Changing the name of the column overrides any changes to this field",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;
@@ -148,6 +152,9 @@ export default {
       propertyName: "computedValue",
       label: "Computed Value",
       controlType: "TABLE_COMPUTE_VALUE",
+      additionalControlData: {
+        isArrayValue: true,
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.DATE,
@@ -167,7 +174,7 @@ export default {
     },
     {
       propertyName: "inputFormat",
-      label: "Original Date Format",
+      label: "Date Format",
       helpText: "Date format of incoming data to the column",
       controlType: "DROP_DOWN",
       options: [
@@ -258,12 +265,12 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "date";
+        return columnType !== ColumnTypes.DATE;
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -296,7 +303,7 @@ export default {
     },
     {
       propertyName: "outputFormat",
-      label: "Display Date Format",
+      label: "Display Format",
       helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -387,12 +394,12 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "date";
+        return columnType !== ColumnTypes.DATE;
       },
       dependencies: ["primaryColumns", "columnType"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

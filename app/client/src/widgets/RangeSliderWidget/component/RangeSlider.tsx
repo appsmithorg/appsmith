@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import throttle from "lodash/throttle";
 
-import { LabelWithTooltip } from "design-system";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
@@ -64,6 +64,9 @@ export interface RangeSliderComponentProps
   /** If true label will be not be hidden when user stops dragging */
   tooltipAlwaysOn: boolean;
 
+  /** helpText for the label tooltip */
+  labelTooltip?: string;
+
   /** Disables slider */
   disabled?: boolean;
 
@@ -106,6 +109,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     loading,
     marks,
@@ -314,6 +318,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           loading={loading}
           position={labelPosition}
           text={labelText}

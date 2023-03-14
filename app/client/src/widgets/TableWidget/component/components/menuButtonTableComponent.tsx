@@ -19,12 +19,12 @@ import {
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import { ThemeProp } from "components/ads/common";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
 import orderBy from "lodash/orderBy";
+import { ThemeProp } from "widgets/constants";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -100,7 +100,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       } !important;
     }
 
-    &:hover:enabled, &:active:enabled {
+    &:hover:enabled, &:active:enabled. &:focus:enabled {
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)

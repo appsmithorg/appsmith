@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -16,7 +15,7 @@ import { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "../../../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -28,12 +27,13 @@ import {
   Category,
   Dropdown,
   DropdownOption,
+  getTypographyByKey,
   IconName,
   IconSize,
   RenderDropdownOptionType,
   Size,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -60,7 +60,7 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -105,7 +105,7 @@ const FormWrapper = styled.div`
 `;
 
 const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${(props) => getTypographyByKey(props, "btnLarge")};
+  ${getTypographyByKey("btnLarge")};
   color: ${Colors.DOVE_GRAY2};
   margin: 10px 0px;
 `;
@@ -122,7 +122,7 @@ const DescWrapper = styled.div`
 `;
 
 const Title = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   font-weight: 500;
   color: ${Colors.CODE_GRAY};
   font-size: 24px;
@@ -158,7 +158,7 @@ function GeneratePageSubmitBtn({
 }) {
   return showSubmitButton ? (
     <FormSubmitButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-cy="t--generate-page-form-submit"
       disabled={disabled}
       isLoading={isLoading}
@@ -469,7 +469,7 @@ function GeneratePageForm() {
       const datasourceId = queryParams.datasourceId;
       const generateNewPage = queryParams.new_page;
       if (datasourceId) {
-        if (generateNewPage) {
+        if (generateNewPage || numberOfEntities > 0) {
           currentMode.current = GENERATE_PAGE_MODE.NEW;
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
@@ -482,7 +482,7 @@ function GeneratePageForm() {
         history.replace(redirectURL);
       }
     }
-  }, [querySearch, setDatasourceIdToBeSelected]);
+  }, [numberOfEntities, querySearch, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
@@ -672,7 +672,7 @@ function GeneratePageForm() {
         ) : null}
         {showEditDatasourceBtn && (
           <EditDatasourceButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={goToEditDatasource}
             size={Size.medium}
             text="Edit Datasource"

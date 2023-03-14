@@ -8,9 +8,9 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const VariableWrapper = styled.div`
   display: flex;
@@ -62,6 +62,7 @@ function VariableEditor(props: VariableProps) {
       <DynamicTextField
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
+        evaluatedPopUpLabel={"Query Variables"}
         expected={EXPECTED_VARIABLE}
         height="100%"
         mode={EditorModes.JSON_WITH_BINDING}

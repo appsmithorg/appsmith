@@ -10,8 +10,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
 } from "constants/WidgetConstants";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
 
@@ -78,10 +77,17 @@ export type BlueprintOperationChildOperationsFn = (
   },
 ) => ChildOperationFnResponse;
 
+export type BlueprintBeforeOperationsFn = (
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+  parentId: string,
+) => void;
+
 export type BlueprintOperationFunction =
   | BlueprintOperationModifyPropsFn
   | BlueprintOperationAddActionFn
-  | BlueprintOperationChildOperationsFn;
+  | BlueprintOperationChildOperationsFn
+  | BlueprintBeforeOperationsFn;
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
 
@@ -139,30 +145,39 @@ export function* executeWidgetBlueprintOperations(
 export function* executeWidgetBlueprintChildOperations(
   operation: BlueprintOperation,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
-  widgetId: string,
+  widgetIds: string[],
   parentId: string,
 ) {
   // TODO(abhinav): Special handling for child operaionts
   // This needs to be deprecated soon
 
-  // Get the default properties map of the current widget
-  // The operation can handle things based on this map
-  // Little abstraction leak, but will be deprecated soon
-  const widgetPropertyMaps = {
-    defaultPropertyMap: WidgetFactory.getWidgetDefaultPropertiesMap(
-      canvasWidgets[widgetId].type as WidgetType,
-    ),
-  };
+  let widgets = canvasWidgets,
+    message;
 
-  const {
-    message,
-    widgets,
-  } = (operation.fn as BlueprintOperationChildOperationsFn)(
-    canvasWidgets,
-    widgetId,
-    parentId,
-    widgetPropertyMaps,
-  );
+  for (const widgetId of widgetIds) {
+    // Get the default properties map of the current widget
+    // The operation can handle things based on this map
+    // Little abstraction leak, but will be deprecated soon
+    const widgetPropertyMaps = {
+      defaultPropertyMap: WidgetFactory.getWidgetDefaultPropertiesMap(
+        canvasWidgets[widgetId].type as WidgetType,
+      ),
+    };
+
+    let currMessage;
+
+    ({
+      message: currMessage,
+      widgets,
+    } = (operation.fn as BlueprintOperationChildOperationsFn)(
+      widgets,
+      widgetId,
+      parentId,
+      widgetPropertyMaps,
+    ));
+    //set message if one of the widget has any message to show
+    if (currMessage) message = currMessage;
+  }
 
   // If something odd happens show the message related to the odd scenario
   if (message) {
@@ -190,7 +205,7 @@ export function* executeWidgetBlueprintChildOperations(
  */
 export function* traverseTreeAndExecuteBlueprintChildOperations(
   parent: FlattenedWidgetProps,
-  newWidgetId: string,
+  newWidgetIds: string[],
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   let root = parent;
@@ -216,7 +231,7 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
         executeWidgetBlueprintChildOperations,
         blueprintChildOperation,
         widgets,
-        newWidgetId,
+        newWidgetIds,
         root.widgetId,
       );
 
@@ -229,4 +244,36 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
   }
 
   return widgets;
+}
+
+type ExecuteWidgetBlueprintBeforeOperationsParams = {
+  parentId: string;
+  widgetId: string;
+  widgets: { [widgetId: string]: FlattenedWidgetProps };
+  widgetType: WidgetType;
+};
+
+export function* executeWidgetBlueprintBeforeOperations(
+  blueprintOperation: Extract<
+    BlueprintOperationTypes,
+    | BlueprintOperationTypes.BEFORE_ADD
+    | BlueprintOperationTypes.BEFORE_DROP
+    | BlueprintOperationTypes.BEFORE_PASTE
+  >,
+  params: ExecuteWidgetBlueprintBeforeOperationsParams,
+) {
+  const { parentId, widgetId, widgets, widgetType } = params;
+  const blueprintOperations: BlueprintOperation[] =
+    WidgetFactory.widgetConfigMap.get(widgetType)?.blueprint?.operations ?? [];
+
+  const beforeAddOperation = blueprintOperations.find(
+    (operation) => operation.type === blueprintOperation,
+  );
+
+  if (beforeAddOperation)
+    (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
+      widgets,
+      widgetId,
+      parentId,
+    );
 }

@@ -3,6 +3,7 @@ import { Alignment } from "@blueprintjs/core";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -21,9 +22,9 @@ export const CONFIG = {
     defaultOptionValue: "md",
     isVisible: true,
     isDisabled: false,
-    showMarksLabel: false,
+    showMarksLabel: true,
     rows: 8,
-    columns: 42,
+    columns: 40,
     widgetName: "CategorySlider",
     shouldScroll: false,
     shouldTruncate: false,
@@ -35,6 +36,7 @@ export const CONFIG = {
     labelWidth: 5,
     labelTextSize: "0.875rem",
     sliderSize: "m",
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -42,6 +44,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

@@ -1,12 +1,16 @@
 import React from "react";
 import { Collapsible } from ".";
-import { Icon, IconSize } from "design-system";
+import {
+  Classes,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system-old";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
-import { Text, TextType } from "design-system";
-import { Classes } from "components/ads/common";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
@@ -59,7 +63,7 @@ const ConnectionsContainer = styled.span`
       ${(props) => props.theme.colors.actionSidePane.connectionBorder};
     padding: ${(props) => props.theme.spaces[0] + 2}px
       ${(props) => props.theme.spaces[1]}px;
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

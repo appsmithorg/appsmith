@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,10 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
 
     @Autowired
     public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+                                           @NonNull MongoConverter mongoConverter,
+                                           CacheableRepositoryHelper cacheableRepositoryHelper,
+                                           ApplicationPermission applicationPermission) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
     }
 
 }

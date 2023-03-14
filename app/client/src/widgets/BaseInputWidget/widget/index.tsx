@@ -1,17 +1,19 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { WidgetType } from "constants/WidgetConstants";
+import { LabelPosition } from "components/constants";
 import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import React from "react";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
-import { LabelPosition } from "components/constants";
+import { checkInputTypeTextByProps } from "../utils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -47,6 +49,7 @@ class BaseInputWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -146,7 +149,7 @@ class BaseInputWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: BaseInputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },
@@ -174,6 +177,28 @@ class BaseInputWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Show arrows to increase or decrease values",
+            propertyName: "showStepArrows",
+            label: "Show Step Arrows",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: false,
+              },
+            },
+            hidden: (props: BaseInputWidgetProps) => {
+              return (
+                props.type !== "CURRENCY_INPUT_WIDGET" &&
+                props.inputType !== InputTypes.NUMBER
+              );
+            },
+            dependencies: ["inputType"],
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -231,6 +256,7 @@ class BaseInputWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -238,6 +264,24 @@ class BaseInputWidget<
             helpText: "Triggers an action when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field receives focus",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field loses focus",
+            propertyName: "onBlur",
+            label: "onBlur",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -335,7 +379,7 @@ class BaseInputWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -426,7 +470,6 @@ class BaseInputWidget<
      * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
      */
     this.props.updateWidgetMetaProperty("dragDisabled", focusState);
-    this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
   resetWidgetText() {
@@ -448,27 +491,46 @@ class BaseInputWidget<
   ) {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
-      /**
-       * Originally super.executeAction was used to trigger the ON_SUBMIT action and
-       * updateMetaProperty to update the text.
-       * Since executeAction is not queued and updateMetaProperty is,
-       * the user would observe that the data tree only gets partially updated with text
-       * before the ON_SUBMIT would get triggered,
-       * if they type {enter} really fast after typing some input text.
-       * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
-       * before we actually execute the action.
-       * Since updateMetaProperty expects a meta property to be updated,
-       * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
-       */
-      this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
-        triggerPropertyName: "onSubmit",
-        dynamicString: onSubmit,
-        event: {
-          type: EventType.ON_SUBMIT,
-          callback: this.onSubmitSuccess,
-        },
-      });
+
+    if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
+      if (
+        isEnterKey &&
+        (e.metaKey || e.ctrlKey) &&
+        typeof onSubmit === "string" &&
+        onSubmit
+      ) {
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+    } else {
+      if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
+        /**
+         * Originally super.executeAction was used to trigger the ON_SUBMIT action and
+         * updateMetaProperty to update the text.
+         * Since executeAction is not queued and updateMetaProperty is,
+         * the user would observe that the data tree only gets partially updated with text
+         * before the ON_SUBMIT would get triggered,
+         * if they type {enter} really fast after typing some input text.
+         * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
+         * before we actually execute the action.
+         * Since updateMetaProperty expects a meta property to be updated,
+         * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
+         */
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
     }
   }
 

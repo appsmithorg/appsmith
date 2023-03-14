@@ -1,47 +1,49 @@
-import React from "react";
-import log from "loglevel";
+import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
+import { Positioning } from "utils/autoLayout/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WidgetType,
+} from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { PrivateWidgets } from "entities/DataTree/types";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona/lite";
 import {
   compact,
   get,
-  set,
-  xor,
-  isNumber,
-  range,
-  toString,
   isBoolean,
-  omit,
   isEmpty,
+  isNumber,
+  omit,
+  range,
+  set,
+  toString,
+  xor,
 } from "lodash";
+import log from "loglevel";
 import memoizeOne from "memoize-one";
+import React from "react";
 import shallowEqual from "shallowequal";
-import WidgetFactory from "utils/WidgetFactory";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
+import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import {
-  RenderModes,
-  WidgetType,
-  GridDefaults,
-} from "constants/WidgetConstants";
+import { DSLWidget } from "widgets/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
+import ListPagination, {
+  ServerSideListPagination,
+} from "../component/ListPagination";
+import derivedProperties from "./parseDerivedProperties";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import ListPagination, {
-  ServerSideListPagination,
-} from "../component/ListPagination";
-import { ValidationTypes } from "constants/WidgetValidation";
-import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget } from "widgets/constants";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -69,6 +71,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
   }
 
@@ -361,6 +371,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.bottomRow = shouldPaginate
       ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
+    const positioning: Positioning =
+      this.props.positioning || childWidgetData.positioning;
+    childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -430,6 +444,37 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
           const validationPath = get(widget, `validationPaths`)[path];
+
+          /**
+           * Following conditions are special cases written to support
+           * Dynamic Menu Items (Menu Button Widget) inside the List Widget.
+           *
+           * This is an interim fix since List Widget V2 is just around the corner.
+           *
+           * Here we are simply setting the evaluated value as it is without tampering it.
+           * This is crucial for dynamic menu items to operate in the menu button widget
+           *
+           * The menu button widget decides if the value entered in the property pane is
+           * to be converted and interpreted to as an Array or a Type (boolean and text
+           * being the most used ones). This is done because if someone has used the
+           * {{currentItem}} binding to configure the menu item inside the widget, then the
+           * widget will need an array of evaluated values for the respective menu items.
+           * However, if the {{currentItem}} binding is not used, then we only need one
+           * single value for all menu items.
+           *
+           * Dynamic Menu Items (Menu Button Widget) -
+           * https://github.com/appsmithorg/appsmith/pull/17652
+           */
+          if (
+            (path.includes("configureMenuItems.config") &&
+              validationPath?.type === ValidationTypes.ARRAY_OF_TYPE_OR_TYPE) ||
+            (path === "sourceData" &&
+              validationPath?.type === ValidationTypes.FUNCTION)
+          ) {
+            set(widget, path, evaluatedValue);
+
+            return;
+          }
 
           if (
             (validationPath?.type === ValidationTypes.BOOLEAN &&
@@ -560,6 +605,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         `widgetId`,
         `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
       );
+
+      set(widget, `isAutoGeneratedWidget`, true);
 
       if (this.props.renderMode === RenderModes.CANVAS) {
         set(widget, `resizeDisabled`, true);

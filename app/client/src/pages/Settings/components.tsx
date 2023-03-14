@@ -3,7 +3,7 @@ import { Classes } from "@blueprintjs/core";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-top: 40px;
+  padding: 40px 0 0 24px;
 `;
 
 export const HeaderWrapper = styled.div<{ margin?: string }>`

@@ -1,5 +1,5 @@
 import CodeMirror from "codemirror";
-import TernServer from "utils/autocomplete/TernServer";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -11,12 +11,12 @@ export const bindingHint: HintHelper = (editor) => {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
-      checkIfCursorInsideBinding(cm) && TernServer.complete(cm),
+      checkIfCursorInsideBinding(cm) && CodemirrorTernService.complete(cm),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
-      TernServer.showType(cm);
+      CodemirrorTernService.showType(cm);
     },
     [KeyboardShortcuts.CodeEditor.OpenDocsLink]: (cm: CodeMirror.Editor) => {
-      TernServer.showDocs(cm);
+      CodemirrorTernService.showDocs(cm);
     },
   });
   return {
@@ -26,12 +26,12 @@ export const bindingHint: HintHelper = (editor) => {
       additionalData,
     ): boolean => {
       if (additionalData && additionalData.blockCompletions) {
-        TernServer.setEntityInformation({
+        CodemirrorTernService.setEntityInformation({
           ...entityInformation,
           blockCompletions: additionalData.blockCompletions,
         });
       } else {
-        TernServer.setEntityInformation(entityInformation);
+        CodemirrorTernService.setEntityInformation(entityInformation);
       }
 
       const entityType = entityInformation?.entityType;
@@ -43,7 +43,7 @@ export const bindingHint: HintHelper = (editor) => {
       }
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
-        TernServer.complete(editor);
+        CodemirrorTernService.complete(editor);
         return true;
       }
       // @ts-expect-error: Types are not available

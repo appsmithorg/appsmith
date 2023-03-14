@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { BranchListItemContainer } from "./BranchListItemContainer";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";

@@ -374,7 +374,10 @@ const actionsReducer = createReducer(initialState, {
   ): ActionDataState =>
     state.filter((a) => {
       if (a.config.pageId === action.payload.destinationPageId) {
-        if (a.config.id === action.payload.id) {
+        if (
+          a.config.id === action.payload.id ||
+          a.config.id === "TEMP_COPY_ID"
+        ) {
           return a.config.name !== action.payload.name;
         }
         return true;

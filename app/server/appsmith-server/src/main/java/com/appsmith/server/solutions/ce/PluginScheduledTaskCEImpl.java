@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.util.WebClientUtils;
@@ -21,6 +22,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -99,7 +101,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
     private Mono<Map<PluginIdentifier, Plugin>> getRemotePlugins() {
 
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        if (StringUtils.isEmpty(baseUrl)) {
+        if (!StringUtils.hasLength(baseUrl)) {
             return Mono.empty();
         }
 
@@ -109,10 +111,15 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                                 baseUrl + "/api/v1/plugins?instanceId=" + instanceId
                                         + "&lastUpdatedAt=" + lastUpdatedAt)
                         .get()
-                        .exchange()
-                        .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {
+                        .exchangeToMono(clientResponse -> clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {
                         }))
-                        .map(ResponseDTO::getData)
+                        .map(listResponseDTO -> {
+                            if (listResponseDTO.getData() == null) {
+                                log.error("Error fetching plugins from cloud-services. Error: {}", listResponseDTO.getErrorDisplay());
+                                return Collections.<Plugin>emptyList();
+                            }
+                            return listResponseDTO.getData();
+                        })
                         .map(plugins -> {
                             // Set new updated time
                             this.lastUpdatedAt = Instant.now();

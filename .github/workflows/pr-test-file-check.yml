@@ -1,0 +1,33 @@
+name: Check for test files
+
+on:
+  pull_request:
+    branches: [ release ]
+    types: [ opened, reopened, edited ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get changed files using defaults
+        id: changed-files
+        uses: trilom/file-changes-action@v1.2.3
+        continue-on-error: true
+
+      - name: Ger labels of the PR
+        id: labels
+        uses: joerick/pr-labels-action@v1.0.6
+        continue-on-error: true
+
+      - name: Comment if test files not found
+        uses: actions-ecosystem/action-create-comment@v1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        if: |
+          contains(fromJson('["cypress", "test"]'), toJson(steps.changed-files.outputs.files_modified)) == false &&
+          contains(fromJson('["Bug", "Enhancement", "Pod"]'), toJson(steps.labels.outputs.labels)) == true
+        with:
+          github_token: ${{ secrets.github_token }}
+          body: |
+            Unable to find test scripts. Please add necessary tests to the PR.

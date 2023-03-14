@@ -60,6 +60,7 @@ type ActionNameEditorProps = {
     In future, when default component will be ads editable-text, then we can remove this prop.
   */
   page?: string;
+  disabled?: boolean;
 };
 
 function ActionNameEditor(props: ActionNameEditorProps) {
@@ -109,6 +110,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
             <EditableText
               className="t--action-name-edit-field"
               defaultValue={currentActionConfig ? currentActionConfig.name : ""}
+              disabled={props.disabled}
               editInteractionKind={EditInteractionKind.SINGLE}
               errorTooltipClass="t--action-name-edit-error"
               forceDefault={forceUpdate}

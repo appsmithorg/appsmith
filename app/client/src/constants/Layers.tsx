@@ -57,6 +57,8 @@ export const Layers = {
   evaluationPopper: Indices.Layer3,
   concurrentEditorWarning: Indices.Layer2,
   manualUpgrade: Indices.Layer10,
+
+  autoHeightWithLimitsOverlay: Indices.Layer3,
 };
 
 export const tailwindLayers = {

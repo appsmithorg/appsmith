@@ -1,11 +1,21 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import { TimePrecision } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 3,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "DatePicker",
   iconSVG: IconSVG,
@@ -33,6 +43,8 @@ export const CONFIG = {
     firstDayOfWeek: 0,
     timePrecision: TimePrecision.MINUTE,
     animateLoading: true,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -41,6 +53,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

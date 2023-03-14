@@ -7,8 +7,7 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { User } from "constants/userConstants";
@@ -22,14 +21,17 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { put, takeLatest, call, select } from "redux-saga/effects";
 import {
   ERROR_401,
+  ERROR_403,
   ERROR_500,
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
+import store from "store";
 
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
+import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 
 /**
  * making with error message with action name
@@ -49,16 +51,21 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 }
 
 /**
- * transforn server errors to client error codes
+ * transform server errors to client error codes
  *
  * @param code
+ * @param resourceType
  */
-const getErrorMessage = (code: number) => {
+const getErrorMessage = (code: number, resourceType = "") => {
   switch (code) {
     case 401:
       return createMessage(ERROR_401);
     case 500:
       return createMessage(ERROR_500);
+    case 403:
+      return createMessage(() =>
+        ERROR_403(resourceType, getCurrentUser(store.getState())?.email || ""),
+      );
     case 0:
       return createMessage(ERROR_0);
   }
@@ -71,6 +78,7 @@ export class IncorrectBindingError extends Error {}
  * @throws {Error}
  * @param response
  * @param show
+ * @param logToSentry
  */
 export function* validateResponse(
   response: ApiResponse | any,
@@ -90,14 +98,15 @@ export function* validateResponse(
     throw Error(getErrorMessage(0));
   }
   if (!response.responseMeta && response.status) {
-    throw Error(getErrorMessage(response.status));
+    throw Error(getErrorMessage(response.status, response.resourceType));
   }
   if (response.responseMeta.success) {
     return true;
   }
   if (
-    response.responseMeta.error.code ===
-    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
+      response.responseMeta.error.code,
+    )
   ) {
     throw new IncorrectBindingError(response.responseMeta.error.message);
   }
@@ -240,9 +249,22 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
-      window.location.href,
-    )}`;
+    const queryParams = new URLSearchParams(window.location.search);
+    const embedQueryParam = queryParams.get("embed");
+    const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
+    const ssoLoginUrl =
+      embedQueryParam === "true" && ssoTriggerQueryParam
+        ? getLoginUrl(ssoTriggerQueryParam || "")
+        : null;
+    if (ssoLoginUrl) {
+      window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
+        window.location.href,
+      )}`;
+    } else {
+      window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+        window.location.href,
+      )}`;
+    }
 
     return false;
   }
@@ -269,6 +291,7 @@ export function* flushErrorsAndRedirectSaga(
   if (safeCrash) {
     yield put(flushErrors());
   }
+  if (!action.payload.url) return;
 
   history.push(action.payload.url);
 }

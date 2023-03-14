@@ -7,8 +7,8 @@ import {
   Size,
   Text,
   TextType,
-} from "design-system";
-import { Variant } from "components/ads/common";
+  Variant,
+} from "design-system-old";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,
@@ -74,7 +74,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
         </Text>
         <ButtonWrapper>
           <ImportButton
-            category={Category.tertiary}
+            category={Category.secondary}
             className=".button-item"
             onClick={onClose}
             size={Size.large}

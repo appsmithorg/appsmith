@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -35,7 +34,8 @@ public class UserProfileDTO {
     @JsonProperty("isConfigurable")
     boolean isConfigurable = false;
 
-    CommentOnboardingState commentOnboardingState;
+    @JsonProperty("adminSettingsVisible")
+    boolean adminSettingsVisible = false;
 
     String photoId;
 

@@ -1,20 +1,23 @@
-import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isArray, compact, isNumber } from "lodash";
+import { compact, isArray, isNumber } from "lodash";
+import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { RadioOption } from "../constants";
-import { LabelPosition } from "components/constants";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import RadioGroupComponent from "../component";
+import { RadioOption } from "../constants";
 
 /**
  * Validation rules:
@@ -32,7 +35,7 @@ export function optionsCustomValidation(
     _: any,
   ) => {
     let _isValid = true;
-    let message = "";
+    let message = { name: "", message: "" };
     let valueType = "";
     const uniqueLabels: Record<string | number, string> = {};
 
@@ -46,15 +49,21 @@ export function optionsCustomValidation(
         uniqueLabels[value] = "";
       } else {
         _isValid = false;
-        message = "path:value must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "path:value must be unique. Duplicate values found",
+        };
         break;
       }
 
       //Check if the required field "label" is present:
       if (!label) {
         _isValid = false;
-        message =
-          "Invalid entry at index: " + i + ". Missing required key: label";
+        message = {
+          name: "ValidationError",
+          message:
+            "Invalid entry at index: " + i + ". Missing required key: label",
+        };
         break;
       }
 
@@ -65,25 +74,34 @@ export function optionsCustomValidation(
         (typeof label !== "string" && typeof label !== "number")
       ) {
         _isValid = false;
-        message =
-          "Invalid entry at index: " +
-          i +
-          ". Value of key: label is invalid: This value does not evaluate to type string";
+        message = {
+          name: "ValidationError",
+          message:
+            "Invalid entry at index: " +
+            i +
+            ". Value of key: label is invalid: This value does not evaluate to type string",
+        };
         break;
       }
 
       //Check if all the data types for the value prop is the same.
       if (typeof value !== valueType) {
         _isValid = false;
-        message = "All value properties in options must have the same type";
+        message = {
+          name: "TypeError",
+          message: "All value properties in options must have the same type",
+        };
         break;
       }
 
       //Check if the each object has value property.
       if (_.isNil(value)) {
         _isValid = false;
-        message =
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>';
+        message = {
+          name: "TypeError",
+          message:
+            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+        };
         break;
       }
     }
@@ -99,7 +117,11 @@ export function optionsCustomValidation(
     isValid: false,
     parsed: [],
     messages: [
-      'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      {
+        name: "TypeError",
+        message:
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      },
     ],
   };
   try {
@@ -126,7 +148,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 
@@ -135,7 +162,12 @@ function defaultOptionValidation(
     return {
       isValid: false,
       parsed: value,
-      messages: ["This value does not evaluate to type: string or number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value does not evaluate to type: string or number",
+        },
+      ],
     };
   }
 
@@ -225,6 +257,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -292,6 +325,16 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -335,6 +378,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -415,7 +459,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -497,6 +541,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
+    };
+  }
+
   componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
@@ -535,6 +586,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         disabled={isDisabled}
         height={componentHeight}
         inline={Boolean(isInline)}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -542,6 +594,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelText={label}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}

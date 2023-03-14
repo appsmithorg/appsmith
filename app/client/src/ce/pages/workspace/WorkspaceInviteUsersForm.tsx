@@ -46,24 +46,26 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
+  Classes,
   Callout,
+  DropdownOption,
   Size,
   Text,
   TextType,
   TextProps,
-  DropdownOption,
-} from "design-system";
-import { Classes, Variant } from "components/ads/common";
+  Variant,
+} from "design-system-old";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { ScrollIndicator } from "design-system";
-import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
-import { fetchWorkspace } from "actions/workspaceActions";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+
+const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
 export const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
@@ -261,7 +263,10 @@ const validateFormValues = (values: {
     _users.forEach((user) => {
       if (!isEmail(user)) {
         throw new SubmissionError({
-          _error: createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST),
+          _error: createMessage(
+            INVITE_USERS_VALIDATION_EMAIL_LIST,
+            cloudHosting,
+          ),
         });
       }
     });
@@ -293,14 +298,15 @@ const validate = (values: any) => {
 
     _users.forEach((user: string) => {
       if (!isEmail(user)) {
-        errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        errors["users"] = createMessage(
+          INVITE_USERS_VALIDATION_EMAIL_LIST,
+          cloudHosting,
+        );
       }
     });
   }
   return errors;
 };
-
-export const { mailEnabled } = getAppsmithConfigs();
 
 export const InviteButtonWidth = "88px";
 
@@ -375,7 +381,7 @@ function WorkspaceInviteUsersForm(props: any) {
       : props.roles.map((role: any) => {
           return {
             id: role.id,
-            value: role.name,
+            value: role.name?.split(" - ")[0],
             label: role.description,
           };
         });
@@ -428,18 +434,8 @@ function WorkspaceInviteUsersForm(props: any) {
     );
   };
 
-  const errorHandler = (error: string, values: string[]) => {
-    if (values && values.length > 0) {
-      let error = "";
-      values.forEach((user: any) => {
-        if (!isEmail(user)) {
-          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
-        }
-      });
-      setEmailError(error);
-    } else {
-      props.customError?.("");
-    }
+  const errorHandler = (error: string) => {
+    setEmailError(error);
   };
 
   return (
@@ -455,13 +451,19 @@ function WorkspaceInviteUsersForm(props: any) {
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
-          AnalyticsUtil.logEvent("INVITE_USER", values);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
           const users = usersAsStringsArray
             .filter((user: any) => isEmail(user))
             .join(",");
+          AnalyticsUtil.logEvent("INVITE_USER", {
+            ...(cloudHosting ? { users: usersAsStringsArray } : {}),
+            role: isMultiSelectDropdown
+              ? selectedOption.map((group: any) => group.id).join(",")
+              : [selectedOption[0].id],
+            numberOfUsersInvited: usersAsStringsArray.length,
+          });
           return inviteUsersToWorkspace(
             {
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
@@ -479,15 +481,13 @@ function WorkspaceInviteUsersForm(props: any) {
           <div className="wrapper">
             <TagListField
               autofocus
-              customError={(err: string, values?: string[]) =>
-                errorHandler(err, values || [])
-              }
+              customError={(err: string) => errorHandler(err)}
               data-cy="t--invite-email-input"
               intent="success"
               label="Emails"
               name="users"
-              placeholder={placeholder || "Enter email address"}
-              type="text"
+              placeholder={placeholder || "Enter email address(es)"}
+              type="email"
             />
             <SelectField
               allowDeselection={isMultiSelectDropdown}
@@ -548,13 +548,18 @@ function WorkspaceInviteUsersForm(props: any) {
                     permissionGroupId: string;
                     permissionGroupName: string;
                     initials: string;
+                    photoId?: string;
                   }) => {
                     return (
                       <Fragment key={user.username}>
                         <User>
                           <UserInfo>
                             <ProfileImage
-                              source={`/api/${UserApi.photoURL}/${user.username}`}
+                              source={
+                                user.photoId
+                                  ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                  : undefined
+                              }
                               userName={user.name || user.username}
                             />
                             <UserName>
@@ -564,7 +569,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
-                              {user.permissionGroupName}
+                              {user.permissionGroupName?.split(" - ")[0]}
                             </Text>
                           </UserRole>
                         </User>
@@ -574,7 +579,6 @@ function WorkspaceInviteUsersForm(props: any) {
                     );
                   },
                 )}
-                <ScrollIndicator containerRef={userRef} mode="DARK" />
               </UserList>
             )}
           </>
@@ -639,6 +643,7 @@ export default connect(
       applicationId?: string;
       workspaceId?: string;
       isApplicationInvite?: boolean;
+      placeholder?: string;
     }
   >({
     validate,

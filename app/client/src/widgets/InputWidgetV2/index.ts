@@ -1,9 +1,19 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 3,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Input",
   iconSVG: IconSVG,
@@ -16,6 +26,9 @@ export const CONFIG = {
     inputType: "TEXT",
     widgetName: "Input",
     version: 2,
+    showStepArrows: false,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -24,6 +37,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

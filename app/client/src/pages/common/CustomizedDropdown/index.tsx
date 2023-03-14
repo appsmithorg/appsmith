@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { createGlobalStyle, withTheme } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 import {
   Popover,
   IconName,
@@ -15,7 +15,7 @@ import { MenuIcons } from "icons/MenuIcons";
 import { Intent, IntentColors } from "constants/DefaultTheme";
 import { Direction, Directions } from "utils/helpers";
 import { getDirectionBased } from "./dropdownHelpers";
-import { Theme, Skin } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import {
   Option,
   DropdownContentSection,
@@ -118,9 +118,7 @@ const getContentSection = (
   );
 };
 
-export function CustomizedDropdown(
-  props: CustomizedDropdownProps & { theme: Theme },
-) {
+export function CustomizedDropdown(props: CustomizedDropdownProps) {
   const skin = props.skin ? props.skin : Skin.LIGHT;
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
@@ -183,4 +181,4 @@ export function CustomizedDropdown(
   );
 }
 
-export default withTheme(CustomizedDropdown);
+export default CustomizedDropdown;

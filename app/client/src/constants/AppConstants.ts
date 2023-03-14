@@ -10,7 +10,8 @@ export const CANVAS_DEFAULT_MIN_ROWS = Math.ceil(
 );
 export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
 export const DEFAULT_ENTITY_EXPLORER_WIDTH = 256;
-export const DEFAULT_PROPERTY_PANE_WIDTH = 256;
+export const DEFAULT_PROPERTY_PANE_WIDTH = 288;
+export const APP_SETTINGS_PANE_WIDTH = 525;
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
@@ -42,3 +43,9 @@ export const MOBILE_MAX_WIDTH = 767;
 export const TABLET_MIN_WIDTH = 768;
 export const TABLET_MAX_WIDTH = 991;
 export const DESKTOP_MIN_WIDTH = 992;
+
+//all values are in milliseconds
+export const REQUEST_IDLE_CALLBACK_TIMEOUT = {
+  highPriority: 1500,
+  lowPriority: 3000,
+};

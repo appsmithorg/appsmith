@@ -1,23 +1,25 @@
-import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useState, useCallback, useEffect } from "react";
-import { Route, Switch, useLocation } from "react-router";
+import React, { useCallback } from "react";
+import { Route, Switch, useRouteMatch } from "react-router";
 
-import EditorsRouter from "./routes";
-import BottomBar from "./BottomBar";
-import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
-import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
+import classNames from "classnames";
+import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  WIDGETS_EDITOR_BASE_PATH,
+  WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import EntityExplorerSidebar from "components/editorComponents/Sidebar";
-import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { routeChanged } from "actions/focusHistoryActions";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
+import { getExplorerWidth } from "selectors/explorerSelector";
+import BottomBar from "./BottomBar";
+import WidgetsEditor from "./WidgetsEditor";
+import EditorsRouter from "./routes";
+import styled from "styled-components";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -32,9 +34,8 @@ const Container = styled.div`
 
 function MainContainer() {
   const dispatch = useDispatch();
-  const [sidebarWidth, setSidebarWidth] = useState(
-    DEFAULT_ENTITY_EXPLORER_WIDTH,
-  );
+  const sidebarWidth = useSelector(getExplorerWidth);
+  const { path } = useRouteMatch();
 
   /**
    * on entity explorer sidebar width change
@@ -42,7 +43,7 @@ function MainContainer() {
    * @return void
    */
   const onLeftSidebarWidthChange = useCallback((newWidth) => {
-    setSidebarWidth(newWidth);
+    dispatch(updateExplorerWidthAction(newWidth));
   }, []);
 
   /**
@@ -56,15 +57,9 @@ function MainContainer() {
 
   const isPreviewMode = useSelector(previewModeSelector);
 
-  const location = useLocation();
-
-  useEffect(() => {
-    dispatch(routeChanged(location.pathname, location.hash));
-  }, [location.pathname, location.hash]);
-
   return (
     <>
-      <Container className="w-full overflow-x-hidden">
+      <Container className="relative w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}
@@ -86,17 +81,28 @@ function MainContainer() {
               exact
               path={BUILDER_CUSTOM_PATH}
             />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${WIDGETS_EDITOR_BASE_PATH}`}
+            />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
+            />
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
       </Container>
       <BottomBar
         className={classNames({
-          "translate-y-full fixed bottom-0": isPreviewMode,
-          "translate-y-0 relative opacity-100": !isPreviewMode,
+          "translate-y-full bottom-0": isPreviewMode,
+          "translate-y-0 opacity-100": !isPreviewMode,
           "transition-all transform duration-400": true,
         })}
       />
+      <Installer left={sidebarWidth} />
     </>
   );
 }

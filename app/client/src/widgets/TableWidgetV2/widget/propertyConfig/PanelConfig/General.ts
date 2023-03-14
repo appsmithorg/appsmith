@@ -5,11 +5,13 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   updateColumnLevelEditability,
+  updateColumnOrderWhenFrozen,
   updateInlineEditingOptionDropdownVisibilityHook,
 } from "../../propertyUtils";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "General",
@@ -26,7 +28,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -43,7 +45,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -66,7 +68,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -89,7 +91,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -99,7 +101,6 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
-          ColumnTypes.DATE,
         ]);
       },
     },
@@ -125,7 +126,7 @@ export default {
         updateInlineEditingOptionDropdownVisibilityHook,
       ]),
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -136,6 +137,33 @@ export default {
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
         return !isColumnTypeEditable(columnType) || isDerived;
       },
+    },
+    {
+      propertyName: "sticky",
+      helpText:
+        "Choose column that needs to be frozen left or right of the table",
+      controlType: "ICON_TABS",
+      defaultValue: StickyType.NONE,
+      label: "Column Freeze",
+      fullWidth: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns", "columnOrder"],
+      options: [
+        {
+          icon: "VERTICAL_LEFT",
+          value: StickyType.LEFT,
+        },
+        {
+          icon: "COLUMN_UNFREEZE",
+          value: StickyType.NONE,
+        },
+        {
+          icon: "VERTICAL_RIGHT",
+          value: StickyType.RIGHT,
+        },
+      ],
+      updateHook: updateColumnOrderWhenFrozen,
     },
   ],
 };
@@ -176,7 +204,7 @@ export const GeneralStyle = {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -220,7 +248,7 @@ export const GeneralStyle = {
       isTriggerProperty: false,
       defaultValue: ButtonVariantTypes.PRIMARY,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -234,7 +262,6 @@ export const GeneralStyle = {
         },
       },
     },
-
     {
       propertyName: "imageSize",
       dependencies: ["primaryColumns", "columnType"],

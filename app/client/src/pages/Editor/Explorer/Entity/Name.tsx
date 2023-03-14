@@ -1,7 +1,7 @@
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";

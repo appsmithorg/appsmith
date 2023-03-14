@@ -10,10 +10,11 @@ import {
   TABLE_SIZES,
   CellAlignment,
   VerticalAlignment,
-  scrollbarOnHoverCSS,
   ImageSize,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SCROLLBAR_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
@@ -21,9 +22,8 @@ import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import { TableVariant, TableVariantTypes } from "../constants";
+import { Layers } from "constants/Layers";
 
-const OFFSET_WITHOUT_HEADER = 40;
-const OFFSET_WITH_HEADER = 80;
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
@@ -41,6 +41,8 @@ export const TableWrapper = styled.div<{
   borderWidth?: number;
   isResizingColumn?: boolean;
   variant?: TableVariant;
+  isAddRowInProgress: boolean;
+  multiRowSelection?: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -55,18 +57,41 @@ export const TableWrapper = styled.div<{
   justify-content: space-between;
   flex-direction: column;
   overflow: hidden;
+  .simplebar-track {
+    opacity: 0.7;
+    &.simplebar-horizontal {
+      height: ${TABLE_SCROLLBAR_HEIGHT}px;
+      .simplebar-scrollbar {
+        height: 5px;
+      }
+      &.simplebar-hover {
+        height: 10px;
+        & .simplebar-scrollbar {
+          height: 8px;
+        }
+      }
+    }
+
+    &.simplebar-vertical {
+      direction: rtl;
+      top: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT - 10}px;
+      width: ${TABLE_SCROLLBAR_WIDTH}px;
+      &.simplebar-hover {
+        width: 10px;
+        & .simplebar-scrollbar {
+          width: 11px;
+        }
+      }
+    }
+  }
   .tableWrap {
     height: 100%;
     display: block;
     position: relative;
-    width: ${(props) => props.width}px;
-    overflow-x: auto;
-    ${hideScrollbar};
-    ${scrollbarOnHoverCSS};
-    .thumb-horizontal {
-      height: 4px !important;
-      border-radius: ${(props) => props.theme.radii[3]}px;
-      background: ${(props) => props.theme.colors.scrollbarLight} !important;
+    width: 100%;
+    overflow: auto hidden;
+    &.virtual {
+      ${hideScrollbar};
     }
   }
   .table {
@@ -76,24 +101,11 @@ export const TableWrapper = styled.div<{
     display: table;
     width: 100%;
     ${hideScrollbar};
-    .thead,
     .tbody {
-      overflow: hidden;
-    }
-    .tbody {
-      height: ${(props) =>
-        props.isHeaderVisible
-          ? props.height - OFFSET_WITH_HEADER
-          : props.height - OFFSET_WITHOUT_HEADER}px;
-      width: 100%;
-      overflow-y: auto;
-      ${hideScrollbar};
-    }
-    .tbody.no-scroll {
-      overflow: hidden;
+      height: fit-content;
+      width: fit-content;
     }
     .tr {
-      overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
@@ -105,8 +117,17 @@ export const TableWrapper = styled.div<{
             `${lightenColor(accentColor, "0.9")}`} !important;
         }
       }
-      &:hover {
-        background: var(--wds-color-bg-hover) !important;
+
+      ${(props) => {
+        if (!props.isAddRowInProgress) {
+          return `&:hover {
+            background: var(--wds-color-bg-hover) !important;
+          }`;
+        }
+      }}
+      &.new-row {
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
     }
     .th,
@@ -116,19 +137,22 @@ export const TableWrapper = styled.div<{
         props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
         props.variant === TableVariantTypes.VARIANT3
-          ? `1px solid var(--wds-color-border-onaccent)`
-          : `1px solid transparent`};
+          ? "1px solid var(--wds-color-border-onaccent)"
+          : "none"};
       border-right: ${(props) =>
         props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
         props.isResizingColumn
-          ? `1px solid var(--wds-color-border-onaccent)`
-          : `1px solid transparent`};
+          ? "1px solid var(--wds-color-border-onaccent)"
+          : "none"};
       position: relative;
       font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       :last-child {
         border-right: 0;
+        .resizer {
+          right: 5px;
+        }
       }
       .resizer {
         display: inline-block;
@@ -151,10 +175,6 @@ export const TableWrapper = styled.div<{
       font-size: 14px;
     }
 
-    .thead:hover .th {
-      border-right: 1px solid var(--wds-color-border-onaccent);
-    }
-
     .th {
       padding: 0 10px 0 0;
       height: ${(props) =>
@@ -172,6 +192,66 @@ export const TableWrapper = styled.div<{
       position: sticky;
       top: 0;
       z-index: 1;
+      width: fit-content;
+    }
+  }
+
+  .virtual-list {
+    ${hideScrollbar};
+  }
+
+  .column-freeze {
+    .body {
+      position: relative;
+      z-index: 0;
+    }
+
+    [role="columnheader"] {
+      background-color: var(--wds-color-bg) !important;
+    }
+
+    [data-sticky-td] {
+      position: sticky;
+      position: -webkit-sticky;
+      background-color: inherit;
+      border-bottom: ${(props) =>
+        props.variant === TableVariantTypes.VARIANT2
+          ? "none"
+          : "1px solid var(--wds-color-border-onaccent)"};
+      & .draggable-header {
+        cursor: pointer;
+      }
+      &.hidden-cell,
+      &:has(> .hidden-header) {
+        z-index: 0;
+        position: unset !important;
+      }
+
+      &:has(> .hidden-header) .resizer {
+        position: relative;
+      }
+    }
+
+    [data-sticky-last-left-td] {
+      left: 0px;
+      border-right: 3px solid var(--wds-color-border);
+      &.hidden-cell,
+      &:has(> .hidden-header) {
+        border-right: 0.5px solid var(--wds-color-border);
+      }
+    }
+
+    [data-sticky-first-right-td] {
+      right: 0px;
+      border-left: 3px solid var(--wds-color-border);
+      &.hidden-cell,
+      &:has(> .hidden-header) {
+        border-left: none;
+      }
+    }
+
+    & .sticky-right-modifier {
+      border-left: 3px solid var(--wds-color-border);
     }
   }
 
@@ -191,10 +271,10 @@ export const TableWrapper = styled.div<{
     }
   }
   .draggable-header {
-    cursor: pointer;
+    cursor: grab;
     display: inline-block;
     width: 100%;
-    height: 38px;
+    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT};
     &.reorder-line {
       width: 1px;
       height: 100%;
@@ -204,6 +284,26 @@ export const TableWrapper = styled.div<{
     opacity: 0.6;
 
     ${invisible};
+  }
+  .header-menu {
+    cursor: pointer;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    .bp3-popover2-target {
+      display: block;
+    }
+
+    &.hide {
+      &:hover {
+        .bp3-popover2-target {
+          display: block;
+        }
+      }
+      .bp3-popover2-target {
+        display: none;
+      }
+    }
   }
   .column-menu {
     cursor: pointer;
@@ -218,6 +318,14 @@ export const TableWrapper = styled.div<{
     }
     &.highlight-right {
       border-right: 2px solid ${Colors.GREEN};
+    }
+    & .draggable-header--dragging {
+      background: #efefef;
+      border-radius: 4px;
+      z-index: 100;
+      width: 100%;
+      text-overflow: none;
+      overflow: none;
     }
   }
   .input-group {
@@ -393,6 +501,7 @@ export const CellWrapper = styled.div<{
   textSize?: string;
   disablePadding?: boolean;
   imageSize?: ImageSize;
+  isCellDisabled?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -415,12 +524,23 @@ export const CellWrapper = styled.div<{
     props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
-  background: ${(props) => props.cellBackground};
+
+  background: ${(props) => {
+    if (props.isCellDisabled) {
+      return props.cellBackground
+        ? lightenColor(props.cellBackground)
+        : "var(--wds-color-bg-disabled)";
+    } else {
+      return props.cellBackground;
+    }
+  }};
 
   &:hover,
   .selected-row & {
     background: ${(props) =>
-      props.cellBackground ? darkenColor(props.cellBackground, 5) : ""};
+      props.cellBackground && !props.isCellDisabled
+        ? darkenColor(props.cellBackground, 5)
+        : ""};
   }
   font-size: ${(props) => props.textSize};
 
@@ -506,6 +626,8 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{
   accentColor?: string;
   borderRadius?: string;
 }>`
+  left: 0;
+  z-index: ${Layers.modalWidget};
   justify-content: center;
   width: ${MULTISELECT_CHECKBOX_WIDTH}px;
   height: auto;
@@ -553,21 +675,13 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  width: ${(props) => props.width}px;
+  width: 100%;
   .show-page-items {
     display: ${(props) =>
       props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};
   }
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
-  overflow-x: auto;
-  ${hideScrollbar};
-  ${scrollbarOnHoverCSS};
-  .thumb-horizontal {
-    height: 4px !important;
-    border-radius: ${(props) => props.theme.radii[3]}px;
-    background: ${(props) => props.theme.colors.scrollbarLight};
-  }
 `;
 
 export const TableHeaderInnerWrapper = styled.div<{
@@ -679,8 +793,9 @@ export const EmptyRow = styled.div`
   flex: 1 0 auto;
 `;
 
-export const EmptyCell = styled.div<{ width: number }>`
+export const EmptyCell = styled.div<{ width: number; sticky?: string }>`
   width: ${(props) => props.width}px;
   boxsizing: border-box;
   flex: ${(props) => props.width} 0 auto;
+  z-index: ${(props) => (props.sticky ? Layers.dragPreview : 0)};
 `;

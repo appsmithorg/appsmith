@@ -33,7 +33,18 @@ export enum InlineEditingSaveOptions {
   CUSTOM = "CUSTOM",
 }
 
-export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
+interface AddNewRowProps {
+  isAddRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRowSave: string;
+  onAddNewRowDiscard: string;
+  defaultNewRow: Record<string, unknown>;
+}
+export interface TableWidgetProps
+  extends WidgetProps,
+    WithMeta,
+    TableStyles,
+    AddNewRowProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
@@ -54,6 +65,8 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
+  frozenColumnIndices: Record<string, number>;
+  canFreezeColumn?: boolean;
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: {
     [key: string]: { type: string; format: string; inputFormat?: string };
@@ -79,9 +92,12 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
-  isEditableCellValid: boolean;
   variant?: TableVariant;
+  isEditableCellsValid: Record<string, boolean>;
   selectColumnFilterText?: Record<string, string>;
+  isAddRowInProgress: boolean;
+  newRow: Record<string, unknown>;
+  firstEditableColumnIdByOrder: string;
 }
 
 export enum TableVariantTypes {
@@ -99,6 +115,8 @@ export const PRIMARY_COLUMN_KEY_VALUE = "__primaryKey__";
 export const DEFAULT_COLUMN_WIDTH = 150;
 
 export const COLUMN_MIN_WIDTH = 60;
+
+export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -128,6 +146,23 @@ export enum ReadOnlyColumnTypes {
   SELECT = "select",
 }
 
+export const ActionColumnTypes = [
+  ColumnTypes.BUTTON,
+  ColumnTypes.ICON_BUTTON,
+  ColumnTypes.MENU_BUTTON,
+  ColumnTypes.EDIT_ACTIONS,
+];
+
+export const FilterableColumnTypes = [
+  ColumnTypes.TEXT,
+  ColumnTypes.URL,
+  ColumnTypes.NUMBER,
+  ColumnTypes.DATE,
+  ColumnTypes.SELECT,
+  ColumnTypes.CHECKBOX,
+  ColumnTypes.SWITCH,
+];
+
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
 
 export const DEFAULT_BUTTON_LABEL = "Action";
@@ -138,7 +173,7 @@ export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 
 export type TransientDataPayload = {
   [key: string]: string | number | boolean;
-  __original_index__: number;
+  __originalIndex__: number;
 };
 
 export type OnColumnEventArgs = {
@@ -179,3 +214,5 @@ export const defaultEditableCell = {
   value: "",
   initialValue: "",
 };
+
+export const DEFAULT_COLUMN_NAME = "Table Column";

@@ -4,7 +4,7 @@ import {
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import React from "react";
 
 export function TextView(props: TextViewProps) {

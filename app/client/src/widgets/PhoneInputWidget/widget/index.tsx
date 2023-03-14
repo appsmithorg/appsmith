@@ -16,7 +16,7 @@ import {
   getCountryCode,
   ISDCodeDropdownOptions,
 } from "../component/ISDCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import _ from "lodash";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import derivedProperties from "./parsedDerivedProperties";
@@ -30,14 +30,19 @@ import {
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
   props: PhoneInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const STRING_ERROR_MESSAGE = "This value must be string";
-  const EMPTY_ERROR_MESSAGE = "";
+  const STRING_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be string",
+  };
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -113,10 +118,10 @@ class PhoneInputWidget extends BaseInputWidget<
             },
             {
               propertyName: "allowDialCodeChange",
-              label: "Allow Country Code Change",
+              label: "Change Country Code",
               helpText: "Search by country",
               controlType: "SWITCH",
-              isJSConvertible: false,
+              isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.BOOLEAN },
@@ -183,6 +188,14 @@ class PhoneInputWidget extends BaseInputWidget<
     return _.merge(super.getDefaultPropertiesMap(), {
       dialCode: "defaultDialCode",
     });
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getFormattedPhoneNumber(value: string) {
@@ -288,6 +301,24 @@ class PhoneInputWidget extends BaseInputWidget<
   };
 
   handleFocusChange = (focusState: boolean) => {
+    if (focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+    if (!focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
     super.handleFocusChange(focusState);
   };
 
@@ -337,6 +368,7 @@ class PhoneInputWidget extends BaseInputWidget<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

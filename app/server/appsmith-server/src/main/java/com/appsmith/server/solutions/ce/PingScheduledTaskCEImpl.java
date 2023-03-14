@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -46,6 +47,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final DatasourceRepository datasourceRepository;
     private final UserRepository userRepository;
 
+    private final ProjectProperties projectProperties;
+
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
      * We use an initial delay of two minutes to roughly wait for the application along with the migrations are finished
@@ -89,7 +92,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 .headers(headers -> headers.setBasicAuth(ceKey, ""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
-                        "userId", ipAddress,
+                        "userId", instanceId,
                         "context", Map.of("ip", ipAddress),
                         "properties", Map.of("instanceId", instanceId),
                         "event", "Instance Active"
@@ -130,7 +133,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             .headers(headers -> headers.setBasicAuth(ceKey, ""))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(Map.of(
-                                    "userId", ipAddress,
+                                    "userId", statsData.getT1(),
                                     "context", Map.of("ip", ipAddress),
                                     "properties", Map.of(
                                             "instanceId", statsData.getT1(),
@@ -139,7 +142,9 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                                             "numPages", statsData.getT5(),
                                             "numActions", statsData.getT6(),
                                             "numDatasources", statsData.getT7(),
-                                            "numUsers", statsData.getT8()
+                                            "numUsers", statsData.getT8(),
+                                            "version", projectProperties.getVersion(),
+                                            "edition", ProjectProperties.EDITION
                                     ),
                                     "event", "instance_stats"
                             )))

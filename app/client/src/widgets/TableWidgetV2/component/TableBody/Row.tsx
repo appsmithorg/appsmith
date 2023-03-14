@@ -4,6 +4,7 @@ import { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
+import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
 type RowType = {
   className?: string;
@@ -16,6 +17,8 @@ export function Row(props: RowType) {
   const {
     accentColor,
     borderRadius,
+    columns,
+    isAddRowInProgress,
     multiRowSelection,
     prepareRow,
     primaryColumnId,
@@ -40,11 +43,15 @@ export function Row(props: RowType) {
     (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
     props.index;
 
+  if (!isAddRowInProgress) {
+    rowProps["role"] = "button";
+  }
+
   return (
     <div
       {...rowProps}
       className={`tr ${isRowSelected ? "selected-row" : ""} ${props.className ||
-        ""}`}
+        ""} ${isAddRowInProgress && props.index === 0 ? "new-row" : ""}`}
       data-rowindex={props.index}
       key={key}
       onClick={(e) => {
@@ -52,15 +59,32 @@ export function Row(props: RowType) {
         selectTableRow?.(props.row);
         e.stopPropagation();
       }}
-      role="button"
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
+        const cellProperties = cell.getCellProps();
+        cellProperties["style"] = {
+          ...cellProperties.style,
+          left:
+            columns[cellIndex].sticky === StickyType.LEFT && multiRowSelection
+              ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
+              : cellProperties?.style?.left,
+        };
         return (
           <div
-            {...cell.getCellProps()}
-            className="td"
+            {...cellProperties}
+            className={
+              columns[cellIndex].isHidden
+                ? "td hidden-cell"
+                : `td${
+                    cellIndex !== 0 &&
+                    columns[cellIndex - 1].sticky === StickyType.RIGHT &&
+                    columns[cellIndex - 1].isHidden
+                      ? " sticky-right-modifier"
+                      : ""
+                  }`
+            }
             data-colindex={cellIndex}
             data-rowindex={props.index}
             key={cellIndex}

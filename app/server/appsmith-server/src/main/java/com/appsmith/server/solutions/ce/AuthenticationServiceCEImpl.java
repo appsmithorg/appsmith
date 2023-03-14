@@ -1,15 +1,16 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -26,6 +27,8 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +84,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
 
     private final ConfigService configService;
+    private final DatasourcePermission datasourcePermission;
+    private final PagePermission pagePermission;
+    private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+    private static final String ACCESS_TOKEN_KEY = "access_token";
 
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
@@ -94,7 +101,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -287,7 +294,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         Entity.PAGES + Entity.SLASH +
                         newPage.getId() + Entity.SLASH +
                         "edit" + Entity.SLASH +
-                        Entity.DATASOURCES + Entity.SLASH +
+                        Entity.DATASOURCE + Entity.SLASH +
                         datasourceId +
                         "?response_status=" + responseStatus +
                         "&view_mode=true")
@@ -305,7 +312,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -314,7 +321,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                            newPageService.findById(pageId, AclPermission.READ_PAGES),
+                            newPageService.findById(pageId, pagePermission.getReadPermission()),
                             configService.getInstanceId(),
                             pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
@@ -374,17 +381,21 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             AppsmithError.AUTHENTICATION_FAILURE,
                                             "Unable to connect to Appsmith authentication server."
                                     ));
-                });
+                })
+                .onErrorResume(BaseException.class, error -> datasourceMono.flatMap(datasource -> {
+                    datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
+                    return datasourceService.update(datasource.getId(), datasource).then(Mono.error(error));
+                }));
     }
 
-    public Mono<Datasource> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
+    public Mono<OAuthResponseDTO> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource
         // Update datasource as being authorized
         // Return control to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
         return datasourceMono
@@ -429,15 +440,30 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return Mono.just(datasource);
+                                String accessToken = "";
+                                if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                    accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
+                                }
+                                return Mono.zip(Mono.just(datasource), Mono.just(accessToken));
                             });
                 })
-                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource))
+                .flatMap(tuple -> {
+                    Datasource datasource = tuple.getT1();
+                    String accessToken = tuple.getT2();
+                    OAuthResponseDTO response = new OAuthResponseDTO();
+                    response.setDatasource(datasource);
+                    response.setToken(accessToken);
+                    return datasourceService.update(datasource.getId(), datasource).thenReturn(response);
+                })
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,
                                 "Unable to connect to Appsmith authentication server."
-                        ));
+                        ))
+                .onErrorResume(BaseException.class, error -> datasourceMono.flatMap(datasource -> {
+                    datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
+                    return datasourceService.update(datasourceId, datasource).then(Mono.error(error));
+                }));
     }
 
     public Mono<Datasource> refreshAuthentication(Datasource datasource) {

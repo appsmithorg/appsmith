@@ -6,6 +6,11 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import {
+  NAVIGATION_CLASSNAME,
+  PEEKABLE_CLASSNAME,
+  PEEK_STYLE_PERSIST_CLASS,
+} from "./markHelpers";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -50,13 +55,16 @@ export const EditorWrapper = styled.div<{
   isRawView?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
-  fill?: boolean;
+  fillUp?: boolean;
   className?: string;
   codeEditorVisibleOverflow?: boolean;
+  ctrlPressed: boolean;
 }>`
   width: 100%;
   ${(props) =>
-    props.size === EditorSize.COMPACT && props.isFocused
+    (props.size === EditorSize.COMPACT ||
+      props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
+    props.isFocused
       ? `
   z-index: 5;
   right: 0;
@@ -143,7 +151,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
       background: ${(props) =>
-        props.isFocused || props.fill ? Colors.NERO : "#262626"};
+        props.isFocused || props.fillUp ? Colors.NERO : "#262626"};
       color: ${Colors.LIGHT_GREY};
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
@@ -160,6 +168,21 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
+    
+    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
+      background-color:	#F4FFDE;
+    }
+
+    .${NAVIGATION_CLASSNAME} {
+      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
+      ${(props) =>
+        props.ctrlPressed &&
+        `&:hover {
+        text-decoration: underline;
+        background-color:	#FFEFCF;
+      }`}
+    }
+
     .CodeMirror-matchingbracket {
       text-decoration: none;
       color: #ffd600 !important;
@@ -202,7 +225,8 @@ export const EditorWrapper = styled.div<{
         props.theme.colors.apiPane.codeEditor.placeholderColor};
     }
     ${(props) =>
-      props.size === EditorSize.COMPACT &&
+      (props.size === EditorSize.COMPACT ||
+        props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
       `
       .CodeMirror-hscrollbar {
       -ms-overflow-style: none;
@@ -257,7 +281,8 @@ export const EditorWrapper = styled.div<{
     }
 
     ${(props) =>
-      props.size === EditorSize.COMPACT
+      props.size === EditorSize.COMPACT ||
+      props.size === EditorSize.COMPACT_RETAIN_FORMATTING
         ? `
         position: absolute;
         left: 0;
@@ -270,7 +295,11 @@ export const EditorWrapper = styled.div<{
 
     ${(props) => {
       let height = props.height || "auto";
-      if (props.size === EditorSize.COMPACT && !props.isFocused) {
+      if (
+        (props.size === EditorSize.COMPACT ||
+          props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
+        !props.isFocused
+      ) {
         height = props.height || "36px";
       }
       return `height: ${height}`;
@@ -283,7 +312,7 @@ export const EditorWrapper = styled.div<{
     &&&&&&&& .CodeMirror-scroll {
       overflow: visible;
     }
-   
+
     & .CodeEditorTarget {
       height: ${props.isFocused ? "auto" : "35px"};
     }
@@ -291,7 +320,7 @@ export const EditorWrapper = styled.div<{
 
   ${(props) =>
     props.isReadOnly &&
-    ` 
+    `
       &&&&&&&&&& .cm-m-javascript.cm-number {
         color: ${props.isRawView ? "#000" : "#268bd2"};
 

@@ -18,7 +18,6 @@ import {
 import log from "loglevel";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-import { ThemeProp } from "components/ads/common";
 import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
@@ -27,7 +26,7 @@ import {
 } from "components/constants";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import {
   getBrowserInfo,
@@ -53,6 +52,7 @@ import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/mic
 import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camera/microphone-muted.svg";
 import { ReactComponent as FullScreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
 import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera/exit-fullscreen.svg";
+import { ThemeProp } from "widgets/constants";
 
 const overlayerMixin = css`
   position: absolute;
@@ -79,6 +79,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
   background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};

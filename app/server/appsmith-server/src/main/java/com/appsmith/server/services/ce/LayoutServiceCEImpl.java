@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
@@ -8,6 +7,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -17,20 +17,20 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-
 @Slf4j
 public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
+    private final PagePermission pagePermission;
 
     @Autowired
     public LayoutServiceCEImpl(NewPageService newPageService,
-                             ResponseUtils responseUtils) {
+                               ResponseUtils responseUtils,
+                               PagePermission pagePermission) {
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
 
         // fetch the unpublished page
         Mono<PageDTO> pageMono = newPageService
-                .findPageById(pageId, MANAGE_PAGES, false)
+                .findPageById(pageId, pagePermission.getEditPermission(), false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
         return pageMono
@@ -67,14 +67,14 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
         if (StringUtils.isEmpty(branchName)) {
             return createLayout(defaultPageId, layout);
         }
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(branchedPage ->  createLayout(branchedPage.getId(), layout))
                 .map(responseUtils::updateLayoutWithDefaultResources);
     }
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return newPageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES, viewMode)
+        return newPageService.findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
@@ -90,7 +90,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
         if (StringUtils.isEmpty(branchName)) {
             return getLayout(defaultPageId, layoutId, viewMode);
         }
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(branchedPage ->  getLayout(branchedPage.getId(), layoutId, viewMode))
                 .map(responseUtils::updateLayoutWithDefaultResources);
     }

@@ -14,7 +14,7 @@ import styled from "styled-components";
 import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 
-import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
+import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 
@@ -150,9 +150,14 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig)
-        ? renderDatasourceSection(currentFormConfig[0], datasource)
-        : undefined}
+      {!isNil(currentFormConfig) ? (
+        <RenderDatasourceInformation
+          config={currentFormConfig[0]}
+          datasource={datasource}
+        />
+      ) : (
+        undefined
+      )}
     </Wrapper>
   );
 }

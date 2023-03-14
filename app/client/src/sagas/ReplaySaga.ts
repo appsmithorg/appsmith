@@ -1,25 +1,22 @@
 import {
-  takeEvery,
+  all,
+  call,
+  delay,
   put,
   select,
-  call,
+  takeEvery,
   takeLatest,
-  all,
-  delay,
 } from "redux-saga/effects";
 
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 
 import {
-  getIsPropertyPaneVisible,
   getCurrentWidgetId,
+  getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
-import {
-  selectMultipleWidgetsInitAction,
-  selectWidgetAction,
-} from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -27,11 +24,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
-  scrollWidgetIntoView,
-  processUndoRedoToasts,
-  highlightReplayElement,
-  switchTab,
   expandAccordion,
+  highlightReplayElement,
+  processUndoRedoToasts,
+  scrollWidgetIntoView,
+  switchTab,
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -78,6 +75,8 @@ import {
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -97,10 +96,6 @@ export default function* undoRedoListenerSaga() {
  */
 export function* openPropertyPaneSaga(replay: any) {
   try {
-    if (Object.keys(replay.widgets).length > 1) {
-      yield put(selectWidgetAction(replay.widgets[0], false));
-    }
-
     const replayWidgetId = Object.keys(replay.widgets)[0];
 
     if (!replayWidgetId || !replay.widgets[replayWidgetId].propertyUpdates)
@@ -115,7 +110,9 @@ export function* openPropertyPaneSaga(replay: any) {
 
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
-      yield put(selectWidgetAction(replayWidgetId, false));
+      yield put(
+        selectWidgetInitAction(SelectionRequestType.One, [replayWidgetId]),
+      );
     }
 
     flashElementsById(
@@ -153,11 +150,7 @@ export function* postUndoRedoSaga(replay: any) {
 
     const widgetIds = Object.keys(replay.widgets);
 
-    if (widgetIds.length > 1) {
-      yield put(selectMultipleWidgetsInitAction(widgetIds));
-    } else {
-      yield put(selectWidgetAction(widgetIds[0], false));
-    }
+    yield put(selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds));
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
@@ -213,15 +206,21 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
-        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        //TODO Identify the updated widgets and pass the values
+
         yield put(
           updateAndSaveLayout(replayEntity.widgets, {
             isRetry: false,
             shouldReplay: false,
           }),
         );
-        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+
+        if (isPropertyUpdate) {
+          yield call(openPropertyPaneSaga, replay);
+        }
+        if (!isPropertyUpdate) {
+          yield call(postUndoRedoSaga, replay);
+        }
+        yield put(generateAutoHeightLayoutTreeAction(true, false));
         break;
       }
       case ENTITY_TYPE.ACTION:
@@ -261,7 +260,7 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
     yield put(setAppThemingModeStackAction([]));
   }
 
-  yield put(selectWidgetAction());
+  yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
   // todo(pawan): check with arun/rahul on how we can get rid of this check
   // better way to do is set shouldreplay = false when evaluating tree

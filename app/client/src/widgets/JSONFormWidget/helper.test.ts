@@ -597,6 +597,24 @@ describe(".convertSchemaItemToFormData", () => {
           originalIdentifier: "customField2",
           isVisible: false,
         },
+        hiddenNonASCII: {
+          isVisible: false,
+          children: {},
+          dataType: DataType.STRING,
+          fieldType: FieldType.TEXT_INPUT,
+          accessor: "हिन्दि",
+          identifier: "hiddenNonASCII",
+          originalIdentifier: "हिन्दि",
+        },
+        hiddenSmiley: {
+          isVisible: false,
+          children: {},
+          dataType: DataType.STRING,
+          fieldType: FieldType.TEXT_INPUT,
+          accessor: "😀",
+          identifier: "hiddenSmiley",
+          originalIdentifier: "😀",
+        },
         array: {
           children: {
             __array_item__: {
@@ -820,6 +838,92 @@ describe(".convertSchemaItemToFormData", () => {
       schema[ROOT_SCHEMA_KEY],
       formData,
       { fromId: "identifier", toId: "accessor" },
+    );
+
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("set hidden form field value to available source field value when useSourceData is set to true", () => {
+    const formData = {
+      customField1: "male",
+      customField2: "demo",
+      array: [{ name: "test1" }, { name: null, date: "10/12/2010" }],
+      hiddenArray: [{ name: "test1" }, { name: "test2" }],
+      visibleObject: { name: "test1", date: "10/12/2010" },
+      hiddenObject: { name: "test1", date: "10/12/2010" },
+    };
+
+    const sourceData = {
+      customField1: "soruceMale",
+      customField2: "sourceDemo",
+      array: [
+        { name: "sourceTest1" },
+        { name: "sourceTest2", date: "11/11/1111" },
+      ],
+      hiddenArray: [{ name: "sourceTest1" }, { name: "sourceTest2" }],
+      hiddenObject: { name: "sourceTest1" },
+    };
+
+    const expectedOutput = {
+      gender: "male",
+      age: "sourceDemo",
+      students: [
+        { firstName: "test1" },
+        { firstName: null, graduationDate: "11/11/1111" },
+      ],
+      testHiddenArray: [
+        { firstName: "sourceTest1" },
+        { firstName: "sourceTest2" },
+      ],
+      testVisibleObject: { firstName: "test1" },
+      testHiddenObject: { firstName: "sourceTest1" },
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      {
+        fromId: "identifier",
+        toId: "accessor",
+        sourceData: sourceData,
+        useSourceData: true,
+      },
+    );
+
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("return expected result for non-ASCII source value when field is hidden and useSourceData is set to true", () => {
+    const formData = {
+      customField1: "male",
+      array: [{ name: "test1" }, { name: null, date: "10/12/2010" }],
+      hiddenNonASCII: "test",
+      hiddenSmiley: "test 2",
+      visibleObject: { name: "test1", date: "10/12/2010" },
+    };
+
+    const sourceData = {
+      हिन्दि: "हिन्दि",
+      "😀": "😀",
+    };
+
+    const expectedOutput = {
+      gender: "male",
+      students: [{ firstName: "test1" }, { firstName: null }],
+      हिन्दि: "हिन्दि",
+      "😀": "😀",
+      testVisibleObject: { firstName: "test1" },
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      {
+        fromId: "identifier",
+        toId: "accessor",
+        sourceData: sourceData,
+        useSourceData: true,
+      },
     );
 
     expect(result).toEqual(expectedOutput);

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   FormLabel,
   FormInputHelperText,
@@ -18,11 +18,21 @@ import { FormIcons } from "icons/FormIcons";
 import { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { AppState } from "@appsmith/reducers";
+import {
+  getPropertyControlFocusElement,
+  shouldFocusOnPropertyControl,
+} from "utils/editorContextUtils";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
   margin-right: 16px;
+
   & .t--js-toggle {
     margin-bottom: 0px;
   }
@@ -54,12 +64,51 @@ interface FormConfigProps extends FormControlProps {
   configErrors: EvaluationError[];
   changesViewType: boolean;
 }
+
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
 // props.children will render the form element
 export default function FormConfig(props: FormConfigProps) {
   let top, bottom;
+  const controlRef = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch();
+  const entityInfo = identifyEntityFromPath(window.location.pathname);
 
+  const handleOnFocus = () => {
+    if (props.config.configProperty) {
+      // Need an additional identifier to trigger another render when configProperty
+      // are same for two different entitites
+      dispatch(
+        setFocusableInputField(
+          `${entityInfo.id}.${props.config.configProperty}`,
+        ),
+      );
+    }
+  };
+
+  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
+    getIsInputFieldFocused(
+      state,
+      `${entityInfo.id}.${props.config.configProperty}`,
+    ),
+  );
+
+  useEffect(() => {
+    if (shouldFocusPropertyPath) {
+      setTimeout(() => {
+        if (shouldFocusOnPropertyControl(controlRef.current)) {
+          const focusableElement = getPropertyControlFocusElement(
+            controlRef.current,
+          );
+          focusableElement?.scrollIntoView({
+            block: "center",
+            behavior: "smooth",
+          });
+          focusableElement?.focus();
+        }
+      }, 0);
+    }
+  }, [shouldFocusPropertyPath]);
   if (props.multipleConfig?.length) {
     top = (
       <div style={{ display: "flex" }}>
@@ -86,7 +135,11 @@ export default function FormConfig(props: FormConfigProps) {
 
   return (
     <div>
-      <FormConfigWrapper controlType={props.config.controlType}>
+      <FormConfigWrapper
+        controlType={props.config.controlType}
+        onFocus={handleOnFocus}
+        ref={controlRef}
+      >
         {props.config.controlType === "CHECKBOX" ? (
           <>
             {props.children}
@@ -114,6 +167,7 @@ export default function FormConfig(props: FormConfigProps) {
     </div>
   );
 }
+
 function renderFormConfigTop(props: {
   config: ControlProps;
   formName: string;

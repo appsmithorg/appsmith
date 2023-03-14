@@ -15,8 +15,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   CHANGE_APP_THEME,
   createMessage,
@@ -33,7 +32,6 @@ import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import {
   batchUpdateMultipleWidgetProperties,
   UpdateWidgetPropertyPayload,
@@ -309,12 +307,8 @@ function* resetTheme() {
     const canvasWidgets: CanvasWidgetsReduxState = yield select(
       getCanvasWidgets,
     );
-    // @ts-expect-error: Type the StyleSheet
-    const themeStylesheet = yield select(getSelectedAppThemeStylesheet);
-
     const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(
       canvasWidgets,
-      themeStylesheet,
     );
 
     if (propertiesToUpdate.length) {

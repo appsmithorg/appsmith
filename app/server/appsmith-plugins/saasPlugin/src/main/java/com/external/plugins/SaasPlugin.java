@@ -14,6 +14,8 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.appsmith.util.WebClientUtils;
 import com.external.helpers.RequestCaptureFilter;
+import com.external.plugins.exceptions.SaaSErrorMessages;
+import com.external.plugins.exceptions.SaaSPluginError;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -22,13 +24,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -81,12 +83,12 @@ public class SaasPlugin extends BasePlugin {
 
             final String datasourceConfigurationCommand = datasourceConfiguration.getAuthentication().getAuthenticationType();
             if (datasourceConfigurationCommand == null || datasourceConfigurationCommand.isEmpty()) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Missing template name for datasource"));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, SaaSErrorMessages.MISSING_DATASOURCE_TEMPLATE_NAME_ERROR_MSG));
             }
 
             final String actionConfigurationCommand = (String) actionConfiguration.getFormData().get("command");
             if (actionConfigurationCommand == null || actionConfigurationCommand.isEmpty()) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing template name for action"));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, SaaSErrorMessages.MISSING_ACTION_TEMPLATE_NAME_ERROR_MSG));
             }
 
             connection.setActionConfiguration(actionConfiguration);
@@ -123,9 +125,8 @@ public class SaasPlugin extends BasePlugin {
 
             // Triggering the actual REST API call
             return httpCall(client, HttpMethod.POST, uri, requestBodyObj, 0, APPLICATION_JSON_VALUE)
-                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
-                        final HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                        final HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                         byte[] body = stringResponseEntity.getBody();
                         if (statusCode.is2xxSuccessful()) {
                             try {
@@ -142,7 +143,8 @@ public class SaasPlugin extends BasePlugin {
                         } else {
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            SaaSPluginError.API_EXECUTION_FAILED,
+                                            SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
                                             body
                                     )
                             );
@@ -151,18 +153,21 @@ public class SaasPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
                         errorResult.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, error.getMessage());
+                        }
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
 
         }
 
-        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
-                                              int iteration, String contentType) {
+        private Mono<ResponseEntity<byte[]>> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
+                                                      int iteration, String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Exceeded the HTTP redirect limits of " + MAX_REDIRECTS
+                        SaaSPluginError.API_EXECUTION_FAILED,
+                        String.format(SaaSErrorMessages.MAX_REDIRECT_LIMIT_REACHED_ERROR_MSG, MAX_REDIRECTS)
                 ));
             }
 
@@ -173,11 +178,12 @@ public class SaasPlugin extends BasePlugin {
                     .method(httpMethod)
                     .uri(uri)
                     .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
-                    .exchange()
-                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                    .retrieve()
+                    .toEntity(byte[].class)
+                    .doOnError(e -> Mono.error(new AppsmithPluginException(SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, e)))
                     .flatMap(response -> {
-                        if (response.statusCode().is3xxRedirection()) {
-                            String redirectUrl = response.headers().header("Location").get(0);
+                        if (response.getStatusCode().is3xxRedirection()) {
+                            String redirectUrl = response.getHeaders().getLocation().toString();
                             /**
                              * TODO
                              * In case the redirected URL is not absolute (complete), create the new URL using the relative path
@@ -189,7 +195,7 @@ public class SaasPlugin extends BasePlugin {
                             try {
                                 redirectUri = new URI(redirectUrl);
                             } catch (URISyntaxException e) {
-                                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                return Mono.error(new AppsmithPluginException(SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG, e));
                             }
                             return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
                                     contentType);
@@ -214,7 +220,7 @@ public class SaasPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.UNSUPPORTED_PLUGIN_OPERATION));
+            return Mono.error(new AppsmithPluginException(SaaSPluginError.UNSUPPORTED_PLUGIN_OPERATION));
         }
     }
 }

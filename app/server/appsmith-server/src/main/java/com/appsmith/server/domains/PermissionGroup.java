@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +25,11 @@ public class PermissionGroup extends BaseDomain {
 
     //TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for 
     //which we are auto creating this permission group.
+    @Deprecated
     String defaultWorkspaceId;
+
+    String defaultDomainId;
+    String defaultDomainType;
 
     Set<Permission> permissions = new HashSet<>();
 

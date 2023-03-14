@@ -1,15 +1,22 @@
-import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { useSelector } from "store";
 import { AppState } from "@appsmith/reducers";
-import { useWidgetSelection } from "./useWidgetSelection";
+import equal from "fast-deep-equal/es6";
 import React, { ReactNode, useCallback } from "react";
-import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useSelector } from "react-redux";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
-import equal from "fast-deep-equal/es6";
+import styled from "styled-components";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useWidgetSelection } from "./useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 export function ClickContentToOpenPropPane({
   children,
@@ -42,17 +49,13 @@ export function ClickContentToOpenPropPane({
   };
 
   return (
-    <div
+    <ContentWrapper
       onClick={stopEventPropagation}
-      onClickCapture={clickToSelectWidget}
+      onMouseDownCapture={clickToSelectWidget}
       onMouseOver={handleMouseOver}
-      style={{
-        width: "100%",
-        height: "100%",
-      }}
     >
       {children}
-    </div>
+    </ContentWrapper>
   );
 }
 
@@ -72,16 +75,24 @@ export const useClickToSelectWidget = (widgetId: string) => {
       // 2. If table filter property pane is open.
       if (shouldIgnoreClicks) return;
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
-        const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
+        let type: SelectionRequestType = SelectionRequestType.One;
+        if (e.metaKey || e.ctrlKey) {
+          type = SelectionRequestType.PushPop;
+        } else if (e.shiftKey) {
+          type = SelectionRequestType.ShiftSelect;
+        }
 
         if (parentWidgetToOpen) {
-          selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
+          selectWidget(type, [parentWidgetToOpen.widgetId]);
         } else {
-          selectWidget(widgetId, isMultiSelect);
+          selectWidget(type, [widgetId]);
           focusWidget(widgetId);
         }
 
-        if (isMultiSelect) {
+        if (
+          type === SelectionRequestType.PushPop ||
+          type === SelectionRequestType.ShiftSelect
+        ) {
           e.stopPropagation();
         }
       }

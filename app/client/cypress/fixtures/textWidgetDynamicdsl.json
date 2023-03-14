@@ -1,0 +1,77 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 4896,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 400,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 64,
+        "minHeight": 1292,
+        "dynamicTriggerPathList": [],
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "minDynamicHeight": 4,
+                "maxDynamicHeight": 9000,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "text": "Test Auto Height",
+                "fontSize": "1rem",
+                "fontStyle": "BOLD",
+                "textAlign": "LEFT",
+                "textColor": "#231F20",
+                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "widgetName": "Text1",
+                "shouldTruncate": false,
+                "overflow": "NONE",
+                "version": 1,
+                "animateLoading": true,
+                "searchTags": [
+                    "typography",
+                    "paragraph",
+                    "label"
+                ],
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "isDeprecated": false,
+                "displayName": "Text",
+                "key": "t24h8uem36",
+                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                "widgetId": "nwkbwkxa62",
+                "renderMode": "CANVAS",
+                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "isLoading": false,
+                "parentColumnSpace": 9.96875,
+                "parentRowSpace": 10,
+                "leftColumn": 19,
+                "rightColumn": 35,
+                "topRow": 11,
+                "bottomRow": 15,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "truncateButtonColor"
+                    },
+                    {
+                        "key": "fontFamily"
+                    },
+                    {
+                        "key": "borderRadius"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}

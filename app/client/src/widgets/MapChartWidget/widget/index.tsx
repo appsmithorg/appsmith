@@ -1,12 +1,16 @@
 import React, { lazy, Suspense } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import Skeleton from "components/utils/Skeleton";
-import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { retryPromise } from "utils/AppsmithUtils";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { MapType } from "../component";
 import {
   dataSetForAfrica,
   dataSetForAsia,
@@ -20,8 +24,6 @@ import {
   MapColorObject,
   MapTypes,
 } from "../constants";
-import { MapType } from "../component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
@@ -204,6 +206,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -329,6 +332,14 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 
   static getWidgetType(): WidgetType {
     return "MAP_CHART_WIDGET";
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
   }
 
   handleDataPointClick = (evt: any) => {

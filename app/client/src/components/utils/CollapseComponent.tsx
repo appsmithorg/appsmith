@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { Collapse, Icon } from "@blueprintjs/core";
 

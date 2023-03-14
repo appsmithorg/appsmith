@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.domains.ActionCollection;
@@ -38,6 +39,8 @@ public class ApplicationJson {
     Application exportedApplication;
 
     List<Datasource> datasourceList;
+
+    List<CustomJSLib> customJSLibList;
 
     List<NewPage> pageList;
 

@@ -1,6 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
-
+import { ObjectsRegistry } from "../support/Objects/Registry";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");
@@ -14,6 +14,7 @@ const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
+const { AggregateHelper } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -77,6 +78,8 @@ Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
 
 Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
+  AggregateHelper.CheckForErrorToast("Failed to initialize pool");
+  cy.wait(2000); //for postexecute to go thru
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.data.isExecutionSuccess",
@@ -157,6 +160,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
+    .eq(0)
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()

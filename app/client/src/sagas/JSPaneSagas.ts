@@ -28,8 +28,8 @@ import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
-import { executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { executeJSFunction } from "./EvaluationsSaga";
+import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
   JSUpdate,
@@ -51,9 +51,8 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
+import { Toaster, Variant } from "design-system-old";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -287,7 +286,9 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+            AppsmithConsole.deleteErrors([
+              { id: `${jsCollection.id}-${action.id}` },
+            ]),
           );
         }
 
@@ -356,9 +357,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     }),
   );
-
   const isEntitySaving = yield select(getIsSavingEntity);
-
   /**
    * Only start executing when no entity in the application is saving
    * This ensures that execution doesn't get carried out on stale values
@@ -370,7 +369,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 
   try {
     const { isDirty, result } = yield call(
-      executeFunction,
+      executeJSFunction,
       collectionName,
       action,
       collectionId,
@@ -378,7 +377,6 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
-        results: result,
         collectionId,
         actionId,
         isDirty,
@@ -393,29 +391,51 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-    appMode === APP_MODE.EDIT &&
-      !isDirty &&
+    // Function execution data in Async functions are handled by the JSProxy (see JSProxy.ts)
+    if (!action.actionConfiguration.isAsync) {
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: {
+          [collectionId]: [
+            {
+              data: result,
+              collectionId,
+              actionId,
+            },
+          ],
+        },
+      });
+    }
+    const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
+    showSuccessToast &&
       Toaster.show({
         text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
         variant: Variant.success,
       });
   } catch (error) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: createMessage(JS_EXECUTION_FAILURE),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
-        id: collectionId,
-      },
-      messages: [
-        {
-          message: (error as Error).message,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: createMessage(JS_EXECUTION_FAILURE),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
+          messages: [
+            {
+              message: {
+                name: (error as Error).name,
+                message: (error as Error).message,
+              },
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     Toaster.show({
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),

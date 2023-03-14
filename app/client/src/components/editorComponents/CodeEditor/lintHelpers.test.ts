@@ -1,6 +1,6 @@
 import { Severity } from "entities/AppsmithConsole";
 import {
-  EvaluationError,
+  LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { CODE_EDITOR_START_POSITION } from "./constants";
@@ -41,17 +41,20 @@ describe("getKeyPositionsInString()", () => {
 });
 
 describe("getLintAnnotations()", () => {
-  const { LINT, PARSE } = PropertyEvaluationErrorType;
+  const { LINT } = PropertyEvaluationErrorType;
   const { ERROR, WARNING } = Severity;
   it("should return proper annotations", () => {
     const value1 = `Hello {{ world == test }}`;
-    const errors1: EvaluationError[] = [
+    const errors1: LintError[] = [
       {
         errorType: LINT,
         raw:
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
-        errorMessage: "Expected '===' and instead saw '=='.",
+        errorMessage: {
+          name: "LintingError",
+          message: "Expected '===' and instead saw '=='.",
+        },
         errorSegment: "    const result =  world == test ",
         originalBinding: " world == test ",
         variables: ["===", "==", null, null],
@@ -64,7 +67,10 @@ describe("getLintAnnotations()", () => {
         raw:
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
-        errorMessage: "'world' is not defined.",
+        errorMessage: {
+          name: "LintingError",
+          message: "'world' is not defined.",
+        },
         errorSegment: "    const result =  world == test ",
         originalBinding: " world == test ",
         variables: ["world", null, null, null],
@@ -73,7 +79,10 @@ describe("getLintAnnotations()", () => {
         ch: 2,
       },
       {
-        errorMessage: "'test' is not defined.",
+        errorMessage: {
+          name: "LintingError",
+          message: "'test' is not defined.",
+        },
         severity: WARNING,
         raw:
           "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
@@ -129,13 +138,16 @@ describe("getLintAnnotations()", () => {
 
     /// 2
     const value2 = `hss{{hss}}`;
-    const errors2: EvaluationError[] = [
+    const errors2: LintError[] = [
       {
         errorType: LINT,
         raw:
           "\n  function closedFunction () {\n    const result = hss\n    return result;\n  }\n  closedFunction.call(THIS_CONTEXT)\n  ",
         severity: ERROR,
-        errorMessage: "'hss' is not defined.",
+        errorMessage: {
+          name: "LintingError",
+          message: "'hss' is not defined.",
+        },
         errorSegment: "    const result = hss",
         originalBinding: "{{hss}}",
         variables: ["hss", null, null, null],
@@ -165,27 +177,22 @@ describe("getLintAnnotations()", () => {
   it("should return correct annotation with newline in original binding", () => {
     const value = `Hello {{ world
     }}`;
-    const errors: EvaluationError[] = [
+    const errors: LintError[] = [
       {
         errorType: LINT,
         raw:
           "\n  function closedFunction () {\n    const result =  world\n\n    return result;\n  }\n  closedFunction()\n  ",
         severity: ERROR,
-        errorMessage: "'world' is not defined.",
+        errorMessage: {
+          name: "LintingError",
+          message: "'world' is not defined.",
+        },
         errorSegment: "    const result =  world",
         originalBinding: " world\n",
         variables: ["world", null, null, null],
         code: "W117",
         line: 0,
         ch: 2,
-      },
-      {
-        errorMessage: "ReferenceError: world is not defined",
-        severity: ERROR,
-        raw:
-          "\n  function closedFunction () {\n    const result = world\n\n    return result;\n  }\n  closedFunction()\n  ",
-        errorType: PARSE,
-        originalBinding: " world\n",
       },
     ];
 
@@ -213,7 +220,7 @@ describe("getLintAnnotations()", () => {
 
     }
     `;
-    const errors: EvaluationError[] = [];
+    const errors: LintError[] = [];
 
     const res = getLintAnnotations(value, errors, { isJSObject: true });
     expect(res).toEqual([

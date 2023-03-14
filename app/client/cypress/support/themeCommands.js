@@ -15,7 +15,7 @@ Cypress.Commands.add("borderMouseover", (index, text) => {
 });
 
 Cypress.Commands.add("shadowMouseover", (index, text) => {
-  cy.xpath(themelocator.shadow)
+  cy.get(themelocator.shadow)
     .eq(index)
     .trigger("mouseover");
   cy.wait(1000);

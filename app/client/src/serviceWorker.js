@@ -1,6 +1,6 @@
 import { precacheAndRoute } from "workbox-precaching";
 import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
-import { registerRoute } from "workbox-routing";
+import { registerRoute, Route } from "workbox-routing";
 import {
   CacheFirst,
   NetworkOnly,
@@ -64,18 +64,8 @@ registerRoute(
   }),
 );
 
-registerRoute(({ url }) => {
-  return url.pathname.includes("index.html");
-}, new NetworkOnly());
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.map(function(cacheName) {
-          return caches.delete(cacheName);
-        }),
-      );
-    }),
-  );
-});
+registerRoute(
+  new Route(({ request, sameOrigin }) => {
+    return sameOrigin && request.destination === "document";
+  }, new NetworkOnly()),
+);

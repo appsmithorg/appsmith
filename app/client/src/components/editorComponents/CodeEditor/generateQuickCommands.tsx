@@ -3,7 +3,7 @@ import React from "react";
 import {
   AutocompleteDataType,
   CommandsCompletion,
-} from "utils/autocomplete/TernServer";
+} from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
@@ -185,7 +185,7 @@ export const generateQuickCommands = (
         const pluginType = data.data.pluginType as PluginType;
         let icon = null;
         if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2;
+          icon = JsFileIconV2();
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>

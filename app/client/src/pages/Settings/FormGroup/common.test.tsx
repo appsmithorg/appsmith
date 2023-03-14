@@ -1,10 +1,13 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { FormGroup } from "./Common";
 
 let container: any = null;
-const setting = {
+const setting: Setting = {
   id: "SETTING_ID",
   label: "formGroup",
   helpText: "",

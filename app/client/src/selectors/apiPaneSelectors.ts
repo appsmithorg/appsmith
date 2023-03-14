@@ -18,3 +18,6 @@ export const getApiPaneResponseSelectedTab = (state: AppState) =>
 
 export const getApiPaneResponsePaneHeight = (state: AppState) =>
   state.ui.apiPane.responseTabHeight;
+
+export const getApiRightPaneSelectedTab = (state: AppState) =>
+  state.ui.apiPane.selectedRightPaneTab;

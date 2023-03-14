@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { ButtonTab, ButtonTabOption } from "design-system";
+import { ButtonGroup, ButtonGroupOption } from "design-system-old";
 import produce from "immer";
 import {
   DSEventDetail,
@@ -28,7 +28,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "ButtonTab" &&
+      e.detail.component === "ButtonGroup" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
@@ -67,7 +67,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   render() {
     const { options, propertyValue } = this.props;
     return (
-      <ButtonTab
+      <ButtonGroup
         options={options}
         ref={this.componentRef}
         selectButton={this.selectButton}
@@ -77,7 +77,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   }
 
   static getControlType() {
-    return "BUTTON_TABS";
+    return "BUTTON_GROUP";
   }
 
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
@@ -98,7 +98,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 }
 
 export interface ButtonTabControlProps extends ControlProps {
-  options: ButtonTabOption[];
+  options: ButtonGroupOption[];
   defaultValue: string;
 }
 

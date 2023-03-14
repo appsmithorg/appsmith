@@ -1,4 +1,9 @@
-import React, { useRef, RefObject, useCallback } from "react";
+import React, {
+  useRef,
+  RefObject,
+  useCallback,
+  PropsWithChildren,
+} from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -22,7 +27,6 @@ import {
   ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -34,12 +38,14 @@ import {
   Button,
   Callout,
   Category,
+  Classes,
   Icon,
   Size,
   TAB_MIN_HEIGHT,
   Text,
   TextType,
-} from "design-system";
+  Variant,
+} from "design-system-old";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -74,6 +80,9 @@ const ResponseContainer = styled.div`
 
   .react-tabs__tab-panel {
     overflow: hidden;
+  }
+  .CodeMirror-code {
+    font-size: 12px;
   }
 `;
 const ResponseMetaInfo = styled.div`
@@ -159,12 +168,17 @@ const FailedMessage = styled.div`
 
   .api-debugcta {
     margin-top: 0px;
+    height: 26px;
   }
 `;
 
 const StyledCallout = styled(Callout)`
   .${Classes.TEXT} {
     line-height: normal;
+    font-size: 12px;
+  }
+  .${Classes.ICON} {
+    width: 16px;
   }
 `;
 
@@ -218,6 +232,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
+    disabled?: boolean;
     onRunClick: () => void;
     responseDataTypes: { key: string; title: string }[];
     responseDisplayFormat: { title: string; value: string };
@@ -239,11 +254,10 @@ export const EMPTY_RESPONSE: ActionResponse = {
   dataTypes: [],
 };
 
-const StatusCodeText = styled(BaseText)<{ code: string }>`
+const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
   cursor: pointer;
-  width: 38px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -304,6 +318,7 @@ export const handleCancelActionExecution = () => {
 
 function ApiResponseView(props: Props) {
   const {
+    disabled,
     match: {
       params: { apiId },
     },
@@ -386,6 +401,11 @@ function ApiResponseView(props: Props) {
 
   const selectedResponseTab = useSelector(getApiPaneResponseSelectedTab);
   const updateSelectedResponseTab = useCallback((tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "API_PANE",
+      });
+    }
     dispatch(setApiPaneResponseSelectedTab(tabKey));
   }, []);
 
@@ -444,6 +464,7 @@ function ApiResponseView(props: Props) {
                 <Text type={TextType.P1}>
                   {EMPTY_RESPONSE_FIRST_HALF()}
                   <InlineButton
+                    disabled={disabled}
                     isLoading={isRunning}
                     onClick={onRunClick}
                     size={Size.medium}
@@ -523,7 +544,7 @@ function ApiResponseView(props: Props) {
                 folding
                 height={"100%"}
                 input={{
-                  value: response?.body
+                  value: !isEmpty(responseHeaders)
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
@@ -572,7 +593,7 @@ function ApiResponseView(props: Props) {
                 {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
               </Text>
               <CancelRequestButton
-                category={Category.tertiary}
+                category={Category.secondary}
                 className={`t--cancel-action-button`}
                 onClick={() => {
                   handleCancelActionExecution();

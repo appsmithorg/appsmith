@@ -18,7 +18,6 @@ import {
   ButtonVariantTypes,
   ButtonPlacement,
 } from "components/constants";
-import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
 import {
   getCustomBackgroundColor,
@@ -30,6 +29,7 @@ import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import { ThemeProp } from "widgets/constants";
 
 // Utility functions
 interface ButtonData {
@@ -182,7 +182,8 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   padding: 0px 10px;
 
   &:hover,
-  &:active {
+  &:active,
+  &:focus {
     ${buttonHoverActiveStyles}
   }
 
@@ -230,7 +231,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         "1px solid var(--wds-color-border-disabled)"} !important;
       background: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
         "var(--wds-color-bg-disabled)"} !important;
-      
+
       span {
         color: var(--wds-color-text-disabled) !important;
       }
@@ -268,7 +269,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     backgroundColor
       ? `
       background-color: ${backgroundColor} !important;
-      &:hover {
+      &:hover, &:focus {
         background-color: ${darkenHover(backgroundColor)} !important;
       }
       &:active {
@@ -277,7 +278,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   `
       : `
     background: none !important
-      &:hover {
+      &:hover, &:focus {
         background-color: ${tinycolor(
           theme.colors.button.primary.primary.textColor,
         )
@@ -347,25 +348,22 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
-    if (iconAlign === Alignment.RIGHT) {
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick, buttonId)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    }
+
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
         disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
+        icon={
+          iconAlign !== Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         onClick={() => onItemClicked(onClick, buttonId)}
         text={label}
         textColor={textColor}
@@ -399,6 +397,7 @@ class ButtonGroupComponent extends React.Component<
       };
     });
 
+    // @ts-expect-error: setTimeout return type mismatch
     this.timer = setTimeout(() => {
       this.setState(() => {
         return {

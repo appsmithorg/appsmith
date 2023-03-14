@@ -12,7 +12,13 @@ import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import { Datasource, MockDatasource } from "entities/Datasource";
-import { IconSize, TabComponent, TabProp, Text, TextType } from "design-system";
+import {
+  IconSize,
+  TabComponent,
+  TabProp,
+  Text,
+  TextType,
+} from "design-system-old";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
@@ -22,6 +28,9 @@ import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "RouteBuilder";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -59,6 +68,9 @@ const ApiHomePage = styled.div`
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
+  .react-tabs__tab-list {
+    margin: 2px;
+  }
 `;
 
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
@@ -95,6 +107,7 @@ type IntegrationsHomeScreenProps = {
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
   applicationId: string;
+  canCreateDatasource?: boolean;
 };
 
 type IntegrationsHomeScreenState = {
@@ -106,21 +119,6 @@ type IntegrationsHomeScreenState = {
 
 type Props = IntegrationsHomeScreenProps &
   InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;
-
-const PRIMARY_MENU: TabProp[] = [
-  {
-    key: "ACTIVE",
-    title: "Active",
-    panelComponent: <div />,
-  },
-  {
-    key: "CREATE_NEW",
-    title: "Create New",
-    panelComponent: <div />,
-    icon: "plus",
-    iconSize: IconSize.XS,
-  },
-];
 
 const PRIMARY_MENU_IDS = {
   ACTIVE: 0,
@@ -158,19 +156,6 @@ const getSecondaryMenuIds = (hasActiveSources = false) => {
     MOCK_DATABASE: 2 - (hasActiveSources ? 0 : 2),
   };
 };
-
-// const TERTIARY_MENU: TabProp[] = [
-//   {
-//     key: "ACTIVE_CONNECTIONS",
-//     title: "Active Connections",
-//     panelComponent: <div />,
-//   },
-//   {
-//     key: "MOCK_DATABASE",
-//     title: "Mock Databases",
-//     panelComponent: <div />,
-//   },
-// ];
 
 const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
@@ -215,6 +200,7 @@ function CreateNewAPI({
 }: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
+
   useEffect(() => {
     if (active && newAPIRef.current) {
       isMounted.current &&
@@ -406,10 +392,36 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   render() {
-    const { dataSources, history, isCreating, location, pageId } = this.props;
+    const {
+      canCreateDatasource = false,
+      dataSources,
+      history,
+      isCreating,
+      location,
+      pageId,
+    } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
+
+    const PRIMARY_MENU: TabProp[] = [
+      {
+        key: "ACTIVE",
+        title: "Active",
+        panelComponent: <div />,
+      },
+      ...(canCreateDatasource
+        ? [
+            {
+              key: "CREATE_NEW",
+              title: "Create New",
+              panelComponent: <div />,
+              icon: "plus",
+              iconSize: IconSize.XS,
+            },
+          ]
+        : []),
+    ].filter(Boolean);
 
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     // Avoid user to switch tabs when in generate page flow by hiding the tabs itself.
@@ -530,11 +542,18 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
+  const userWorkspacePermissions =
+    getCurrentAppWorkspace(state).userPermissions ?? [];
+
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    userWorkspacePermissions,
+  );
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
+    canCreateDatasource,
   };
 };
 

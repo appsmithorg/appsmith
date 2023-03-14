@@ -1,4 +1,8 @@
+import { Positioning } from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -10,8 +14,35 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  // TODO(abhinav): Default config like these are not serializable
+  // So they will not work with Redux state and they might break
+  // evaluations. One way to handle these types of properties is to
+  // define them in a Map which the platform understands to have
+  // them stored only in the WidgetFactory.
+  canvasHeightOffset: (props: WidgetProps): number => {
+    let offset =
+      props.borderWidth && props.borderWidth > 1
+        ? Math.ceil(
+            (2 * parseInt(props.borderWidth, 10) || 0) /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          )
+        : 0;
+
+    if (props.shouldShowTabs === true) {
+      offset += 4;
+    }
+    return offset;
+  },
+  features: {
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
+  },
   defaults: {
-    rows: 40,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
+    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     columns: 24,
     shouldScrollContents: false,
     widgetName: "Tabs",
@@ -19,6 +50,7 @@ export const CONFIG = {
     borderWidth: 1,
     borderColor: Colors.GREY_5,
     backgroundColor: Colors.WHITE,
+    minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     tabsObj: {
       tab1: {
         label: "Tab 1",
@@ -26,6 +58,7 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         index: 0,
+        positioning: Positioning.Vertical,
       },
       tab2: {
         label: "Tab 2",
@@ -33,6 +66,7 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         index: 1,
+        positioning: Positioning.Vertical,
       },
     },
     shouldShowTabs: true,
@@ -52,6 +86,7 @@ export const CONFIG = {
             tabName: "Tab 1",
             children: [],
             version: 1,
+            bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
           },
         },
         {
@@ -67,6 +102,7 @@ export const CONFIG = {
             tabName: "Tab 2",
             children: [],
             version: 1,
+            bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
           },
         },
       ],
@@ -108,6 +144,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

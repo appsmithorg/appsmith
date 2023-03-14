@@ -17,6 +17,7 @@ export const VideoCell = (props: renderCellType) => {
     compactMode,
     fontStyle,
     horizontalAlignment,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     textColor,
@@ -33,6 +34,7 @@ export const VideoCell = (props: renderCellType) => {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -49,6 +51,7 @@ export const VideoCell = (props: renderCellType) => {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -64,6 +67,7 @@ export const VideoCell = (props: renderCellType) => {
         allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         verticalAlignment={verticalAlignment}

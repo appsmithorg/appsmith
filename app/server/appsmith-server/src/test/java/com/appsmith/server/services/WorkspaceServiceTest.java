@@ -195,7 +195,7 @@ public class WorkspaceServiceTest {
         String workspaceName = user.computeFirstName() + "'s apps";
         Workspace defaultWorkspace = workspaceRepository.findByName(workspaceName).block();
 
-        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultWorkspaceId(defaultWorkspace.getId())
+        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainType(defaultWorkspace.getId(), Workspace.class.getSimpleName())
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .blockFirst();
 
@@ -529,15 +529,14 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail: validEmails) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setEmail(validEmail);
@@ -563,15 +562,14 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] invalidEmails = {"invalid@.com", "@invalid.com"};
         for (String invalidEmail : invalidEmails) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setEmail(invalidEmail);
@@ -595,19 +593,18 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com",
                 "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com",
                 "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
                 "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
                 "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
         for (String validWebsite: validWebsites) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setWebsite(validWebsite);
@@ -633,16 +630,15 @@ public class WorkspaceServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Workspace workspace = new Workspace();
-        workspace.setName("Test Update Name");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
-        workspace.setSlug("test-update-name");
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] invalidWebsites = {"htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www",
                 "www."};
         for (String invalidWebsite : invalidWebsites) {
-            Mono<Workspace> updateWorkspace = createWorkspace
+            Workspace workspace = new Workspace();
+            workspace.setName("Test Update Name");
+            workspace.setDomain("example.com");
+            workspace.setWebsite("https://example.com");
+            workspace.setSlug("test-update-name");
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
                     .flatMap(t -> {
                         Workspace newWorkspace = new Workspace();
                         newWorkspace.setWebsite(invalidWebsite);
@@ -1251,6 +1247,62 @@ public class WorkspaceServiceTest {
                     }
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addUserToWorkspaceIfUserAlreadyMember_throwsError() {
+        Workspace workspace = new Workspace();
+        workspace.setName("addUserToWorkspaceIfUserAlreadyMember_throwsError");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
+
+        Mono<Workspace> workspaceMono = workspaceService
+                .create(workspace)
+                .cache();
+
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
+                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+
+        Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .single();
+
+        Mono<PermissionGroup> developerPermissionGroupMono = permissionGroupFlux
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .single();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        ArrayList<String> users = new ArrayList<>();
+        users.add("usertest@usertest.com");
+        inviteUsersDTO.setUsernames(users);
+
+
+        Mono<List<User>> userAddedToWorkspaceTwiceMono = adminPermissionGroupMono
+                .flatMap(adminPermissionGroup -> {
+
+                    // Add user to workspace first as admin
+                    inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
+
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+                })
+                .then(developerPermissionGroupMono)
+                .flatMap(developerPermissionGroup -> {
+
+                    // Now try to add the user to the workspace as developer
+                    inviteUsersDTO.setPermissionGroupId(developerPermissionGroup.getId());
+
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+                });
+
+
+        StepVerifier
+                .create(userAddedToWorkspaceTwiceMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage()
+                        .equals(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE
+                                .getMessage("usertest@usertest.com", "Administrator - addUserToWorkspaceIfUserAlreadyMember_throwsError")))
+                .verify();
     }
 
     @Test

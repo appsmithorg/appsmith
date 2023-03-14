@@ -1,7 +1,8 @@
 import CodeMirror from "codemirror";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { EntityNavigationData } from "selectors/navigationSelectors";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -27,6 +28,7 @@ export enum TabBehaviour {
 export enum EditorSize {
   COMPACT = "COMPACT",
   EXTENDED = "EXTENDED",
+  COMPACT_RETAIN_FORMATTING = "COMPACT_RETAIN_FORMATTING",
 }
 
 export type EditorConfig = {
@@ -68,7 +70,10 @@ export type Hinter = {
   fireOnFocus?: boolean;
 };
 
-export type MarkHelper = (editor: CodeMirror.Editor) => void;
+export type MarkHelper = (
+  editor: CodeMirror.Editor,
+  entityNavigationData: EntityNavigationData,
+) => void;
 
 export enum CodeEditorBorder {
   NONE = "none",

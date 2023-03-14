@@ -68,11 +68,6 @@ export const setGlobalSearchFilterContext = (payload: any) => ({
   payload,
 });
 
-export const updateRecentEntity = (payload: RecentEntity) => ({
-  type: ReduxActionTypes.UPDATE_RECENT_ENTITY,
-  payload,
-});
-
 export const restoreRecentEntitiesRequest = (payload: {
   applicationId: string;
   branch?: string;

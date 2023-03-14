@@ -8,10 +8,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @Document
 public class UsagePulse extends BaseDomain {
 
     private String email;
+
+    // Hashed user email
+    private String user;
+    private String instanceId;
+    private String tenantId;
+    private Boolean viewMode;
+    private Boolean isAnonymousUser;
 
 }

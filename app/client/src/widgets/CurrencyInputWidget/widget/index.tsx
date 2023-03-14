@@ -18,7 +18,7 @@ import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
 } from "../component/CurrencyCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
@@ -27,20 +27,44 @@ import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import {
   formatCurrencyNumber,
-  getLocaleDecimalSeperator,
-  getLocaleThousandSeparator,
   limitDecimalValue,
 } from "../component/utilities";
-import { mergeWidgetConfig } from "utils/helpers";
+import { getLocale, mergeWidgetConfig } from "utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
+  isAutoHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
+import { Stylesheet } from "entities/AppTheming";
+import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
 
 export function defaultValueValidation(
   value: any,
   props: CurrencyInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const EMPTY_ERROR_MESSAGE = "";
+  const NUMBER_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be number",
+  };
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE = {
+    name: "ValidationError",
+    message: "Please use . as the decimal separator for default values.",
+  };
+  const EMPTY_ERROR_MESSAGE = {
+    name: "",
+    message: "",
+  };
+  const localeLang = navigator.languages?.[0] || "en-US";
+
+  function getLocaleDecimalSeperator() {
+    return Intl.NumberFormat(localeLang)
+      .format(1.1)
+      .replace(/\p{Number}/gu, "");
+  }
+  const decimalSeperator = getLocaleDecimalSeperator();
+  const defaultDecimalSeperator = ".";
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -64,8 +88,20 @@ export function defaultValueValidation(
      *  When parsed value is not a finite numer
      */
     isValid = false;
-    messages = [NUMBER_ERROR_MESSAGE];
     parsed = undefined;
+
+    /**
+     * Check whether value contains the locale decimal separator apart from "."
+     * We only allow "." as a decimal separator inside default value
+     */
+    if (
+      String(value).indexOf(defaultDecimalSeperator) === -1 &&
+      String(value).indexOf(decimalSeperator) > 0
+    ) {
+      messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
+    } else {
+      messages = [NUMBER_ERROR_MESSAGE];
+    }
   } else {
     /*
      *  When parsed value is a Number
@@ -75,7 +111,11 @@ export function defaultValueValidation(
     if (parsed !== Number(parsed.toFixed(props.decimals))) {
       isValid = false;
       messages = [
-        "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        {
+          name: "RangeError",
+          message:
+            "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        },
       ];
     } else {
       isValid = true;
@@ -145,7 +185,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               label: "Allow Currency Change",
               helpText: "Search by currency or country",
               controlType: "SWITCH",
-              isJSConvertible: false,
+              isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.BOOLEAN },
@@ -169,8 +209,16 @@ class CurrencyInputWidget extends BaseInputWidget<
                   value: 2,
                 },
               ],
-              isBindProperty: false,
+              isJSConvertible: true,
+              isBindProperty: true,
               isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.NUMBER,
+                params: {
+                  min: 0,
+                  max: 2,
+                },
+              },
             },
           ],
         },
@@ -222,6 +270,14 @@ class CurrencyInputWidget extends BaseInputWidget<
     });
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   componentDidMount() {
     //format the defaultText and store it in text
     this.formatText();
@@ -252,12 +308,19 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   formatText() {
-    if (!!this.props.text) {
+    if (!!this.props.text && !this.isTextFormatted()) {
       try {
-        const formattedValue = formatCurrencyNumber(
-          this.props.decimals,
-          this.props.text,
-        );
+        /**
+         * Since we are restricting default value to only have "." decimal separator,
+         * hence we directly convert it to the current locale
+         */
+        const floatVal = parseFloat(this.props.text);
+
+        const formattedValue = Intl.NumberFormat(getLocale(), {
+          style: "decimal",
+          minimumFractionDigits: this.props.decimals,
+          maximumFractionDigits: this.props.decimals,
+        }).format(floatVal);
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
@@ -295,6 +358,10 @@ class CurrencyInputWidget extends BaseInputWidget<
     }
   };
 
+  isTextFormatted = () => {
+    return this.props.text.includes(getLocaleThousandSeparator());
+  };
+
   handleFocusChange = (isFocused?: boolean) => {
     try {
       if (isFocused) {
@@ -304,6 +371,13 @@ class CurrencyInputWidget extends BaseInputWidget<
           "",
         );
         this.props.updateWidgetMetaProperty("text", deFormattedValue);
+        this.props.updateWidgetMetaProperty("isFocused", isFocused, {
+          triggerPropertyName: "onFocus",
+          dynamicString: this.props.onFocus,
+          event: {
+            type: EventType.ON_FOCUS,
+          },
+        });
       } else {
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
@@ -312,6 +386,13 @@ class CurrencyInputWidget extends BaseInputWidget<
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
+        this.props.updateWidgetMetaProperty("isFocused", isFocused, {
+          triggerPropertyName: "onBlur",
+          dynamicString: this.props.onBlur,
+          event: {
+            type: EventType.ON_BLUR,
+          },
+        });
       }
     } catch (e) {
       log.error(e);
@@ -339,10 +420,9 @@ class CurrencyInputWidget extends BaseInputWidget<
 
   onStep = (direction: number) => {
     const value = Number(this.props.value) + direction;
-    const formattedValue = formatCurrencyNumber(
-      this.props.decimals,
-      String(value),
-    );
+
+    // Since value is always going to be a number therefore, directly converting it to the current locale
+    const formattedValue = Intl.NumberFormat(getLocale()).format(value);
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -367,6 +447,12 @@ class CurrencyInputWidget extends BaseInputWidget<
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
 
+    if (this.props.showStepArrows) {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;
+    } else {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
+    }
+
     return (
       <CurrencyInputComponent
         accentColor={this.props.accentColor}
@@ -389,6 +475,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

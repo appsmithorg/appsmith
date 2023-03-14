@@ -17,13 +17,13 @@ import {
   Text,
   TextInput,
   TextType,
-} from "design-system";
+  Variant,
+} from "design-system-old";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import {
   APPLICATION_NAME,
   createMessage,
@@ -36,7 +36,7 @@ import {
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
-import { Variant } from "components/ads";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {

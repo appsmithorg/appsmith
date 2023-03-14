@@ -1,10 +1,21 @@
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { Location } from "history";
+import { AppsmithLocationState } from "utils/history";
 
-export const routeChanged = (pathname: string, hash?: string) => {
+export type RouteChangeActionPayload = {
+  location: Location<AppsmithLocationState>;
+};
+
+export const routeChanged = (
+  location: Location<AppsmithLocationState>,
+): ReduxAction<RouteChangeActionPayload> => {
   return {
     type: ReduxActionTypes.ROUTE_CHANGED,
-    payload: { pathname, hash },
+    payload: { location },
   };
 };
 

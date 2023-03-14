@@ -2,14 +2,18 @@ import React from "react";
 import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
-import { createGlobalStyle } from "constants/DefaultTheme";
+import { createGlobalStyle } from "styled-components";
 import {
   LabelPosition,
   LABEL_MARGIN_OLD_SELECT,
   SELECT_DEFAULT_HEIGHT,
 } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
-import { Icon, labelLayoutStyles, LABEL_CONTAINER_CLASS } from "design-system";
+import {
+  Icon,
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "design-system-old";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
@@ -621,6 +625,21 @@ export const TreeSelectContainer = styled.div<{
   accentColor: string;
 }>`
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {

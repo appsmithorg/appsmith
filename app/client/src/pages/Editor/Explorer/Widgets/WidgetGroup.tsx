@@ -5,6 +5,7 @@ import WidgetEntity from "./WidgetEntity";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import {
   ADD_WIDGET_BUTTON,
@@ -15,10 +16,14 @@ import {
 } from "@appsmith/constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { getExplorerStatus, saveExplorerStatus } from "../helpers";
-import { Icon } from "design-system";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "@appsmith/pages/Editor/Explorer/helpers";
+import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -32,7 +37,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
   let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
-  if (isWidgetsOpen === null) {
+  if (isWidgetsOpen === null || isWidgetsOpen === undefined) {
     isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
     saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
   } else if (guidedTour) {
@@ -51,9 +56,14 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     [applicationId],
   );
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
+
   return (
     <Entity
       addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
+      canEditEntityName={canManagePages}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!widgets && !!props.searchKeyword}
       entityId={pageId + "_widgets"}
@@ -65,6 +75,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}
+      showAddButton={canManagePages}
       step={props.step}
     >
       {widgets?.children?.map((child) => (
@@ -88,7 +99,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
             mainText={createMessage(EMPTY_WIDGET_MAIN_TEXT)}
           />
         )}
-      {widgets?.children && widgets?.children?.length > 0 && (
+      {widgets?.children && widgets?.children?.length > 0 && canManagePages && (
         <AddEntity
           action={props.addWidgetsFn}
           entityId={pageId + "_widgets_add_new_datasource"}

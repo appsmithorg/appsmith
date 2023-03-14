@@ -1,4 +1,4 @@
-import { SegmentHeader } from "design-system";
+import { SegmentHeader } from "design-system-old";
 import { RemoteBranchListItem } from "./RemoteBranchListItem";
 import React from "react";
 import { createMessage, REMOTE_BRANCHES } from "@appsmith/constants/messages";
@@ -17,7 +17,6 @@ export function RemoteBranchList(
       {remoteBranches?.length > 0 && (
         <SegmentHeader
           data-testid="t--branch-list-header-remote"
-          hideStyledHr
           title={createMessage(REMOTE_BRANCHES)}
         />
       )}

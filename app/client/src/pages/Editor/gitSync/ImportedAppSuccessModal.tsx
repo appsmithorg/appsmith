@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
-import { DialogComponent as Dialog, Text, TextType } from "design-system";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
   APPLICATION_IMPORT_SUCCESS,
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import { Icon } from "design-system";
-import { Theme } from "constants/DefaultTheme";
+import { Icon } from "design-system-old";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Button, Category, Size } from "design-system";
+import { Button, Category, Size } from "design-system-old";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 461px;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Statusbar } from "design-system";
+import { Statusbar } from "design-system-old";
 import styled from "styled-components";
 
 type StatusbarProps = {

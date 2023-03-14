@@ -4,7 +4,9 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.TriggerRequestDTO;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
+import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -70,8 +72,9 @@ public class MethodConfig {
         this.sheetName = getTrimmedStringDataValueSafelyFromFormData(formData, SHEET_NAME);
         this.rowObjects = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
 
-        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {
-        })) {
+        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE,
+                new TypeReference<Map<String, Object>>() {
+                })) {
             Map<String, Object> whereForm = getDataValueSafelyFromFormData(
                     formData,
                     FieldName.WHERE,
@@ -98,7 +101,7 @@ public class MethodConfig {
         if (matcher.find()) {
             this.spreadsheetId = matcher.group(1);
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.SPREADSHEET_ID_NOT_FOUND_IN_URL_ERROR_MSG);
         }
     }
 
@@ -108,9 +111,6 @@ public class MethodConfig {
             case 3:
             case 2:
                 this.tableHeaderIndex = getValueSafelyFromFormDataAsString(parameters, TABLE_HEADER_INDEX);
-                if (!StringUtils.hasLength(this.tableHeaderIndex)) {
-                    this.tableHeaderIndex = "1";
-                }
                 this.sheetName = getValueSafelyFromFormDataAsString(parameters, SHEET_NAME);
             case 1:
                 this.spreadsheetUrl = getValueSafelyFromFormDataAsString(parameters, SHEET_URL);

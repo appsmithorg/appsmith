@@ -1,4 +1,4 @@
-import { Completion } from "./TernServer";
+import { Completion } from "./CodemirrorTernService";
 
 export const getCompletionsForKeyword = (
   completion: Completion,
@@ -136,7 +136,28 @@ export const getCompletionsForKeyword = (
           element.innerHTML = completion.text;
         },
       });
-
+      break;
+    case "async":
+      completions.push(
+        {
+          ...completion,
+          name: "async-function",
+          text: `async function() {\n\n${indentationSpace}}`,
+          render: (element: HTMLElement) => {
+            element.setAttribute("keyword", "async Function Statement");
+            element.innerHTML = completion.text;
+          },
+        },
+        {
+          ...completion,
+          name: "async-arrow-function",
+          text: `async () => {\n\n${indentationSpace}}`,
+          render: (element: HTMLElement) => {
+            element.setAttribute("keyword", "async Arrow Function Statement");
+            element.innerHTML = completion.text;
+          },
+        },
+      );
       break;
   }
 

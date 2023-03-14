@@ -7,7 +7,7 @@ export default (
 ) => {
   useEffect(() => {
     let clickCount = 0;
-    let timeoutId = 0;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const handleClick = (e: any) => {
       if (!doubleClk) {

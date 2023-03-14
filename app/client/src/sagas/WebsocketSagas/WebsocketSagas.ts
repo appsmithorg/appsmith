@@ -1,6 +1,6 @@
-import { io, Socket } from "socket.io-client";
+import { io, Socket, ManagerOptions, SocketOptions } from "socket.io-client";
 import { EventChannel, eventChannel, Task } from "redux-saga";
-import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
+import { fork, take, call, cancel, put } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -16,8 +16,6 @@ import {
 import {
   setIsAppLevelWebsocketConnected,
   setIsPageLevelWebsocketConnected,
-  retryAppLevelSocketConnection,
-  retryPageLevelSocketConnection,
 } from "actions/websocketActions";
 
 import handleAppLevelSocketEvents from "./handleAppLevelSocketEvents";
@@ -26,12 +24,14 @@ import * as Sentry from "@sentry/react";
 import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
 
 function connect(namespace?: string) {
-  const options = {
+  const options: Partial<ManagerOptions & SocketOptions> = {
     path: RTS_BASE_PATH,
     // The default transports is ["polling", "websocket"], so polling is tried first. But polling
     //   needs sticky session to be turned on, in a clustered environment, even for it to upgrade to websockets.
     // Ref: <https://github.com/socketio/socket.io/issues/2140>.
     transports: ["websocket"],
+    reconnectionAttempts: 5,
+    reconnectionDelay: 3000,
   };
   const socket = !!namespace ? io(namespace, options) : io(options);
 
@@ -107,10 +107,7 @@ function* handleAppSocketIO(socket: any) {
 
 function* openAppLevelSocketConnection() {
   while (true) {
-    yield take([
-      ReduxActionTypes.INIT_APP_LEVEL_SOCKET_CONNECTION,
-      ReduxActionTypes.RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION, // for manually triggering reconnection
-    ]);
+    yield take(ReduxActionTypes.INIT_APP_LEVEL_SOCKET_CONNECTION);
     try {
       /**
        * Incase the socket is disconnected due to network latencies
@@ -126,11 +123,7 @@ function* openAppLevelSocketConnection() {
       yield cancel(task);
       socket?.disconnect();
     } catch (e) {
-      // this has to be non blocking
-      yield fork(function*() {
-        yield delay(3000);
-        yield put(retryAppLevelSocketConnection());
-      });
+      Sentry.captureException(e);
     }
   }
 }
@@ -179,10 +172,7 @@ function* handlePageSocketIO(socket: any) {
 
 function* openPageLevelSocketConnection() {
   while (true) {
-    yield take([
-      ReduxActionTypes.INIT_PAGE_LEVEL_SOCKET_CONNECTION,
-      ReduxActionTypes.RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION, // for manually triggering reconnection
-    ]);
+    yield take(ReduxActionTypes.INIT_PAGE_LEVEL_SOCKET_CONNECTION);
     try {
       const socket: Socket = yield call(connect, WEBSOCKET_NAMESPACE.PAGE_EDIT);
       const task: Task = yield fork(handlePageSocketIO, socket);
@@ -191,11 +181,7 @@ function* openPageLevelSocketConnection() {
       yield cancel(task);
       socket.disconnect();
     } catch (e) {
-      // this has to be non blocking
-      yield fork(function*() {
-        yield delay(3000);
-        yield put(retryPageLevelSocketConnection());
-      });
+      Sentry.captureException(e);
     }
   }
 }

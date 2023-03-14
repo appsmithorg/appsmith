@@ -16,10 +16,6 @@
     <name>amazons3Plugin</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>amazons3-plugin</plugin.id>
         <plugin.class>com.external.plugins.AmazonS3Plugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
@@ -32,7 +28,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-bom</artifactId>
-                <version>1.11.327</version>
+                <version>1.12.261</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

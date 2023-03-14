@@ -1,11 +1,13 @@
 package com.appsmith.server.repositories;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
@@ -36,4 +38,15 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
     Mono<Boolean> archiveAllById(List<ID> ids);
 
     Mono<T> findByIdAndBranchName(ID id, String branchName);
+
+    /**
+     * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will return only the values
+     * against the `fieldNames` property in the matching object.
+     */
+    Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
+
+    /**
+     * This method is supposed to update the given list of fields in an object as opposed to replacing the entire object.
+     */
+    Mono<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
 }

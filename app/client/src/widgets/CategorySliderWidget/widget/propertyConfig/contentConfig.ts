@@ -1,13 +1,14 @@
-import { LabelPosition } from "components/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { CategorySliderWidgetProps } from "..";
 import {
   defaultOptionValidation,
   optionsCustomValidation,
 } from "../../validations";
-import { CategorySliderWidgetProps } from "..";
 
 export default [
   {
@@ -84,6 +85,7 @@ export default [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
         ],
+        defaultValue: LabelPosition.Left,
         isBindProperty: false,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -135,6 +137,16 @@ export default [
     sectionName: "General",
     children: [
       {
+        helpText: "Show help text or details about current input",
+        propertyName: "labelTooltip",
+        label: "Tooltip",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Value must be atleast 6 chars",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
         propertyName: "showMarksLabel",
         helpText: "Controls the visibility of the marks Label widget",
         label: "Show Marks",
@@ -177,6 +189,7 @@ export default [
       },
     ],
   },
+  ...getResponsiveLayoutConfig("CATEGORY_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [

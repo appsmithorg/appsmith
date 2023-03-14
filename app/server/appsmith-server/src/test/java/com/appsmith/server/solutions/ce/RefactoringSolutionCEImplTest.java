@@ -3,11 +3,17 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ActionPermissionImpl;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PagePermissionImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +54,13 @@ class RefactoringSolutionCEImplTest {
     private AstService astService;
     @MockBean
     private InstanceConfig instanceConfig;
+    @MockBean
+    private AnalyticsService analyticsService;
+    @MockBean
+    private SessionUserService sessionUserService;
+
+    PagePermission pagePermission;
+    ActionPermission actionPermission;
 
     ObjectMapper mapper = new ObjectMapper();
 
@@ -56,6 +69,8 @@ class RefactoringSolutionCEImplTest {
 
     @BeforeEach
     public void setUp() {
+        pagePermission = new PagePermissionImpl();
+        actionPermission = new ActionPermissionImpl();
         refactoringSolutionCE = new RefactoringSolutionCEImpl(objectMapper,
                 newPageService,
                 newActionService,
@@ -64,7 +79,11 @@ class RefactoringSolutionCEImplTest {
                 layoutActionService,
                 applicationService,
                 astService,
-                instanceConfig);
+                instanceConfig, 
+                analyticsService, 
+                sessionUserService,
+                pagePermission,
+                actionPermission);
     }
 
     @Test
@@ -73,7 +92,7 @@ class RefactoringSolutionCEImplTest {
              InputStream finalStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewText.json")) {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
-            final String oldName = "Text3";
+            final String oldName = "Text";
             Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
                     dslAsJsonNode,
                     oldName,
@@ -85,7 +104,7 @@ class RefactoringSolutionCEImplTest {
                     .assertNext(updatedPaths -> {
                         Assertions.assertThat(updatedPaths).hasSize(3);
                         Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
-                                "Text3.widgetName",
+                                "Text.widgetName",
                                 "List1.template",
                                 "List1.onListItemClick");
                     })
@@ -120,7 +139,7 @@ class RefactoringSolutionCEImplTest {
                                 "List1.widgetName",
                                 "List1.template.Text4.text",
                                 "List1.template.Image1.image",
-                                "List1.template.Text3.text");
+                                "List1.template.Text.text");
                     })
                     .verifyComplete();
 

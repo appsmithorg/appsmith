@@ -6,7 +6,7 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import { ThemeProvider } from "constants/DefaultTheme";
+import { ThemeProvider } from "styled-components";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
@@ -30,6 +30,13 @@ const store = mockStore({
         },
       },
     },
+  },
+  tenant: {
+    userPermissions: [],
+    tenantConfiguration: {
+      brandColors: {},
+    },
+    new: false,
   },
 });
 

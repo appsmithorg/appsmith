@@ -1,9 +1,17 @@
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Text",
   iconSVG: IconSVG,
@@ -21,6 +29,8 @@ export const CONFIG = {
     overflow: OverflowTypes.NONE,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -29,6 +39,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

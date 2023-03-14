@@ -23,10 +23,7 @@ export type UrlDataState = {
   fullPath: string;
 };
 
-export type AppStoreState = {
-  transient: Record<string, unknown>;
-  persistent: Record<string, unknown>;
-};
+export type AppStoreState = Record<string, unknown>;
 
 export type AppDataState = {
   mode?: APP_MODE;
@@ -55,10 +52,7 @@ const initialState: AppDataState = {
     hash: "",
     fullPath: "",
   },
-  store: {
-    transient: {},
-    persistent: {},
-  },
+  store: {},
   geolocation: {
     canBeRequested: "geolocation" in navigator,
     currentPosition: {},
@@ -93,28 +87,13 @@ const appReducer = createReducer(initialState, {
       URL: action.payload,
     };
   },
-  [ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE]: (
+  [ReduxActionTypes.UPDATE_APP_STORE]: (
     state: AppDataState,
     action: ReduxAction<Record<string, unknown>>,
   ) => {
     return {
       ...state,
-      store: {
-        ...state.store,
-        transient: action.payload,
-      },
-    };
-  },
-  [ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE]: (
-    state: AppDataState,
-    action: ReduxAction<Record<string, unknown>>,
-  ) => {
-    return {
-      ...state,
-      store: {
-        ...state.store,
-        persistent: action.payload,
-      },
+      store: action.payload,
     };
   },
   [ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION]: (

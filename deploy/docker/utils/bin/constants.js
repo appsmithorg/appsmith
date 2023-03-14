@@ -5,7 +5,7 @@ const RESTORE_PATH = "/appsmith-stacks/data/restore"
 
 const DUMP_FILE_NAME = "appsmith-data.archive"
 
-const BACKUP_ERROR_LOG_PATH = "/appsmith-stacks/logs/backup"
+const APPSMITHCTL_LOG_PATH = "/appsmith-stacks/logs/appsmithctl"
 
 const LAST_ERROR_MAIL_TS = "/appsmith-stacks/data/backup/last-error-mail-ts"
 
@@ -18,7 +18,7 @@ module.exports = {
     RESTORE_PATH,
     DUMP_FILE_NAME,
     LAST_ERROR_MAIL_TS,
-    BACKUP_ERROR_LOG_PATH,
+    APPSMITHCTL_LOG_PATH,
     MIN_REQUIRED_DISK_SPACE_IN_BYTES,
     DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC,
 }

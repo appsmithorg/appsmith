@@ -1,23 +1,25 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import ButtonComponent, { ButtonType } from "../component";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import {
+  ButtonPlacement,
+  ButtonPlacementTypes,
+  ButtonVariant,
+  ButtonVariantTypes,
+  RecaptchaType,
+  RecaptchaTypes,
+} from "components/constants";
 import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import React from "react";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import {
-  ButtonVariant,
-  ButtonVariantTypes,
-  RecaptchaTypes,
-  RecaptchaType,
-  ButtonPlacementTypes,
-  ButtonPlacement,
-} from "components/constants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import ButtonComponent, { ButtonType } from "../component";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -103,6 +105,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Validation",
         children: [
@@ -354,6 +357,14 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

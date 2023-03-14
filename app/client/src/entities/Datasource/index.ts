@@ -11,6 +11,7 @@ export enum AuthenticationStatus {
   NONE = "NONE",
   IN_PROGRESS = "IN_PROGRESS",
   SUCCESS = "SUCCESS",
+  FAILURE = "FAILURE",
 }
 export interface DatasourceAuthentication {
   authType?: string;
@@ -23,6 +24,7 @@ export interface DatasourceAuthentication {
   bearerToken?: string;
   authenticationStatus?: string;
   authenticationType?: string;
+  secretExists?: Record<string, boolean>;
 }
 
 export interface DatasourceColumns {
@@ -62,6 +64,8 @@ interface BaseDatasource {
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
+  userPermissions?: string[];
+  isDeleting?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -99,6 +103,11 @@ export interface Datasource extends BaseDatasource {
   structure?: DatasourceStructure;
   messages?: string[];
   success?: boolean;
+}
+
+export interface TokenResponse {
+  datasource: Datasource;
+  token: string;
 }
 
 export interface MockDatasource {

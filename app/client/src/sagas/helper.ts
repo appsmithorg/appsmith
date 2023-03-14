@@ -1,6 +1,5 @@
-import { Toaster } from "design-system";
-import { createMessage } from "ce/constants/messages";
-import { Variant } from "components/ads";
+import { Toaster, Variant } from "design-system-old";
+import { createMessage } from "@appsmith/constants/messages";
 import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   FormEvalOutput,
@@ -85,7 +84,10 @@ const logCyclicDependecyErrors = (
           text: !!error.message ? error.message : error.errorType,
           messages: [
             {
-              message: !!error.message ? error.message : error.errorType,
+              message: {
+                name: "CyclicalDependencyError",
+                message: !!error.message ? error.message : error.errorType,
+              },
               type: PLATFORM_ERROR.PLUGIN_EXECUTION,
             },
           ],

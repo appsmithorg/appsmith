@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import styled from "styled-components";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
-import { StyledMenu } from "design-system";
+import { StyledMenu } from "design-system-old";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
@@ -14,7 +15,6 @@ import {
   MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { entityTooltipCSS } from "./Entity";
 import { useCloseMenuOnScroll } from "./hooks";
@@ -26,6 +26,7 @@ export type TreeDropdownOption = DropdownOption & {
   className?: string;
   type?: string;
   confirmDelete?: boolean;
+  disabled?: boolean;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -52,7 +53,9 @@ type TreeDropdownProps = {
   menuWidth?: number;
 };
 
-export const StyledPopover = styled(Popover)`
+export const StyledPopover = styled(Popover)<{
+  children?: React.ReactNode;
+}>`
   .${Classes.POPOVER_TARGET} {
     ${entityTooltipCSS}
   }
@@ -155,6 +158,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       <MenuItem
         active={isSelected}
         className={option.className || "single-select"}
+        disabled={option.disabled}
         icon={option.icon}
         intent={option.intent}
         key={option.value}

@@ -4,8 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
@@ -81,6 +79,7 @@ public enum AclPermission {
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
 
     // Can the user create a comment thread on a given application?
+    @Deprecated
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
@@ -102,13 +101,6 @@ public enum AclPermission {
     DELETE_DATASOURCES("delete:datasources", Datasource.class),
     CREATE_DATASOURCE_ACTIONS("create:datasourceActions", Datasource.class),
 
-    COMMENT_ON_THREADS("canComment:commentThreads", CommentThread.class),
-    READ_THREADS("read:commentThreads", CommentThread.class),
-    MANAGE_THREADS("manage:commentThreads", CommentThread.class),
-
-    READ_COMMENTS("read:comments", Comment.class),
-    MANAGE_COMMENTS("manage:comments", Comment.class),
-
     READ_THEMES("read:themes", Theme.class),
     MANAGE_THEMES("manage:themes", Theme.class),
 
@@ -118,6 +110,8 @@ public enum AclPermission {
     READ_PERMISSION_GROUP_MEMBERS("read:permissionGroupMembers", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
+    @Deprecated
+    READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
 
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),

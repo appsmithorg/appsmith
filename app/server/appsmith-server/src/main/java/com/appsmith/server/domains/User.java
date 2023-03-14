@@ -32,6 +32,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     private String email;
 
+    private String hashedEmail;
+
     //TODO: This is deprecated in favour of groups
     private Set<Role> roles;
 

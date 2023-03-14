@@ -21,9 +21,9 @@ import {
   Text,
   TextInput,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
-import { emailValidator } from "design-system";
+import { emailValidator } from "design-system-old";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,

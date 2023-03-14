@@ -8,6 +8,8 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
+import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 
 import org.modelmapper.ModelMapper;
@@ -16,7 +18,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 @Slf4j
 @Service
@@ -38,11 +40,13 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 ApplicationRepository applicationRepository,
                                 PermissionGroupService permissionGroupService,
                                 PolicyUtils policyUtils,
-                                ModelMapper modelMapper) {
+                                ModelMapper modelMapper,
+                                WorkspacePermission workspacePermission,
+                                PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
                 assetRepository, assetService, applicationRepository, permissionGroupService,
-                policyUtils, modelMapper);
+                policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
     }
 }

@@ -80,6 +80,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     fontStyle,
     horizontalAlignment,
     iconName,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     isSelected,
@@ -96,6 +97,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
         cellBackground={cellBackground}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isHidden={isHidden}
         textColor={textColor}
         textSize={textSize}
@@ -110,6 +112,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

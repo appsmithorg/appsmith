@@ -10,9 +10,9 @@ import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
 } from "widgets/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -20,12 +20,19 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
+    minDynamicHeight: 24,
     canEscapeKeyClose: true,
     animateLoading: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
@@ -76,7 +83,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Modal Title",
-                    fontSize: THEMEING_TEXT_SIZES.lg,
+                    fontSize: "1.25rem",
                     version: 1,
                   },
                 },
@@ -179,6 +186,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

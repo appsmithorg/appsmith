@@ -4,6 +4,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -17,7 +18,12 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,6 +80,18 @@ public class GitServiceCEImplTest {
     GitCloudServicesUtils gitCloudServicesUtils;
     @MockBean
     GitDeployKeysRepository gitDeployKeysRepository;
+    @MockBean
+    DatasourcePermission datasourcePermission;
+    @MockBean
+    ApplicationPermission applicationPermission;
+    @MockBean
+    PagePermission pagePermission;
+    @MockBean
+    ActionPermission actionPermission;
+    @MockBean
+    WorkspaceService workspaceService;
+    @MockBean
+    RedisUtils redisUtils;
 
     @BeforeEach
     public void setup() {
@@ -81,7 +99,8 @@ public class GitServiceCEImplTest {
                 userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, gitFileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService
+                datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
+                actionPermission, workspaceService, redisUtils
         );
     }
 

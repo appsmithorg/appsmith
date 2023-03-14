@@ -1,0 +1,109 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 4896,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1292,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 69,
+        "minHeight": 1292,
+        "dynamicTriggerPathList": [],
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "backgroundColor": "#FFFFFF",
+                "widgetName": "Container1",
+                "containerStyle": "card",
+                "borderColor": "#E0DEDE",
+                "borderWidth": "1",
+                "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                "animateLoading": true,
+                "children": [
+                    {
+                        "isVisible": true,
+                        "widgetName": "Canvas1",
+                        "version": 1,
+                        "detachFromLayout": true,
+                        "type": "CANVAS_WIDGET",
+                        "hideCard": true,
+                        "isDeprecated": false,
+                        "displayName": "Canvas",
+                        "key": "49f4d77rwd",
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "children": [],
+                        "minHeight": 100,
+                        "widgetId": "tbezx4vcxu",
+                        "renderMode": "CANVAS",
+                        "boxShadow": "none",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 286.5,
+                        "topRow": 0,
+                        "bottomRow": 100,
+                        "parentId": "57nv0ufxq1",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "borderRadius"
+                            },
+                            {
+                                "key": "accentColor"
+                            }
+                        ]
+                    }
+                ],
+                "version": 1,
+                "minDynamicHeight": 10,
+                "maxDynamicHeight": 9000,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "shouldScrollContents": true,
+                "searchTags": [
+                    "div",
+                    "parent",
+                    "group"
+                ],
+                "type": "CONTAINER_WIDGET",
+                "hideCard": false,
+                "isDeprecated": false,
+                "displayName": "Container",
+                "key": "g4phrz9m3l",
+                "iconSVG": "/static/media/icon.1977dca3370505e2db3a8e44cfd54907.svg",
+                "isCanvas": true,
+                "widgetId": "57nv0ufxq1",
+                "renderMode": "CANVAS",
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "isLoading": false,
+                "parentColumnSpace": 11.9375,
+                "parentRowSpace": 10,
+                "leftColumn": 20,
+                "rightColumn": 44,
+                "topRow": 23,
+                "bottomRow": 33,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "boxShadow"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -34,6 +34,8 @@ type ComputedSchema = {
   status: ComputedSchemaStatus;
   schema: Schema;
   dynamicPropertyPathList?: PathList;
+  modifiedSchemaItems: Record<string, SchemaItem>;
+  removedSchemaItems: string[];
 };
 
 type ComputeSchemaProps = {
@@ -263,6 +265,8 @@ export const computeSchema = ({
     return {
       status: ComputedSchemaStatus.UNCHANGED,
       schema: prevSchema,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
     };
   }
 
@@ -282,12 +286,18 @@ export const computeSchema = ({
     return {
       status: ComputedSchemaStatus.LIMIT_EXCEEDED,
       schema: prevSchema,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
     };
   }
 
   const start = performance.now();
 
-  const schema = SchemaParser.parse(widgetName, {
+  const {
+    modifiedSchemaItems,
+    removedSchemaItems,
+    schema,
+  } = SchemaParser.parse(widgetName, {
     fieldThemeStylesheets,
     currSourceData,
     schema: prevSchema,
@@ -308,5 +318,7 @@ export const computeSchema = ({
     status: ComputedSchemaStatus.UPDATED,
     dynamicPropertyPathList,
     schema,
+    modifiedSchemaItems,
+    removedSchemaItems,
   };
 };

@@ -10,6 +10,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +26,10 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         UserRepository userRepository,
                                         WorkspaceService workspaceService,
                                         WorkspaceRepository workspaceRepository,
-                                        ApplicationPageService applicationPageService) {
+                                        ApplicationPageService applicationPageService,
+                                        WorkspacePermission workspacePermission) {
 
         super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, workspaceRepository, workspaceService, applicationPageService);
+                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission);
     }
 }

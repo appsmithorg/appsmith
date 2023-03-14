@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";

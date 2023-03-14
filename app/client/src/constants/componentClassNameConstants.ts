@@ -1,8 +1,8 @@
-export function getStickyCanvasName(widgetId: string) {
+export function getSlidingArenaName(widgetId: string) {
   return `div-selection-${widgetId}`;
 }
 
-export function getSlidingCanvasName(widgetId: string) {
+export function getStickyCanvasName(widgetId: string) {
   return `canvas-selection-${widgetId}`;
 }
 

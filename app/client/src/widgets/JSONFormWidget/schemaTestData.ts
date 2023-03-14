@@ -1,10 +1,68 @@
+import { klona } from "klona";
+import { isEmpty, startCase } from "lodash";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FieldThemeStylesheet,
   FieldType,
   ROOT_SCHEMA_KEY,
+  SchemaItem,
 } from "./constants";
+
+export const schemaItemStyles = {
+  accentColor:
+    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+  borderRadius:
+    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+  boxShadow: "none",
+};
+
+export const schemaItemFactory = (item: any): SchemaItem => {
+  return {
+    isDisabled: false,
+    isRequired: false,
+    labelTextSize: "0.875rem",
+    label: startCase(item.identifier),
+    isVisible: true,
+    children: {},
+    dataType: DataType.STRING,
+    defaultValue: `{{((sourceData, formData, fieldState) => (sourceData.${item.identifier}))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}`,
+    fieldType: FieldType.TEXT_INPUT,
+    sourceData: "Test name",
+    isCustomField: false,
+    accessor: item.identifier || "",
+    identifier: item.identifier || "",
+    originalIdentifier: item.identifier || "",
+    position: 0,
+    ...item,
+  };
+};
+
+export const replaceBindingWithValue = (schemaItem: SchemaItem) => {
+  if (isEmpty(schemaItem)) return {} as SchemaItem;
+
+  const updatedSchemaItem = klona(schemaItem);
+
+  Object.keys(updatedSchemaItem).forEach((k) => {
+    const key = k as keyof SchemaItem;
+
+    if (key === "children") {
+      const schema = schemaItem[key];
+      Object.keys(schema).forEach((itemKey) => {
+        updatedSchemaItem.children[itemKey] = replaceBindingWithValue(
+          schemaItem.children[itemKey],
+        );
+      });
+    }
+
+    if (isDynamicValue(schemaItem[key])) {
+      updatedSchemaItem[key] = "test" as never;
+    }
+  });
+
+  return updatedSchemaItem;
+};
 
 const initialDataset = {
   dataSource: {

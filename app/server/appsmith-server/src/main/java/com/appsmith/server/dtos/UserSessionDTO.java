@@ -24,6 +24,8 @@ public class UserSessionDTO {
 
     private String email;
 
+    private String hashedEmail;
+
     private String name;
 
     private LoginSource source;
@@ -65,6 +67,7 @@ public class UserSessionDTO {
 
         session.userId = user.getId();
         session.email = user.getEmail();
+        session.hashedEmail = user.getHashedEmail();
         session.name = user.getName();
         session.source = user.getSource();
         session.state = user.getState();
@@ -97,6 +100,7 @@ public class UserSessionDTO {
 
         user.setId(userId);
         user.setEmail(email);
+        user.setHashedEmail(hashedEmail);
         user.setName(name);
         user.setSource(source);
         user.setState(state);

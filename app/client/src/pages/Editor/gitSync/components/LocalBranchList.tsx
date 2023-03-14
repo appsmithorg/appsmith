@@ -1,4 +1,4 @@
-import { SegmentHeader } from "design-system";
+import { SegmentHeader } from "design-system-old";
 import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";
@@ -26,7 +26,6 @@ export function LocalBranchList(
       {localBranches?.length > 0 && (
         <SegmentHeader
           data-testid="t--branch-list-header-local"
-          hideStyledHr
           title={createMessage(LOCAL_BRANCHES)}
         />
       )}

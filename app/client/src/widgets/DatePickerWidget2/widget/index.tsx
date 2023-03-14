@@ -1,19 +1,22 @@
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-import derivedProperties from "./parseDerivedProperties";
-import { DatePickerType, TimePrecision } from "../constants";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { DatePickerType, TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
+import derivedProperties from "./parseDerivedProperties";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -21,7 +24,19 @@ function allowedRange(value: any) {
   return {
     isValid: isValid,
     parsed: isValid ? Number(value) : 0,
-    messages: isValid ? [] : ["Number should be between 0-6."],
+    messages: isValid
+      ? [
+          {
+            name: "",
+            message: "",
+          },
+        ]
+      : [
+          {
+            name: "RangeError",
+            message: "Number should be between 0-6.",
+          },
+        ],
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
@@ -139,6 +154,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -228,6 +244,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -281,6 +307,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -289,6 +316,24 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "onDateSelected",
             helpText:
               "Triggers an action when a date is selected in the calendar",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            propertyName: "onFocus",
+            label: "onFocus",
+            helpText: "Triggers an action when the date picker receives focus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            propertyName: "onBlur",
+            label: "onBlur",
+            helpText: "Triggers an action when the date picker loses focus",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -361,7 +406,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -440,6 +485,14 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   componentDidUpdate(prevProps: DatePickerWidget2Props): void {
     if (
       this.props.defaultDate !== prevProps.defaultDate &&
@@ -465,20 +518,25 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           )
         }
         dateFormat={this.props.dateFormat}
-        datePickerType={"DATE_PICKER"}
+        datePickerType="DATE_PICKER"
         firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.label}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
+        onBlur={this.onBlur}
         onDateSelected={this.onDateSelected}
+        onFocus={this.onFocus}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
@@ -499,6 +557,28 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         type: EventType.ON_DATE_SELECTED,
       },
     });
+  };
+
+  onFocus = () => {
+    if (this.props.onFocus)
+      super.executeAction({
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+  };
+
+  onBlur = () => {
+    if (this.props.onBlur)
+      super.executeAction({
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
   };
 
   static getWidgetType(): WidgetType {
@@ -533,6 +613,8 @@ export interface DatePickerWidget2Props extends WidgetProps {
   accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  onFocus?: string;
+  onBlur?: string;
 }
 
 export default DatePickerWidget;

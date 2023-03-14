@@ -1,10 +1,10 @@
 import React from "react";
 
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import PageNotFound from "pages/common/PageNotFound";
-import ServerTimeout from "pages/common/ServerTimeout";
-import ServerUnavailable from "pages/common/ServerUnavailable";
-import ClientError from "pages/common/ClientError";
+import PageNotFound from "pages/common/ErrorPages/PageNotFound";
+import ServerTimeout from "pages/common/ErrorPages/ServerTimeout";
+import ServerUnavailable from "pages/common/ErrorPages/ServerUnavailable";
+import ClientError from "pages/common/ErrorPages/ClientError";
 
 interface ErrorPageProps {
   code: ERROR_CODES;

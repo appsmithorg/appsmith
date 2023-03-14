@@ -1,8 +1,11 @@
+import { Positioning } from "utils/autoLayout/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -17,6 +20,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  isDeprecated: true,
+  hideCard: true,
+  replacement: "LIST_WIDGET_V2",
+  needsHeightForContent: true,
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
@@ -25,6 +32,9 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
+    positioning: Positioning.Fixed,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
@@ -32,6 +42,11 @@ export const CONFIG = {
         },
         updateDataTreePath: (parentProps: any, dataTreePath: string) => {
           return `${parentProps.widgetName}.template.${dataTreePath}`;
+        },
+        shouldHideProperty: (parentProps: any, propertyName: string) => {
+          if (propertyName === "dynamicHeight") return true;
+
+          return false;
         },
         propertyUpdateHook: (
           parentProps: any,
@@ -124,6 +139,7 @@ export const CONFIG = {
                     disablePropertyPane: true,
                     openParentPropertyPane: true,
                     children: [],
+                    positioning: Positioning.Fixed,
                     blueprint: {
                       view: [
                         {
@@ -175,6 +191,7 @@ export const CONFIG = {
                                     textStyle: "HEADING",
                                     textAlign: "LEFT",
                                     boxShadow: "none",
+                                    dynamicHeight: "FIXED",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -198,6 +215,7 @@ export const CONFIG = {
                                     textStyle: "BODY",
                                     textAlign: "LEFT",
                                     boxShadow: "none",
+                                    dynamicHeight: "FIXED",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -293,6 +311,11 @@ export const CONFIG = {
                 propertyName: "template",
                 propertyValue: template,
               },
+              {
+                widgetId: container.widgetId,
+                propertyName: "dynamicHeight",
+                propertyValue: "FIXED",
+              },
             ];
 
             // add logBlackList to updateProperyMap for all children
@@ -320,6 +343,8 @@ export const CONFIG = {
             const widget = { ...widgets[widgetId] };
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
+
+            widget.dynamicHeight = "FIXED";
 
             /*
              * Only widgets that don't have derived or meta properties
@@ -366,18 +391,11 @@ export const CONFIG = {
                 widgets[widget.parentId] = _parent;
               }
               delete widgets[widgetId];
-
               return {
                 widgets,
                 message: `This widget cannot be used inside the list widget.`,
               };
             }
-
-            const template = {
-              ...get(parent, "template", {}),
-              [widget.widgetName]: widget,
-            };
-            parent.template = template;
 
             // add logBlackList for the children being added
             Object.keys(widget).map((key) => {
@@ -388,7 +406,6 @@ export const CONFIG = {
 
             widgets[parentId] = parent;
             widgets[widgetId] = widget;
-
             return { widgets };
           },
         },
@@ -402,6 +419,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

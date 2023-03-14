@@ -46,6 +46,7 @@ import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
 import MenuItemsControl from "./MenuItemsControl";
+import OpenConfigPanelControl from "./OpenConfigPanelControl";
 import ButtonListControl from "./ButtonListControl";
 import IconSelectControl from "./IconSelectControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
@@ -68,9 +69,16 @@ import ComputeTablePropertyControlV2, {
 import PrimaryColumnColorPickerControlV2, {
   PrimaryColumnColorPickerControlPropsV2,
 } from "components/propertyControls/PrimaryColumnColorPickerControlV2";
-import TableInlineEditValidationControlProperty, {
+import TableInlineEditValidationControl, {
   TableInlineEditValidationControlProps,
-} from "./TableInlineEditValidation";
+} from "./TableInlineEditValidationControl";
+import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyControl";
+import MenuButtonDynamicItemsControl, {
+  MenuButtonDynamicItemsControlProps,
+} from "components/propertyControls/MenuButtonDynamicItemsControl";
+import ListComputeControl, {
+  ListComputeControlProps,
+} from "./ListComputeControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -95,6 +103,8 @@ export const PropertyControls = {
   ComputeTablePropertyControl,
   ComputeTablePropertyControlV2,
   MenuItemsControl,
+  MenuButtonDynamicItemsControl,
+  OpenConfigPanelControl,
   ButtonListControl,
   IconSelectControl,
   BoxShadowOptionsControl,
@@ -108,7 +118,9 @@ export const PropertyControls = {
   PrimaryColumnColorPickerControl,
   PrimaryColumnColorPickerControlV2,
   SelectDefaultValueControl,
-  TableInlineEditValidationControlProperty,
+  TableInlineEditValidationControl,
+  TableInlineEditValidPropertyControl,
+  ListComputeControl,
 };
 
 export type PropertyControlPropsType =
@@ -127,10 +139,12 @@ export type PropertyControlPropsType =
   | NumericInputControlProps
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
+  | MenuButtonDynamicItemsControlProps
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
-  | TableInlineEditValidationControlProps;
+  | TableInlineEditValidationControlProps
+  | ListComputeControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

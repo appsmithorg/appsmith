@@ -1,4 +1,4 @@
-import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   ReduxAction,
@@ -12,10 +12,11 @@ import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
@@ -26,6 +27,7 @@ interface StartingSelectionState {
       }
     | undefined;
 }
+
 function* selectAllWidgetsInAreaSaga(
   StartingSelectionState: StartingSelectionState,
   action: ReduxAction<any>,
@@ -99,7 +101,12 @@ function* selectAllWidgetsInAreaSaga(
     const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
 
     if (!equal(filteredWidgetsToSelect, currentSelectedWidgets)) {
-      yield put(selectMultipleWidgetsAction(filteredWidgetsToSelect));
+      yield put(
+        selectWidgetInitAction(
+          SelectionRequestType.Multiple,
+          filteredWidgetsToSelect,
+        ),
+      );
     }
   }
 }

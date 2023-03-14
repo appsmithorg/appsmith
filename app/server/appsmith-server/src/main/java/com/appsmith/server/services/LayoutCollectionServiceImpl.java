@@ -3,6 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,9 +20,11 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                                        NewActionService newActionService,
                                        AnalyticsService analyticsService,
                                        ResponseUtils responseUtils,
-                                       ActionCollectionRepository actionCollectionRepository) {
+                                       ActionCollectionRepository actionCollectionRepository,
+                                       PagePermission pagePermission,
+                                       ActionPermission actionPermission) {
 
         super(newPageService, layoutActionService, refactoringSolution, actionCollectionService, newActionService, analyticsService,
-                responseUtils, actionCollectionRepository);
+                responseUtils, actionCollectionRepository, pagePermission, actionPermission);
     }
 }

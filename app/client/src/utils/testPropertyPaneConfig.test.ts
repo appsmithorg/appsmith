@@ -1,9 +1,11 @@
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isFunction } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { ALL_WIDGETS_AND_CONFIG, registerWidgets } from "./WidgetRegistry";
 
@@ -12,6 +14,10 @@ function validatePropertyPaneConfig(
   isWidgetHidden: boolean,
 ) {
   for (const sectionOrControlConfig of config) {
+    const sectionConfig = sectionOrControlConfig as PropertyPaneSectionConfig;
+    if (sectionConfig.sectionName && isFunction(sectionConfig.sectionName)) {
+      return ` SectionName should be a string and not a function. Search won't work for functions at the moment`;
+    }
     if (sectionOrControlConfig.children) {
       for (const propertyControlConfig of sectionOrControlConfig.children) {
         const propertyControlValidation = validatePropertyControl(
@@ -34,13 +40,17 @@ function validatePropertyControl(
   const _config = config as PropertyPaneControlConfig;
   const controls = ["INPUT_TEXT"];
 
+  if (_config.label && isFunction(_config.label)) {
+    return `${_config.propertyName}: Label should be a string and not a function. Search won't work for functions at the moment`;
+  }
+
   if (
     !isWidgetHidden &&
     _config.label &&
     !_config.invisible &&
-    !_config.helpText
+    !(_config.helpText || _config.helperText)
   ) {
-    return `${_config.propertyName} (${_config.label}): Help text is mandatory for property controls`;
+    return `${_config.propertyName} (${_config.label}): Help text or Helper textis mandatory for property controls`;
   }
 
   if (
@@ -153,9 +163,13 @@ describe("Tests all widget's propertyPane config", () => {
       expect(isNotFloat(config.defaults.rows)).toBe(true);
       expect(isNotFloat(config.defaults.columns)).toBe(true);
     });
-    if (config.isDeprecated && config.replacement !== undefined) {
+
+    if (config.isDeprecated) {
       it(`Check if ${widget.getWidgetType()}'s deprecation config has a proper replacement Widget`, () => {
         const widgetType = widget.getWidgetType();
+        if (config.replacement === undefined) {
+          fail(`${widgetType}'s replacement widget is not defined`);
+        }
         const replacementWidgetType = config.replacement;
         const replacementWidgetConfig = WidgetFactory.widgetConfigMap.get(
           replacementWidgetType,

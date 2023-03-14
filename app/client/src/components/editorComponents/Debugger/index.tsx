@@ -1,7 +1,6 @@
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "@appsmith/reducers";
@@ -11,15 +10,15 @@ import {
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import { TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 
 function Debugger() {
   const showDebugger = useSelector(
@@ -37,10 +36,12 @@ const TriggerContainer = styled.div<{
   overflow: visible;
   display: flex;
   align-items: center;
+  justify-content: center;
+  ${BottomBarCTAStyles}
 
   .debugger-count {
     color: ${Colors.WHITE};
-    ${(props) => getTypographyByKey(props, "btnSmall")}
+    ${getTypographyByKey("btnSmall")}
     height: 16px;
     width: 16px;
     background-color: ${(props) =>
@@ -53,8 +54,8 @@ const TriggerContainer = styled.div<{
     display: flex;
     align-items: center;
     justify-content: center;
-    top: -8px;
-    left: 100%;
+    top: 0px;
+    left: 80%;
     font-size: 10px;
     border-radius: 50%;
   }
@@ -110,7 +111,12 @@ export function DebuggerTrigger() {
           preventOverflow: { enabled: true },
         }}
       >
-        <Icon name="bug" onClick={onClick} size={IconSize.XL} />
+        <Icon
+          fillColor={Colors.GRAY_700}
+          name="bug-line"
+          onClick={onClick}
+          size={IconSize.XXXL}
+        />
       </TooltipComponent>
       {!!messageCounters.errors && (
         <div className="debugger-count t--debugger-count">

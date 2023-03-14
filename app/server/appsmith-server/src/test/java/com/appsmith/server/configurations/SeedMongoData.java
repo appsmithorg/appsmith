@@ -24,7 +24,6 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -68,8 +67,6 @@ public class SeedMongoData {
                            PluginRepository pluginRepository,
                            ReactiveMongoTemplate mongoTemplate,
                            TenantRepository tenantRepository,
-                           UserService userService,
-                           CommonConfig commonConfig,
                            PermissionGroupRepository permissionGroupRepository,
                            PolicyUtils policyUtils) {
 

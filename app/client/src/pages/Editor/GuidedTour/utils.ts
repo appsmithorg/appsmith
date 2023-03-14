@@ -10,7 +10,7 @@ import {
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
 
 class IndicatorHelper {
-  timerId!: number;
+  timerId!: ReturnType<typeof setTimeout>;
   indicatorWrapper!: HTMLDivElement;
   animationItem!: AnimationItem;
   indicatorHeightOffset: number;

@@ -3,6 +3,7 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.TriggerRequestDTO;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown execution method type: " + type));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
         }
     }
 
@@ -63,7 +64,7 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.TRIGGER_COLUMNS_SELECTOR:
                 return new GetStructureMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown trigger method type: " + triggerRequestDTO.getRequestType()));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_TRIGGER_METHOD_ERROR_MSG, triggerRequestDTO.getRequestType())));
         }
 
     }
@@ -83,7 +84,7 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod();
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown execution method type: " + type));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
         }
     }
 }

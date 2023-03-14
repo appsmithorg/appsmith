@@ -14,13 +14,11 @@ import CurrencyTypeDropdown, {
 import FormContext from "../FormContext";
 import { BaseFieldComponentProps } from "../constants";
 import { RenderModes } from "constants/WidgetConstants";
-import {
-  getLocaleDecimalSeperator,
-  limitDecimalValue,
-} from "widgets/CurrencyInputWidget/component/utilities";
+import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import derived from "widgets/CurrencyInputWidget/widget/derived";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;

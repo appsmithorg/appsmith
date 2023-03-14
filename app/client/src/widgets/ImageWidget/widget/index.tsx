@@ -1,10 +1,12 @@
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import ImageComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
@@ -152,6 +154,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -211,6 +214,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getPageView() {

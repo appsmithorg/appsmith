@@ -44,6 +44,7 @@ export function ImageCell(props: renderImageType) {
     textColor,
     textSize,
     imageSize,
+    isCellDisabled,
   } = props;
 
   if (!value) {
@@ -55,6 +56,7 @@ export function ImageCell(props: renderImageType) {
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         imageSize={imageSize}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -71,6 +73,7 @@ export function ImageCell(props: renderImageType) {
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         imageSize={imageSize}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -92,6 +95,7 @@ export function ImageCell(props: renderImageType) {
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
       imageSize={imageSize}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

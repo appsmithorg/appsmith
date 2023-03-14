@@ -1,12 +1,13 @@
-import React, { Suspense, lazy } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
-import { retryPromise } from "utils/AppsmithUtils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import React, { lazy, Suspense } from "react";
 import ReactPlayer from "react-player";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { retryPromise } from "utils/AppsmithUtils";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -83,6 +84,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -122,22 +124,53 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
+      // Property reflecting the state of the widget
       playState: PlayState.NOT_STARTED,
+      // Property passed onto the audio player making it a controlled component
+      playing: false,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      playing: "autoPlay",
+    };
+  }
+
+  // TODO: (Rishabh) When we have the new list widget, we need to make the playState as a derived propery.
+  // TODO: (Balaji) Can we have dynamic default value that accepts current widget values and determines the default value.
+  componentDidUpdate(prevProps: AudioWidgetProps) {
+    // When the widget is reset
+    if (
+      prevProps.playState !== "NOT_STARTED" &&
+      this.props.playState === "NOT_STARTED"
+    ) {
+      this._player.current?.seekTo(0);
+
+      if (this.props.playing) {
+        this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      }
+    }
+
+    // When autoPlay changes from property pane
+    if (prevProps.autoPlay !== this.props.autoPlay) {
+      if (this.props.autoPlay) {
+        this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      } else {
+        this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED);
+      }
+    }
   }
 
   getPageView() {
-    const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
+    const { onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <AudioComponent
-          autoplay={autoPlay}
           controls
           onEnded={() => {
+            // Stopping the audio from playing when the media is finished playing
+            this.props.updateWidgetMetaProperty("playing", false);
             this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
               triggerPropertyName: "onEnd",
               dynamicString: onEnd,
@@ -147,8 +180,8 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             });
           }}
           onPause={() => {
-            //TODO: We do not want the pause event for onSeek.
-            // Don't set playState to paused on onEnd
+            // TODO: We do not want the pause event for onSeek or onEnd.
+            // Don't set playState to paused on onEnded
             if (
               this._player.current &&
               this._player.current.getDuration() ===
@@ -156,29 +189,41 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             ) {
               return;
             }
-
-            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
-              triggerPropertyName: "onPause",
-              dynamicString: onPause,
-              event: {
-                type: EventType.ON_AUDIO_PAUSE,
-              },
-            });
+            // Stopping the media when it is playing and pause is hit
+            if (this.props.playing) {
+              this.props.updateWidgetMetaProperty("playing", false);
+              this.props.updateWidgetMetaProperty(
+                "playState",
+                PlayState.PAUSED,
+                {
+                  triggerPropertyName: "onPause",
+                  dynamicString: onPause,
+                  event: {
+                    type: EventType.ON_AUDIO_PAUSE,
+                  },
+                },
+              );
+            }
           }}
           onPlay={() => {
-            this.props.updateWidgetMetaProperty(
-              "playState",
-              PlayState.PLAYING,
-              {
-                triggerPropertyName: "onPlay",
-                dynamicString: onPlay,
-                event: {
-                  type: EventType.ON_AUDIO_PLAY,
+            // Playing the media when it is stopped / paused and play is hit
+            if (!this.props.playing) {
+              this.props.updateWidgetMetaProperty("playing", true);
+              this.props.updateWidgetMetaProperty(
+                "playState",
+                PlayState.PLAYING,
+                {
+                  triggerPropertyName: "onPlay",
+                  dynamicString: onPlay,
+                  event: {
+                    type: EventType.ON_AUDIO_PLAY,
+                  },
                 },
-              },
-            );
+              );
+            }
           }}
           player={this._player}
+          playing={playing}
           url={url}
         />
       </Suspense>

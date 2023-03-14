@@ -1,5 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -9,6 +12,13 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["input", "rte"],
+  features: {
+    dynamicHeight: {
+      sectionIndex: 3,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
+  },
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
     rows: 20,
@@ -25,6 +35,8 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     version: 1,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -33,6 +45,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

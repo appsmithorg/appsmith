@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import userEvent from "@testing-library/user-event";
 import FormControl from "../FormControl";
-import { createMessage, INVALID_URL } from "ce/constants/messages";
+import { createMessage, INVALID_URL } from "@appsmith/constants/messages";
 import FormControlRegistry from "utils/formControl/FormControlRegistry";
 import { reduxForm } from "redux-form";
 

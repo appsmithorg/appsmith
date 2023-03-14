@@ -1,14 +1,14 @@
 import React, {
-  useState,
-  useMemo,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
+  useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { AppState } from "@appsmith/reducers";
 import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
@@ -21,37 +21,37 @@ import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
-  toggleShowGlobalSearchModal,
-  setGlobalSearchQuery,
-  setGlobalSearchFilterContext,
   cancelSnippet,
   insertSnippet,
+  setGlobalSearchFilterContext,
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import {
-  getItemType,
-  getItemTitle,
-  getItemPage,
-  SEARCH_ITEM_TYPES,
-  DocSearchItem,
-  SearchItem,
   algoliaHighlightTag,
-  SEARCH_CATEGORY_ID,
-  getEntityId,
+  DocSearchItem,
   filterCategories,
+  getEntityId,
   getFilterCategoryList,
-  SearchCategory,
-  isNavigation,
-  isMenu,
-  isSnippet,
-  isDocumentation,
-  SelectEvent,
+  getItemPage,
+  getItemTitle,
+  getItemType,
   getOptionalFilters,
   isActionOperation,
+  isDocumentation,
   isMatching,
+  isMenu,
+  isNavigation,
+  isSnippet,
+  SEARCH_CATEGORY_ID,
+  SEARCH_ITEM_TYPES,
+  SearchCategory,
+  SearchItem,
+  SelectEvent,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
@@ -66,8 +66,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   useFilteredActions,
   useFilteredFileOperations,
@@ -76,11 +75,12 @@ import {
   useFilteredWidgets,
 } from "./GlobalSearchHooks";
 import {
-  datasourcesEditorIdURL,
   builderURL,
+  datasourcesEditorIdURL,
   jsCollectionIdURL,
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -102,6 +102,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   padding: ${(props) => props.theme.spaces[5]}px;
   flex-direction: column;
   position: relative;
+
   & .main {
     display: flex;
     flex: 1;
@@ -110,6 +111,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     background-color: ${(props) =>
       props.theme.colors.globalSearch.primaryBgColor};
   }
+
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
@@ -244,7 +246,9 @@ function GlobalSearch() {
   }, [refinements]);
 
   const reducerDatasources = useSelector((state: AppState) => {
-    return state.entities.datasources.list;
+    return state.entities.datasources.list.filter(
+      (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+    );
   });
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
@@ -298,7 +302,12 @@ function GlobalSearch() {
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
-      return filterCategoryList.filter((cat: SearchCategory) => !isMenu(cat));
+      const shouldRemoveActionCreation = !filteredFileOperations.length;
+      return filterCategoryList.filter(
+        (cat: SearchCategory) =>
+          !isMenu(cat) &&
+          (isActionOperation(cat) ? !shouldRemoveActionCreation : true),
+      );
     }
     if (isActionOperation(category)) {
       return filteredFileOperations;
@@ -398,8 +407,11 @@ function GlobalSearch() {
       activeItem.widgetId,
       activeItem.type,
       activeItem.pageId,
+      NavigationMethod.Omnibar,
       lastSelectedWidgetId === activeItem.widgetId,
-      activeItem.parentModalId,
+      false,
+      false,
+      activeItem.pageId !== currentPageId,
     );
   };
 
@@ -410,7 +422,7 @@ function GlobalSearch() {
     const plugin = plugins.find((plugin) => plugin?.id === pluginId);
     const url = actionConfig?.getURL(pageId, id, pluginType, plugin);
     toggleShow();
-    url && history.push(url);
+    url && history.push(url, { invokedBy: NavigationMethod.Omnibar });
   };
 
   const handleJSCollectionClick = (item: SearchItem) => {
@@ -421,6 +433,7 @@ function GlobalSearch() {
         pageId,
         collectionId: id,
       }),
+      { invokedBy: NavigationMethod.Omnibar },
     );
     toggleShow();
   };
@@ -433,6 +446,7 @@ function GlobalSearch() {
         datasourceId: item.id,
         params: getQueryParams(),
       }),
+      { invokedBy: NavigationMethod.Omnibar },
     );
   };
 
@@ -442,6 +456,7 @@ function GlobalSearch() {
       builderURL({
         pageId: item.pageId,
       }),
+      { invokedBy: NavigationMethod.Omnibar },
     );
   };
 

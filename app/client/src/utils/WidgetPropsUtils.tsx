@@ -19,21 +19,15 @@ import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { GridProps } from "reflow/reflowTypes";
+import { BlockSpace, GridProps } from "reflow/reflowTypes";
+import { areIntersecting, Rect } from "./boxHelpers";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
   widgetId: string;
   payload: any;
-};
-
-export type Rect = {
-  top: number;
-  left: number;
-  right: number;
-  bottom: number;
 };
 
 const defaultDSL = defaultTemplate;
@@ -60,7 +54,7 @@ export function getDraggingSpacesFromBlocks(
   draggingBlocks: WidgetDraggingBlock[],
   snapColumnSpace: number,
   snapRowSpace: number,
-): OccupiedSpace[] {
+): BlockSpace[] {
   const draggingSpaces = [];
   for (const draggingBlock of draggingBlocks) {
     //gets top and left position of the block
@@ -82,6 +76,10 @@ export function getDraggingSpacesFromBlocks(
       right: leftColumn + draggingBlock.width / snapColumnSpace,
       bottom: topRow + draggingBlock.height / snapRowSpace,
       id: draggingBlock.widgetId,
+      fixedHeight:
+        draggingBlock.fixedHeight !== undefined
+          ? draggingBlock.rowHeight
+          : undefined,
     });
   }
   return draggingSpaces;
@@ -122,15 +120,6 @@ export const getMousePositionsOnCanvas = (
     bottom: mouseTop + 1,
     right: mouseLeft + 1,
   };
-};
-
-export const areIntersecting = (r1: Rect, r2: Rect) => {
-  return !(
-    r2.left >= r1.right ||
-    r2.right <= r1.left ||
-    r2.top >= r1.bottom ||
-    r2.bottom <= r1.top
-  );
 };
 
 export const isDropZoneOccupied = (
@@ -234,6 +223,7 @@ export const widgetOperationParams = (
     width: number;
     height: number;
   },
+  fullWidth = false,
 ): WidgetOperationParams => {
   const [leftColumn, topRow] = getDropZoneOffsets(
     parentColumnSpace,
@@ -253,9 +243,11 @@ export const widgetOperationParams = (
         bottomRow: Math.round(
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
-        rightColumn: Math.round(
-          leftColumn + widgetSizeUpdates.width / parentColumnSpace,
-        ),
+        rightColumn: fullWidth
+          ? 64
+          : Math.round(
+              leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+            ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
@@ -264,7 +256,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: widget.columns,
+    columns: fullWidth ? 64 : widget.columns,
     rows: widget.rows,
   };
 
@@ -285,18 +277,16 @@ export const widgetOperationParams = (
 
 export const getCanvasSnapRows = (
   bottomRow: number,
-  canExtend: boolean,
+  mobileBottomRow?: number,
+  isMobile?: boolean,
+  isAutoLayoutActive?: boolean,
 ): number => {
-  const totalRows = Math.floor(
-    bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
+  const bottom =
+    isMobile && mobileBottomRow !== undefined && isAutoLayoutActive
+      ? mobileBottomRow
+      : bottomRow;
+  const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
-  // Canvas Widgets do not need to accommodate for widget and container padding.
-  // Only when they're extensible
-  if (canExtend) {
-    return totalRows;
-  }
-  // When Canvas widgets are not extensible
   return totalRows - 1;
 };
 

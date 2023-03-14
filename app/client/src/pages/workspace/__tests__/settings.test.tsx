@@ -182,18 +182,11 @@ describe("<Settings />", () => {
     renderComponent();
     const title = screen.getAllByTestId("t--page-title");
     expect(title).toHaveLength(1);
-    expect(title[0].textContent).toBe(`Members in ${mockWorkspaceData.name}`);
+    expect(title[0].textContent).toBe(`${mockWorkspaceData.name}`);
   });
   it("displays tabs", () => {
     renderComponent();
     const tabList = screen.getAllByRole("tab");
     expect(tabList).toHaveLength(2);
-  });
-  it("should search and filter users and usergroups", async () => {
-    renderComponent();
-    const searchInput = screen.getAllByTestId("t--search-input");
-    expect(searchInput).toHaveLength(1);
-    await userEvent.type(searchInput[0], "k");
-    expect(searchInput[0]).toHaveValue("k");
   });
 });

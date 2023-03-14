@@ -1,7 +1,6 @@
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { Classes } from "components/ads";
+import { Classes, getTypographyByKey } from "design-system-old";
 
 export const BranchListItemContainer = styled.div<{
   selected?: boolean;
@@ -11,7 +10,7 @@ export const BranchListItemContainer = styled.div<{
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[5]}px`};
   margin: ${(props) => `${props.theme.spaces[1]} 0`};
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   cursor: pointer;
 
   &:hover {
