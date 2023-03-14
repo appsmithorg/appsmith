@@ -12,12 +12,14 @@ import {
   AppPositioningTypes,
 } from "reducers/entityReducers/pageListReducer";
 import {
+  getCurrentApplicationId,
   getCurrentAppPositioningType,
   isAutoLayoutEnabled,
 } from "selectors/editorSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { updateLayoutPositioning } from "actions/autoLayoutActions";
 
+import { updateApplication } from "actions/applicationActions";
 interface ApplicationPositionTypeConfigOption {
   name: string;
   type: AppPositioningTypes;
@@ -53,6 +55,7 @@ export const AppPositionTypeControl = () => {
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
+  const appId = useSelector(getCurrentApplicationId);
   /**
    * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
@@ -79,6 +82,13 @@ export const AppPositionTypeControl = () => {
     layoutOption: ApplicationPositionTypeConfigOption,
   ) => {
     dispatch(updateLayoutPositioning(layoutOption.type));
+    dispatch(
+      updateApplication(appId || "", {
+        appPositioning: {
+          type: layoutOption.type,
+        },
+      }),
+    );
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
