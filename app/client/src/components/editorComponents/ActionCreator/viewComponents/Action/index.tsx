@@ -320,6 +320,7 @@ export const Action: React.FC<Props> = ({
         onClose={onCloseByFocusOut}
         popoverClassName="!translate-x-[-18px] w-[280px]"
         position="left"
+        positioningStrategy="fixed"
       >
         {/* <TooltipComponent boundary="viewport" content="Action"> */}
         {/* {" "} */}
