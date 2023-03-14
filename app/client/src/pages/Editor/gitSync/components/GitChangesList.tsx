@@ -187,12 +187,12 @@ export function gitChangeListData(
 }
 
 export default function GitChangesList() {
-  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
+  const status = useSelector(getGitStatus);
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
   const currentApplication = useSelector(getCurrentApplication);
   const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
-  if (isAutoUpdate && !status.isClean) {
+  if (isAutoUpdate && !status?.isClean) {
     changes.push(
       <Change
         hasValue={isAutoUpdate}
