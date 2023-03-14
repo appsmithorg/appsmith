@@ -82,7 +82,7 @@ describe("Git sync Bug #10773", function() {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    _.ee.ExpandCollapseEntity("Queries/JS", true);
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -180,7 +180,7 @@ describe("Git sync Bug #10773", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    _.ee.ExpandCollapseEntity("Queries/JS", true);
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)

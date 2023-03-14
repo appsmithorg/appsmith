@@ -11,6 +11,7 @@ export enum AuthenticationStatus {
   NONE = "NONE",
   IN_PROGRESS = "IN_PROGRESS",
   SUCCESS = "SUCCESS",
+  FAILURE = "FAILURE",
 }
 export interface DatasourceAuthentication {
   authType?: string;
@@ -102,6 +103,11 @@ export interface Datasource extends BaseDatasource {
   structure?: DatasourceStructure;
   messages?: string[];
   success?: boolean;
+}
+
+export interface TokenResponse {
+  datasource: Datasource;
+  token: string;
 }
 
 export interface MockDatasource {

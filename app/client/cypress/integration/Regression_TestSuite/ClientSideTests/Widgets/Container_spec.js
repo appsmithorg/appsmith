@@ -18,7 +18,7 @@ describe("Container Widget Functionality", function() {
     cy.widgetText(
       "job",
       widgetsPage.containerWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     cy.moveToStyleTab();
     /**

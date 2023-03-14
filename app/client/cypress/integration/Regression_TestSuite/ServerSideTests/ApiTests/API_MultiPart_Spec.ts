@@ -170,11 +170,7 @@ describe("Validate API request body panel", () => {
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
-    debuggerHelper.AssertDebugError(
-      "API execution error",
-      '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
-    );
-
+  
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);

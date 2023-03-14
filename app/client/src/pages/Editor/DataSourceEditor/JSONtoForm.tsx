@@ -239,13 +239,7 @@ export class JSONtoForm<
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
-    if (
-      isHidden(
-        this.props.formData,
-        section.hidden,
-        this.props?.featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS,
-      )
-    )
+    if (isHidden(this.props.formData, section.hidden, this.props?.featureFlags))
       return null;
     return (
       <Collapsible
@@ -314,7 +308,7 @@ export class JSONtoForm<
             isHidden(
               this.props.formData,
               section.hidden,
-              this.props?.featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS,
+              this.props?.featureFlags,
             )
           )
             return null;

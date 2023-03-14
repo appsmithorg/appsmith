@@ -9,7 +9,8 @@ describe("JSEditor tests", function() {
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
-    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl, "TC1api");
+    cy.fixture("datasources").then((datasourceFormData) => {
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
     _.apiPage.RunAPI();
     _.jsEditor.CreateJSObject(
       `export default {
@@ -46,10 +47,10 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    _.ee.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(
@@ -73,7 +74,7 @@ describe("JSEditor tests", function() {
     cy.wait(2000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(
@@ -111,11 +112,12 @@ describe("JSEditor tests", function() {
       "Success running API query",
       "GREEN",
     ); */
+    })
   });
 
   //Skipping reason? to add
   it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.jsEditor.SelectFunctionDropdown("clearStore");
     _.jsEditor.RunJSObj();
     cy.wait("@postExecute").should(
@@ -125,7 +127,7 @@ describe("JSEditor tests", function() {
     );
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
-      .eq(2)
+      .eq(5)
       .invoke("text")
       .then((text) => {
         expect(text).to.equal(

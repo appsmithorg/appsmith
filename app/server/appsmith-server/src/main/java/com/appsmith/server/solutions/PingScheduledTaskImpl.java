@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -33,7 +34,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NewPageRepository newPageRepository,
             NewActionRepository newActionRepository,
             DatasourceRepository datasourceRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            ProjectProperties projectProperties
     ) {
 
         super(
@@ -45,7 +47,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 newPageRepository,
                 newActionRepository,
                 datasourceRepository,
-                userRepository
+                userRepository,
+                projectProperties
         );
     }
 }
