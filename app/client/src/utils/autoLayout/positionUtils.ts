@@ -491,13 +491,16 @@ export function placeWrappedWidgets(
   let startRow = topRow;
   const rows: Row[] = getWrappedRows(alignment, [], isMobile);
   for (const row of rows) {
-    const { alignment, children, columns, height } = row;
+    const { children, columns, height } = row;
+    /**
+     * Wrapped widgets are centered. So use Center alignment while placing them.
+     */
     const result: {
       height: number;
       widgets: CanvasWidgetsReduxState;
     } = placeWidgetsWithoutWrap(
       widgets,
-      [{ alignment, children, columns }],
+      [{ alignment: FlexLayerAlignment.Center, children, columns }],
       startRow,
       fillWidgetLength,
       isMobile,
