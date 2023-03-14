@@ -715,6 +715,12 @@ export const entityDefinitions = {
     isDisabled: "bool",
     value: "string",
   },
+  KEY_VALUE_WIDGET: {
+    "!doc":
+      "Category slider widget is used to capture user feedback from a range of categories",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+  },
 };
 
 /*

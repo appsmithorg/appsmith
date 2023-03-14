@@ -164,6 +164,9 @@ import CodeScannerWidget, {
 import ListWidgetV2, {
   CONFIG as LIST_WIDGET_CONFIG_V2,
 } from "widgets/ListWidgetV2";
+import KeyValueWidget, {
+  CONFIG as KEY_VALUE_WIDGET_CONFIG,
+} from "widgets/KeyValueWidget";
 
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -215,6 +218,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CategorySliderWidget, CATEGORY_SLIDER_WIDGET_CONFIG],
   [CodeScannerWidget, CODE_SCANNER_WIDGET_CONFIG],
   [ListWidgetV2, LIST_WIDGET_CONFIG_V2],
+  [KeyValueWidget, KEY_VALUE_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
