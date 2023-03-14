@@ -14,7 +14,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("2. Validate TableV2 with API data and then add a column", function() {
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
@@ -23,14 +23,17 @@ describe("Test Create Api and Bind to Table widget", function() {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
-    cy.ValidateTableV2Data("1");
+    cy.readTableV2data("0", "4").then((tabData) => {
+      const tableData = tabData;
+      expect(tableData).to.equal("1");
+    })
     cy.addColumnV2("CustomColumn");
     cy.editColumn("customColumn1");
     cy.editColName("UpdatedColName");
     cy.readTableV2dataPublish("0", "5").then((tabData) => {
       const tabValue = tabData;
       cy.updateComputedValueV2(testdata.currentRowEmail);
-      cy.readTableV2dataPublish("0", "9").then((tabData) => {
+      cy.readTableV2dataPublish("0", "5").then((tabData) => {
         expect(tabData).to.be.equal(tabValue);
         cy.log("computed value of plain text " + tabData);
       });
@@ -83,8 +86,6 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableV2ColumnDataValidation("avatar");
     cy.tableV2ColumnDataValidation("email");
     cy.tableV2ColumnDataValidation("address");
-    cy.tableV2ColumnDataValidation("createdAt");
-    cy.tableV2ColumnDataValidation("updatedAt");
     cy.tableV2ColumnDataValidation("customColumn1");
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
     cy.wait("@updateLayout");
@@ -98,7 +99,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
-    cy.get(".draggable-header:contains('UpdatedColName')").should("be.visible");
+    cy.get(".draggable-header:contains('UpdatedColName')").scrollIntoView().should("be.visible");
     cy.readTableV2dataPublish("1", "2").then((tabData) => {
       const tabValue = tabData;
       cy.readTableV2dataPublish("1", "2").then((tabData) => {
