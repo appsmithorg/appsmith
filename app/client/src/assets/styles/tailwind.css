@@ -19,7 +19,7 @@
 }
 
 .add-action {
-  @apply absolute right-[-16px];
+  @apply absolute right-[-14px];
 }
 
 .add-action:hover:not(.disabled) {
