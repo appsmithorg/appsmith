@@ -40,6 +40,7 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -74,6 +75,7 @@ type AppViewerHeaderProps = {
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobileDevice();
   const headerRef = useRef<HTMLDivElement>(null);
   const {
     currentApplicationDetails,
@@ -130,7 +132,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
               </div>
             </div>
             <section className="relative flex items-center ml-auto space-x-3 z-1">
-              {currentApplicationDetails && (
+              {currentApplicationDetails && !isMobile && (
                 <div className="hidden space-x-3 md:flex">
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
@@ -192,14 +194,16 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             pages={pages}
           />
         </nav>
-        <PageMenu
-          application={currentApplicationDetails}
-          headerRef={headerRef}
-          isOpen={isMenuOpen}
-          pages={pages}
-          setMenuOpen={setMenuOpen}
-          url={editorURL}
-        />
+        {isMobile && (
+          <PageMenu
+            application={currentApplicationDetails}
+            headerRef={headerRef}
+            isOpen={isMenuOpen}
+            pages={pages}
+            setMenuOpen={setMenuOpen}
+            url={editorURL}
+          />
+        )}
         <TourCompletionMessage />
       </>
     </ThemeProvider>
