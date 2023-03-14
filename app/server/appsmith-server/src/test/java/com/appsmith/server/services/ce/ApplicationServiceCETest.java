@@ -2448,6 +2448,7 @@ public class ApplicationServiceCETest {
         page.setIcon("flight");
         page.setApplicationId(testApplication.getId());
         page = applicationPageService.createPage(page).block();
+        applicationPageService.reorderPage(testApplication.getId(), page.getId(), 1, null).block();
 
         Mono<Application> applicationMono = applicationPageService.publish(testApplication.getId(), true);
 

@@ -32,7 +32,11 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      _.propPane.SelectJSFunctionToExecute("onClick", jsName as string, "myFun1");
+      _.propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsName as string,
+        "myFun1",
+      );
     });
     _.entityExplorer.SelectEntityByName("Table1");
     _.propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
@@ -44,7 +48,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 3000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -59,7 +63,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -74,7 +78,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -89,7 +93,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -104,7 +108,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -119,7 +123,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -134,7 +138,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -149,7 +153,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("8");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -164,7 +168,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -183,7 +187,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     ).within(() => cy.get(_.locators._crossBtn).click());
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -197,7 +201,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -205,7 +209,11 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName("ParamsTest", "Delete", "Are you sure?");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "ParamsTest",
+      "Delete",
+      "Are you sure?",
+    );
     _.agHelper.ValidateNetworkStatus("@deleteAction", 200);
     _.entityExplorer.ActionContextMenuByEntityName(
       jsName as string,
