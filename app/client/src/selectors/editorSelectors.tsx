@@ -14,6 +14,7 @@ import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "actions/applicationActions";
+import { Positioning } from "utils/autoLayout/constants";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
@@ -32,18 +33,18 @@ import {
   getCanvasWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { denormalize } from "utils/canvasStructureHelpers";
-import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import {
   buildChildWidgetTree,
   buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import { CanvasWidgetStructure } from "widgets/constants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { CanvasWidgetStructure } from "widgets/constants";
+import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -235,27 +236,28 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-const getAppPositioningType = (state: AppState) => {
-  if (state.ui.applications?.currentApplication?.appPositioning?.type) {
-    return AppPositioningTypes[
-      state.ui.applications.currentApplication?.appPositioning?.type
-    ];
-  }
-  return AppPositioningTypes.FIXED;
-};
+export const getMainCanvasPositioning = createSelector(
+  getWidgets,
+  (widgets) => {
+    return (
+      widgets &&
+      widgets[MAIN_CONTAINER_WIDGET_ID] &&
+      widgets[MAIN_CONTAINER_WIDGET_ID].positioning
+    );
+  },
+);
 
 export const isAutoLayoutEnabled = (state: AppState): boolean => {
   return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
 };
 
 export const getCurrentAppPositioningType = createSelector(
+  getMainCanvasPositioning,
   isAutoLayoutEnabled,
-  getAppPositioningType,
-  (
-    autoLayoutEnabled: boolean,
-    appPositionType: AppPositioningTypes,
-  ): AppPositioningTypes => {
-    return autoLayoutEnabled ? appPositionType : AppPositioningTypes.FIXED;
+  (positioning: any, autoLayoutEnabled: boolean): AppPositioningTypes => {
+    return positioning && positioning !== Positioning.Fixed && autoLayoutEnabled
+      ? AppPositioningTypes.AUTO
+      : AppPositioningTypes.FIXED;
   },
 );
 

@@ -2,7 +2,7 @@ import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { Icon, IconSize } from "design-system-old";
 import { ControlIcons } from "icons/ControlIcons";
-import { CSSProperties, default as React } from "react";
+import React, { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -20,13 +20,10 @@ const StyledTooltip = styled(Tooltip)<{
     height: 100%;
   }
 `;
-const WidgetNameBoundary = 1;
-const BORDER_RADIUS = 4;
-const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
+const SettingsWrapper = styled.div`
   justify-self: flex-end;
   height: 100%;
-  padding: 0 5px;
-  margin-left: 0px;
+  padding: 0 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,24 +35,12 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
-  ${(props) => {
-    if (props.inverted) {
-      return `border-bottom-left-radius: ${BORDER_RADIUS}px;
-      border-bottom-right-radius: ${BORDER_RADIUS}px;
-      border-top: none;`;
-    } else {
-      return `border-top-left-radius: ${BORDER_RADIUS}px;
-      border-top-right-radius: ${BORDER_RADIUS}px;
-      border-bottom: none;`;
-    }
-  }}
+  border-radius: 2px;
 `;
 
 const WidgetName = styled.span`
-  width: inherit;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
+  margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  margin-left: ${(props) => props.theme.spaces[3]}px;
   white-space: nowrap;
 `;
 
@@ -75,11 +60,10 @@ type SettingsControlProps = {
   activity: Activities;
   name: string;
   errorCount: number;
-  inverted: boolean;
-  widgetWidth: number;
 };
 
 const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
+const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 const getStyles = (
   activity: Activities,
@@ -107,7 +91,7 @@ const getStyles = (
     case Activities.HOVERING:
       return {
         background: Colors.WATUSI,
-        color: Colors.WHITE,
+        color: Colors.BLACK_PEARL,
       };
     case Activities.SELECTED:
       return {
@@ -119,6 +103,19 @@ const getStyles = (
 
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
+  const settingsIcon = (
+    <SettingsIcon
+      color={
+        !!props.errorCount
+          ? Colors.WHITE
+          : props.activity === Activities.HOVERING
+          ? Colors.BLACK_PEARL
+          : Colors.WHITE
+      }
+      height={14}
+      width={12}
+    />
+  );
   const errorIcon = (
     <StyledErrorIcon
       fillColor={Colors.WHITE}
@@ -140,10 +137,8 @@ export function SettingsControl(props: SettingsControlProps) {
       <SettingsWrapper
         className="t--widget-propertypane-toggle"
         data-testid="t--widget-propertypane-toggle"
-        inverted={props.inverted}
         onClick={props.toggleSettings}
         style={getStyles(props.activity, props.errorCount, isSnipingMode)}
-        widgetWidth={props.widgetWidth}
       >
         {!!props.errorCount && !isSnipingMode && (
           <>
@@ -157,9 +152,10 @@ export function SettingsControl(props: SettingsControlProps) {
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
+        {!isSnipingMode && settingsIcon}
       </SettingsWrapper>
     </StyledTooltip>
   );
 }
 
-export default React.memo(SettingsControl);
+export default SettingsControl;

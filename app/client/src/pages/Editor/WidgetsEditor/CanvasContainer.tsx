@@ -31,8 +31,8 @@ import {
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
+import Canvas from "../Canvas";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;

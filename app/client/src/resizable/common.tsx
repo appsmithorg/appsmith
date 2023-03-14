@@ -23,7 +23,6 @@ export const ResizeWrapper = styled(animated.div)<{
   $prevents: boolean;
   isHovered: boolean;
   showBoundaries: boolean;
-  inverted?: boolean;
 }>`
   display: block;
   & {
@@ -31,14 +30,7 @@ export const ResizeWrapper = styled(animated.div)<{
       pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
-  border-radius: 4px 0px 4px 4px;
-  ${(props) => {
-    if (props.inverted) {
-      return `border-radius: 4px 4px 4px 0px;`;
-    } else {
-      return `border-radius: 0px 4px 4px 4px;`;
-    }
-  }}
+  border-radius: 0px 4px 4px 4px;
   border: ${resizeBorder}px solid;
   padding: ${resizeBorderPadding}px;
   outline: ${resizeOutline}px solid !important;
@@ -207,5 +199,4 @@ export type ResizableProps = {
   paddingOffset: number;
   isMobile: boolean;
   showResizeBoundary: boolean;
-  topRow: number;
 };

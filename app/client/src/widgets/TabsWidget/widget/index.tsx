@@ -374,6 +374,7 @@ class TabsWidget extends BaseWidget<
         ? Positioning.Vertical
         : Positioning.Fixed;
     childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning !== Positioning.Fixed;
     childWidgetData.direction =
       positioning === Positioning.Vertical
         ? LayoutDirection.Vertical

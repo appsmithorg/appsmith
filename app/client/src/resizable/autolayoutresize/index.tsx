@@ -6,12 +6,13 @@ import {
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
-  WIDGET_PADDING,
   WidgetHeightLimits,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Spring } from "react-spring";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   MovementLimitMap,
   ReflowDirection,
@@ -22,15 +23,15 @@ import {
   DimensionUpdateProps,
   ResizableHandle,
   ResizableProps,
-  RESIZE_BORDER_BUFFER,
   ResizeWrapper,
+  RESIZE_BORDER_BUFFER,
 } from "resizable/common";
 import { getWidgets } from "sagas/selectors";
 import {
   getCanvasWidth,
   getContainerOccupiedSpacesSelectorWhileResizing,
+  getCurrentAppPositioningType,
 } from "selectors/editorSelectors";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import {
   getFillWidgetLengthForLayer,
@@ -51,8 +52,8 @@ import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
-  const isAutoLayout = useSelector(getIsAutoLayout);
-
+  const isAutoLayout =
+    useSelector(getCurrentAppPositioningType) === AppPositioningTypes.AUTO;
   const occupiedSpacesBySiblingWidgets = useSelector(
     getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
   );
@@ -673,7 +674,6 @@ export function ReflowResizable(props: ResizableProps) {
           $prevents={pointerEvents}
           className={props.className}
           id={`resize-${props.widgetId}`}
-          inverted={props.topRow <= 2}
           isHovered={props.isHovered}
           ref={resizableRef}
           showBoundaries={props.showResizeBoundary}
