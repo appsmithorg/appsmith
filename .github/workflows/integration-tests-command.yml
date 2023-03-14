@@ -132,6 +132,13 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+      
+      # delete-artifact
+      - name: delete failed-spec-ci artifact
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: failed-spec-ci
+          failOnError: false
 
       - name: Get Latest flaky Tests
         shell: bash
