@@ -48,8 +48,6 @@ import {
   selectWidgetInitAction,
   WidgetSelectionRequest,
 } from "actions/widgetSelectionActions";
-import { AppState } from "@appsmith/reducers";
-import { getSelectedWidgetAncestry } from "selectors/widgetSelectors";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -91,7 +89,6 @@ export type EditorContextType<TCache = unknown> = {
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
   updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
   selectWidgetRequest?: WidgetSelectionRequest;
-  selectedWidgetAncestry?: string[];
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -118,16 +115,10 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "selectWidgetRequest",
 ];
 
-const COMMON_STATE: EditorContextTypeKey[] = ["selectedWidgetAncestry"];
-
-const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [
-  ...COMMON_API_METHODS,
-  ...COMMON_STATE,
-];
+const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
 
 const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   ...COMMON_API_METHODS,
-  ...COMMON_STATE,
   "deleteWidgetProperty",
   "disableDrag",
   "updateWidget",
@@ -222,11 +213,4 @@ const mapDispatchToProps = {
   selectWidgetRequest: selectWidgetInitAction,
 };
 
-const mapStateToProps = (state: AppState) => ({
-  selectedWidgetAncestry: getSelectedWidgetAncestry(state),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditorContextProvider);
+export default connect(null, mapDispatchToProps)(EditorContextProvider);

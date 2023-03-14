@@ -19,6 +19,9 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { connect } from "react-redux";
+import { AppState } from "../../../ce/reducers";
+import { getSelectedWidgetAncestry } from "../../../selectors/widgetSelectors";
 
 export function selectedTabValidation(
   value: unknown,
@@ -44,6 +47,9 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  static defaultProps = {
+    ...BaseWidget.defaultProps,
+  };
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -393,7 +399,7 @@ class TabsWidget extends BaseWidget<
     if (this.props.children) {
       returnValue =
         this.props.children.find((tab) =>
-          this.context.selectedWidgetAncestry?.includes(tab.widgetId),
+          this.props.selectedWidgetAncestry.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return returnValue;
@@ -456,4 +462,8 @@ class TabsWidget extends BaseWidget<
   }
 }
 
-export default TabsWidget;
+const mapDispatchToProps = (state: AppState) => ({
+  selectedWidgetAncestry: getSelectedWidgetAncestry(state),
+});
+
+export default connect(mapDispatchToProps)(TabsWidget);

@@ -42,7 +42,6 @@ describe("EditorContextProvider", () => {
       "updateWidgetProperty",
       "updateWidgetAutoHeight",
       "checkContainersForAutoHeight",
-      "selectedWidgetAncestry",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -75,7 +74,6 @@ describe("EditorContextProvider", () => {
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
       "checkContainersForAutoHeight",
-      "selectedWidgetAncestry",
     ].sort();
 
     const testRenderer = TestRenderer.create(
