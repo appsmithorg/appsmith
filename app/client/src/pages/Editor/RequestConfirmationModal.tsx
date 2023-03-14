@@ -100,9 +100,7 @@ class RequestConfirmationModal extends React.Component<Props> {
               <b>{modalInfo.name}</b> ?
             </ModalBody>
             <ModalFooter>
-              {/* TODO (tanvi): cypress selector */}
               <Button
-                // cypressSelector="t--cancel-modal-btn"
                 kind="secondary"
                 onPress={() => {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
@@ -112,9 +110,7 @@ class RequestConfirmationModal extends React.Component<Props> {
               >
                 No
               </Button>
-              {/* TODO (tanvi): cypress selector */}
               <Button
-                // cypressSelector="t--confirm-modal-btn"
                 kind="primary"
                 onPress={() => this.onConfirm(modalInfo)}
                 size="md"

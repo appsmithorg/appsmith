@@ -71,10 +71,8 @@ function EntityNotFoundPane(props: Props) {
         <p>Search: {history.location.search}</p>
         <p>Hash: {history.location.hash}</p>
         <p>Action: {history.action}</p>
-        {/* TODO (tanvi): cypress selector */}
         <Button
           className="button-position"
-          // cypressSelector="t--invalid-page-go-back"
           kind="secondary"
           onPress={props.goBackFn ? props.goBackFn : history.goBack}
           size="md"

@@ -68,10 +68,8 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           >
             Cancel
           </Button>
-          {/* TODO (tanvi): cypress selector */}
           <Button
             className=".button-item"
-            // cypressSelector={"t--workspace-leave-button"}
             isLoading={isDeletingUser}
             kind="error"
             onPress={onConfirm}
