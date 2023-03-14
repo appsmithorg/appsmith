@@ -156,36 +156,36 @@ export const ActionBlockTree: React.FC<Props> = ({
               }) => (
                 <li key={label}>
                   <div className="flex flex-col">
-                    <TooltipComponent
-                      boundary="viewport"
-                      content={tooltipContent}
-                      popoverClassName="!max-w-[300px]"
+                    <button
+                      className={clsx(
+                        "action-callback-add",
+                        selectedCallbackBlock?.type === blockType &&
+                          selectedCallbackBlock?.index === 0 &&
+                          "hide-bottom-border",
+                        "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
+                        callbacks.length === 0 &&
+                          "border-b-[1px] border-b-gray-200",
+                        isNewActionSelected(blockType) && "selected",
+                      )}
+                      onClick={handleAddBlock}
                     >
-                      <button
-                        className={clsx(
-                          "action-callback-add",
-                          selectedCallbackBlock?.type === blockType &&
-                            selectedCallbackBlock?.index === 0 &&
-                            "hide-bottom-border",
-                          "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
-                          callbacks.length === 0 &&
-                            "border-b-[1px] border-b-gray-200",
-                          isNewActionSelected(blockType) && "selected",
-                        )}
-                        onClick={handleAddBlock}
+                      <TooltipComponent
+                        boundary="viewport"
+                        content={tooltipContent}
+                        popoverClassName="!max-w-[300px]"
                       >
                         <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300 px-2 py-1">
                           {label}
                         </span>
-                        <span className="icon w-7 h-7 flex items-center justify-center">
-                          <Icon
-                            fillColor="var(--ads-color-black-700)"
-                            name="plus"
-                            size="extraLarge"
-                          />
-                        </span>
-                      </button>
-                    </TooltipComponent>
+                      </TooltipComponent>
+                      <span className="icon w-7 h-7 flex items-center justify-center">
+                        <Icon
+                          fillColor="var(--ads-color-black-700)"
+                          name="plus"
+                          size="extraLarge"
+                        />
+                      </span>
+                    </button>
                     {callbacks
                       .filter(
                         ({ actionType }) =>
