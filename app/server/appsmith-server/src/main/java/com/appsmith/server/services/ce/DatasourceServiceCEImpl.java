@@ -120,28 +120,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-        return pluginService.findById(datasource.getPluginId())
-                .flatMap(plugin -> {
-                    /**
-                     * Oracle plugin is currently under feature flag. Hence, datasource creation will only be allowed
-                     * if the flag is enabled.
-                     */
-                    if (ORACLE_PLUGIN_PACKAGE_NAME.equalsIgnoreCase(plugin.getPackageName())) {
-                        return featureFlagService.check(ORACLE_PLUGIN);
-                    }
-                    else {
-                        return Mono.just(true);
-                    }
-                })
-                .flatMap(isPluginEnabled -> {
-                    if (isPluginEnabled) {
-                        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
-                    }
-                    else {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED,
-                                datasource.getPluginId()));
-                    }
-                });
+        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
     }
 
     @Override
@@ -157,11 +136,36 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
+        if (datasource.getPluginId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PLUGIN_ID));
+        }
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
 
-        Mono<Datasource> datasourceMono = Mono.just(datasource);
+        Mono<Datasource> datasourceMono =  pluginService.findById(datasource.getPluginId())
+                .flatMap(plugin -> {
+                    /**
+                     * Oracle plugin is currently under feature flag. Hence, datasource creation will only be allowed
+                     * if the flag is enabled.
+                     */
+                    if (ORACLE_PLUGIN_PACKAGE_NAME.equalsIgnoreCase(plugin.getPackageName())) {
+                        return featureFlagService.check(ORACLE_PLUGIN);
+                    }
+                    else {
+                        return Mono.just(true);
+                    }
+                })
+                .flatMap(isPluginEnabled -> {
+                    if (isPluginEnabled) {
+                        return Mono.just(datasource);
+                    }
+                    else {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED,
+                                datasource.getPluginId()));
+                    }
+                });
+
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
                     .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
