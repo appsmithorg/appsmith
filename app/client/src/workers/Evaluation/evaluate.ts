@@ -196,17 +196,7 @@ export const assignJSFunctionsToContext = (
       }
     }
 
-    // eslint-disable-next-line
-    // @ts-ignore
-    const JSCollectionForCurrentObject = dataTree[jsObjectName].meta;
-
     EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
-    // eslint-disable-next-line
-    // @ts-ignore
-    EVAL_CONTEXT[jsObjectName].actionId = dataTree[jsObjectName].actionId;
-    EVAL_CONTEXT[jsObjectName].config = {
-      ...JSCollectionForCurrentObject,
-    };
   }
 };
 
