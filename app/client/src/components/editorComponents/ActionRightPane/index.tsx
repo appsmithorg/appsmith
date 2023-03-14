@@ -95,6 +95,11 @@ const SideBar = styled.div`
   }
 `;
 
+const BackToCanvasButton = styled(Button)`
+  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+`;
+
 const Label = styled.span`
   cursor: pointer;
 `;
@@ -254,9 +259,13 @@ function ActionSidebar({
   return (
     <SideBar>
       {/* TODO (tanvi): Does this button need an icon with a custom color and some custom text? Why?*/}
-      <Button onPress={navigateToCanvas} startIcon="chevron-left">
-        <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
-      </Button>
+      <BackToCanvasButton
+        kind="tertiary"
+        onPress={navigateToCanvas}
+        startIcon="chevron-left"
+      >
+        {createMessage(BACK_TO_CANVAS)}
+      </BackToCanvasButton>
 
       {hasConnections && (
         <Connections
