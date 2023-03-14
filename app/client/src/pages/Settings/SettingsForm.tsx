@@ -173,7 +173,14 @@ export function SettingsForm(
     const updatedSettings: any = {};
     if (connectedMethods.length >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
-        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+        if (
+          !setting.isHidden &&
+          [
+            SettingTypes.LINK,
+            SettingTypes.ACCORDION,
+            SettingTypes.UNEDITABLEFIELD,
+          ].indexOf(setting.controlType) === -1
+        ) {
           updatedSettings[setting.id] = "";
         }
       });
