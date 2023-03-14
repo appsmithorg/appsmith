@@ -2,10 +2,11 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("peek overlay", () => {
   it("main test", () => {
+    cy.fixture("datasources").then((datasourceFormData : any) => {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
-    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
     _.apiPage.RunAPI();
-    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
     _.jsEditor.CreateJSObject(
       `export default {
         numArray: [1, 2, 3],
@@ -120,5 +121,6 @@ describe("peek overlay", () => {
     _.peekOverlay.VerifyDataType("array");
     _.peekOverlay.CheckObjectArrayInOverlay([{}, {}, {}]);
     _.peekOverlay.ResetHover();
+    });
   });
 });
