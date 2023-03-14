@@ -60,10 +60,15 @@ const ActionCreator = React.forwardRef(
               ([id]) => id !== prevIdValuePair[0],
             );
           } else if (childUpdate.current && updatedIdRef?.current) {
+            // Child updates come with the id of the block that was updated
             newActions[updatedIdRef.current] = block;
             updatedIdRef.current = "";
             childUpdate.current = false;
           } else {
+            // If the block is not present in the previous blocks, it's a new block
+            // We need to check if the block is a result of an edit
+            // If it is, we need to retain the id of the previous block
+            // This is to ensure that the undo/redo stack is not broken
             const differences = diff(previousBlocks.current, newBlocks);
             if (differences?.length === 1 && differences[0].kind === "E") {
               const edit = differences[0];
