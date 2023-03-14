@@ -38,10 +38,14 @@ export const WARNING_LINT_ERRORS = {
   W098: "'{a}' is defined but never used.",
   W014:
     "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
+  ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD:
+    "Cannot execute async code on functions bound to sync fields",
 };
 
-export function asyncActionInSyncFieldLintMessage(actionName: string) {
-  return `Async framework action "${actionName}" cannot be executed in a function that is bound to a sync field.`;
+export function asyncActionInSyncFieldLintMessage(isJsObject = false) {
+  return isJsObject
+    ? `Cannot execute async code on functions bound to sync fields`
+    : `Sync fields cannot execute async code`;
 }
 
 /** These errors should be overlooked
@@ -55,6 +59,7 @@ export const SUPPORTED_WEB_APIS = {
 };
 export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",
+  ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD = "ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD",
 }
 export const CUSTOM_LINT_ERRORS: Record<
   CustomLintErrorCode,
@@ -64,4 +69,11 @@ export const CUSTOM_LINT_ERRORS: Record<
     entityName: string,
     propertyName: string,
   ) => `"${propertyName}" doesn't exist in ${entityName}`,
+  [CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD]: (
+    dataFieldBindings: string[],
+    fullName: string,
+  ) =>
+    `Functions bound to sync fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following sync ${
+      dataFieldBindings.length > 1 ? "fields" : "field"
+    }: ${dataFieldBindings.join(" , ")}`,
 };

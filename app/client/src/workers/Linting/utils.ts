@@ -22,6 +22,7 @@ import {
 } from "@shared/ast";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
+  createEvaluationContext,
   EvaluationScripts,
   EvaluationScriptType,
   getScriptToEval,
@@ -61,6 +62,7 @@ import {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/common/DataTreeEvaluator";
+import { getActionTriggerFunctionNames } from "workers/Evaluation/fns";
 
 export function lintBindingPath({
   dynamicBinding,
@@ -268,19 +270,26 @@ function sanitizeJSHintErrors(
     return result;
   }, []);
 }
-const getLintSeverity = (code: string): Severity.WARNING | Severity.ERROR => {
+const getLintSeverity = (
+  code: string,
+  errorMessage: string,
+): Severity.WARNING | Severity.ERROR => {
   const severity =
-    code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
+    code in WARNING_LINT_ERRORS ||
+    errorMessage === asyncActionInSyncFieldLintMessage(true)
+      ? Severity.WARNING
+      : Severity.ERROR;
   return severity;
 };
 const getLintErrorMessage = (
   reason: string,
   code: string,
   variables: string[],
+  isJsObject = false,
 ): string => {
   switch (code) {
     case IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE: {
-      return getRefinedW117Error(variables[0], reason);
+      return getRefinedW117Error(variables[0], reason, isJsObject);
     }
     default: {
       return reason;
@@ -292,6 +301,7 @@ function convertJsHintErrorToAppsmithLintError(
   script: string,
   originalBinding: string,
   scriptPos: Position,
+  isJsObject = false,
 ): LintError {
   const { a, b, c, code, d, evidence, reason } = jsHintError;
 
@@ -301,14 +311,20 @@ function convertJsHintErrorToAppsmithLintError(
     jsHintError.line === scriptPos.line
       ? jsHintError.character - scriptPos.ch
       : jsHintError.character;
+  const lintErrorMessage = getLintErrorMessage(
+    reason,
+    code,
+    [a, b, c, d],
+    isJsObject,
+  );
 
   return {
     errorType: PropertyEvaluationErrorType.LINT,
     raw: script,
-    severity: getLintSeverity(code),
+    severity: getLintSeverity(code, lintErrorMessage),
     errorMessage: {
       name: "LintingError",
-      message: getLintErrorMessage(reason, code, [a, b, c, d]),
+      message: lintErrorMessage,
     },
     errorSegment: evidence,
     originalBinding,
@@ -322,6 +338,7 @@ function convertJsHintErrorToAppsmithLintError(
 
 export function getLintingErrors({
   data,
+  options,
   originalBinding,
   script,
   scriptType,
@@ -338,6 +355,7 @@ export function getLintingErrors({
       script,
       originalBinding,
       scriptPos,
+      options?.isJsObject,
     ),
   );
   const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
@@ -375,15 +393,19 @@ function getInvalidPropertyErrorsFromScript(
       const propertyStartColumn = !isLiteralNode(property)
         ? property.loc.start.column + 1
         : property.loc.start.column + 2;
+      const lintErrorMessage = CUSTOM_LINT_ERRORS[
+        CustomLintErrorCode.INVALID_ENTITY_PROPERTY
+      ](object.name, propertyName);
       return {
         errorType: PropertyEvaluationErrorType.LINT,
         raw: script,
-        severity: getLintSeverity(CustomLintErrorCode.INVALID_ENTITY_PROPERTY),
+        severity: getLintSeverity(
+          CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+          lintErrorMessage,
+        ),
         errorMessage: {
           name: "LintingError",
-          message: CUSTOM_LINT_ERRORS[
-            CustomLintErrorCode.INVALID_ENTITY_PROPERTY
-          ](object.name, propertyName),
+          message: lintErrorMessage,
         },
         errorSegment: `${object.name}.${propertyName}`,
         originalBinding,
@@ -429,6 +451,7 @@ export function initiateLinting({
 export function getRefinedW117Error(
   undefinedVar: string,
   originalReason: string,
+  isJsObject = false,
 ) {
   // Refine error message for await using in field not marked as async
   if (undefinedVar === "await") {
@@ -436,7 +459,7 @@ export function getRefinedW117Error(
   }
   // Handle case where platform functions are used in sync fields
   if (APPSMITH_GLOBAL_FUNCTIONS.hasOwnProperty(undefinedVar)) {
-    return asyncActionInSyncFieldLintMessage(undefinedVar);
+    return asyncActionInSyncFieldLintMessage(isJsObject);
   }
   return originalReason;
 }
@@ -453,13 +476,14 @@ export function lintJSProperty(
     jsPropertyState.value,
     EvaluationScriptType.OBJECT_PROPERTY,
   );
-  const propLintError = getLintingErrors({
+  const propLintErrors = getLintingErrors({
     script: scriptToLint,
     data: globalData,
     originalBinding: jsPropertyState.value,
     scriptType,
+    options: { isJsObject: true },
   });
-  const refinedErrors = propLintError.map((lintError) => {
+  const refinedErrors = propLintErrors.map((lintError) => {
     return {
       ...lintError,
       line: lintError.line + jsPropertyState.position.startLine - 1,
@@ -481,7 +505,7 @@ export function lintJSObject(
 ) {
   let lintErrors: LintError[] = [];
 
-  // An empty state shows that there is a parse error in the jsObject, so we lint the entire body
+  // An empty state shows that there is a parse error in the jsObject or the object is empty, so we lint the entire body
   // instead of each property
   if (isEmpty(jsObjectState)) {
     const jsObject = data.dataWithFunctions[jsObjectName];
@@ -498,43 +522,27 @@ export function lintJSObject(
   }
 
   for (const jsProperty of Object.keys(jsObjectState)) {
+    const jsPropertyFullName = `${jsObjectName}.${jsProperty}`;
+    const isAsyncJSFunctionBoundToSyncField = asyncJSFunctionsInSyncFields.hasOwnProperty(
+      jsPropertyFullName,
+    );
+    const globalData = isAsyncJSFunctionBoundToSyncField
+      ? data.dataWithoutFunctions
+      : data.dataWithFunctions;
     const jsPropertyLintErrors = lintJSProperty(
       jsObjectState[jsProperty],
-      asyncJSFunctionsInSyncFields.hasOwnProperty(
-        `${jsObjectName}.${jsProperty}`,
-      )
-        ? data.dataWithoutFunctions
-        : data.dataWithFunctions,
+      globalData,
     );
     lintErrors = lintErrors.concat(jsPropertyLintErrors);
 
-    if (
-      asyncJSFunctionsInSyncFields.hasOwnProperty(
-        `${jsObjectName}.${jsProperty}`,
-      )
-    ) {
-      lintErrors.push({
-        errorType: PropertyEvaluationErrorType.LINT,
-        raw: "test",
-        severity: getLintSeverity("CUSTOM"),
-        errorMessage: {
-          name: "LintingError",
-          message: getLintErrorMessage(
-            `${
-              asyncJSFunctionsInSyncFields[`${jsObjectName}.${jsProperty}`][0]
-            } contains reference to async framework actions that cause widget bindings to fail.`,
-            "CUSTOM",
-            [jsProperty],
-          ),
-        },
-        errorSegment: `${jsObjectName}.${jsProperty}`,
-        originalBinding: "test",
-        // By keeping track of these variables we can highlight the exact text that caused the error.
-        variables: [jsProperty, null, null, null],
-        code: "CUSTOM",
-        line: jsObjectState[jsProperty].position.keyStartLine - 1,
-        ch: jsObjectState[jsProperty].position.keyStartColumn + 1,
-      });
+    if (isAsyncJSFunctionBoundToSyncField) {
+      lintErrors.push(
+        generateAsyncFunctionBoundToDataFieldCustomError(
+          asyncJSFunctionsInSyncFields[jsPropertyFullName],
+          jsObjectState[jsProperty],
+          jsPropertyFullName,
+        ),
+      );
     }
   }
   return lintErrors;
@@ -552,4 +560,98 @@ export function lintJSObjectBody(
     originalBinding: jsbody,
     scriptType,
   });
+}
+
+export function getEvaluationContext(
+  unevalTree: DataTree,
+  cloudHosting: boolean,
+  options: { withFunctions: boolean },
+) {
+  if (!options.withFunctions)
+    return createEvaluationContext({
+      dataTree: unevalTree,
+      resolvedFunctions: {},
+      isTriggerBased: true,
+      skipEntityFunctions: true,
+    });
+
+  const evalContext = createEvaluationContext({
+    dataTree: unevalTree,
+    resolvedFunctions: {},
+    isTriggerBased: false,
+    skipEntityFunctions: true,
+  });
+
+  const platformFnNamesMap = Object.values(
+    getActionTriggerFunctionNames(cloudHosting),
+  ).reduce(
+    (acc, name) => ({ ...acc, [name]: true }),
+    {} as { [x: string]: boolean },
+  );
+  Object.assign(evalContext, platformFnNamesMap);
+
+  return evalContext;
+}
+
+export function sortLintingPathsByType(
+  pathsToLint: string[],
+  unevalTree: DataTree,
+) {
+  const triggerPaths = new Set<string>();
+  const bindingPaths = new Set<string>();
+  const jsObjectPaths = new Set<string>();
+
+  for (const fullPropertyPath of pathsToLint) {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      fullPropertyPath,
+    );
+    const entity = unevalTree[entityName];
+
+    // We are only interested in paths that require linting
+    if (!pathRequiresLinting(unevalTree, entity, fullPropertyPath)) continue;
+    if (isATriggerPath(entity, propertyPath)) {
+      triggerPaths.add(fullPropertyPath);
+      continue;
+    }
+    if (isJSAction(entity)) {
+      jsObjectPaths.add(`${entityName}.body`);
+      continue;
+    }
+    bindingPaths.add(fullPropertyPath);
+  }
+
+  return { triggerPaths, bindingPaths, jsObjectPaths };
+}
+function generateAsyncFunctionBoundToDataFieldCustomError(
+  dataFieldBindings: string[],
+  jsPropertyState: TJSpropertyState,
+  jsPropertyFullName: string,
+): LintError {
+  const { propertyPath: jsPropertyName } = getEntityNameAndPropertyPath(
+    jsPropertyFullName,
+  );
+  const lintErrorMessage = CUSTOM_LINT_ERRORS.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD(
+    dataFieldBindings,
+    jsPropertyFullName,
+  );
+
+  return {
+    errorType: PropertyEvaluationErrorType.LINT,
+    raw: jsPropertyState.value,
+    severity: getLintSeverity(
+      CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD,
+      lintErrorMessage,
+    ),
+    errorMessage: {
+      name: "LintingError",
+      message: lintErrorMessage,
+    },
+    errorSegment: jsPropertyFullName,
+    originalBinding: jsPropertyState.value,
+    // By keeping track of these variables we can highlight the exact text that caused the error.
+    variables: [jsPropertyName, null, null, null],
+    code: CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD,
+    line: jsPropertyState.position.keyStartLine - 1,
+    ch: jsPropertyState.position.keyStartColumn + 1,
+  };
 }

@@ -56,6 +56,9 @@ export interface getLintingErrorsProps {
   // {{user's code}}
   originalBinding: string;
   scriptType: EvaluationScriptType;
+  options?: {
+    isJsObject: boolean;
+  };
 }
 
 export interface getlintErrorsFromTreeProps {
