@@ -52,7 +52,7 @@ describe("Undo/Redo functionality", function() {
     cy.CreateAPI("FirstAPI");
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
       "have.text",
-      "https://mock-api.appsmith.com/users",
+      "https://mock-api.appsmith.com/users", //testing placeholder!
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.get(`${apiwidget.headerKey}`).type("Authorization");

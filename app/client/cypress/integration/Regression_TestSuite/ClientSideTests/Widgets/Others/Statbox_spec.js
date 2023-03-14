@@ -74,7 +74,10 @@ describe("Statbox Widget Functionality", function() {
   it("4. Bind datasource to multiple components in statbox", () => {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("MockApi");
-    cy.enterDatasourceAndPath(data.paginationUrl, "users?page=4&size=3");
+    cy.enterDatasourceAndPath(
+      data.paginationUrl,
+      "mock-api?records=20&page=4&size=3",
+    );
     cy.SaveAndRunAPI();
     // going to HomePage where the button widget is located and opening it's property pane.
     cy.get(widgetsPage.NavHomePage).click({ force: true });
