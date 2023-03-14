@@ -43,7 +43,6 @@ export function EvaluatedValueDebugButton(props: {
         }}
         position={Position.BOTTOM_RIGHT}
       >
-        {/* TODO (tanvi): Validate as correct replacement for button here */}
         <Button kind="secondary" size="sm" startIcon="down-arrow">
           DEBUG
         </Button>

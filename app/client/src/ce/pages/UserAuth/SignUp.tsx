@@ -199,7 +199,6 @@ export function SignUp(props: SignUpFormProps) {
             />
           </FormGroup>
           <FormActions>
-            {/* TODO (tanvi): Submit button*/}
             <Button
               isDisabled={shouldDisableSignupButton}
               isLoading={submitting}
@@ -213,6 +212,7 @@ export function SignUp(props: SignUpFormProps) {
                 );
               }}
               size="md"
+              type="submit"
             >
               {createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
             </Button>
