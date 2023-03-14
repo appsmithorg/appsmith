@@ -25,3 +25,9 @@ To work around this, Appsmith:
     where `ICON_VERSION` is the version of the package.
 
 3. Copy the `resources/icons` directory from the cloned repo to `app/client/src/assets/icons/blueprintjs/`.
+
+4. Run `svgo` to remove React-incompatible attributes from the SVGs:
+
+   ```bash
+   yarn dlx svgo@3.0.2 -r . --config ./svgo.config.js
+   ```
