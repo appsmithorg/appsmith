@@ -18,7 +18,6 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
-  public mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10";
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -114,13 +113,13 @@ export class AggregateHelper {
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
   }
 
-  public RenameWithInPane(renameVal: string, query = true) {
-    const name = query ? this.locator._queryName : this.locator._dsName;
-    const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
+  public RenameWithInPane(renameVal: string, IsQuery = true) {
+    const name = IsQuery ? this.locator._queryName : this.locator._dsName;
+    const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
     this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
-      .type(renameVal, { force: true })
+      .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
     this.Sleep();
@@ -197,11 +196,24 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true, force = true) {
+  public ClickButton(
+    btnVisibleText: string,
+    index = 0,
+    shouldSleep = true,
+    force = true,
+  ) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
       .click({ force: force });
+    shouldSleep && this.Sleep();
+  }
+
+  public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
+    cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
+      $el.trigger("click", { force: true });
+      cy.wait(200);
+    });
     shouldSleep && this.Sleep();
   }
 
@@ -551,7 +563,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectAll+"{del}");
+    return locator.type(this.selectAll + "{del}");
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {

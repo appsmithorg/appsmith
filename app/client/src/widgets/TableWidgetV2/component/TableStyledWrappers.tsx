@@ -319,6 +319,14 @@ export const TableWrapper = styled.div<{
     &.highlight-right {
       border-right: 2px solid ${Colors.GREEN};
     }
+    & .draggable-header--dragging {
+      background: #efefef;
+      border-radius: 4px;
+      z-index: 100;
+      width: 100%;
+      text-overflow: none;
+      overflow: none;
+    }
   }
   .input-group {
     height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;

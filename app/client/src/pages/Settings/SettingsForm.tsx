@@ -133,7 +133,11 @@ export function SettingsForm(
     }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
-      if (setting && setting.controlType == SettingTypes.TOGGLE) {
+      if (
+        setting &&
+        (setting.controlType == SettingTypes.TOGGLE ||
+          setting.controlType == SettingTypes.CHECKBOX)
+      ) {
         const settingsStr = props.settingsConfig[settingName].toString();
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =
@@ -169,7 +173,14 @@ export function SettingsForm(
     const updatedSettings: any = {};
     if (connectedMethods.length >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
-        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+        if (
+          !setting.isHidden &&
+          [
+            SettingTypes.LINK,
+            SettingTypes.ACCORDION,
+            SettingTypes.UNEDITABLEFIELD,
+          ].indexOf(setting.controlType) === -1
+        ) {
           updatedSettings[setting.id] = "";
         }
       });

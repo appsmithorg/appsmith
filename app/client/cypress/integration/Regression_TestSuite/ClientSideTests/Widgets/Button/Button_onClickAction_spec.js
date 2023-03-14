@@ -37,7 +37,10 @@ describe("Button Widget Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
-    cy.enterDatasourceAndPath(this.data.paginationUrl, "users?page=4&size=3");
+    cy.enterDatasourceAndPath(
+      this.data.paginationUrl,
+      "mock-api?records=20&page=4&size=3",
+    );
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
@@ -51,7 +54,11 @@ describe("Button Widget Functionality", function() {
     cy.onClickActions("Success", "Error", "onclick");
 
     cy.PublishtheApp();
-
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
     cy.get("body").then(($ele) => {

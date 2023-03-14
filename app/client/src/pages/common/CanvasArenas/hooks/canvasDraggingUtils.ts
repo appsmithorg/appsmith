@@ -142,7 +142,7 @@ export function modifyDrawingRectangles(
  * @returns movement direction
  */
 export function getMoveDirection(
-  prevPosition: OccupiedSpace,
+  prevPosition: OccupiedSpace | null,
   currentPosition: OccupiedSpace,
   currentDirection: ReflowDirection,
 ) {
@@ -190,6 +190,7 @@ export const modifyBlockDimension = (
   snapRowSpace: number,
   parentBottomRow: number,
   canExtend: boolean,
+  modifyBlock: boolean,
 ) => {
   const {
     columnWidth,
@@ -214,43 +215,44 @@ export const modifyBlockDimension = (
       y: 0,
     },
   );
-
   let leftOffset = 0,
     rightOffset = 0,
     topOffset = 0,
     bottomOffset = 0;
+  if (!modifyBlock) {
+    // calculate offsets based on collisions and limits
+    if (leftColumn < 0) {
+      leftOffset =
+        leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
+          ? leftColumn
+          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+    } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
+      rightOffset =
+        GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
+      rightOffset =
+        columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
+          ? rightOffset
+          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+    }
 
-  // calculate offsets based on collisions and limits
-  if (leftColumn < 0) {
-    leftOffset =
-      leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
-        ? leftColumn
-        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
-  } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
-    rightOffset = GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
-    rightOffset =
-      columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
-        ? rightOffset
-        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
-  }
+    if (topRow < 0 && fixedHeight === undefined) {
+      topOffset =
+        topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
+          ? topRow
+          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    }
 
-  if (topRow < 0 && fixedHeight === undefined) {
-    topOffset =
-      topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
-        ? topRow
-        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
-  }
-
-  if (
-    topRow + rowHeight > parentBottomRow &&
-    !canExtend &&
-    fixedHeight === undefined
-  ) {
-    bottomOffset = parentBottomRow - topRow - rowHeight;
-    bottomOffset =
-      rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
-        ? bottomOffset
-        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    if (
+      topRow + rowHeight > parentBottomRow &&
+      !canExtend &&
+      fixedHeight === undefined
+    ) {
+      bottomOffset = parentBottomRow - topRow - rowHeight;
+      bottomOffset =
+        rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
+          ? bottomOffset
+          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    }
   }
 
   return {

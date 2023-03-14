@@ -1,8 +1,12 @@
+import { isEditorPath } from "ce/pages/Editor/Explorer/helpers";
 import {
   BUILDER_VIEWER_PATH_PREFIX,
   VIEWER_PATH_DEPRECATED_REGEX,
 } from "constants/routes";
-import { noop } from "lodash";
+import { APP_MODE } from "entities/App";
+import { isNil, noop } from "lodash";
+import { getAppMode } from "selectors/applicationSelectors";
+import store from "store";
 import history from "utils/history";
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
@@ -25,8 +29,16 @@ class UsagePulse {
   }
 
   static sendPulse() {
+    let mode = getAppMode(store.getState());
+
+    if (isNil(mode)) {
+      mode = isEditorPath(window.location.pathname)
+        ? APP_MODE.EDIT
+        : APP_MODE.PUBLISHED;
+    }
+
     const data: Record<string, unknown> = {
-      viewMode: !window.location.href.endsWith("/edit"),
+      viewMode: mode === APP_MODE.PUBLISHED,
     };
 
     if (UsagePulse.userAnonymousId) {

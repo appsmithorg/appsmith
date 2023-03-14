@@ -8,31 +8,38 @@ let repoName;
 
 describe("Tests JS Library with Git", () => {
   before(() => {
+    cy.NavigateToHome();
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    });
     // connect app to git
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
   });
+
   it("1. Install JS Library and commit changes, create branch and verify JS library changes are present on new branch ", () => {
-    _.ee.ExpandCollapseEntity("Libraries");
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.openInstaller();
     _.installer.installLibrary("uuidjs", "UUID");
     cy.commitAndPush();
     // create new branch
     _.gitSync.CreateGitBranch(tempBranch, true);
     // verify js library changes are present
-    _.ee.ExpandCollapseEntity("Libraries");
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.AssertLibraryinExplorer("uuidjs");
   });
   it("2. Discard custom js library changes, verify changes are discarded also verify it deosnt show uncommitted changes", () => {
-    _.ee.ExpandCollapseEntity("Libraries");
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.uninstallLibrary("uuidjs");
     _.installer.assertUnInstall("uuidjs");
     // discard js library uninstallation
     cy.gitDiscardChanges();
     // verify js library is present
-    _.ee.ExpandCollapseEntity("Libraries");
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.AssertLibraryinExplorer("uuidjs");
     // verify no uncommitted changes are there
     _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
@@ -52,7 +59,7 @@ describe("Tests JS Library with Git", () => {
   it("3. Merge custom js lib changes from child branch to master, verify changes are merged", () => {
     cy.switchGitBranch(tempBranch);
     _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
-    _.ee.ExpandCollapseEntity("Libraries");
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.openInstaller();
     _.installer.installLibrary("jspdf", "jspdf");
     //cy.commitAndPush();
@@ -70,7 +77,7 @@ describe("Tests JS Library with Git", () => {
     // verify custom js library is present in master branch
     cy.switchGitBranch(mainBranch);
     _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
-    _.ee.ExpandCollapseEntity("Libraries");
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.AssertLibraryinExplorer("jspdf");
   });
   after(() => {
