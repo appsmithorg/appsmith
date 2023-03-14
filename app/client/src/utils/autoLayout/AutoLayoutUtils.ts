@@ -101,10 +101,10 @@ export function alterLayoutForMobile(
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
       widget.minWidth
     ) {
-      const { minWidth, rightColumn } = widget;
+      const { leftColumn, minWidth, rightColumn } = widget;
       const columnSpace =
         (canvasWidth - FLEXBOX_PADDING * 2) / GridDefaults.DEFAULT_GRID_COLUMNS;
-      if (columnSpace * rightColumn < minWidth) {
+      if (columnSpace * (rightColumn - leftColumn) < minWidth) {
         widget.mobileLeftColumn = 0;
         widget.mobileRightColumn = Math.min(
           minWidth / columnSpace,
