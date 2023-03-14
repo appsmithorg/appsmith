@@ -51,8 +51,11 @@ export default function ConflictInfo({
         </div>
       </InfoWrapper>
       <Row>
-        {/* TODO (tanvi): browserSupportedRemoteUrl href link button*/}
-        <StyledButton className="t--commit-button" kind="secondary">
+        <StyledButton
+          className="t--commit-button"
+          href={browserSupportedRemoteUrl}
+          kind="secondary"
+        >
           {createMessage(OPEN_REPO)}
         </StyledButton>
       </Row>

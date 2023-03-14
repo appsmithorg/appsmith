@@ -836,6 +836,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   {hasEditPermission && !isMenuOpen && (
                     <Button
                       className="t--application-edit-link"
+                      href={editModeURL}
                       onPress={editApp}
                       size="md"
                       startIcon={"edit"}
@@ -846,6 +847,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   {!isMenuOpen && (
                     <Button
                       className="t--application-view-link"
+                      href={viewModeURL}
                       kind="secondary"
                       onPress={launchApp}
                       size="md"
