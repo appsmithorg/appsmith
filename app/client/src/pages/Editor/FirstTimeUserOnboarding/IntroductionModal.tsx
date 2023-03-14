@@ -1,4 +1,4 @@
-import { Icon, Overlay } from "@blueprintjs/core";
+import { Overlay } from "@blueprintjs/core";
 import { Button } from "design-system";
 import {
   HOW_APPSMITH_WORKS,

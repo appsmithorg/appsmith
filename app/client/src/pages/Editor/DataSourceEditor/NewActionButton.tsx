@@ -24,10 +24,9 @@ type NewActionButtonProps = {
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
   plugin?: Plugin;
-  style?: any;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, disabled, plugin, style = {} } = props;
+  const { datasource, disabled, plugin } = props;
   const pluginType = plugin?.type;
   const [isSelected, setIsSelected] = useState(false);
 

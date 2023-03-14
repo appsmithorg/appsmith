@@ -329,9 +329,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       }
                       eventFrom="datasource-pane"
                       plugin={plugin}
-                      style={{
-                        marginLeft: "16px",
-                      }}
                     />
                   )}
                 </ActionWrapper>

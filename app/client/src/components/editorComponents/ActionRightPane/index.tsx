@@ -1,14 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import {
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes, getTypographyByKey, Icon, IconSize } from "design-system-old";
 import { Button } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
@@ -32,7 +25,6 @@ import {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
-import { Colors } from "constants/Colors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

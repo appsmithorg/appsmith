@@ -11,9 +11,7 @@ import {
 } from "actions/widgetActions";
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
-import { FormIcons } from "icons/FormIcons";
 import { TooltipComponent as Tooltip } from "design-system-old";
-import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
@@ -100,11 +98,6 @@ export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
     enabled: false,
   },
 };
-
-const CopyIcon = ControlIcons.COPY2_CONTROL;
-const DeleteIcon = FormIcons.DELETE_ICON;
-const CutIcon = ControlIcons.CUT_CONTROL;
-const GroupIcon = ControlIcons.GROUP_CONTROL;
 
 /**
  * helper text that comes in popover on hover of actions in context menu

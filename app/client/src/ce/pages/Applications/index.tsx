@@ -56,7 +56,6 @@ import {
   MenuItem,
   notEmptyValidator,
   SavingState,
-  Size,
   Text,
   TextType,
 } from "design-system-old";
