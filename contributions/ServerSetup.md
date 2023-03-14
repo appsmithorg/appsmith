@@ -61,7 +61,7 @@ This document doesn't provide instructions to install Java and Maven because the
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
 ```
 
 Please change the `/path/to/store/data` to a valid path on your system. This is where MongoDB will persist it's data across runs of this container.

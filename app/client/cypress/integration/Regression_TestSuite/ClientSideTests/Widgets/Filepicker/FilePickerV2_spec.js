@@ -33,12 +33,13 @@ describe("File picker widget v2", () => {
   });
 
   it("3. Check if the uploaded data does not reset when back from query page", () => {
+    cy.fixture("datasources").then((datasourceFormData) => {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{FilePicker1.files[0].name}}`,
     );
-    cy.createAndFillApi(agHelper.mockApiUrl, "");
+    cy.createAndFillApi(datasourceFormData["mockApiUrl"], "");
     cy.updateCodeInput(
       "[class*='t--actionConfiguration']",
       "{{FilePicker1.files}}",
@@ -57,6 +58,7 @@ describe("File picker widget v2", () => {
       "1 files selected",
     );
     cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
+    });
   });
 
   it("4. Check if the uploaded file is removed on click of cancel button", () => {
