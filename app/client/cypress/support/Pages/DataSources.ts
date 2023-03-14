@@ -91,8 +91,8 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
   private _createGraphQLDatasource = ".t--createBlankApi-graphql-plugin";
-  _graphqlQueryEditor = ".t--graphql-query-editor .CodeMirror textarea";
-  _graphqlVariableEditor = ".t--graphql-variable-editor .CodeMirror textarea";
+  _graphqlQueryEditor = ".t--graphql-query-editor";
+  _graphqlVariableEditor = ".t--graphql-variable-editor";
   _graphqlPagination = {
     _limitVariable: ".t--apiFormPaginationLimitVariable",
     _limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
@@ -736,21 +736,17 @@ export class DataSources {
     variable?: string;
   }) {
     if (options?.query) {
-      cy.get(this._graphqlQueryEditor)
-        .first()
-        .focus()
-        .type("{selectAll}{backspace}", { force: true })
-        .type("{backspace}", { force: true })
-        .type(options.query);
+      this.agHelper.GetElement(this._graphqlQueryEditor).then(($field: any) => {
+        this.agHelper.UpdateCodeInput($field, options.query as string);
+      });
     }
 
     if (options?.variable) {
-      cy.get(this._graphqlVariableEditor)
-        .first()
-        .focus()
-        .type("{selectAll}{backspace}", { force: true })
-        .type("{backspace}", { force: true })
-        .type(options.variable);
+      this.agHelper
+        .GetElement(this._graphqlVariableEditor)
+        .then(($field: any) => {
+          this.agHelper.UpdateCodeInput($field, options.variable as string);
+        });
     }
 
     this.agHelper.Sleep();
@@ -957,7 +953,7 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     //Click on Authenticated API
-    this.agHelper.GetNClick(this._authApiDatasource, 0, true)
+    this.agHelper.GetNClick(this._authApiDatasource, 0, true);
     this.FillAPIOAuthForm(datasourceName, grantType, clientId, clientSecret);
 
     // save datasource
