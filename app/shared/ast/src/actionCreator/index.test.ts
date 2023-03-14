@@ -10,6 +10,7 @@ import {
   setCatchBlockInQuery,
   setTextArgumentAtPosition,
   getEnumArgumentAtPosition,
+  getActionBlockFunctionNames,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -378,4 +379,19 @@ describe("Tests AST methods around function arguments", function() {
         expect(arg1).toBe("2");
 
     })
+});
+
+describe("Test AST functions to find getActionBlockFunctionNames", () => {
+  const cases = [
+    { index: 0, input: "a(); JSObject1.myFunc1(); showModal();", expected: ['a', 'JSObject1.myFunc1', 'showModal']},
+    { index: 1, input: "navigateTo('Page1', {}, 'SAME_WINDOW'); showAlert('hi');", expected: ['navigateTo', 'showAlert']},
+    { index: 2, input: "Api1.run(); copyToClipboard('hi');", expected: ['Api1.run', 'copyToClipboard']},
+  ];
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+      "test case %d",
+      (_, input, expected) => {
+        const result = getActionBlockFunctionNames(input as string, 2);
+        expect(result).toStrictEqual(expected);
+      },
+  );
 });

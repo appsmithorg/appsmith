@@ -55,16 +55,18 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
-import { getActionBlocks } from "@shared/ast";
+import { getActionBlocks, getActionBlockFunctionNames } from "@shared/ast";
 import {
-  // actionToCode,
-  // codeToAction,
   getCodeFromMoustache,
   isEmptyBlock,
 } from "components/editorComponents/ActionCreator/utils";
 import clsx from "clsx";
-// import { useApisQueriesAndJsActionOptions } from "components/editorComponents/ActionCreator/helpers";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { AppsmithFunctionsWithFields } from "../../../components/editorComponents/ActionCreator/constants";
+import {
+  getActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
+} from "../../../selectors/entitiesSelector";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -80,7 +82,8 @@ const PropertyControl = memo((props: Props) => {
 
   const controlRef = useRef<HTMLDivElement | null>(null);
 
-  // const integrationOptions = useApisQueriesAndJsActionOptions(() => null);
+  const actions = useSelector(getActionsForCurrentPage);
+  const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
@@ -624,27 +627,41 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
-    // if (config.controlType === "ACTION_SELECTOR") {
-    //   const codeFromProperty = getCodeFromMoustache(propertyValue);
-    //   const actionTree = codeToAction(codeFromProperty, integrationOptions);
+    if (config.controlType === "ACTION_SELECTOR") {
+      const codeFromProperty = getCodeFromMoustache(propertyValue);
 
-    //   const codeFromTree = actionToCode(actionTree);
+      const actionsArray: string[] = [];
+      const jsActionsArray: string[] = [];
 
-    //   /**
-    //    * There can be an extra semi-colon at the end of the code while adding
-    //    * a new action block. Hence passing the code through `getActionBlocks`
-    //    * to get the only valid action blocks for comparison.
-    //    */
-    //   if (
-    //     getActionBlocks(codeFromTree, self.evaluationVersion).join(";") !==
-    //     getActionBlocks(codeFromProperty, self.evaluationVersion).join(";")
-    //   ) {
-    //     isToggleDisabled = true;
-    //     if (!isDynamic) {
-    //       toggleDynamicProperty(propertyName, isDynamic);
-    //     }
-    //   }
-    // }
+      actions.forEach((action) =>
+        actionsArray.push(action.config.name + ".run"),
+      );
+      jsActions.forEach((jsAction) =>
+        jsAction.config.actions.forEach((action) => {
+          jsActionsArray.push(jsAction.config.name + "." + action.name);
+        }),
+      );
+
+      const actionBlockFunctions = getActionBlockFunctionNames(
+        codeFromProperty,
+        self.evaluationVersion,
+      );
+
+      actionBlockFunctions.forEach((func) => {
+        if (
+          ![
+            ...AppsmithFunctionsWithFields,
+            ...actionsArray,
+            ...jsActionsArray,
+          ].includes(func)
+        ) {
+          isToggleDisabled = true;
+          if (!isDynamic) {
+            toggleDynamicProperty(propertyName, isDynamic);
+          }
+        }
+      });
+    }
 
     const helpText =
       config.controlType === "ACTION_SELECTOR"
