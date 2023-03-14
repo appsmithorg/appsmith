@@ -1,14 +1,19 @@
 import { IconNames } from "@blueprintjs/icons";
+import { Theme } from "constants/DefaultTheme";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
-import { Theme } from "constants/DefaultTheme";
+import { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
+import moment from "moment";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
-import moment from "moment";
-import { Stylesheet } from "entities/AppTheming";
 
 export interface WidgetConfiguration {
   type: string;
@@ -43,6 +48,9 @@ export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",
   CHILD_OPERATIONS = "CHILD_OPERATIONS",
+  BEFORE_DROP = "BEFORE_DROP",
+  BEFORE_PASTE = "BEFORE_PASTE",
+  BEFORE_ADD = "BEFORE_ADD",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {
@@ -51,6 +59,14 @@ export type FlattenedWidgetProps = WidgetProps & {
 
 export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
+}
+
+interface LayoutProps {
+  positioning?: Positioning;
+  useAutoLayout?: boolean;
+  direction?: LayoutDirection;
+  isFlexChild?: boolean;
+  responsiveBehavior?: ResponsiveBehavior;
 }
 
 const staticProps = omit(
@@ -62,11 +78,12 @@ const staticProps = omit(
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps
-> & {
-  children?: CanvasWidgetStructure[];
-  selected?: boolean;
-  onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
-};
+> &
+  LayoutProps & {
+    children?: CanvasWidgetStructure[];
+    selected?: boolean;
+    onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
+  };
 
 export enum FileDataTypes {
   Base64 = "Base64",

@@ -129,6 +129,7 @@ class ListWidget extends BaseWidget<
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
   pageChangeEventTriggerFromPageNo?: number | null;
+  pageSizeUpdated: boolean;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -191,11 +192,23 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
+    /**
+     * To prevent an infinite loop, we use a flag to avoid recursively updating the pageSize property.
+     * This is necessary because the updateWidgetProperty function does not immediately update the property,
+     * and calling componentDidUpdate can trigger another update, causing an endless loop.
+     * By using this flag, we can prevent unnecessary and incessant invocations of the updatePageSize function.
+     */
+    this.pageSizeUpdated = false;
   }
 
   componentDidMount() {
     this.pageSize = this.getPageSize();
-    if (this.shouldUpdatePageSize()) {
+
+    if (this.props.pageSize === this.pageSize) {
+      this.pageSizeUpdated = true;
+    }
+
+    if (this.shouldUpdatePageSize() && !this.pageSizeUpdated) {
       this.updatePageSize();
     }
 
@@ -231,18 +244,23 @@ class ListWidget extends BaseWidget<
 
     this.pageSize = this.getPageSize();
 
-    if (this.shouldUpdatePageSize()) {
+    if (this.shouldUpdatePageSize() && this.pageSizeUpdated) {
       this.updatePageSize();
+      this.pageSizeUpdated = false;
+
       if (this.props.serverSidePagination && this.pageSize) {
         this.executeOnPageChange();
       }
     }
 
+    if (this.props.pageSize === this.pageSize) {
+      this.pageSizeUpdated = true;
+    }
+
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.max(
-        Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
-        1,
-      );
+      const totalRecords = this.getTotalDataCount();
+
+      const maxPageNo = Math.max(Math.ceil(totalRecords / this.pageSize), 1);
 
       this.onPageChange(maxPageNo);
     }
@@ -303,6 +321,7 @@ class ListWidget extends BaseWidget<
       data: listData,
       itemSpacing: this.props.itemSpacing || 0,
       infiniteScroll: this.props.infiniteScroll ?? false,
+      level: this.props.level ?? 1,
       levelData: this.props.levelData,
       nestedViewIndex: this.props.nestedViewIndex,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
@@ -529,12 +548,10 @@ class ListWidget extends BaseWidget<
   };
 
   isCurrPageNoGreaterThanMaxPageNo = () => {
-    if (
-      this.props.listData &&
-      !this.props.infiniteScroll &&
-      !this.props.serverSidePagination
-    ) {
-      const maxPageNo = Math.ceil(this.props.listData?.length / this.pageSize);
+    const totalRecords = this.getTotalDataCount();
+
+    if (totalRecords && !this.props.infiniteScroll) {
+      const maxPageNo = Math.ceil(totalRecords / this.pageSize);
 
       return maxPageNo < this.props.pageNo;
     }
@@ -785,6 +802,18 @@ class ListWidget extends BaseWidget<
     this.resetTriggeredItemView();
   };
 
+  getTotalDataCount = () => {
+    const defaultValue = 0;
+    const { serverSidePagination, totalRecordsCount } = this.props;
+
+    if (!serverSidePagination) return (this.props.listData || []).length;
+
+    if (typeof totalRecordsCount === "number" && totalRecordsCount > 0)
+      return totalRecordsCount;
+
+    return defaultValue;
+  };
+
   shouldPaginate = () => {
     /**
      * if client side pagination and not infinite scroll and data is more than page size
@@ -825,7 +854,9 @@ class ListWidget extends BaseWidget<
           child.parentColumnSpace = parentColumnSpace;
           child.rightColumn = componentWidth;
           child.canExtend = true;
+          child.positioning = this.props.positioning;
           child.children = child.children?.map((container, viewIndex) => {
+            container.positioning = this.props.positioning;
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
@@ -940,9 +971,10 @@ class ListWidget extends BaseWidget<
   renderPaginationUI = () => {
     const { isLoading, pageNo, serverSidePagination } = this.props;
     const disableNextPage = this.shouldDisableNextPage();
+    const totalDataCount = this.getTotalDataCount();
     return (
       this.shouldPaginate() &&
-      (serverSidePagination ? (
+      (serverSidePagination && !totalDataCount ? (
         <ServerSideListPagination
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
@@ -964,7 +996,7 @@ class ListWidget extends BaseWidget<
           onChange={this.onPageChange}
           pageNo={this.props.pageNo}
           pageSize={this.pageSize}
-          total={(this.props.listData || []).length}
+          total={totalDataCount}
         />
       ))
     );
@@ -1088,6 +1120,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
+  totalRecordsCount?: number | string;
 }
 
 export default ListWidget;

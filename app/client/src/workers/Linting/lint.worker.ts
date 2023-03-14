@@ -7,8 +7,8 @@ import {
   LINT_WORKER_ACTIONS,
   LintTreeRequest,
 } from "./types";
-import { getlintErrorsFromTree } from "./utils";
 import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
+import { getlintErrorsFromTree } from ".";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (event: MessageEvent<TMessage<LintWorkerRequest>>) => {
@@ -65,8 +65,16 @@ function eventRequestHandler({
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
-        const { pathsToLint, unevalTree } = requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree(pathsToLint, unevalTree);
+        const {
+          cloudHosting,
+          pathsToLint,
+          unevalTree,
+        } = requestData as LintTreeRequest;
+        const lintErrors = getlintErrorsFromTree(
+          pathsToLint,
+          unevalTree,
+          cloudHosting,
+        );
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;

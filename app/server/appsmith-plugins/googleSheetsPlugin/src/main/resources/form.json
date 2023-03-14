@@ -2,6 +2,11 @@
   "form": [
     {
       "sectionName": "General",
+      "hidden": {
+        "comparison": "FEATURE_FLAG",
+        "value": true,
+        "flagValue": "LIMITING_GOOGLE_SHEET_ACCESS"
+      },
       "children": [
         {
           "label": "Authentication Type",
@@ -39,6 +44,54 @@
             }
           ],
           "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+        }
+      ]
+    },
+    {
+      "sectionName": "General",
+      "hidden": {
+        "comparison": "FEATURE_FLAG",
+        "value": false,
+        "flagValue": "LIMITING_GOOGLE_SHEET_ACCESS"
+      },
+      "isDefaultOpen": true,
+      "children": [
+        {
+          "label": "Authentication Type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "oAuth2"
+        },
+        {
+          "label": "Grant Type",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "authorization_code"
+        },
+        {
+          "label": "Scope",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "options": [
+            {
+              "label": "Read/Write | Selected Google Sheets",
+              "value": "https://www.googleapis.com/auth/drive.file"
+            },
+            {
+              "label": "Read/Write | All Google Sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            },
+            {
+              "label": "Read Files | All Google Sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
+            }
+          ],
+          "initialValue": "https://www.googleapis.com/auth/drive.file"
         }
       ]
     }

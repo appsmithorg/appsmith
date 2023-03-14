@@ -118,6 +118,7 @@ describe("Git sync apps", function() {
     );
   });
   it("2. Create api queries from api pane and cURL import , bind it to widget and clone page from page settings", () => {
+    cy.fixture("datasources").then((datasourceFormData) => {
     cy.Createpage(newPage);
     cy.get(`.t--entity-item:contains(${newPage})`).click();
     cy.wait(1000);
@@ -129,7 +130,7 @@ describe("Git sync apps", function() {
     cy.get(apiwidget.resourceUrl)
       .first()
       .click({ force: true })
-      .type("https://mock-api.appsmith.com/echo/get", {
+      .type(datasourceFormData["echoApiUrl"], {
         parseSpecialCharSequences: false,
       });
     //.type("{esc}}");
@@ -150,7 +151,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ datasourceFormData["echoApiUrl"],
       {
         force: true,
         parseSpecialCharSequences: false,
@@ -158,7 +159,7 @@ describe("Git sync apps", function() {
     );
     cy.importCurl();
     cy.RunAPI();
-    cy.ResponseStatusCheck("201 CREATED");
+    cy.ResponseStatusCheck("200");
     cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
@@ -183,7 +184,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
       .last()
       .click({ force: true })
-      .type("{{get_data.data.headers.info}}", {
+      .type("{{get_data.data.headers.Info}}", {
         parseSpecialCharSequences: false,
       });
     cy.wait(2000);
@@ -199,6 +200,7 @@ describe("Git sync apps", function() {
     );
     cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
     cy.wait("@getPage");
+    });
   });
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
@@ -325,7 +327,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     // move jsObject and postgres query to new page
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "get_users",
       "Move to page",
       "Child_Page",
@@ -335,7 +337,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
-    _.ee.ActionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1",
       "Move to page",
       "Child_Page",
@@ -472,29 +474,15 @@ describe("Git sync apps", function() {
   it("7. Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
     cy.switchGitBranch(tempBranch);
     cy.wait(2000);
+
     //  clone the Child_Page
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(Child_Page)`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Clone");
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    _.entityExplorer.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
-    cy.CheckAndUnfoldEntityItem("Pages");
+    _.entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
+    _.entityExplorer.ActionContextMenuByEntityName("Child_Page", "Hide");
 
-    cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.wait(2000);
-    cy.selectAction("Hide");
-
-    cy.get(`.t--entity-item:contains(Child_Page)`)
-      .first()
-      .click();
+    _.entityExplorer.SelectEntityByName("Child_Page", "Pages");
     cy.wait("@getPage");
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
@@ -507,17 +495,15 @@ describe("Git sync apps", function() {
     cy.wait(2000);
     cy.latestDeployPreview();
     // verify page is hidden on deploy mode
-    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.agHelper.AssertContains("Child_Page Copy", "not.exist");
+    _.deployMode.NavigateBacktoEditor();
   });
   it("8. Verify Page visiblity on master in edit and deploy mode", () => {
     cy.switchGitBranch(mainBranch);
     cy.wait(2000);
     cy.latestDeployPreview();
-    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
-    cy.get(commonlocators.backToEditor).click();
-    cy.wait(2000);
+    _.agHelper.AssertContains("Child_Page Copy", "not.exist");
+    _.deployMode.NavigateBacktoEditor();
   });
   it("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
     //cy.createGitBranch(tempBranch1);

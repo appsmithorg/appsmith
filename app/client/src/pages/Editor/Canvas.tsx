@@ -1,9 +1,9 @@
-import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import styled from "styled-components";
-import { CanvasWidgetStructure } from "widgets/constants";
-import WidgetFactory from "utils/WidgetFactory";
+import log from "loglevel";
 import React from "react";
+import styled from "styled-components";
+import WidgetFactory from "utils/WidgetFactory";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
@@ -15,22 +15,18 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
-  canvasScale?: number;
 }
 
 const Container = styled.section<{
   background: string;
   width: number;
-  $canvasScale: number;
 }>`
   background: ${({ background }) => background};
   width: ${(props) => props.width}px;
-  transform: scale(${(props) => props.$canvasScale});
-  transform-origin: "0 0";
 `;
 
 const Canvas = (props: CanvasProps) => {
-  const { canvasScale = 1, canvasWidth } = props;
+  const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
@@ -50,7 +46,6 @@ const Canvas = (props: CanvasProps) => {
   try {
     return (
       <Container
-        $canvasScale={canvasScale}
         background={backgroundForCanvas}
         className="relative mx-auto t--canvas-artboard pb-52"
         data-testid="t--canvas-artboard"

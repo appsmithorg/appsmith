@@ -3,6 +3,7 @@ const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Widget Functionality", function() {
   before(() => {
@@ -36,7 +37,10 @@ describe("Button Widget Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
-    cy.enterDatasourceAndPath(this.data.paginationUrl, "users?page=4&size=3");
+    cy.enterDatasourceAndPath(
+      this.data.paginationUrl,
+      "mock-api?records=20&page=4&size=3",
+    );
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
@@ -50,7 +54,11 @@ describe("Button Widget Functionality", function() {
     cy.onClickActions("Success", "Error", "onclick");
 
     cy.PublishtheApp();
-
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
+        cy.get(publishPage.buttonWidget).click();
+      }
+    });
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
     cy.get("body").then(($ele) => {
@@ -113,8 +121,8 @@ describe("Button Widget Functionality", function() {
     //creating an api and calling it from the onClickAction of the button widget.
     // calling the existing api
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    cy.testJsontext(
-      "onclick",
+    _.propPane.UpdatePropertyFieldValue(
+      "onClick",
       "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
@@ -133,8 +141,8 @@ describe("Button Widget Functionality", function() {
   it("5. Toggle JS - Button-Call-Query Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    cy.testJsontext(
-      "onclick",
+    _.propPane.UpdatePropertyFieldValue(
+      "onClick",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
@@ -145,6 +153,7 @@ describe("Button Widget Functionality", function() {
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
         cy.get(publishPage.buttonWidget).click();
+        cy.wait(3000);
       }
     });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
@@ -153,8 +162,8 @@ describe("Button Widget Functionality", function() {
   it("6. Toggle JS - Button-Call-SetTimeout Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    cy.testJsontext(
-      "onclick",
+    _.propPane.UpdatePropertyFieldValue(
+      "onClick",
       "{{setTimeout(() => showAlert('Hello from setTimeout after 3 seconds'), 3000)}}",
     );
 
@@ -163,6 +172,12 @@ describe("Button Widget Functionality", function() {
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
     cy.wait(3000);
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
+        cy.get(publishPage.buttonWidget).click();
+        cy.wait(3000);
+      }
+    });
     cy.get(widgetsPage.apiCallToast).should(
       "have.text",
       "Hello from setTimeout after 3 seconds",

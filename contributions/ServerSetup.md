@@ -61,7 +61,7 @@ This document doesn't provide instructions to install Java and Maven because the
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
 ```
 
 Please change the `/path/to/store/data` to a valid path on your system. This is where MongoDB will persist it's data across runs of this container.
@@ -69,6 +69,26 @@ Please change the `/path/to/store/data` to a valid path on your system. This is 
 Note that this command doesn't set any username or password on the database so we make it accessible only from localhost using the `127.0.0.1:` part in the port mapping argument. Please refer to the documentation of this image to learn [how to set a username and password](https://hub.docker.com/_/mongo).
 
 MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
+
+Please follow the below steps for enabling the replica set with mongo running inside the docker
+1. Connect to the mongo db running with a mongo shell. Use the below command
+```
+mongo
+```
+2. Once you are inside the mongo shell run the below command. 
+```
+rs.initiate()
+```
+
+### Convert a standalone MongoDB node to a replica set for non docker based set up
+- Upgrade the MongoDB version to 5.0 or higher
+- Close the mongoDB instance running in your local
+- Start the mongoDB in replica set mode and initiate the replica set
+    - mongod --port 27017 --dbpath <path/to/db> --replSet <replica-set-name> && mongo --eval “rs.initiate()”
+- One can use following commands to check replica set status: 
+    - mongo appsmith
+    - rs.status()
+- By this time you should have the mongo running with replica set 
 
 ### Setting up a local Redis instance
 
@@ -102,7 +122,7 @@ cp envs/dev.env.example .env
 
 This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
-5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
+5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis. Also please make sure to update the replica set name with correct value in the mongo connection string. 
 
 6. Run the following command to create the final JAR for the Appsmith server:
 
@@ -161,7 +181,7 @@ Note that as you have installed Docker Desktop with WSL based engine, you can ex
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
 ```
 
 Please change the `/path/to/store/data` to a valid path on your C drive (C:/) of your system (e.g. C:\mongodata). This is where MongoDB will persist it's data across runs of this container.

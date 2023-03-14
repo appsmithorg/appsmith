@@ -16,6 +16,8 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MySQLErrorMessages;
+import com.external.plugins.exceptions.MySQLPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -53,6 +55,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static java.lang.Boolean.TRUE;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,6 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static reactor.core.publisher.Mono.zip;
 
 @Slf4j
@@ -552,11 +556,7 @@ public class MySqlPluginTest {
                 StepVerifier.create(executeMono)
                         .verifyErrorSatisfies(error -> {
                                 assertTrue(error instanceof AppsmithPluginException);
-                                String expectedMessage = "Appsmith currently does not support the IS keyword with the prepared "
-                                        +
-                                        "statement setting turned ON. Please re-write your SQL query without the IS keyword or "
-                                        +
-                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab.";
+                                String expectedMessage = MySQLErrorMessages.IS_KEYWORD_NOT_SUPPORTED_IN_PS_ERROR_MSG;
                                 assertTrue(expectedMessage.equals(error.getMessage()));
                         });
         }
@@ -1497,5 +1497,51 @@ public class MySqlPluginTest {
                                 assertTrue(conn.isDisposed());
                         })
                         .verifyComplete();
+        }
+
+        @Test
+        public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments(){
+                MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
+
+                DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+                ConnectionPool dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig).block();
+                ActionConfiguration actionConfiguration = new ActionConfiguration();
+                actionConfiguration
+                        .setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");
+
+                List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+                pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+                actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+                HashMap<String, Object> requestData = new HashMap<>();
+
+                Mono<ActionExecutionResult> resultMono = spyPlugin.executeCommon(
+                        dsConnectionMono,
+                        actionConfiguration,
+                        TRUE,
+                        null,
+                        null,
+                        requestData
+                );
+
+                StepVerifier.create(resultMono)
+                        .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+
+                        verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
+
+                        })
+                        .verifyComplete();
+        }
+
+        @Test
+        public void verifyUniquenessOfMySQLPluginErrorCode() {
+                assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode).distinct().count() == MySQLPluginError.values().length);
+
+                assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode)
+                        .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MYS"))
+                        .collect(Collectors.toList()).size() == 0);
+
         }
 }

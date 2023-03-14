@@ -14,10 +14,12 @@ const {
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
+
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
@@ -542,13 +544,13 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("PublishtheApp", () => {
+Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.assertPageSave();
+  cy.assertPageSave(validateSavedState);
 
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
@@ -777,6 +779,25 @@ Cypress.Commands.add(
     const selector2 = `.t--draggable-${destinationWidget}`;
     cy.get(selector2)
       .scrollIntoView()
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
+Cypress.Commands.add(
+  "dragAndDropToWidgetBySelector",
+  (widgetType, destinationSelector, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.wait(800);
+    cy.get(selector)
+      .scrollIntoView()
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    cy.get(destinationSelector)
+      .first()
+      .scrollIntoView()
+      .scrollTo("top", { ensureScrollable: false })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
@@ -1093,7 +1114,7 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
   });
 });
 
-Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
+Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss, isNext) => {
   cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
@@ -1106,87 +1127,87 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(runTestCss).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(ApiEditor.formActionButtons).should("be.visible");
-  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-  cy.get(ApiEditor.responseBody)
-    .contains("name")
-    .siblings("span")
-    .invoke("text")
-    .then((tabData) => {
-      const respBody = tabData.match(/"(.*)"/)[0];
-      localStorage.setItem("respBody", respBody);
-      cy.log(respBody);
-      cy.get(".t--entity-name")
-        .contains("Table1")
-        .click({ force: true });
-      cy.isSelectRow(0);
-      cy.readTabledata("0", "1").then((tabData) => {
-        const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(respBody);
-      });
+  cy.wait("@postExecute").then((interception) => {
+    let valueToTest = JSON.stringify(
+      interception.response.body.data.body[0].name,
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+    cy.get(".t--entity-name")
+      .contains("Table1")
+      .click({ force: true });
+    cy.isSelectRow(0);
+    if(isNext){
+      cy.wait("@postExecute").then((interception) => {
+        valueToTest = JSON.stringify(
+          interception.response.body.data.body[0].name,
+        );
+      })
+    }
+    cy.readTabledata("0", "5").then((tabData) => {
+      const tableData = tabData;
+      expect(`\"${tableData}\"`).to.equal(valueToTest);
     });
-});
-
-Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name")
-    .contains("Api2")
-    .click({ force: true });
-  cy.wait(3000);
-  cy.NavigateToPaginationTab();
-  cy.RunAPI();
-  cy.get(ApiEditor.apiPaginationNextTest).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(runTestCss).click();
-  cy.wait("@postExecute");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.get(ApiEditor.formActionButtons).should("be.visible");
-  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-  cy.get(ApiEditor.responseBody)
-    .contains("name")
-    .siblings("span")
-    .invoke("text")
-    .then((tabData) => {
-      const respBody = tabData.match(/"(.*)"/)[0];
-      localStorage.setItem("respBody", respBody);
-      cy.log(respBody);
-      cy.get(".t--entity-name")
-        .contains("Table1")
-        .click({ force: true });
-      cy.isSelectRow(0);
-      cy.readTableV2data("0", "1").then((tabData) => {
-        const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(respBody);
-      });
-    });
-});
-
-Cypress.Commands.add("ValidatePaginationInputData", () => {
-  cy.isSelectRow(0);
-  cy.readTabledataPublish("0", "1").then((tabData) => {
-    const tableData = tabData;
-    expect(`\"${tableData}\"`).to.equal(localStorage.getItem("respBody"));
   });
 });
 
-Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
+Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss, isNext) => {
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
+  cy.get(".t--entity-name")
+    .contains("Api2")
+    .click({ force: true });
+  cy.wait(3000);
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(runTestCss).click();
+  cy.wait("@postExecute").then((interception) => {
+    let valueToTest = JSON.stringify(
+      interception.response.body.data.body[0].name,
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+    cy.get(".t--entity-name")
+      .contains("Table1")
+      .click({ force: true });
+    cy.isSelectRow(0);
+    if(isNext){
+      cy.wait("@postExecute").then((interception) => {
+        valueToTest = JSON.stringify(
+          interception.response.body.data.body[0].name,
+        );
+      })
+    }
+    cy.readTableV2data("0", "5").then((tabData) => {
+      const tableData = tabData;
+      expect(`\"${tableData}\"`).to.equal(valueToTest);
+    });
+  });
+});
+
+Cypress.Commands.add("ValidatePaginationInputData", (valueToTest) => {
   cy.isSelectRow(0);
-  cy.readTableV2dataPublish("0", "1").then((tabData) => {
+  cy.readTabledataPublish("0", "5").then((tabData) => {
     const tableData = tabData;
-    expect(`\"${tableData}\"`).to.equal(localStorage.getItem("respBody"));
+    expect(`\"${tableData}\"`).to.equal(valueToTest);
+  });
+});
+
+Cypress.Commands.add("ValidatePaginationInputDataV2", (valueToTest) => {
+  cy.isSelectRow(0);
+  cy.readTableV2dataPublish("0", "5").then((tabData) => {
+    const tableData = tabData;
+    expect(`\"${tableData}\"`).to.equal(valueToTest);
   });
 });
 
 Cypress.Commands.add("CheckForPageSaveError", () => {
   // Wait for "saving" status to disappear
   cy.get(commonlocators.statusSaving, {
-    timeout: 60000,
+    timeout: 30000,
   }).should("not.exist");
   // Check for page save error
   cy.get("body").then(($ele) => {
@@ -1196,11 +1217,13 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
   });
 });
 
-Cypress.Commands.add("assertPageSave", () => {
-  cy.CheckForPageSaveError();
-  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-    timeout: 30000,
-  });
+Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
+  if (validateSavedState) {
+    cy.CheckForPageSaveError();
+    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+      timeout: 30000,
+    });
+  }
   //agHelper.ValidateNetworkStatus("@sucessSave", 200);
 });
 
@@ -2039,4 +2062,80 @@ Cypress.Commands.add("forceVisit", (url) => {
   cy.window().then((win) => {
     return win.open(url, "_self");
   });
+});
+
+Cypress.Commands.add("SelectDropDown", (dropdownOption) => {
+  cy.get(".t--widget-selectwidget button")
+    .first()
+    .scrollIntoView()
+    .click();
+  cy.get(".t--widget-selectwidget button .cancel-icon")
+    .first()
+    .click({ force: true })
+    .wait(1000);
+  cy.get(".t--widget-selectwidget button")
+    .first()
+    .click({ force: true });
+  cy.document()
+    .its("body")
+    .find(".menu-item-link:contains('" + dropdownOption + "')")
+    .click({
+      force: true,
+    })
+    .wait(1000);
+});
+
+Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
+  dropdownOptions.forEach(($each) => {
+    cy.get(`.rc-select-selection-overflow-item [title=${$each}] .remove-icon`)
+      .eq(0)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
+Cypress.Commands.add("RemoveAllSelections", () => {
+  cy.get(`.rc-select-selection-overflow-item .remove-icon`).each(($each) => {
+    cy.wrap($each)
+      .click({ force: true })
+      .wait(1000);
+  });
+});
+
+Cypress.Commands.add("SelectFromMultiSelect", (options) => {
+  const option = (value) =>
+    `.rc-select-item-option[title=${value}] input[type='checkbox']`;
+  cy.get(" .t--widget-multiselectwidgetv2 div.rc-select-selector")
+    .eq(0)
+    .scrollIntoView()
+    .then(($element) => {
+      // here, we try to click on downArrow in dropdown of multiSelect.
+      // the position is calculated from top left of the element
+      const dropdownCenterPosition = +$element.height / 2;
+      const dropdownArrowApproxPosition = +$element.width - 10;
+      cy.get($element).click(
+        dropdownArrowApproxPosition,
+        dropdownCenterPosition,
+        {
+          force: true,
+        },
+      );
+    });
+
+  options.forEach(($each) => {
+    cy.document()
+      .its("body")
+      .find(".rc-select-dropdown.multi-select-dropdown")
+      .not(".rc-select-dropdown-hidden")
+      .find(option($each))
+      .check({ force: true })
+      .wait(1000);
+    cy.document()
+      .its("body")
+      .find(option($each))
+      .should("be.checked");
+  });
+  cy.document()
+    .its("body")
+    .type("{esc}");
 });

@@ -12,6 +12,8 @@ import createSagaMiddleware from "redux-saga";
 import store, { testStore } from "store";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
+import RouteChangeListener from "RouteChangeListener";
+
 const testSagaMiddleware = createSagaMiddleware();
 
 const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
@@ -56,6 +58,7 @@ const customRender = (
   return render(
     <BrowserRouter>
       <Provider store={reduxStore}>
+        <RouteChangeListener />
         <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
       </Provider>
     </BrowserRouter>,
