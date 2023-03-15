@@ -1,12 +1,11 @@
 package com.appsmith.server.filters;
 
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -14,7 +13,6 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
-import java.util.UUID;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -27,6 +25,9 @@ public class CSRFFilter implements WebFilter {
             Url.USER_URL + "/super"  // For superuser signup request
     );
 
+    private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
+    private static final String X_REQUESTED_BY_VALUE = "Appsmith";
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         final ServerHttpRequest request = exchange.getRequest();
@@ -37,12 +38,15 @@ public class CSRFFilter implements WebFilter {
             // For POST requests, either a `X-Requested-By: Appsmith` header or a `Content-Type: application/json`
             // is required. If neither is present, reject the request. This is to prevent CSRF attacks.
             if (MediaType.APPLICATION_JSON.equals(request.getHeaders().getContentType())
-                    || "Appsmith".equals(request.getHeaders().getFirst("X-Requested-By"))) {
+                    || X_REQUESTED_BY_VALUE.equals(request.getHeaders().getFirst(X_REQUESTED_BY_NAME))) {
                 return chain.filter(exchange);
             }
 
             log.error("CSRF header requirements not satisfied to {}. Rejecting request.", request.getPath());
-            return Mono.error(new RuntimeException("CSRF header requirements not satisfied. Rejecting request."));
+            return Mono.error(new AppsmithException(
+                    AppsmithError.CSRF_TOKEN_INVALID,
+                    "CSRF header requirements not satisfied. Rejecting request."
+            ));
         }
 
         return chain.filter(exchange);
