@@ -482,6 +482,7 @@ export function ReflowResizable(props: ResizableProps) {
               x: 0,
             };
           }
+
           setNewDimensions(
             ReflowDirection.BOTTOMRIGHT,
             updatedPositions,
@@ -490,6 +491,7 @@ export function ReflowResizable(props: ResizableProps) {
         }
       },
       component: props.handles.bottomRight,
+      handleDirection: ReflowDirection.BOTTOMRIGHT,
       affectsWidth: true,
     });
   }
@@ -547,9 +549,11 @@ export function ReflowResizable(props: ResizableProps) {
         }
       },
       component: props.handles.bottomLeft,
+      handleDirection: ReflowDirection.BOTTOMLEFT,
       affectsWidth: true,
     });
   }
+
   const onResizeStop = () => {
     togglePointerEvents(true);
     if (isAutoLayout) {
@@ -598,7 +602,8 @@ export function ReflowResizable(props: ResizableProps) {
           !(
             props.responsiveBehavior === ResponsiveBehavior.Fill &&
             handle?.affectsWidth
-          )
+          ) &&
+          !disableResizing
         }
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}
