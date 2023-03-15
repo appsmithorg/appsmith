@@ -1,13 +1,21 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
+import { WIDGET } from "../../locators/WidgetLocators";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
-  MsSql: "Microsoft SQL Server"
+  MsSql: "Microsoft SQL Server",
 }; //DataSources KeyValuePair
+
+export enum Widgets {
+  Dropdown,
+  Table,
+  Chart,
+  Text,
+}
 
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -126,7 +134,8 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  public _urlInputControl = "input[name='url']";
+  private _suggestedWidget = (widgetType: string) =>
+    ".t--suggested-widget-" + widgetType + "";
 
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
@@ -149,12 +158,9 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
 
-  public AssertViewMode() {
-    this.agHelper.AssertElementExist(this._editButton);
-  }
-
-  public AssertEditMode() {
-    this.agHelper.AssertElementAbsence(this._editButton);
+  public AssertDSEditViewMode(isEdit = false) {
+    if (isEdit) this.agHelper.AssertElementAbsence(this._editButton);
+    else this.agHelper.AssertElementExist(this._editButton);
   }
 
   public GeneratePageWithMockDB() {
@@ -385,8 +391,7 @@ export class DataSources {
   public FillMsSqlDSForm() {
     cy.get(this._host).type(datasourceFormData["mssql-host"]);
     cy.get(this._port).type(datasourceFormData["mssql-port"].toString());
-    cy.get(this._databaseName)
-      .clear()
+    cy.get(this._databaseName).clear();
     //   .type(datasourceFormData["mssql-databaseName"]);//Until CI is run with database name
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(datasourceFormData["mssql-username"]);
@@ -725,7 +730,8 @@ export class DataSources {
         if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
         else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
-        else if (DataSourceKVP[dsType] == "Microsoft SQL Server") this.FillMsSqlDSForm();
+        else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
+          this.FillMsSqlDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -878,8 +884,10 @@ export class DataSources {
   }
 
   public FillAuthAPIUrl() {
-    const URL = datasourceFormData["authenticatedApiUrl"];
-    this.agHelper.TypeText(this._urlInputControl, URL);
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("URL"),
+      datasourceFormData.authenticatedApiUrl,
+    );
   }
 
   public AssertCursorPositionForTextInput(
@@ -1030,5 +1038,34 @@ export class DataSources {
       this.locator._inputFieldByName("Authorization URL"),
       datasourceFormData["OAuth_AuthUrl"],
     );
+  }
+
+  public AddSuggesstedWidget(widget: Widgets) {
+    switch (widget) {
+      case Widgets.Dropdown:
+        this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.SELECT),
+        );
+        break;
+      case Widgets.Table:
+        this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.TABLE),
+        );
+        break;
+      case Widgets.Chart:
+        this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.CHART),
+        );
+        break;
+      case Widgets.Text:
+        this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.TEXT),
+        );
+        break;
+    }
   }
 }

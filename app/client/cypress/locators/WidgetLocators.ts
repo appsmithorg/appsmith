@@ -20,6 +20,7 @@ export const WIDGET = {
   RATING: "ratewidget",
   CHECKBOXGROUP: "checkboxgroupwidget",
   CHECKBOX: "checkboxwidget",
+  CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
   PHONEINPUT: "phoneinputwidget",
@@ -52,3 +53,5 @@ export const getWidgetSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget}`;
 export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
+
+

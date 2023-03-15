@@ -1,16 +1,17 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let dsName: any, query: string;
 
 describe("Validate MySQL query UI flows - Bug 14054", () => {
-  it("1. Create a new MySQL DS", () => {
+  before("1. Create a new MySQL DS", () => {
     _.dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("2. Validate Show all existing tables, Describe table & verify query responses", () => {
+  it("1. Validate Show all existing tables, Describe table & verify query responses", () => {
     _.dataSources.NavigateFromActiveDS(dsName, true);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.agHelper.RenameWithInPane("MsSQL_queries");
@@ -42,13 +43,18 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("3. Run a Select query & validate response", () => {
+  it("2. Run a Select query & Add Suggested widget - Table", () => {
     query = `Select * from Simpsons;`;
     _.entityExplorer.CreateNewDsQuery(dsName);
     _.agHelper.RenameWithInPane("selectSimpsons");
     _.agHelper.GetNClick(_.dataSources._templateMenu);
     _.dataSources.EnterQuery(query);
     _.dataSources.RunQueryNVerifyResponseViews(99); //Could be 100 in CI, to check
+
+    _.dataSources.AddSuggesstedWidget(Widgets.Table);
+    _.agHelper.GetNClick(_.propPane._deleteWidget);
+
+    _.entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
