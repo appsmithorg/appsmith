@@ -17,6 +17,7 @@ import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
+  getAppMode,
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
@@ -43,6 +44,7 @@ import {
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import classNames from "classnames";
+import { APP_MODE } from "entities/App";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -63,6 +65,8 @@ function WidgetsEditor() {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const appMode = useSelector(getAppMode);
+  const isPublished = appMode === APP_MODE.PUBLISHED;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -180,6 +184,7 @@ function WidgetsEditor() {
                       : false
                   }
                   isPreviewMode={isPreviewMode}
+                  isPublished={isPublished}
                   sidebarWidth={
                     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
                       ? sidebarWidth
