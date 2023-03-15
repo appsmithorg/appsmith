@@ -1,3 +1,4 @@
+import { REPO_VARIABLES } from "../../../../fixtures/variables";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
@@ -17,7 +18,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   beforeEach(function() {
-    if (Cypress.env("Mongo") === 0) {
+    if (REPO_VARIABLES.Mongo === 0) {
       cy.log("Mongo DB is not found. Using intercept");
       dataSources.StartInterceptRoutesForMongo();
     } else cy.log("Mongo DB is found, hence using actual DB");

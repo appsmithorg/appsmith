@@ -12,12 +12,6 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
-  // beforeEach(function() {
-  //   if (Cypress.env("MySQL") === 0) {
-  //     cy.log("MySQL DB is not found. Using intercept");
-  //     //dataSources.StartInterceptRoutesForMySQL();
-  //   } else cy.log("MySQL DB is found, hence using actual DB");
-  // });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     dataSources.CreateDataSource("MySql");

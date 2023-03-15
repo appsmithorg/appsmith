@@ -1,4 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { REPO, REPO_VARIABLES } from "../../../../fixtures/variables";
 
 const locators = {
   AdminSettingsEntryLink: ".admin-settings-menu-option",
@@ -90,7 +91,7 @@ describe("Branding", () => {
   });
 
   it("3. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
-    if (Cypress.env("Edition") === 0) {
+    if (REPO_VARIABLES.Edition === REPO.CE) {
       const tenantConfig = localStorage.getItem("tenantConfig");
       expect(tenantConfig).to.be.null;
       cy.get(locators.submitButton).should("be.disabled");
