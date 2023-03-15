@@ -15,10 +15,7 @@ function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
       });
       self["$isDataField"] = false;
       Object.assign(self, evalContext);
-      ExecutionMetaData.setExecutionMetaData(
-        metaData.triggerMeta,
-        metaData.eventType,
-      );
+      ExecutionMetaData.setExecutionMetaData(metaData);
       typeof cb === "function" && cb(...args);
     },
     delay,

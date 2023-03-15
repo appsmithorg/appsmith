@@ -3,6 +3,7 @@ import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { updateEvalTreeValueFromContext } from ".";
 import { triggerEvalWithChanges } from "../evalTreeWithChanges";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -18,11 +19,10 @@ export type Patch = {
 
 class JSVariableUpdates {
   private static patches: Patch[] = [];
-  private static trackingDisabled = true;
-  static disableUpdate = false;
 
   static add(patch: Patch) {
-    if (this.trackingDisabled) return;
+    if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateTrackingDisabled)
+      return;
     this.patches.push(patch);
     // For every update on variable, we register a task to check for update and
     registerJSVarUpdateTask();
@@ -34,26 +34,6 @@ class JSVariableUpdates {
 
   static clear() {
     this.patches = [];
-  }
-
-  static disableTracking() {
-    this.trackingDisabled = true;
-    return this;
-  }
-
-  static enableTracking() {
-    this.trackingDisabled = false;
-    return this;
-  }
-
-  static disableVarUpdate() {
-    this.disableUpdate = true;
-    return this;
-  }
-
-  static enableVarUpdate() {
-    this.disableUpdate = false;
-    return this;
   }
 }
 

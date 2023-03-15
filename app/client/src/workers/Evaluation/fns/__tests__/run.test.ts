@@ -25,7 +25,10 @@ jest.mock("../utils/Messenger.ts", () => ({
 describe("Tests for run function in callback styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     addPlatformFunctionsToEvalContext(evalContext);
   });
 
@@ -138,7 +141,10 @@ describe("Tests for run function in callback styled", () => {
 describe("Tests for run function in promise styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     addPlatformFunctionsToEvalContext(evalContext);
   });
 

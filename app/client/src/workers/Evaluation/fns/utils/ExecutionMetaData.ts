@@ -7,12 +7,20 @@ import {
 export default class ExecutionMetaData {
   private static triggerMeta?: TriggerMeta;
   private static eventType?: EventType;
-  static setExecutionMetaData(
-    triggerMeta?: TriggerMeta,
-    eventType?: EventType,
-  ) {
-    ExecutionMetaData.triggerMeta = triggerMeta;
-    ExecutionMetaData.eventType = eventType;
+  private static jsVarUpdateDisabled?: boolean;
+  private static jsVarUpdateTrackingDisabled?: boolean;
+
+  static setExecutionMetaData(metaData: {
+    triggerMeta?: TriggerMeta;
+    eventType?: EventType;
+    jsVarUpdateDisabled?: boolean;
+    jsVarUpdateTrackingDisabled?: boolean;
+  }) {
+    const metaDataEntries = Object.entries(metaData);
+    for (const [key, value] of metaDataEntries) {
+      // @ts-expect-error: type unknown
+      ExecutionMetaData[key] = value;
+    }
   }
   static getExecutionMetaData() {
     const { source, triggerPropertyName } = ExecutionMetaData.triggerMeta || {};
@@ -22,6 +30,9 @@ export default class ExecutionMetaData {
         triggerPropertyName,
       },
       eventType: ExecutionMetaData.eventType,
+      jsVarUpdateDisabled: ExecutionMetaData.jsVarUpdateDisabled,
+      jsVarUpdateTrackingDisabled:
+        ExecutionMetaData.jsVarUpdateTrackingDisabled,
     };
   }
 }

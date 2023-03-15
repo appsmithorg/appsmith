@@ -2,6 +2,7 @@ import JSVariableUpdates, { getUpdatedPaths } from "../JSVariableUpdates";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection, { VariableState } from "../Collection";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 jest.mock("../../evalTreeWithChanges.ts", () => {
   return {
@@ -48,7 +49,9 @@ describe("Mutation", () => {
       skipEntityFunctions: true,
     });
 
-    JSVariableUpdates.enableTracking();
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateTrackingDisabled: false,
+    });
 
     Object.assign(self, evalContext);
 
@@ -60,7 +63,9 @@ describe("Mutation", () => {
     JSObject1.var2.add(3);
     `);
 
-    JSVariableUpdates.disableTracking();
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateTrackingDisabled: true,
+    });
 
     expect(JSVariableUpdates.getAll()).toEqual([
       { path: "JSObject1.var", method: "SET", value: { b: { a: [2] } } },

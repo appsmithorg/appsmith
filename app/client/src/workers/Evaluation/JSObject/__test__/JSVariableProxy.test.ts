@@ -1,6 +1,7 @@
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import JSProxy from "../JSVariableProxy";
 import JSVariableUpdates from "../JSVariableUpdates";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 describe("JSVariableProxy", () => {
   it("trigger setters with JSVariableUpdates enabled", async () => {
@@ -17,7 +18,9 @@ describe("JSVariableProxy", () => {
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
-    JSVariableUpdates.enableTracking();
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateTrackingDisabled: false,
+    });
 
     proxiedJSObject.number = 5;
     proxiedJSObject.string = "hello world";
@@ -70,7 +73,9 @@ describe("JSVariableProxy", () => {
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
-    JSVariableUpdates.disableTracking();
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateTrackingDisabled: true,
+    });
 
     proxiedJSObject.number = 5;
     proxiedJSObject.string = "hello world";
@@ -98,7 +103,9 @@ describe("JSVariableProxy", () => {
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
-    JSVariableUpdates.enableTracking();
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateTrackingDisabled: false,
+    });
 
     proxiedJSObject.number;
     proxiedJSObject.string;
