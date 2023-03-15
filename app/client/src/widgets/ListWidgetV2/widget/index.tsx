@@ -111,7 +111,7 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 type RenderChildrenOption = {
   componentWidth: number;
   parentColumnSpace: number;
-  selectedItemKey: string | null;
+  selectedItemKey?: string | null;
   startIndex: number;
 };
 
@@ -168,8 +168,8 @@ class ListWidget extends BaseWidget<
       triggeredItemView: "{{{}}}",
       selectedItem: undefined,
       triggeredItem: undefined,
-      selectedItemKey: null,
-      triggeredItemKey: null,
+      selectedItemKey: undefined,
+      triggeredItemKey: undefined,
     };
   }
 
@@ -253,6 +253,16 @@ class ListWidget extends BaseWidget<
       }
     }
 
+    if (
+      this.props.defaultSelectedItem &&
+      !this.props.selectedItemKey &&
+      !this.props.serverSidePagination
+    ) {
+      // There are some mounting cases where the defaultSelectedItem isn't mapped with selectedItemKey
+      const defaultKey = String(this.props.defaultSelectedItem);
+      this.props.updateWidgetMetaProperty("selectedItemKey", defaultKey);
+    }
+
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
     this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
@@ -310,7 +320,7 @@ class ListWidget extends BaseWidget<
     ) {
       /**
        * If there's a change in the defaultSelectedItem, we'd either update the selectedItem, ItemView and PageNumber if the key is present
-       * else we reset the Selection, since the new SelectedKey isn't present in the primaryKeys.
+       * else we reset the Selections, since the new SelectedKey isn't present in the primaryKeys.
        */
       const defaultSelectedItem = String(this.props.defaultSelectedItem);
       const rowIndex = this.getRowIndexOfSelectedItem(defaultSelectedItem);
@@ -340,23 +350,7 @@ class ListWidget extends BaseWidget<
      *
      */
     if (this.shouldUpdateSelectedItem() && this.props.selectedItemKey) {
-      const rowIndex = this.getRowIndexOfSelectedItem(
-        this.props.selectedItemKey,
-      );
-      if (rowIndex !== -1) {
-        const binding = this.getItemViewBindingByRowIndex(rowIndex);
-        const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
-
-        if (isEmpty(binding) && pageNo !== this.props.pageNo) {
-          this.updatePageNumber();
-        }
-        if (isEmpty(this.props.selectedItemView) && !isEmpty(binding)) {
-          this.updateSelectedItemView(rowIndex);
-        }
-        if (!this.props.selectedItem) {
-          this.updateSelectedItem(rowIndex);
-        }
-      }
+      this.handleSelectedItemAndPageNumber();
     }
   }
 
@@ -655,6 +649,26 @@ class ListWidget extends BaseWidget<
       this.props.selectedItemKey &&
       (!this.props.selectedItem || isEmpty(this.props.selectedItemView))
     );
+  };
+
+  handleSelectedItemAndPageNumber = () => {
+    const rowIndex = this.getRowIndexOfSelectedItem(
+      this.props.selectedItemKey as string,
+    );
+    if (rowIndex !== -1) {
+      const binding = this.getItemViewBindingByRowIndex(rowIndex);
+      const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
+
+      if (isEmpty(binding) && pageNo !== this.props.pageNo) {
+        this.updatePageNumber();
+      }
+      if (isEmpty(this.props.selectedItemView) && !isEmpty(binding)) {
+        this.updateSelectedItemView(rowIndex);
+      }
+      if (!this.props.selectedItem) {
+        this.updateSelectedItem(rowIndex);
+      }
+    }
   };
 
   getRowIndexOfSelectedItem = (selectedItemKey: string) => {
@@ -1261,8 +1275,8 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   pageSize: number;
   prefixMetaWidgetId?: string;
   currentItemsView: string;
-  selectedItemKey: string | null;
-  triggeredItemKey: string | null;
+  selectedItemKey?: string | null;
+  triggeredItemKey?: string | null;
   // Eval String
   selectedItemView: string;
   selectedItem?: Record<string, unknown>;
