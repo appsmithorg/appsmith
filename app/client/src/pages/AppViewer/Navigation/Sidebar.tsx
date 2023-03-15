@@ -144,22 +144,24 @@ export function Sidebar(props: SidebarProps) {
       sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
-        {currentUser?.username !== ANONYMOUS_USERNAME && (
-          <BackToHomeButton
-            forSidebar
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
-        )}
+        <div className="flex">
+          {currentUser?.username !== ANONYMOUS_USERNAME && (
+            <BackToHomeButton
+              forSidebar
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
+          )}
 
-        {!isMinimal && (
-          <ApplicationName
-            appName={currentApplicationDetails?.name}
-            forSidebar
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
-        )}
+          {!isMinimal && (
+            <ApplicationName
+              appName={currentApplicationDetails?.name}
+              forSidebar
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
+          )}
+        </div>
 
         {!isMinimal && (
           <CollapseButton
