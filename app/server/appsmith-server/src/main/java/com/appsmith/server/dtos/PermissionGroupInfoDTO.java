@@ -1,16 +1,16 @@
 package com.appsmith.server.dtos;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.appsmith.server.dtos.ce.PermissionGroupInfoCE_DTO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@EqualsAndHashCode
-public class PermissionGroupInfoDTO {
-    
-    private String id;
+@Getter
+@Setter
+@NoArgsConstructor
+public class PermissionGroupInfoDTO extends PermissionGroupInfoCE_DTO {
 
-    private String name;
-    
-    private String description;
-
+    public PermissionGroupInfoDTO(String id, String name) {
+        super(id, name);
+    }
 }
