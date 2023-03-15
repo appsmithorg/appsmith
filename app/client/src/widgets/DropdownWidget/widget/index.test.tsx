@@ -11,10 +11,6 @@ import "@testing-library/jest-dom";
 
 import { RenderModes } from "constants/WidgetConstants";
 
-jest.mock("react-dnd", () => ({
-  useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
-}));
-
 describe("<DropdownWidget />", () => {
   const initialState = {
     ui: {

@@ -7,10 +7,6 @@ import { ThemeProvider } from "styled-components";
 import type { DividerWidgetProps } from "./";
 import DividerWidget from "./";
 
-jest.mock("react-dnd", () => ({
-  useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
-}));
-
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {
