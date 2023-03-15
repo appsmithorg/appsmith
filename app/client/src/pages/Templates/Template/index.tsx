@@ -173,7 +173,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
                 <Button
                   className="t--fork-template fork-button"
                   isIconButton
-                  onPress={onForkButtonTrigger}
+                  onClick={onForkButtonTrigger}
                   size="md"
                   startIcon="plus"
                 />

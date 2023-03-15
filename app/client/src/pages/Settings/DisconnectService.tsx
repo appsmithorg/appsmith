@@ -54,7 +54,7 @@ export function DisconnectService(props: {
       <Button
         data-testid="disconnect-service-button"
         kind="error"
-        onPress={() =>
+        onClick={() =>
           warnDisconnectAuth ? callDisconnect() : setWarnDisconnectAuth(true)
         }
       >

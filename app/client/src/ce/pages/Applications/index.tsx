@@ -946,7 +946,7 @@ export function ApplicationsSection(props: any) {
                         creatingApplicationMap &&
                         creatingApplicationMap[workspace.id]
                       }
-                      onPress={() => onClickAddNewButton(workspace.id)}
+                      onClick={() => onClickAddNewButton(workspace.id)}
                       size="md"
                       startIcon={"plus"}
                     >

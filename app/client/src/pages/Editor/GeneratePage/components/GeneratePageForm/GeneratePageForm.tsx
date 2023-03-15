@@ -150,7 +150,7 @@ function GeneratePageSubmitBtn({
       isDisabled={disabled}
       isLoading={isLoading}
       kind="secondary"
-      onPress={() => !disabled && onSubmit()}
+      onClick={() => !disabled && onSubmit()}
     >
       Generate Page
     </Button>
@@ -658,7 +658,7 @@ function GeneratePageForm() {
           </SelectWrapper>
         ) : null}
         {showEditDatasourceBtn && (
-          <Button kind="secondary" onPress={goToEditDatasource}>
+          <Button kind="secondary" onClick={goToEditDatasource}>
             Edit Datasource
           </Button>
         )}

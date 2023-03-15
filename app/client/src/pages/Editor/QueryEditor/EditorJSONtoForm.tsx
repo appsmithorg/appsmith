@@ -864,7 +864,7 @@ export function EditorJSONtoForm(props: Props) {
                 <Button
                   isDisabled={!isExecutePermitted}
                   isLoading={isRunning}
-                  onPress={responeTabOnRunClick}
+                  onClick={responeTabOnRunClick}
                   size="md"
                 >
                   Run
@@ -989,7 +989,7 @@ export function EditorJSONtoForm(props: Props) {
               data-guided-tour-iid="run-query"
               isDisabled={!isExecutePermitted}
               isLoading={isRunning}
-              onPress={onRunClick}
+              onClick={onRunClick}
               size="md"
             >
               Run
@@ -1109,7 +1109,7 @@ export function EditorJSONtoForm(props: Props) {
                       <Button
                         className={`t--cancel-action-button`}
                         kind="secondary"
-                        onPress={() => {
+                        onClick={() => {
                           handleCancelActionExecution();
                         }}
                         size="md"

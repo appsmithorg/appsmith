@@ -122,7 +122,7 @@ export default function GitConfig() {
           <Button
             isDisabled={isSubmitDisabled}
             isLoading={isFetching}
-            onPress={updateConfig}
+            onClick={updateConfig}
             size="md"
           >
             {createMessage(SUBMIT)}

@@ -507,7 +507,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   data-guided-tour-iid="deploy"
                   isLoading={isPublishing}
                   kind="tertiary"
-                  onPress={() => handleClickDeploy(true)}
+                  onClick={() => handleClickDeploy(true)}
                   size="md"
                   startIcon={"rocket"}
                 >

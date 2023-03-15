@@ -38,10 +38,10 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
         </div>
         <div className="">
           <div className="flex items-center justify-end space-x-3">
-            <Button kind="secondary" onPress={onClose} size="md">
+            <Button kind="secondary" onClick={onClose} size="md">
               Cancel
             </Button>
-            <Button kind="error" onPress={onDelete} size="md">
+            <Button kind="error" onClick={onDelete} size="md">
               Delete
             </Button>
           </div>

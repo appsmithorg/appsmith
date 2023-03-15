@@ -153,7 +153,7 @@ function CongratulationsView() {
             <Title>{createMessage(END_TITLE)}</Title>
             <Description>{createMessage(END_DESCRIPTION)}</Description>
           </div>
-          <Button className="t--start-building" onPress={hideMessage}>
+          <Button className="t--start-building" onClick={hideMessage}>
             {createMessage(END_BUTTON_TEXT)}
           </Button>
         </Wrapper>

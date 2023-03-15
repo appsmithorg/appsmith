@@ -124,7 +124,7 @@ function TemplateDescription(props: TemplateDescriptionProps) {
               <Button
                 className="template-fork-button"
                 data-cy="template-fork-button"
-                onPress={onForkButtonTrigger}
+                onClick={onForkButtonTrigger}
                 size="md"
                 startIcon="fork-2"
               >

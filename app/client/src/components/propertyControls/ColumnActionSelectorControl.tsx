@@ -80,7 +80,7 @@ class ColumnActionSelectorControl extends BaseControl<
 
         <Button
           kind="secondary"
-          onPress={this.addColumnAction}
+          onClick={this.addColumnAction}
           size="md"
           startIcon="plus"
         >

@@ -224,7 +224,7 @@ function PageSelection(props: PageSelectionProps) {
         <StyledButton
           data-cy="template-fork-button"
           isDisabled={!selectedPages.length}
-          onPress={importPagesToApp}
+          onClick={importPagesToApp}
           size="md"
         >
           {createMessage(FILTER_SELECT_PAGES)}

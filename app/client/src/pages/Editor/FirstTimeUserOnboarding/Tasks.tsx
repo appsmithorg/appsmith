@@ -119,7 +119,7 @@ export default function OnboardingTasks() {
           <Button
             className="t--tasks-datasource-button"
             data-testid="onboarding-tasks-datasource-button"
-            onPress={() => {
+            onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
                 from: "CANVAS",
               });
@@ -170,7 +170,7 @@ export default function OnboardingTasks() {
           <Button
             className="t--tasks-action-button"
             data-testid="onboarding-tasks-action-button"
-            onPress={() => {
+            onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
                 from: "CANVAS",
               });
@@ -220,7 +220,7 @@ export default function OnboardingTasks() {
           <Button
             className="t--tasks-widget-button"
             data-testid="onboarding-tasks-widget-button"
-            onPress={() => {
+            onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
               });

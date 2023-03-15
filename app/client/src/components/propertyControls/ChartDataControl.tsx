@@ -272,7 +272,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
         <Button
           kind="secondary"
-          onPress={this.addOption}
+          onClick={this.addOption}
           size="md"
           startIcon="plus"
         >

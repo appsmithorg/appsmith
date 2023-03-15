@@ -189,7 +189,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             <StyledBox />
             <Button
               isIconButton
-              onPress={(e: PressEvent) => {
+              onClick={(e: PressEvent) => {
                 deletePair(index, e.hasOwnProperty("detail"));
               }}
               size="sm"
@@ -202,7 +202,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       <Button
         className="t--property-control-options-add"
         kind="secondary"
-        onPress={() => addPair}
+        onClick={() => addPair}
         size="md"
         startIcon="plus"
       >

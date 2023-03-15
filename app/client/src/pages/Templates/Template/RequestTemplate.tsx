@@ -64,7 +64,7 @@ function RequestTemplate() {
       <Text className={"description"} type={TextType.P1}>
         {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
-      <Button className="button" onPress={onClick} size="md">
+      <Button className="button" onClick={onClick} size="md">
         {createMessage(REQUEST_TEMPLATE)}
       </Button>
     </Wrapper>

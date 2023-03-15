@@ -153,14 +153,14 @@ function UpdatesModal({
           </div>
         ))}
         <div className="flex justify-end gap-2 items-center">
-          <Button kind="secondary" onPress={closeModal} size="md">
+          <Button kind="secondary" onClick={closeModal} size="md">
             Dismiss
           </Button>
           <Button
             className="t--upgrade-confirm"
             isLoading={isLoading}
             kind="primary"
-            onPress={() => {
+            onClick={() => {
               setIsLoading(true);
               AnalyticsUtil.logEvent("MANUAL_UPGRADE_CLICK");
               dispatch(

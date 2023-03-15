@@ -746,7 +746,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 className="t--apiFormRunBtn"
                 isDisabled={!isExecutePermitted}
                 isLoading={isRunning}
-                onPress={() => {
+                onClick={() => {
                   onRunClick();
                 }}
                 size="md"

@@ -146,7 +146,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
               <Button
                 isDisabled={forkingApplication}
                 kind="secondary"
-                onPress={() => {
+                onClick={() => {
                   setModalClose && setModalClose(false);
                   handleClose();
                 }}
@@ -157,7 +157,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
               <Button
                 className="t--fork-app-to-workspace-button"
                 isLoading={forkingApplication}
-                onPress={forkApplication}
+                onClick={forkApplication}
                 size="md"
               >
                 {createMessage(FORK)}

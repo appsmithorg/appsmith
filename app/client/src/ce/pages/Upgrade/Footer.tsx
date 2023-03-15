@@ -53,7 +53,7 @@ export function FooterComponent(props: FooterProps) {
         </div>
       </div>
       <div className="right">
-        <Button onPress={() => onClick} size="md">
+        <Button onClick={() => onClick} size="md">
           {createMessage(UPGRADE)}
         </Button>
       </div>

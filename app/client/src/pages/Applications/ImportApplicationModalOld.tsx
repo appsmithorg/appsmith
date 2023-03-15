@@ -100,7 +100,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
           className={"t--workspace-import-app-button"}
           isDisabled={!appFileToBeUploaded}
           isLoading={importingApplication}
-          onPress={onImportApplication}
+          onClick={onImportApplication}
           size="md"
         >
           IMPORT

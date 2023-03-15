@@ -455,7 +455,7 @@ function ApiResponseView(props: Props) {
                   <Button
                     isDisabled={disabled}
                     isLoading={isRunning}
-                    onPress={onRunClick}
+                    onClick={onRunClick}
                     size="md"
                   >
                     Run
@@ -516,7 +516,7 @@ function ApiResponseView(props: Props) {
                 <Icon name="no-response" />
                 <Text type={TextType.P1}>
                   {EMPTY_RESPONSE_FIRST_HALF()}
-                  <Button isLoading={isRunning} onPress={onRunClick} size="md">
+                  <Button isLoading={isRunning} onClick={onRunClick} size="md">
                     Run
                   </Button>
                   {EMPTY_RESPONSE_LAST_HALF()}
@@ -578,7 +578,7 @@ function ApiResponseView(props: Props) {
               <Button
                 className={`t--cancel-action-button`}
                 kind="secondary"
-                onPress={() => {
+                onClick={() => {
                   handleCancelActionExecution();
                 }}
                 size="md"

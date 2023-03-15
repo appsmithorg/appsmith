@@ -198,7 +198,7 @@ export function Login(props: LoginFormProps) {
               <Button
                 isDisabled={!isFormValid}
                 kind="primary"
-                onPress={() => {
+                onClick={() => {
                   PerformanceTracker.startTracking(
                     PerformanceTransactionName.LOGIN_CLICK,
                   );

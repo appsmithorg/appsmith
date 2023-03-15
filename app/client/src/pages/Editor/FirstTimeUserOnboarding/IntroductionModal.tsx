@@ -142,7 +142,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           <StyledCloseButton
             className="t--how-appsmith-works-modal-close"
             isIconButton
-            onPress={onBuildApp}
+            onClick={onBuildApp}
             startIcon="cross"
           />
           <ModalHeaderWrapper className="t--how-appsmith-works-modal-header">
@@ -210,13 +210,13 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
               <Button
                 className="t--introduction-modal-welcome-tour-button my-6"
                 kind="secondary"
-                onPress={() => triggerWelcomeTour(dispatch)}
+                onClick={() => triggerWelcomeTour(dispatch)}
               >
                 {createMessage(START_TUTORIAL)}
               </Button>
               <Button
                 className="t--introduction-modal-build-button my-6 ml-5"
-                onPress={onBuildApp}
+                onClick={onBuildApp}
               >
                 {createMessage(BUILD_MY_FIRST_APP)}
               </Button>

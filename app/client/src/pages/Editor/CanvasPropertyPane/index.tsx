@@ -35,7 +35,7 @@ export function CanvasPropertyPane() {
             <Button
               className="t--app-settings-cta"
               kind="secondary"
-              onPress={openAppSettingsPane}
+              onClick={openAppSettingsPane}
               size="md"
             >
               App Settings

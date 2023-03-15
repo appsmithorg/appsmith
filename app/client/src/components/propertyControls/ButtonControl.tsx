@@ -50,7 +50,7 @@ class ButtonControl extends BaseControl<
         isDisabled={isDisabled?.(widgetProperties)}
         isLoading={this.state.isLoading}
         kind="secondary"
-        onPress={this.onCTAClick}
+        onClick={this.onCTAClick}
         size="md"
       >
         {buttonLabel}

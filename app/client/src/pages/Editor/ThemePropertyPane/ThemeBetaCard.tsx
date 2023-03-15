@@ -22,7 +22,7 @@ export function ThemeBetaCard() {
       <div>{createMessage(APP_THEME_BETA_CARD_CONTENT)}</div>
       <div className="flex items-center space-x-2">
         <Button kind="secondary">Learn more</Button>
-        <Button onPress={closeThemeBetaCard}>Got it</Button>
+        <Button onClick={closeThemeBetaCard}>Got it</Button>
       </div>
     </div>
   );

@@ -110,7 +110,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         <StyledPropertyPaneButtonWrapper>
           <Button
             kind="secondary"
-            onPress={this.addOption}
+            onClick={this.addOption}
             size="md"
             startIcon="plus"
           >

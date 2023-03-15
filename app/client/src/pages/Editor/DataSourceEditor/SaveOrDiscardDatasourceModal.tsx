@@ -54,14 +54,14 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
           <Button
             className="t--datasource-modal-do-not-save"
             kind="secondary"
-            onPress={onDiscard}
+            onClick={onDiscard}
           >
             {createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
           </Button>
           <Button
             className="t--datasource-modal-save"
             isDisabled={disableSaveButton}
-            onPress={onSave}
+            onClick={onSave}
           >
             {saveButtonText}
           </Button>

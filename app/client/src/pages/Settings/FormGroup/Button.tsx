@@ -28,7 +28,7 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
           data-testid="admin-settings-button"
           isDisabled={setting.isDisabled && setting.isDisabled(settings)}
           kind="secondary"
-          onPress={() => {
+          onClick={() => {
             if (setting.action) {
               setting.action(dispatch, settings);
             }

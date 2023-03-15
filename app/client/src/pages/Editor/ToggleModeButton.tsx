@@ -46,7 +46,7 @@ function ToggleModeButton() {
         data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
         isDisabled={!isPreviewMode}
         kind="tertiary"
-        onPress={onClickPreviewModeButton}
+        onClick={onClickPreviewModeButton}
         size="md"
         startIcon="play-circle-line"
       >

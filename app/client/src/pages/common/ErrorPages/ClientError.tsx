@@ -24,7 +24,7 @@ function ClientError(props: Props) {
           className="button-position"
           endIcon="right-arrow"
           kind="primary"
-          onPress={() => {
+          onClick={() => {
             flushErrors();
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}

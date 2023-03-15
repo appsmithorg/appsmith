@@ -95,7 +95,7 @@ function ImportedApplicationSuccessModal() {
           <ActionButtonWrapper>
             <Button
               className="t--import-success-modal-got-it"
-              onPress={() => {
+              onClick={() => {
                 onClose();
               }}
             >

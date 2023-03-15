@@ -165,7 +165,7 @@ function ThemeEditor() {
           >
             <Button
               className="t--change-theme-btn"
-              onPress={onClickChangeThemeButton}
+              onClick={onClickChangeThemeButton}
               size="md"
             >
               Change Theme

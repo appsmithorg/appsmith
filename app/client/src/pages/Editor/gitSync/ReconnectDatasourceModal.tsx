@@ -600,7 +600,7 @@ function ReconnectDatasourceModal() {
               className="t--skip-to-application-btn"
               href={appURL}
               kind="secondary"
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent(
                   "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                 );

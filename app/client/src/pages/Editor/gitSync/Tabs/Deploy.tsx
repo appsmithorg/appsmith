@@ -385,7 +385,7 @@ function Deploy() {
             <Button
               className="t--pull-button"
               isLoading={isPullingProgress}
-              onPress={handlePull}
+              onClick={handlePull}
             >
               {createMessage(PULL_CHANGES)}
             </Button>
@@ -402,7 +402,7 @@ function Deploy() {
                 className="t--commit-button"
                 isDisabled={commitButtonDisabled}
                 isLoading={commitButtonLoading}
-                onPress={() => handleCommit(true)}
+                onClick={() => handleCommit(true)}
               >
                 {commitButtonText}
               </Button>
@@ -418,7 +418,7 @@ function Deploy() {
                 isCommittingInProgress
               }
               kind="error"
-              onPress={() =>
+              onClick={() =>
                 shouldDiscard ? onDiscardChanges() : onDiscardInit()
               }
             >

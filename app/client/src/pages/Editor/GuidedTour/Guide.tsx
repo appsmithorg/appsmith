@@ -255,7 +255,7 @@ function InitialContent() {
           className="t--start-building"
           isLoading={isLoading}
           isVisible={!queryAction?.isLoading && !!queryAction?.data}
-          onPress={setupFirstStep}
+          onClick={setupFirstStep}
         >
           {createMessage(BUTTON_TEXT)}
         </GuideButton>
@@ -327,7 +327,7 @@ function GuideStepsContent(props: {
             {currentHint.button && (
               <GuideButton
                 className="t--hint-button"
-                onPress={hintButtonOnClick}
+                onClick={hintButtonOnClick}
               >
                 {createMessage(PROCEED)}
               </GuideButton>
@@ -421,7 +421,7 @@ function CompletionContent(props: CompletionContentProps) {
             <GuideButton
               className="t--success-button"
               isVisible={showSuccessButton}
-              onPress={onSuccessButtonClick}
+              onClick={onSuccessButtonClick}
             >
               {success?.buttonText ?? createMessage(CONTINUE)}
             </GuideButton>
@@ -436,7 +436,7 @@ function CompletionContent(props: CompletionContentProps) {
           <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXXXL} />
 
           <Description className="info">{info?.text}</Description>
-          <GuideButton className="t--info-button" onPress={onInfoButtonClick}>
+          <GuideButton className="t--info-button" onClick={onInfoButtonClick}>
             {info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
           </GuideButton>
         </div>

@@ -69,7 +69,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         />
         <div>{labelSuffix}</div>
         {props.needsUpgrade && (
-          <Button kind="secondary" onPress={onUpgrade}>
+          <Button kind="secondary" onClick={onUpgrade}>
             Upgrade
           </Button>
         )}

@@ -63,7 +63,7 @@ export const ImageInput = (props: ImageInputProps) => {
     >
       <img alt="Preview" className="h-8" src={preview || value} />
       <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
-        <Button onPress={onFileInputClick} size="md" startIcon="upload-line">
+        <Button onClick={onFileInputClick} size="md" startIcon="upload-line">
           Upload file
         </Button>
       </div>

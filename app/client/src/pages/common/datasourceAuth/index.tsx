@@ -346,7 +346,7 @@ function DatasourceAuth({
           isLoading={isDeleting}
           key={buttonType}
           kind="error"
-          onPress={() => {
+          onClick={() => {
             if (!isDeleting) {
               confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
             }
@@ -365,7 +365,7 @@ function DatasourceAuth({
           isLoading={isTesting}
           key={buttonType}
           kind="secondary"
-          onPress={handleDatasourceTest}
+          onClick={handleDatasourceTest}
         >
           Test
         </Button>
@@ -378,7 +378,7 @@ function DatasourceAuth({
           }
           isLoading={isSaving}
           key={buttonType}
-          onPress={handleDefaultAuthDatasourceSave}
+          onClick={handleDefaultAuthDatasourceSave}
         >
           Save
         </Button>
@@ -389,7 +389,7 @@ function DatasourceAuth({
           isDisabled={isInvalid || (!createMode && !canManageDatasource)}
           isLoading={isSaving}
           key={buttonType}
-          onPress={handleOauthDatasourceSave}
+          onClick={handleOauthDatasourceSave}
         >
           Save and Authorize
         </Button>

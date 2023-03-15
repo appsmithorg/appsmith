@@ -89,7 +89,7 @@ function ForkTemplate({
           <Button
             isDisabled={isImportingTemplate}
             kind="secondary"
-            onPress={() => onClose}
+            onClick={() => onClose}
             size="md"
           >
             {createMessage(CANCEL)}
@@ -97,7 +97,7 @@ function ForkTemplate({
           <Button
             className="t--fork-template-button"
             isLoading={isImportingTemplate}
-            onPress={onFork}
+            onClick={onFork}
             size="md"
           >
             {createMessage(FORK_TEMPLATE)}

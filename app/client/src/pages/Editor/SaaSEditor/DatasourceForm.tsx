@@ -305,7 +305,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   <Button
                     className="t--edit-datasource"
                     kind="secondary"
-                    onPress={() => {
+                    onClick={() => {
                       this.props.setDatasourceViewMode(false);
                       this.props.history.replace(
                         saasEditorDatasourceIdURL({

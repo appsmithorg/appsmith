@@ -102,7 +102,7 @@ class RequestConfirmationModal extends React.Component<Props> {
             <ModalFooter>
               <Button
                 kind="secondary"
-                onPress={() => {
+                onClick={() => {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
                   this.handleClose(modalInfo);
                 }}
@@ -112,7 +112,7 @@ class RequestConfirmationModal extends React.Component<Props> {
               </Button>
               <Button
                 kind="primary"
-                onPress={() => this.onConfirm(modalInfo)}
+                onClick={() => this.onConfirm(modalInfo)}
                 size="md"
               >
                 Yes

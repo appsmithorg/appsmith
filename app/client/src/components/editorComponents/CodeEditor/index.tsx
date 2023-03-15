@@ -1246,7 +1246,7 @@ class CodeEditor extends Component<Props, State> {
         {showLightningMenu !== false && !this.state.isFocused && (
           <Button
             className="commands-button"
-            onPress={() => {
+            onClick={() => {
               const newValue =
                 typeof this.props.input.value === "string"
                   ? this.props.input.value + "/"

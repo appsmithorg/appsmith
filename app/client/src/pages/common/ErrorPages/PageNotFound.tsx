@@ -30,7 +30,7 @@ function PageNotFound(props: Props) {
           className="mt-4 button-position"
           endIcon="right-arrow"
           kind="primary"
-          onPress={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
+          onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
           size="md"
         >
           {createMessage(BACK_TO_HOMEPAGE)}

@@ -86,10 +86,10 @@ function GuidedTourDialog() {
         <b>Welcome Tour</b> at the bottom left of the home page
       </span>
       <ButtonsWrapper>
-        <Button className="cancel" kind="secondary" onPress={onClose}>
+        <Button className="cancel" kind="secondary" onClick={onClose}>
           {createMessage(CANCEL_DIALOG)}
         </Button>
-        <Button className="end" onPress={endTour}>
+        <Button className="end" onClick={endTour}>
           {createMessage(END_CONFIRMATION)}
         </Button>
       </ButtonsWrapper>

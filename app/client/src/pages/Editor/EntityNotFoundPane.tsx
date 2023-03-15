@@ -74,7 +74,7 @@ function EntityNotFoundPane(props: Props) {
         <Button
           className="button-position"
           kind="secondary"
-          onPress={props.goBackFn ? props.goBackFn : history.goBack}
+          onClick={props.goBackFn ? props.goBackFn : history.goBack}
           size="md"
         >
           Go Back

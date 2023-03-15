@@ -184,7 +184,7 @@ function DisconnectGitModal() {
               className="t--git-revoke-button"
               isDisabled={shouldDisableRevokeButton}
               kind="error"
-              onPress={onDisconnectGit}
+              onClick={onDisconnectGit}
             >
               {createMessage(REVOKE)}
             </Button>

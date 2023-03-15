@@ -71,7 +71,7 @@ function NewActionButton(props: NewActionButtonProps) {
       className="t--create-query"
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
-      onPress={disabled ? noop : createQueryAction}
+      onClick={disabled ? noop : createQueryAction}
       startIcon="plus"
     >
       {pluginType === PluginType.DB || pluginType === PluginType.SAAS

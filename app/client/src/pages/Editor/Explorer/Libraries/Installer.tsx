@@ -440,7 +440,7 @@ export function Installer(props: { left: number }) {
               data-testid="install-library-btn"
               isDisabled={!(URL && isValid)}
               isLoading={queuedLibraries.length > 0}
-              onPress={() => installLibrary()}
+              onClick={() => installLibrary()}
               startIcon="download"
             >
               Install

@@ -34,7 +34,7 @@ const UpgradeBanner = () => {
           </SettingsSubHeader>
         </main>
         <aside>
-          <Button onPress={onUpgrade} size="md" startIcon="star-line">
+          <Button onClick={onUpgrade} size="md" startIcon="star-line">
             Upgrade
           </Button>
         </aside>

@@ -469,7 +469,7 @@ function GitConnection({ isImport }: Props) {
                 data-testid="t--generate-deploy-ssh-key-button"
                 isDisabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onPress={() => {
+                onClick={() => {
                   generateSSHKey(
                     remoteUrl
                       .toString()
@@ -525,7 +525,7 @@ function GitConnection({ isImport }: Props) {
                 className="t--connect-submit-btn"
                 isDisabled={submitButtonDisabled}
                 isLoading={submitButtonIsLoading}
-                onPress={onSubmit}
+                onClick={onSubmit}
               >
                 {isImport
                   ? createMessage(IMPORT_BTN_LABEL)

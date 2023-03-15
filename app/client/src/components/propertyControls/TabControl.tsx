@@ -48,7 +48,7 @@ function AddTabButtonComponent({ widgetId }: any) {
       <Button
         className="t--add-tab-btn"
         kind="secondary"
-        onPress={addOption}
+        onClick={addOption}
         size="md"
         startIcon="plus"
       >

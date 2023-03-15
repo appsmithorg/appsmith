@@ -371,7 +371,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 <Button
                   className="t--apiFormRunBtn snippet-execute"
                   isDisabled={executionInProgress}
-                  onPress={handleRun}
+                  onClick={handleRun}
                   size="md"
                 >
                   Run

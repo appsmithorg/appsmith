@@ -69,7 +69,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
       <EmptyActiveDatasource>
         <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
           {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
-          <Button isDisabled={!canCreateDatasource} onPress={props.onCreateNew}>
+          <Button isDisabled={!canCreateDatasource} onClick={props.onCreateNew}>
             Create New
           </Button>
         </Text>

@@ -412,7 +412,7 @@ class DatasourceRestAPIEditor extends React.Component<
                 className="t--save-and-authorize-datasource"
                 isDisabled={this.validate()}
                 isLoading={isSaving}
-                onPress={() =>
+                onClick={() =>
                   this.save(
                     redirectAuthorizationCode(
                       pageId,

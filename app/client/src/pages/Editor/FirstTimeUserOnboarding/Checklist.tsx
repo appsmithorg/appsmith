@@ -276,7 +276,7 @@ export default function OnboardingChecklist() {
           <BannerText>
             {createMessage(ONBOARDING_CHECKLIST_BANNER_BODY)}
           </BannerText>
-          <Button onPress={() => history.push(APPLICATIONS_URL)}>
+          <Button onClick={() => history.push(APPLICATIONS_URL)}>
             {createMessage(ONBOARDING_CHECKLIST_BANNER_BUTTON)}
           </Button>
         </Banner>
@@ -336,7 +336,7 @@ export default function OnboardingChecklist() {
                   ? "primary"
                   : "secondary"
               }
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -387,7 +387,7 @@ export default function OnboardingChecklist() {
                   ? "primary"
                   : "secondary"
               }
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -435,7 +435,7 @@ export default function OnboardingChecklist() {
                   ? "primary"
                   : "secondary"
               }
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                   from: "CHECKLIST",
                 });
@@ -484,7 +484,7 @@ export default function OnboardingChecklist() {
                   ? "primary"
                   : "secondary"
               }
-              onPress={onconnectYourWidget}
+              onClick={onconnectYourWidget}
             >
               {createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
@@ -525,7 +525,7 @@ export default function OnboardingChecklist() {
                   ? "primary"
                   : "secondary"
               }
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
                   from: "CHECKLIST",
                 });

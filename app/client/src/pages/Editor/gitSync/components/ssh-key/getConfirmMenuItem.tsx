@@ -23,7 +23,7 @@ export function getConfirmMenuItem(regenerateKey: () => void) {
         <Text type={TextType.P1}>
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
         </Text>
-        <Button onPress={regenerateKey} size="sm">
+        <Button onClick={regenerateKey} size="sm">
           {createMessage(YES)}
         </Button>
       </ConfirmRegeneration>

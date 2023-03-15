@@ -50,7 +50,7 @@ export function SuperUserForm(props: UserFormProps) {
     <ActionContainer>
       <StyledButton
         className="t--welcome-form-get-started"
-        onPress={() => props.onGetStarted && props.onGetStarted()}
+        onClick={() => props.onGetStarted && props.onGetStarted()}
       >
         {createMessage(WELCOME_ACTION)}
       </StyledButton>
@@ -121,7 +121,7 @@ function NonSuperUser(
         <StyledButton
           className="t--get-started-button"
           isDisabled={props.invalid}
-          onPress={() =>
+          onClick={() =>
             props.onGetStarted &&
             props.onGetStarted(
               props.role !== "other" ? props.role : props.role_name,

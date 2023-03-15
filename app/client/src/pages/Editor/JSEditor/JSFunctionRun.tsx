@@ -88,7 +88,7 @@ export function JSFunctionRun({
         <Button
           className={testLocators.runJSAction}
           isLoading={isLoading}
-          onPress={() => onButtonClick}
+          onClick={() => onButtonClick}
           size="md"
         >
           {RUN_BUTTON_DEFAULTS.CTA_TEXT}

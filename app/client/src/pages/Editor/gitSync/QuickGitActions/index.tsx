@@ -260,7 +260,7 @@ function ConnectGitPlaceholder() {
             <Button
               className="t--connect-git-bottom-bar"
               kind="secondary"
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });

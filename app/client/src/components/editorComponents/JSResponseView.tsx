@@ -263,7 +263,7 @@ function JSResponseView(props: Props) {
                       <Button
                         isDisabled={disabled}
                         isLoading={isLoading}
-                        onPress={() => onButtonClick}
+                        onClick={() => onButtonClick}
                         size="md"
                       >
                         Run

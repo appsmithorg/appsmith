@@ -111,7 +111,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           <Button
             className="t--add-menu-item-btn"
             kind="secondary"
-            onPress={this.addOption}
+            onClick={this.addOption}
             size="md"
             startIcon="plus"
           >

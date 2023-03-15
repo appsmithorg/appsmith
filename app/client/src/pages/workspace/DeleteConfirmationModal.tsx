@@ -63,7 +63,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           <Button
             className=".button-item"
             kind="error"
-            onPress={onClose}
+            onClick={onClose}
             size="md"
           >
             Cancel
@@ -72,7 +72,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
             className=".button-item"
             isLoading={isDeletingUser}
             kind="error"
-            onPress={onConfirm}
+            onClick={onConfirm}
             size="md"
           >
             Remove

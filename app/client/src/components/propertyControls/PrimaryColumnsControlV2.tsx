@@ -257,7 +257,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           <Button
             className="t--add-column-btn"
             kind="secondary"
-            onPress={this.addNewColumn}
+            onClick={this.addNewColumn}
             size="md"
             startIcon="plus"
           >

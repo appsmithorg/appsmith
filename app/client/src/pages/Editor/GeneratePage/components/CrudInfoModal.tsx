@@ -139,7 +139,7 @@ function InfoContent({
 
       <ActionButtonWrapper>
         <Button
-          onPress={() => {
+          onClick={() => {
             onClose();
           }}
         >

@@ -134,7 +134,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               <Button
                 className="t--edit-datasource"
                 kind="secondary"
-                onPress={() => {
+                onClick={() => {
                   this.props.setDatasourceViewMode(false);
                 }}
               >

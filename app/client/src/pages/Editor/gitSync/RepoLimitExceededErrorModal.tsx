@@ -227,7 +227,7 @@ function RepoLimitExceededErrorModal() {
             <Button
               className="t--contact-sales-button"
               kind="secondary"
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
                   source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                 });

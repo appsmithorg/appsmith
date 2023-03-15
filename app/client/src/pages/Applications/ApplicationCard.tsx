@@ -837,7 +837,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <Button
                       className="t--application-edit-link"
                       href={editModeURL}
-                      onPress={editApp}
+                      onClick={editApp}
                       size="md"
                       startIcon={"edit"}
                     >
@@ -849,7 +849,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       className="t--application-view-link"
                       href={viewModeURL}
                       kind="secondary"
-                      onPress={launchApp}
+                      onClick={launchApp}
                       size="md"
                       startIcon={"rocket"}
                     >

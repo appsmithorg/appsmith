@@ -83,7 +83,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   return (
     <StyledDiv className="t--propertypane-connect-cta">
       Data Required
-      <Button onPress={onClick} size="md" tabIndex={0}>
+      <Button onClick={onClick} size="md" tabIndex={0}>
         Connect Data
       </Button>
       <Button kind="secondary" onClick={openHelpModal} tabIndex={0}>

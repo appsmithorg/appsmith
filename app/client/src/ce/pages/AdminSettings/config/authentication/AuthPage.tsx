@@ -155,7 +155,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
       }`}
       data-cy="btn-auth-account"
       kind={method.isConnected ? "primary" : "secondary"}
-      onPress={() => onClickHandler(method)}
+      onClick={() => onClickHandler(method)}
       size="md"
     >
       {createMessage(

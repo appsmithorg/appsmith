@@ -284,7 +284,7 @@ export default function Merge() {
             data-testid="t--git-merge-button"
             isDisabled={mergeBtnDisabled}
             isLoading={isMerging}
-            onPress={mergeHandler}
+            onClick={mergeHandler}
           >
             {createMessage(MERGE_CHANGES)}
           </Button>

@@ -133,7 +133,7 @@ function UnsupportedPluginDialog(props: Props) {
       <ActionButtonWrapper>
         <ActionButton
           kind="secondary"
-          onPress={() => {
+          onClick={() => {
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION");
             handleClose();
           }}
@@ -142,7 +142,7 @@ function UnsupportedPluginDialog(props: Props) {
           Back
         </ActionButton>
         <ActionButton
-          onPress={() => {
+          onClick={() => {
             handleClose();
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_CONTINUE_ACTION");
             onContinue();

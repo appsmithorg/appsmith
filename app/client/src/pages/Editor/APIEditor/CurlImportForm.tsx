@@ -129,7 +129,7 @@ class CurlImportForm extends React.Component<Props> {
               <Button
                 className="t--importBtn"
                 isLoading={isImportingCurl}
-                onPress={handleSubmit(curlImportSubmitHandler)}
+                onClick={handleSubmit(curlImportSubmitHandler)}
                 size="md"
               >
                 Import

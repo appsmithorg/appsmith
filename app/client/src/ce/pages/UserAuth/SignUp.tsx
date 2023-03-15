@@ -203,7 +203,7 @@ export function SignUp(props: SignUpFormProps) {
               isDisabled={shouldDisableSignupButton}
               isLoading={submitting}
               kind="primary"
-              onPress={() => {
+              onClick={() => {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
                 });

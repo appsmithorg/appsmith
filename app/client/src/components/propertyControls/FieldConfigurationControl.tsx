@@ -191,7 +191,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       <Button
         className="t--add-column-btn"
         kind="secondary"
-        onPress={this.addNewField}
+        onClick={this.addNewField}
         size="md"
         startIcon="plus"
       >

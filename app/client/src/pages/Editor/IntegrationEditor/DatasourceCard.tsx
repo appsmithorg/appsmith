@@ -313,7 +313,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                       : "t--reconnect-btn"
                   }
                   kind="secondary"
-                  onPress={
+                  onClick={
                     datasource.isConfigured
                       ? () => routeToGeneratePage
                       : editDatasource

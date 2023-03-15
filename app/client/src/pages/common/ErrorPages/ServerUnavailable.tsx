@@ -16,7 +16,7 @@ function ServerUnavailable() {
         <Button
           className="button-position"
           kind="primary"
-          onPress={() => window.location.reload()}
+          onClick={() => window.location.reload()}
           size="md"
         >
           Retry

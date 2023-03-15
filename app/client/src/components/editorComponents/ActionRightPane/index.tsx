@@ -254,7 +254,7 @@ function ActionSidebar({
       {/* TODO (tanvi): replace this with a link*/}
       <BackToCanvasButton
         kind="tertiary"
-        onPress={navigateToCanvas}
+        onClick={navigateToCanvas}
         startIcon="chevron-left"
       >
         {createMessage(BACK_TO_CANVAS)}
@@ -273,7 +273,7 @@ function ActionSidebar({
             <Button
               className={"t--select-in-canvas"}
               kind="secondary"
-              onPress={handleBindData}
+              onClick={handleBindData}
               size="md"
             >
               Select Widget

@@ -132,7 +132,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
           {buttonText && showSearchNButton && (
             <StyledButton
               data-testid={"t--page-header-input"}
-              onPress={props.onButtonClick}
+              onClick={props.onButtonClick}
             >
               {buttonText}
             </StyledButton>

@@ -136,12 +136,12 @@ function SaveThemeModal(props: SaveThemeModalProps) {
           </div>
           <div className="">
             <div className="flex items-center space-x-3">
-              <Button kind="secondary" onPress={onClose} size="md">
+              <Button kind="secondary" onClick={onClose} size="md">
                 Cancel
               </Button>
               <Button
                 isDisabled={!name}
-                onPress={onSubmit}
+                onClick={onSubmit}
                 size="md"
                 type="submit"
               >

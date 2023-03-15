@@ -140,7 +140,7 @@ export default function DetailsForm(
             className="t--welcome-form-next-button"
             isDisabled={props.invalid}
             kind="secondary"
-            onPress={props.onNext}
+            onClick={props.onNext}
             size="md"
           >
             Next
