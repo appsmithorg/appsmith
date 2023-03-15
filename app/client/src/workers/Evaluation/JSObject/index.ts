@@ -83,7 +83,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
       delete dataTreeEvalRef.JSPropertiesState[`${entityName}`];
       const parseStartTime = performance.now();
-      const parsedObject = parseJSObject(entity.body);
+      const { parsedObject, success } = parseJSObject(entity.body);
       const parseEndTime = performance.now();
       const JSObjectASTParseTime = parseEndTime - parseStartTime;
       dataTreeEvalRef.logs.push({
@@ -92,94 +92,96 @@ export function saveResolvedFunctionsAndJSUpdates(
       });
       const actions: any = [];
       const variables: any = [];
-      if (!!parsedObject) {
-        parsedObject.forEach((parsedElement) => {
-          if (isJSFunctionProperty(parsedElement)) {
-            try {
-              const { result } = evaluateSync(
-                parsedElement.value,
-                unEvalDataTree,
-                {},
-                false,
-                undefined,
-                undefined,
-              );
-              if (!!result) {
-                let params: Array<{ key: string; value: unknown }> = [];
+      if (success) {
+        if (!!parsedObject) {
+          parsedObject.forEach((parsedElement) => {
+            if (isJSFunctionProperty(parsedElement)) {
+              try {
+                const { result } = evaluateSync(
+                  parsedElement.value,
+                  unEvalDataTree,
+                  {},
+                  false,
+                  undefined,
+                  undefined,
+                );
+                if (!!result) {
+                  let params: Array<{ key: string; value: unknown }> = [];
 
-                if (parsedElement.arguments) {
-                  params = parsedElement.arguments.map(
-                    ({ defaultValue, paramName }) => ({
-                      key: paramName,
-                      value: defaultValue,
-                    }),
+                  if (parsedElement.arguments) {
+                    params = parsedElement.arguments.map(
+                      ({ defaultValue, paramName }) => ({
+                        key: paramName,
+                        value: defaultValue,
+                      }),
+                    );
+                  }
+
+                  const functionString = parsedElement.value;
+                  set(
+                    dataTreeEvalRef.resolvedFunctions,
+                    `${entityName}.${parsedElement.key}`,
+                    result,
                   );
+                  set(
+                    dataTreeEvalRef.currentJSCollectionState,
+                    `${entityName}.${parsedElement.key}`,
+                    functionString,
+                  );
+                  set(
+                    dataTreeEvalRef.JSPropertiesState,
+                    `[${entityName}.${parsedElement.key}]`,
+                    {
+                      position: parsedElement.position,
+                      value: parsedElement.rawContent,
+                    },
+                  );
+                  actions.push({
+                    name: parsedElement.key,
+                    body: functionString,
+                    arguments: params,
+                    parsedFunction: result,
+                    isAsync: false,
+                  });
                 }
-
-                const functionString = parsedElement.value;
-                set(
-                  dataTreeEvalRef.resolvedFunctions,
-                  `${entityName}.${parsedElement.key}`,
-                  result,
-                );
-                set(
-                  dataTreeEvalRef.currentJSCollectionState,
-                  `${entityName}.${parsedElement.key}`,
-                  functionString,
-                );
-                set(
-                  dataTreeEvalRef.JSPropertiesState,
-                  `[${entityName}.${parsedElement.key}]`,
-                  {
-                    position: parsedElement.position,
-                    value: parsedElement.rawContent,
-                  },
-                );
-                actions.push({
-                  name: parsedElement.key,
-                  body: functionString,
-                  arguments: params,
-                  parsedFunction: result,
-                  isAsync: false,
-                });
+              } catch {
+                // in case we need to handle error state
               }
-            } catch {
-              // in case we need to handle error state
+            } else if (parsedElement.type !== "literal") {
+              variables.push({
+                name: parsedElement.key,
+                value: parsedElement.value,
+              });
+              set(
+                dataTreeEvalRef.currentJSCollectionState,
+                `${entityName}.${parsedElement.key}`,
+                parsedElement.value,
+              );
             }
-          } else if (parsedElement.type !== "literal") {
-            variables.push({
-              name: parsedElement.key,
-              value: parsedElement.value,
-            });
             set(
-              dataTreeEvalRef.currentJSCollectionState,
-              `${entityName}.${parsedElement.key}`,
-              parsedElement.value,
+              dataTreeEvalRef.JSPropertiesState,
+              `[${entityName}.${parsedElement.key}]`,
+              {
+                position: parsedElement.position,
+                value: parsedElement.rawContent,
+              },
             );
-          }
-          set(
-            dataTreeEvalRef.JSPropertiesState,
-            `[${entityName}.${parsedElement.key}]`,
-            {
-              position: parsedElement.position,
-              value: parsedElement.rawContent,
-            },
-          );
-        });
-        const parsedBody = {
-          body: entity.body,
-          actions: actions,
-          variables,
-        };
-        set(jsUpdates, `${entityName}`, {
-          parsedBody,
-          id: entity.actionId,
-        });
-      } else {
-        set(jsUpdates, `${entityName}`, {
-          parsedBody: undefined,
-          id: entity.actionId,
-        });
+          });
+          const parsedBody = {
+            body: entity.body,
+            actions: actions,
+            variables,
+          };
+          set(jsUpdates, `${entityName}`, {
+            parsedBody,
+            id: entity.actionId,
+          });
+        } else {
+          set(jsUpdates, `${entityName}`, {
+            parsedBody: undefined,
+            id: entity.actionId,
+          });
+        }
       }
     } catch (e) {
       //if we need to push error as popup in case

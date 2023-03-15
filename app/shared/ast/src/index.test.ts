@@ -326,7 +326,7 @@ describe("parseJSObjectWithAST", () => {
 	}
 }`;
 
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myVar1",
         value: "[]",
@@ -395,8 +395,8 @@ describe("parseJSObjectWithAST", () => {
         arguments: [],
       },
     ];
-    const resultParsedObject = parseJSObject(body);
-    expect(resultParsedObject).toStrictEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with literal", () => {
@@ -412,7 +412,7 @@ describe("parseJSObjectWithAST", () => {
 		//use async-await or promises
 	}
 }`;
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myVar1",
         value: "[]",
@@ -481,9 +481,8 @@ describe("parseJSObjectWithAST", () => {
         arguments: [],
       },
     ];
-    const resultParsedObject = parseJSObject(body);
-    console.log(resultParsedObject);
-    expect(resultParsedObject).toStrictEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with variable declaration inside function", () => {
@@ -500,7 +499,7 @@ describe("parseJSObjectWithAST", () => {
         //use async-await or promises
       }
     }`;
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myFun1",
         value:
@@ -553,9 +552,8 @@ describe("parseJSObjectWithAST", () => {
         arguments: [],
       },
     ];
-    const resultParsedObject = parseJSObject(body);
-    console.log(resultParsedObject);
-    expect(resultParsedObject).toStrictEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with params of all types", () => {
@@ -565,7 +563,7 @@ describe("parseJSObjectWithAST", () => {
       },
     }`;
 
-    const parsedObject = [
+    const expectedParsedObject = [
       {
         key: "myFun2",
         value:
@@ -599,7 +597,7 @@ describe("parseJSObjectWithAST", () => {
         ],
       },
     ];
-    const resultParsedObject = parseJSObject(body);
-    expect(resultParsedObject).toEqual(parsedObject);
+    const { parsedObject } = parseJSObject(body);
+    expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 });

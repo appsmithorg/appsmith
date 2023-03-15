@@ -56,7 +56,7 @@ export const parseJSObject = (code: string) => {
     ast = getAST(code, { sourceType: SourceType.module, onComment: comments });
     attachComments(ast, comments);
   } catch (e) {
-    return result;
+    return { parsedObject: result, success: false };
   }
 
   ancestor(ast, {
@@ -108,5 +108,5 @@ export const parseJSObject = (code: string) => {
       }
     },
   });
-  return result;
+  return { parsedObject: result, success: true };
 };
