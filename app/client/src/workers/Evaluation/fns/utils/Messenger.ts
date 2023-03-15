@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { removeFunctions } from "ce/workers/Evaluation/evaluationUtils";
 import { WorkerErrorTypes } from "ce/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
