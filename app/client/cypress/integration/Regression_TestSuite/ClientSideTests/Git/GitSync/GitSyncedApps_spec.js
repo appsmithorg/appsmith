@@ -119,87 +119,88 @@ describe("Git sync apps", function() {
   });
   it("2. Create api queries from api pane and cURL import , bind it to widget and clone page from page settings", () => {
     cy.fixture("datasources").then((datasourceFormData) => {
-    cy.Createpage(newPage);
-    cy.get(`.t--entity-item:contains(${newPage})`).click();
-    cy.wait(1000);
-    // create a get api call
-    cy.NavigateToAPI_Panel();
-    cy.wait(2000);
-    cy.CreateAPI("get_data");
-    // creating get request using echo
-    cy.get(apiwidget.resourceUrl)
-      .first()
-      .click({ force: true })
-      .type(datasourceFormData["echoApiUrl"], {
-        parseSpecialCharSequences: false,
-      });
-    //.type("{esc}}");
-    cy.wait(5000);
-    cy.get(apiwidget.headerKey).type("info");
-    cy.xpath("//span[text()='Key']").click();
-    // entering the data in header
-    cy.get(apiwidget.headerValue).type("This is a test", {
-      parseSpecialCharSequences: false,
-    });
-    cy.wait(2000);
-    cy.SaveAndRunAPI();
-    cy.ResponseStatusCheck("200");
-    cy.get(".bp3-icon-chevron-left").click();
-    // curl import
-    cy.get(pages.integrationCreateNew)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '+ datasourceFormData["echoApiUrl"],
-      {
-        force: true,
-        parseSpecialCharSequences: false,
-      },
-    );
-    cy.importCurl();
-    cy.RunAPI();
-    cy.ResponseStatusCheck("200");
-    cy.get("@curlImport").then((response) => {
-      cy.expect(response.response.body.responseMeta.success).to.eq(true);
-      cy.get(apiwidget.ApiName)
-        .invoke("text")
-        .then((text) => {
-          const someText = text;
-          expect(someText).to.equal(response.response.body.data.name);
+      cy.Createpage(newPage);
+      cy.get(`.t--entity-item:contains(${newPage})`).click();
+      cy.wait(1000);
+      // create a get api call
+      cy.NavigateToAPI_Panel();
+      cy.wait(2000);
+      cy.CreateAPI("get_data");
+      // creating get request using echo
+      cy.get(apiwidget.resourceUrl)
+        .first()
+        .click({ force: true })
+        .type(datasourceFormData["echoApiUrl"], {
+          parseSpecialCharSequences: false,
         });
-    });
-    cy.get(explorer.addWidget).click();
-    // bind input widgets to the api calls responses
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-    cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.EnableAllCodeEditors();
-    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-      .last()
-      .click({ force: true })
-      .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
-    cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.EnableAllCodeEditors();
-    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-      .last()
-      .click({ force: true })
-      .type("{{get_data.data.headers.Info}}", {
+      //.type("{esc}}");
+      cy.wait(5000);
+      cy.get(apiwidget.headerKey).type("info");
+      cy.xpath("//span[text()='Key']").click();
+      // entering the data in header
+      cy.get(apiwidget.headerValue).type("This is a test", {
         parseSpecialCharSequences: false,
       });
-    cy.wait(2000);
-    // clone the page from page settings
-    cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Clone");
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
-    cy.wait("@getPage");
+      cy.wait(2000);
+      cy.SaveAndRunAPI();
+      cy.ResponseStatusCheck("200");
+      cy.get(".bp3-icon-chevron-left").click();
+      // curl import
+      cy.get(pages.integrationCreateNew)
+        .should("be.visible")
+        .click({ force: true });
+      cy.get(ApiEditor.curlImage).click({ force: true });
+      cy.get("textarea").type(
+        'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
+          datasourceFormData["echoApiUrl"],
+        {
+          force: true,
+          parseSpecialCharSequences: false,
+        },
+      );
+      cy.importCurl();
+      cy.RunAPI();
+      cy.ResponseStatusCheck("200");
+      cy.get("@curlImport").then((response) => {
+        cy.expect(response.response.body.responseMeta.success).to.eq(true);
+        cy.get(apiwidget.ApiName)
+          .invoke("text")
+          .then((text) => {
+            const someText = text;
+            expect(someText).to.equal(response.response.body.data.name);
+          });
+      });
+      cy.get(explorer.addWidget).click();
+      // bind input widgets to the api calls responses
+      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+      cy.get(".t--widget-inputwidgetv2").should("exist");
+      cy.EnableAllCodeEditors();
+      cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+        .last()
+        .click({ force: true })
+        .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
+      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+      cy.get(".t--widget-inputwidgetv2").should("exist");
+      cy.EnableAllCodeEditors();
+      cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+        .last()
+        .click({ force: true })
+        .type("{{get_data.data.headers.Info}}", {
+          parseSpecialCharSequences: false,
+        });
+      cy.wait(2000);
+      // clone the page from page settings
+      cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
+        cy.get(".t--context-menu").click({ force: true });
+      });
+      cy.selectAction("Clone");
+      cy.wait("@clonePage").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
+      cy.wait("@getPage");
     });
   });
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {

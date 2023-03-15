@@ -4,6 +4,11 @@ import "../src/polyfills/requestIdleCallback";
 
 export const server = setupServer(...handlers);
 
+jest.mock("api/Api", () => ({
+  __esModule: true,
+  default: class Api {},
+}));
+
 window.scrollTo = jest.fn();
 Element.prototype.scrollIntoView = jest.fn();
 Element.prototype.scrollBy = jest.fn();
