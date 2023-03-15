@@ -8,8 +8,8 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "@appsmith/constants/messages";
-import { Text, TextType, Icon, IconSize } from "design-system-old";
-import { Button } from "design-system";
+import { Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`
@@ -38,7 +38,7 @@ export default function ConflictInfo({
   return (
     <ConflictInfoContainer data-testid="t--conflict-info-container">
       <InfoWrapper data-testid="t--conflict-info-error-warning" isError>
-        <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+        <Icon color={Colors.CRIMSON} name="info" size="lg" />
         <div style={{ display: "block" }}>
           <Text color={Colors.CRIMSON} type={TextType.P3}>
             {createMessage(GIT_CONFLICTING_INFO)}

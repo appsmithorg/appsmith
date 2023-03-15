@@ -17,8 +17,6 @@ import {
 import styled, { useTheme } from "styled-components";
 import {
   getTypographyByKey,
-  Icon,
-  IconSize,
   LabelContainer,
   ScrollIndicator,
   Text,
@@ -26,7 +24,7 @@ import {
   TextType,
   TooltipComponent as Tooltip,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -364,11 +362,7 @@ function Deploy() {
         <Space size={11} />
         {pullRequired && !isConflicting && (
           <InfoWrapper>
-            <Icon
-              fillColor={Colors.YELLOW_LIGHT}
-              name="info"
-              size={IconSize.XXXL}
-            />
+            <Icon color={Colors.YELLOW_LIGHT} name="info" size="lg" />
             <div style={{ display: "block" }}>
               <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
                 {createMessage(GIT_UPSTREAM_CHANGES)}

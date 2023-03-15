@@ -4,10 +4,10 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Icon, IconSize } from "design-system-old";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { Colors } from "constants/Colors";
+import { Button } from "design-system";
 
 const Container = styled.div`
   width: 100%;
@@ -24,18 +24,8 @@ const Container = styled.div`
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
-const ScrollBtnContainer = styled.div<{ visible: boolean }>`
-  cursor: pointer;
-  display: flex;
+const ScrollBtnContainer = styled(Button)<{ visible: boolean }>`
   position: absolute;
-  height: 100%;
-  padding: 0 10px;
-
-  & > span {
-    background: white;
-    position: relative;
-    z-index: 1;
-  }
 
   ${(props) =>
     props.visible
@@ -131,15 +121,15 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
     <Container className="relative hidden px-6 h-9 md:flex">
       <ScrollBtnContainer
         className="left-0"
+        kind="tertiary"
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
         onTouchStart={() => startScrolling(true)}
+        startIcon="left-arrow-2"
         visible={shouldShowLeftArrow}
-      >
-        <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+      />
       <PageTabs
         appPages={appPages}
         currentApplicationDetails={currentApplicationDetails}
@@ -149,15 +139,15 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
       />
       <ScrollBtnContainer
         className="right-0"
+        kind="tertiary"
         onMouseDown={() => startScrolling(false)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
         onTouchStart={() => startScrolling(false)}
+        startIcon="right-arrow-2"
         visible={shouldShowRightArrow}
-      >
-        <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+      />
     </Container>
   ) : null;
 }

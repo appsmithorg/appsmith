@@ -2,15 +2,8 @@ import React from "react";
 import { HelpIcons } from "icons/HelpIcons";
 import styled, { useTheme } from "styled-components";
 import { Color } from "constants/Colors";
-import {
-  DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
-import { Button } from "design-system";
-import { IconProps } from "constants/IconConstants";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -67,24 +60,8 @@ export const StyledSeparator = styled.div`
   height: 1px;
 `;
 
-const StyledIcon = styled(Icon)<IconProps>`
+const StyledIcon = styled(Icon)`
   margin: 0px 8px;
-  svg {
-    .triangle {
-      fill: #efa903;
-    }
-    .symbol {
-      fill: #ffffff;
-    }
-  }
-  &:hover {
-    .triangle {
-      fill: #efa903;
-    }
-    .symbol {
-      fill: #ffffff;
-    }
-  }
 `;
 
 const ActionButton = styled(Button)`
@@ -106,9 +83,8 @@ const Header = ({ onClose }: { onClose: () => void }) => {
         <Heading>
           <StyledIcon
             className="default_cursor"
-            clickable={false}
             name="warning-triangle"
-            size={IconSize.XL}
+            size="md"
           />
           {UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING()}
         </Heading>

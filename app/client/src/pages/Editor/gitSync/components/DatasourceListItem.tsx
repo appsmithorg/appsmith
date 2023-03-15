@@ -1,4 +1,5 @@
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
@@ -70,9 +71,9 @@ function ListItemWrapper(props: {
             {ds.name}
           </Text>
           <Icon
-            fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+            color={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
             name={ds.isConfigured ? "oval-check" : "info"}
-            size={IconSize.MEDIUM}
+            size="md"
           />
         </DsTitle>
         <Text color={Colors.GRAY_700} type={TextType.H5}>

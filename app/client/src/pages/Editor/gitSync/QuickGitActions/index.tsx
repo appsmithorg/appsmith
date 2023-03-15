@@ -41,19 +41,16 @@ import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   getTypographyByKey,
-  Icon,
-  IconName,
-  IconSize,
   TooltipComponent as Tooltip,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
   className?: string;
   count?: number;
   disabled?: boolean;
-  icon: IconName;
+  icon: string;
   loading?: boolean;
   onClick: () => void;
   tooltipText: string;
@@ -119,7 +116,7 @@ function QuickActionButton({
           </div>
         ) : (
           <div>
-            <Icon name={icon} size={IconSize.XL} />
+            <Icon name={icon} size="md" />
             {count > 0 && <span className="count">{count}</span>}
           </div>
         )}
