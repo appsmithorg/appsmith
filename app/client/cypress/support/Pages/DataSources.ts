@@ -702,9 +702,9 @@ export class DataSources {
     let guid: any;
     let dataSourceName = "";
     this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      navigateToCreateNewDs && this.NavigateToDSCreateNew();
+    navigateToCreateNewDs && this.NavigateToDSCreateNew();
 
+    cy.get("@guid").then((uid) => {
       if (DataSourceKVP[dsType] != "GraphQL API") {
         this.CreatePlugIn(DataSourceKVP[dsType]);
         guid = uid;

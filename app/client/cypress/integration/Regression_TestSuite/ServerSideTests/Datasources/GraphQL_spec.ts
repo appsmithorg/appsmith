@@ -14,10 +14,10 @@ const GRAPHQL_QUERY = `query ($myid: Int!) {
   }
 }`;
 
-const CAPSULE_ID = 4;
+const POST_ID = 4;
 
 const GRAPHQL_VARIABLES = `{
-    "myid": ${CAPSULE_ID}
+    "myid": ${POST_ID}
   }`;
 
 const GRAPHQL_LIMIT_QUERY = `query($offsetz:Int, $firstz:Int){
@@ -44,10 +44,10 @@ describe("GraphQL Datasource Implementation", function() {
     appName = localStorage.getItem("AppName") || "";
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      apiName = `${apiName}${uid}`;
+      //apiName = `${apiName}${uid}`;
       authoemail = `ci${uid}@appsmith.com`;
-      _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     });
+    _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
   });
 
   it("1. Should execute the API and validate the response", function() {
@@ -59,7 +59,7 @@ describe("GraphQL Datasource Implementation", function() {
 
     _.apiPage.RunAPI(false, 20, {
       expectedPath: "response.body.data.body.data.postById.id",
-      expectedRes: CAPSULE_ID,
+      expectedRes: POST_ID,
     });
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
@@ -148,7 +148,7 @@ describe("GraphQL Datasource Implementation", function() {
 
       _.dataSources.UpdateGraphqlQueryAndVariable({
         query: `mutation {
-          deletePostById(input: {id: ${CAPSULE_ID}}) {
+          deletePostById(input: {id: ${POST_ID}}) {
             clientMutationId
             deletedPostId
           }
