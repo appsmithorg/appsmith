@@ -1,12 +1,12 @@
 import classNames from "classnames";
-import { Icon, IconName, IconSize } from "design-system-old";
+import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 
 export interface SectionHeaderProps {
   id: string;
   name: string;
-  icon: IconName;
+  icon: string;
   subText: string;
   isSelected: boolean;
   onClick: () => void;

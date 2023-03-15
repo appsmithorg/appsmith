@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { updateApplicationLayout } from "actions/applicationActions";
 import { Colors } from "constants/Colors";
-import { Icon, IconName, IconSize, TooltipComponent } from "design-system-old";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
 import {
   AppLayoutConfig,
   SupportedLayouts,
@@ -17,7 +17,7 @@ import {
 interface AppsmithLayoutConfigOption {
   name: string;
   type: SupportedLayouts;
-  icon?: IconName;
+  icon?: string;
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {

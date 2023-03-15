@@ -18,7 +18,6 @@ import {
   Classes,
   getTypographyByKey,
   Icon,
-  IconName,
   IconSize,
   Text,
   TextType,
@@ -227,7 +226,7 @@ const showToggleIcon = (e: Log) => {
 
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: getLogIcon(e) as IconName,
+    icon: getLogIcon(e) as string,
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -246,7 +245,7 @@ export const getLogItemProps = (e: Log) => {
 
 type LogItemProps = {
   collapsable?: boolean;
-  icon: IconName;
+  icon: string;
   timestamp: string;
   label: string;
   timeTaken: string;

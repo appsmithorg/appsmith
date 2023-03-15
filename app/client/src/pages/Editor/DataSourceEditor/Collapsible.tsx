@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon as AdsIcon, IconName, IconSize } from "design-system-old";
+import { Icon as AdsIcon, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -44,7 +44,7 @@ interface ComponentProps {
   defaultIsOpen?: boolean;
   // header icon props of collapse header
   headerIcon?: {
-    name: IconName;
+    name: string;
     color?: string;
   };
   showTopBorder?: boolean;

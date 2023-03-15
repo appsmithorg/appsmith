@@ -51,7 +51,6 @@ import {
   EditInteractionKind,
   Icon,
   IconName,
-  IconSize,
   Menu,
   MenuItem,
   notEmptyValidator,
@@ -291,7 +290,7 @@ export const NoAppsFound = styled.div`
 export function Item(props: {
   label: string;
   textType: TextType;
-  icon?: IconName;
+  icon?: string;
   isFetchingApplications?: boolean;
 }) {
   return (

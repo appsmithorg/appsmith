@@ -8,7 +8,6 @@ import {
   TabProp,
   Text,
   TextType,
-  IconName,
   Icon,
   IconSize,
 } from "design-system-old";
@@ -54,7 +53,7 @@ type FormDialogComponentProps = {
   setMaxWidth?: boolean;
   applicationId?: string;
   headerIcon?: {
-    name: IconName;
+    name: string;
     fillColor?: string;
     hoverColor?: string;
     bgColor?: string;

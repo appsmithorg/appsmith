@@ -13,7 +13,6 @@ import {
   Classes,
   getTypographyByKey,
   Icon,
-  IconName,
   IconSize,
   Text,
   TextType,
@@ -184,7 +183,7 @@ const getUpdateTimestamp = (state?: Record<string, any>) => {
 // returns required parameters for log item
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: getLogIcon(e) as IconName,
+    icon: getLogIcon(e) as string,
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -205,7 +204,7 @@ export const getLogItemProps = (e: Log) => {
 
 export type LogItemProps = {
   collapsable?: boolean;
-  icon: IconName;
+  icon: string;
   timestamp: string;
   label: string;
   timeTaken: string;

@@ -26,7 +26,6 @@ import {
   Dropdown,
   DropdownOption,
   getTypographyByKey,
-  IconName,
   IconSize,
   RenderDropdownOptionType,
   TooltipComponent as Tooltip,
@@ -125,8 +124,8 @@ const Row = styled.p`
 
 // Constants
 
-const datasourceIcon: IconName = "tables";
-const columnIcon: IconName = "column";
+const datasourceIcon = "tables";
+const columnIcon = "column";
 
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
