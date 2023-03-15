@@ -380,7 +380,7 @@ jobs:
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type f -iname "*\(attempt 2\).png" | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          find screenshots -type f -iname "*\(attempt 2\).png" | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
