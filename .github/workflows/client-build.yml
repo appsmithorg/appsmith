@@ -100,6 +100,10 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
 
+      - name: Install Eslint
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn global add eslint
+      
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
