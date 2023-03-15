@@ -17,6 +17,7 @@ import {
   getWidgetWidth,
 } from "./flexWidgetUtils";
 import {
+  AlignmentChildren,
   AlignmentInfo,
   getAlignmentSizeInfo,
   getTotalRowsOfAllChildren,
@@ -168,19 +169,18 @@ export function generateVerticalHighlights(data: {
     if (!widget) continue;
     count += 1;
     if (draggedWidgets.indexOf(child.id) > -1) continue;
-    maxHeight = Math.max(
-      maxHeight,
-      getWidgetHeight(widget, isMobile) * widget.parentRowSpace,
-    );
+    const columns: number = getWidgetWidth(widget, isMobile);
+    const rows: number = getWidgetHeight(widget, isMobile);
+    maxHeight = Math.max(maxHeight, rows * widget.parentRowSpace);
     if (child.align === FlexLayerAlignment.End) {
-      endChildren.push(widget);
-      endColumns += getWidgetWidth(widget, isMobile);
+      endChildren.push({ widget, columns, rows });
+      endColumns += columns;
     } else if (child.align === FlexLayerAlignment.Center) {
-      centerChildren.push(widget);
-      centerColumns += getWidgetWidth(widget, isMobile);
+      centerChildren.push({ widget, columns, rows });
+      centerColumns += columns;
     } else {
-      startChildren.push(widget);
-      startColumns += getWidgetWidth(widget, isMobile);
+      startChildren.push({ widget, columns, rows });
+      startColumns += columns;
     }
   }
 
@@ -238,7 +238,7 @@ export function generateVerticalHighlights(data: {
       }
       highlights.push(
         ...generateHighlightsForAlignment({
-          arr: item.children,
+          arr: item.children.map((each: AlignmentChildren) => each.widget),
           childCount:
             item.alignment === FlexLayerAlignment.Start
               ? childCount
@@ -331,7 +331,7 @@ export function generateHighlightsForAlignment(data: {
       posX: getPositionForInitialHighlight(
         res,
         alignment,
-        arr && arr.length
+        lastChild !== null
           ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
               FLEXBOX_PADDING / 2
           : 0,

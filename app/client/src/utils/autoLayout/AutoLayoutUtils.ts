@@ -22,7 +22,10 @@ import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
 } from "utils/autoLayout/positionUtils";
-import { getWidgetWidth } from "./flexWidgetUtils";
+import {
+  getWidgetWidth,
+  getWidgetMinMaxDimensionsInPixel,
+} from "./flexWidgetUtils";
 import { AlignmentColumnInfo } from "./autoLayoutTypes";
 
 export function updateFlexLayersOnDelete(
@@ -108,14 +111,12 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
+    const { minWidth } = getWidgetMinMaxDimensionsInPixel(widget, canvasWidth);
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = GridDefaults.DEFAULT_GRID_COLUMNS;
       widget.mobileLeftColumn = 0;
-    } else if (
-      widget.responsiveBehavior === ResponsiveBehavior.Hug &&
-      widget.minWidth
-    ) {
-      const { leftColumn, minWidth, rightColumn } = widget;
+    } else if (minWidth) {
+      const { leftColumn, rightColumn } = widget;
       const columnSpace =
         (canvasWidth - FLEXBOX_PADDING * 2) / GridDefaults.DEFAULT_GRID_COLUMNS;
       if (columnSpace * (rightColumn - leftColumn) < minWidth) {
@@ -125,6 +126,9 @@ export function alterLayoutForMobile(
           GridDefaults.DEFAULT_GRID_COLUMNS,
         );
       }
+    } else {
+      widget.mobileLeftColumn = widget.leftColumn;
+      widget.mobileRightColumn = widget.rightColumn;
     }
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
