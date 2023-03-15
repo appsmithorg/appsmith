@@ -48,6 +48,7 @@ app.get("/", (_, res) => {
 
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
+app.use(`${RTS_BASE_API_PATH}/git`, health_check_routes);
 
 server.headersTimeout = 61000;
 server.keepAliveTimeout = 60000;
