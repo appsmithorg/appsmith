@@ -42,5 +42,9 @@
   "scripts": {
     "storybook": "start-storybook -p 6006",
     "build": "build-storybook"
+  },
+  "resolutions": {
+    "trim-newlines": "3.0.1",
+    "trim": "0.0.3"
   }
 }
