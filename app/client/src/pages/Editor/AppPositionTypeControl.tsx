@@ -2,9 +2,12 @@ import classNames from "classnames";
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
 import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
 import { Colors } from "constants/Colors";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { IconName, TooltipComponent } from "design-system-old";
 import {
   AppPositioningTypeConfig,
@@ -15,6 +18,7 @@ import {
   getCurrentAppPositioningType,
   isAutoLayoutEnabled,
 } from "selectors/editorSelectors";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { updateApplication } from "actions/applicationActions";
 interface ApplicationPositionTypeConfigOption {
@@ -47,12 +51,13 @@ export const Title = styled.p`
   color: ${Colors.GRAY_800};
 `;
 
-export const AppPositionTypeControl = () => {
+export function AppPositionTypeControl() {
   const dispatch = useDispatch();
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   const appId = useSelector(getCurrentApplicationId);
+
   /**
    * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
@@ -67,7 +72,7 @@ export const AppPositionTypeControl = () => {
   const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
 
   useEffect(() => {
-    if (!isAutoLayoutActive && selectedOption !== AppPositioningTypes.FIXED) {
+    if (!isAutoLayoutActive) {
       /**
        * if feature flag is disabled, set the layout to fixed.
        */
@@ -78,6 +83,24 @@ export const AppPositionTypeControl = () => {
   const updateAppPositioningLayout = (
     layoutOption: ApplicationPositionTypeConfigOption,
   ) => {
+    const selectedType =
+      layoutOption.type !== AppPositioningTypes.AUTO
+        ? Positioning.Fixed
+        : Positioning.Vertical;
+    dispatch(
+      batchUpdateMultipleWidgetProperties([
+        {
+          widgetId: MAIN_CONTAINER_WIDGET_ID,
+          updates: {
+            modify: {
+              positioning: selectedType,
+              useAutoLayout: selectedType !== Positioning.Fixed,
+              direction: LayoutDirection.Vertical,
+            },
+          },
+        },
+      ]),
+    );
     dispatch(
       updateApplication(appId || "", {
         appPositioning: {
@@ -162,4 +185,4 @@ export const AppPositionTypeControl = () => {
       )}
     </>
   );
-};
+}
