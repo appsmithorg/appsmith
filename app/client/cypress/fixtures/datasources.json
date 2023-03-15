@@ -21,7 +21,7 @@
   "mssql-port": 1433,
   "mssql-databaseName": "fakeapi",
   "mssql-username": "SA",
-  "mssql-password": "Root$123",
+  "mssql-password": "root@123",
 
 	"arango-host": "localhost",
   "arango-port": 8529,
