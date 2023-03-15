@@ -54,6 +54,7 @@ import {
   get,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   isObject,
   set,
@@ -973,17 +974,27 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              const currentEvaluatedValue = get(
+              const prevEvaluatedValue = get(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
                 }),
               );
-              const evalValue = currentEvaluatedValue
-                ? currentEvaluatedValue
-                : evalPropertyValue;
 
+              const prevUnEvalValue = JSObjectCollection.getPrevUnEvalState({
+                fullPath: fullPropertyPath,
+              });
+
+              const hasUnEvalValueModified = !isEqual(
+                prevUnEvalValue,
+                unEvalPropertyValue,
+              );
+
+              const evalValue =
+                !hasUnEvalValueModified && prevEvaluatedValue
+                  ? prevEvaluatedValue
+                  : evalPropertyValue;
               set(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
@@ -994,6 +1005,10 @@ export default class DataTreeEvaluator {
               );
               set(currentTree, fullPropertyPath, evalValue);
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
+              JSObjectCollection.setPrevUnEvalState({
+                fullPath: fullPropertyPath,
+                unEvalValue: unEvalPropertyValue,
+              });
             }
             return currentTree;
           } else {

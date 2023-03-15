@@ -1,5 +1,6 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona/full";
+import { get, set } from "lodash";
 
 export type VariableState = Record<string, Record<string, any>>;
 
@@ -10,6 +11,7 @@ export default class JSObjectCollection {
   private static resolvedFunctions: ResolvedFunctions = {};
   private static unEvalState: CurrentJSCollectionState = {};
   private static variableState: VariableState = {};
+  private static prevUnEvalState: CurrentJSCollectionState = {};
 
   static setResolvedFunctions(resolvedFunctions: ResolvedFunctions) {
     this.resolvedFunctions = resolvedFunctions;
@@ -21,6 +23,20 @@ export default class JSObjectCollection {
 
   static getUnEvalState() {
     return this.unEvalState;
+  }
+
+  static setPrevUnEvalState({
+    fullPath,
+    unEvalValue,
+  }: {
+    fullPath: string;
+    unEvalValue: unknown;
+  }) {
+    set(this.prevUnEvalState, fullPath, unEvalValue);
+  }
+
+  static getPrevUnEvalState({ fullPath }: { fullPath: string }) {
+    return get(this.prevUnEvalState, fullPath);
   }
 
   static setVariableValue(variableValue: unknown, fullPropertyPath: string) {
