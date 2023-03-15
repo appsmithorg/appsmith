@@ -6,6 +6,7 @@ const DataSourceKVP = {
   Mongo: "MongoDB",
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
+  MsSql: "Microsoft SQL Server"
 }; //DataSources KeyValuePair
 
 export class DataSources {
@@ -381,6 +382,17 @@ export class DataSources {
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
 
+  public FillMsSqlDSForm() {
+    cy.get(this._host).type(datasourceFormData["mssql-host"]);
+    cy.get(this._port).type(datasourceFormData["mssql-port"].toString());
+    cy.get(this._databaseName)
+      .clear()
+    //   .type(datasourceFormData["mssql-databaseName"]);//Until CI is run with database name
+    this.ExpandSectionByName(this._sectionAuthentication);
+    cy.get(this._username).type(datasourceFormData["mssql-username"]);
+    cy.get(this._password).type(datasourceFormData["mssql-password"]);
+  }
+
   public FillFirestoreDSForm() {
     cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
       datasourceFormData["database-url"],
@@ -695,7 +707,7 @@ export class DataSources {
   }
 
   public CreateDataSource(
-    dsType: "Postgres" | "Mongo" | "MySql" | "UnAuthenticatedGraphQL",
+    dsType: "Postgres" | "Mongo" | "MySql" | "UnAuthenticatedGraphQL" | "MsSql",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -713,6 +725,7 @@ export class DataSources {
         if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
         else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
+        else if (DataSourceKVP[dsType] == "Microsoft SQL Server") this.FillMsSqlDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
