@@ -102,13 +102,16 @@ jobs:
 
       - name: Install Eslint
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn global add eslint
+        run: yarn global add eslint@latest
       
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
           eslint: true
           prettier: true
+          eslint_dir: app/client
+          prettier_dir: app/client
+
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
