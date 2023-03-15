@@ -149,8 +149,10 @@ public class UserWorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
+        String randomString = UUID.randomUUID().toString();
+
         Workspace myWorkspace = new Workspace();
-        myWorkspace.setName("Test org" + UUID.randomUUID());
+        myWorkspace.setName("Test org" + randomString);
         final Workspace testWorkspace = workspaceService.create(myWorkspace).block();
 
         // Now add api_user as a developer of the workspace
@@ -170,7 +172,7 @@ public class UserWorkspaceServiceTest {
         permissionGroupRepository.save(adminPermissionGroup).block();
 
         Application application = new Application();
-        application.setName("leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser app");
+        application.setName("Test App " + randomString);
         Application savedApplication = applicationPageService.createApplication(application, testWorkspace.getId()).block();
 
         // Add application and workspace to the recently used list by accessing the application pages.
@@ -211,6 +213,7 @@ public class UserWorkspaceServiceTest {
         StepVerifier.create(userDataService.getForCurrentUser())
                 .assertNext(userData -> {
                     assertThat(userData.getRecentlyUsedWorkspaceIds()).doesNotContain(testWorkspace.getId());
+                    assertThat(userData.getRecentlyUsedAppIds()).doesNotContain(application.getId());
                 })
                 .verifyComplete();
     }
