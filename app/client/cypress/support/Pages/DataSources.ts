@@ -389,13 +389,28 @@ export class DataSources {
   }
 
   public FillMsSqlDSForm() {
-    cy.get(this._host).type(datasourceFormData["mssql-host"]);
-    cy.get(this._port).type(datasourceFormData["mssql-port"].toString());
-    cy.get(this._databaseName).clear();
-    //   .type(datasourceFormData["mssql-databaseName"]);//Until CI is run with database name
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["mssql-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["mssql-port"].toString(),
+    );
+    this.agHelper.ClearTextField(this._databaseName);
+    this.agHelper.UpdateInputValue(
+      this._databaseName,
+      datasourceFormData["mssql-databaseName"],
+    );
     this.ExpandSectionByName(this._sectionAuthentication);
-    cy.get(this._username).type(datasourceFormData["mssql-username"]);
-    cy.get(this._password).type(datasourceFormData["mssql-password"]);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["mssql-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["mssql-password"],
+    );
   }
 
   public FillFirestoreDSForm() {
