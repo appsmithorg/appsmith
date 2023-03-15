@@ -213,7 +213,7 @@ public class UserWorkspaceServiceTest {
         StepVerifier.create(userDataService.getForCurrentUser())
                 .assertNext(userData -> {
                     assertThat(userData.getRecentlyUsedWorkspaceIds()).doesNotContain(testWorkspace.getId());
-                    assertThat(userData.getRecentlyUsedAppIds()).doesNotContain(application.getId());
+                    assertThat(userData.getRecentlyUsedAppIds()).doesNotContain(savedApplication.getId());
                 })
                 .verifyComplete();
     }
