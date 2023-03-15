@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AppsIcon from "remixicon-react/AppsLineIcon";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
@@ -42,6 +42,12 @@ const StyledLink = styled(Link)<BackToHomeButtonProps>`
     ${StyledAppIcon} {
       background-color: ${({ navColorStyle, primaryColor }) =>
         getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+        }
+      }};
     }
   }
 `;

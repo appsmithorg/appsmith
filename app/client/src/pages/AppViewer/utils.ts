@@ -23,20 +23,12 @@ export const getMenuItemBackgroundColorWhenActive = (
         colorHsl.l += 0.35;
       }
 
-      break;
+      return tinycolor(colorHsl).toHexString();
     }
     case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
-      if (isLightColor(color)) {
-        colorHsl.l -= 0.2;
-      } else {
-        colorHsl.l += 0.2;
-      }
-
-      break;
+      return calulateHoverColor(color);
     }
   }
-
-  return tinycolor(colorHsl).toHexString();
 };
 
 // Menu Item Background Color - Hover
@@ -48,11 +40,7 @@ export const getMenuItemBackgroundColorOnHover = (
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.GREY_3;
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
-    const colorHsl = tinycolor(color).toHsl();
-
-    colorHsl.l = isLightColor(color) ? colorHsl.l - 0.1 : colorHsl.l + 0.1;
-
-    return tinycolor(colorHsl).toHexString();
+    return tinycolor(calulateHoverColor(color)).toHexString();
   }
 };
 
@@ -63,16 +51,14 @@ export const getMenuItemTextColor = (
     .COLOR_STYLE.LIGHT,
   isDefaultState = false,
 ) => {
-  let resultantColor: tinycolor.ColorFormats.HSLA | string = tinycolor(
-    color,
-  ).toHsl();
-
   switch (navColorStyle) {
     case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT: {
-      if (isDefaultState) {
-        resultantColor = Colors.GREY_9;
+      const resultantColor: tinycolor.ColorFormats.HSLA | string = tinycolor(
+        color,
+      ).toHsl();
 
-        break;
+      if (isDefaultState) {
+        return Colors.GREY_9;
       }
 
       if (isLightColor(color)) {
@@ -80,22 +66,18 @@ export const getMenuItemTextColor = (
       } else {
         if (resultantColor.l < 0.15) {
           // if the color is extremely dark
-          resultantColor = getComplementaryGrayscaleColor(color);
+          return getComplementaryGrayscaleColor(color);
         } else {
           resultantColor.l -= 0.1;
         }
       }
 
-      break;
+      return tinycolor(resultantColor).toHexString();
     }
     case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
-      resultantColor = getComplementaryGrayscaleColor(color);
-
-      break;
+      return getComplementaryGrayscaleColor(color);
     }
   }
-
-  return tinycolor(resultantColor).toHexString();
 };
 
 // Menu Container Background Color

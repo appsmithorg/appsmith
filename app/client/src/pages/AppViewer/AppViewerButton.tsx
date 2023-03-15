@@ -1,5 +1,5 @@
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
-import { NavigationSetting } from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import styled from "styled-components";
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import {
@@ -28,6 +28,13 @@ const StyledButton = styled(Button)<{
     max-width: 100%;
     color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle, true)} !important;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  svg path {
+    fill: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    transition: all 0.3s ease-in-out;
   }
 
   &:hover,
@@ -38,6 +45,28 @@ const StyledButton = styled(Button)<{
         primaryColor,
         navColorStyle,
       )} !important;
+
+      span {
+        ${({ navColorStyle, primaryColor }) => {
+          if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+            return `color: ${getMenuItemTextColor(
+              primaryColor,
+              navColorStyle,
+            )} !important`;
+          }
+        }};
+      }
+
+      svg path {
+        ${({ navColorStyle, primaryColor }) => {
+          if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+            return `fill: ${getMenuItemTextColor(
+              primaryColor,
+              navColorStyle,
+            )};`;
+          }
+        }};
+      }
   }
 
   ${({ insideSidebar = false, isMinimal }) => {
@@ -73,6 +102,10 @@ const StyledButton = styled(Button)<{
       &:active, 
       &:focus {
         background-color: ${styles.backgroundOnHover} !important;
+
+        span {
+          color: ${styles.color} !important;
+        }
       }
     `;
 

@@ -32,44 +32,10 @@ export const StyleMoreDropdownButton = styled(Button)<{
     align-items: center;
   }
 
-  &:hover,
-  &.is-active {
-    span {
-      color: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)} !important;
-    }
-  }
-
-  .page-icon svg path {
-    fill: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    stroke: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    transition: all 0.3s ease-in-out;
-  }
-
   &:hover {
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-
-    .page-icon svg path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-    }
-  }
-
-  &.is-active {
-    background-color: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-    .page-icon svg path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
     }
   }
 `;
@@ -147,32 +113,31 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
   padding: 12px 16px;
   background-color: transparent;
 
-  .page-icon svg path {
-    fill: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    stroke: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    transition: all 0.3s ease-in-out;
-  }
-
-  &:hover,
-  &.is-active {
-    span {
-      color: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-    }
-  }
-
   &:hover {
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
 
+    span {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(
+            primaryColor,
+            navColorStyle,
+          )} !important;`;
+        }
+      }};
+    }
+
     .page-icon svg path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `
+            fill: ${getMenuItemTextColor(primaryColor, navColorStyle)};
+            stroke: ${getMenuItemTextColor(primaryColor, navColorStyle)};
+          `;
+        }
+      }};
     }
   }
 
@@ -180,11 +145,24 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
 
+    span {
+      color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)} !important;
+    }
+
     .page-icon svg path {
       fill: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
       stroke: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
     }
+  }
+
+  .page-icon svg path {
+    fill: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    stroke: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    transition: all 0.3s ease-in-out;
   }
 `;
