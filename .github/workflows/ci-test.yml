@@ -171,8 +171,8 @@ jobs:
           docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
           docker restart mssqldb
           sudo ufw allow 1433/tcp
-          docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
-          docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P root@123 -i /var/init-mssql-dump-for-test.sql
+        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
+        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P root@123 -i /var/init-mssql-dump-for-test.sql
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
