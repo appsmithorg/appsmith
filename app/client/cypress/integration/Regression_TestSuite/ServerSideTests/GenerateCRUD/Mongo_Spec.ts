@@ -1,4 +1,4 @@
-import { REPO_VARIABLES } from "../../../../fixtures/variables";
+import { INTERCEPT } from "../../../../fixtures/variables";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
@@ -17,7 +17,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   beforeEach(function() {
-    if (REPO_VARIABLES.Mongo === 0) {
+    if (INTERCEPT.MONGO) {
       cy.log("Mongo DB is not found. Using intercept");
       dataSources.StartInterceptRoutesForMongo();
     } else cy.log("Mongo DB is found, hence using actual DB");

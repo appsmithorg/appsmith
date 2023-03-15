@@ -1,6 +1,6 @@
 const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import adminsSettings from "../../../../locators/AdminsSettings";
-import { REPO, REPO_VARIABLES } from "../../../../fixtures/variables";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/variables";
 
 describe("Admin settings page", function() {
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("Admin settings page", function() {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    if (REPO_VARIABLES.Edition === REPO.CE) {
+    if (CURRENT_REPO === REPO.CE) {
       cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
         .should("be.visible")
         .should("contain", "UPGRADE");

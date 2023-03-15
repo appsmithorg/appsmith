@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import { REPO, REPO_VARIABLES } from "../../fixtures/variables";
+import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -26,7 +26,7 @@ export class HomePage {
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    REPO_VARIABLES.Edition === REPO.CE
+    CURRENT_REPO === REPO.CE
       ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
       : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
@@ -174,7 +174,7 @@ export class HomePage {
     text: string,
   ) {
     const errorMessage =
-      (REPO_VARIABLES.Edition === REPO.CE) === 0
+      CURRENT_REPO === REPO.CE
         ? "Invalid email address(es) found"
         : "Invalid email address(es) or group(s) found";
     this.StubPostHeaderReq();
