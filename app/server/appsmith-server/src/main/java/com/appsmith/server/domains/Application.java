@@ -185,6 +185,12 @@ public class Application extends BaseDomain {
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
         this.setUnpublishedApplicationDetail(new ApplicationDetail());
         this.setPublishedApplicationDetail(new ApplicationDetail());
+        if (application.getUnpublishedApplicationDetail() == null){
+            application.setUnpublishedApplicationDetail(new ApplicationDetail());
+        }
+        if (application.getPublishedApplicationDetail() == null){
+            application.setPublishedApplicationDetail(new ApplicationDetail());
+        }
         AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning().type);
         this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
         AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getPublishedApplicationDetail().getAppPositioning().type);
