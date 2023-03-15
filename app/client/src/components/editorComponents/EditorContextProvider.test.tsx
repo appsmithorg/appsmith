@@ -24,7 +24,7 @@ const TestParent = () => {
 
 describe("EditorContextProvider", () => {
   it("it checks context methods in Edit mode", () => {
-    const expectedProps = [
+    const expectedMethods = [
       "batchUpdateWidgetProperty",
       "executeAction",
       "getWidgetCache",
@@ -56,11 +56,11 @@ describe("EditorContextProvider", () => {
       Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
     ).sort();
 
-    expect(result).toEqual(expectedProps);
+    expect(result).toEqual(expectedMethods);
   });
 
   it("it checks context methods in View mode", () => {
-    const expectedProps = [
+    const expectedMethods = [
       "batchUpdateWidgetProperty",
       "deleteMetaWidgets",
       "executeAction",
@@ -88,6 +88,6 @@ describe("EditorContextProvider", () => {
       Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
     ).sort();
 
-    expect(result).toEqual(expectedProps);
+    expect(result).toEqual(expectedMethods);
   });
 });

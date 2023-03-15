@@ -133,6 +133,13 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return Math.min(this.getMaxModalWidth(), width);
   }
 
+  getModalVisibility() {
+    return (
+      this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
+      !!this.props.isVisible
+    );
+  }
+
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
@@ -182,6 +189,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
+    this.props.updateWidgetMetaProperty("isVisible", false);
     this.selectWidgetRequest(SelectionRequestType.Empty);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
@@ -242,10 +250,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       />
     ) : null;
 
-    const isOpen = this.props.selectedWidgetAncestry.includes(
-      this.props.widgetId,
-    );
-
     return (
       <ModalComponent
         background={this.props.backgroundColor}
@@ -257,7 +261,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={this.props.height}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
-        isOpen={isOpen}
+        isOpen={this.getModalVisibility()}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}

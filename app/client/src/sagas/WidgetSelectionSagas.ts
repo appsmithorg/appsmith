@@ -4,13 +4,18 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
-import { getWidgetImmediateChildren, getWidgets } from "./selectors";
+import {
+  getWidgetIdsByType,
+  getWidgetImmediateChildren,
+  getWidgets,
+} from "./selectors";
 import {
   setSelectedWidgets,
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { closeAllModals, showModal } from "actions/widgetActions";
 import history, { NavigationMethod } from "utils/history";
 import {
   getCurrentPageId,
@@ -149,6 +154,9 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         );
       }
     }
+
+    yield call(setWidgetAncestry, newSelection[0], allWidgets);
+
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
       yield put(setSelectedWidgets(newSelection));
       return;
@@ -177,13 +185,9 @@ function* appendSelectedWidgetToUrlSaga(
   invokedBy?: NavigationMethod,
 ) {
   const isSnipingMode: boolean = yield select(snipingModeSelector);
-  if (isSnipingMode) return;
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (viewMode) {
-    yield put(setSelectedWidgets(selectedWidgets));
-    return;
-  }
+  if (isSnipingMode || viewMode) return;
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
@@ -202,12 +206,48 @@ function* appendSelectedWidgetToUrlSaga(
   }
 }
 
+function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  const appMode: APP_MODE = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
+  if (!isEditorInitialized && !viewMode) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
+  yield call(saga, action);
+}
+
 function* handleWidgetSelectionSaga(
   action: ReduxAction<{ widgetIds: string[] }>,
 ) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
   yield call(focusOnWidgetSaga, action);
+  yield call(openOrCloseModalSaga, action);
+}
+
+function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
+  if (action.payload.widgetIds.length !== 1) return;
+
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialized) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
+
+  const selectedWidget = action.payload.widgetIds[0];
+
+  const modalWidgetIds: string[] = yield select(
+    getWidgetIdsByType,
+    "MODAL_WIDGET",
+  );
+
+  const widgetIsModal = modalWidgetIds.includes(selectedWidget);
+
+  if (widgetIsModal) {
+    yield put(showModal(selectedWidget));
+    return;
+  }
+
+  yield put(closeAllModals());
 }
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
@@ -223,16 +263,6 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   }
 }
 
-function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
-  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  const appMode: APP_MODE = yield select(getAppMode);
-  const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (!isEditorInitialized && !viewMode) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
-  yield call(saga, action);
-}
-
 export function* widgetSelectionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
@@ -241,5 +271,6 @@ export function* widgetSelectionSagas() {
       waitForInitialization,
       handleWidgetSelectionSaga,
     ),
+    takeLatest(ReduxActionTypes.SET_SELECTED_WIDGETS, focusOnWidgetSaga),
   ]);
 }

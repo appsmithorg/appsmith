@@ -37,6 +37,23 @@ export const createModalAction = (
   };
 };
 
+export const showModal = (id: string, shouldSelectModal = true) => {
+  return {
+    type: ReduxActionTypes.SHOW_MODAL,
+    payload: {
+      modalId: id,
+      shouldSelectModal,
+    },
+  };
+};
+
+export const closeAllModals = () => {
+  return {
+    type: ReduxActionTypes.CLOSE_MODAL,
+    payload: {},
+  };
+};
+
 export const focusWidget = (
   widgetId?: string,
 ): ReduxAction<{ widgetId?: string }> => ({
