@@ -48,14 +48,9 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  _.dataSources.CreateMockDB("Users").then((dbName) => {
-    _.dataSources.CreateQueryFromActiveTab(dbName, false);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.dataSources.ToggleUsePreparedStatement(false);
-    _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 20;");
-    _.dataSources.RunQuery();
-  });
-  _.entityExplorer.SelectEntityByName("Page1");
+  cy.createAndFillApi("https://api.punkapi.com/v2/beers", "");
+  cy.RunAPI();
+  cy.SearchEntityandOpen("List1");
 
   cy.wait(200);
 }
@@ -127,7 +122,7 @@ describe("List widget v2 defaultSelectedItem", () => {
     cy.openPropertyPane("listwidgetv2");
 
     testJsontextClear("items");
-    cy.testJsontext("items", "{{Query1.data}}");
+    cy.testJsontext("items", "{{Api1.data}}");
 
     testJsontextClear("defaultselecteditem");
     cy.testJsontext("defaultselecteditem", "4");
