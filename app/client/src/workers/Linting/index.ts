@@ -1,4 +1,7 @@
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isJSObject,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { get, set } from "lodash";
 import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import { getlintErrorsFromTreeProps } from "./types";
@@ -27,7 +30,12 @@ export function getlintErrorsFromTree({
 
   // clear all lint errors in paths
   pathsToLint.forEach((fullPropertyPath) => {
-    set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
+    const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
+    const entity = unEvalTree[entityName];
+    const lintPath = isJSObject(entity)
+      ? `["${entityName}.body"]`
+      : `["${fullPropertyPath}"]`;
+    set(lintTreeErrors, lintPath, []);
   });
 
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
@@ -80,19 +88,17 @@ export function getlintErrorsFromTree({
     // Lint jsobject paths
     jsObjectPaths.forEach((jsObjectPath) => {
       const { entityName } = getEntityNameAndPropertyPath(jsObjectPath);
-      // remove all lint errors from path
-      set(lintTreeErrors, jsObjectPath, []);
-      const jspropertyState = get(jsPropertiesState, entityName);
+      const jsObjectState = get(jsPropertiesState, entityName);
       const lintErrors = lintJSObject(
         entityName,
-        jspropertyState,
+        jsObjectState,
         {
           dataWithFunctions: evalContextWithFunctions,
           dataWithoutFunctions: evalContextWithoutFunctions,
         },
         asyncJSFunctionsInSyncFields,
       );
-      set(lintTreeErrors, jsObjectPath, lintErrors);
+      set(lintTreeErrors, `["${entityName}.body"]`, lintErrors);
     });
   }
 
