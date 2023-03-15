@@ -13,7 +13,7 @@ describe("Test Create Api and Bind to List widget", function() {
   it("1. Test_Add users api and execute api", function() {
     cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.RunAPI();
-    cy.get(apiPage.jsonResponseTab).click()
+    cy.get(apiPage.jsonResponseTab).click();
     cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
@@ -40,7 +40,9 @@ describe("Test Create Api and Bind to List widget", function() {
       });
     cy.PublishtheApp();
     cy.wait("@postExecute").then((interception) => {
-      valueToTest = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+      valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      ).replace(/['"]+/g, "");
     });
     cy.waitUntil(
       () => cy.get(".t--widget-textwidget span").should("be.visible"),
@@ -63,7 +65,9 @@ describe("Test Create Api and Bind to List widget", function() {
   it("3. Test_Validate the list widget ", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait("@postExecute").then((interception) => {
-      valueToTest = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+      valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      ).replace(/['"]+/g, "");
     });
     cy.SearchEntityandOpen("List1");
     cy.moveToStyleTab();
@@ -77,7 +81,9 @@ describe("Test Create Api and Bind to List widget", function() {
       });
     cy.PublishtheApp();
     cy.wait("@postExecute").then((interception) => {
-      valueToTest = JSON.stringify(interception.response.body.data.body[0].name).replace(/['"]+/g, '');
+      valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      ).replace(/['"]+/g, "");
     });
     cy.waitUntil(
       () => cy.get(".t--widget-textwidget span").should("be.visible"),
