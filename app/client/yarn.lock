@@ -3787,9 +3787,27 @@
   version "1.1.2"
   resolved "https://registry.npmjs.org/@redux-saga/symbols/-/symbols-1.1.2.tgz"
 
+"@redux-saga/symbols@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@redux-saga/symbols/-/symbols-1.1.3.tgz#b731d56201719e96dc887dc3ae9016e761654367"
+  integrity sha512-hCx6ZvU4QAEUojETnX8EVg4ubNLBFl1Lps4j2tX7o45x/2qg37m3c6v+kSp8xjDJY+2tJw4QB3j8o8dsl1FDXg==
+
+"@redux-saga/testing-utils@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@redux-saga/testing-utils/-/testing-utils-1.1.5.tgz#dee03394666e6434b022d8e16beeb25b9e2417c2"
+  integrity sha512-XhE/j7tcW7B5rkoXQ5yoIj6j2KI84tsPGc5DfxRJNKdb8nOBz7UPgEqrDHiOawbbWAD1sZ0f4DSG/2RUc744CA==
+  dependencies:
+    "@redux-saga/symbols" "^1.1.3"
+    "@redux-saga/types" "^1.2.1"
+
 "@redux-saga/types@^1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@redux-saga/types/-/types-1.1.0.tgz"
+
+"@redux-saga/types@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@redux-saga/types/-/types-1.2.1.tgz#9403f51c17cae37edf870c6bc0c81c1ece5ccef8"
+  integrity sha512-1dgmkh+3so0+LlBWRhGA33ua4MYr7tUOj+a9Si28vUi0IUFNbff1T3sgpeDJI/LaC75bBYnQ0A3wXjn0OrRNBA==
 
 "@rollup/plugin-babel@^5.2.0":
   version "5.3.1"
