@@ -36,7 +36,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     // add new column
     cy.addColumnV2("CustomColumn");
   });
