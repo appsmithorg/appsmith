@@ -589,6 +589,10 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
+      const appsmithErrorCode = get(
+        error,
+        "pluginErrorDetails.appsmithErrorCode",
+      );
       yield all(
         errorMessages.map((errorMessage) => {
           return put({
@@ -599,6 +603,8 @@ function* deleteDebuggerErrorLogsSaga(
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
+              appsmithErrorCode,
+              tat: Date.now() - new Date(parseInt(error.timestamp)).getTime(),
             },
           });
         }),

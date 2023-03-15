@@ -1374,6 +1374,10 @@ export const MEMBERS_TAB_TITLE = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cloudHosting?: boolean,
 ) => `Users (${length})`;
+export const SEARCH_USERS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Search for users`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
