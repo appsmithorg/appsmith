@@ -397,10 +397,13 @@ export function* updateApplicationSaga(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
           );
         }
-        if (request.navigationSetting) {
+        if (
+          request.applicationDetail?.navigationSetting &&
+          response.data.applicationDetail?.navigationSetting
+        ) {
           yield put(
             updateApplicationNavigationSettingAction(
-              response.data.navigationSetting,
+              response.data.applicationDetail.navigationSetting,
             ),
           );
         }

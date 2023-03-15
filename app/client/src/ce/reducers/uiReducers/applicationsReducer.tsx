@@ -137,14 +137,24 @@ export const handlers = {
   [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
-  ) => ({
-    ...state,
-    currentApplication: {
-      navigationSetting: defaultNavigationSetting,
-      ...action.payload,
-    },
-    isFetchingApplication: false,
-  }),
+  ) => {
+    const newState = {
+      ...state,
+      currentApplication: {
+        applicationDetail: {
+          navigationSetting: defaultNavigationSetting,
+        },
+        ...action.payload,
+      },
+      isFetchingApplication: false,
+    };
+
+    if (!newState.currentApplication.applicationDetail.navigationSetting) {
+      newState.currentApplication.applicationDetail.navigationSetting = defaultNavigationSetting;
+    }
+
+    return newState;
+  },
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ name: string; slug: string }>,
@@ -392,7 +402,7 @@ export const handlers = {
       isSavingAppName = true;
     }
 
-    if (action.payload.navigationSetting) {
+    if (action.payload.applicationDetail?.navigationSetting) {
       isSavingNavigationSetting = true;
     }
 
@@ -555,9 +565,12 @@ export const handlers = {
       ...state,
       currentApplication: {
         ...state.currentApplication,
-        navigationSetting: {
-          ...defaultNavigationSetting,
-          ...action.payload,
+        applicationDetail: {
+          ...state.currentApplication?.applicationDetail,
+          navigationSetting: {
+            ...defaultNavigationSetting,
+            ...action.payload,
+          },
         },
       },
     };

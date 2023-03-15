@@ -171,7 +171,9 @@ export function PageTabs(props: Props) {
             tabsScrollable={props.tabsScrollable}
           >
             <PageTabItem
-              navigationSetting={currentApplicationDetails?.navigationSetting}
+              navigationSetting={
+                currentApplicationDetails?.applicationDetail?.navigationSetting
+              }
               page={page}
               query={query}
             />

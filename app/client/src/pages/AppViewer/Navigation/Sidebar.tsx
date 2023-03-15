@@ -52,11 +52,14 @@ export function Sidebar(props: SidebarProps) {
     pages,
   } = props;
   const navColorStyle =
-    currentApplicationDetails?.navigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navStyle =
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle ||
+    NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
   const isMinimal =
-    currentApplicationDetails?.navigationSetting?.navStyle ===
-    NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -158,6 +161,7 @@ export function Sidebar(props: SidebarProps) {
               appName={currentApplicationDetails?.name}
               forSidebar
               navColorStyle={navColorStyle}
+              navStyle={navStyle}
               primaryColor={primaryColor}
             />
           )}
@@ -184,7 +188,9 @@ export function Sidebar(props: SidebarProps) {
             <MenuItem
               isMinimal={isMinimal}
               key={page.pageId}
-              navigationSetting={currentApplicationDetails?.navigationSetting}
+              navigationSetting={
+                currentApplicationDetails?.applicationDetail?.navigationSetting
+              }
               page={page}
               query={query}
             />

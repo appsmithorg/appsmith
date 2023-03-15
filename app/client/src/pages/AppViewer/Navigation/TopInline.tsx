@@ -26,7 +26,7 @@ export function TopInline(props: TopInlineProps) {
   const { currentApplicationDetails, pages } = props;
   // const selectedTheme = useSelector(getSelectedAppTheme);
   // const navColorStyle =
-  //   currentApplicationDetails?.navigationSetting?.colorStyle ||
+  //   currentApplicationDetails?.applicationDetail?.navigationSetting?.colorStyle ||
   //   NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   // const primaryColor = get(
   //   selectedTheme,
@@ -80,7 +80,10 @@ export function TopInline(props: TopInlineProps) {
               key={page.pageId}
             >
               <MenuItem
-                navigationSetting={currentApplicationDetails?.navigationSetting}
+                navigationSetting={
+                  currentApplicationDetails?.applicationDetail
+                    ?.navigationSetting
+                }
                 page={page}
                 query={query}
               />
@@ -91,7 +94,9 @@ export function TopInline(props: TopInlineProps) {
       {appPages.length > maxMenuItemsThatCanFit && (
         <MoreDropdownButton
           key="more-button"
-          navigationSetting={currentApplicationDetails?.navigationSetting}
+          navigationSetting={
+            currentApplicationDetails?.applicationDetail?.navigationSetting
+          }
           pages={appPages.slice(maxMenuItemsThatCanFit, appPages.length)}
         />
       )}

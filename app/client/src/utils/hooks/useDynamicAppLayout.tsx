@@ -306,8 +306,9 @@ export const useDynamicAppLayout = () => {
     propertyPaneWidth,
     isAppSettingsPaneOpen,
     isAppSidebarPinned,
-    currentApplicationDetails?.navigationSetting?.orientation,
-    currentApplicationDetails?.navigationSetting?.navStyle,
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.orientation,
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle,
     isMobile,
     currentPageId, //TODO: preet - remove this after first merge.
   ]);

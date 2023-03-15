@@ -41,7 +41,7 @@ export function PageMenu(props: NavigationProps) {
   const [query, setQuery] = useState("");
   const { hideWatermark } = getAppsmithConfigs();
   const navColorStyle =
-    application?.navigationSetting?.colorStyle ||
+    application?.applicationDetail?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,

@@ -46,8 +46,9 @@ export function AppPage(props: AppPageProps) {
   return (
     <PageViewContainer
       hasPinnedSidebar={
-        currentApplicationDetails?.navigationSetting?.orientation ===
-          NAVIGATION_SETTINGS.ORIENTATION.SIDE && isAppSidebarPinned
+        currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+        isAppSidebarPinned
       }
       isPublished={isPublished}
       sidebarWidth={isMobile ? 0 : sidebarWidth}

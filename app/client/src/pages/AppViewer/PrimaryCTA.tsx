@@ -177,7 +177,8 @@ function PrimaryCTA(props: Props) {
        * settings pane has changed, we need to hide the sign in button ONLY when the
        * showSignIn setting is explicitly set to false by the user via the settings pane.
        */
-      currentApplication?.navigationSetting?.showSignIn !== false
+      currentApplication?.applicationDetail?.navigationSetting?.showSignIn !==
+        false
     ) {
       return (
         <Button

@@ -46,10 +46,10 @@ const TopHeader = (props: TopHeaderProps) => {
   } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
-    currentApplicationDetails?.navigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const navStyle =
-    currentApplicationDetails?.navigationSetting?.navStyle ||
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle ||
     NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
   const primaryColor = get(
     selectedTheme,
@@ -100,10 +100,10 @@ const TopHeader = (props: TopHeaderProps) => {
           />
         </section>
 
-        {currentApplicationDetails?.navigationSetting?.orientation ===
-          NAVIGATION_SETTINGS.ORIENTATION.TOP &&
-          currentApplicationDetails?.navigationSetting?.navStyle ===
-            NAVIGATION_SETTINGS.NAV_STYLE.INLINE && (
+        {currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.TOP &&
+          currentApplicationDetails?.applicationDetail?.navigationSetting
+            ?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.INLINE && (
             <TopInline
               currentApplicationDetails={currentApplicationDetails}
               pages={pages}
@@ -147,10 +147,10 @@ const TopHeader = (props: TopHeaderProps) => {
         </section>
       </HeaderRow>
 
-      {currentApplicationDetails?.navigationSetting?.orientation ===
-        NAVIGATION_SETTINGS.ORIENTATION.TOP &&
-        currentApplicationDetails?.navigationSetting?.navStyle ===
-          NAVIGATION_SETTINGS.NAV_STYLE.STACKED && (
+      {currentApplicationDetails?.applicationDetail?.navigationSetting
+        ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.TOP &&
+        currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.STACKED && (
           <TopStacked
             currentApplicationDetails={currentApplicationDetails}
             pages={pages}

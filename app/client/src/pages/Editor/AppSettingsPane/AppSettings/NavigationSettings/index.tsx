@@ -41,7 +41,7 @@ function NavigationSettings() {
   const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(
-    application?.navigationSetting,
+    application?.applicationDetail?.navigationSetting,
   );
 
   const updateSetting = useCallback(
@@ -61,7 +61,9 @@ function NavigationSettings() {
           };
 
           if (!equal(navigationSetting, newSettings)) {
-            const payload: UpdateApplicationPayload = { currentApp: true };
+            const payload: UpdateApplicationPayload = {
+              currentApp: true,
+            };
 
             /**
              * If the orientation changes, we need to set a new default value
@@ -101,7 +103,13 @@ function NavigationSettings() {
             //   }
             // }
 
-            payload.navigationSetting = newSettings as NavigationSetting;
+            if (payload.applicationDetail) {
+              payload.applicationDetail.navigationSetting = newSettings as NavigationSetting;
+            } else {
+              payload.applicationDetail = {
+                navigationSetting: newSettings as NavigationSetting,
+              };
+            }
 
             dispatch(updateApplication(applicationId, payload));
             setNavigationSetting(newSettings);

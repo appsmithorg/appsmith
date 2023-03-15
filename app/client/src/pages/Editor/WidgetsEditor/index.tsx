@@ -84,7 +84,7 @@ function WidgetsEditor() {
     navigationPreviewRef,
     isPreviewMode,
     appSettingsPaneContext?.type,
-    currentApplicationDetails?.navigationSetting,
+    currentApplicationDetails?.applicationDetail?.navigationSetting,
   ]);
 
   useEffect(() => {
@@ -184,8 +184,8 @@ function WidgetsEditor() {
                 <PageViewContainer
                   hasPinnedSidebar={
                     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-                      ? currentApplicationDetails?.navigationSetting
-                          ?.orientation ===
+                      ? currentApplicationDetails?.applicationDetail
+                          ?.navigationSetting?.orientation ===
                           NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
                         isAppSidebarPinned
                       : false

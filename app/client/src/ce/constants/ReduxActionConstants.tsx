@@ -1074,7 +1074,9 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
-  navigationSetting?: NavigationSetting;
+  applicationDetail?: {
+    navigationSetting?: NavigationSetting;
+  };
   collapseInvisibleWidgets?: boolean;
 }
 

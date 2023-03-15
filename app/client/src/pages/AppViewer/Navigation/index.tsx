@@ -46,8 +46,8 @@ export function Navigation() {
 
   const renderNavigation = () => {
     if (
-      currentApplicationDetails?.navigationSetting?.orientation ===
-      NAVIGATION_SETTINGS.ORIENTATION.SIDE
+      currentApplicationDetails?.applicationDetail?.navigationSetting
+        ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE
     ) {
       return (
         <>
@@ -97,8 +97,8 @@ export function Navigation() {
         and we are creating the default values only when any nav settings via the
         settings pane has changed, we need to hide the navbar ONLY when the showNavbar
         setting is explicitly set to false by the user via the settings pane. */}
-        {currentApplicationDetails?.navigationSetting?.showNavbar !== false &&
-          renderNavigation()}
+        {currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.showNavbar !== false && renderNavigation()}
 
         {/* Mobile Sidebar */}
         <PageMenu
