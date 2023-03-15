@@ -98,6 +98,7 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
       try {
         acc.JSExecutionData[name] = self.structuredClone(_data);
       } catch (e) {
+        acc.JSExecutionData[name] = undefined;
         acc.JSExecutionErrors[name] = {
           message: `Execution of ${name} returned an unserializable data`,
         };
