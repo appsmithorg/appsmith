@@ -49,7 +49,7 @@
 
   "mockApiUrl":"http://host.docker.internal:5001/v1/mock-api?records=10",
   "echoApiUrl":"http://host.docker.internal:5001/v1/mock-api/echo",
- 
+
   "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
   "connection-type": "Replica set",
   "database-url": "appsmith-f9fe4.firebaseio.com",
@@ -61,7 +61,8 @@
   "mockDatabasePassword": "LimitedAccess123#",
   "readonly":"readonly",
   "authenticatedApiUrl": "https://fakeapi.com",
-  "graphqlApiUrl": "http://host.docker.internal:5000/graphql",
+
+  "GraphqlApiUrl_TED": "http://host.docker.internal:5000/graphql",
   "GITEA_API_BASE_TED" : "localhost",
   "GITEA_API_PORT_TED": "3001",
   "GITEA_API_URL_TED": "git@host.docker.internal:Cypress"
