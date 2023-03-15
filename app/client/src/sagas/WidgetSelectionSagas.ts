@@ -54,6 +54,9 @@ import { quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
 
+// The following is computed to be used in the entity explorer
+// Every time a widget is selected, we need to expand widget entities
+// in the entity explorer so that the selected widget is visible
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {

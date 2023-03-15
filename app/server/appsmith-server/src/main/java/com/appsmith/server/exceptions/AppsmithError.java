@@ -146,7 +146,7 @@ public enum AppsmithError {
     MIGRATION_ERROR(500, AppsmithErrorCode.MIGRATION_ERROR.getCode(), "This action is already migrated", AppsmithErrorAction.DEFAULT, "Action already migrated", ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_SSH_URL(400, AppsmithErrorCode.INVALID_GIT_SSH_URL.getCode(), "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, "Invalid SSH URL", ErrorType.GIT_CONFIGURATION_ERROR, null),
     REPOSITORY_NOT_FOUND(404, AppsmithErrorCode.REPOSITORY_NOT_FOUND.getCode(), "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository not found", ErrorType.REPOSITORY_NOT_FOUND, null),
-    UNKNOWN_PLUGIN_REFERENCE(400, AppsmithErrorCode.UNKNOWN_PLUGIN_REFERENCE.getCode(), "Unable to find the plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, "Unknown plugin", ErrorType.CONFIGURATION_ERROR, null),
+    UNKNOWN_PLUGIN_REFERENCE(400, AppsmithErrorCode.UNKNOWN_PLUGIN_REFERENCE.getCode(), "Unable to find the plugin {0} Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, "Unknown plugin", ErrorType.CONFIGURATION_ERROR, null),
     ENV_FILE_NOT_FOUND(500, AppsmithErrorCode.ENV_FILE_NOT_FOUND.getCode(), "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, "Environment file not found", ErrorType.CONFIGURATION_ERROR, null),
     PUBLIC_APP_NO_PERMISSION_GROUP(500, AppsmithErrorCode.PUBLIC_APP_NO_PERMISSION_GROUP.getCode(), "Invalid state. Public application does not have the required roles set for public access. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, "Required permission missing for public access", ErrorType.INTERNAL_ERROR, null),
     RTS_SERVER_ERROR(500, AppsmithErrorCode.RTS_SERVER_ERROR.getCode(), "RTS server error while processing request: {0}", AppsmithErrorAction.LOG_EXTERNALLY, "RTS server error", ErrorType.INTERNAL_ERROR, null),
@@ -157,6 +157,7 @@ public enum AppsmithError {
     SESSION_BAD_STATE(500, AppsmithErrorCode.SESSION_BAD_STATE.getCode(), "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, "Invalid user session", ErrorType.INTERNAL_ERROR, null),
     INVALID_LICENSE_KEY_ENTERED(400, AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(), "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, "Invalid license key", ErrorType.ARGUMENT_ERROR, null),
     GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.", AppsmithErrorAction.DEFAULT, "Git repo is locked", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
+    CSRF_TOKEN_INVALID(403, AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(), "CSRF token missing/invalid. Please try again.", AppsmithErrorAction.DEFAULT, "CSRF token missing/invalid", ErrorType.BAD_REQUEST, null),
     ;
 
     private final Integer httpErrorCode;

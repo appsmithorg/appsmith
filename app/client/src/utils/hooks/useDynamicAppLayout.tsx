@@ -1,39 +1,44 @@
 import { debounce, get } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
+// import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import { updateCanvasLayoutAction } from "actions/editorActions";
+import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
+  // MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import {
-  getExplorerPinned,
-  getExplorerWidth,
-} from "selectors/explorerSelector";
+import { APP_MODE } from "entities/App";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+// import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getCurrentApplicationLayout,
+  // getCurrentAppPositioningType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { APP_MODE } from "entities/App";
-import { scrollbarWidth } from "utils/helpers";
-import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import { updateCanvasLayoutAction } from "actions/editorActions";
+import {
+  getExplorerPinned,
+  getExplorerWidth,
+} from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import {
   getPaneCount,
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
-import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { scrollbarWidth } from "utils/helpers";
+import { useWindowSizeHooks } from "./dragResizeHooks";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
+export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
@@ -51,6 +56,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  // const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   // /**
   //  * calculates min height
@@ -126,6 +132,20 @@ export const useDynamicAppLayout = () => {
       if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
     }
 
+    // const ele: any = document.getElementById("canvas-viewport");
+    // if (
+    //   appMode === "EDIT" &&
+    //   appLayout?.type === "FLUID" &&
+    //   ele &&
+    //   calculatedWidth > ele.clientWidth
+    // ) {
+    //   calculatedWidth = ele.clientWidth;
+    // }
+
+    // if (appPositioningType === AppPositioningTypes.AUTO && isPreviewMode) {
+    //   calculatedWidth -= AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
+    // }
+
     switch (true) {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
@@ -183,6 +203,30 @@ export const useDynamicAppLayout = () => {
     paneCount,
   ]);
 
+  // const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
+  //   mainCanvasProps,
+  //   screenWidth,
+  //   currentPageId,
+  //   appMode,
+  //   appLayout,
+  //   isPreviewMode,
+  // ]);
+
+  // const resizeObserver = new ResizeObserver(immediateDebouncedResize);
+  // useEffect(() => {
+  //   const ele: any = document.getElementById("canvas-viewport");
+  //   if (ele) {
+  //     if (appLayout?.type === "FLUID") {
+  //       resizeObserver.observe(ele);
+  //     } else {
+  //       resizeObserver.unobserve(ele);
+  //     }
+  //   }
+  //   return () => {
+  //     ele && resizeObserver.unobserve(ele);
+  //   };
+  // }, [appLayout, currentPageId, isPreviewMode]);
+
   /**
    * when screen height is changed, update canvas layout
    */
@@ -210,7 +254,6 @@ export const useDynamicAppLayout = () => {
     resizeToLayout();
   }, [
     appLayout,
-    currentPageId,
     mainCanvasProps?.width,
     isPreviewMode,
     explorerWidth,
@@ -218,7 +261,20 @@ export const useDynamicAppLayout = () => {
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
+    currentPageId, //TODO: preet - remove this after first merge.
   ]);
+
+  // useEffect(() => {
+  //   dispatch(
+  //     updateLayoutForMobileBreakpointAction(
+  //       MAIN_CONTAINER_WIDGET_ID,
+  //       appPositioningType === AppPositioningTypes.AUTO
+  //         ? mainCanvasProps?.isMobile
+  //         : false,
+  //       calculateCanvasWidth(),
+  //     ),
+  //   );
+  // }, [mainCanvasProps?.isMobile, appPositioningType]);
 
   return isCanvasInitialized;
 };

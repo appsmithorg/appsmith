@@ -1,16 +1,16 @@
-import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import MenuButtonComponent from "../component";
+import { Stylesheet } from "entities/AppTheming";
+import { isArray, orderBy } from "lodash";
+import { default as React } from "react";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
+import MenuButtonComponent from "../component";
 import { MenuButtonWidgetProps, MenuItem, MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import { isArray, orderBy } from "lodash";
-import { Stylesheet } from "entities/AppTheming";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
