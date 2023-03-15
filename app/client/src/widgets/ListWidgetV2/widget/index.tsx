@@ -155,7 +155,9 @@ class ListWidget extends BaseWidget<
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      selectedItemKey: "defaultSelectedItem",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -218,15 +220,37 @@ class ListWidget extends BaseWidget<
       /**
        * Resetting selected Items and triggered items when the list widget is mounted
        * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
+       * in both client and server-side. Although it recoverable in client side pagination.
        *
        * Task: Persist the cache in List V2.1
        * The current issue exist is two forms
-       * 1. When we move from canvas to the query page, the widgetCache is lost and we lose all cache
+       * 1. When we move from canvas to the query page, the widgetCache is lost since BaseWidget is unmounted  and we lose all cache
        * once we navigate back to the canvas the List widget generates new sets of metaWidget with different
        * widgetIds and name.
        * 2. A nested List widget, when the parent widget switches pages, the inner List is unmounted.
        */
-      this.resetCache();
+
+      if (this.props.serverSidePagination) {
+        this.resetCache();
+      } else {
+        this.resetTriggeredCache();
+      }
+    }
+
+    if (
+      this.props.selectedItemKey &&
+      this.props.primaryKeys &&
+      !this.props.serverSidePagination
+    ) {
+      // Go to the page containing the defaultKey/SelectedKey when the List widget is mounted
+      // We'd update the SelectedItemView when we're on that page.
+      const rowIndex = this.getRowIndexOfSelectedItem(
+        this.props.selectedItemKey,
+      );
+      if (rowIndex !== -1) {
+        this.updatePageNumber();
+        this.updateSelectedItem(rowIndex);
+      }
     }
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
@@ -238,15 +262,6 @@ class ListWidget extends BaseWidget<
     }
 
     this.setupMetaWidgets();
-
-    /**
-     * It's possible that when the List Widget is mounted, there's no data yet
-     * especially when the list widget data is a query.
-     * Also this is specifically placed after the meta widgets have been setup.
-     */
-    if (this.props.primaryKeys) {
-      this.handlePageNumberAndSelectedItem();
-    }
   }
 
   componentDidUpdate(prevProps: ListWidgetProps) {
@@ -289,17 +304,59 @@ class ListWidget extends BaseWidget<
 
     this.setupMetaWidgets(prevProps);
 
-    // Should come after setting up MetaWidgets for that page.
-    if (this.pageChangeEventTriggerFromSelectedKey) {
-      this.updateSelectedItemFromDefaultSelectedItem();
-      this.pageChangeEventTriggerFromSelectedKey = false;
-    }
-
     if (
       this.props.defaultSelectedItem !== prevProps.defaultSelectedItem ||
       (this.props.primaryKeys && prevProps.primaryKeys === undefined)
     ) {
-      this.handlePageNumberAndSelectedItem();
+      /**
+       * If there's a change in the defaultSelectedItem, we'd either update the selectedItem, ItemView and PageNumber if the key is present
+       * else we reset the Selection, since the new SelectedKey isn't present in the primaryKeys.
+       */
+      const defaultSelectedItem = String(this.props.defaultSelectedItem);
+      const rowIndex = this.getRowIndexOfSelectedItem(defaultSelectedItem);
+
+      if (rowIndex !== -1) {
+        this.updatePageNumber();
+        this.updateSelectedItem(rowIndex);
+        const binding = this.getItemViewBindingByRowIndex(rowIndex);
+
+        if (isEmpty(binding)) {
+          this.resetSelectedItemView();
+        } else {
+          this.updateSelectedItemView(rowIndex);
+        }
+      } else {
+        this.resetSelectedItemView();
+        this.resetSelectedItem();
+      }
+    }
+
+    /**
+     * NB: This is to come after setupMetaWidgets as SelectedItemView is dependent of the meta widget container name.
+     *
+     * We'd need to update PageNumber, SelectedItem and SelectedItemView if
+     * 1. When the List widget is resetted.
+     * 2. DefaultSelectedItem is set when the component is mounted (Primarily to update updateSelectedItemView)
+     *
+     */
+    if (this.shouldUpdateSelectedItem() && this.props.selectedItemKey) {
+      const rowIndex = this.getRowIndexOfSelectedItem(
+        this.props.selectedItemKey,
+      );
+      if (rowIndex !== -1) {
+        const binding = this.getItemViewBindingByRowIndex(rowIndex);
+        const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
+
+        if (isEmpty(binding) && pageNo !== this.props.pageNo) {
+          this.updatePageNumber();
+        }
+        if (isEmpty(this.props.selectedItemView) && !isEmpty(binding)) {
+          this.updateSelectedItemView(rowIndex);
+        }
+        if (!this.props.selectedItem) {
+          this.updateSelectedItem(rowIndex);
+        }
+      }
     }
   }
 
@@ -575,47 +632,41 @@ class ListWidget extends BaseWidget<
   };
 
   // This is only for client-side data
-  handlePageNumberAndSelectedItem = () => {
-    if (this.props.serverSidePagination) return;
+  updatePageNumber = () => {
+    const selectedKey = this.props.selectedItemKey;
 
-    const rowIndex = this.getRowIndexOfSelectedItem();
+    if (this.props.serverSidePagination || !selectedKey) return;
+
+    const rowIndex = this.getRowIndexOfSelectedItem(selectedKey);
 
     if (rowIndex === -1) return;
 
     const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
 
-    if (this.props.pageNo === pageNo) {
-      this.updateSelectedItemFromDefaultSelectedItem();
-    } else {
-      this.pageChangeEventTriggerFromSelectedKey = true;
+    if (this.props.pageNo !== pageNo) {
       this.onPageChange(pageNo);
     }
   };
 
-  updateSelectedItemFromDefaultSelectedItem = () => {
-    if (this.props.serverSidePagination) return;
-
-    const rowIndex = this.getRowIndexOfSelectedItem();
-
-    if (rowIndex === -1) return;
-    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
-
-    if (this.props.selectedItemKey !== key) {
-      this.handleSelectedItemAndKey(rowIndex);
-      this.updateSelectedItemView(rowIndex);
-    }
+  shouldUpdateSelectedItem = () => {
+    const { serverSidePagination } = this.props;
+    return (
+      !serverSidePagination &&
+      this.props.selectedItemKey &&
+      (!this.props.selectedItem || isEmpty(this.props.selectedItemView))
+    );
   };
 
-  getRowIndexOfSelectedItem = () => {
-    const { defaultSelectedItem, primaryKeys } = this.props;
+  getRowIndexOfSelectedItem = (selectedItemKey: string) => {
+    const { primaryKeys } = this.props;
 
-    if (!primaryKeys || isNil(defaultSelectedItem)) return -1;
+    if (!primaryKeys || isNil(selectedItemKey)) return -1;
 
-    return this.getPrimaryKeys().indexOf(defaultSelectedItem.toString());
+    return this.getPrimaryKeys().indexOf(selectedItemKey.toString());
   };
 
   calculatePageNumberFromRowIndex = (index: number) => {
-    return Math.ceil((index + 1) / this.props.pageSize);
+    return Math.ceil((index + 1) / this.pageSize);
   };
 
   shouldUpdatePageSize = () => {
@@ -707,6 +758,7 @@ class ListWidget extends BaseWidget<
    * Only Initiate Cache if
    * 1. Triggered or Selected Key changes (i.e a  new row was triggered or selected)
    * 2. If Server-side Pagination is just turned on. (This is mainly to cache any row previously selected)
+   * 3. When we have a defaultSelectedItem
    *
    * If this conditions are true, we'd send the keys to the MetaWidgetGenerator to handle all Caching.
    */
@@ -714,7 +766,11 @@ class ListWidget extends BaseWidget<
     return (
       this.props.triggeredItemKey !== prevProps.triggeredItemKey ||
       this.props.selectedItemKey !== prevProps.selectedItemKey ||
-      (!prevProps.serverSidePagination && this.props.serverSidePagination)
+      (!prevProps.serverSidePagination && this.props.serverSidePagination) ||
+      (this.props.selectedItemKey &&
+        !this.metaWidgetGenerator
+          .getCurrCachedRows()
+          .has(this.props.selectedItemKey))
     );
   };
 
@@ -731,7 +787,7 @@ class ListWidget extends BaseWidget<
 
   onItemClick = (rowIndex: number) => {
     this.handleSelectedItemAndKey(rowIndex);
-    this.updateSelectedItemView(rowIndex);
+    this.handleSelectedItemView(rowIndex);
 
     if (!this.props.onItemClick) return;
 
@@ -764,10 +820,18 @@ class ListWidget extends BaseWidget<
     this.updateTriggeredItemView(rowIndex);
   };
 
+  getPrimaryKeyByRowIndex = (rowIndex: number) => {
+    const { serverSidePagination } = this.props;
+    const primaryKey = this.getPrimaryKeys();
+    return serverSidePagination
+      ? this.metaWidgetGenerator.getPrimaryKey(rowIndex)
+      : primaryKey[rowIndex];
+  };
+
   // Updates SelectedItem and SelectedItemKey Meta Properties.
   handleSelectedItemAndKey = (rowIndex: number) => {
     const { selectedItemKey } = this.props;
-    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+    const key = this.getPrimaryKeyByRowIndex(rowIndex);
     let data: Record<string, unknown> | undefined;
 
     if (key === selectedItemKey) {
@@ -787,10 +851,11 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItem", data);
   };
 
-  resetSelectedItem = () =>
+  resetSelectedItem = () => {
     this.props.updateWidgetMetaProperty("selectedItem", undefined);
+  };
 
-  updateSelectedItemView = (rowIndex: number) => {
+  handleSelectedItemView = (rowIndex: number) => {
     const { selectedItemKey } = this.props;
     const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
 
@@ -800,41 +865,42 @@ class ListWidget extends BaseWidget<
       return;
     }
 
-    const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
+    this.updateSelectedItemView(rowIndex);
+  };
+
+  getItemViewBindingByRowIndex = (rowIndex: number) => {
+    const container = this.metaWidgetGenerator.getRowContainerWidgetName(
       rowIndex,
     );
 
-    const selectedItemViewBinding = triggeredContainer
-      ? `{{ ${triggeredContainer}.data }}`
-      : "{{{}}}";
+    const itemViewBinding = container ? `{{ ${container}.data }}` : {};
 
-    this.props.updateWidgetMetaProperty(
-      "selectedItemView",
-      selectedItemViewBinding,
-    );
+    return itemViewBinding;
+  };
+
+  updateSelectedItemView = (rowIndex: number) => {
+    const binding = this.getItemViewBindingByRowIndex(rowIndex);
+
+    this.props.updateWidgetMetaProperty("selectedItemView", binding);
+  };
+
+  updateSelectedItem = (rowIndex: number) => {
+    const data = this.props.listData?.[rowIndex];
+    this.props.updateWidgetMetaProperty("selectedItem", data);
   };
 
   updateTriggeredItemView = (rowIndex: number) => {
-    const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
-      rowIndex,
-    );
+    const binding = this.getItemViewBindingByRowIndex(rowIndex);
 
-    const triggeredItemViewBinding = triggeredContainer
-      ? `{{ ${triggeredContainer}.data }}`
-      : "{{{}}}";
-
-    this.props.updateWidgetMetaProperty(
-      "triggeredItemView",
-      triggeredItemViewBinding,
-    );
+    this.props.updateWidgetMetaProperty("triggeredItemView", binding);
   };
 
   resetSelectedItemView = () => {
-    this.props.updateWidgetMetaProperty("selectedItemView", "{{{}}}");
+    this.props.updateWidgetMetaProperty("selectedItemView", {});
   };
 
   resetTriggeredItemView = () => {
-    this.props.updateWidgetMetaProperty("triggeredItemView", "{{{}}}");
+    this.props.updateWidgetMetaProperty("triggeredItemView", {});
   };
 
   resetTriggeredItemKey = () => {
@@ -866,6 +932,12 @@ class ListWidget extends BaseWidget<
 
   resetSelectedItemKey = () => {
     this.props.updateWidgetMetaProperty("selectedItemKey", null);
+  };
+
+  resetTriggeredCache = () => {
+    this.resetTriggeredItem();
+    this.resetTriggeredItemKey();
+    this.resetTriggeredItemView();
   };
 
   resetCache = () => {
@@ -1191,7 +1263,8 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   currentItemsView: string;
   selectedItemKey: string | null;
   triggeredItemKey: string | null;
-  selectedItemView: Record<string, unknown>;
+  // Eval String
+  selectedItemView: string;
   selectedItem?: Record<string, unknown>;
   triggeredItem?: Record<string, unknown>;
   primaryKeys?: (string | number | null)[];
