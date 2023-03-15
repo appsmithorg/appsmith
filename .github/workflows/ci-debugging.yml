@@ -72,7 +72,7 @@ jobs:
           cd cicontainerlocal
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
-          docker exec -i mssqldb service mssql-server start
+          docker exec -i mssqldb service MSSQLSERVER start
           sudo ufw allow 1433/tcp
           docker cp ../app/client/cypress/init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
           docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost:1433 -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
