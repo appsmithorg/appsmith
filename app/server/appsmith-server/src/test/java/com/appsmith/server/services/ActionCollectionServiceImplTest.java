@@ -1,6 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
@@ -8,16 +11,14 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.solutions.ActionPermission;
@@ -30,6 +31,7 @@ import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.BsonObjectId;
@@ -47,7 +49,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import jakarta.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -59,10 +60,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -454,10 +455,19 @@ public class ActionCollectionServiceImplTest {
     @Test
     public void testUpdateUnpublishedActionCollection_withModifiedCollection_returnsValidCollection() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readerWithView(Views.Public.class).readValue(mockObjects, JsonNode.class);
-        final ActionCollection actionCollection = objectMapper.readerWithView(Views.Public.class).readValue(objectMapper.writerWithView(Views.Public.class).writeValueAsString(jsonNode.get("actionCollectionWithAction")), ActionCollection.class);
-        final ActionCollectionDTO modifiedActionCollectionDTO = objectMapper.readerWithView(Views.Public.class).readValue(objectMapper.writerWithView(Views.Public.class).writeValueAsString(jsonNode.get("actionCollectionDTOWithModifiedActions")), ActionCollectionDTO.class);
-        final ActionCollection modifiedActionCollection = objectMapper.readerWithView(Views.Public.class).readValue(objectMapper.writerWithView(Views.Public.class).writeValueAsString(jsonNode.get("actionCollectionAfterModifiedActions")), ActionCollection.class);
+        ObjectMapperUtils objectMapperUtils = new ObjectMapperUtils(objectMapper);
+
+        final JsonNode jsonNode = objectMapperUtils.readFromFile(mockObjects, Views.Public.class, JsonNode.class);
+
+        String actionCollectionString  = objectMapperUtils.writeAsString(jsonNode.get("actionCollectionWithAction"), Views.Public.class);
+        final ActionCollection actionCollection = objectMapperUtils.readFromString(actionCollectionString, Views.Public.class, ActionCollection.class);
+
+        String actionCollectionDTOWithModifiedActionsString = objectMapperUtils.writeAsString(jsonNode.get("actionCollectionDTOWithModifiedActions"), Views.Public.class);
+        final ActionCollectionDTO modifiedActionCollectionDTO = objectMapperUtils.readFromString(actionCollectionDTOWithModifiedActionsString, Views.Public.class, ActionCollectionDTO.class);
+
+        String actionCollectionAfterModifiedActionsString = objectMapperUtils.writeAsString(jsonNode.get("actionCollectionAfterModifiedActions"), Views.Public.class);
+        final ActionCollection modifiedActionCollection = objectMapperUtils.readFromString(actionCollectionAfterModifiedActionsString, Views.Public.class, ActionCollection.class);
+
         final ActionCollectionDTO unpublishedCollection = modifiedActionCollection.getUnpublishedCollection();
         unpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId3", "testActionId3"));
         unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(Map.of("defaultTestActionId2", "testActionId2"));
