@@ -162,6 +162,9 @@ export const TRIAL = () => `Trial`;
 export const PORTAL = () => `Portal`;
 export const LICENSE_KEY = () => `License Key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
+export const PAYMENT_FAILED = () => `Your last payment has failed.`;
+export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
+  `your payment methods to continue using Appsmith, else all your instances will shut down in ${count} ${suffix}.`;
 
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
