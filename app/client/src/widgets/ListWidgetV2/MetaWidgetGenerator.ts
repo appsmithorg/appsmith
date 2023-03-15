@@ -770,7 +770,9 @@ class MetaWidgetGenerator {
     const metaWidgetId =
       currentCache.metaWidgetId || this.generateMetaWidgetId();
 
-    const metaWidgetName = `${this.widgetName}_${templateWidgetId}_${metaWidgetId}`;
+    const metaWidgetName =
+      currentCache.metaWidgetName ||
+      `${this.widgetName}_${templateWidgetName}_${templateWidgetId}_${metaWidgetId}`;
     const entityDefinition = generateEntityDefinition
       ? currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type)
@@ -1800,6 +1802,8 @@ class MetaWidgetGenerator {
     this.updateCurrCachedRows(keys);
     this.updateCachedKeyDataMap(keys);
   };
+
+  getCurrCachedRows = () => this.cachedItemKeys.curr;
 
   /**
    * We want to always get the current data before checking the cache
