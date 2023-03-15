@@ -13,8 +13,7 @@ export const StyledApplicationName = styled.div<{
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getApplicationNameTextColor(primaryColor, navColorStyle)};
-  font-size: ${({ forSidebar }) =>
-    forSidebar ? THEMEING_TEXT_SIZES.sm : THEMEING_TEXT_SIZES.base};
+  font-size: ${THEMEING_TEXT_SIZES.base};
 
   ${({ forSidebar }) => {
     if (forSidebar) {
