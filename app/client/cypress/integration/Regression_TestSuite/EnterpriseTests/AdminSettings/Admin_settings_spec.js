@@ -1,7 +1,7 @@
 const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import adminsSettings from "../../../../locators/AdminsSettings";
 
-describe("Admin settings page", function() {
+describe("Admin settings page", function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },

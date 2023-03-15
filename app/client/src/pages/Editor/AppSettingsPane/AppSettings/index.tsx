@@ -1,11 +1,12 @@
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAllPages } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
-import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
+import type { SectionHeaderProps } from "./SectionHeader";
+import SectionHeader from "./SectionHeader";
 import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";

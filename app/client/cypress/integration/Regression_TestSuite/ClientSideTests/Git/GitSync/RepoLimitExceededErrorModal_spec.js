@@ -2,7 +2,7 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
-describe("Repo Limit Exceeded Error Modal", function() {
+describe("Repo Limit Exceeded Error Modal", function () {
   before(() => {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
@@ -15,7 +15,7 @@ describe("Repo Limit Exceeded Error Modal", function() {
     _.agHelper.ClickButton("Build on my own");
   });
 
-  it("1. Modal should be opened with proper components", function() {
+  it("1. Modal should be opened with proper components", function () {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.gitSync.CreateNConnectToGit(repoName1, true, true);
@@ -74,9 +74,7 @@ describe("Repo Limit Exceeded Error Modal", function() {
       cy.get(gitSyncLocators.learnMoreOnRepoLimitModal).click();
 
       cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
-      cy.get(gitSyncLocators.diconnectLink)
-        .first()
-        .click();
+      cy.get(gitSyncLocators.diconnectLink).first().click();
 
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
       cy.get(gitSyncLocators.disconnectGitModal).should("exist");

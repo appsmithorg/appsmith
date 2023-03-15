@@ -1,5 +1,5 @@
 import React from "react";
-import { Carousel, Header } from "./types";
+import type { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
 import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";

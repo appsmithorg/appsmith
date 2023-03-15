@@ -1,12 +1,12 @@
-import {
+import type {
   DataTree,
   DataTreeJSAction,
-  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { keyBy } from "lodash";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "RouteBuilder";
-import {
+import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
@@ -25,7 +25,7 @@ export const getJsChildrenNavData = (
   if (dataTreeAction) {
     let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      peekData[jsChild.name] = function() {}; // can use new Function to parse string
+      peekData[jsChild.name] = function () {}; // can use new Function to parse string
 
       const children: EntityNavigationData = {};
       if (jsAction.data?.[jsChild.id] && jsChild.executeOnLoad) {

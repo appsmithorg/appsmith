@@ -16,7 +16,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     if (Cypress.env("Mongo") === 0) {
       cy.log("Mongo DB is not found. Using intercept");
       dataSources.StartInterceptRoutesForMongo();
@@ -650,7 +650,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
   });
 
-  it("18. Verify application does not break when user runs the query with wrong collection name", function() {
+  it("18. Verify application does not break when user runs the query with wrong collection name", function () {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");

@@ -6,15 +6,15 @@ import {
   NAV_DESCRIPTION,
   SNIPPET_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { Datasource } from "entities/Datasource";
+import type { ValidationTypes } from "constants/WidgetValidation";
+import type { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { WidgetType } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   CurlIconV2,
@@ -23,12 +23,12 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "utils/AnalyticsUtil";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
-import { FocusEntity } from "navigation/FocusEntity";
+import type { FocusEntity } from "navigation/FocusEntity";
 
 export type SelectEvent =
   | React.MouseEvent

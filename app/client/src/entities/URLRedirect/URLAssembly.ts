@@ -11,7 +11,8 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import { getQueryStringfromObject, URLBuilderParams } from "RouteBuilder";
+import type { URLBuilderParams } from "RouteBuilder";
+import { getQueryStringfromObject } from "RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
 enum URL_TYPE {

@@ -1,8 +1,8 @@
-import {
+import type {
   DataTree,
   DataTreeAppsmith,
-  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,

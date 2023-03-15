@@ -1,6 +1,6 @@
 import { PluginType } from "entities/Action";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 describe("generateDataTreeJSAction", () => {
   it("generate js collection in data tree", () => {
@@ -114,8 +114,7 @@ describe("generateDataTreeJSAction", () => {
           },
         ],
         archivedActions: [],
-        body:
-          "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+        body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
         variables: [
           {
             name: "myVar1",
@@ -137,8 +136,7 @@ describe("generateDataTreeJSAction", () => {
       myVar1: [],
       myVar2: {},
       ENTITY_TYPE: "JSACTION",
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
 
       myFun2: {
         data: {
@@ -317,8 +315,7 @@ describe("generateDataTreeJSAction", () => {
           },
         ],
         archivedActions: [],
-        body:
-          "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return this.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+        body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return this.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
         variables: [
           {
             name: "myVar1",
@@ -340,8 +337,7 @@ describe("generateDataTreeJSAction", () => {
     const expected = {
       myVar1: [],
       myVar2: {},
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return JSObject2.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return JSObject2.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
       __config__: {
         ENTITY_TYPE: "JSACTION",
