@@ -5,24 +5,24 @@ export type OptionType = {
 
 export const roleOptions: OptionType[] = [
   {
-    label: "Engineer",
-    value: "engineer",
+    label: "Frontend Engineer",
+    value: "frontend engineer",
   },
   {
-    label: "Product manager",
-    value: "product manager",
+    label: "Backend Engineer",
+    value: "backend engineer",
   },
   {
-    label: "Founder",
-    value: "founder",
-  },
-  {
-    label: "Operations",
-    value: "operations",
+    label: "Fullstack Engineer",
+    value: "fullstack engineer",
   },
   {
     label: "Business Analyst",
     value: "business analyst",
+  },
+  {
+    label: "Non Technical",
+    value: "non technical",
   },
   {
     label: "Other",
