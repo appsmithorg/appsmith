@@ -32,7 +32,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTabledata("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     // Add new column
     cy.addColumn("CustomColumn");
   });
