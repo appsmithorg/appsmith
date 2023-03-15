@@ -1514,6 +1514,16 @@ public class WorkspaceResourcesTest {
         themeCustomization.setDisplayName("Updated name");
         Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), null, themeCustomization);
 
+        Theme theme1 = themeService.getSystemTheme("Classic")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication.getId(), null, persistedTheme))
+                .block();
+        Theme theme2 = themeService.getSystemTheme("Sharp")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication.getId(), null, persistedTheme))
+                .block();
+        Theme theme3 = themeService.getSystemTheme("Rounded")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication.getId(), null, persistedTheme))
+                .block();
+
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
@@ -1545,6 +1555,10 @@ public class WorkspaceResourcesTest {
         Theme editModeTheme = themeRepository.findById(updatedApplication.getEditModeThemeId(), READ_THEMES).block();
 
         Theme publishedModeTheme = themeRepository.findById(updatedApplication.getPublishedModeThemeId(), READ_THEMES).block();
+
+        Theme themePostUpdate1 = themeRepository.findById(theme1.getId()).block();
+        Theme themePostUpdate2 = themeRepository.findById(theme2.getId()).block();
+        Theme themePostUpdate3 = themeRepository.findById(theme3.getId()).block();
 
 
         // Assert that application policy update happened
@@ -1580,6 +1594,33 @@ public class WorkspaceResourcesTest {
                     }
                 }
         );
+
+        themePostUpdate1.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+        });
+
+        themePostUpdate2.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+        });
+
+        themePostUpdate3.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+        });
 
     }
 
