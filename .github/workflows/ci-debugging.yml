@@ -82,5 +82,5 @@ jobs:
 
       # Start tmate session for tunnelling
       - name: Setup tmate session
-        if: steps.run_result.outputs.run_result != 'success'
+        if: always()
         uses: mxschmitt/action-tmate@v3
