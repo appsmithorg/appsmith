@@ -219,7 +219,9 @@ function MapChartComponent(props: MapChartComponentProps) {
       case MapTypes.USA:
         newChartConfigs.type = "maps/usa";
         break;
-
+      case MapTypes.CHINA2:
+        newChartConfigs.type = "maps/china2";
+        break;
       default:
         newChartConfigs.type = "maps/world";
         break;

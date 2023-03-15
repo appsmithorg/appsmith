@@ -14,6 +14,7 @@ import { MapType } from "../component";
 import {
   dataSetForAfrica,
   dataSetForAsia,
+  dataSetForChina,
   dataSetForEurope,
   dataSetForNorthAmerica,
   dataSetForOceania,
@@ -41,6 +42,7 @@ const dataSetMapping: Record<MapType, any> = {
   [MapTypes.OCEANIA]: dataSetForOceania,
   [MapTypes.AFRICA]: dataSetForAfrica,
   [MapTypes.USA]: dataSetForUSA,
+  [MapTypes.CHINA2]: dataSetForChina,
 };
 
 // A hook to update the corresponding dataset when map type is changed
@@ -108,6 +110,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                 label: "USA",
                 value: MapTypes.USA,
               },
+              {
+                label: "China",
+                value: MapTypes.CHINA2,
+              },
             ],
             isJSconvertible: true,
             isBindProperty: true,
@@ -126,6 +132,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                   MapTypes.OCEANIA,
                   MapTypes.AFRICA,
                   MapTypes.USA,
+                  MapTypes.CHINA2,
                 ],
               },
             },
