@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.Tenant;
@@ -13,6 +14,8 @@ import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
 import org.pf4j.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -25,18 +28,29 @@ import java.util.Map;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
+
     private final LicenseValidator licenseValidator;
+    private final LicenseConfig licenseConfig;
+
+    @Autowired
     public TenantServiceImpl(Scheduler scheduler,
                              Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              TenantRepository repository,
                              AnalyticsService analyticsService,
-                             LicenseValidator licenseValidator,
-                             ConfigService configService) {
+                             ConfigService configService,
+                             LicenseConfig licenseConfig,
+                             @Qualifier("onlineLicenseValidatorImpl") LicenseValidator onlineLicenseValidator,
+                             @Qualifier("offlineLicenseValidatorImpl") LicenseValidator offlineLicenseValidator) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
-        this.licenseValidator = licenseValidator;
+        this.licenseConfig = licenseConfig;
+        if (Boolean.TRUE.equals(licenseConfig.isAirGapInstance())) {
+            this.licenseValidator = offlineLicenseValidator;
+        } else {
+            this.licenseValidator = onlineLicenseValidator;
+        }
     }
 
     @Override

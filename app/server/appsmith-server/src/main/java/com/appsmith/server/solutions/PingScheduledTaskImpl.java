@@ -1,8 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -29,7 +29,6 @@ import reactor.core.scheduler.Schedulers;
 @Component
 public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements PingScheduledTask {
 
-    private final LicenseValidator licenseValidator;
     private final TenantService tenantService;
     private final LicenseConfig licenseConfig;
     private final UsagePulseService usagePulseService;
@@ -45,7 +44,6 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
             ProjectProperties projectProperties,
-            LicenseValidator licenseValidator,
             TenantService tenantService,
             LicenseConfig licenseConfig,
             UsagePulseService usagePulseService) {
@@ -62,7 +60,6 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 userRepository,
                 projectProperties
         );
-        this.licenseValidator = licenseValidator;
         this.tenantService = tenantService;
         this.licenseConfig = licenseConfig;
         this.usagePulseService = usagePulseService;

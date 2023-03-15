@@ -8,7 +8,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.solutions.LicenseValidator;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,8 +36,6 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private final ConfigService configService;
 
     private final CloudServicesConfig cloudServicesConfig;
-
-    private final LicenseValidator licenseValidator;
     
     private final CommonConfig commonConfig;
 

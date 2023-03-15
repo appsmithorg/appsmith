@@ -11,4 +11,11 @@ import org.springframework.context.annotation.Configuration;
 public class LicenseConfig {
     @Value("${appsmith.license.key}")
     private String licenseKey;
+
+    // Ed25519 128-bit Verify Key from License service provider
+    @Value("${keygen.license.verify.key:}")
+    private String publicVerificationKey;
+
+    @Value("${is.air.gap.instance:false}")
+    private boolean isAirGapInstance;
 }
