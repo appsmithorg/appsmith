@@ -135,7 +135,7 @@ public class OraclePlugin extends BasePlugin {
             List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
-            removeSemicolonFromQuery(updatedQuery);
+            updatedQuery = removeSemicolonFromQuery(updatedQuery);
             setDataValueSafelyInFormData(formData, BODY, updatedQuery);
             return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE,
                     mustacheKeysInOrder, executeActionDTO);

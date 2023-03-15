@@ -71,8 +71,8 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      * Oracle SQL queries throw error when any delimiter like semicolon is used. Hence, removing it.
      * Ref: https://forums.oracle.com/ords/apexds/post/why-semicolon-not-allowed-in-jdbc-oracle-0099
      */
-    public static void removeSemicolonFromQuery(String query) {
-        query.replaceAll(";", "");
+    public static String removeSemicolonFromQuery(String query) {
+        return query.replaceAll(";", "");
     }
 
     public static void populateRowsAndColumns(List<Map<String, Object>> rowsList, List<String> columnsList,
