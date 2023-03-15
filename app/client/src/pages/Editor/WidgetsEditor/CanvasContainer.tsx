@@ -262,7 +262,7 @@ const CanvasContainer = (props: {
   return (
     <Container
       background={
-        isPreviewMode
+        isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
           ? selectedTheme.properties.colors.backgroundColor
           : "initial"
       }
