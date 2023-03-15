@@ -95,6 +95,7 @@ const TopHeader = (props: TopHeaderProps) => {
           <ApplicationName
             appName={currentApplicationDetails?.name}
             navColorStyle={navColorStyle}
+            navStyle={navStyle}
             primaryColor={primaryColor}
           />
         </section>
