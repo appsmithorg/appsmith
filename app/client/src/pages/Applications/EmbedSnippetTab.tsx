@@ -13,7 +13,6 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
-import ExternaLink from "remixicon-react/ExternalLinkLineIcon";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
@@ -24,6 +23,11 @@ import {
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
 import { PopoverPosition } from "@blueprintjs/core";
+import { importRemixIcon } from "design-system-old";
+
+const ExternaLink = importRemixIcon(() =>
+  import("remixicon-react/ExternalLinkLineIcon"),
+);
 
 const StyledLink = styled.a`
   position: relative;

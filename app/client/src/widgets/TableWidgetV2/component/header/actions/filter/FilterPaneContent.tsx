@@ -18,13 +18,15 @@ import { Icon, IconSize } from "design-system-old";
 import Button from "pages/AppViewer/AppViewerButton";
 import { ButtonVariantTypes } from "components/constants";
 
-import AddIcon from "remixicon-react/AddLineIcon";
 import { cloneDeep } from "lodash";
 import {
   ColumnTypes,
   FilterableColumnTypes,
 } from "widgets/TableWidgetV2/constants";
 import { generateReactKey } from "utils/generators";
+import { importRemixIcon } from "design-system-old";
+
+const AddIcon = importRemixIcon(() => import("remixicon-react/AddLineIcon"));
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;

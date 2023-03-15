@@ -1,7 +1,5 @@
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
-import Check from "remixicon-react/CheckFillIcon";
-import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
@@ -19,8 +17,12 @@ import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "design-system-old";
-import { importSvg } from "design-system-old";
+import { importRemixIcon, importSvg } from "design-system-old";
 
+const Check = importRemixIcon(() => import("remixicon-react/CheckFillIcon"));
+const ArrowDownIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowDownSLineIcon"),
+);
 const EditIcon = importSvg(
   () => import("assets/icons/control/edit-variant1.svg"),
 );
