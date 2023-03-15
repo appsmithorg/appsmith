@@ -163,7 +163,3 @@ export const AppPositionTypeControl = () => {
     </>
   );
 };
-
-AppPositionTypeControl.whyDidYouRender = {
-  logOnDifferentValues: true,
-};
