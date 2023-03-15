@@ -179,12 +179,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
-      if (
-        widgetProps.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-        defaultAutoLayoutWidgets.includes(props.type)
-      ) {
-        widgetProps.useAutoLayout =
-          appPositioningType === AppPositioningTypes.AUTO;
+      if (defaultAutoLayoutWidgets.includes(props.type)) {
         widgetProps.positioning =
           appPositioningType === AppPositioningTypes.AUTO
             ? Positioning.Vertical
