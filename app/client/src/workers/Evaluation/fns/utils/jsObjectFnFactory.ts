@@ -3,7 +3,10 @@ import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObjec
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "./Messenger";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isJSObject,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 declare global {
   interface Window {
@@ -35,13 +38,17 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   ],
 ) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(name);
-  // eslint-disable-next-line
-  // @ts-ignore
-  const entityMeta = dataTree[entityName].meta || {};
+  const entity = dataTree[entityName];
+
+  if (!isJSObject(entity)) {
+    return;
+  }
+
+  const entityMeta = entity.meta;
 
   const isAsync = entityMeta[propertyPath].isAsync;
   const confirmBeforeExecute = entityMeta[propertyPath].confirmBeforeExecute;
-  const actionId = entityMeta[propertyPath].actionId;
+  const actionId = entity.actionId;
 
   if (isAsync) {
     return async (...args: P) => {
