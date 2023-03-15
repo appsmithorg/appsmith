@@ -1,6 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { REPO, CURRENT_REPO } from "../../../../../fixtures/variables";
+import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe("Repo Limit Exceeded Error Modal", function() {

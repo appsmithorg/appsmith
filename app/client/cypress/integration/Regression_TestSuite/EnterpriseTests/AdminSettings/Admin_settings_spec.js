@@ -1,6 +1,6 @@
 const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import adminsSettings from "../../../../locators/AdminsSettings";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/variables";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe("Admin settings page", function() {
   beforeEach(() => {
