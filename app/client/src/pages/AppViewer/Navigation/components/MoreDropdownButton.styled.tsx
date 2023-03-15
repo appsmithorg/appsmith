@@ -51,7 +51,7 @@ export const StyledMenuDropdownContainer = styled(Menu)<{
   }
 
   .bp3-popover-content {
-    max-height: 750px;
+    max-height: 550px;
     overflow-y: auto;
 
     ${({ navColorStyle, primaryColor }) => {
