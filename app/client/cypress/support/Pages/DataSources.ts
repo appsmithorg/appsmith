@@ -5,6 +5,7 @@ const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
+  UnAuthenticatedGraphQL: "GraphQL API",
 }; //DataSources KeyValuePair
 
 export class DataSources {
@@ -13,6 +14,7 @@ export class DataSources {
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private homePage = ObjectsRegistry.HomePage;
+  private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources";
@@ -90,9 +92,11 @@ export class DataSources {
     "//span[text()='" +
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
-  private _createGraphQLDatasource = ".t--createBlankApi-graphql-plugin";
-  _graphqlQueryEditor = ".t--graphql-query-editor .CodeMirror textarea";
-  _graphqlVariableEditor = ".t--graphql-variable-editor .CodeMirror textarea";
+  private _createBlankGraphQL = ".t--createBlankApiGraphqlCard";
+  private _graphQLHeaderKey = "input[name='headers[0].key']";
+  private _graphQLHeaderValue = "input[name='headers[0].value']";
+  _graphqlQueryEditor = ".t--graphql-query-editor";
+  _graphqlVariableEditor = ".t--graphql-variable-editor";
   _graphqlPagination = {
     _limitVariable: ".t--apiFormPaginationLimitVariable",
     _limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
@@ -377,31 +381,44 @@ export class DataSources {
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
 
-  public FillGraphQLDSForm(datasourceName?: string) {
-    if (datasourceName) {
-      // Change the Graphql Datasource name
-      cy.get(".t--edit-datasource-name").click();
-      cy.get(".t--edit-datasource-name input")
-        .clear()
-        .type(datasourceName, { force: true })
-        .should("have.value", datasourceName)
-        .blur();
-    }
-
-    // Adding Graphql Url
-    cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
-  }
-
   public FillFirestoreDSForm() {
     cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
       datasourceFormData["database-url"],
     );
     cy.xpath(this.locator._inputFieldByName("Project Id") + "//input").type(
-      datasourceFormData["projectID"],
+      datasourceFormData.projectID,
     );
     cy.xpath(
       this.locator._inputFieldByName("Service Account Credentials") + "//input",
     ).type(datasourceFormData["serviceAccCredentials"]);
+  }
+
+  public FillUnAuthenticatedGraphQLDSForm() {
+    this.agHelper.GetNClick(this._createBlankGraphQL);
+    this.apiPage.EnterURL(datasourceFormData.GraphqlApiUrl_TED);
+    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+  }
+
+  public CreateNFillAuthenticatedGraphQLDSForm(
+    dataSourceName: string,
+    hKey: string,
+    hValue: string,
+  ) {
+    this.NavigateToDSCreateNew();
+    this.CreatePlugIn("Authenticated GraphQL API");
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("URL"),
+      datasourceFormData.GraphqlApiUrl_TED,
+    );
+
+    this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
+    this.agHelper.UpdateInputValue(this._graphQLHeaderValue, hValue);
+    cy.get("@guid").then((uid: any) => {
+      dataSourceName = dataSourceName + " " + uid;
+      this.agHelper.RenameWithInPane(dataSourceName, false);
+      this.SaveDatasource();
+      cy.wrap(dataSourceName).as("dsName");
+    });
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -678,28 +695,32 @@ export class DataSources {
   }
 
   public CreateDataSource(
-    dsType: "Postgres" | "Mongo" | "MySql",
+    dsType: "Postgres" | "Mongo" | "MySql" | "UnAuthenticatedGraphQL",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
     let guid: any;
     let dataSourceName = "";
     this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      navigateToCreateNewDs && this.NavigateToDSCreateNew();
-      this.CreatePlugIn(DataSourceKVP[dsType]);
-      guid = uid;
-      dataSourceName = dsType + " " + guid;
-      this.agHelper.RenameWithInPane(dataSourceName, false);
-      if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
-      else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
-      else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
+    navigateToCreateNewDs && this.NavigateToDSCreateNew();
 
-      if (testNSave) {
-        this.TestSaveDatasource();
-      } else {
-        this.SaveDatasource();
-      }
+    cy.get("@guid").then((uid) => {
+      if (DataSourceKVP[dsType] != "GraphQL API") {
+        this.CreatePlugIn(DataSourceKVP[dsType]);
+        guid = uid;
+        dataSourceName = dsType + " " + guid;
+        this.agHelper.RenameWithInPane(dataSourceName, false);
+        if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
+        else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
+        else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
+
+        if (testNSave) {
+          this.TestSaveDatasource();
+        } else {
+          this.SaveDatasource();
+        }
+      } else if (DataSourceKVP[dsType] == "GraphQL API")
+        this.FillUnAuthenticatedGraphQLDSForm();
       cy.wrap(dataSourceName).as("dsName");
     });
   }
@@ -718,39 +739,22 @@ export class DataSources {
     }
   }
 
-  public CreateGraphqlDatasource(datasourceName: string) {
-    this.NavigateToDSCreateNew();
-    //Click on Authenticated Graphql API
-    cy.get(this._createGraphQLDatasource).click({ force: true });
-    //Verify weather Authenticated Graphql Datasource is successfully created.
-    // this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
-    this.FillGraphQLDSForm(datasourceName);
-
-    // save datasource
-    this.agHelper.GetNClick(this._saveDs);
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
-  }
-
   public UpdateGraphqlQueryAndVariable(options?: {
     query?: string;
     variable?: string;
   }) {
     if (options?.query) {
-      cy.get(this._graphqlQueryEditor)
-        .first()
-        .focus()
-        .type("{selectAll}{backspace}", { force: true })
-        .type("{backspace}", { force: true })
-        .type(options.query);
+      this.agHelper.GetElement(this._graphqlQueryEditor).then(($field: any) => {
+        this.agHelper.UpdateCodeInput($field, options.query as string);
+      });
     }
 
     if (options?.variable) {
-      cy.get(this._graphqlVariableEditor)
-        .first()
-        .focus()
-        .type("{selectAll}{backspace}", { force: true })
-        .type("{backspace}", { force: true })
-        .type(options.variable);
+      this.agHelper
+        .GetElement(this._graphqlVariableEditor)
+        .then(($field: any) => {
+          this.agHelper.UpdateCodeInput($field, options.variable as string);
+        });
     }
 
     this.agHelper.Sleep();
@@ -957,7 +961,7 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     //Click on Authenticated API
-    this.agHelper.GetNClick(this._authApiDatasource, 0, true)
+    this.agHelper.GetNClick(this._authApiDatasource, 0, true);
     this.FillAPIOAuthForm(datasourceName, grantType, clientId, clientSecret);
 
     // save datasource
