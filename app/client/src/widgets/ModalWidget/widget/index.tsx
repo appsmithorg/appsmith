@@ -20,7 +20,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
-import { getSelectedWidgetAncestry } from "selectors/widgetSelectors";
 
 const minSize = 100;
 
@@ -312,7 +311,6 @@ export interface ModalWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   mainCanvasWidth: number;
-  selectedWidgetAncestry: string[];
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -342,7 +340,6 @@ const mapStateToProps = (state: AppState) => {
     focusedWidget: state.ui.widgetDragResize.focusedWidget,
     isDragging: state.ui.widgetDragResize.isDragging,
     isResizing: state.ui.widgetDragResize.isResizing,
-    selectedWidgetAncestry: getSelectedWidgetAncestry(state),
   };
   return props;
 };

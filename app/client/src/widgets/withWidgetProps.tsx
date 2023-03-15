@@ -62,7 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getWidget(state, widgetId),
     );
     const metaWidget = useSelector(getMetaWidget(widgetId));
-    const widgetAncestry = useSelector(getSelectedWidgetAncestry);
+    const selectedWidgetAncestry = useSelector(getSelectedWidgetAncestry);
 
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -145,6 +145,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps.isMobile = !!isMobile;
       widgetProps.appPositioningType = appPositioningType;
+      widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
@@ -205,14 +206,14 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     if (
       widgetProps.detachFromLayout &&
       !widgetProps.isVisible &&
-      !widgetAncestry.includes(widgetProps.widgetId)
+      !selectedWidgetAncestry.includes(widgetProps.widgetId)
     ) {
       return null;
     }
 
     const shouldCollapseWidgetInViewOrPreviewMode =
       !widgetProps.isVisible &&
-      !widgetAncestry.includes(widgetProps.widgetId) &&
+      !selectedWidgetAncestry.includes(widgetProps.widgetId) &&
       (renderMode === RenderModes.PAGE || isPreviewMode);
 
     const shouldResetCollapsedContainerHeightInViewOrPreviewMode =

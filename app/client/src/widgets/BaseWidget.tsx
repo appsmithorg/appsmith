@@ -783,6 +783,7 @@ export interface WidgetDisplayProps {
   animateLoading?: boolean;
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
+  selectedWidgetAncestry: string[];
 }
 
 export interface WidgetDataProps

@@ -155,8 +155,6 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       }
     }
 
-    yield call(setWidgetAncestry, newSelection[0], allWidgets);
-
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
       yield put(setSelectedWidgets(newSelection));
       return;
