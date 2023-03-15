@@ -37,10 +37,7 @@ export function setInterval(
       });
       self["$isDataField"] = false;
       Object.assign(self, evalContext);
-      ExecutionMetaData.setExecutionMetaData(
-        metaData.triggerMeta,
-        metaData.eventType,
-      );
+      ExecutionMetaData.setExecutionMetaData(metaData);
       typeof callback === "function" && callback(...args);
     },
     delay,

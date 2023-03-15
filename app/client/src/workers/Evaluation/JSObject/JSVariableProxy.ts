@@ -1,10 +1,12 @@
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import JSVariableUpdates, { Patch, PatchType } from "./JSVariableUpdates";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
-export function jsObjectProxyHandler(
-  addPatch: (patch: Patch) => void,
-  path: string,
-) {
+function addPatch(patch: Patch) {
+  JSVariableUpdates.add(patch);
+}
+
+export function jsObjectProxyHandler(path: string) {
   return {
     get: function(target: any, prop: string): any {
       const value = target[prop];
@@ -15,14 +17,14 @@ export function jsObjectProxyHandler(
       if (prop === "$targetValue") return target;
 
       if (value instanceof Function) {
-        // JSObject function
+        // No modification required for jsObject's function property.
+        // Hence, return the value as it is.
         if (!path.includes(".")) return value;
 
         if (!target.hasOwnProperty(value)) {
           const newValue = value.bind(target);
           return function(...args: any[]) {
-            // HACK:
-            // Assuming a prototype method call would mutate the property
+            // HACK: Assuming a prototype method call would mutate the property.
             addPatch({
               path,
               method: PatchType.PROTOTYPE_METHOD_CALL,
@@ -35,16 +37,14 @@ export function jsObjectProxyHandler(
       }
 
       if (typeof value === "object" && value !== null && !value.$isProxy) {
-        return new Proxy(
-          value,
-          jsObjectProxyHandler(addPatch, `${path}.${prop}`),
-        );
+        return new Proxy(value, jsObjectProxyHandler(`${path}.${prop}`));
       }
 
       return target[prop];
     },
     set: function(target: any, prop: string, value: unknown, rec: any) {
-      if (JSVariableUpdates.disableUpdate) return true;
+      if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
+        return true;
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.SET,
@@ -53,7 +53,8 @@ export function jsObjectProxyHandler(
       return Reflect.set(target, prop, value, rec);
     },
     deleteProperty: function(target: any, prop: string) {
-      if (JSVariableUpdates.disableUpdate) return true;
+      if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
+        return true;
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.DELETE,
@@ -61,10 +62,6 @@ export function jsObjectProxyHandler(
       return Reflect.deleteProperty(target, prop);
     },
   };
-}
-
-export function addPatch(patch: Patch) {
-  JSVariableUpdates.add(patch);
 }
 
 type ProxiedJSObject = DataTreeJSAction & {
@@ -83,7 +80,7 @@ class JSProxy {
     if (typeof jsObject === "object") {
       proxiedJSObject = new Proxy(
         Object.assign({}, varState),
-        jsObjectProxyHandler(addPatch, jsObjectName),
+        jsObjectProxyHandler(jsObjectName),
       );
     }
 

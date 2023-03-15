@@ -20,8 +20,8 @@ import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import { klona } from "klona/full";
-import JSVariableUpdates from "./JSVariableUpdates";
 import { getOriginalValueFromProxy, removeProxyObject } from "./removeProxy";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -104,6 +104,10 @@ export function saveResolvedFunctionsAndJSUpdates(
       if (!!parsedObject) {
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
+            ExecutionMetaData.setExecutionMetaData({
+              jsVarUpdateDisabled: true,
+              jsVarUpdateTrackingDisabled: true,
+            });
             const { errors, result } = evaluateSync(
               parsedElement.value,
               unEvalDataTree,
@@ -111,6 +115,10 @@ export function saveResolvedFunctionsAndJSUpdates(
               undefined,
               undefined,
             );
+            ExecutionMetaData.setExecutionMetaData({
+              jsVarUpdateDisabled: false,
+              jsVarUpdateTrackingDisabled: false,
+            });
             if (errors.length) return;
 
             let params: Array<{ key: string; value: unknown }> = [];
@@ -281,7 +289,7 @@ export function getJSEntities(dataTree: DataTree) {
 }
 
 export function updateJSCollectionStateFromContext() {
-  JSVariableUpdates.disableTracking();
+  ExecutionMetaData.setExecutionMetaData({ jsVarUpdateTrackingDisabled: true });
   const newVarState = {};
   const currentEvalContext = self;
 
@@ -306,7 +314,9 @@ export function updateJSCollectionStateFromContext() {
     }
   }
   JSObjectCollection.setVariableState(newVarState);
-  JSVariableUpdates.enableTracking();
+  ExecutionMetaData.setExecutionMetaData({
+    jsVarUpdateTrackingDisabled: false,
+  });
 }
 
 export function updateEvalTreeWithJSCollectionState(
@@ -331,7 +341,7 @@ export function updateEvalTreeWithJSCollectionState(
 }
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
-  JSVariableUpdates.disableTracking();
+  ExecutionMetaData.setExecutionMetaData({ jsVarUpdateTrackingDisabled: true });
   const currentEvalContext = self;
 
   const evalTree = dataTreeEvaluator?.evalTree;
@@ -353,5 +363,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       );
     }
   }
-  JSVariableUpdates.enableTracking();
+  ExecutionMetaData.setExecutionMetaData({
+    jsVarUpdateTrackingDisabled: false,
+  });
 }

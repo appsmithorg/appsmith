@@ -1,4 +1,4 @@
-import { addPatch, jsObjectProxyHandler } from "../JSVariableProxy";
+import { jsObjectProxyHandler } from "../JSVariableProxy";
 import { removeProxyObject } from "../removeProxy";
 
 describe("remove Proxy method", () => {
@@ -9,10 +9,7 @@ describe("remove Proxy method", () => {
       c: {
         d: {
           e: {
-            f: new Proxy(
-              { a: "hello world" },
-              jsObjectProxyHandler(addPatch, ""),
-            ),
+            f: new Proxy({ a: "hello world" }, jsObjectProxyHandler("")),
           },
         },
       },
@@ -23,7 +20,7 @@ describe("remove Proxy method", () => {
   });
 
   it("proxy inside nested array", () => {
-    const proxiedValue = new Proxy([], jsObjectProxyHandler(addPatch, ""));
+    const proxiedValue = new Proxy([], jsObjectProxyHandler(""));
     const testValue = [1, 2, 3, [4, 5, 6, [7, 8, 9, proxiedValue]]];
 
     const result = removeProxyObject(testValue);
@@ -33,7 +30,7 @@ describe("remove Proxy method", () => {
 
   it("proxied date object", () => {
     const date = new Date();
-    const proxiedValue = new Proxy(date, jsObjectProxyHandler(addPatch, ""));
+    const proxiedValue = new Proxy(date, jsObjectProxyHandler(""));
     const testValue = [1, 2, 3, [4, 5, 6, [7, 8, 9, proxiedValue]]];
 
     const result = removeProxyObject(testValue);
@@ -43,7 +40,7 @@ describe("remove Proxy method", () => {
 
   it("proxied map object", () => {
     const map = new Map();
-    const proxiedValue = new Proxy(map, jsObjectProxyHandler(addPatch, ""));
+    const proxiedValue = new Proxy(map, jsObjectProxyHandler(""));
     const testValue = [1, 2, 3, [4, 5, 6, [7, 8, 9, proxiedValue]]];
 
     const result = removeProxyObject(testValue);
@@ -53,7 +50,7 @@ describe("remove Proxy method", () => {
 
   it("proxied set object", () => {
     const set = new Set();
-    const proxiedValue = new Proxy(set, jsObjectProxyHandler(addPatch, ""));
+    const proxiedValue = new Proxy(set, jsObjectProxyHandler(""));
     const testValue = [1, 2, 3, [4, 5, 6, [7, 8, 9, proxiedValue]]];
 
     const result = removeProxyObject(testValue);

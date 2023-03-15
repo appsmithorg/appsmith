@@ -23,10 +23,7 @@ export function promisify<P extends ReadonlyArray<unknown>>(
       },
     });
     if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree: dataTreeEvaluator.evalTree,

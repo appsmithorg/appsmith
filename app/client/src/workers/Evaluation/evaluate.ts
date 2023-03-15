@@ -13,7 +13,6 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import JSVariableUpdates from "./JSObject/JSVariableUpdates";
 import { removeProxyObject } from "./JSObject/removeProxy";
 
 export type EvalResult = {
@@ -210,7 +209,6 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope(dataTree);
-    JSVariableUpdates.disableTracking().disableVarUpdate();
     const errors: EvaluationError[] = [];
     let result;
 
@@ -256,7 +254,6 @@ export default function evaluateSync(
          */
         throw new FoundPromiseInSyncEvalError();
       }
-      result = removeProxyObject(result);
     } catch (error) {
       errors.push({
         errorMessage: errorModifier.run(error as Error),
@@ -266,7 +263,6 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      JSVariableUpdates.enableTracking().enableVarUpdate();
       self["$isDataField"] = false;
     }
     return { result, errors };

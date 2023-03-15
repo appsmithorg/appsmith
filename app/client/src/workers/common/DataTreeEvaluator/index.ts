@@ -54,6 +54,7 @@ import {
   get,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   isObject,
   set,
@@ -973,17 +974,27 @@ export default class DataTreeEvaluator {
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              const currentEvaluatedValue = get(
+              const prevEvaluatedValue = get(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
                 }),
               );
-              const evalValue = currentEvaluatedValue
-                ? currentEvaluatedValue
-                : evalPropertyValue;
 
+              const prevUnEvalValue = JSObjectCollection.getPrevUnEvalState({
+                fullPath: fullPropertyPath,
+              });
+
+              const hasUnEvalValueModified = !isEqual(
+                prevUnEvalValue,
+                unEvalPropertyValue,
+              );
+
+              const evalValue =
+                !hasUnEvalValueModified && prevEvaluatedValue
+                  ? prevEvaluatedValue
+                  : evalPropertyValue;
               set(
                 this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
@@ -994,6 +1005,10 @@ export default class DataTreeEvaluator {
               );
               set(currentTree, fullPropertyPath, evalValue);
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
+              JSObjectCollection.setPrevUnEvalState({
+                fullPath: fullPropertyPath,
+                unEvalValue: unEvalPropertyValue,
+              });
             }
             return currentTree;
           } else {
@@ -1109,12 +1124,14 @@ export default class DataTreeEvaluator {
         if (jsSnippet) {
           if (entity && !propertyPath.includes("body")) {
             ExecutionMetaData.setExecutionMetaData({
-              source: {
-                id: getEntityId(entity) || "",
-                entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
-                name: getEntityName(entity) || "",
+              triggerMeta: {
+                source: {
+                  id: getEntityId(entity) || "",
+                  entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
+                  name: getEntityName(entity) || "",
+                },
+                triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
               },
-              triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
             });
           }
 
@@ -1204,10 +1221,21 @@ export default class DataTreeEvaluator {
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
   ): EvalResult {
+    let evalResponse: EvalResult;
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateDisabled: true,
+      jsVarUpdateTrackingDisabled: true,
+    });
     try {
-      return evaluateSync(js, data, isJSObject, contextData, callbackData);
+      evalResponse = evaluateSync(
+        js,
+        data,
+        isJSObject,
+        contextData,
+        callbackData,
+      );
     } catch (error) {
-      return {
+      evalResponse = {
         result: undefined,
         errors: [
           {
@@ -1222,6 +1250,11 @@ export default class DataTreeEvaluator {
         ],
       };
     }
+    ExecutionMetaData.setExecutionMetaData({
+      jsVarUpdateDisabled: false,
+      jsVarUpdateTrackingDisabled: false,
+    });
+    return evalResponse;
   }
 
   setParsedValue({

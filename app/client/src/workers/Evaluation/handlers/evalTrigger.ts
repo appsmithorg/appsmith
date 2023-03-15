@@ -16,7 +16,7 @@ export default async function(request: EvalWorkerASyncRequest) {
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
-  ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
+  ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
   const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
 
   const {

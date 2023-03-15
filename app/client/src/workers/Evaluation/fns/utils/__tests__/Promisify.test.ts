@@ -30,7 +30,7 @@ describe("Tests for promisify util", () => {
   };
   const eventType = EventType.ON_PAGE_LOAD;
   beforeAll(() => {
-    ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
+    ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
   });
   it("Should dispatch payload return by descriptor", async () => {
     const metaDataSpy = jest.spyOn(ExecutionMetaData, "setExecutionMetaData");
@@ -55,6 +55,6 @@ describe("Tests for promisify util", () => {
       },
     });
     expect(metaDataSpy).toBeCalledTimes(1);
-    expect(metaDataSpy).toBeCalledWith(triggerMeta, eventType);
+    expect(metaDataSpy).toBeCalledWith({ triggerMeta, eventType });
   });
 });
