@@ -152,7 +152,7 @@ export function defaultSelectedItemValidation(
 
   return {
     isValid: true,
-    parsed: value,
+    parsed: String(value),
     messages: [EMPTY_ERROR_MESSAGE],
   };
 }
