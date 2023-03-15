@@ -84,6 +84,7 @@ const MoreDropdownButton = ({
 
   return (
     <StyledMenuDropdownContainer
+      autoFocus={false}
       borderRadius={borderRadius}
       closeOnItemClick
       isOpen={isOpen}
