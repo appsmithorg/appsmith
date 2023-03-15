@@ -170,7 +170,9 @@ export class ContainerWidget extends BaseWidget<
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
-
+    childWidget.useAutoLayout = this.props.positioning
+      ? this.props.positioning === Positioning.Vertical
+      : false;
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
