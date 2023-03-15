@@ -552,7 +552,7 @@ function PopoverContent(props: PopoverContentProps) {
           {props.asyncFuncErrorRootCauseUrl ? (
             <AsyncFunctionErrorView>
               <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
-                See Error ({isMacOrIOS() ? `CMD + D` : `Ctrl + D`})
+                See Error ({isMacOrIOS() ? `Cmd + D` : `Ctrl + D`})
               </AsyncFunctionErrorLink>
               <AsyncFunctionErrorLink to={props.asyncFuncErrorRootCauseUrl}>
                 View Source
