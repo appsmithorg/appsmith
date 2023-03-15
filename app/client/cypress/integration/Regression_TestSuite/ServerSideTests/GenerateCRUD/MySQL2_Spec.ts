@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+// import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any, newStoreSecret: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
@@ -11,6 +11,12 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
+  // beforeEach(function() {
+  //   if (INTERCEPT.MYSQL) {
+  //     cy.log("MySQL DB is not found. Using intercept");
+  //     //dataSources.StartInterceptRoutesForMySQL();
+  //   } else cy.log("MySQL DB is found, hence using actual DB");
+  // });
 
   it("1. Create DS for generating CRUD template", () => {
     dataSources.CreateDataSource("MySql");
