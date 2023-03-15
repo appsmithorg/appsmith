@@ -4,7 +4,6 @@
   "parser": "@typescript-eslint/parser",
   "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks","sort-destructure-keys", "cypress"],
   "extends": [
-    "plugin:react-hooks/recommended",
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
@@ -28,7 +27,6 @@
     "import/no-webpack-loader-syntax": 0,
     "no-undef": 0,
     "react/prop-types": 0,
-    "react-hooks/exhaustive-deps": "warn",
     "react/display-name": 0,
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "cypress/no-unnecessary-waiting": 0,
