@@ -4,18 +4,22 @@ import { camelCase, kebabCase, startCase } from "lodash";
 
 import { createSemanticColorTokens } from "../src/utils/createTokens";
 
+const DEFAULT_SEED_COLOR = "#1a7f37";
+const spacing = ["0px", "4px", "8px", "12px", "16px", "20px", "24px", "28px"];
+
 inquirer
   .prompt([
     {
       type: "input",
       name: "seedColor",
       message: "Enter the seed color",
-      default: "#1a7f37",
+      default: DEFAULT_SEED_COLOR,
     },
   ])
   .then((answers) => {
     const { seedColor } = answers;
 
+    // generating semantic tokens
     const semanticColors = createSemanticColorTokens(seedColor);
 
     const transformedSemanticTokens: any = {};
@@ -26,27 +30,22 @@ inquirer
       };
     }
 
+    // generating spacing tokens
+    const spacingTokens = spacing.map((value, index) => {
+      return {
+        [camelCase(`spacing-${index}`)]: {
+          value: value,
+          type: "sizing",
+        },
+      };
+    });
+
     const finalTokens = {
       semantic: {
         ...transformedSemanticTokens,
       },
       raw: {
-        "spacing-0": {
-          value: "0px",
-          type: "sizing",
-        },
-        "spacing-1": {
-          value: "4px",
-          type: "sizing",
-        },
-        "spacing-2": {
-          value: "8px",
-          type: "sizing",
-        },
-        "spacing-3": {
-          value: "12px",
-          type: "sizing",
-        },
+        ...spacingTokens,
       },
     };
 
