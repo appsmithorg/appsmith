@@ -97,15 +97,15 @@ describe("API Panel Test Functionality", function() {
     cy.readFile("cypress/fixtures/patchjson.txt").then((json) => {
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("JSON");
-    dataSources.EnterQuery(json);
-    agHelper.AssertAutoSave();
-    apiPage.RunAPI();
-    cy.validateRequest(
-      "Api1",
-      testdata.baseUrl,
-      testdata.echoMethod,
-      testdata.Delete,
-    );
+      dataSources.EnterQuery(json);
+      agHelper.AssertAutoSave();
+      apiPage.RunAPI();
+      cy.validateRequest(
+        "Api1",
+        testdata.baseUrl,
+        testdata.echoMethod,
+        testdata.Delete,
+      );
     });
     cy.ResponseStatusCheck("200");
   });
@@ -126,25 +126,23 @@ describe("API Panel Test Functionality", function() {
     cy.ResponseCheck(testdata.responsetext);
     cy.switchToPaginationTab();
     cy.selectPaginationType(apiwidget.paginationWithUrl);
-    cy.enterUrl(testdata.baseUrl, apiwidget.panigationNextUrl, testdata.nextUrl);
-    cy.clickTest(apiwidget.TestNextUrl);
-    cy.validateRequest(
-      "Api1",
+    cy.enterUrl(
       testdata.baseUrl,
-      testdata.next,
-      testdata.Get,
+      apiwidget.panigationNextUrl,
+      testdata.nextUrl,
     );
+    cy.clickTest(apiwidget.TestNextUrl);
+    cy.validateRequest("Api1", testdata.baseUrl, testdata.next, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck("Josh M Krantz");
     cy.switchToPaginationTab();
-    cy.enterUrl(testdata.baseUrl, apiwidget.panigationPrevUrl, testdata.prevUrl);
-    cy.clickTest(apiwidget.TestPreUrl);
-    cy.validateRequest(
-      "Api1",
+    cy.enterUrl(
       testdata.baseUrl,
-      testdata.prev,
-      testdata.Get,
+      apiwidget.panigationPrevUrl,
+      testdata.prevUrl,
     );
+    cy.clickTest(apiwidget.TestPreUrl);
+    cy.validateRequest("Api1", testdata.baseUrl, testdata.prev, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck(testdata.responsetext);
   });

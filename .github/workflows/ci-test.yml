@@ -372,7 +372,6 @@ jobs:
         if: always()
         run: |
           mkdir -p  ~/failed_spec_ci
-          rm -rf ~/failed_spec_ci/*
           echo  "empty" >> ~/failed_spec_ci/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
@@ -380,7 +379,7 @@ jobs:
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          find screenshots -type f -iname "*\(attempt 2\).png" | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
