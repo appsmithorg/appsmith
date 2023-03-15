@@ -8,17 +8,14 @@ import React, {
 import styled from "styled-components";
 import {
   FormGroup,
-  Icon,
-  IconSize,
   MenuDivider,
-  Spinner,
   Text,
   TextInput,
   TextType,
   Toaster,
   Variant,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon, Spinner } from "design-system";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -237,7 +234,7 @@ function StatusIcon(props: {
     );
   return (
     <StatusIconWrapper addHoverState className="t--download" {...actionProps}>
-      <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />
+      <Icon name="download" size="md" />
     </StatusIconWrapper>
   );
 }

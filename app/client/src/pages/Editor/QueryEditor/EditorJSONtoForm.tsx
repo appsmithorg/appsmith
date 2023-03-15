@@ -26,14 +26,13 @@ import {
   Icon as AdsIcon,
   IconSize,
   SearchSnippet,
-  Spinner,
   TabComponent,
   Text,
   TextType,
   TooltipComponent,
   Variant,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Spinner } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -363,14 +362,13 @@ const Container = styled.div`
   .selected-value {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: no-wrap;
+    white-space: nowrap;
     margin-left: 6px;
   }
 `;
 
-const StyledSpinner = styled.div`
+const StyledSpinner = styled(Spinner)`
   display: flex;
-  padding: 5px;
   height: 2vw;
   align-items: center;
   justify-content: space-between;
@@ -627,12 +625,7 @@ export function EditorJSONtoForm(props: Props) {
             return renderEachConfigV2(formName, config, idx);
           });
         } else {
-          return (
-            <StyledSpinner>
-              <Spinner size={IconSize.LARGE} />
-              <p>Loading..</p>
-            </StyledSpinner>
-          );
+          return <StyledSpinner size="md" />;
         }
       } else {
         return editorConfig.map(renderEachConfig(formName));

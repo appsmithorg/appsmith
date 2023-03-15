@@ -4,8 +4,8 @@ import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
-import { Dropdown, IconSize, Spinner } from "design-system-old";
-import { Button } from "design-system";
+import { Dropdown } from "design-system-old";
+import { Button, Spinner } from "design-system";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
@@ -120,7 +120,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     >
       {isFetchingApplications ? (
         <SpinnerWrapper>
-          <Spinner size={IconSize.XXXL} />
+          <Spinner size="lg" />
         </SpinnerWrapper>
       ) : (
         !!workspaceList.length && (

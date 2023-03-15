@@ -29,9 +29,9 @@ import {
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
-import { Icon, IconSize, IconWrapper } from "design-system-old";
+import { Icon, Spinner } from "design-system";
 import { get } from "lodash";
-import { Spinner, TooltipComponent as Tooltip } from "design-system-old";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   isLocalBranch,
   isRemoteBranch,
@@ -134,15 +134,17 @@ function CreateNewBranch({
       }}
     >
       <Icon
-        fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+        color={get(theme, "colors.gitSyncModal.closeIcon")}
         name="git-branch"
-        size={IconSize.XXXL}
+        size="lg"
       />
       <CreateNewBranchContainer className={className} ref={itemRef}>
         <div className="large-text">{`Create branch: ${branch} `}</div>
         <div className="small-text">{`from '${currentBranch}'`}</div>
       </CreateNewBranchContainer>
-      <SpinnerContainer>{isCreatingNewBranch && <Spinner />}</SpinnerContainer>
+      <SpinnerContainer>
+        {isCreatingNewBranch && <Spinner size="sm" />}
+      </SpinnerContainer>
     </div>
   );
 }
@@ -202,22 +204,20 @@ export function Header({
           >
             <Icon
               className="t--sync-branches"
-              fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-              hoverFillColor={Colors.BLACK}
+              color={get(theme, "colors.gitSyncModal.closeIcon")}
               name="refresh"
               onClick={fetchBranches}
-              size={IconSize.XXXL}
+              size="lg"
             />
           </Tooltip>
         </span>
       </div>
       <Icon
         className="t--close-branch-list"
-        fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-        hoverFillColor={Colors.BLACK}
+        color={get(theme, "colors.gitSyncModal.closeIcon")}
         name="close-modal"
         onClick={closePopup}
-        size={IconSize.XXXXL}
+        size="lg"
       />
     </div>
   );
