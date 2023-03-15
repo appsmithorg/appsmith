@@ -262,7 +262,7 @@ describe(".defaultSelectedItemValidation", () => {
   it("accepts only number and string", () => {
     const validOutput = (parsed: unknown): ValidationResponse => ({
       isValid: true,
-      parsed,
+      parsed: String(parsed),
       messages: [{ name: "", message: "" }],
     });
 
