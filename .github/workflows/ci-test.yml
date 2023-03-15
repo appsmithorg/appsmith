@@ -163,6 +163,8 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer
+          docker run --name=mssqldb -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Root$123' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest
+          docker exec -it mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Root$123 -i ~/cypress/init-mssql-dump-for-test.sql
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
