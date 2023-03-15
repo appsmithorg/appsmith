@@ -100,6 +100,12 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
 
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          eslint: true
+          prettier: true
+
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
