@@ -22,7 +22,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
       "TABLE_NAME",
       "TABLE_TYPE",
     ]);
-    runQueryNValidate("exec sp_columns amazon_sales;", [
+    runQueryNValidate("exec sp_columns Amazon_Sales;", [
       "TABLE_QUALIFIER",
       "TABLE_OWNER",
       "TABLE_NAME",
