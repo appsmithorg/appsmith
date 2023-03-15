@@ -2,7 +2,7 @@ import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
-import { call } from "redux-saga/effects";
+import { call, select } from "redux-saga/effects";
 import { get } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 
@@ -13,6 +13,7 @@ import {
 import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -61,6 +62,7 @@ export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   parent?: WidgetProps,
+  isAutoLayout?: boolean,
 ) => UpdatePropertyArgs[] | undefined;
 
 export interface ChildOperationFnResponse {
@@ -101,6 +103,7 @@ export function* executeWidgetBlueprintOperations(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
 ) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   operations.forEach((operation: BlueprintOperation) => {
     const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
       ...widgets[widgetId],
@@ -119,6 +122,7 @@ export function* executeWidgetBlueprintOperations(
           widget as WidgetProps & { children?: WidgetProps[] },
           widgets,
           get(widgets, widget.parentId || "", undefined),
+          isAutoLayout,
         );
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {

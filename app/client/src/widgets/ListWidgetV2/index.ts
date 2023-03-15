@@ -1,7 +1,11 @@
 import { get } from "lodash";
 
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -14,6 +18,10 @@ import {
   getNumberOfParentListWidget,
 } from "./widget/helper";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { GridDefaults } from "constants/WidgetConstants";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -258,6 +266,92 @@ export const CONFIG = {
                 propertyValue: primaryKeys,
               },
             ];
+          },
+        },
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (
+            widget: FlattenedWidgetProps,
+            widgets: CanvasWidgetsReduxState,
+            parent: FlattenedWidgetProps,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return [];
+
+            //get first container widget
+            const containerId = get(widget, "children.0.children.0");
+            const containerWidget = widgets[containerId];
+
+            //get first Canvas Widget inside the container
+            const canvasId = get(containerWidget, "children.0");
+            const canvasWidget: FlattenedWidgetProps = widgets[canvasId];
+
+            //get Children inside Canvas
+            const childrenIds: string[] = get(canvasWidget, "children") || [];
+            const children: FlattenedWidgetProps[] = childrenIds.map(
+              (childId) => widgets[childId],
+            );
+
+            //Separate the text widget and image widget
+            const textWidgets = children.filter(
+              (child) => child.type === "TEXT_WIDGET",
+            );
+            const imageWidget = children.filter(
+              (child) => child.type === "IMAGE_WIDGET",
+            )?.[0];
+
+            //Create flex layer object based on the children
+            const flexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: textWidgets[0].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                  {
+                    id: imageWidget.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: textWidgets[1].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                ],
+              },
+            ];
+
+            //create properties to be updated
+            return getWidgetBluePrintUpdates({
+              [canvasWidget.widgetId]: {
+                flexLayers,
+                useAutoLayout: true,
+                positioning: Positioning.Vertical,
+              },
+              [textWidgets[0].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+              },
+              [textWidgets[1].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [imageWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 0,
+                bottomRow: 6,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+            });
           },
         },
         {

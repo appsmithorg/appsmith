@@ -38,6 +38,7 @@ import {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { getMetaFlexLayers } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -433,6 +434,15 @@ class ListWidget extends BaseWidget<
         tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
+
+    //To Add Auto Layout flex layer for meta Canvas Widgets
+    if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
+      metaWidget.flexLayers = getMetaFlexLayers(
+        metaWidget.flexLayers,
+        options.rowReferences,
+      );
+    }
+
     if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
       metaWidget.dynamicHeight = "FIXED";
     }

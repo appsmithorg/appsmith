@@ -1,11 +1,24 @@
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
-import { Positioning } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import {
+  BlueprintOperationTypes,
+  FlattenedWidgetProps,
+} from "widgets/constants";
+import get from "lodash/get";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 
 export const CONFIG = {
   features: {
@@ -86,23 +99,6 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "TEXT_WIDGET",
-                  size: {
-                    rows: 4,
-                    cols: 36,
-                  },
-                  position: {
-                    top: 8,
-                    left: 1,
-                  },
-                  props: {
-                    text: "21% more than last month",
-                    fontSize: "0.875rem",
-                    textColor: Colors.GREEN,
-                    version: 1,
-                  },
-                },
-                {
                   type: "ICON_BUTTON_WIDGET",
                   size: {
                     rows: 8,
@@ -119,8 +115,129 @@ export const CONFIG = {
                     version: 1,
                   },
                 },
+                {
+                  type: "TEXT_WIDGET",
+                  size: {
+                    rows: 4,
+                    cols: 36,
+                  },
+                  position: {
+                    top: 8,
+                    left: 1,
+                  },
+                  props: {
+                    text: "21% more than last month",
+                    fontSize: "0.875rem",
+                    textColor: Colors.GREEN,
+                    version: 1,
+                  },
+                },
               ],
             },
+          },
+        },
+      ],
+      operations: [
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (
+            widget: FlattenedWidgetProps,
+            widgets: CanvasWidgetsReduxState,
+            parent: FlattenedWidgetProps,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return [];
+
+            //get Canvas Widget
+            const canvasWidget: FlattenedWidgetProps = get(
+              widget,
+              "children.0",
+            );
+
+            //get Children Ids of the StatBox
+            const childrenIds: string[] = get(widget, "children.0.children");
+
+            //get Children props of the StatBox
+            const children: FlattenedWidgetProps[] = childrenIds.map(
+              (childId) => widgets[childId],
+            );
+
+            //get the Text Widgets
+            const textWidgets = children.filter(
+              (child) => child.type === "TEXT_WIDGET",
+            );
+
+            //get all the Icon button Widgets
+            const iconWidget = children.filter(
+              (child) => child.type === "ICON_BUTTON_WIDGET",
+            )?.[0];
+
+            //Create flex layer object based on the children
+            const flexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: textWidgets[0].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: textWidgets[1].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                  {
+                    id: iconWidget.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: textWidgets[2].widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                ],
+              },
+            ];
+
+            //create properties to be updated
+            return getWidgetBluePrintUpdates({
+              [widget.widgetId]: {
+                dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+              },
+              [canvasWidget.widgetId]: {
+                flexLayers,
+                useAutoLayout: true,
+                positioning: Positioning.Vertical,
+              },
+              [textWidgets[0].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [textWidgets[1].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+              },
+              [textWidgets[2].widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [iconWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+            });
           },
         },
       ],
