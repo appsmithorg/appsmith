@@ -275,7 +275,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
-  cy.get(commonlocators.editWidgetName)
+  cy.get(commonlocators.propertyPaneTitle)
     .click({ force: true })
     .type(text, { delay: 300 })
     .type("{enter}");
@@ -286,7 +286,7 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
 });
 
 Cypress.Commands.add("verifyUpdatedWidgetName", (text, txtToVerify) => {
-  cy.get(commonlocators.editWidgetName)
+  cy.get(commonlocators.propertyPaneTitle)
     .click({ force: true })
     .type(text)
     .type("{enter}");
@@ -313,7 +313,7 @@ Cypress.Commands.add("editColName", (text) => {
 
 Cypress.Commands.add("invalidWidgetText", () => {
   // checking invalid widget name
-  cy.get(commonlocators.editWidgetName)
+  cy.get(commonlocators.propertyPaneTitle)
     .click({ force: true })
     .type("download")
     .type("{enter}");

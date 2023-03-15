@@ -1,4 +1,11 @@
-import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 
 import { generateReactKey } from "utils/generators";
 import {
@@ -61,6 +68,10 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: props,
     });
+    yield delay(100);
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [modalWidgetId]),
+    );
   } catch (error) {
     log.error(error);
     yield put({
