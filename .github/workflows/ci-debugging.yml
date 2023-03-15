@@ -72,13 +72,7 @@ jobs:
           cd cicontainerlocal
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker cp ../app/client/cypress/init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
-          docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd \
-            -S localhost -U SA -P "Root@123" \
-            -Q "ALTER LOGIN SA WITH PASSWORD='Root@123'; \
-            CREATE LOGIN [${{ github.actor }}] WITH PASSWORD='Root@123'; \
-            CREATE USER [${{ github.actor }}] FROM LOGIN [${{ github.actor }}]; \
-            ALTER SERVER ROLE sysadmin ADD MEMBER [${{ github.actor }}];"
-          docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
+          docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost:1433 -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
             
       - name: Execute access to ci-debug.sh
         if: steps.run_result.outputs.run_result != 'success'
