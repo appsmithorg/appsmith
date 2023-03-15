@@ -64,4 +64,6 @@ export interface AppsmithUIConfigs {
   appsmithSupportEmail: string;
   hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
+  pricingUrl: string;
+  customerPortalUrl: string;
 }

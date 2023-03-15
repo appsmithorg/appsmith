@@ -11,6 +11,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -1005,8 +1006,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-                    application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
-                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
+
+                    if (application.getUnpublishedApplicationDetail() == null){
+                        application.setUnpublishedApplicationDetail(new ApplicationDetail());
+                    }
+
+                    if (application.getPublishedApplicationDetail() == null){
+                        application.setPublishedApplicationDetail(new ApplicationDetail());
+                    }
+
+                    application.getPublishedApplicationDetail().setAppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning());
+                    application.getPublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting());
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
