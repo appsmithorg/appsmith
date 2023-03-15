@@ -134,10 +134,10 @@ public class DatasourceServiceTest {
         StepVerifier.create(workspaceService.create(workspace11)
                         .zipWith(pluginService.findByPackageName("restapi-plugin"))
                         .flatMap(tuple2 -> {
-                            Workspace org = tuple2.getT1();
+                            Workspace workspace = tuple2.getT1();
                             Plugin plugin = tuple2.getT2();
                             Datasource datasource = new Datasource();
-                            datasource.setWorkspaceId(org.getId());
+                            datasource.setWorkspaceId(workspace.getId());
                             datasource.setPluginId(plugin.getId());
                             return datasourceService.create(datasource);
                         })
