@@ -67,15 +67,20 @@ export const getRemainingDays = createSelector(getExpiry, (expiry) => {
 export const isTrialLicense = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.type === LICENSE_TYPE.TRIAL;
 
+export const isLicensePaymentFailed = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.status ===
+  LICENSE_TYPE.PAYMENT_FAILED;
+
 export const isBEBannerVisible = (state: AppState) => {
   const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
   return value;
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {
-  const trialLicense = isTrialLicense(state);
+  const isTrialLicenseOrFailed =
+    isTrialLicense(state) || isLicensePaymentFailed(state);
   const isBEBanner = isBEBannerVisible(state);
-  return !isBEBanner && trialLicense;
+  return !isBEBanner && isTrialLicenseOrFailed;
 };
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {

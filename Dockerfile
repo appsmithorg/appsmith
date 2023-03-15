@@ -26,7 +26,7 @@ RUN apt-get update \
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
-  && curl --silent --show-error --location https://deb.nodesource.com/setup_14.x | bash - \
+  && curl --silent --show-error --location https://deb.nodesource.com/setup_16.x | bash - \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \ 
   && apt update \
@@ -36,7 +36,7 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
 
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/20.0.3/keycloak-20.0.3.tar.gz \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/21.0.1/keycloak-21.0.1.tar.gz \
   && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1
 
 # Clean up cache file - Service layer

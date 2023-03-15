@@ -32,4 +32,5 @@ export enum LICENSE_ORIGIN {
 export enum LICENSE_TYPE {
   TRIAL = "TRIAL",
   PAID = "PAID",
+  PAYMENT_FAILED = "IN_GRACE_PERIOD",
 }

@@ -7,7 +7,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import { getActionTriggerFunctionNames } from "workers/Evaluation/fns";
+import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns";
 import { lintBindingPath, lintTriggerPath, pathRequiresLinting } from "./utils";
 
 export function getlintErrorsFromTree(
