@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Icon, IconSize } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
@@ -11,6 +10,7 @@ import { WhereClauseSubComponent } from "./utils";
 import { TooltipComponent as Tooltip } from "design-system-old";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Colors } from "constants/Colors";
+import { Icon } from "design-system";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -177,7 +177,7 @@ const ConditionBox = styled.div<{ size?: string }>`
       grid-column-start: 1;
     }
     // The fourth element i.e the close button will be placed in the second row
-    // to have it center aligned 
+    // to have it center aligned
     & :nth-child(4) {
       grid-column-start: 2;
       grid-row-start: 2;
@@ -470,10 +470,10 @@ function ConditionBlock(props: any) {
                 condition: props.comparisonTypes[0].value,
                 value: "",
               })
-            // Add empty and key and value as it will required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
+            // Add empty and key and value as it will be required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
           }
         >
-          <Icon name="add-more-fill" size={IconSize.XL} />
+          <Icon name="add-more-fill" size="md" />
           <span style={{ marginLeft: "8px" }}>Add Condition</span>
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}

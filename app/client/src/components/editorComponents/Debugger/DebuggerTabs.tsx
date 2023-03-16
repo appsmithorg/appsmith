@@ -1,6 +1,5 @@
 import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,6 +22,7 @@ import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { getSelectedCanvasDebuggerTab } from "selectors/editorContextSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { Button } from "design-system";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -95,11 +95,13 @@ function DebuggerTabs() {
         selectedTabKey={selectedTab}
         tabs={DEBUGGER_TABS}
       />
-      <Icon
+      <Button
         className="close-debugger t--close-debugger"
-        name="expand-more"
+        isIconButton
+        kind="tertiary"
         onClick={onClose}
-        size={IconSize.MEDIUM}
+        size="sm"
+        startIcon="expand-more"
       />
     </Container>
   );

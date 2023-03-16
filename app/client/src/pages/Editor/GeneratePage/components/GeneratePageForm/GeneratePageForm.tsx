@@ -30,7 +30,7 @@ import {
   RenderDropdownOptionType,
   TooltipComponent as Tooltip,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -57,7 +57,6 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import { Icon } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -678,12 +677,7 @@ function GeneratePageForm() {
                       hoverOpenDelay={200}
                     >
                       <RoundBg>
-                        <Icon
-                          fillColor={Colors.WHITE}
-                          hoverFillColor={Colors.WHITE}
-                          name="help"
-                          size={IconSize.XXS}
-                        />
+                        <Icon name="help" size="sm" />
                       </RoundBg>
                     </Tooltip>
                   </TooltipWrapper>

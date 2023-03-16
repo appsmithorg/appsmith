@@ -1,10 +1,10 @@
 import React, { memo } from "react";
-import { Icon, IconSize } from "design-system-old";
-import { Button } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { StyledDiv } from "./index.styled";
+import { Button } from "@blueprintjs/core";
+import { Button as AdsButton, Icon } from "design-system";
 
 export interface SelectButtonProps {
   disabled?: boolean;
@@ -38,22 +38,17 @@ function SelectButton(props: SelectButtonProps) {
       rightIcon={
         <StyledDiv>
           {!isEmptyOrNill(value) && !hideCancelIcon ? (
-            <Icon
+            <AdsButton
               className="dropdown-icon cancel-icon"
               data-testid="selectbutton.btn.cancel"
-              disabled={disabled}
-              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+              isDisabled={disabled}
+              isIconButton
               name="cross"
               onClick={handleCancelClick}
-              size={IconSize.XXS}
+              size="sm"
             />
           ) : null}
-          <Icon
-            className="dropdown-icon"
-            disabled={disabled}
-            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-            name="dropdown"
-          />
+          <Icon className="dropdown-icon" name="dropdown" />
         </StyledDiv>
       }
     >

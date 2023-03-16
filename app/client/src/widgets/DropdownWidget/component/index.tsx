@@ -1,13 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  MenuItem,
-  Button,
-  ControlGroup,
-  Classes,
-  Alignment,
-} from "@blueprintjs/core";
+import { MenuItem, ControlGroup, Classes, Alignment } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
@@ -18,10 +12,10 @@ import { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
-import { Icon } from "design-system-old";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
+import { Button } from "design-system";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -367,18 +361,12 @@ class DropDownComponent extends React.Component<
             }}
           >
             <Button
-              disabled={this.props.disabled}
-              rightIcon={
-                <Icon
-                  className="dropdown-icon"
-                  fillColor={
-                    this.props.disabled ? Colors.GREY_7 : Colors.GREY_10
-                  }
-                  name="dropdown"
-                />
-              }
-              text={value}
-            />
+              endIcon="dropdown"
+              isDisabled={this.props.disabled}
+              kind="tertiary"
+            >
+              {value}
+            </Button>
           </StyledSingleDropDown>
         </StyledControlGroup>
       </DropdownContainer>

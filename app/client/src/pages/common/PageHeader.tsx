@@ -16,14 +16,13 @@ import {
   matchTemplatesIdPath,
 } from "constants/routes";
 import history from "utils/history";
-import Button from "components/editorComponents/Button";
+import EditorButton from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
 import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
-import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -192,7 +191,7 @@ export function PageHeader(props: PageHeaderProps) {
       {user && !isMobile && (
         <StyledDropDownContainer>
           {user.username === ANONYMOUS_USERNAME ? (
-            <Button
+            <EditorButton
               filled
               intent={"primary"}
               onClick={() => history.push(loginUrl)}
@@ -213,8 +212,8 @@ export function PageHeader(props: PageHeaderProps) {
         <StyledTwoLineHamburger onClick={() => setIsMobileSidebarOpen(true)} />
       )}
       {isMobile && isMobileSidebarOpen && (
-        <Icon
-          fillColor={Colors.CRUSTA}
+        <Button
+          isIconButton
           name="close-x"
           onClick={() => setIsMobileSidebarOpen(false)}
           size={IconSize.XXXXL}

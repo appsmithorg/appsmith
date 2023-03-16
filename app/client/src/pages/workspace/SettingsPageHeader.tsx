@@ -3,11 +3,9 @@ import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import { DebouncedFunc } from "lodash";
 import {
-  IconSize,
   Menu,
   MenuItem,
   MenuItemProps,
-  Icon,
   SearchVariant,
 } from "design-system-old";
 import { Button } from "design-system";
@@ -152,12 +150,14 @@ export function SettingsPageHeader(props: PageHeaderProps) {
               onOpening={() => setShowOptions(true)}
               position={Position.BOTTOM_RIGHT}
               target={
-                <Icon
+                <Button
                   className="actions-icon"
                   data-testid="t--page-header-actions"
-                  name="more-2-fill"
+                  isIconButton
+                  kind="tertiary"
                   onClick={() => setShowOptions(!showOptions)}
-                  size={IconSize.XXL}
+                  size="sm"
+                  startIcon="more-2-fill"
                 />
               }
             >

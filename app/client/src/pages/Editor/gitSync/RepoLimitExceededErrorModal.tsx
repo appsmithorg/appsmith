@@ -10,14 +10,8 @@ import {
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
 import styled, { useTheme } from "styled-components";
-import {
-  DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
-import { Button } from "design-system";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -62,7 +56,7 @@ const BodyContainer = styled.div`
   height: 100%;
 `;
 
-const CloseBtnContainer = styled.div`
+const CloseButton = styled(Button)`
   position: absolute;
   right: 0;
   top: 0;
@@ -209,9 +203,9 @@ function RepoLimitExceededErrorModal() {
             }}
           >
             <Icon
-              fillColor={Colors.YELLOW_LIGHT}
+              color="var(--ads-v2-color-fg-warning)"
               name="warning-line"
-              size={IconSize.XXXL}
+              size="lg"
             />
             <div style={{ display: "block" }}>
               <Text
@@ -249,9 +243,9 @@ function RepoLimitExceededErrorModal() {
           </div>
           <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>
             <Icon
-              fillColor={Colors.CRIMSON}
+              color="var(--ads-v2-color-fg-error)"
               name="warning-line"
-              size={IconSize.XXXL}
+              size="lg"
             />
             <div style={{ display: "block" }}>
               <Text
@@ -304,13 +298,13 @@ function RepoLimitExceededErrorModal() {
             })}
           </AppListContainer>
         </BodyContainer>
-        <CloseBtnContainer onClick={onClose}>
-          <Icon
-            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-            name="close-modal"
-            size={IconSize.XXXXL}
-          />
-        </CloseBtnContainer>
+        <CloseButton
+          isIconButton
+          kind="tertiary"
+          onClick={onClose}
+          size="sm"
+          startIcon="close-modal"
+        />
       </Container>
     </Dialog>
   );

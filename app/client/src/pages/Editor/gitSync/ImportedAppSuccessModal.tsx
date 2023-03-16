@@ -8,9 +8,8 @@ import {
   APPLICATION_IMPORT_SUCCESS,
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import { Icon } from "design-system-old";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
@@ -73,7 +72,7 @@ function ImportedApplicationSuccessModal() {
     >
       <Container>
         <BodyContainer>
-          <Icon fillColor={Colors.GREEN_1} name="oval-check-fill" />
+          <Icon color="var(--ads-v2-color-fg-success)" name="oval-check-fill" />
           <Text
             color={Colors.BLACK}
             style={{ marginTop: 64 }}

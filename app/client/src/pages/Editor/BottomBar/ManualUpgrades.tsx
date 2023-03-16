@@ -2,8 +2,7 @@ import {
   ApplicationVersion,
   updateApplication,
 } from "actions/applicationActions";
-import { Icon, IconSize, IconWrapper } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import { TooltipComponent, Text, TextType } from "design-system-old";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
@@ -18,7 +17,6 @@ import {
 import styled from "styled-components";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
-import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import classNames from "classnames";
 import { BottomBarCTAStyles } from "./styles";
@@ -116,20 +114,17 @@ function UpdatesModal({
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-start">
             <StyledIconContainer>
-              <Icon
-                fillColor={Colors.SCORPION}
-                name="upgrade"
-                size={IconSize.XXXL}
-              />
+              <Icon name="upgrade" size="lg" />
             </StyledIconContainer>
             <Text type={TextType.H1}>Product Updates</Text>
           </div>
-          <Icon
+          <Button
             className="close-modal"
-            fillColor={Colors.SCORPION}
-            name="close-modal"
+            isIconButton
+            kind="tertiary"
             onClick={closeModal}
-            size={IconSize.XXXL}
+            size="sm"
+            startIcon="close-modal"
           />
         </div>
         {updates.slice(applicationVersion - 1).map((update) => (
@@ -143,9 +138,11 @@ function UpdatesModal({
               ))}
             </StyledList>
             <DisclaimerContainer>
-              <IconWrapper size={IconSize.XXXL}>
-                <DisclaimerIcon color={Colors.WARNING_SOLID} />
-              </IconWrapper>
+              <Icon
+                color="var(--ads-v2-color-fg-warning)"
+                name="error-warning-line"
+                size="lg"
+              />
               <span
                 dangerouslySetInnerHTML={{ __html: update.disclaimer.desc }}
               />

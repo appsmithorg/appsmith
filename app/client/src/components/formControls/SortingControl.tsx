@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
-import { Classes, Icon, IconSize } from "design-system-old";
+import { Classes } from "design-system-old";
 import styled, { css } from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
@@ -10,6 +10,7 @@ import { getBindingOrConfigPathsForSortingControl } from "entities/Action/action
 import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
+import { Icon } from "design-system";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -247,7 +248,7 @@ function SortingComponent(props: any) {
           })
         }
       >
-        <Icon name="add-more-fill" size={IconSize.XL} />
+        <Icon name="add-more-fill" size="md" />
         <StyledBottomLabel>Add Parameter</StyledBottomLabel>
       </StyledBottomLabelContainer>
     </SortingContainer>

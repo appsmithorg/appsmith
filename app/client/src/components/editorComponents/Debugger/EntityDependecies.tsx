@@ -6,8 +6,6 @@ import styled from "styled-components";
 import {
   Classes,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TooltipComponent as Tooltip,
@@ -28,6 +26,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
+import { Icon } from "design-system";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -224,7 +223,7 @@ function EntityDeps(props: ConnectionsProps) {
     <Wrapper>
       <ConnectionContainer>
         <ConnectionType className="icon-text">
-          <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+          <Icon name="trending-flat" size="md" />
           <span className="connection-type">
             {createMessage(INCOMING_ENTITIES)}
           </span>

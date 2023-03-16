@@ -49,8 +49,6 @@ import {
   Classes,
   EditableText,
   EditInteractionKind,
-  Icon,
-  IconName,
   Menu,
   MenuItem,
   notEmptyValidator,
@@ -58,7 +56,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import {
   duplicateApplication,
   updateApplication,
@@ -295,7 +293,7 @@ export function Item(props: {
 }) {
   return (
     <ItemWrapper>
-      {props.icon && <StyledIcon />}
+      {props.icon && <StyledIcon name={props.icon} />}
       <Text
         className={
           !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
@@ -798,13 +796,15 @@ export function ApplicationsSection(props: any) {
                         }}
                         position={Position.BOTTOM_RIGHT}
                         target={
-                          <Icon
+                          <Button
                             className="t--options-icon"
-                            name="context-menu"
+                            isIconButton
+                            kind="secondary"
                             onClick={() => {
                               setWorkspaceToOpenMenu(workspace.id);
                             }}
-                            size={IconSize.XXXL}
+                            size="md"
+                            startIcon="context-menu"
                           />
                         }
                       >

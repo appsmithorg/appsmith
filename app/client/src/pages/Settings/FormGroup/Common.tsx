@@ -3,22 +3,17 @@ import React from "react";
 import styled from "styled-components";
 import {
   getTypographyByKey,
-  Icon,
-  IconSize,
   TooltipComponent as Tooltip,
 } from "design-system-old";
 import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";
+import { Icon } from "design-system";
 
 type FieldHelperProps = {
   setting: Setting;
   children: React.ReactNode;
   className?: string;
 };
-
-const StyledIcon = styled(Icon)`
-  width: 20px;
-`;
 
 export const StyledFormGroup = styled.div`
   width: 40rem;
@@ -71,11 +66,11 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
       {setting.helpText && (
         <Tooltip content={createMessage(() => setting.helpText || "")}>
-          <StyledIcon
+          <Icon
+            color="white"
             data-testid="admin-settings-form-group-helptext"
-            fillColor="#fff"
             name="help"
-            size={IconSize.XXS}
+            size="sm"
           />
         </Tooltip>
       )}

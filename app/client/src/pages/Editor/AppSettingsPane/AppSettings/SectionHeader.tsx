@@ -1,7 +1,7 @@
 import classNames from "classnames";
-import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
+import { Icon } from "design-system";
 
 export interface SectionHeaderProps {
   id: string;
@@ -31,7 +31,7 @@ class SectionHeader extends React.Component<SectionHeaderProps> {
         onClick={this.props.onClick}
       >
         <div className="basis-[7.5%]" />
-        <Icon name={this.props.icon} size={IconSize.XL} />
+        <Icon name={this.props.icon} size="md" />
         <div className="basis-[4.5%]" />
         <div className="flex flex-col">
           <div className="text-[14px] font-medium leading-[1.2rem]">

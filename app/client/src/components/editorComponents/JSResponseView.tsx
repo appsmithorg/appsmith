@@ -29,15 +29,8 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import {
-  Callout,
-  Classes,
-  Icon,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
-import { Button } from "design-system";
+import { Callout, Classes, Text, TextType, Variant } from "design-system-old";
+import { Button, Icon } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationError } from "utils/DynamicBindingUtils";

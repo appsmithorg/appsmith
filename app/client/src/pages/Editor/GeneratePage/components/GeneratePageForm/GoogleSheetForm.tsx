@@ -17,8 +17,6 @@ import {
   DropdownOption,
   FontWeight,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TextInput,
@@ -33,6 +31,7 @@ import {
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
+import { Icon } from "design-system";
 
 type Props = {
   googleSheetPluginId: string;
@@ -329,12 +328,7 @@ function GoogleSheetForm(props: Props) {
                   hoverOpenDelay={200}
                 >
                   <RoundBg>
-                    <Icon
-                      fillColor={Colors.WHITE}
-                      hoverFillColor={Colors.WHITE}
-                      name="help"
-                      size={IconSize.XXS}
-                    />
+                    <Icon name="help" size="sm" />
                   </RoundBg>
                 </Tooltip>
               </TooltipWrapper>

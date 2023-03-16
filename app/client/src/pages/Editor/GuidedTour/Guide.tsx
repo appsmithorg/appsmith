@@ -3,8 +3,8 @@ import {
   showInfoMessage,
   toggleLoader,
 } from "actions/onboardingActions";
-import { getTypographyByKey, Icon, IconSize } from "design-system-old";
-import { Button } from "design-system";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -342,9 +342,11 @@ function GuideStepsContent(props: {
               return (
                 <div className={className} key={step?.toString()}>
                   <Icon
-                    fillColor={completed ? "#03B365" : "#716E6E"}
+                    color={
+                      completed ? "var(--ads-v2-color-fg-success)" : "inherit"
+                    }
                     name={completed ? "oval-check-fill" : "oval-check"}
-                    size={IconSize.XXL}
+                    size="md"
                   />
                   <span className="hint-steps-text">{hintSteps[index]}</span>
                 </div>

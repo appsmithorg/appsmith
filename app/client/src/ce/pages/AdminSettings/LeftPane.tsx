@@ -5,11 +5,11 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
-import { Icon, IconSize } from "design-system-old";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import camelCase from "lodash/camelCase";
+import { Icon } from "design-system";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -114,9 +114,7 @@ export function Categories({
                   })
             }
           >
-            <div>
-              {config?.icon && <Icon name={config?.icon} size={IconSize.XL} />}
-            </div>
+            <div>{config?.icon && <Icon name={config?.icon} size="md" />}</div>
             <div>{config.title}</div>
           </StyledLink>
           {showSubCategory && (

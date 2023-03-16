@@ -13,8 +13,6 @@ import {
   DefaultDropDownValueNodeProps,
   DropdownOption,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TooltipComponent as Tooltip,
@@ -42,6 +40,7 @@ import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
+import { Icon } from "design-system";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -317,7 +316,6 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
   const tooltipText = !!props.entityCount
     ? `See ${props.connectionType.toLowerCase()} connections`
     : `No ${props.connectionType.toLowerCase()} connections`;
-  const iconColor = props.hasError ? "#f22b2b" : "";
 
   const onClick = () => {
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_DROPDOWN_CLICK");
@@ -333,10 +331,9 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
     >
       {props.iconAlignment === "LEFT" && (
         <Icon
-          fillColor={iconColor}
-          keepColors={!props.hasError}
+          color={props.hasError ? "var(--ads-v2-color-fg-error)" : "inherit"}
           name="trending-flat"
-          size={IconSize.MEDIUM}
+          size="md"
         />
       )}
       <span>
@@ -351,13 +348,12 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
       </span>
       {props.iconAlignment === "RIGHT" && (
         <Icon
-          fillColor={iconColor}
-          keepColors={!props.hasError}
+          color={props.hasError ? "var(--ads-v2-color-fg-error)" : "inherit"}
           name="trending-flat"
-          size={IconSize.MEDIUM}
+          size="md"
         />
       )}
-      <Icon keepColors name="expand-more" size={IconSize.XS} />
+      <Icon name="expand-more" size="sm" />
     </SelectedNodeWrapper>
   );
 });

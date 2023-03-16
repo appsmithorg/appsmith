@@ -6,7 +6,8 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Icon, IconSize, Toaster, Variant } from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
+import { Icon } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -249,12 +250,7 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon
-              className="t--action-name-edit-icon"
-              fillColor="#939090"
-              name="edit"
-              size={IconSize.XXL}
-            />
+            <Icon className="t--action-name-edit-icon" name="edit" size="md" />
           )}
         </TextContainer>
       </ErrorTooltip>

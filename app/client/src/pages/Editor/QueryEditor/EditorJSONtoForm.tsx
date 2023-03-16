@@ -1,6 +1,6 @@
 import React, { RefObject, useCallback, useRef } from "react";
 import { InjectedFormProps } from "redux-form";
-import { Icon, Tag } from "@blueprintjs/core";
+import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
 import {
   components,
@@ -23,8 +23,6 @@ import log from "loglevel";
 import {
   Callout,
   Classes,
-  Icon as AdsIcon,
-  IconSize,
   SearchSnippet,
   TabComponent,
   Text,
@@ -32,7 +30,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system-old";
-import { Button, Spinner } from "design-system";
+import { Button, Icon, Spinner } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -561,7 +559,7 @@ export function EditorJSONtoForm(props: Props) {
         <components.MenuList {...props}>{props.children}</components.MenuList>
         {canCreateDatasource ? (
           <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-            <Icon className="createIcon" icon="plus" iconSize={11} />
+            <Icon className="createIcon" name="plus" size="sm" />
             {createMessage(CREATE_NEW_DATASOURCE)}
           </CreateDatasource>
         ) : null}
@@ -804,7 +802,10 @@ export function EditorJSONtoForm(props: Props) {
         <ResponseContentWrapper>
           {error && (
             <ErrorContainer>
-              <AdsIcon keepColors name="warning-triangle" />
+              <Icon
+                color="var(--ads-v2-color-fg-warning)"
+                name="warning-triangle"
+              />
               <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
                 {createMessage(EXPECTED_ERROR)}
               </Text>

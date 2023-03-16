@@ -4,7 +4,7 @@ import { Classes as BPClasses, Position } from "@blueprintjs/core";
 import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system-old";
+import { Classes, Text, FontWeight, TextType } from "design-system-old";
 import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -255,11 +255,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                 onClick={onSelect}
               >
                 <IconContainer>
-                  <Icon
-                    fillColor="#858282"
-                    name={menuProps.icon}
-                    size={IconSize.XL}
-                  />
+                  <Icon color="#858282" name={menuProps.icon} size="md" />
                   <Text type={TextType.P3} weight={FontWeight.NORMAL}>
                     {menuProps.text}
                   </Text>

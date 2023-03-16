@@ -1,4 +1,3 @@
-import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -19,6 +18,7 @@ import { matchBuilderPath } from "constants/routes";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
+import { Button } from "design-system";
 
 function Debugger() {
   const showDebugger = useSelector(
@@ -111,11 +111,12 @@ export function DebuggerTrigger() {
           preventOverflow: { enabled: true },
         }}
       >
-        <Icon
-          fillColor={Colors.GRAY_700}
+        <Button
+          isIconButton
+          kind="tertiary"
           name="bug-line"
           onClick={onClick}
-          size={IconSize.XXXL}
+          size="sm"
         />
       </TooltipComponent>
       {!!messageCounters.errors && (

@@ -3,14 +3,8 @@ import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
 import { Colors } from "constants/Colors";
-import {
-  Case,
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Case, Classes, Text, TextType } from "design-system-old";
+import { Icon } from "design-system";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
@@ -148,13 +142,12 @@ const ReadMore = ({
           : "read less"}
       </Text>
       <Icon
-        fillColor={Colors.GREY_8}
         name={
           currentState === ReleaseComponentViewState.collapsed
             ? "view-all"
             : "view-less"
         }
-        size={IconSize.SMALL}
+        size="sm"
       />
     </StyledReadMore>
   </ReadMoreContainer>

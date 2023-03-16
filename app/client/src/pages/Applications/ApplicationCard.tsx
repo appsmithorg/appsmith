@@ -33,9 +33,7 @@ import {
   ColorSelector,
   EditableText,
   EditInteractionKind,
-  Icon,
   IconSelector,
-  IconSize,
   Menu,
   MenuDivider,
   MenuItem,
@@ -48,7 +46,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
@@ -400,7 +398,7 @@ function GitConnectedBadge() {
         content={createMessage(CONNECTED_TO_GIT)}
         maxWidth="400px"
       >
-        <Icon fillColor={Colors.GREY_7} name="fork" size={IconSize.XXL} />
+        <Icon name="fork" size="md" />
       </TooltipComponent>
     </StyledGitConnectedBadge>
   );
@@ -623,12 +621,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon
-              fillColor={isMenuOpen ? "#000" : "#8a8a8a"}
-              hoverFillColor="#000"
-              name="context-menu"
-              size={IconSize.XXXL}
-            />
+            <Icon name="context-menu" size="lg" />
           </MoreOptionsContainer>
         }
       >

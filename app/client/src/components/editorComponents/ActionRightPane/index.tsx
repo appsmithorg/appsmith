@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import { Classes, getTypographyByKey, Icon, IconSize } from "design-system-old";
-import { Button } from "design-system";
+import { Classes, getTypographyByKey } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
 import Connections from "./Connections";
@@ -162,7 +162,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon keepColors name="down-arrow" size={IconSize.XXXL} />
+        <Icon name="down-arrow" size="lg" />
         <span className="label">{label}</span>
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>

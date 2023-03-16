@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect } from "react";
-import { Collapse, Icon } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon as AdsIcon, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getDatasourceCollapsibleState } from "selectors/ui";
 import { setDatasourceCollapsible } from "actions/datasourceActions";
 import isUndefined from "lodash/isUndefined";
+import { Icon } from "design-system";
 
 const SectionLabel = styled.div`
   font-weight: 500;
@@ -88,18 +88,12 @@ function Collapsible(props: Props) {
         >
           <SectionLabel>
             {title}
-            {headerIcon && (
-              <AdsIcon
-                fillColor={headerIcon.color}
-                name={headerIcon.name}
-                size={IconSize.MEDIUM}
-              />
-            )}
+            {headerIcon && <Icon name={headerIcon.name} size="md" />}
           </SectionLabel>
           <Icon
-            icon={isOpen ? "chevron-up" : "chevron-down"}
-            iconSize={16}
-            style={{ color: "#2E3D49" }}
+            color="var(--ads-v2-color-fg-information)"
+            name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
+            size="md"
           />
         </SectionContainer>
       )}

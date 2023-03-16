@@ -1,5 +1,4 @@
 import { Collapse } from "@blueprintjs/core";
-import { get } from "lodash";
 import { isString } from "lodash";
 import {
   Log,
@@ -17,8 +16,6 @@ import {
   AppIcon,
   Classes,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TooltipComponent,
@@ -30,6 +27,7 @@ import {
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
+import { Button } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -188,6 +186,10 @@ type StyledCollapseProps = PropsWithChildren<{
   category: LOG_CATEGORY;
 }>;
 
+const StyledButton = styled(Button)<{ isVisible: boolean }>`
+  visibility: ${(props) => (props.isVisible ? "visible" : "hidden")};
+`;
+
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   margin-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
@@ -291,28 +293,26 @@ function LogItem(props: LogItemProps) {
       }}
     >
       <InnerWrapper>
-        <Icon
-          clickable={collapsable}
-          fillColor={
-            props.severity === Severity.ERROR
-              ? get(theme, "colors.debugger.error.hoverIconColor")
-              : ""
-          }
-          name={props.icon}
-          size={IconSize.XL}
+        <Button
+          isDisabled={collapsable}
+          isIconButton
+          kind={props.severity === Severity.ERROR ? "error" : "tertiary"}
+          size="md"
+          startIcon={props.icon}
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.timestamp}
         </span>
 
-        <Icon
+        <StyledButton
           className={`${Classes.ICON} debugger-toggle`}
-          clickable={collapsable}
-          fillColor={get(theme, "colors.debugger.jsonIcon")}
-          invisible={!collapsable}
+          isDisabled={collapsable}
+          isIconButton
+          isVisible={!collapsable}
+          kind="tertiary"
           name={"expand-more"}
           onClick={() => setIsOpen(!isOpen)}
-          size={IconSize.XL}
+          size="md"
         />
         {!(
           props.collapsable &&

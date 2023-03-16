@@ -4,8 +4,6 @@ import {
   Classes,
   Dropdown,
   DropdownOption,
-  Icon,
-  IconSize,
   TextInput,
   TooltipComponent,
 } from "design-system-old";
@@ -16,6 +14,7 @@ import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Theme } from "constants/DefaultTheme";
+import { Button, Icon } from "design-system";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -77,11 +76,13 @@ function FilterHeader(props: FilterHeaderProps) {
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position="bottom"
       >
-        <Icon
+        <Button
           className="t--debugger-clear-logs"
-          name="cancel"
+          isIconButton
+          kind="tertiary"
           onClick={() => dispatch(clearLogs())}
-          size={IconSize.XL}
+          size="sm"
+          startIcon="cancel"
         />
       </TooltipComponent>
       <div className="input-container">

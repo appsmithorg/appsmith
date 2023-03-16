@@ -8,12 +8,11 @@ import {
   TabProp,
   Text,
   TextType,
-  Icon,
-  IconSize,
 } from "design-system-old";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+import { Icon } from "design-system";
 
 const LabelText = styled(Text)`
   font-size: 14px;
@@ -156,12 +155,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
               className="t--close-form-dialog"
               onClick={onCloseHandler}
             >
-              <Icon
-                fillColor={Colors.SCORPION}
-                hoverFillColor={Colors.GREY_900}
-                name="close-modal"
-                size={IconSize.XXXXL}
-              />
+              <Icon name="close-modal" size="lg" />
             </TabCloseBtnContainer>
           )}
           {props.message && (

@@ -9,7 +9,6 @@ import {
   FontStyleTypes,
   TextSize,
 } from "constants/WidgetConstants";
-import { Icon, IconSize } from "design-system-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
@@ -18,6 +17,8 @@ import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
+import { IconSize } from "design-system-old";
+import { Button } from "design-system";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -84,16 +85,6 @@ export const TextContainer = styled.div`
       text-decoration: underline;
     }
   }
-`;
-
-const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
-  cursor: pointer;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: ${ELLIPSIS_HEIGHT}px;
-  background: ${(props) =>
-    props.backgroundColor ? props.backgroundColor : "transparent"};
 `;
 
 type StyledTextProps = React.PropsWithChildren<{
@@ -318,13 +309,13 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               />
             </StyledText>
             {this.state.isTruncated && (
-              <StyledIcon
-                backgroundColor={backgroundColor}
+              <Button
                 className="t--widget-textwidget-truncate"
-                fillColor={truncateButtonColor || accentColor}
-                name="context-menu"
+                isIconButton
+                kind="tertiary"
                 onClick={this.handleModelOpen}
-                size={IconSize.XXXL}
+                size="sm"
+                startIcon="context-menu"
               />
             )}
           </TextContainer>

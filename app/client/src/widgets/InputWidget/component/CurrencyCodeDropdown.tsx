@@ -1,31 +1,17 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
-import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
+import { Dropdown, DropdownOption } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
+import { Button } from "design-system";
 
-const DropdownTriggerIconWrapper = styled.div`
+const DropdownTriggerIconWrapper = styled(Button)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
-  line-height: normal;
-  letter-spacing: -0.24px;
-  color: #090707;
-
-  .dropdown {
-    svg {
-      width: 16px;
-      height: 16px;
-
-      path {
-        fill: ${Colors.GREY_10} !important;
-      }
-    }
-  }
 `;
 
 const CurrencyIconWrapper = styled.span`
@@ -141,10 +127,12 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const dropdownTriggerIcon = (
     <DropdownTriggerIconWrapper
       className="h-full gap-2 px-3 t--input-currency-change focus:bg-gray-50"
+      endIcon="downArrow"
+      kind="tertiary"
+      size="sm"
       tabIndex={0}
     >
       {selectedCurrency}
-      <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
     </DropdownTriggerIconWrapper>
   );
   return (

@@ -46,8 +46,6 @@ import {
   EditInteractionKind,
   SavingState,
   getTypographyByKey,
-  Icon,
-  IconSize,
   TooltipComponent,
 } from "design-system-old";
 import { Button } from "design-system";

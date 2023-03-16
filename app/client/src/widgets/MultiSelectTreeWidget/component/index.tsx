@@ -81,8 +81,7 @@ const getSvg = (expanded: boolean) => (
   >
     <StyledIcon
       className="switcher-icon"
-      expanded={expanded}
-      fillColor={Colors.GREY_10}
+      isExpanded={expanded}
       name="dropdown"
     />
   </i>

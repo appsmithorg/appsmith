@@ -13,8 +13,6 @@ import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
   DialogComponent as Dialog,
-  Icon,
-  IconSize,
   Toaster,
   Text,
   TextType,
@@ -207,13 +205,11 @@ const Message = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const CloseBtnContainer = styled.div`
+const CloseButton = styled(Button)`
   position: absolute;
   right: ${(props) => props.theme.spaces[1]}px;
   top: ${(props) => -props.theme.spaces[4]}px;
-
   padding: ${(props) => props.theme.spaces[1]}px;
-  border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
 const SkipToAppButtonWrapper = styled.div`
@@ -612,16 +608,14 @@ function ReconnectDatasourceModal() {
             </Button>
           </TooltipComponent>
         </SkipToAppButtonWrapper>
-        <CloseBtnContainer
+        <CloseButton
           className="t--reconnect-close-btn"
+          isIconButton
+          kind="tertiary"
           onClick={handleClose}
-        >
-          <Icon
-            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-            name="close-modal"
-            size={IconSize.XXXXL}
-          />
-        </CloseBtnContainer>
+          size="sm"
+          startIcon="close-modal"
+        />
       </Container>
     </Dialog>
   );

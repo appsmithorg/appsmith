@@ -33,8 +33,6 @@ import {
   Callout,
   Case,
   Classes,
-  Icon,
-  IconSize,
   SearchSnippet,
   TabComponent,
   Text,
@@ -42,7 +40,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -556,7 +554,7 @@ function renderHelpSection(
               <Text case={Case.UPPERCASE} type={TextType.H6}>
                 Learn How
               </Text>
-              <Icon name="right-arrow" size={IconSize.XL} />
+              <Icon name="right-arrow" size="md" />
             </Link>
           </CalloutContent>
         }

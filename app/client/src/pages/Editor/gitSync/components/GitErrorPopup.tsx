@@ -7,8 +7,6 @@ import {
   getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import { Icon, IconSize } from "design-system-old";
-
 import {
   createMessage,
   CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
@@ -20,6 +18,7 @@ import { get } from "lodash";
 import ConflictInfo from "../components/ConflictInfo";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { Theme } from "constants/DefaultTheme";
+import { Button } from "design-system";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -64,12 +63,12 @@ function Header({ closePopup }: { closePopup: () => void }) {
       <div style={{ display: "flex", alignItems: "center" }}>
         <span className="title">{title}</span>
       </div>
-      <Icon
-        fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-        hoverFillColor={Colors.BLACK}
-        name="close-modal"
+      <Button
+        isIconButton
+        kind="tertiary"
         onClick={closePopup}
-        size={IconSize.XXXXL}
+        size="sm"
+        startIcon="close-modal"
       />
     </div>
   );

@@ -37,13 +37,12 @@ import EntityDeps from "./Debugger/EntityDependecies";
 import {
   Callout,
   Classes,
-  Icon,
   TAB_MIN_HEIGHT,
   Text,
   TextType,
   Variant,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";

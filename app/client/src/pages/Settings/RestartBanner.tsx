@@ -1,6 +1,6 @@
 import React from "react";
-import { hexToRgba, Icon, IconSize } from "design-system-old";
-import { Button } from "design-system";
+import { hexToRgba } from "design-system-old";
+import { Button, Spinner } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -102,16 +102,6 @@ const AppIconWrapper = styled.div`
   }
 `;
 
-const StyledLoader = styled(Icon)`
-  animation: spin 2s linear infinite;
-  margin-right: 12px;
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
 const RestartMessage = styled.p``;
 
 function Header() {
@@ -123,11 +113,7 @@ function Header() {
           <AppIcon name="server-line" />
         </AppIconWrapper>
       ) : (
-        <StyledLoader
-          fillColor={Colors.PRIMARY_ORANGE}
-          name="loader"
-          size={IconSize.XXXL}
-        />
+        <Spinner size="lg" />
       )}
       <Heading>
         {isRestartFailed

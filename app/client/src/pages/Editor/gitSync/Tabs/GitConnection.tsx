@@ -64,13 +64,7 @@ import { ScrollIndicator } from "design-system-old";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import {
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
+import { Text, TextType, TooltipComponent } from "design-system-old";
 import { Button } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
@@ -447,13 +441,13 @@ function GitConnection({ isImport }: Props) {
             {isGitConnected && (
               <TooltipWrapper>
                 <TooltipComponent content="Disconnect Git">
-                  <Icon
+                  <Button
                     className="t--git-disconnect-icon"
-                    fillColor={Colors.DARK_GRAY}
-                    hoverFillColor={Colors.ERROR_RED}
-                    name="delete"
+                    isIconButton
+                    kind="tertiary"
                     onClick={openDisconnectGitModal}
-                    size={IconSize.XXXXL}
+                    size="sm"
+                    startIcon="delete"
                   />
                 </TooltipComponent>
               </TooltipWrapper>

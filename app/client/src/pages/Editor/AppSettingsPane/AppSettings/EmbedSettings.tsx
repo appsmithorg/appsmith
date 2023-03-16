@@ -1,13 +1,5 @@
 import { changeAppViewAccessInit } from "actions/applicationActions";
-import {
-  IconSize,
-  TextType,
-  Text,
-  Switch,
-  Case,
-  Classes,
-  Icon,
-} from "design-system-old";
+import { TextType, Text, Switch, Case, Classes } from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -32,6 +24,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import { Icon } from "design-system";
 
 const StyledLink = styled.a`
   position: relative;
@@ -122,10 +115,7 @@ function EmbedSettings() {
               className="flex gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]"
               data-cy={"frame-ancestors-setting"}
             >
-              <Icon
-                name={embedSnippet.embedSettingContent.icon}
-                size={IconSize.XXL}
-              />
+              <Icon name={embedSnippet.embedSettingContent.icon} size="md" />
               <StyledPropertyHelpLabel
                 label={embedSnippet.embedSettingContent.label}
                 lineHeight="1.17"

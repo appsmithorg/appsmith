@@ -1,34 +1,19 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
+import { Dropdown, DropdownOption } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
+import { Button } from "design-system";
 
-const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
+const DropdownTriggerIconWrapper = styled(Button)`
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
-  line-height: ${(props) => (props.disabled ? 36 : 18)}px;
-  letter-spacing: -0.24px;
-  color: #090707;
-  cursor: pointer;
   position: ${(props) => props.disabled && "absolute"};
-
-  .dropdown {
-    svg {
-      width: 14px;
-      height: 14px;
-
-      path {
-        fill: ${Colors.GREY_10} !important;
-      }
-    }
-  }
 `;
 
 const FlagWrapper = styled.span`
@@ -129,14 +114,15 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       className="gap-2 px-3 t--input-country-code-change focus:bg-gray-50"
-      disabled={props.disabled}
+      endIcon="down-arrow"
+      isDisabled={props.disabled}
+      kind="tertiary"
       tabIndex={0}
     >
       <FlagWrapper>
         {selectedCountry.value && countryToFlag(selectedCountry.value)}
       </FlagWrapper>
       <div className="code">{selectedCountry.id && selectedCountry.id}</div>
-      <Icon className="dropdown" name="down-arrow" size={IconSize.XXS} />
     </DropdownTriggerIconWrapper>
   );
   if (props.disabled) {

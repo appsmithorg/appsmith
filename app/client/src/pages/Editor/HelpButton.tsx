@@ -3,7 +3,7 @@ import styled, { createGlobalStyle, useTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -19,6 +19,7 @@ import { useCallback } from "react";
 import { useState } from "react";
 import { BottomBarCTAStyles } from "./BottomBar/styles";
 import { Theme } from "constants/DefaultTheme";
+import { Icon } from "design-system";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -52,11 +53,7 @@ const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
       position={"bottom"}
     >
       <StyledTrigger>
-        <Icon
-          fillColor={theme.colors.globalSearch.helpIcon}
-          name="question-line"
-          size={IconSize.XXXL}
-        />
+        <Icon name="question-line" size="lg" />
       </StyledTrigger>
     </TooltipComponent>
   );

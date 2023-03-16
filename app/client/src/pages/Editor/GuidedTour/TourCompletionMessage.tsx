@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import { getTypographyByKey, Icon, IconSize } from "design-system-old";
-import { Button } from "design-system";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon } from "design-system";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
@@ -126,17 +126,16 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={Colors.GREY_7}
                   name="star-line"
-                  size={IconSize.XXXXL}
+                  size="lg"
                 />
               }
               fullSymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#FFCB45"}
+                  color={"var(--ads-v2-color-fg-warning)"}
                   name="star-fill"
-                  size={IconSize.XXXXL}
+                  size="lg"
                 />
               }
               onChange={onValueChanged}

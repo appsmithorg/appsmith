@@ -16,7 +16,7 @@ import {
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
 import { ControlIcons } from "icons/ControlIcons";
-import { Icon, IconSize } from "design-system-old";
+import { Button as AdsButton } from "design-system";
 
 const StyledPlusCircleIcon = styled(ControlIcons.ADD_CIRCLE_CONTROL)`
   padding: 0;
@@ -184,9 +184,14 @@ function TableFilterPaneContent(props: TableFilterProps) {
         <div className="message-text">
           {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
         </div>
-        <div className="close-button t--close-filter-btn" onClick={hideFilter}>
-          <Icon fillColor={Colors.GREY_6} name="close-x" size={IconSize.XXL} />
-        </div>
+        <AdsButton
+          className="close-button t--close-filter-btn"
+          isIconButton
+          kind="tertiary"
+          onClick={hideFilter}
+          size="sm"
+          startIcon="close-x"
+        />
       </ColumnTypeBindingMessage>
       <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
         {filters.map((filter: ReactTableFilter, index: number) => {

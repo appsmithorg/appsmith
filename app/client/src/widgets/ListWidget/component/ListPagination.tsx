@@ -1,8 +1,7 @@
 import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
-
-import { Icon, IconSize } from "design-system-old";
+import { Button } from "design-system";
 
 const locale = {
   // Options.jsx
@@ -400,16 +399,26 @@ function ListPagination(props: ListPaginationProps) {
       disabled={props.disabled}
       locale={locale}
       nextIcon={() => (
-        <button aria-label="next page" className="rc-pagination-item-link">
-          <Icon name="right-arrow-2" size={IconSize.XXL} />
-        </button>
+        <Button
+          aria-label="next page"
+          className="rc-pagination-item-link"
+          isIconButton
+          kind="tertiary"
+          size="sm"
+          startIcon="right-arrow-2"
+        />
       )}
       onChange={props.onChange}
       pageSize={props.perPage}
       prevIcon={() => (
-        <button aria-label="prev page" className="rc-pagination-item-link">
-          <Icon name="left-arrow-2" size={IconSize.XXL} />
-        </button>
+        <Button
+          aria-label="prev page"
+          className="rc-pagination-item-link"
+          isIconButton
+          kind="tertiary"
+          size="sm"
+          startIcon="left-arrow-2"
+        />
       )}
       total={props.total}
     />

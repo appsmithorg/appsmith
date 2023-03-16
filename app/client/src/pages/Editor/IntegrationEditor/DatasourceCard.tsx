@@ -15,8 +15,8 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import { Icon, IconSize, Menu, MenuItem } from "design-system-old";
-import { Button } from "design-system";
+import { Menu, MenuItem } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -347,13 +347,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   position={Position.BOTTOM_RIGHT}
                   target={
                     <MoreOptionsContainer>
-                      <Icon
-                        fillColor={
-                          datasource.isConfigured ? Colors.GREY_8 : Colors.GRAY2
-                        }
-                        name="comment-context-menu"
-                        size={IconSize.XXXL}
-                      />
+                      <Icon name="comment-context-menu" size="lg" />
                     </MoreOptionsContainer>
                   }
                 >

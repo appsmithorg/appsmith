@@ -1,17 +1,13 @@
 import { Colors } from "constants/Colors";
 import { TooltipWrapper } from "./StyledComponents";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
 import React from "react";
+import { Button, Icon } from "design-system";
 
 function getCopiedSuccessIcon() {
   return (
-    <Icon
-      fillColor={Colors.GREEN}
-      hoverFillColor={Colors.GREEN}
-      name="check-line"
-      size={IconSize.XXXL}
-    />
+    <Icon color="var(--ads-v2-color-fg-success)" name="check-line" size="lg" />
   );
 }
 
@@ -19,13 +15,13 @@ function getToCopyIcon(copyToClipboard: () => void) {
   return (
     <TooltipWrapper>
       <TooltipComponent content={createMessage(COPY_SSH_KEY)}>
-        <Icon
+        <Button
           className="t--copy-ssh-key"
-          fillColor={Colors.DARK_GRAY}
-          hoverFillColor={Colors.GRAY2}
-          name="duplicate"
+          isIconButton
+          kind="tertiary"
           onClick={copyToClipboard}
-          size={IconSize.XXXL}
+          size="sm"
+          startIcon="duplicate"
         />
       </TooltipComponent>
     </TooltipWrapper>

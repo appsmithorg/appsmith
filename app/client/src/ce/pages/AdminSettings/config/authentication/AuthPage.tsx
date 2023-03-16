@@ -14,8 +14,8 @@ import {
 } from "@appsmith/constants/messages";
 import { CalloutV2, CalloutType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Icon, TooltipComponent } from "design-system-old";
-import { Button } from "design-system";
+import { TooltipComponent } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -203,7 +203,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       >
                         <Icon
                           className={`${method.category}-green-check`}
-                          fillColor={Colors.GREEN}
+                          color={Colors.GREEN}
                           name="oval-check"
                         />
                       </TooltipComponent>

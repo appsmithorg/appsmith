@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
 import { CarouselProps } from "./types";
+import { Icon } from "design-system";
 
 const CarouselContainer = styled.div`
   display: flex;
@@ -141,7 +142,7 @@ export function CarouselComponent(props: CarouselProps) {
           >
             <div className={"trigger"}>
               <div className="icon-container">
-                <Icon name={d.icon} size={IconSize.XXXXL} />
+                <Icon name={d.icon} size="lg" />
               </div>
               <div className="trigger-content">
                 <div className="trigger-heading">

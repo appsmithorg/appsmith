@@ -12,8 +12,6 @@ import {
   AppIcon,
   Classes,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TooltipComponent,
@@ -32,6 +30,7 @@ import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import moment from "moment";
+import { Button, Icon } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -238,14 +237,13 @@ function ErrorLogItem(props: LogItemProps) {
           style={{ display: "flex", alignItems: "center", gap: "4px" }}
         >
           <Icon
-            clickable={false}
-            fillColor={
+            color={
               props.severity === Severity.ERROR
-                ? get(theme, "colors.debugger.error.hoverIconColor")
-                : ""
+                ? "var(--ads-v2-color-fg-on-error)"
+                : "inherit"
             }
             name={props.icon}
-            size={IconSize.XL}
+            size="md"
           />
 
           {props.logType &&
@@ -258,15 +256,14 @@ function ErrorLogItem(props: LogItemProps) {
               />
             )}
           {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
-            <Icon
+            <Button
               className={`${Classes.ICON} debugger-toggle`}
-              clickable={collapsable}
               data-cy="t--debugger-toggle"
               data-isOpen={isOpen}
-              fillColor={get(theme, "colors.debugger.collapseIcon")}
-              name={"expand-more"}
+              isDisabled={!collapsable}
+              kind="tertiary"
               onClick={() => setIsOpen(!isOpen)}
-              size={IconSize.XL}
+              startIcon={"expand-more"}
             />
           )}
           <div className={`debugger-error-type`}>

@@ -11,14 +11,7 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  Case,
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Case, Classes, Text, TextType } from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
@@ -29,6 +22,7 @@ import {
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { Icon } from "design-system";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -296,7 +290,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
         </>
       )}
       <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
-        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
+        <Icon className="t--addApiHeader" name="add-more" size="md" />
         <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
         </Text>

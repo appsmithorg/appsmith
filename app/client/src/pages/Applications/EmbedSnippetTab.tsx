@@ -6,8 +6,6 @@ import {
   Case,
   TooltipComponent,
   Classes,
-  Icon,
-  IconWrapper,
 } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
@@ -24,6 +22,7 @@ import {
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
 import { PopoverPosition } from "@blueprintjs/core";
+import { Icon } from "design-system";
 
 const StyledLink = styled.a`
   position: relative;
@@ -55,7 +54,7 @@ function EmbedSnippetTab() {
                 <div className="flex items-center gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]">
                   <Icon
                     name={embedSnippet.embedSettingContent.icon}
-                    size={IconSize.XXL}
+                    size="md"
                   />
                   <Text type={TextType.P1}>
                     {embedSnippet.embedSettingContent.label}

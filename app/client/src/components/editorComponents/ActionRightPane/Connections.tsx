@@ -1,13 +1,6 @@
 import React from "react";
 import { Collapsible } from ".";
-import {
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes, getTypographyByKey, Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
@@ -20,6 +13,7 @@ import {
   OUTGOING_ENTITIES,
 } from "@appsmith/constants/messages";
 import { Connection } from "../Debugger/EntityDependecies";
+import { Icon } from "design-system";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -119,7 +113,7 @@ function Connections(props: ConnectionsProps) {
   return (
     <Collapsible label="Relationships">
       <ConnectionType className="icon-text">
-        <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+        <Icon name="trending-flat" size="md" />
         <span className="connection-type">
           {createMessage(INCOMING_ENTITIES)}
         </span>

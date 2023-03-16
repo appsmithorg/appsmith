@@ -14,8 +14,6 @@ import { Colors } from "constants/Colors";
 import {
   Case,
   Classes,
-  Icon,
-  IconSize,
   Text,
   TextInput,
   TextInputProps,
@@ -23,6 +21,7 @@ import {
 } from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
+import { Icon } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -217,7 +216,7 @@ function KeyValueRow(
         );
       })}
       <AddMoreAction className="t--add-field" onClick={addRow}>
-        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
+        <Icon className="t--addApiHeader" name="add-more" size="md" />
         <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
         </Text>

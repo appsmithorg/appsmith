@@ -5,10 +5,11 @@ import {
   APP_SETTINGS_PANE_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { Button } from "design-system";
 
 const StyledHeader = styled.div`
   height: 48px;
@@ -28,13 +29,14 @@ function PaneHeader() {
         content={APP_SETTINGS_CLOSE_TOOLTIP()}
         position={PopoverPosition.BOTTOM}
       >
-        <Icon
+        <Button
           className="pr-2"
-          fillColor={Colors.GREY_10}
           id="t--close-app-settings-pane"
-          name="double-arrow-right"
+          isIconButton
+          kind="tertiary"
           onClick={() => dispatch(closeAppSettingsPaneAction())}
-          size={IconSize.SMALL}
+          size="sm"
+          startIcon="double-arrow-right"
         />
       </TooltipComponent>
       <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>

@@ -1,11 +1,11 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
 import { ControlIcons } from "icons/ControlIcons";
 import React, { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { Icon } from "design-system";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,
@@ -45,13 +45,6 @@ const WidgetName = styled.span`
 `;
 
 const StyledErrorIcon = styled(Icon)`
-  &:hover {
-    svg {
-      path {
-        fill: ${Colors.WHITE};
-      }
-    }
-  }
   margin-right: ${(props) => props.theme.spaces[1]}px;
 `;
 
@@ -116,13 +109,7 @@ export function SettingsControl(props: SettingsControlProps) {
       width={12}
     />
   );
-  const errorIcon = (
-    <StyledErrorIcon
-      fillColor={Colors.WHITE}
-      name="warning"
-      size={IconSize.SMALL}
-    />
-  );
+  const errorIcon = <StyledErrorIcon name="warning" size="sm" />;
 
   return (
     <StyledTooltip
