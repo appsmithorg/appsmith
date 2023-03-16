@@ -46,6 +46,13 @@ const is404orAuthPath = () => {
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   config.headers = config.headers ?? {};
+
+  // Add header for CSRF protection.
+  const methodUpper = config.method?.toUpperCase();
+  if (methodUpper && methodUpper !== "GET" && methodUpper !== "HEAD") {
+    config.headers["X-Requested-By"] = "Appsmith";
+  }
+
   const branch =
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch && config.headers) {

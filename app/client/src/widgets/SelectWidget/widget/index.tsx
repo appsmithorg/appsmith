@@ -499,21 +499,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Colors",
-        children: [
-          {
-            propertyName: "accentColor",
-            label: "Accent Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            invisible: true,
-          },
-        ],
-      },
-      {
         sectionName: "Border and Shadow",
         children: [
           {

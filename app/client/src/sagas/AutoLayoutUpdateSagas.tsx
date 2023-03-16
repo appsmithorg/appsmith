@@ -23,6 +23,7 @@ import { getWidgets } from "./selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
+  getCurrentApplicationId,
   getCurrentAppPositioningType,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
@@ -39,6 +40,7 @@ import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
+import { updateApplication } from "actions/applicationActions";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -114,6 +116,17 @@ export function* updateLayoutPositioningSaga(
         updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
       );
     }
+
+    const applicationId: string = yield select(getCurrentApplicationId);
+    yield put(
+      updateApplication(applicationId || "", {
+        applicationDetail: {
+          appPositioning: {
+            type: payloadPositioningType,
+          },
+        },
+      }),
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

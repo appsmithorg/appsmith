@@ -213,6 +213,14 @@ function* reorderAutolayoutChildren(params: {
           layerIndex,
           rowIndex,
         );
+    updatedWidgets = movedWidgets.reduce((widgets, eachWidget) => {
+      const widget = widgets[eachWidget];
+      widgets[eachWidget] = {
+        ...widget,
+        alignment,
+      };
+      return widgets;
+    }, updatedWidgets);
   }
 
   // update children of the parent canvas.
