@@ -21,7 +21,10 @@ import {
 } from "utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import {
   getCurrentApplicationId,
   getCurrentAppPositioningType,
@@ -247,11 +250,16 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       isMobile,
     );
 
+    //get row space
+    const rowSpace = widget.detachFromLayout
+      ? 1
+      : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     widgets = {
       ...widgets,
       [widgetId]: {
         ...widget,
-        bottomRow: widget.topRow + height / widget.parentRowSpace,
+        bottomRow: widget.topRow + height / rowSpace,
         rightColumn: widget.leftColumn + width / columnSpace,
       },
     };
