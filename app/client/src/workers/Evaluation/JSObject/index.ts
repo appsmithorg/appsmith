@@ -134,6 +134,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                     {
                       position: parsedElement.position,
                       value: parsedElement.rawContent,
+                      isMarkedAsync: parsedElement.isMarkedAsync,
                     },
                   );
                   actions.push({
@@ -157,15 +158,15 @@ export function saveResolvedFunctionsAndJSUpdates(
                 `${entityName}.${parsedElement.key}`,
                 parsedElement.value,
               );
+              set(
+                dataTreeEvalRef.JSPropertiesState,
+                `[${entityName}.${parsedElement.key}]`,
+                {
+                  position: parsedElement.position,
+                  value: parsedElement.rawContent,
+                },
+              );
             }
-            set(
-              dataTreeEvalRef.JSPropertiesState,
-              `[${entityName}.${parsedElement.key}]`,
-              {
-                position: parsedElement.position,
-                value: parsedElement.rawContent,
-              },
-            );
           });
           const parsedBody = {
             body: entity.body,

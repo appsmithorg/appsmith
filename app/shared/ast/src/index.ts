@@ -69,10 +69,12 @@ interface FunctionDeclarationNode extends Node, Function {
 // doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
 interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
+  async: boolean;
 }
 
 interface ArrowFunctionExpressionNode extends Expression, Function {
   type: NodeTypes.ArrowFunctionExpression;
+  async: boolean;
 }
 
 export interface ObjectExpression extends Expression {

@@ -37,6 +37,8 @@ interface baseJSProperty {
 
 type JSFunctionProperty = baseJSProperty & {
   arguments: functionParam[];
+  // If function uses the "async" keyword
+  isMarkedAsync: boolean;
 };
 type JSVarProperty = baseJSProperty;
 
@@ -102,6 +104,7 @@ export const parseJSObject = (code: string) => {
           property = {
             ...property,
             arguments: [...params],
+            isMarkedAsync: node.value.async
           };
         }
         result.push(property);

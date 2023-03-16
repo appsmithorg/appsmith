@@ -62,6 +62,7 @@ export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",
   ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD = "ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD",
 }
+
 export const CUSTOM_LINT_ERRORS: Record<
   CustomLintErrorCode,
   (...args: any[]) => string
@@ -79,8 +80,16 @@ export const CUSTOM_LINT_ERRORS: Record<
   [CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD]: (
     dataFieldBindings: string[],
     fullName: string,
-  ) =>
-    `Functions bound to sync fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following sync ${
-      dataFieldBindings.length > 1 ? "fields" : "field"
-    }: ${dataFieldBindings.join(" , ")}`,
+    isMarkedAsync: boolean,
+  ) => {
+    const hasMultipleBindings = dataFieldBindings.length > 1;
+    const bindings = dataFieldBindings.join(" , ");
+    return isMarkedAsync
+      ? `Cannot bind async functions to sync fields. Convert this to a sync function or remove references to "${fullName}" on the following sync ${
+          hasMultipleBindings ? "fields" : "field"
+        }: ${bindings}`
+      : `Functions bound to sync fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following sync ${
+          hasMultipleBindings ? "fields" : "field"
+        }: ${bindings}`;
+  },
 };

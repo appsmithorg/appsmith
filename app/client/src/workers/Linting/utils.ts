@@ -60,6 +60,7 @@ import {
 import { JSLibraries } from "workers/common/JSLibrary";
 import { Severity } from "entities/AppsmithConsole";
 import {
+  TJSFunctionPropertyState,
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/common/DataTreeEvaluator";
@@ -529,23 +530,21 @@ export function lintJSObject(
 
   for (const jsProperty of Object.keys(jsObjectState)) {
     const jsPropertyFullName = `${jsObjectName}.${jsProperty}`;
+    const jsPropertyState = jsObjectState[jsProperty];
     const isAsyncJSFunctionBoundToSyncField = asyncJSFunctionsInSyncFields.hasOwnProperty(
       jsPropertyFullName,
     );
     const globalData = isAsyncJSFunctionBoundToSyncField
       ? data.dataWithoutFunctions
       : data.dataWithFunctions;
-    const jsPropertyLintErrors = lintJSProperty(
-      jsObjectState[jsProperty],
-      globalData,
-    );
-    lintErrors = lintErrors.concat(jsPropertyLintErrors);
 
+    const jsPropertyLintErrors = lintJSProperty(jsPropertyState, globalData);
+    lintErrors = lintErrors.concat(jsPropertyLintErrors);
     if (isAsyncJSFunctionBoundToSyncField) {
       lintErrors.push(
         generateAsyncFunctionBoundToDataFieldCustomError(
           asyncJSFunctionsInSyncFields[jsPropertyFullName],
-          jsObjectState[jsProperty],
+          jsPropertyState,
           jsPropertyFullName,
         ),
       );
@@ -639,6 +638,7 @@ function generateAsyncFunctionBoundToDataFieldCustomError(
   const lintErrorMessage = CUSTOM_LINT_ERRORS.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD(
     dataFieldBindings,
     jsPropertyFullName,
+    (jsPropertyState as TJSFunctionPropertyState).isMarkedAsync,
   );
 
   return {

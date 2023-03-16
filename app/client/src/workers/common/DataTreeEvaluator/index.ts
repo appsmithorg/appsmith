@@ -109,11 +109,15 @@ type SortedDependencies = Array<string>;
 export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
-
-export interface TJSpropertyState {
+export interface TBasePropertyState {
   value: string;
   position: JSPropertyPosition;
 }
+export interface TJSFunctionPropertyState extends TBasePropertyState {
+  isMarkedAsync: boolean;
+}
+
+export type TJSpropertyState = TBasePropertyState | TJSFunctionPropertyState;
 
 export type TJSPropertiesState = Record<
   string,

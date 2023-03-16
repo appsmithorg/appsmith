@@ -375,6 +375,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 7,
         },
         arguments: [],
+        isMarkedAsync: false
       },
       {
         key: "myFun2",
@@ -393,6 +394,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 7,
         },
         arguments: [],
+        isMarkedAsync: true,
       },
     ];
     const { parsedObject } = parseJSObject(body);
@@ -461,6 +463,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 7,
         },
         arguments: [],
+        isMarkedAsync: false
       },
       {
         key: "myFun2",
@@ -479,6 +482,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 7,
         },
         arguments: [],
+        isMarkedAsync: true,
       },
     ];
     const { parsedObject } = parseJSObject(body);
@@ -532,6 +536,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 12,
         },
         arguments: [],
+        isMarkedAsync: false,
       },
       {
         key: "myFun2",
@@ -550,6 +555,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 12,
         },
         arguments: [],
+        isMarkedAsync: true,
       },
     ];
     const { parsedObject } = parseJSObject(body);
@@ -595,6 +601,7 @@ describe("parseJSObjectWithAST", () => {
           { paramName: "i", defaultValue: undefined },
           { paramName: "j", defaultValue: undefined },
         ],
+        isMarkedAsync: true,
       },
     ];
     const { parsedObject } = parseJSObject(body);
