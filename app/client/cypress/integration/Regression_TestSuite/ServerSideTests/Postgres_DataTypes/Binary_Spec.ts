@@ -7,7 +7,6 @@ describe("Binary Datatype tests", function () {
     cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
     });
-    _.entityExplorer.NavigateToSwitcher("widgets");
     _.appSettings.OpenPaneAndChangeThemeColors(24, -37);
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
