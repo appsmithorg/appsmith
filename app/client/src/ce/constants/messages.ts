@@ -985,11 +985,13 @@ export const WELCOME_FORM_FULL_NAME = () => "Full Name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
-export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
-export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () => "- Select a role -";
-export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_ROLE_DROPDOWN = () =>
+  "Tell us about your primary skillset";
+export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
+  "- Select a skillset -";
+export const WELCOME_FORM_ROLE = () => "Skillset";
 export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
-export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_USE_CASE = () => "Tell us about your use case";
 export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
@@ -1108,7 +1110,7 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
-  "Tell us more about what you do at work?";
+  "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
