@@ -110,7 +110,7 @@
     "lottie-web": "^5.7.4",
     "mammoth": "^1.5.1",
     "marked": "^4.0.18",
-    "memoize-one": "^5.2.1",
+    "memoize-one": "^6.0.0",
     "micro-memoize": "^4.0.10",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",

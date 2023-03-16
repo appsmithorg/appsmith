@@ -59,7 +59,7 @@ type CheckboxCellProps = BaseCellComponentProps & {
   disabledCheckboxMessage: string;
 };
 
-export const CheckboxCell = (props: CheckboxCellProps) => {
+const CheckboxCellComponent = (props: CheckboxCellProps) => {
   const {
     accentColor,
     borderRadius,
@@ -122,3 +122,4 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
     </CheckboxCellWrapper>
   );
 };
+export const CheckboxCell = React.memo(CheckboxCellComponent);

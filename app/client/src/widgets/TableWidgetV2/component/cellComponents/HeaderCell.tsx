@@ -145,7 +145,7 @@ type HeaderProps = {
   ) => void;
 };
 
-export const HeaderCell = (props: HeaderProps) => {
+export const HeaderCellComponent = (props: HeaderProps) => {
   const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -335,3 +335,4 @@ export const HeaderCell = (props: HeaderProps) => {
     </div>
   );
 };
+export const HeaderCell = React.memo(HeaderCellComponent);
