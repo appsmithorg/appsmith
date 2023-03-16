@@ -12,7 +12,5 @@ public class MemberInfoCE_DTO {
     String username;
     String name;
     List<AutoCreatedRoleInfo> roles;
-    String permissionGroupName;
-    String permissionGroupId;
     String photoId;
 }

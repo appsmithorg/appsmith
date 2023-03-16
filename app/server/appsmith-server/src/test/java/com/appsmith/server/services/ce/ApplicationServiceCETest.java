@@ -713,7 +713,9 @@ public class ApplicationServiceCETest {
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName()).startsWith(FieldName.ADMINISTRATOR);
+                            assertThat(workspaceApplicationDTO.getUsers()).isNotEmpty();
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getRoles()).hasSize(1);
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getRoles().get(0).getName()).startsWith(FieldName.ADMINISTRATOR);
                         }
                     }
 

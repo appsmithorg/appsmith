@@ -13,7 +13,7 @@ import java.util.List;
 public class MemberInfoDTO extends MemberInfoCE_DTO {
 
     @Builder
-    public MemberInfoDTO(String userId, String username, String name, List<AutoCreatedRoleInfo> roles, String permissionGroupName, String permissionGroupId, String photoId) {
-        super(userId, username, name, roles, permissionGroupName, permissionGroupId, photoId);
+    public MemberInfoDTO(String userId, String username, String name, List<AutoCreatedRoleInfo> roles, String photoId) {
+        super(userId, username, name, roles, photoId);
     }
 }
