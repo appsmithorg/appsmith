@@ -64,6 +64,13 @@ describe("License expired", function() {
       "have.text",
       "You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.",
     );
-    cy.LogOut();
+    cy.get(locators.appsmithHeader).should("be.visible");
+    cy.get(locators.appsmithHeader).within(() => {
+      cy.get(".t--profile-menu-icon").click();
+    });
+    cy.wait(1000);
+    cy.get(".t--logout-icon").click();
+    cy.wait(1000);
+    cy.url().should("contain", "/login");
   });
 });
