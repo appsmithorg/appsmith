@@ -189,7 +189,9 @@
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
     "install": "node cypress/apply-patches.js",
-    "storybook": "yarn workspace @design-system/storybook storybook"
+    "storybook": "yarn workspace @design-system/storybook storybook",
+    "lint:ci": "eslint --ext .ts,.tsx ./src && eslint --ext .js ./cypress",
+    "prettier:ci": "prettier --check ./src && prettier --check ./cypress"
   },
   "browserslist": [
     ">0.2%",

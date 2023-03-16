@@ -12,7 +12,7 @@ export interface AudioComponentProps {
   onEnded?: () => void;
   onReady?: () => void;
   onProgress?: () => void;
-  onSeek?: () =>         void;
+  onSeek?: () => void       ;
   onError?: () => void;
   player?: Ref<ReactPlayer>;
 }

@@ -100,17 +100,17 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
 
-      - name: Install Eslint
+      - name: Install Eslint & Prettier
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn global add eslint@latest
+        run: yarn global add eslint@latest prettier@latest
       
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
-        with:
-          eslint: true
-          prettier: true
-          eslint_dir: app/client
-          prettier_dir: app/client
+      - name: Run Eslint
+        if: steps.run_result.outputs.run_result != 'success'
+        run: eslint --ext .ts,.tsx ./src && eslint --ext .js ./cypress
+
+      - name: Run Prettier
+        if: steps.run_result.outputs.run_result != 'success'
+        run: prettier --check ./src && prettier --check ./cypress
 
 
       - name: Set the build environment based on the branch
