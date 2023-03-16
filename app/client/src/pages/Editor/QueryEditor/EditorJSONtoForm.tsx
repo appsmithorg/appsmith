@@ -859,7 +859,7 @@ export function EditorJSONtoForm(props: Props) {
             )}
           {!output && !error && (
             <NoResponseContainer>
-              <AdsIcon name="no-response" />
+              <Icon name="no-response" />
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
                 <Button
@@ -1007,20 +1007,17 @@ export function EditorJSONtoForm(props: Props) {
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span
+                    <Button
                       className="t--datasource-documentation-link"
+                      kind="tertiary"
                       onClick={(e: React.MouseEvent) =>
                         handleDocumentationClick(e)
                       }
+                      size="sm"
+                      startIcon="book-line"
                     >
-                      <AdsIcon
-                        keepColors
-                        name="book-line"
-                        size={IconSize.XXXL}
-                      />
-                      &nbsp;
                       {createMessage(DOCUMENTATION)}
-                    </span>
+                    </Button>
                   </TooltipComponent>
                 </DocumentationLink>
               )}

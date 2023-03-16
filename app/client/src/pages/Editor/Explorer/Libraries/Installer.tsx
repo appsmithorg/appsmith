@@ -21,7 +21,6 @@ import {
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
 import ProfileImage from "pages/common/ProfileImage";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -31,7 +30,6 @@ import {
   selectQueuedLibraries,
   selectStatusForURL,
 } from "selectors/entitiesSelector";
-import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { AppState } from "@appsmith/reducers";
@@ -170,36 +168,6 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   }
 `;
 
-const StatusIconWrapper = styled.div<{
-  addHoverState: boolean;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  cursor: initial;
-  .failed {
-    svg {
-      cursor: initial;
-    }
-  }}
-  ${(props) =>
-    props.addHoverState
-      ? `
-    &:hover {
-      cursor: pointer;
-      background: ${Colors.SHARK2} !important;
-      svg {
-        path {
-          fill: ${Colors.WHITE} !important;
-        }
-      }
-    }
-  `
-      : "svg { cursor: initial }"}
-`;
-
 function isValidJSFileURL(url: string) {
   const JS_FILE_REGEX = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
   return JS_FILE_REGEX.test(url);
@@ -216,26 +184,18 @@ function StatusIcon(props: {
   ]);
   if (status === InstallState.Success || isInstalled)
     return (
-      <StatusIconWrapper addHoverState={false} className="installed">
-        <SaveSuccessIcon color={Colors.GREEN} size={18} />
-      </StatusIconWrapper>
+      <Icon
+        className="installed"
+        color="var(--ads-v2-color-fg-success)"
+        name="checkbox-circle-fill"
+        size="md"
+      />
     );
   if (status === InstallState.Failed)
-    return (
-      <StatusIconWrapper addHoverState={false} className="failed">
-        <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
-      </StatusIconWrapper>
-    );
-  if (status === InstallState.Queued)
-    return (
-      <StatusIconWrapper addHoverState={false} className="queued">
-        <Spinner />
-      </StatusIconWrapper>
-    );
+    return <Icon className="failed" name="warning-line" size="md" />;
+  if (status === InstallState.Queued) return <Spinner className="queued" />;
   return (
-    <StatusIconWrapper addHoverState className="t--download" {...actionProps}>
-      <Icon name="download" size="md" />
-    </StatusIconWrapper>
+    <Icon className="t--download" {...actionProps} name="download" size="md" />
   );
 }
 
@@ -271,7 +231,7 @@ function ProgressTracker({
             show: status === InstallState.Failed,
           })}
         >
-          <Icon name="danger" size={IconSize.XL} />
+          <Icon name="danger" size="md" />
           <div className="flex flex-col unsupported gap-1">
             <div className="header">
               {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
@@ -411,12 +371,13 @@ export function Installer(props: { left: number }) {
         <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </Text>
-        <Icon
+        <Button
           className="t--close-installer"
-          fillColor={Colors.GRAY}
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={closeInstaller}
-          size={IconSize.XXL}
+          size="sm"
+          startIcon="close-modal"
         />
       </div>
       <div className="search-body overflow-auto">
@@ -514,16 +475,13 @@ function LibraryCard({
           <Text type={TextType.P0} weight="500">
             {lib.name}
           </Text>
-          <StatusIconWrapper
-            addHoverState
+          <Button
+            isIconButton
+            kind="tertiary"
             onClick={(e) => openDoc(e, lib.docsURL)}
-          >
-            <Icon
-              fillColor={Colors.GRAY}
-              name="share-2"
-              size={IconSize.SMALL}
-            />
-          </StatusIconWrapper>
+            size="sm"
+            startIcon="share-2"
+          />
         </div>
         <div className="mr-2">
           <StatusIcon

@@ -180,17 +180,12 @@ export const TabbedViewContainer = styled.div`
               props.theme.colors.apiPane.requestTree.header.icon};
           }
           path {
-            fill: unset;
+            fill: none;
           }
         }
       }
     }
   }
-`;
-
-export const BindingText = styled.span`
-  color: ${(props) => props.theme.colors.bindingTextDark};
-  font-weight: 700;
 `;
 
 const SettingsWrapper = styled.div`
@@ -276,19 +271,6 @@ export const NameWrapper = styled.div`
     margin: 0;
     box-sizing: border-box;
   }
-`;
-
-export const ShowHideImportedHeaders = styled.button`
-  background: #ebebeb;
-  color: #4b4848;
-  padding: 3px 5px;
-  border: none;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 12px;
-  height: 20px;
-  margin-right: 10px;
 `;
 
 const Flex = styled.div<{
@@ -476,7 +458,7 @@ function ImportedKeyValue(props: {
                     <CenteredIcon
                       className={`t--auto-generated-${data.key}-info`}
                       name="question-line"
-                      size={IconSize.LARGE}
+                      size="md"
                     />
                   </TooltipComponent>
                 )}

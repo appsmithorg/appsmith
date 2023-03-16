@@ -26,6 +26,7 @@ import { Indices } from "constants/Layers";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Button } from "design-system";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -214,9 +215,10 @@ export function PageHeader(props: PageHeaderProps) {
       {isMobile && isMobileSidebarOpen && (
         <Button
           isIconButton
-          name="close-x"
+          kind="tertiary"
           onClick={() => setIsMobileSidebarOpen(false)}
-          size={IconSize.XXXXL}
+          size="sm"
+          startIcon="close-x"
         />
       )}
       {isMobile && user && (

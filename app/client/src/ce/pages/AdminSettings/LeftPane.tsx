@@ -161,7 +161,7 @@ export default function LeftPane() {
               to="/settings/access-control"
             >
               <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
+                <Icon name="lock-2-line" size="md" />
               </div>
               <div>Access Control</div>
             </StyledLink>
@@ -174,7 +174,7 @@ export default function LeftPane() {
               to="/settings/audit-logs"
             >
               <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
+                <Icon name="lock-2-line" size="md" />
               </div>
               <div>Audit logs</div>
             </StyledLink>
@@ -187,7 +187,7 @@ export default function LeftPane() {
               to="/settings/business-edition"
             >
               <div>
-                <Icon name="arrow-up-line" size={IconSize.XL} />
+                <Icon name="arrow-up-line" size="md" />
               </div>
               <div>{camelCase(createMessage(UPGRADE))}</div>
             </StyledLink>

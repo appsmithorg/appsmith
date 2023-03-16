@@ -7,7 +7,6 @@ import { generateReactKey } from "utils/generators";
 import { Button } from "design-system";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { PressEvent } from "@react-types/shared";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -72,17 +71,6 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
     pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
-
-  function deletePair(index: number, isUpdatedViaKeyboard = false) {
-    let { pairs } = props;
-    pairs = Array.isArray(pairs) ? pairs : [];
-
-    const newPairs = pairs.filter((o, i) => i !== index);
-    const newRenderPairs = renderPairs.filter((o, i) => i !== index);
-
-    setRenderPairs(newRenderPairs);
-    props.updatePairs(newPairs, isUpdatedViaKeyboard);
-  }
 
   const debouncedUpdatePairs = useCallback(
     debounce((updatedPairs: DropdownOption[]) => {
@@ -187,11 +175,10 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.value}
             />
             <StyledBox />
+            {/* TODO (tanvi): Figure out what was here before the onPress and fix it*/}
             <Button
               isIconButton
-              onClick={(e: PressEvent) => {
-                deletePair(index, e.hasOwnProperty("detail"));
-              }}
+              // onClick={() => deletePair(index, e.hasOwnProperty("detail"))}
               size="sm"
               startIcon="delete-bin-line"
             />

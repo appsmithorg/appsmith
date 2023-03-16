@@ -419,8 +419,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.application.name,
     theme.colors.appCardColors,
   );
-  let initials = initialsAndColorCode[0];
-
   const [showOverlay, setShowOverlay] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
@@ -583,9 +581,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setMoreActionItems(moreActionItems);
     }
   };
-  if (initials.length < 2 && props.application.name.length > 1) {
-    initials += props.application.name[1].toUpperCase() || "";
-  }
 
   // should show correct branch of application when edit mode
   const params: any = {};

@@ -9,11 +9,10 @@ import {
 } from "entities/AppsmithConsole";
 import React, { useState, PropsWithChildren } from "react";
 import ReactJson from "react-json-view";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import {
-  AppIcon,
   Classes,
   getTypographyByKey,
   Text,
@@ -26,8 +25,7 @@ import {
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -157,15 +155,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const StyledSearchIcon = styled(AppIcon)`
-  height: 14px;
-  width: 14px;
-  svg {
-    height: 14px;
-    width: 14px;
-  }
-`;
-
 const ContextWrapper = styled.div`
   height: 14px;
   display: flex;
@@ -283,7 +272,6 @@ function LogItem(props: LogItemProps) {
 
   const messages = props.messages || [];
   const { collapsable } = props;
-  const theme = useTheme() as Theme;
   return (
     <Wrapper
       className={props.severity}
@@ -355,10 +343,10 @@ function LogItem(props: LogItemProps) {
                       minimal
                       position="bottom-left"
                     >
-                      <StyledSearchIcon
+                      <Icon
                         className={`${Classes.ICON}`}
                         name={"help"}
-                        size={IconSize.SMALL}
+                        size="sm"
                       />
                     </TooltipComponent>
                   </ContextualMenu>

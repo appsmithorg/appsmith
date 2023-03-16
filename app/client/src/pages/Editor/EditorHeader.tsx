@@ -48,7 +48,7 @@ import {
   getTypographyByKey,
   TooltipComponent,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -191,15 +191,6 @@ const BindingBanner = styled.div`
   justify-content: center;
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
   z-index: 9999;
-`;
-
-const StyledDeployIcon = styled(Icon)`
-  height: ${(props) => props.theme.smallHeaderHeight};
-  width: 20px;
-  align-self: center;
-  &:hover {
-    background-color: ${Colors.GRAY_100};
-  }
 `;
 
 const HamburgerContainer = styled.div`
@@ -515,13 +506,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 
               <DeployLinkButtonDialog
                 link={deployLink}
-                trigger={
-                  <StyledDeployIcon
-                    fill={Colors.GREY_900}
-                    name={"down-arrow"}
-                    size={IconSize.XXL}
-                  />
-                }
+                trigger={<Icon name={"down-arrow"} size="md" />}
               />
             </DeploySection>
           </Boxed>

@@ -1,5 +1,4 @@
 import React, { MutableRefObject, useRef } from "react";
-import { get } from "lodash";
 import {
   Classes,
   Dropdown,
@@ -7,14 +6,13 @@ import {
   TextInput,
   TooltipComponent,
 } from "design-system-old";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Theme } from "constants/DefaultTheme";
-import { Button, Icon } from "design-system";
+import { Button } from "design-system";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -67,7 +65,6 @@ type FilterHeaderProps = {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const theme = useTheme() as Theme;
   return (
     <Wrapper>
       <TooltipComponent
@@ -98,17 +95,17 @@ function FilterHeader(props: FilterHeaderProps) {
           width="100%"
         />
         {props.searchQuery && (
-          <Icon
-            fillColor={get(theme, "colors.debugger.jsonIcon")}
-            hoverFillColor={get(theme, "colors.debugger.message")}
-            name="cross"
+          <Button
+            isIconButton
+            kind="tertiary"
             onClick={() => {
               if (searchRef.current) {
                 props.onChange("");
                 searchRef.current.value = "";
               }
             }}
-            size={IconSize.LARGE}
+            size="sm"
+            startIcon="cross"
           />
         )}
       </div>

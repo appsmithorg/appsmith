@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { get } from "lodash";
 import {
   Log,
   LOG_CATEGORY,
@@ -7,9 +6,8 @@ import {
   Severity,
   SourceEntity,
 } from "entities/AppsmithConsole";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import {
-  AppIcon,
   Classes,
   getTypographyByKey,
   Text,
@@ -141,15 +139,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const StyledSearchIcon = styled(AppIcon)`
-  height: 16px;
-  width: 16px;
-  svg {
-    height: 16px;
-    width: 16px;
-  }
-`;
-
 const ContextWrapper = styled.div`
   height: 14px;
   display: flex;
@@ -224,7 +213,6 @@ export type LogItemProps = {
 function ErrorLogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { collapsable } = props;
-  const theme = useTheme();
 
   return (
     <Wrapper className={props.severity} collapsed={!isOpen}>
@@ -316,11 +304,7 @@ function ErrorLogItem(props: LogItemProps) {
                   minimal
                   position="bottom-right"
                 >
-                  <StyledSearchIcon
-                    className={`${Classes.ICON}`}
-                    name={"help"}
-                    size={IconSize.SMALL}
-                  />
+                  <Icon className={`${Classes.ICON}`} name={"help"} size="sm" />
                 </TooltipComponent>
               </ContextualMenu>
             </ContextWrapper>

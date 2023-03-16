@@ -2,15 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
 import { Classes } from "design-system-old";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
-import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
 import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-import { Icon } from "design-system";
+import { Button, Icon } from "design-system";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -93,21 +92,10 @@ const ColumnDropdownContainer = styled.div`
 `;
 
 // Component for the icons
-const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
+const CenteredButton = styled(Button)`
   margin-left: 8px;
   align-self: end;
   margin-bottom: 10px;
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-  color: ${Colors.GREY_7};
-
-  ${(props) =>
-    props.noMarginLeft &&
-    css`
-      margin-left: 0px;
-    `}
 `;
 
 // container for the bottom label section
@@ -227,14 +215,16 @@ function SortingComponent(props: any) {
                 formName={props.formName}
               />
               {/* Component to render the delete icon */}
-              <CenteredIcon
-                cypressSelector={`t--sorting-delete-[${index}]`}
-                name="cross"
+              <CenteredButton
+                data-cy={`t--sorting-delete-[${index}]`}
+                isIconButton
+                kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   onDeletePressed(index);
                 }}
-                size={IconSize.SMALL}
+                size="sm"
+                startIcon="cross"
               />
             </SortingDropdownContainer>
           );

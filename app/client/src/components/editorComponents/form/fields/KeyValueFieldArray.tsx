@@ -22,7 +22,7 @@ import {
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { Icon } from "design-system";
+import { Button, Icon } from "design-system";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -45,7 +45,7 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-const CenteredIcon = styled(Icon)`
+const CenteredButton = styled(Button)`
   align-self: center;
   margin-left: 15px;
 `;
@@ -278,10 +278,12 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                   </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
-                  <CenteredIcon
-                    name="delete"
+                  <CenteredButton
+                    isIconButton
+                    kind="tertiary"
                     onClick={() => props.fields.remove(index)}
-                    size={IconSize.LARGE}
+                    size="sm"
+                    startIcon="delete"
                   />
                 )}
               </FormRowWithLabel>

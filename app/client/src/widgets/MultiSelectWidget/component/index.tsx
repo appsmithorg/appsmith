@@ -16,7 +16,6 @@ import debounce from "lodash/debounce";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
-import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 import { Icon } from "design-system";
@@ -222,13 +221,7 @@ function MultiSelectComponent({
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
-        removeIcon={
-          <Icon
-            className="remove-icon"
-            fillColor={Colors.GREY_10}
-            name="close-x"
-          />
-        }
+        removeIcon={<Icon className="remove-icon" name="close-x" />}
         showArrow
         value={value}
       />

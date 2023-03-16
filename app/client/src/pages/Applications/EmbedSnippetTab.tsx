@@ -1,5 +1,4 @@
 import {
-  IconSize,
   TextType,
   Text,
   Switch,
@@ -11,7 +10,6 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
-import ExternaLink from "remixicon-react/ExternalLinkLineIcon";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
@@ -69,12 +67,7 @@ function EmbedSnippetTab() {
                     }
                     position={PopoverPosition.TOP}
                   >
-                    <Icon
-                      className={`ml-1`}
-                      fillColor={Colors.GRAY2}
-                      name={"question-fill"}
-                      size={IconSize.XL}
-                    />
+                    <Icon className={`ml-1`} name={"question-fill"} size="md" />
                   </TooltipComponent>
                 </div>
                 <StyledLink
@@ -148,15 +141,14 @@ function EmbedSnippetTab() {
       <div
         className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
       >
+        {/* TODO (tanvi): replace with Link*/}
         <StyledPreviewLink
           className="flex gap-1 items-center self-end"
           data-cy="preview-embed"
           href={embedSnippet.appViewEndPoint}
           target={"_blank"}
         >
-          <IconWrapper fillColor={Colors.GRAY_700} size={IconSize.XL}>
-            <ExternaLink />
-          </IconWrapper>
+          <Icon name="external-link-line" size="md" />
           <Text color={Colors.GRAY_700} type={TextType.P4}>
             {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
           </Text>

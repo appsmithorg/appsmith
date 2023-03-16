@@ -17,7 +17,6 @@ import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
-import { IconSize } from "design-system-old";
 import { Button } from "design-system";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
@@ -268,7 +267,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   render() {
     const {
-      accentColor,
       backgroundColor,
       disableLink,
       ellipsize,
@@ -278,7 +276,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       text,
       textAlign,
       textColor,
-      truncateButtonColor,
     } = this.props;
 
     return (
@@ -334,11 +331,13 @@ class TextComponent extends React.Component<TextComponentProps, State> {
           <ModalContent backgroundColor={backgroundColor}>
             <Heading>
               <div className="title">Show More</div>
-              <Icon
+              <Button
                 className="icon"
-                name="cross"
+                isIconButton
+                kind="tertiary"
                 onClick={this.handleModelClose}
-                size={IconSize.MEDIUM}
+                size="sm"
+                startIcon="cross"
               />
             </Heading>
             <Content

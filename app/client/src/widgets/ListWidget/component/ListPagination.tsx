@@ -427,8 +427,8 @@ function ListPagination(props: ListPaginationProps) {
 
 const PaginationWrapper = styled.ul`
   ${paginatorCss}
-  pointer-events: "all";
-  opacity: "1";
+  pointer-events: all;
+  opacity: 1;
 `;
 
 export function ServerSideListPagination(props: any) {
@@ -444,16 +444,17 @@ export function ServerSideListPagination(props: any) {
           1 && "rc-pagination-disabled"}`}
         title="Previous Page"
       >
-        <button
+        <Button
           aria-label="prev page"
           className="rc-pagination-item-link"
+          isIconButton
+          kind="tertiary"
           onClick={() => {
             if (props.pageNo > 1) props.prevPageClick();
           }}
-          type="button"
-        >
-          <Icon name="left-arrow-2" size={IconSize.XXL} />
-        </button>
+          size="sm"
+          startIcon="left-arrow-2"
+        />
       </li>
       <li
         className="rc-pagination-item rc-pagination-item-0 rc-pagination-item-active"
@@ -465,16 +466,17 @@ export function ServerSideListPagination(props: any) {
         className="t--list-widget-next-page rc-pagination-next"
         title="Next Page"
       >
-        <button
+        <Button
           aria-label="next page"
           className="rc-pagination-item-link"
+          isIconButton
+          kind="tertiary"
           onClick={() => {
             props.nextPageClick();
           }}
-          type="button"
-        >
-          <Icon name="right-arrow-2" size={IconSize.XXL} />
-        </button>
+          size="sm"
+          startIcon="right-arrow-2"
+        />
       </li>
     </PaginationWrapper>
   );

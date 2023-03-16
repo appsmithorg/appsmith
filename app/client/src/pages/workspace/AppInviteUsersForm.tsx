@@ -5,7 +5,7 @@ import { PopoverPosition } from "@blueprintjs/core";
 import { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Case, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -27,7 +27,7 @@ import {
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { Button } from "design-system";
+import { Button, Icon } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -126,12 +126,7 @@ function AppInviteUsersForm(props: any) {
               }
               position={PopoverPosition.TOP_RIGHT}
             >
-              <Icon
-                className="pl-1"
-                fillColor={Colors.GRAY2}
-                name="question-fill"
-                size={IconSize.XL}
-              />
+              <Icon className="pl-1" name="question-fill" size="md" />
             </TooltipComponent>
             <ShareToggle className="ml-4 t--share-public-toggle">
               {currentApplicationDetails && (

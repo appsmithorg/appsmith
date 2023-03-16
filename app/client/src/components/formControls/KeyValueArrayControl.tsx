@@ -21,7 +21,7 @@ import {
 } from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Icon } from "design-system";
+import { Button, Icon } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -50,7 +50,7 @@ const StyledTextInput = styled(TextInput)`
   }
 `;
 
-const CenteredIcon = styled(Icon)`
+const CenteredButton = styled(Button)`
   align-self: center;
   margin-left: 15px;
 `;
@@ -68,7 +68,7 @@ const AddMoreAction = styled.div`
   svg {
     fill: ${Colors.GRAY};
     path {
-      fill: unset;
+      fill: none;
     }
   }
 
@@ -191,11 +191,13 @@ function KeyValueRow(
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
-                  <CenteredIcon
+                  <CenteredButton
                     className="t--delete-field"
-                    name="delete"
+                    isIconButton
+                    kind="tertiary"
                     onClick={() => props.fields.remove(index)}
-                    size={IconSize.LARGE}
+                    size="sm"
+                    startIcon="delete"
                   />
                 </div>
               </div>

@@ -132,7 +132,7 @@ function Connections(props: ConnectionsProps) {
         <span className="connection-type">
           {createMessage(OUTGOING_ENTITIES)}
         </span>
-        <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
+        <Icon name="trending-flat" size="md" />
       </ConnectionType>
       {/* Inverse dependencies */}
       <Dependencies
