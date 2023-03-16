@@ -1,8 +1,9 @@
-import {
+import type {
   DataTreeEntity,
   DataTreeJSAction,
-  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
 import JSObjectCollection from "./JSObject/Collection";
 import JSProxy from "./JSObject/JSVariableProxy";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
@@ -47,9 +48,8 @@ export function getEntityForEvalContext(
         const jsObjectName = entityName;
         const jsObject = entity;
 
-        let jsObjectForEval = JSObjectCollection.getCurrentVariableState(
-          entityName,
-        );
+        let jsObjectForEval =
+          JSObjectCollection.getCurrentVariableState(entityName);
 
         const fns = getJSFunctionsForEntity({
           jsObjectName,
