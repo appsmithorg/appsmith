@@ -144,9 +144,11 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
 
 function* getEntitySubType(entityInfo: FocusEntityInfo) {
   if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
-    const action: Action = yield select(getAction, entityInfo.id);
-    const plugin: Plugin = yield select(getPlugin, action.pluginId);
-    return plugin.packageName;
+    const action: Action | undefined = yield select(getAction, entityInfo.id);
+    if (action) {
+      const plugin: Plugin = yield select(getPlugin, action.pluginId);
+      return plugin.packageName;
+    }
   }
 }
 
