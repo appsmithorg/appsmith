@@ -1067,10 +1067,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     row,
     additionalData = {},
   }: OnColumnEventArgs) => {
-    const { filteredTableData = [], pushBatchedMetaUpdates } = this.props;
+    const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
     const currentRow = row || filteredTableData[rowIndex];
-    pushBatchedMetaUpdates(
+    pushBatchMetaUpdates(
       "triggeredRowIndex",
       currentRow?.[ORIGINAL_INDEX_KEY],
       {
@@ -2235,9 +2235,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     alias: string,
     action?: string,
   ) => {
-    const { commitBatchMetaUpdates, pushBatchedMetaUpdates } = this.props;
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-    pushBatchedMetaUpdates("selectColumnFilterText", {
+    pushBatchMetaUpdates("selectColumnFilterText", {
       ...this.props.selectColumnFilterText,
       [alias]: text,
     });
