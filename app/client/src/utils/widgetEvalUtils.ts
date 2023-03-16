@@ -1,4 +1,4 @@
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
 /**
  * PropertyName examples

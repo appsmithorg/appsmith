@@ -76,9 +76,9 @@ import useAutoGrow from "utils/hooks/useAutoGrow";
 import { Space, Title } from "../components/StyledComponents";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
-import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import PushFailedWarning from "../components/PushFailedWarning";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const Section = styled.div`
   margin-top: 0;
@@ -182,11 +182,8 @@ function Deploy() {
   const dispatch = useDispatch();
 
   const currentApplication = useSelector(getCurrentApplication);
-  const {
-    changeReasonText,
-    isAutoUpdate,
-    isManualUpdate,
-  } = changeInfoSinceLastCommit(currentApplication);
+  const { changeReasonText, isAutoUpdate, isManualUpdate } =
+    changeInfoSinceLastCommit(currentApplication);
 
   const handleCommit = (doPush: boolean) => {
     setShowDiscardWarning(false);

@@ -1,18 +1,17 @@
-import React, { MutableRefObject } from "react";
+import type { MutableRefObject } from "react";
+import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
-import { TextSize, TEXT_SIZES } from "constants/WidgetConstants";
+import type { ComponentProps } from "widgets/BaseComponent";
+import type { TextSize } from "constants/WidgetConstants";
+import { TEXT_SIZES } from "constants/WidgetConstants";
+import type { Alignment, Intent, IconName, IRef } from "@blueprintjs/core";
 import {
-  Alignment,
-  Intent,
   NumericInput,
-  IconName,
   InputGroup,
   Classes,
   ControlGroup,
   TextArea,
   Tag,
-  IRef,
 } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
@@ -21,7 +20,8 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputType, InputTypes } from "../constants";
+import type { InputType } from "../constants";
+import { InputTypes } from "../constants";
 
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
@@ -573,9 +573,7 @@ class InputComponent extends React.Component<
             />
           ) : this.props.iconName && this.props.iconAlign === "right" ? (
             <Tag icon={this.props.iconName} />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }
         spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputType)}

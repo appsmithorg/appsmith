@@ -1,10 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
-import { CellAlignmentTypes, ColumnProperties } from "../component/Constants";
-import {
-  ColumnTypes,
-  InlineEditingSaveOptions,
-  TableWidgetProps,
-} from "../constants";
+import type { ColumnProperties } from "../component/Constants";
+import { CellAlignmentTypes } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
+import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
 import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
@@ -15,7 +13,7 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
@@ -946,7 +944,4 @@ export function selectColumnOptionsValidation(
 }
 
 export const getColumnPath = (propPath: string) =>
-  propPath
-    .split(".")
-    .slice(0, 2)
-    .join(".");
+  propPath.split(".").slice(0, 2).join(".");

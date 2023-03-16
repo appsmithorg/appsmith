@@ -3,12 +3,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Audio Widget Functionality", function() {
+describe("Audio Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Audio Widget play functionality validation", function() {
+  it("Audio Widget play functionality validation", function () {
     cy.openPropertyPane("audiowidget");
     cy.widgetText(
       "Audio1",
@@ -26,7 +26,7 @@ describe("Audio Widget Functionality", function() {
     );
   });
 
-  it("Audio widget pause functionality validation", function() {
+  it("Audio widget pause functionality validation", function () {
     cy.get(commonlocators.onPause).click();
     cy.selectShowMsg();
     cy.addSuccessMessage("Pause success");
@@ -38,11 +38,9 @@ describe("Audio Widget Functionality", function() {
     );
   });
 
-  it("Update audio url and check play and pause functionality validation", function() {
+  it("Update audio url and check play and pause functionality validation", function () {
     cy.testCodeMirror(testdata.audioUrl);
-    cy.get(".CodeMirror textarea")
-      .first()
-      .blur();
+    cy.get(".CodeMirror textarea").first().blur();
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -57,7 +55,7 @@ describe("Audio Widget Functionality", function() {
     );
   });
 
-  it("Checks if audio widget is reset on button click", function() {
+  it("Checks if audio widget is reset on button click", function () {
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
     cy.widgetText(

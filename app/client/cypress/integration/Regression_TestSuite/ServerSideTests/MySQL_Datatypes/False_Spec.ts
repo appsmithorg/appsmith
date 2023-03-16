@@ -3,8 +3,8 @@ import inputData from "../../../../support/Objects/mySqlData";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", function() {
-  before("Create Mysql DS & Create mysqlDTs table", function() {
+describe("MySQL Datatype tests", function () {
+  before("Create Mysql DS & Create mysqlDTs table", function () {
     _.dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

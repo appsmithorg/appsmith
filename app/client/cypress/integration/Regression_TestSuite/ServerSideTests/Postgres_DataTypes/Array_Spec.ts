@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any, query: string;
 
-describe("Array Datatype tests", function() {
+describe("Array Datatype tests", function () {
   before("Create DS, Add DS & setting theme", () => {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

@@ -1,6 +1,6 @@
 import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import React from "react";
 import styled from "styled-components";

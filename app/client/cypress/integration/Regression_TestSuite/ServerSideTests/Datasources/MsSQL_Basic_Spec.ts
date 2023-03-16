@@ -8,7 +8,10 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     _.dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.CreateQueryAfterDSSaved("Create database fakeapi;", "MsSQL_queries");
+      _.dataSources.CreateQueryAfterDSSaved(
+        "Create database fakeapi;",
+        "MsSQL_queries",
+      );
       _.dataSources.RunQuery();
 
       query = "USE fakeapi;";
@@ -99,7 +102,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
   it("2. Run a Select query & Add Suggested widget - Table", () => {
     query = `Select * from Simpsons;`;
-    _.dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons");//Creating query from EE overlay
+    _.dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
     _.dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
 
     _.dataSources.AddSuggesstedWidget(Widgets.Table);

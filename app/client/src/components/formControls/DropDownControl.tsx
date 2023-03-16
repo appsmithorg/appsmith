@@ -1,16 +1,15 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import styled from "styled-components";
-import { Dropdown, DropdownOption } from "design-system-old";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { DropdownOption } from "design-system-old";
+import { Dropdown } from "design-system-old";
+import type { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {
@@ -18,7 +17,7 @@ import {
   matchExact,
   MATCH_ACTION_CONFIG_PROPERTY,
 } from "workers/Evaluation/formEval";
-import { Action } from "entities/Action";
+import type { Action } from "entities/Action";
 
 const DropdownSelect = styled.div<{
   width: string;

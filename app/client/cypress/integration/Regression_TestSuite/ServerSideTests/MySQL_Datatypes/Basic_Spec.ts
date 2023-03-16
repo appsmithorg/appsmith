@@ -3,7 +3,7 @@ import inputData from "../../../../support/Objects/mySqlData";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", function() {
+describe("MySQL Datatype tests", function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       _.agHelper.AddDsl(val);

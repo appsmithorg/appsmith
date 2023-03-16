@@ -116,3 +116,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
+
+    - uid: ORACLE_PLUGIN
+      enable: true
+      description: Selectively show Oracle DB integration
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emails
+            value: integrations@appsmith.com

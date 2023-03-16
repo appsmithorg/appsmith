@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let guid: any, dsName_1: any, dsName_2: any;
 
-describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function() {
+describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

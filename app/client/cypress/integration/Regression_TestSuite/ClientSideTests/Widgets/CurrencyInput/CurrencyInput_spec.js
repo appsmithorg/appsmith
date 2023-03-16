@@ -81,14 +81,10 @@ describe("Currency widget - ", () => {
     cy.get(".t--property-control-allowcurrencychange label")
       .last()
       .click({ force: true });
-    cy.get(".t--input-currency-change")
-      .first()
-      .click();
+    cy.get(".t--input-currency-change").first().click();
     cy.get(".t--search-input input").type("gbp");
     cy.wait(500);
-    cy.get(".t--dropdown-option")
-      .last()
-      .click();
+    cy.get(".t--dropdown-option").last().click();
     enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
     cy.get(".t--input-currency-change").should("contain", "£");
   });
@@ -253,7 +249,7 @@ describe("Currency widget - ", () => {
     });
   });
 
-  it("Check isDirty meta property", function() {
+  it("Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -277,14 +273,14 @@ describe("Currency widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
-  it("Should check that widget input is not showing any errors on input", function() {
+  it("Should check that widget input is not showing any errors on input", function () {
     cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");
     });
   });
 
-  it("Currency change dropdown should not close unexpectedly", function() {
+  it("Currency change dropdown should not close unexpectedly", function () {
     cy.openPropertyPane(widgetName);
 
     // Select the Currency dropdown option from property pane
