@@ -1,8 +1,12 @@
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
 const simpleListWithInputAndButtonDSL = require("../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 
@@ -114,5 +118,35 @@ describe("List widget v2 - Basic client side data tests", () => {
         .find("input")
         .should("have.value", index + 1);
     });
+  });
+
+  it("4. Reset pageNo when serverside pagination is enabled", () => {
+    cy.get(`${widgetSelector("List1")} .rc-pagination-item-3`).click({
+      force: true,
+    });
+
+    cy.waitUntil(() =>
+      cy.get(commonlocators.listPaginateActivePage).should("have.text", "3"),
+    );
+
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-imagewidget`,
+        )
+        .should("have.length", 2),
+    );
+
+    cy.openPropertyPane("listwidgetv2");
+    cy.togglebar(commonlocators.serverSidePaginationCheckbox);
+
+    // Page number resets
+    cy.waitUntil(() =>
+      cy.get(commonlocators.listPaginateActivePage).should("have.text", "1"),
+    );
+
+    cy.togglebarDisable(commonlocators.serverSidePaginationCheckbox);
   });
 });
