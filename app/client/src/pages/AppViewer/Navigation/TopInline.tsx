@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 // import { get } from "lodash";
 // import { useSelector } from "react-redux";
 import {
@@ -16,6 +16,7 @@ import MoreDropdownButton from "./components/MoreDropdownButton";
 import { getCanvasWidth, previewModeSelector } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { throttle } from "lodash";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes
@@ -39,7 +40,7 @@ export function TopInline(props: TopInlineProps) {
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
-  const navRef = useRef(null);
+  const navRef = useRef<HTMLDivElement>(null);
   const maxMenuItemWidth = 220;
   const [maxMenuItemsThatCanFit, setMaxMenuItemsThatCanFit] = useState(0);
   const { width: screenWidth } = useWindowSizeHooks();
@@ -49,6 +50,7 @@ export function TopInline(props: TopInlineProps) {
   );
   const isPreviewing = isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
   const canvasWidth = useSelector(getCanvasWidth);
+  const THROTTLE_TIMEOUT = 50;
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -65,14 +67,36 @@ export function TopInline(props: TopInlineProps) {
     });
   }
 
-  useEffect(() => {
-    if (navRef?.current) {
-      const { offsetWidth } = navRef.current;
+  useLayoutEffect(() => {
+    const onResize = throttle(() => {
+      if (navRef?.current) {
+        const { offsetWidth } = navRef.current;
 
-      // using max menu item width for simpler calculation
-      setMaxMenuItemsThatCanFit(Math.floor(offsetWidth / maxMenuItemWidth));
+        // using max menu item width for simpler calculation
+        setMaxMenuItemsThatCanFit(Math.floor(offsetWidth / maxMenuItemWidth));
+      }
+    }, THROTTLE_TIMEOUT);
+
+    if (navRef.current) {
+      const resizeObserver = new ResizeObserver(onResize);
+
+      resizeObserver.observe(navRef.current);
+      navRef.current.addEventListener("scroll", onResize);
     }
-  }, [navRef, appPages, screenWidth, isPreviewing, canvasWidth]);
+
+    return () => {
+      if (navRef.current) {
+        navRef.current.removeEventListener("resize", onResize);
+      }
+    };
+  }, [
+    navRef,
+    maxMenuItemWidth,
+    appPages,
+    screenWidth,
+    isPreviewing,
+    canvasWidth,
+  ]);
 
   if (appPages.length <= 1) return null;
 
