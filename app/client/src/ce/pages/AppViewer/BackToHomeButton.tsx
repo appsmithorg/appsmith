@@ -59,7 +59,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
   return (
     <TooltipComponent content="Back to apps" position="bottom-left">
       <StyledLink
-        className="flex items-center gap-2 group t--back-to-home hover:no-underline mr-3"
+        className="flex items-center gap-2 group t--back-to-home hover:no-underline mr-2"
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
         to="/applications"
