@@ -16,9 +16,7 @@ describe("Currency input widget - ", () => {
       .last()
       .click({ force: true });
     // Click on the currency change option
-    cy.get(".t--input-currency-change")
-      .first()
-      .click();
+    cy.get(".t--input-currency-change").first().click();
     // Search with a typo
     cy.get(".t--search-input input").type("gdp");
     cy.wait(500);
@@ -27,9 +25,7 @@ describe("Currency input widget - ", () => {
 
     cy.PublishtheApp();
     // Click on the currency change option
-    cy.get(".t--input-currency-change")
-      .first()
-      .click();
+    cy.get(".t--input-currency-change").first().click();
     // Search with a typo
     cy.get(".t--search-input input").type("gdp");
     cy.wait(500);
@@ -45,29 +41,21 @@ describe("Currency input widget - ", () => {
       "contain",
       "{{appsmith.store.test}}",
     );
-    cy.get(".t--input-currency-change")
-      .first()
-      .click();
+    cy.get(".t--input-currency-change").first().click();
     cy.get(".t--search-input input").type("gbp");
     cy.wait(500);
-    cy.get(".t--dropdown-option")
-      .last()
-      .click();
+    cy.get(".t--dropdown-option").last().click();
     cy.get(".t--property-control-currency .CodeMirror-code").should(
       "contain",
       "{{appsmith.store.test}}",
     );
     cy.PublishtheApp();
     cy.get(".bp3-button.select-button").click({ force: true });
-    cy.get(".menu-item-text")
-      .first()
-      .click({ force: true });
+    cy.get(".menu-item-text").first().click({ force: true });
     cy.get(".t--widget-textwidget").should("contain", "USD:AS:USD");
     cy.get(".t--input-currency-change").should("contain", "$");
     cy.get(".bp3-button.select-button").click({ force: true });
-    cy.get(".menu-item-text")
-      .last()
-      .click({ force: true });
+    cy.get(".menu-item-text").last().click({ force: true });
     cy.get(".t--widget-textwidget").should("contain", "INR:IN:INR");
     cy.get(".t--input-currency-change").should("contain", "₹");
   });

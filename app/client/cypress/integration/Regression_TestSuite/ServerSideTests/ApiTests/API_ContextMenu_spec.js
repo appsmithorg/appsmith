@@ -5,8 +5,8 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
-describe("API Panel Test Functionality ", function() {
-  it("Test API copy/Move/delete feature", function() {
+describe("API Panel Test Functionality ", function () {
+  it("Test API copy/Move/delete feature", function () {
     cy.Createpage("SecondPage");
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
@@ -22,9 +22,7 @@ describe("API Panel Test Functionality ", function() {
     cy.get("body").click(0, 0);
     ee.ActionContextMenuByEntityName("FirstAPICopy", "Move to page", "Page1");
     cy.wait(2000);
-    cy.get(".t--entity-name")
-      .contains("FirstAPICopy")
-      .click({ force: true });
+    cy.get(".t--entity-name").contains("FirstAPICopy").click({ force: true });
     cy.get(apiwidget.resourceUrl).should("contain.text", "{{ '/random' }}");
   });
 });

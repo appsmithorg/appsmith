@@ -10,8 +10,8 @@ let propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Theme validation usecase for multi-select widget", function() {
-  it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
+describe("Theme validation usecase for multi-select widget", function () {
+  it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
     //cy.reload(); // To remove the rename tooltip
     ee.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
     cy.get(themelocator.canvas).click({ force: true });
@@ -25,9 +25,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.borderMouseover(0, "none");
     cy.borderMouseover(1, "M");
     cy.borderMouseover(2, "L");
-    cy.get(themelocator.border)
-      .eq(1)
-      .click({ force: true });
+    cy.get(themelocator.border).eq(1).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -43,9 +41,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.shadowMouseover(1, "S");
     cy.shadowMouseover(2, "M");
     cy.shadowMouseover(3, "L");
-    cy.get(themelocator.shadow)
-      .eq(3)
-      .click({ force: true });
+    cy.get(themelocator.shadow).eq(3).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -58,7 +54,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
-      cy.fixture("fontData").then(function(testdata) {
+      cy.fixture("fontData").then(function (testdata) {
         this.testdata = testdata;
       });
 
@@ -74,15 +70,9 @@ describe("Theme validation usecase for multi-select widget", function() {
           cy.get(".t--draggable-multiselectwidgetv2:contains('more')").should(
             "have.css",
             "font-family",
-            $childElem
-              .children()
-              .last()
-              .text(),
+            $childElem.children().last().text(),
           );
-          themeFont = $childElem
-            .children()
-            .last()
-            .text();
+          themeFont = $childElem.children().last().text();
         });
     });
     cy.contains("Font").click({ force: true });
@@ -100,7 +90,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     appSettings.ClosePane();
   });
 
-  it.skip("2. Publish the App and validate Font across the app + Bug 15007", function() {
+  it.skip("2. Publish the App and validate Font across the app + Bug 15007", function () {
     //Skipping due to mentioned bug
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
@@ -122,7 +112,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.goToEditFromPublish();
   });
 
-  it("3. Validate current theme feature", function() {
+  it("3. Validate current theme feature", function () {
     cy.get("#canvas-selection-0").click({ force: true });
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
@@ -145,7 +135,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       });
   });
 
-  it("4. Publish the App and validate change of Theme across the app in publish mode", function() {
+  it("4. Publish the App and validate change of Theme across the app in publish mode", function () {
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()

@@ -1,4 +1,4 @@
-import { AppsmithUIConfigs } from "./types";
+import type { AppsmithUIConfigs } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";

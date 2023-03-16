@@ -128,10 +128,17 @@ public class DatasourceServiceTest {
         workspace11.setId("random-org-id-1");
         workspace11.setName("Random Org 1");
 
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         StepVerifier.create(workspaceService.create(workspace11)
-                        .flatMap(org -> {
+                        .zipWith(pluginService.findByPackageName("restapi-plugin"))
+                        .flatMap(tuple2 -> {
+                            Workspace workspace = tuple2.getT1();
+                            Plugin plugin = tuple2.getT2();
                             Datasource datasource = new Datasource();
-                            datasource.setWorkspaceId(org.getId());
+                            datasource.setWorkspaceId(workspace.getId());
+                            datasource.setPluginId(plugin.getId());
                             return datasourceService.create(datasource);
                         })
                         .flatMap(datasource1 -> {
@@ -140,11 +147,13 @@ public class DatasourceServiceTest {
                             workspace2.setName("Random Org 2");
                             return Mono.zip(Mono.just(datasource1), workspaceService.create(workspace2));
                         })
-                        .flatMap(object -> {
-                            final Workspace org2 = object.getT2();
+                        .flatMap(tuple2 -> {
+                            Datasource datasource1 = tuple2.getT1();
+                            final Workspace org2 = tuple2.getT2();
                             Datasource datasource2 = new Datasource();
                             datasource2.setWorkspaceId(org2.getId());
-                            return Mono.zip(Mono.just(object.getT1()), datasourceService.create(datasource2));
+                            datasource2.setPluginId(datasource1.getPluginId());
+                            return Mono.zip(Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
                         }))
                 .assertNext(datasource -> {
                     assertThat(datasource.getT1().getName()).isEqualTo("Untitled Datasource");
@@ -175,14 +184,9 @@ public class DatasourceServiceTest {
         datasource.setWorkspaceId(workspaceId);
         StepVerifier
                 .create(datasourceService.create(datasource))
-                .assertNext(createdDatasource -> {
-                    assertThat(createdDatasource.getId()).isNotEmpty();
-                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
-                    assertThat(createdDatasource.getIsValid()).isFalse();
-                    assertThat(createdDatasource.getInvalids()).containsExactlyInAnyOrder("Missing plugin id. Please enter one.");
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID)))
+                .verify();
     }
 
     @Test

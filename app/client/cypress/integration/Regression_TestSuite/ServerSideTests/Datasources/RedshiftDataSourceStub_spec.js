@@ -1,12 +1,12 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 let datasourceName;
 
-describe("Redshift datasource test cases", function() {
+describe("Redshift datasource test cases", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create, test, save then delete a Redshift datasource", function() {
+  it("1. Create, test, save then delete a Redshift datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.Redshift).click();
     cy.fillRedshiftDatasourceForm();
@@ -20,7 +20,7 @@ describe("Redshift datasource test cases", function() {
     cy.testSaveDatasource(false);
   });
 
-  it("2. Create with trailing white spaces in host address and database name, test, save then delete a Redshift datasource", function() {
+  it("2. Create with trailing white spaces in host address and database name, test, save then delete a Redshift datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.Redshift).click();
     cy.fillRedshiftDatasourceForm(true);
@@ -35,10 +35,8 @@ describe("Redshift datasource test cases", function() {
     cy.deleteDatasource(datasourceName);
   });
 
-  it("3. Create a new query from the datasource editor", function() {
-    cy.get(datasource.createQuery)
-      .last()
-      .click();
+  it("3. Create a new query from the datasource editor", function () {
+    cy.get(datasource.createQuery).last().click();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",

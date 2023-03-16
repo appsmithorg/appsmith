@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { HeaderProps } from "./types";
+import type { HeaderProps } from "./types";
 import { FontWeight, Text, TextType } from "design-system-old";
 
 export const HeaderContainer = styled.div`

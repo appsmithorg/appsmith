@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import CodeMirror, {
+import type { AppState } from "@appsmith/reducers";
+import type {
   Annotation,
   EditorConfiguration,
   UpdateLintingCallback,
 } from "codemirror";
+import CodeMirror from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
@@ -22,30 +23,32 @@ import "codemirror/addon/comment/comment";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps } from "redux-form";
+import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
 
-import {
+import type {
   DataTree,
-  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
-import {
+import type {
   CodeEditorBorder,
   EditorConfig,
+  FieldEntityInformation,
+  Hinter,
+  HintHelper,
+  MarkHelper,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+import {
   EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
-  FieldEntityInformation,
-  Hinter,
-  HintHelper,
   isCloseKey,
   isModifierKey,
-  MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -71,8 +74,8 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
@@ -88,15 +91,15 @@ import {
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
-import { ExpectedValueExample } from "utils/validation/common";
+import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { Placement } from "@blueprintjs/popover2";
+import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
-import { SlashCommandPayload } from "entities/Action";
-import { Indices } from "constants/Layers";
+import type { SlashCommandPayload } from "entities/Action";
+import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
   LINT_TOOLTIP_CLASS,
@@ -109,30 +112,26 @@ import {
 } from "./utils/autoIndentUtils";
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   getCodeEditorLastCursorPosition,
   getIsInputFieldFocused,
 } from "selectors/editorContextSelectors";
-import {
-  CodeEditorFocusState,
-  setEditorFieldFocusAction,
-} from "actions/editorContextActions";
+import type { CodeEditorFocusState } from "actions/editorContextActions";
+import { setEditorFieldFocusAction } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
 import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
-import {
-  EntityNavigationData,
-  getEntitiesForNavigation,
-} from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
+import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
-  PeekOverlayStateProps,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 
@@ -361,7 +360,7 @@ class CodeEditor extends Component<Props, State> {
       options.value = removeNewLineCharsIfRequired(inputValue, this.props.size);
 
       // @ts-expect-error: Types are not available
-      options.finishInit = function(
+      options.finishInit = function (
         this: CodeEditor,
         editor: CodeMirror.Editor,
       ) {
@@ -754,9 +753,8 @@ class CodeEditor extends Component<Props, State> {
           },
           () => {
             if (entityToNavigate[0] in this.props.entitiesForNavigation) {
-              let navigationData = this.props.entitiesForNavigation[
-                entityToNavigate[0]
-              ];
+              let navigationData =
+                this.props.entitiesForNavigation[entityToNavigate[0]];
               for (let i = 1; i < entityToNavigate.length; i += 1) {
                 if (entityToNavigate[i] in navigationData.children) {
                   navigationData = navigationData.children[entityToNavigate[i]];
@@ -1005,9 +1003,8 @@ class CodeEditor extends Component<Props, State> {
     };
 
     if (dataTreePath) {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        dataTreePath,
-      );
+      const { entityName, propertyPath } =
+        getEntityNameAndPropertyPath(dataTreePath);
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
 
@@ -1204,9 +1201,8 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
-      dataTreePath,
-    );
+    const { evalErrors, pathEvaluatedValue } =
+      this.getPropertyValidation(dataTreePath);
 
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,

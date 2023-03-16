@@ -1,10 +1,10 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Resizable from "resizable/resizenreflow";
@@ -34,18 +34,12 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
-import {
-  WidgetOperations,
-  WidgetProps,
-  WidgetRowCols,
-} from "widgets/BaseWidget";
+import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
-import {
-  computeFinalRowCols,
-  computeRowCols,
-  UIElementSize,
-} from "./ResizableUtils";
+import type { UIElementSize } from "./ResizableUtils";
+import { computeFinalRowCols, computeRowCols } from "./ResizableUtils";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,

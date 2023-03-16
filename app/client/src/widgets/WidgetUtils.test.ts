@@ -2,7 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import {
   RenderModes,
   TextSizes,
@@ -10,7 +10,7 @@ import {
 } from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import {
   borderRadiusUtility,
@@ -452,7 +452,7 @@ describe("composePropertyUpdateHook", () => {
 
     expect(
       composePropertyUpdateHook(
-        (input as unknown) as composePropertyUpdateHookInputType,
+        input as unknown as composePropertyUpdateHookInputType,
       )(null, "", null),
     ).toEqual(expected);
   });
@@ -464,7 +464,7 @@ describe("composePropertyUpdateHook", () => {
 
     expect(
       composePropertyUpdateHook(
-        (input as unknown) as composePropertyUpdateHookInputType,
+        input as unknown as composePropertyUpdateHookInputType,
       )(null, "", null),
     ).toEqual(expected);
   });

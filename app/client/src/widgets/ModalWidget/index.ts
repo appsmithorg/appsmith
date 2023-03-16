@@ -5,11 +5,9 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

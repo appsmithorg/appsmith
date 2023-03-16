@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { Classes } from "@blueprintjs/core";
 import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";

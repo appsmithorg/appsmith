@@ -56,7 +56,8 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
-import { AuthType, Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
+import { AuthType } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -66,7 +67,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 765px;
