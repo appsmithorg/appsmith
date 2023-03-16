@@ -130,8 +130,11 @@ export interface createEvaluationContextArgs {
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
-  // Whether not to add functions like "run", "clear" to entity in global data
-  skipEntityFunctions?: boolean;
+  /*
+   Whether to remove functions like "run", "clear" in from entities in evaluation context
+   use case => To show lint warning when Api.run is used in a function bound to a data field (Eg. Button.text)
+   */
+  removeEntityFunctions?: boolean;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -145,8 +148,8 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
+    removeEntityFunctions,
     resolvedFunctions,
-    skipEntityFunctions,
   } = args;
 
   const EVAL_CONTEXT: EvalContext = {};
@@ -162,7 +165,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
-    skipEntityFunctions: !!skipEntityFunctions,
+    removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
 

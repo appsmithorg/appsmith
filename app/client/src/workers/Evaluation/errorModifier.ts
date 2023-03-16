@@ -42,7 +42,7 @@ class ErrorModifier {
   }
   modifyAsyncErrors(errors: EvaluationError[], asyncFunc: string) {
     return errors.map((error) => {
-      if (error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE) {
+      if (isAsyncFunctionCalledInSyncFieldError(error)) {
         error.kind = {
           category:
             PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
@@ -99,3 +99,11 @@ export const getErrorMessage = (error: Error) => {
 export const getErrorMessageWithType = (error: Error) => {
   return error.name ? `${error.name}: ${error.message}` : error.message;
 };
+
+const ACTION_CALLED_IN_SYNC_FIELD_REGEX = /Found a reference to .+? during evaluation\. Sync fields cannot execute framework actions\. Please remove any direct\/indirect references to .+? and try again\./gm;
+function isAsyncFunctionCalledInSyncFieldError(error: EvaluationError) {
+  return (
+    error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE ||
+    ACTION_CALLED_IN_SYNC_FIELD_REGEX.test(error.errorMessage.message)
+  );
+}

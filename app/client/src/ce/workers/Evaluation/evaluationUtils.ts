@@ -407,6 +407,10 @@ export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
+export function isDataTreeEntity(entity: unknown) {
+  return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {

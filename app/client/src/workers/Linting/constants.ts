@@ -1,5 +1,6 @@
 import { ECMA_VERSION } from "@shared/ast";
 import { LintOptions } from "jshint";
+import { isEntityFunction } from "./utils";
 
 export const lintOptions = (globalData: Record<string, boolean>) =>
   ({
@@ -68,7 +69,13 @@ export const CUSTOM_LINT_ERRORS: Record<
   [CustomLintErrorCode.INVALID_ENTITY_PROPERTY]: (
     entityName: string,
     propertyName: string,
-  ) => `"${propertyName}" doesn't exist in ${entityName}`,
+    entity: unknown,
+    isJsObject: boolean,
+  ) =>
+    isEntityFunction(entity, propertyName)
+      ? asyncActionInSyncFieldLintMessage(isJsObject)
+      : `"${propertyName}" doesn't exist in ${entityName}`,
+
   [CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD]: (
     dataFieldBindings: string[],
     fullName: string,

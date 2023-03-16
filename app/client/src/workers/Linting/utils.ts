@@ -33,6 +33,7 @@ import {
   getEntityNameAndPropertyPath,
   isAction,
   isATriggerPath,
+  isDataTreeEntity,
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -62,7 +63,10 @@ import {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/common/DataTreeEvaluator";
-import { getActionTriggerFunctionNames } from "workers/Evaluation/fns";
+import {
+  entityFns,
+  getActionTriggerFunctionNames,
+} from "workers/Evaluation/fns";
 
 export function lintBindingPath({
   dynamicBinding,
@@ -363,6 +367,7 @@ export function getLintingErrors({
     data,
     scriptPos,
     originalBinding,
+    options?.isJsObject,
   );
   return jshintErrors.concat(invalidPropertyErrors);
 }
@@ -373,6 +378,7 @@ function getInvalidPropertyErrorsFromScript(
   data: Record<string, unknown>,
   scriptPos: Position,
   originalBinding: string,
+  isJSObject = false,
 ): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
   try {
@@ -395,7 +401,7 @@ function getInvalidPropertyErrorsFromScript(
         : property.loc.start.column + 2;
       const lintErrorMessage = CUSTOM_LINT_ERRORS[
         CustomLintErrorCode.INVALID_ENTITY_PROPERTY
-      ](object.name, propertyName);
+      ](object.name, propertyName, data[object.name], isJSObject);
       return {
         errorType: PropertyEvaluationErrorType.LINT,
         raw: script,
@@ -571,15 +577,15 @@ export function getEvaluationContext(
     return createEvaluationContext({
       dataTree: unevalTree,
       resolvedFunctions: {},
-      isTriggerBased: true,
-      skipEntityFunctions: true,
+      isTriggerBased: false,
+      removeEntityFunctions: true,
     });
 
   const evalContext = createEvaluationContext({
     dataTree: unevalTree,
     resolvedFunctions: {},
     isTriggerBased: false,
-    skipEntityFunctions: true,
+    removeEntityFunctions: false,
   });
 
   const platformFnNamesMap = Object.values(
@@ -654,4 +660,13 @@ function generateAsyncFunctionBoundToDataFieldCustomError(
     line: jsPropertyState.position.keyStartLine - 1,
     ch: jsPropertyState.position.keyStartColumn + 1,
   };
+}
+
+export function isEntityFunction(entity: unknown, propertyName: string) {
+  if (!isDataTreeEntity(entity)) return false;
+  return entityFns.find(
+    (entityFn) =>
+      entityFn.name === propertyName &&
+      entityFn.qualifier(entity as DataTreeEntity),
+  );
 }
