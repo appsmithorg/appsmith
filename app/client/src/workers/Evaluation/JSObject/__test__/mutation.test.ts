@@ -1,7 +1,9 @@
 import JSVariableUpdates, { getUpdatedPaths } from "../JSVariableUpdates";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import JSObjectCollection, { VariableState } from "../Collection";
+import type { VariableState } from "../Collection";
+import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 jest.mock("../../evalTreeWithChanges.ts", () => {
@@ -32,16 +34,16 @@ jest.mock("../../handlers/evalTree", () => {
 
 describe("Mutation", () => {
   it("Global scope value mutation tracking", async () => {
-    const dataTree = ({
+    const dataTree = {
       JSObject1: {
         var: {},
         var2: new Set([1, 2]),
         variables: ["var", "var2"],
         ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       },
-    } as unknown) as DataTree;
+    } as unknown as DataTree;
 
-    JSObjectCollection.setVariableState((dataTree as unknown) as VariableState);
+    JSObjectCollection.setVariableState(dataTree as unknown as VariableState);
 
     const evalContext = createEvaluationContext({
       dataTree,
