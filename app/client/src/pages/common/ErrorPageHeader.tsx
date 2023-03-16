@@ -14,6 +14,10 @@ import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { get } from "lodash";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;
@@ -52,6 +56,16 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   if (redirectUrl != null) {
     loginUrl += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const navColorStyle =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
 
   return (
     <StyledPageHeader>
@@ -83,7 +97,9 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
           ) : (
             <ProfileDropdown
               name={user.name}
+              navColorStyle={navColorStyle}
               photoId={user?.photoId}
+              primaryColor={primaryColor}
               userName={user.username}
             />
           )}

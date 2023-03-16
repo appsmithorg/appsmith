@@ -139,7 +139,9 @@ const TopHeader = (props: TopHeaderProps) => {
                   },
                 }}
                 name={currentUser.name}
+                navColorStyle={navColorStyle}
                 photoId={currentUser?.photoId}
+                primaryColor={primaryColor}
                 userName={currentUser?.username || ""}
               />
             </HeaderRightItemContainer>

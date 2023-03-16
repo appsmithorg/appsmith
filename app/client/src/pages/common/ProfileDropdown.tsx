@@ -22,12 +22,21 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PROFILE } from "constants/routes";
-import { Colors } from "constants/Colors";
 import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import {
+  NavigationSetting,
+  NAVIGATION_SETTINGS,
+  TOOLTIP_HOVER_ON_DELAY,
+} from "constants/AppConstants";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { get } from "lodash";
+import {
+  getMenuContainerBackgroundColor,
+  getMenuItemBackgroundColorOnHover,
+  getMenuItemBackgroundColorWhenActive,
+  getMenuItemTextColor,
+} from "pages/AppViewer/utils";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -36,35 +45,89 @@ type TagProps = CommonComponentProps & {
   modifiers?: PopperModifiers;
   photoId?: string;
   hideEditProfileLink?: boolean;
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
 };
 
 const StyledMenu = styled(Menu)<{
   borderRadius: string;
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   .bp3-popover {
-    border-radius: ${({ borderRadius }) => `${borderRadius}`};
+    border-radius: ${({ borderRadius }) =>
+      `min(${borderRadius}, 0.375rem) !important`};
     overflow: hidden;
+  }
+
+  .bp3-popover-content > div {
+    background-color: ${({ navColorStyle, primaryColor }) =>
+      getMenuContainerBackgroundColor(primaryColor, navColorStyle)} !important;
   }
 `;
 
-const StyledMenuItem = styled(MenuItem)`
+const StyledMenuItem = styled(MenuItem)<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+}>`
   svg {
     width: 18px;
     height: 18px;
-    fill: ${Colors.GRAY};
+    fill: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)} !important;
 
     path {
-      fill: ${Colors.GRAY};
+      fill: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle, true)} !important;
     }
   }
 
   .cs-text {
-    color: ${Colors.CODE_GRAY};
+    color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
     line-height: unset;
+  }
+
+  &:hover {
+    background-color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+
+    svg {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `fill: ${getMenuItemTextColor(
+            primaryColor,
+            navColorStyle,
+          )} !important;`;
+        }
+      }}
+
+      path {
+        ${({ navColorStyle, primaryColor }) => {
+          if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+            return `fill: ${getMenuItemTextColor(
+              primaryColor,
+              navColorStyle,
+            )} !important;`;
+          }
+        }}
+      }
+    }
+
+    .cs-text {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+        }
+      }}
+    }
   }
 `;
 
-const UserInformation = styled.div`
+const UserInformation = styled.div<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+}>`
   padding: ${(props) => props.theme.spaces[6]}px;
   display: flex;
   align-items: center;
@@ -76,7 +139,8 @@ const UserInformation = styled.div`
     text-overflow: ellipsis;
 
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.profileDropdown.userName};
+      color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle, true)};
     }
   }
 
@@ -87,7 +151,8 @@ const UserInformation = styled.div`
     text-overflow: ellipsis;
 
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.profileDropdown.name};
+      color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle, true)};
     }
   }
 
@@ -105,6 +170,27 @@ const UserNameWrapper = styled.div`
   flex-direction: column;
   // To make flex child fit in container
   min-width: 0;
+`;
+
+const StyledMenuDivider = styled(MenuDivider)<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+}>`
+  ${({ navColorStyle, primaryColor, theme }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
+
+    return isThemeColorStyle
+      ? `
+        border-top: 1px solid ${getMenuItemBackgroundColorWhenActive(
+          primaryColor,
+          navColorStyle,
+        )};
+      `
+      : `
+        border-top: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
+      `;
+  }}
 `;
 
 export default function ProfileDropdown(props: TagProps) {
@@ -135,10 +221,15 @@ export default function ProfileDropdown(props: TagProps) {
       borderRadius={borderRadius}
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
+      navColorStyle={props.navColorStyle}
       position={Position.BOTTOM_RIGHT}
+      primaryColor={props.primaryColor}
       target={Profile}
     >
-      <UserInformation>
+      <UserInformation
+        navColorStyle={props.navColorStyle}
+        primaryColor={props.primaryColor}
+      >
         <div className="user-image">{Profile}</div>
         <UserNameWrapper>
           <div className="user-name t--user-name">
@@ -154,27 +245,34 @@ export default function ProfileDropdown(props: TagProps) {
           </div>
         </UserNameWrapper>
       </UserInformation>
-      <MenuDivider />
+      <StyledMenuDivider
+        navColorStyle={props.navColorStyle}
+        primaryColor={props.primaryColor}
+      />
       {!props.hideEditProfileLink && (
         <StyledMenuItem
           className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
           icon="edit-underline"
+          navColorStyle={props.navColorStyle}
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: PROFILE,
             });
           }}
+          primaryColor={props.primaryColor}
           text="Edit Profile"
         />
       )}
       <StyledMenuItem
         className="t--logout-icon"
         icon="logout"
+        navColorStyle={props.navColorStyle}
         onSelect={() =>
           getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
             type: ReduxActionTypes.LOGOUT_USER_INIT,
           })
         }
+        primaryColor={props.primaryColor}
         text="Sign Out"
       />
     </StyledMenu>
