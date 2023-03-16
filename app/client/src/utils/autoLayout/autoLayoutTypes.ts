@@ -1,3 +1,4 @@
+import { FlattenedWidgetProps } from "widgets/constants";
 import { FlexLayerAlignment } from "./constants";
 
 export type AlignmentColumnInfo = {
@@ -38,3 +39,27 @@ export interface HighlightInfo {
   canvasId: string; // widgetId of the canvas to which the highlight belongs.
   dropZone: DropZone; // size of the drop zone of this highlight.
 }
+
+/**
+ * Start: Position utils types
+ */
+
+export interface AlignmentChildren {
+  widget: FlattenedWidgetProps;
+  columns: number;
+  rows: number;
+}
+
+export interface AlignmentInfo {
+  alignment: FlexLayerAlignment;
+  columns: number;
+  children: AlignmentChildren[];
+}
+
+export interface Row extends AlignmentInfo {
+  height: number;
+}
+
+/**
+ * End: Position utils types
+ */

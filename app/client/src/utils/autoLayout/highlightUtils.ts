@@ -17,12 +17,13 @@ import {
   getWidgetWidth,
 } from "./flexWidgetUtils";
 import {
-  AlignmentInfo,
   getAlignmentSizeInfo,
   getTotalRowsOfAllChildren,
   getWrappedAlignmentInfo,
 } from "./positionUtils";
 import {
+  AlignmentChildren,
+  AlignmentInfo,
   DropZone,
   FlexLayer,
   HighlightInfo,
@@ -163,24 +164,24 @@ export function generateVerticalHighlights(data: {
     centerColumns = 0,
     endColumns = 0;
   let maxHeight = 0;
+  const rowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   for (const child of children) {
     const widget = widgets[child.id];
     if (!widget) continue;
     count += 1;
     if (draggedWidgets.indexOf(child.id) > -1) continue;
-    maxHeight = Math.max(
-      maxHeight,
-      getWidgetHeight(widget, isMobile) * widget.parentRowSpace,
-    );
+    const columns: number = getWidgetWidth(widget, isMobile);
+    const rows: number = getWidgetHeight(widget, isMobile);
+    maxHeight = Math.max(maxHeight, rows * rowSpace);
     if (child.align === FlexLayerAlignment.End) {
-      endChildren.push(widget);
-      endColumns += getWidgetWidth(widget, isMobile);
+      endChildren.push({ widget, columns, rows });
+      endColumns += columns;
     } else if (child.align === FlexLayerAlignment.Center) {
-      centerChildren.push(widget);
-      centerColumns += getWidgetWidth(widget, isMobile);
+      centerChildren.push({ widget, columns, rows });
+      centerColumns += columns;
     } else {
-      startChildren.push(widget);
-      startColumns += getWidgetWidth(widget, isMobile);
+      startChildren.push({ widget, columns, rows });
+      startColumns += columns;
     }
   }
 
@@ -238,7 +239,7 @@ export function generateVerticalHighlights(data: {
       }
       highlights.push(
         ...generateHighlightsForAlignment({
-          arr: item.children,
+          arr: item.children.map((each: AlignmentChildren) => each.widget),
           childCount:
             item.alignment === FlexLayerAlignment.Start
               ? childCount
@@ -298,6 +299,7 @@ export function generateHighlightsForAlignment(data: {
   } = data;
   const res: HighlightInfo[] = [];
   let count = 0;
+  const rowSpace: number = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   for (const child of arr) {
     const left = getLeftColumn(child, isMobile);
     res.push({
@@ -307,10 +309,10 @@ export function generateHighlightsForAlignment(data: {
       rowIndex: count,
       alignment,
       posX: left * parentColumnSpace + FLEXBOX_PADDING / 2,
-      posY: getTopRow(child, isMobile) * child.parentRowSpace + FLEXBOX_PADDING,
+      posY: getTopRow(child, isMobile) * rowSpace + FLEXBOX_PADDING,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile
-        ? getWidgetHeight(child, isMobile) * child.parentRowSpace
+        ? getWidgetHeight(child, isMobile) * rowSpace
         : maxHeight,
       isVertical: true,
       canvasId,
@@ -331,7 +333,7 @@ export function generateHighlightsForAlignment(data: {
       posX: getPositionForInitialHighlight(
         res,
         alignment,
-        arr && arr.length
+        lastChild !== null
           ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
               FLEXBOX_PADDING / 2
           : 0,

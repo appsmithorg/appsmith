@@ -193,6 +193,17 @@ export const useDynamicAppLayout = () => {
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
+    debounce(() => {
+      dispatch(
+        updateLayoutForMobileBreakpointAction(
+          MAIN_CONTAINER_WIDGET_ID,
+          appPositioningType === AppPositioningTypes.AUTO
+            ? mainCanvasProps?.isMobile
+            : false,
+          calculatedWidth,
+        ),
+      );
+    }, 250)();
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
