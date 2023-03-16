@@ -157,10 +157,11 @@ export class DataSources {
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
+  public _urlInputControl = "input[name='url']";
 
-  public AssertDSEditViewMode(isEdit = false) {
-    if (isEdit) this.agHelper.AssertElementAbsence(this._editButton);
-    else this.agHelper.AssertElementExist(this._editButton);
+  public AssertDSEditViewMode(mode: "Edit" | "View") {
+    if (mode == "View") this.agHelper.AssertElementAbsence(this._editButton);
+    else if (mode == "Edit") this.agHelper.AssertElementExist(this._editButton);
   }
 
   public GeneratePageWithMockDB() {
@@ -398,10 +399,10 @@ export class DataSources {
       datasourceFormData["mssql-port"].toString(),
     );
     this.agHelper.ClearTextField(this._databaseName);
-    this.agHelper.UpdateInputValue(
-      this._databaseName,
-      datasourceFormData["mssql-databaseName"],
-    );
+    // this.agHelper.UpdateInputValue(
+    //   this._databaseName,
+    //   datasourceFormData["mssql-databaseName"],
+    // ); //Commenting until MsSQL is init loaded into container
     this.ExpandSectionByName(this._sectionAuthentication);
     this.agHelper.UpdateInputValue(
       this._username,
@@ -911,10 +912,8 @@ export class DataSources {
     typeText = "as",
     cursorPosition = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator
+    this.agHelper
+      .GetElement(selector)
       .type(moveCursor)
       .type(typeText)
       .should("have.prop", "selectionStart", cursorPosition);

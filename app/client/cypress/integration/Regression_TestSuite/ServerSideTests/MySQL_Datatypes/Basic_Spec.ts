@@ -1,94 +1,91 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import inputData from "../../../../support/Objects/mySqlData";
 
 let dsName: any, query: string;
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources,
-  table = ObjectsRegistry.Table,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode,
-  appSettings = ObjectsRegistry.AppSettings;
 
 describe("MySQL Datatype tests", function() {
-  before(() => {
+  before("Load dsl, Change theme, Create Mysql DS", () => {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
-      agHelper.AddDsl(val);
+      _.agHelper.AddDsl(val);
     });
-    appSettings.OpenPaneAndChangeTheme("Moon");
-  });
-
-  it("1. Create Mysql DS", function() {
-    dataSources.CreateDataSource("MySql");
+    _.appSettings.OpenPaneAndChangeTheme("Moon");
+    _.dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("2. Creating mysqlDTs table", () => {
-    //IF NOT EXISTS can be used - which creates tabel if it does not exist and donot throw any error if table exists.
+  it("1. Creating mysqlDTs _.table & queries", () => {
+    //IF NOT EXISTS can be used - which creates tabel if it does not exist and donot throw any error if _.table exists.
     //But if we add this option then next case could fail inn that case.
     query = inputData.query.createTable;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.RenameWithInPane("createTable");
-    agHelper.GetNClick(dataSources._templateMenu);
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
 
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(
-      ee._entityNameInExplorer(inputData.tableName),
+    _.dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
+    _.dataSources.RunQuery();
+
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+    _.agHelper.AssertElementVisible(
+      _.entityExplorer._entityNameInExplorer(inputData.tableName),
     );
-  });
 
-  it("3. Creating SELECT query", () => {
-    ee.ActionTemplateMenuByEntityName(inputData.tableName, "SELECT");
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
+    //Creating SELECT query
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      inputData.tableName,
+      "SELECT",
+    );
+    _.agHelper.RenameWithInPane("selectRecords");
+    _.dataSources.RunQuery();
+    _.agHelper
+      .GetText(_.dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-  });
 
-  it("4. Creating all queries", () => {
+    //Other queries
     query = inputData.query.insertRecord;
-    ee.ActionTemplateMenuByEntityName(inputData.tableName, "INSERT");
-    agHelper.RenameWithInPane("insertRecord");
-    dataSources.EnterQuery(query);
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      inputData.tableName,
+      "INSERT",
+    );
+    _.agHelper.RenameWithInPane("insertRecord");
+    _.dataSources.EnterQuery(query);
 
     query = inputData.query.dropTable;
-    ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
-    agHelper.RenameWithInPane("dropTable");
-    dataSources.EnterQuery(query);
+    _.entityExplorer.ActionTemplateMenuByEntityName(
+      inputData.tableName,
+      "DELETE",
+    );
+    _.agHelper.RenameWithInPane("dropTable");
+    _.dataSources.EnterQuery(query);
   });
 
   //Insert valid/true values into datasource
-  it("5. Inserting record", () => {
-    ee.SelectEntityByName("Page1");
-    deployMode.DeployApp();
-    table.WaitForTableEmpty(); //asserting table is empty before inserting!
-    agHelper.ClickButton("Run InsertQuery");
+  it("2. Inserting record", () => {
+    _.entityExplorer.SelectEntityByName("Page1");
+    _.deployMode.DeployApp();
+    _.table.WaitForTableEmpty(); //asserting table is empty before inserting!
+    _.agHelper.ClickButton("Run InsertQuery");
     inputData.input.forEach((valueArr, i) => {
-      agHelper.ClickButton("Run InsertQuery");
+      _.agHelper.ClickButton("Run InsertQuery");
       valueArr.forEach((value, index) => {
         if (value !== "")
-          agHelper.EnterInputText(inputData.inputFieldName[index], value);
+          _.agHelper.EnterInputText(inputData.inputFieldName[index], value);
       });
-      i % 2 && agHelper.ToggleSwitch("Bool_column");
-      agHelper.ClickButton("insertRecord");
-      agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-      agHelper.Sleep(2000);
+      i % 2 && _.agHelper.ToggleSwitch("Bool_column");
+      _.agHelper.ClickButton("insertRecord");
+      _.agHelper.AssertElementVisible(
+        _.locators._spanButton("Run InsertQuery"),
+      );
+      _.agHelper.Sleep(2000);
     });
   });
 
   //Verify weather expected value is present in each cell
   //i.e. weather right data is pushed and fetched from datasource.
-  it("6. Validating values in each cell", () => {
+  it("3. Validating values in each cell", () => {
     cy.wait(2000);
     inputData.result.forEach((res_array, i) => {
       res_array.forEach((value, j) => {
-        table.ReadTableRowColumnData(j, i, "v1",0).then(($cellData) => {
+        _.table.ReadTableRowColumnData(j, i, "v1", 0).then(($cellData) => {
           if (i === inputData.result.length - 1) {
             const obj = JSON.parse($cellData);
             expect(JSON.stringify(obj)).to.eq(JSON.stringify(value));
@@ -100,14 +97,14 @@ describe("MySQL Datatype tests", function() {
     });
   });
 
-  //null will be displayed as empty string in tables
+  //null will be displayed as empty string in _.tables
   //So test null we have to intercept execute request.
   //And check response payload.
-  it("7. Testing null value", () => {
-    deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("selectRecords");
-    dataSources.RunQuery(false);
+  it("4. Testing null value", () => {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("selectRecords");
+    _.dataSources.RunQuery(false);
     cy.wait("@postExecute").then((intercept) => {
       expect(
         typeof intercept.response?.body.data.body[5].varchar_column,
@@ -118,34 +115,40 @@ describe("MySQL Datatype tests", function() {
     });
   });
 
-  it("8. Validate drop of mysqlDTs - Table from MySQL datasource", () => {
-    ee.SelectEntityByName("dropTable");
-    dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0"); //Success response for dropped table!
-    });
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(
-      ee._entityNameInExplorer(inputData.tableName),
-    );
-    ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("Datasources", false);
-  });
+  after(
+    "Verify Drop of tables & Deletion of the datasource after all created queries are Deleted",
+    () => {
+      _.entityExplorer.SelectEntityByName("dropTable");
+      _.dataSources.RunQuery();
+      _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0"); //Success response for dropped _.table!
+      });
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      _.entityExplorer.ExpandCollapseEntity("Datasources");
+      _.entityExplorer.ExpandCollapseEntity(dsName);
+      _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+      _.agHelper.AssertElementAbsence(
+        _.entityExplorer._entityNameInExplorer(inputData.tableName),
+      );
+      _.entityExplorer.ExpandCollapseEntity(dsName, false);
+      _.entityExplorer.ExpandCollapseEntity("Datasources", false);
 
-  it("9. Verify Deletion of the datasource after all created queries are Deleted", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("Queries/JS");
-    ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
-      (type) => {
-        ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");
-      },
-    );
-    deployMode.DeployApp();
-    deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
-  });
+      //DS deletion
+      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
+        (type) => {
+          _.entityExplorer.ActionContextMenuByEntityName(
+            type,
+            "Delete",
+            "Are you sure?",
+          );
+        },
+      );
+      _.deployMode.DeployApp();
+      _.deployMode.NavigateBacktoEditor();
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    },
+  );
 });
