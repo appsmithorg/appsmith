@@ -642,25 +642,28 @@ const PropertyControl = memo((props: Props) => {
           }),
         );
 
-        const actionBlockFunctions = getActionBlockFunctionNames(
+        const {
+          actionBlockFunctionNames,
+          canTranslate,
+        } = getActionBlockFunctionNames(
           codeFromProperty,
           self.evaluationVersion,
         );
 
-        if (codeFromProperty.trim() && !actionBlockFunctions.length) {
+        if (codeFromProperty.trim() && !canTranslate) {
           isToggleDisabled = true;
-        }
-
-        for (const fn of actionBlockFunctions) {
-          if (
-            ![
-              ...AppsmithFunctionsWithFields,
-              ...actionsArray,
-              ...jsActionsArray,
-            ].includes(fn)
-          ) {
-            isToggleDisabled = true;
-            break;
+        } else {
+          for (const fn of actionBlockFunctionNames) {
+            if (
+              ![
+                ...AppsmithFunctionsWithFields,
+                ...actionsArray,
+                ...jsActionsArray,
+              ].includes(fn)
+            ) {
+              isToggleDisabled = true;
+              break;
+            }
           }
         }
       }

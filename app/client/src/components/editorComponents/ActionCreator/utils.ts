@@ -14,9 +14,10 @@ import {
   getThenCatchBlocksFromQuery,
   setThenBlockInQuery,
   setCatchBlockInQuery,
+  getFunctionParams,
 } from "@shared/ast";
 import { TreeDropdownOption } from "design-system-old";
-import { ActionTree, CallbackBlock } from "./types";
+import { TActionBlock } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
@@ -150,7 +151,6 @@ export const enumTypeSetter = (
       self.evaluationVersion,
     );
   } catch (e) {
-    // showError();
     return currentValue;
   }
 };
@@ -265,7 +265,7 @@ export function codeToAction(
   code: string,
   fieldOptions: TreeDropdownOption[],
   multipleActions = true,
-): ActionTree {
+): TActionBlock {
   const jsCode = getCodeFromMoustache(code);
 
   const selectedOption = getSelectedFieldFromValue(jsCode, fieldOptions);
@@ -285,16 +285,19 @@ export function codeToAction(
       self.evaluationVersion,
     );
 
+    const thenCallbackParams: string[] = getFunctionParams(thenBlock);
     const thenCallbackBlocks = getFunctionBodyStatements(
       thenBlock,
       self.evaluationVersion,
     );
 
+    const catchCallbackParams: string[] = getFunctionParams(catchBlock);
     const catchCallbackBlocks = getFunctionBodyStatements(
       catchBlock,
       self.evaluationVersion,
     );
 
+    const successCallbackParams: string[] = getFunctionParams(successCallback);
     const successCallbackBlocks: string[] = getFunctionBodyStatements(
       successCallback,
       self.evaluationVersion,
@@ -305,55 +308,50 @@ export function codeToAction(
       1,
       self.evaluationVersion,
     );
+
+    const errorCallbackParams: string[] = getFunctionParams(errorCallback);
     const errorCallbackBlocks = getFunctionBodyStatements(
       errorCallback,
       self.evaluationVersion,
     ).map((block: string) => block);
 
     return {
-      // code: getMainAction(jsCode, self.evaluationVersion),
       code: jsCode,
       actionType: mainActionType,
-      successBlocks: [
-        ...successCallbackBlocks.map(
-          (block) =>
-            ({
-              ...codeToAction(block, fieldOptions, false),
-              type: "success",
-            } as CallbackBlock),
-        ),
-        ...thenCallbackBlocks.map(
-          (block) =>
-            ({
-              ...codeToAction(block, fieldOptions, false),
-              type: "then",
-            } as CallbackBlock),
-        ),
-      ],
-      errorBlocks: [
-        ...errorCallbackBlocks.map(
-          (block) =>
-            ({
-              ...codeToAction(block, fieldOptions, false),
-              type: "failure",
-            } as CallbackBlock),
-        ),
-        ...catchCallbackBlocks.map(
-          (block) =>
-            ({
-              ...codeToAction(block, fieldOptions, false),
-              type: "catch",
-            } as CallbackBlock),
-        ),
-      ],
+      success: {
+        params: [...thenCallbackParams, ...successCallbackParams],
+        blocks: [
+          ...successCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false),
+            type: "success" as const,
+          })),
+          ...thenCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false),
+            type: "then" as const,
+          })),
+        ],
+      },
+      error: {
+        params: [...catchCallbackParams, ...errorCallbackParams],
+        blocks: [
+          ...errorCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false),
+            type: "failure" as const,
+          })),
+          ...catchCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false),
+            type: "catch" as const,
+          })),
+        ],
+      },
     };
   }
 
   return {
     code: jsCode,
     actionType: mainActionType,
-    successBlocks: [],
-    errorBlocks: [],
+    success: { blocks: [] },
+    error: { blocks: [] },
   };
 }
 
@@ -370,13 +368,19 @@ export const chainableFns = [
   AppsmithFunction.resetWidget,
   AppsmithFunction.showModal,
   AppsmithFunction.download,
+  AppsmithFunction.getGeolocation,
 ];
 
 export function actionToCode(
-  action: ActionTree,
+  action: TActionBlock,
   multipleActions = true,
 ): string {
-  const { actionType, code, errorBlocks, successBlocks } = action;
+  const {
+    actionType,
+    code,
+    error: { blocks: errorBlocks, params: errorParams },
+    success: { blocks: successBlocks, params: successParams },
+  } = action;
 
   const actionFieldConfig = FIELD_GROUP_CONFIG[actionType];
 
@@ -421,7 +425,7 @@ export function actionToCode(
     const withSuccessCallback = successCallbackCode
       ? setCallbackFunctionField(
           code,
-          `() => { ${successCallbackCode} }`,
+          `(${successParams?.join(",")}) => { ${successCallbackCode} }`,
           0,
           self.evaluationVersion,
         )
@@ -429,7 +433,7 @@ export function actionToCode(
 
     const withThenCallback = setThenBlockInQuery(
       withSuccessCallback,
-      `() => { ${thenCallbackCode} }`,
+      `(${successParams?.join(",")}) => { ${thenCallbackCode} }`,
       self.evaluationVersion,
     );
 
@@ -437,7 +441,7 @@ export function actionToCode(
     const withErrorCallback = errorCallbackCode
       ? setCallbackFunctionField(
           withThenCallback,
-          `() => { ${errorCallbackCode} }`,
+          `(${errorParams?.join(",")}) => { ${errorCallbackCode} }`,
           1,
           self.evaluationVersion,
         )
@@ -445,7 +449,7 @@ export function actionToCode(
 
     const withCatchCallback = setCatchBlockInQuery(
       withErrorCallback,
-      `() => { ${catchCallbackCode} }`,
+      `(${errorParams?.join(",")}) => { ${catchCallbackCode} }`,
       self.evaluationVersion,
     );
 

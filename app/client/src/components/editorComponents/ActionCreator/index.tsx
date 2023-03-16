@@ -4,6 +4,7 @@ import { ActionCreatorProps } from "./types";
 import { Action } from "./viewComponents/Action";
 import { getCodeFromMoustache } from "./utils";
 import { diff } from "deep-diff";
+import RootAction from "./viewComponents/ActionV2/RootActionV2";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -13,6 +14,17 @@ function uuidv4() {
     ).toString(16),
   );
 }
+
+export const ActionCreatorContext = React.createContext<{
+  label: string;
+  selectBlock: (id: string) => void;
+  selectedBlockId?: string;
+}>({
+  label: "",
+  selectBlock: () => {
+    return;
+  },
+});
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
@@ -132,18 +144,26 @@ const ActionCreator = React.forwardRef(
     // We can't use index for obvious reasons
     // We can't use the action value itself because it's not unique and changes on action change
 
+    const [selectedBlockId, selectBlock] = useState<string | undefined>(
+      undefined,
+    );
+
     return (
-      <div className="flex flex-col gap-[2px] mb-2" ref={ref}>
-        {Object.entries(actions || {}).map(([id, value]) => (
-          <Action
-            action={props.action}
-            additionalAutoComplete={props.additionalAutoComplete}
-            key={id}
-            onValueChange={handleActionChange(id)}
-            value={value}
-          />
-        ))}
-      </div>
+      <ActionCreatorContext.Provider
+        value={{ label: props.action, selectedBlockId, selectBlock }}
+      >
+        <div className="flex flex-col gap-[2px] mb-2" ref={ref}>
+          {Object.entries(actions || {}).map(([id, value]) => (
+            <RootAction
+              code={value}
+              id={id}
+              // additionalAutoComplete={props.additionalAutoComplete}
+              key={id}
+              onChange={handleActionChange(id)}
+            />
+          ))}
+        </div>
+      </ActionCreatorContext.Provider>
     );
   },
 );
