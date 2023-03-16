@@ -257,6 +257,11 @@ class ListWidget extends BaseWidget<
       this.pageSizeUpdated = true;
     }
 
+    if (this.serverPaginationJustEnabled(prevProps)) {
+      // reset pageNo when serverSide Pagination is just turned on
+      this.onPageChange(1);
+    }
+
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
       const totalRecords = this.getTotalDataCount();
 
@@ -812,6 +817,12 @@ class ListWidget extends BaseWidget<
       return totalRecordsCount;
 
     return defaultValue;
+  };
+
+  serverPaginationJustEnabled = (prevProps: ListWidgetProps) => {
+    return Boolean(
+      !prevProps.serverSidePagination && this.props.serverSidePagination,
+    );
   };
 
   shouldPaginate = () => {
