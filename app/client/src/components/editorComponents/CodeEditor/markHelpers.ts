@@ -161,7 +161,7 @@ const getMarkOptions = (
   token: CodeMirror.Token,
   lineNo: number,
 ): CodeMirror.TextMarkerOptions => {
-  console.log("handler change - get mark options");
+  // console.log("handler change - get mark options");
   return {
     className: `${data.navigable ? NAVIGATION_CLASSNAME : ""} ${
       data.peekable ? PEEKABLE_CLASSNAME : ""
