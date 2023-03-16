@@ -107,7 +107,7 @@ describe("Tests for run function in callback styled", () => {
       }),
     );
     const successCallback = jest.fn();
-    await (async function() {
+    await (async function () {
       const innerScopeVar = "innerScopeVar";
       successCallback.mockImplementation(() => innerScopeVar);
       await evalContext.action1.run(successCallback);
@@ -186,10 +186,7 @@ describe("Tests for run function in promise styled", () => {
     );
     const successHandler = jest.fn();
     const errorHandler = jest.fn();
-    await evalContext.action1
-      .run()
-      .then(successHandler)
-      .catch(errorHandler);
+    await evalContext.action1.run().then(successHandler).catch(errorHandler);
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {

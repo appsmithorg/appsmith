@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Array Datatype tests", function() {
+describe("Array Datatype tests", function () {
   before(() => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

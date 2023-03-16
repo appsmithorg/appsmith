@@ -3,9 +3,10 @@ import RadioGroupWidget from "./index";
 
 describe("unit test case for property config pane", () => {
   it("case: check the value returned by defaultOptionValue", () => {
-    const dataSection: any = RadioGroupWidget.getPropertyPaneContentConfig().filter(
-      (section: any) => section.sectionName === "Data",
-    );
+    const dataSection: any =
+      RadioGroupWidget.getPropertyPaneContentConfig().filter(
+        (section: any) => section.sectionName === "Data",
+      );
 
     const dsv = dataSection[0].children.filter(
       (child: any) => child.propertyName === "defaultOptionValue",

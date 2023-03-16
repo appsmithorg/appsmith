@@ -22,7 +22,7 @@ const TriggerEmitter = new EventEmitter();
  * @param task
  * @returns
  */
-export const priorityBatchedActionHandler = function(
+export const priorityBatchedActionHandler = function (
   task: (batchedData: unknown[]) => void,
 ) {
   let batchedData: unknown[] = [];
@@ -45,7 +45,7 @@ export const priorityBatchedActionHandler = function(
  * @param deferredTask
  * @returns
  */
-export const deferredBatchedActionHandler = function(
+export const deferredBatchedActionHandler = function (
   deferredTask: (batchedData: unknown) => void,
 ) {
   let batchedData: unknown[] = [];

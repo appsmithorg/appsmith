@@ -1,6 +1,6 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { updateEvalTreeValueFromContext } from ".";
 import { triggerEvalWithChanges } from "../evalTreeWithChanges";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";

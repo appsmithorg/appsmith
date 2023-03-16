@@ -1,6 +1,6 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { EvalContext } from "./evaluate";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvalContext } from "./evaluate";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./fns/overrides/console";
 import ExecutionMetaData from "./fns/utils/ExecutionMetaData";
 
@@ -51,7 +51,7 @@ class FunctionDeterminer {
     self["$isDataField"] = true;
     self["$isAsync"] = false;
 
-    return (function() {
+    return (function () {
       try {
         if (typeof userFunction === "function") {
           if (userFunction.constructor.name === "AsyncFunction") {

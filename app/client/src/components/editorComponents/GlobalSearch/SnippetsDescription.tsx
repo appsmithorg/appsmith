@@ -22,13 +22,13 @@ import {
   unsetEvaluatedArgument,
 } from "actions/globalSearchActions";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
-import { Snippet, SnippetArgument } from "./utils";
+import type { Snippet, SnippetArgument } from "./utils";
 import {
   createMessage,
   SNIPPET_COPY,
@@ -156,7 +156,7 @@ const SnippetContainer = styled.div`
 
 const removeDynamicBinding = (value: string) => {
   const regex = /{{([\s\S]*?)}}/g;
-  return value.replace(regex, function(match, capture) {
+  return value.replace(regex, function (match, capture) {
     return capture;
   });
 };
@@ -170,7 +170,7 @@ export const getSnippet = (
   const templateSubstitutionRegex = /%%(.*?)%%/g;
   const snippetReplacedWithCustomizedValues = snippet.replace(
     templateSubstitutionRegex,
-    function(match, capture) {
+    function (match, capture) {
       const substitution = removeDynamicBinding(args[capture] || "");
       return replaceWithDynamicBinding
         ? `{{${capture}}}`

@@ -2,7 +2,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Checkbox Group Widget Functionality", function() {
+describe("Checkbox Group Widget Functionality", function () {
   let dsName;
   before(() => {
     _.dataSources.CreateDataSource("Postgres");
@@ -11,7 +11,7 @@ describe("Checkbox Group Widget Functionality", function() {
     });
   });
 
-  it("1. Check checkbox group with dynamic query", function() {
+  it("1. Check checkbox group with dynamic query", function () {
     let query1 = `SELECT * FROM public."country" LIMIT 10;`;
     let query2 = `SELECT * FROM public."country" LIMIT 2;`;
 

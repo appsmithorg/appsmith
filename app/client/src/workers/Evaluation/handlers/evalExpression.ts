@@ -1,8 +1,8 @@
 import { evaluateAsync } from "../evaluate";
-import { EvalWorkerASyncRequest } from "../types";
+import type { EvalWorkerASyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
 
-export default function(request: EvalWorkerASyncRequest) {
+export default function (request: EvalWorkerASyncRequest) {
   const { data } = request;
   const { expression } = data;
   const evalTree = dataTreeEvaluator?.evalTree;

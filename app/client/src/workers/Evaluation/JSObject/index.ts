@@ -1,12 +1,15 @@
-import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { get, isEmpty, merge, set } from "lodash";
+import type {
+  DataTree,
+  DataTreeJSAction,
+} from "entities/DataTree/dataTreeFactory";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
+import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import evaluateSync from "workers/Evaluation/evaluate";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
-  DataTreeDiff,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,

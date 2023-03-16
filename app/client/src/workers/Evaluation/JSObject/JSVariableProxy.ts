@@ -1,5 +1,6 @@
-import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import JSVariableUpdates, { Patch, PatchType } from "./JSVariableUpdates";
+import type { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import type { Patch } from "./JSVariableUpdates";
+import JSVariableUpdates, { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 function addPatch(patch: Patch) {
@@ -8,7 +9,7 @@ function addPatch(patch: Patch) {
 
 export function jsObjectProxyHandler(path: string) {
   return {
-    get: function(target: any, prop: string): any {
+    get: function (target: any, prop: string): any {
       const value = target[prop];
 
       // $isProxy property is used to detect if an object is a proxy object or not.
@@ -23,7 +24,7 @@ export function jsObjectProxyHandler(path: string) {
 
         if (!target.hasOwnProperty(value)) {
           const newValue = value.bind(target);
-          return function(...args: any[]) {
+          return function (...args: any[]) {
             // HACK: Assuming a prototype method call would mutate the property.
             addPatch({
               path,
@@ -42,7 +43,7 @@ export function jsObjectProxyHandler(path: string) {
 
       return target[prop];
     },
-    set: function(target: any, prop: string, value: unknown, rec: any) {
+    set: function (target: any, prop: string, value: unknown, rec: any) {
       if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
         return true;
       addPatch({
@@ -52,7 +53,7 @@ export function jsObjectProxyHandler(path: string) {
       });
       return Reflect.set(target, prop, value, rec);
     },
-    deleteProperty: function(target: any, prop: string) {
+    deleteProperty: function (target: any, prop: string) {
       if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
         return true;
       addPatch({

@@ -1,8 +1,8 @@
-import { AppState } from "ce/reducers";
+import type { AppState } from "ce/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
-import {
+import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
   FlexLayer,

@@ -1,12 +1,13 @@
 import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import CodeScannerComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import { CodeScannerWidgetProps } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { CodeScannerWidgetProps } from "../constants";
+import type { Stylesheet } from "entities/AppTheming";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState

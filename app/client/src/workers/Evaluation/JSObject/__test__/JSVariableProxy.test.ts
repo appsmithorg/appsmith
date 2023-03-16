@@ -1,11 +1,11 @@
-import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import JSProxy from "../JSVariableProxy";
 import JSVariableUpdates from "../JSVariableUpdates";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 describe("JSVariableProxy", () => {
   it("trigger setters with JSVariableUpdates enabled", async () => {
-    const jsObject = ({
+    const jsObject = {
       number: 1,
       string: "aa",
       object: { a: 1 },
@@ -14,7 +14,7 @@ describe("JSVariableProxy", () => {
       set: new Set(),
       weakMap: new WeakMap(),
       weakSet: new WeakSet(),
-    } as unknown) as DataTreeJSAction;
+    } as unknown as DataTreeJSAction;
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
@@ -60,7 +60,7 @@ describe("JSVariableProxy", () => {
     ]);
   });
   it("trigger setters with JSVariableUpdates disabled", async () => {
-    const jsObject = ({
+    const jsObject = {
       number: 1,
       string: "aa",
       object: { a: 1 },
@@ -69,7 +69,7 @@ describe("JSVariableProxy", () => {
       set: new Set(),
       weakMap: new WeakMap(),
       weakSet: new WeakSet(),
-    } as unknown) as DataTreeJSAction;
+    } as unknown as DataTreeJSAction;
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
@@ -90,7 +90,7 @@ describe("JSVariableProxy", () => {
     expect(JSVariableUpdates.getAll()).toEqual([]);
   });
   it("trigger getters with JSVariableUpdates enabled", async () => {
-    const jsObject = ({
+    const jsObject = {
       number: 1,
       string: "aa",
       object: { a: 1 },
@@ -99,7 +99,7 @@ describe("JSVariableProxy", () => {
       set: new Set(),
       weakMap: new WeakMap(),
       weakSet: new WeakSet(),
-    } as unknown) as DataTreeJSAction;
+    } as unknown as DataTreeJSAction;
 
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 

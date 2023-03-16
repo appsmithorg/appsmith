@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+
 import set from "lodash/set";
-import { EvalContext } from "workers/Evaluation/evaluate";
-import { EvaluationVersion } from "api/ApplicationApi";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvalContext } from "workers/Evaluation/evaluate";
+import type { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
   entityFns,

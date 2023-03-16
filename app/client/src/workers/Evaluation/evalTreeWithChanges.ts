@@ -1,14 +1,14 @@
-import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { dataTreeEvaluator } from "./handlers/evalTree";
-import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
-import { EvalTreeResponseData } from "./types";
+import type { EvalTreeResponseData } from "./types";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
-import { JSUpdate } from "utils/JSPaneUtils";
+import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
+import type { JSUpdate } from "utils/JSPaneUtils";
 
 export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
   let evalOrder: string[] = [];
@@ -25,9 +25,8 @@ export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
   const pathsToClearErrorsFor: any[] = [];
 
   if (dataTreeEvaluator) {
-    const setupUpdateTreeResponse = dataTreeEvaluator?.setupUpdateTreeWithDifferences(
-      updatedValuePaths,
-    );
+    const setupUpdateTreeResponse =
+      dataTreeEvaluator?.setupUpdateTreeWithDifferences(updatedValuePaths);
 
     evalOrder = setupUpdateTreeResponse.evalOrder;
     unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
