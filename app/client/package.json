@@ -320,6 +320,9 @@
     "dns-packet": "5.4.0",
     "glob-parent": "5.1.2",
     "ua-parser-js": "1.0.33",
-    "got": "11.8.5"
+    "got": "11.8.5",
+    "trim-newlines": "3.0.1",
+    "trim": "0.0.3",
+    "webpack": "5.76.0"
   }
 }

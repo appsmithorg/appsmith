@@ -125,15 +125,17 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("6. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function() {
     /**Validate Response data with Table data in Text Widget */
     cy.SearchEntityandOpen("Table1");
-    cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationPrevTest,false);
+    cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationPrevTest, false);
     cy.PublishtheApp();
     cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(interception.response.body.data.body[0].name);
+      let valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      );
       cy.ValidatePaginationInputData(valueToTest);
     });
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
     cy.SearchEntityandOpen("Table1");
-    cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest,true);
+    cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest, true);
   });
 });
