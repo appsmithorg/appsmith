@@ -1,10 +1,10 @@
 import noop from "lodash/noop";
-import {
-  EVAL_WORKER_ACTIONS,
+import type {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
 } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import type { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
 import evalTree, { clearCache } from "./evalTree";

@@ -1,15 +1,12 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import {
-  GridDefaults,
-  WidgetHeightLimits,
-  WidgetType,
-} from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetConfiguration } from "widgets/constants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetConfiguration } from "widgets/constants";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -91,13 +88,12 @@ function findAndUpdatePropertyPaneControlConfig(
       sectionConfig.children.length > 0
     ) {
       Object.keys(propertyPaneUpdates).forEach((propertyName: string) => {
-        const controlConfigIndex:
-          | number
-          | undefined = sectionConfig.children?.findIndex(
-          (controlConfig: PropertyPaneConfig) =>
-            (controlConfig as PropertyPaneControlConfig).propertyName ===
-            propertyName,
-        );
+        const controlConfigIndex: number | undefined =
+          sectionConfig.children?.findIndex(
+            (controlConfig: PropertyPaneConfig) =>
+              (controlConfig as PropertyPaneControlConfig).propertyName ===
+              propertyName,
+          );
 
         if (
           controlConfigIndex !== undefined &&

@@ -15,7 +15,7 @@ Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
 6. When updating Datasource query
 */
 
-describe("Cyclic Dependency Informational Error Messages", function() {
+describe("Cyclic Dependency Informational Error Messages", function () {
   before(() => {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
@@ -115,13 +115,10 @@ describe("Cyclic Dependency Informational Error Messages", function() {
     _.entityExplorer.SelectEntityByName(queryName, "Queries/JS");
     // update query and check no cyclic dependency issue should occur
     cy.get(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(" ", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    cy.get(".CodeMirror textarea").first().focus().type(" ", {
+      force: true,
+      parseSpecialCharSequences: false,
+    });
     cy.wait("@saveAction").should(
       "have.nested.property",
       "response.body.data.errorReports.length",

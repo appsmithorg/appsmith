@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Color } from "constants/Colors";
+import type { Color } from "constants/Colors";
 
 /***
  * Components are responsible for binding render inputs to corresponding UI SDKs

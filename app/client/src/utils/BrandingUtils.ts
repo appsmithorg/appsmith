@@ -165,7 +165,7 @@ export const faivconImageValidator = (
   const image = new Image();
   image.src = window.URL.createObjectURL(file);
 
-  image.onload = function() {
+  image.onload = function () {
     const height = image.naturalHeight;
     const width = image.naturalWidth;
 

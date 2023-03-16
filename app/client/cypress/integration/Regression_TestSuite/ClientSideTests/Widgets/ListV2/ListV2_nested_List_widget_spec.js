@@ -11,13 +11,13 @@ function checkAutosuggestion(label, type) {
       expect(afterContent).eq(`"${type}"`);
     });
 }
-describe(" Nested List Widgets ", function() {
+describe(" Nested List Widgets ", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("a. Pasting - should show toast when nesting is greater than 3", function() {
+  it("a. Pasting - should show toast when nesting is greater than 3", function () {
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
     cy.get(".t--copy-widget").click({ force: true });

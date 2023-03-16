@@ -3,13 +3,11 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("Migration Validate", function() {
-  it("1. Import application and Validate Migration on pageload", function() {
+describe("Migration Validate", function () {
+  it("1. Import application and Validate Migration on pageload", function () {
     // import application
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo)

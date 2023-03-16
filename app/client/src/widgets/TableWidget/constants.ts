@@ -1,12 +1,12 @@
-import {
+import type {
   ColumnProperties,
   CompactMode,
   ReactTableFilter,
   TableStyles,
   SortOrderTypes,
 } from "./component/Constants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { WithMeta } from "widgets/MetaHOC";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WithMeta } from "widgets/MetaHOC";
 
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   nextPageKey?: string;

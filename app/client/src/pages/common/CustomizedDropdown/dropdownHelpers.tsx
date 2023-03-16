@@ -1,6 +1,7 @@
 import store from "store";
 import { IconNames } from "@blueprintjs/icons";
-import { Direction, Directions } from "utils/helpers";
+import type { Direction } from "utils/helpers";
+import { Directions } from "utils/helpers";
 import { PopoverPosition } from "@blueprintjs/core";
 import history from "utils/history";
 import log from "loglevel";
@@ -10,7 +11,8 @@ export const DropdownOnSelectActions: { [id: string]: string } = {
   DISPATCH: "dispatch",
 };
 
-type DropdownOnSelectActionType = typeof DropdownOnSelectActions[keyof typeof DropdownOnSelectActions];
+type DropdownOnSelectActionType =
+  (typeof DropdownOnSelectActions)[keyof typeof DropdownOnSelectActions];
 
 // TODO(abhinav): Figure out how to enforce payload type.
 export const getOnSelectAction = (
