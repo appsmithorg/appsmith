@@ -198,7 +198,7 @@ export function Sidebar(props: SidebarProps) {
         })}
       </StyledMenuContainer>
 
-      <StyledFooter>
+      <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
         {currentApplicationDetails && (
           <StyledCtaContainer>
             <ShareButton

@@ -55,4 +55,8 @@ export const StyledMenuItem = styled(NavLink)<{
         getMenuItemTextColor(primaryColor, navColorStyle)};
     }
   }
+
+  &:last-child {
+    margin-bottom: 16px;
+  }
 `;

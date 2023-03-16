@@ -46,7 +46,7 @@ export const StyledMenuContainer = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
-  margin: 16px 0;
+  margin: 16px 0 0 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -55,7 +55,7 @@ export const StyledMenuContainer = styled.div<{
   flex-grow: 1;
 
   ${({ navColorStyle, primaryColor }) => {
-    const isThemeColorStyle =
+    const isThemeColorStyle: boolean =
       navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
 
     return (
@@ -115,7 +115,27 @@ export const StyledHeader = styled.div`
   justify-content: space-between;
 `;
 
-export const StyledFooter = styled.div`
+export const StyledFooter = styled.div<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+}>`
   margin-top: auto;
   padding-bottom: 16px;
+  padding-top: 12px;
+
+  ${({ navColorStyle, primaryColor, theme }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
+
+    return isThemeColorStyle
+      ? `
+        border-top: 1px solid ${getMenuItemBackgroundColorWhenActive(
+          primaryColor,
+          navColorStyle,
+        )};
+      `
+      : `
+        border-top: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
+      `;
+  }}
 `;
