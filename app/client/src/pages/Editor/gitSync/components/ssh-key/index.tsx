@@ -94,7 +94,7 @@ function Keys(props: KeysProps) {
         {createMessage(SSH_KEY)}
       </Text>
       <FlexRow style={{ position: "relative" }}>
-        <DeployedKeyContainer $marginTop={4}>
+        <DeployedKeyContainer $marginTop={1}>
           <FlexRow>
             <Key2LineIcon
               color={Colors.DOVE_GRAY2}
