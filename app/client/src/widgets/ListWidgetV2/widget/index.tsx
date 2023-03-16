@@ -322,23 +322,7 @@ class ListWidget extends BaseWidget<
        * If there's a change in the defaultSelectedItem, we'd either update the selectedItem, ItemView and PageNumber if the key is present
        * else we reset the Selections, since the new SelectedKey isn't present in the primaryKeys.
        */
-      const defaultSelectedItem = String(this.props.defaultSelectedItem);
-      const rowIndex = this.getRowIndexOfSelectedItem(defaultSelectedItem);
-
-      if (rowIndex !== -1) {
-        this.updatePageNumber();
-        this.updateSelectedItem(rowIndex);
-        const binding = this.getItemViewBindingByRowIndex(rowIndex);
-
-        if (isEmpty(binding)) {
-          this.resetSelectedItemView();
-        } else {
-          this.updateSelectedItemView(rowIndex);
-        }
-      } else {
-        this.resetSelectedItemView();
-        this.resetSelectedItem();
-      }
+      this.handleDefaultSelectedItemChange();
     }
 
     /**
@@ -349,8 +333,8 @@ class ListWidget extends BaseWidget<
      * 2. DefaultSelectedItem is set when the component is mounted (Primarily to update updateSelectedItemView)
      *
      */
-    if (this.shouldUpdateSelectedItem() && this.props.selectedItemKey) {
-      this.handleSelectedItemAndPageNumber();
+    if (this.shouldUpdateSelectedItemAndView() && this.props.selectedItemKey) {
+      this.updateSelectedItemAndPageOnResetOrMount();
     }
   }
 
@@ -642,7 +626,7 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  shouldUpdateSelectedItem = () => {
+  shouldUpdateSelectedItemAndView = () => {
     const { serverSidePagination } = this.props;
     return (
       !serverSidePagination &&
@@ -651,10 +635,11 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  handleSelectedItemAndPageNumber = () => {
+  updateSelectedItemAndPageOnResetOrMount = () => {
     const rowIndex = this.getRowIndexOfSelectedItem(
       this.props.selectedItemKey as string,
     );
+
     if (rowIndex !== -1) {
       const binding = this.getItemViewBindingByRowIndex(rowIndex);
       const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
@@ -662,12 +647,34 @@ class ListWidget extends BaseWidget<
       if (isEmpty(binding) && pageNo !== this.props.pageNo) {
         this.updatePageNumber();
       }
+
       if (isEmpty(this.props.selectedItemView) && !isEmpty(binding)) {
         this.updateSelectedItemView(rowIndex);
       }
+
       if (!this.props.selectedItem) {
         this.updateSelectedItem(rowIndex);
       }
+    }
+  };
+
+  handleDefaultSelectedItemChange = () => {
+    const defaultSelectedItem = String(this.props.defaultSelectedItem);
+    const rowIndex = this.getRowIndexOfSelectedItem(defaultSelectedItem);
+
+    if (rowIndex !== -1) {
+      this.updatePageNumber();
+      this.updateSelectedItem(rowIndex);
+      const binding = this.getItemViewBindingByRowIndex(rowIndex);
+
+      if (isEmpty(binding)) {
+        this.resetSelectedItemView();
+      } else {
+        this.updateSelectedItemView(rowIndex);
+      }
+    } else {
+      this.resetSelectedItemView();
+      this.resetSelectedItem();
     }
   };
 
