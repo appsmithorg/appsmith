@@ -2566,7 +2566,6 @@ public class ApplicationServiceCETest {
         page.setIcon("flight");
         page.setApplicationId(testApplication.getId());
         page = applicationPageService.createPage(page).block();
-        applicationPageService.reorderPage(testApplication.getId(), page.getId(), 1, null).block();
 
         Mono<Application> applicationMono = applicationPageService.publish(testApplication.getId(), true);
 
@@ -2576,6 +2575,7 @@ public class ApplicationServiceCETest {
                 .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
 
+        PageDTO finalPage = page;
         StepVerifier
                 .create(Mono.zip(applicationMono, applicationPagesMono))
                 .assertNext(tuple -> {
@@ -2589,7 +2589,9 @@ public class ApplicationServiceCETest {
                     assertThat(application.getPublishedPages()).hasSize(2);
 
                     assertThat(pages).hasSize(2);
-                    NewPage newPage = pages.get(1);
+                    Optional<NewPage> optionalNewPage = pages.stream().filter(thisPage -> finalPage.getId().equals(thisPage.getId())).findFirst();
+                    assertThat(optionalNewPage.isPresent()).isTrue();
+                    NewPage newPage = optionalNewPage.get();
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo("Page2");
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getIcon()).isEqualTo("flight");
