@@ -252,16 +252,19 @@ describe("Git discard changes:", function() {
     _.agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
     _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
     cy.intercept("PUT", "/api/v1/git/discard/app/*?doPull=*", {
-      responseMeta: {
-        status: 500,
-        success: false,
-        error: {
-          code: 5000,
-          message:
-            "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
-          errorType: "INTERNAL_ERROR",
+      body: {
+        responseMeta: {
+          status: 500,
+          success: false,
+          error: {
+            code: 5000,
+            message:
+              "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
+            errorType: "INTERNAL_ERROR",
+          },
         },
       },
+      delay: 1000,
     });
 
     _.agHelper
