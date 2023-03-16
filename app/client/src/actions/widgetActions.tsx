@@ -1,11 +1,12 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { BatchAction } from "actions/batchActions";
+import { batchAction } from "actions/batchActions";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,

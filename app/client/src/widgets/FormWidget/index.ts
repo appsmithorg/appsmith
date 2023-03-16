@@ -4,7 +4,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { Positioning } from "utils/autoLayout/constants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 

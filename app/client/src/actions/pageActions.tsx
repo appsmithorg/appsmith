@@ -1,30 +1,32 @@
-import { WidgetType } from "constants/WidgetConstants";
-import {
+import type { WidgetType } from "constants/WidgetConstants";
+import type {
   EvaluationReduxAction,
   ReduxAction,
-  ReduxActionTypes,
   UpdateCanvasPayload,
+  AnyReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
   ReduxActionErrorTypes,
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
-  AnyReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetOperation } from "widgets/BaseWidget";
-import {
+import type { WidgetOperation } from "widgets/BaseWidget";
+import type {
   FetchPageRequest,
   PageLayout,
   SavePageResponse,
   UpdatePageRequest,
   UpdatePageResponse,
 } from "api/PageApi";
-import { UrlDataState } from "reducers/entityReducers/appReducer";
-import { APP_MODE } from "entities/App";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { GenerateTemplatePageRequest } from "api/PageApi";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import type { UrlDataState } from "reducers/entityReducers/appReducer";
+import type { APP_MODE } from "entities/App";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { GenerateTemplatePageRequest } from "api/PageApi";
+import type { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -82,10 +84,11 @@ export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
   };
 };
 
-export const fetchPublishedPageSuccess = (): EvaluationReduxAction<undefined> => ({
-  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  payload: undefined,
-});
+export const fetchPublishedPageSuccess =
+  (): EvaluationReduxAction<undefined> => ({
+    type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+    payload: undefined,
+  });
 
 /**
  * After all page entities are fetched like DSL, actions and JsObjects,

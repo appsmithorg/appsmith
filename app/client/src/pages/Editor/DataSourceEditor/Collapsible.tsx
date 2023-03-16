@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect } from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon as AdsIcon, IconName, IconSize } from "design-system-old";
+import type { IconName } from "design-system-old";
+import { Icon as AdsIcon, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getDatasourceCollapsibleState } from "selectors/ui";
 import { setDatasourceCollapsible } from "actions/datasourceActions";
 import isUndefined from "lodash/isUndefined";

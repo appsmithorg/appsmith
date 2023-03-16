@@ -3,12 +3,12 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tabsWidgetReset.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Tabs widget on change of selection navigation usecases", function() {
+describe("Tabs widget on change of selection navigation usecases", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1.On change of tab selection Navigate to a URL", function() {
+  it("1.On change of tab selection Navigate to a URL", function () {
     cy.openPropertyPane("tabswidget");
     cy.get(".code-highlight")
       .children()
@@ -22,7 +22,7 @@ describe("Tabs widget on change of selection navigation usecases", function() {
     cy.wait(5000);
   });
 
-  it("2.Publish the app and validate the navigation change on tab selection.", function() {
+  it("2.Publish the app and validate the navigation change on tab selection.", function () {
     cy.PublishtheApp();
     cy.wait(5000);
     cy.get(".t--page-switch-tab:contains('Tab 3')").click(

@@ -7,7 +7,7 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Toaster, Variant } from "design-system-old";
 import { uniq } from "lodash";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -122,9 +122,8 @@ export const shiftSelectWidgets = (
   lastSelectedWidget: string,
 ): SetSelectionResult => {
   const selectedWidgetIndex = siblingWidgets.indexOf(request[0]);
-  const siblingIndexOfLastSelectedWidget = siblingWidgets.indexOf(
-    lastSelectedWidget,
-  );
+  const siblingIndexOfLastSelectedWidget =
+    siblingWidgets.indexOf(lastSelectedWidget);
   if (siblingIndexOfLastSelectedWidget === -1) {
     return request;
   }

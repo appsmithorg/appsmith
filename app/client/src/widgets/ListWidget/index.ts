@@ -6,11 +6,9 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -59,9 +57,8 @@ export const CONFIG = {
 
           if (!parentProps.widgetId) return [];
 
-          const { jsSnippets, stringSegments } = getDynamicBindings(
-            propertyValue,
-          );
+          const { jsSnippets, stringSegments } =
+            getDynamicBindings(propertyValue);
 
           const js = combineDynamicBindings(jsSnippets, stringSegments);
 
@@ -269,9 +266,8 @@ export const CONFIG = {
                   let value = childWidget[key];
 
                   if (isString(value) && value.indexOf("currentItem") > -1) {
-                    const { jsSnippets, stringSegments } = getDynamicBindings(
-                      value,
-                    );
+                    const { jsSnippets, stringSegments } =
+                      getDynamicBindings(value);
 
                     const js = combineDynamicBindings(
                       jsSnippets,

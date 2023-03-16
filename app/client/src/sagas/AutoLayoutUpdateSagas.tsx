@@ -1,11 +1,11 @@
 import { updateAndSaveLayout } from "actions/pageActions";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import log from "loglevel";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import {
   alterLayoutForDesktop,

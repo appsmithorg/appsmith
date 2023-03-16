@@ -1,9 +1,9 @@
 import API from "api/Api";
-import { AxiosPromise } from "axios";
-import { JSCollection } from "entities/JSCollection";
-import { ApiResponse } from "./ApiResponses";
-import { Variable, JSAction } from "entities/JSCollection";
-import { PluginType } from "entities/Action";
+import type { AxiosPromise } from "axios";
+import type { JSCollection } from "entities/JSCollection";
+import type { ApiResponse } from "./ApiResponses";
+import type { Variable, JSAction } from "entities/JSCollection";
+import type { PluginType } from "entities/Action";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;

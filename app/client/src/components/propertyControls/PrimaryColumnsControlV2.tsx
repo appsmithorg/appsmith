@@ -1,37 +1,33 @@
 import React, { Component } from "react";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import { Placement } from "popper.js";
+import type { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
 import _, { toString } from "lodash";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
-import { Indices } from "constants/Layers";
+import type { Indices } from "constants/Layers";
 import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import {
-  ColumnProperties,
-  StickyType,
-} from "widgets/TableWidgetV2/component/Constants";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 import {
   createColumn,
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   getDataTreeForAutocomplete,
   getPathEvalErrors,
 } from "selectors/dataTreeSelectors";
-import {
-  EvaluationError,
-  getEvalValuePath,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system-old";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -462,10 +458,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   checkAndUpdateIfEditableColumnPresent = () => {
-    const hasEditableColumn = !!Object.values(
-      this.props.propertyValue,
-    ).find((column) =>
-      isColumnTypeEditable((column as ColumnProperties).columnType),
+    const hasEditableColumn = !!Object.values(this.props.propertyValue).find(
+      (column) => isColumnTypeEditable((column as ColumnProperties).columnType),
     );
 
     if (hasEditableColumn !== this.state.hasEditableColumn) {
@@ -487,9 +481,7 @@ export default PrimaryColumnsControlV2;
  * render popup if primary column labels are not unique
  * show unique name error in PRIMARY_COLUMNS
  */
-class EvaluatedValuePopupWrapperClass extends Component<
-  EvaluatedValuePopupWrapperProps
-> {
+class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapperProps> {
   getPropertyValidation = (
     dataTree: DataTree,
     dataTreePath?: string,
@@ -525,11 +517,8 @@ class EvaluatedValuePopupWrapperClass extends Component<
       hideEvaluatedValue,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const { errors, isInvalid, pathEvaluatedValue } =
+      this.getPropertyValidation(dynamicData, dataTreePath);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;

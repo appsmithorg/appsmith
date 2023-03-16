@@ -115,7 +115,7 @@ export const EntityName = React.memo(
     const searchHighlightedName = useMemo(() => {
       if (searchKeyword) {
         const regex = new RegExp(searchKeyword, "gi");
-        const delimited = updatedName.replace(regex, function(str) {
+        const delimited = updatedName.replace(regex, function (str) {
           return (
             searchTokenizationDelimiter + str + searchTokenizationDelimiter
           );

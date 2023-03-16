@@ -40,10 +40,7 @@ describe("Branding", () => {
 
   it("2. Should test that changing logo,favicon and color changes the preview", () => {
     // branding color
-    cy.get(locators.AdminSettingsColorInput)
-      .focus()
-      .clear()
-      .type("red");
+    cy.get(locators.AdminSettingsColorInput).focus().clear().type("red");
 
     cy.get(".t--branding-bg").should(
       "have.css",
