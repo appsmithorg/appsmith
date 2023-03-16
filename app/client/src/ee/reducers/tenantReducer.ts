@@ -65,7 +65,7 @@ export const handlers = {
         ...state.tenantConfiguration?.license,
         ...action.payload.tenantConfiguration?.license,
         showBEBanner:
-          action.payload.tenantConfiguration?.license.type ===
+          action.payload.tenantConfiguration?.license?.type ===
           LICENSE_TYPE.TRIAL
             ? parsed
             : false,

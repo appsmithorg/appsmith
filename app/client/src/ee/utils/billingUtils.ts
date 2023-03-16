@@ -1,11 +1,12 @@
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { createMessage, NOT_AVAILABLE } from "@appsmith/constants/messages";
 import { openInNewTab } from "@appsmith/utils";
 import isNil from "lodash/isNil";
 
-export const CUSTOMER_PORTAL_URL = "https://customer.appsmith.com/plans";
+const appsmithConfigs = getAppsmithConfigs();
 
 export const goToCustomerPortal = () => {
-  openInNewTab(CUSTOMER_PORTAL_URL);
+  openInNewTab(`${appsmithConfigs.customerPortalUrl}/plans`);
 };
 
 export const getDateSuffix = (date = "") => {
