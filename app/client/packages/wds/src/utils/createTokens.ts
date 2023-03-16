@@ -1,10 +1,10 @@
 import kebabCase from "lodash/kebabCase";
 import { css, CSSProperties } from "styled-components";
 import {
-  lightenColor,
-  getComplementaryGrayscaleColor,
-  calulateHoverColor,
-  darkenColor,
+  getAccentDarkColor,
+  getAccentHoverColor,
+  getAccentLightColor,
+  getOnAccentTextColor,
   parseColor,
 } from "./colors";
 
@@ -41,29 +41,29 @@ export const createCSSVars = css`
  * @returns
  */
 export const createSemanticColorTokens = (color: CSSProperties["color"]) => {
-  const accentColor = parseColor(color).toString({ format: "hex" });
-  const accentHoverColor = calulateHoverColor(color);
-  const lightAccentColor = lightenColor(color);
-  const accentActiveColor = darkenColor(accentHoverColor);
-  const lightAccentHoverColor = calulateHoverColor(lightAccentColor);
-  const complementaryAccentColor = getComplementaryGrayscaleColor(accentColor);
-  const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
-  const onAccentBorderColor = darkenColor(color, 0.1);
-  const onAccentLightBorderColor = lightenColor(color, 0.98);
+  const bgAccent = parseColor(color).toString({ format: "hex" });
+  const bgAccentHover = getAccentHoverColor(color);
+  const bgAccentSubtle = getAccentLightColor(color);
+  const bgAccentActive = getAccentDarkColor(bgAccentHover);
+  const bgAccentSubtleHover = getAccentHoverColor(bgAccentSubtle);
+  const fgOnaccent = getOnAccentTextColor(bgAccent);
+  const bgAccentSubtleActive = getAccentDarkColor(bgAccentSubtleHover, 0.03);
+  const onAccentBorderColor = getAccentDarkColor(color, 0.1);
+  const onAccentLightBorderColor = getAccentLightColor(color, 0.98);
 
   return {
-    bgAccent: accentColor,
-    bgAccentHover: accentHoverColor,
-    bgAccentLight: lightAccentColor,
-    bgAccentActive: accentActiveColor,
-    bgAccentLightActive: lightAcctentActiveColor,
-    bgAccentLightHover: lightAccentHoverColor,
+    bgAccent,
+    bgAccentHover,
+    bgAccentSubtle,
+    bgAccentActive,
+    bgAccentSubtleActive,
+    bgAccentSubtleHover,
 
-    textAccent: accentColor,
-    textOnaccent: complementaryAccentColor,
+    fgAccent: color,
+    fgOnaccent,
 
-    borderAccent: accentColor,
-    borderOnaccent: onAccentBorderColor,
-    borderOnaccentLight: onAccentLightBorderColor,
+    bdAccent: color,
+    bdOnaccent: onAccentBorderColor,
+    bdOnaccentSubtle: onAccentLightBorderColor,
   };
 };

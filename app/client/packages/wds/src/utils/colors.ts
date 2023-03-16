@@ -7,7 +7,7 @@ import Color from "colorjs.io";
  * @param color
  * @returns
  */
-export const getComplementaryGrayscaleColor = (hex = "#000") => {
+export const getOnAccentTextColor = (hex = "#000") => {
   const bg = parseColor(hex);
   const text = new Color("#fff");
 
@@ -26,7 +26,7 @@ export const getComplementaryGrayscaleColor = (hex = "#000") => {
  * @param amount
  * @returns
  */
-export const lightenColor = (hex = "#000", lightness = 0.9) => {
+export const getAccentLightColor = (hex = "#000", lightness = 0.9) => {
   const color = parseColor(hex);
 
   color.set("oklch.l", () => lightness);
@@ -41,7 +41,7 @@ export const lightenColor = (hex = "#000", lightness = 0.9) => {
  * @param lightness
  * @returns
  */
-export const darkenColor = (hex = "#000", lightness = 0.03) => {
+export const getAccentDarkColor = (hex = "#000", lightness = 0.03) => {
   const color = parseColor(hex);
 
   color.set("oklch.l", (l: any) => l - lightness);
@@ -55,7 +55,7 @@ export const darkenColor = (hex = "#000", lightness = 0.03) => {
  * @param hex
  * @returns
  */
-export const calulateHoverColor = (hex = "#000") => {
+export const getAccentHoverColor = (hex = "#000") => {
   const color = parseColor(hex);
 
   switch (true) {
