@@ -4,11 +4,11 @@ const dsl = require("../../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Moustache test Functionality", function() {
+describe("Moustache test Functionality", function () {
   beforeEach(() => {
     cy.addDsl(dsl);
   });
-  it("Moustache test Functionality", function() {
+  it("Moustache test Functionality", function () {
     cy.openPropertyPane("textwidget");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);

@@ -1,10 +1,10 @@
 const dsl = require("../../../../../fixtures/tabsWidgetDsl.json");
 
-describe("Tab widget test duplicate tab name validation", function() {
+describe("Tab widget test duplicate tab name validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Tab Widget Functionality Test with Modal on change of selected tab", function() {
+  it("Tab Widget Functionality Test with Modal on change of selected tab", function () {
     cy.openPropertyPane("tabswidget");
     // added duplicate tab names
     cy.tabPopertyUpdate("tab2", "TestUpdated");

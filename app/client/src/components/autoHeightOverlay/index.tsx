@@ -1,8 +1,9 @@
-import { AppState } from "@appsmith/reducers";
-import React, { CSSProperties, memo } from "react";
+import type { AppState } from "@appsmith/reducers";
+import type { CSSProperties } from "react";
+import React, { memo } from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
 
 export interface MinMaxHeightProps {
@@ -19,8 +20,8 @@ export interface AutoHeightOverlayContainerProps
   style?: CSSProperties;
 }
 
-const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> = memo(
-  (props) => {
+const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> =
+  memo((props) => {
     const widgetId = props.widgetId;
     const {
       isDragging,
@@ -42,7 +43,6 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> = me
     }
 
     return null;
-  },
-);
+  });
 
 export default AutoHeightOverlayContainer;

@@ -1,13 +1,13 @@
 import { Colors } from "constants/Colors";
+import type { NotificationBannerProps } from "design-system-old";
 import {
   NotificationBanner,
-  NotificationBannerProps,
   NotificationVariant,
   Text,
   TextType,
 } from "design-system-old";
 import React from "react";
-import { GitErrorType } from "reducers/uiReducers/gitSyncReducer";
+import type { GitErrorType } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
 
 const Container = styled.div`

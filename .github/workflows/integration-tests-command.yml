@@ -132,6 +132,13 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+      
+      # delete-artifact
+      - name: delete failed-spec-ci artifact
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: failed-spec-ci
+          failOnError: false
 
       - name: Get Latest flaky Tests
         shell: bash
@@ -143,7 +150,7 @@ jobs:
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
-          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
           echo "$new_failed_spec_env"
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV

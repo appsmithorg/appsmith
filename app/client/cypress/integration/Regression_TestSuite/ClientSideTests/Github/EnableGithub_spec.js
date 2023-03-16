@@ -2,8 +2,8 @@ import adminSettings from "../../../../locators/AdminsSettings";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("SSO with Github test functionality", function() {
-  it("1. Go to admin settings and enable Github with not all mandatory fields filled", function() {
+describe("SSO with Github test functionality", function () {
+  it("1. Go to admin settings and enable Github with not all mandatory fields filled", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -27,7 +27,7 @@ describe("SSO with Github test functionality", function() {
     );
   });
 
-  it("2. Go to admin settings and enable Github", function() {
+  it("2. Go to admin settings and enable Github", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -60,7 +60,7 @@ describe("SSO with Github test functionality", function() {
     );
   });
 
-  it("3. Go to admin settings and disable Github", function() {
+  it("3. Go to admin settings and disable Github", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");

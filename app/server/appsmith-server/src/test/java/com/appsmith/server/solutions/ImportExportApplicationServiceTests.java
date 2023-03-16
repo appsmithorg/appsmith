@@ -18,6 +18,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -3596,7 +3597,8 @@ public class ImportExportApplicationServiceTests {
         application.setName("exportNavigationSettingsApplicationTest");
         Application.NavigationSetting navSetting = new Application.NavigationSetting();
         navSetting.setOrientation("top");
-        application.setUnpublishedNavigationSetting(navSetting);
+        application.setUnpublishedApplicationDetail(new ApplicationDetail());
+        application.getUnpublishedApplicationDetail().setNavigationSetting(navSetting);
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         Mono<ApplicationJson> resultMono =
@@ -3607,8 +3609,8 @@ public class ImportExportApplicationServiceTests {
                 .assertNext(applicationJson -> {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
-                    assertThat(exportedApplication.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(exportedApplication.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(exportedApplication.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
                 })
                 .verifyComplete();
     }

@@ -7,17 +7,20 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import ContainerComponent, { ContainerStyle } from "../component";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
+import type { ContainerStyle } from "../component";
+import ContainerComponent from "../component";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";

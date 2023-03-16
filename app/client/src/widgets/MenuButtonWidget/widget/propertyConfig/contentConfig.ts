@@ -1,10 +1,11 @@
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
-import { MenuButtonWidgetProps, MenuItemsSource } from "../../constants";
+import type { MenuButtonWidgetProps } from "../../constants";
+import { MenuItemsSource } from "../../constants";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 import menuItemsConfig from "./childPanels/menuItemsConfig";
 import { updateMenuItemsSource } from "./propertyUtils";

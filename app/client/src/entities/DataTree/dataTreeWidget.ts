@@ -1,22 +1,17 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _, { isEmpty } from "lodash";
 import memoize from "micro-memoize";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  DynamicPath,
-  getEntityDynamicBindingPathList,
-} from "utils/DynamicBindingUtils";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import {
-  ENTITY_TYPE,
-  WidgetEntityConfig,
-  UnEvalTreeWidget,
-} from "./dataTreeFactory";
-import {
+import type { WidgetEntityConfig, UnEvalTreeWidget } from "./dataTreeFactory";
+import { ENTITY_TYPE } from "./dataTreeFactory";
+import type {
   OverridingPropertyPaths,
-  OverridingPropertyType,
   PropertyOverrideDependency,
 } from "./types";
+import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 
@@ -109,18 +104,14 @@ const generateDataTreeWidgetWithoutMeta = (
     },
   );
 
-  const {
-    bindingPaths,
-    reactivePaths,
-    triggerPaths,
-    validationPaths,
-  } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
-    ...derivedPropertyMap,
-    ...defaultMetaProps,
-    ...unInitializedDefaultProps,
-    ..._.keyBy(dynamicBindingPathList, "key"),
-    ...overridingPropertyPaths,
-  });
+  const { bindingPaths, reactivePaths, triggerPaths, validationPaths } =
+    getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
+      ...derivedPropertyMap,
+      ...defaultMetaProps,
+      ...unInitializedDefaultProps,
+      ..._.keyBy(dynamicBindingPathList, "key"),
+      ...overridingPropertyPaths,
+    });
 
   /**
    * Spread operator does not merge deep objects properly.
