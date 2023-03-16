@@ -33,7 +33,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     // Add new column
     cy.addColumnV2("CustomColumn");
   });
@@ -57,7 +57,9 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     // Verify CustomColumn is visible
-    cy.get(".draggable-header:contains('CustomColumn')").scrollIntoView().should("be.visible");
+    cy.get(".draggable-header:contains('CustomColumn')")
+      .scrollIntoView()
+      .should("be.visible");
     // close property pane
     cy.closePropertyPane();
     // Validate the empty values
