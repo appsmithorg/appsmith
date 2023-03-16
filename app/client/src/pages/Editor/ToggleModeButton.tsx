@@ -19,7 +19,6 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
-import { setAppViewHeaderHeight } from "actions/appViewActions";
 
 const StyledButton = styled(Button)<{ active: boolean }>`
   ${(props) =>
