@@ -41,14 +41,10 @@ describe("Phone input widget - ", () => {
     cy.get(".t--property-control-changecountrycode label")
       .last()
       .click({ force: true });
-    cy.get(".t--input-country-code-change")
-      .first()
-      .click();
+    cy.get(".t--input-country-code-change").first().click();
     cy.get(".t--search-input input").type("+91");
     cy.wait(500);
-    cy.get(".t--dropdown-option")
-      .last()
-      .click();
+    cy.get(".t--dropdown-option").last().click();
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
@@ -95,9 +91,7 @@ describe("Phone input widget - ", () => {
 
     cy.get(widgetInput).clear();
     cy.wait(500);
-    cy.get(widgetInput)
-      .click()
-      .type("1234567890");
+    cy.get(widgetInput).click().type("1234567890");
     cy.wait(500);
     cy.get(".t--widget-textwidget").should("contain", "1234567890:1234567890");
     cy.get(widgetInput).type("{enter}");
@@ -106,7 +100,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", ":");
   });
 
-  it("4. Check isDirty meta property", function() {
+  it("4. Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{PhoneInput1.isDirty}}`);
     // Change defaultText
@@ -129,7 +123,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
-  it("Currency change dropdown should not close unexpectedly", function() {
+  it("Currency change dropdown should not close unexpectedly", function () {
     cy.openPropertyPane(widgetName);
 
     // Select the Currency dropdown option from property pane

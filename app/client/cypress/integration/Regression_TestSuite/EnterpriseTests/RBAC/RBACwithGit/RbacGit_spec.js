@@ -4,7 +4,7 @@ const RBAC = require("../../../../../locators/RBAClocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("RBAC for git connected apps tests", function() {
+describe("RBAC for git connected apps tests", function () {
   let workspaceName;
   let appName;
   let newWorkspaceName;
@@ -55,19 +55,15 @@ describe("RBAC for git connected apps tests", function() {
     });
   });
 
-  it("1. Login as test user with create permission at workspace level, create new branch and assert given permissions", function() {
+  it("1. Login as test user with create permission at workspace level, create new branch and assert given permissions", function () {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
     _.gitSync.CreateGitBranch(childBranch);
@@ -91,7 +87,7 @@ describe("RBAC for git connected apps tests", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("2. Discard changes on master branch and verify , discarded page don't show on Roles screen", function() {
+  it("2. Discard changes on master branch and verify , discarded page don't show on Roles screen", function () {
     cy.switchGitBranch(mainBranch);
     cy.Createpage("page4");
     cy.gitDiscardChanges();
@@ -101,7 +97,7 @@ describe("RBAC for git connected apps tests", function() {
     cy.get(`.t--entity-name:contains(page4)`).should("not.exist");
   });
 
-  it("3. Switch to new branch from test branch and verify permissions ", function() {
+  it("3. Switch to new branch from test branch and verify permissions ", function () {
     // verify the page merged is there on roles screen
     _.gitSync.CreateGitBranch(childBranch2, true);
     // verify user is able to create JSObject
@@ -109,13 +105,10 @@ describe("RBAC for git connected apps tests", function() {
     cy.LogOut();
   });
 
-  it("4. Login as admin, edit the existing role: update from create to edit permission", function() {
+  it("4. Login as admin, edit the existing role: update from create to edit permission", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings/roles");
-    cy.get(RBAC.searchBar)
-      .clear()
-      .wait(2000)
-      .type(PermissionWorkspaceLevel);
+    cy.get(RBAC.searchBar).clear().wait(2000).type(PermissionWorkspaceLevel);
     cy.wait(2000);
     cy.get(RBAC.roleRow)
       .first()
@@ -123,21 +116,12 @@ describe("RBAC for git connected apps tests", function() {
       .click();
     cy.contains("td", `${workspaceName}`).click();
     // verify the page merged from child branch shows on roles screen
-    cy.xpath(`//span[text()="${appName}"]`)
-      .last()
-      .click();
-    cy.contains("td", `page3`)
-      .scrollIntoView()
-      .should("be.visible");
+    cy.xpath(`//span[text()="${appName}"]`).last().click();
+    cy.contains("td", `page3`).scrollIntoView().should("be.visible");
     // update the role's permission by unchecking create permission
-    cy.contains("td", `${workspaceName}`)
-      .next()
-      .click();
+    cy.contains("td", `${workspaceName}`).next().click();
     // check the edit permission
-    cy.contains("td", `${workspaceName}`)
-      .next()
-      .next()
-      .click();
+    cy.contains("td", `${workspaceName}`).next().next().click();
     cy.get(RBAC.saveButton).click();
     // save api call
     cy.wait(2000);
@@ -149,9 +133,7 @@ describe("RBAC for git connected apps tests", function() {
     // give create workspace permission
     cy.get(RBAC.othersTab).click();
     cy.wait(2000);
-    cy.contains("td", "Workspaces")
-      .next()
-      .click();
+    cy.contains("td", "Workspaces").next().click();
     cy.get(RBAC.saveButton).click();
     cy.wait("@saveRole").should(
       "have.nested.property",
@@ -161,15 +143,11 @@ describe("RBAC for git connected apps tests", function() {
     cy.LogOut();
   });
 
-  it.skip("5. Login as test user, create new branch and verify given permission on new and old branch ", function() {
+  it.skip("5. Login as test user, create new branch and verify given permission on new and old branch ", function () {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.switchGitBranch(childBranch);
     cy.get(explorer.AddPage).should("not.exist");
@@ -181,7 +159,7 @@ describe("RBAC for git connected apps tests", function() {
     cy.get(explorer.addEntityJSEditor).should("not.exist");
   });
 
-  it.skip("6. Delete branch and verify permissions", function() {
+  it.skip("6. Delete branch and verify permissions", function () {
     cy.switchGitBranch(mainBranch);
     cy.wait(3000);
     cy.get(gitSyncLocators.branchButton).click();
@@ -201,7 +179,7 @@ describe("RBAC for git connected apps tests", function() {
     );
   });
 
-  it("7. Import an app from git and verify functionality", function() {
+  it("7. Import an app from git and verify functionality", function () {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
@@ -211,13 +189,9 @@ describe("RBAC for git connected apps tests", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, importedApp);
     });
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(".t--import-json-card")
-      .next()
-      .click();
+    cy.get(".t--import-json-card").next().click();
     cy.importAppFromGit(repoName);
   });
 

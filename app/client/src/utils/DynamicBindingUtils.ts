@@ -1,8 +1,8 @@
 import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import { Action } from "entities/Action";
-import { WidgetProps } from "widgets/BaseWidget";
-import { Severity } from "entities/AppsmithConsole";
+import type { Action } from "entities/Action";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -10,7 +10,7 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -306,9 +306,8 @@ const getNestedEvalPath = (
   fullPath = true,
   isPopulated = false,
 ) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
   const nestedPath = isPopulated
     ? `${pathType}.${propertyPath}`
     : `${pathType}.['${propertyPath}']`;

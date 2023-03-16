@@ -44,7 +44,8 @@ export const NO_PERMISSION_TO_UNASSIGN = () =>
   `You do not have permission to unassign this role.`;
 export const DEFAULT_ROLES_PILL = () => `D`;
 export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default Roles`;
-export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the users ability to interact with various
+export const BOTTOM_BAR_SAVE_MESSAGE =
+  () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
 export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;

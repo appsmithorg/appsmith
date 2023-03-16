@@ -1,4 +1,4 @@
-import { ActionMapType } from "./description";
+import type { ActionMapType } from "./description";
 
 /* Slightly modified AuditLogs/utils/invited.ts
  * to return a description of the action performed on a group or role

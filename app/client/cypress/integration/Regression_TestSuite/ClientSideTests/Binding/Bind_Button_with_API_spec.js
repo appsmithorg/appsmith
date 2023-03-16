@@ -5,14 +5,14 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
 
-describe("Bind a button and Api usecase", function() {
+describe("Bind a button and Api usecase", function () {
   let apiData;
   let valueToTest;
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Add an API by binding a button in its header", function() {
+  it("1. Add an API by binding a button in its header", function () {
     cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.get(apiwidget.headerKey)
       .first()
@@ -39,7 +39,7 @@ describe("Bind a button and Api usecase", function() {
       });
   });
 
-  it("2. Button-Name updation", function() {
+  it("2. Button-Name updation", function () {
     cy.SearchEntityandOpen("Button1");
     //changing the Button Name
     cy.widgetText(
@@ -49,7 +49,7 @@ describe("Bind a button and Api usecase", function() {
     );
   });
 
-  it("3. API datasource binding with button name validation", function() {
+  it("3. API datasource binding with button name validation", function () {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.SearchEntityandOpen("Api1");
     cy.get(apiwidget.headerValue)

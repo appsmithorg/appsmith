@@ -11,7 +11,7 @@ import {
 } from "ce/pages/AdminSettings/LeftPane";
 import { AclFactory, OthersFactory } from "./config";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Category } from "./config/types";
+import type { Category } from "./config/types";
 import {
   getLicenseOrigin,
   getTenantPermissions,

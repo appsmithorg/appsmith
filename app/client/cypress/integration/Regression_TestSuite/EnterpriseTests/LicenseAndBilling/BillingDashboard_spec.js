@@ -1,7 +1,7 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 
-describe("License and Billing dashboard", function() {
-  it("1. Go to admin settings and click on License & Billing tab", function() {
+describe("License and Billing dashboard", function () {
+  it("1. Go to admin settings and click on License & Billing tab", function () {
     // Mock license key and license origin from API
     cy.interceptLicenseApi({
       licenseOrigin: "SELF_SERVE",
@@ -22,7 +22,7 @@ describe("License and Billing dashboard", function() {
     // check both cards are visible
     cy.get(LicenseLocators.dashboardCard).should("have.length", 2);
   });
-  it("2. Billing and usage card", function() {
+  it("2. Billing and usage card", function () {
     cy.get(LicenseLocators.dashboardCard)
       .eq(0)
       .within(() => {
@@ -41,7 +41,7 @@ describe("License and Billing dashboard", function() {
         );
       });
   });
-  it("3. License key card - ACTIVE license", function() {
+  it("3. License key card - ACTIVE license", function () {
     // Mock license key and license origin from API
     cy.interceptLicenseApi({
       licenseOrigin: "SELF_SERVE",
@@ -104,7 +104,7 @@ describe("License and Billing dashboard", function() {
     cy.wait(2000);
     cy.get(".bp3-dialog").should("not.exist");
   });
-  it("4.License key card - TRIAL license", function() {
+  it("4.License key card - TRIAL license", function () {
     const expiry =
       (new Date("25 Feb 2023").getTime() + 2 * 24 * 60 * 60 * 1000) / 1000;
     cy.interceptLicenseApi({

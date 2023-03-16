@@ -1,4 +1,4 @@
-import AclApi, {
+import type {
   FetchSingleDataPayload,
   GroupResponse,
   RoleResponse,
@@ -6,16 +6,17 @@ import AclApi, {
   UpdateRolesInGroupRequestPayload,
   UpdateRolesInUserRequestPayload,
 } from "@appsmith/api/AclApi";
+import AclApi from "@appsmith/api/AclApi";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ApiResponse } from "api/ApiResponses";
-import { User } from "constants/userConstants";
-import { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
+import type { ApiResponse } from "api/ApiResponses";
+import type { User } from "constants/userConstants";
+import type { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";

@@ -58,10 +58,7 @@ describe("Branding", () => {
 
   it("2. Should test that changing logo,favicon and color changes the preview", () => {
     // branding color
-    cy.get(locators.AdminSettingsColorInput)
-      .focus()
-      .clear()
-      .type("red");
+    cy.get(locators.AdminSettingsColorInput).focus().clear().type("red");
 
     cy.get(".t--branding-bg").should(
       "have.css",
@@ -162,9 +159,7 @@ describe("Branding", () => {
       cy.get(locators.appsmithLogo).click();
 
       // check logo
-      cy.get(locators.appsmithLogoImg)
-        .invoke("attr", "src")
-        .should("eq", logo);
+      cy.get(locators.appsmithLogoImg).invoke("attr", "src").should("eq", logo);
 
       // check favicon
       cy.get(locators.BrandingFaviconHead)
@@ -190,9 +185,7 @@ describe("Branding", () => {
   it("checks branding colors on login page", () => {
     if (Cypress.env("Edition") === 1) {
       // logout user
-      cy.window()
-        .its("store")
-        .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
       cy.wait("@postLogout");
 
       cy.wait(2000);

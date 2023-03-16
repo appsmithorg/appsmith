@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {
+import type {
   TUnlistenWindowMessageDescription,
   TWindowMessageListenerDescription,
 } from "@appsmith/workers/Evaluation/fns/messageListenerFns";

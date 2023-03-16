@@ -1,12 +1,10 @@
 import { all, call, debounce, put } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ApiResponse } from "api/ApiResponses";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ApiResponse } from "api/ApiResponses";
 import AuditLogsApi from "@appsmith/api/AuditLogsApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
+import type { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
 import { dbToLogs } from "@appsmith/pages/AuditLogs/utils/dbToLogs";
 
 function* FetchAuditLogsLogsInitSaga(

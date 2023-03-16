@@ -1,14 +1,14 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ActionResponse } from "api/ActionAPI";
-import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ActionResponse } from "api/ActionAPI";
+import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
-import { Action } from "entities/Action";
-import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import type { Action } from "entities/Action";
+import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import produce from "immer";
 
 export interface ActionData {

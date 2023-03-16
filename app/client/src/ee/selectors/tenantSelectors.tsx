@@ -1,7 +1,7 @@
 export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";

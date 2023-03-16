@@ -11,18 +11,17 @@ import {
   uploadWorkspaceLogoSaga,
   deleteWorkspaceLogoSaga,
 } from "ce/sagas/WorkspaceSagas";
-import WorkspaceApi, {
-  DeleteWorkspaceUserRequest,
-} from "@appsmith/api/WorkspaceApi";
+import type { DeleteWorkspaceUserRequest } from "@appsmith/api/WorkspaceApi";
+import WorkspaceApi from "@appsmith/api/WorkspaceApi";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { APPLICATIONS_URL } from "constants/routes";
 import { Toaster, Variant } from "design-system-old";
@@ -77,8 +76,9 @@ export function* deleteWorkspaceUserSaga(
         });
       }
       Toaster.show({
-        text: `${response.data?.username ||
-          response.data?.name} has been removed successfully`,
+        text: `${
+          response.data?.username || response.data?.name
+        } has been removed successfully`,
         variant: Variant.success,
       });
     }

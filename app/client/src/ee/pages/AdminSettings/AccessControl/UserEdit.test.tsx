@@ -7,7 +7,7 @@ import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockUserPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
-import { BaseGroupRoleProps } from "./types";
+import type { BaseGroupRoleProps } from "./types";
 
 let container: any = null;
 

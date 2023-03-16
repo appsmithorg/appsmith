@@ -1,12 +1,14 @@
 import { call, fork, put, race, select, take } from "redux-saga/effects";
-import {
+import type {
   ReduxAction,
   ReduxActionWithPromise,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { reset } from "redux-form";
-import UserApi, {
+import type {
   CreateUserRequest,
   CreateUserResponse,
   ForgotPasswordRequest,
@@ -15,9 +17,10 @@ import UserApi, {
   UpdateUserRequest,
   LeaveWorkspaceRequest,
 } from "@appsmith/api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import {
   validateResponse,
   getResponseErrorMessage,
@@ -39,7 +42,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import { Toaster, Variant } from "design-system-old";
@@ -65,8 +69,8 @@ import {
   segmentInitUncertain,
   segmentInitSuccess,
 } from "actions/analyticsActions";
-import { SegmentState } from "reducers/uiReducers/analyticsReducer";
-import FeatureFlags from "entities/FeatureFlags";
+import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
+import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 
 export function* createUserSaga(
@@ -533,11 +537,10 @@ export function* updateFirstTimeUserOnboardingSage() {
   const enable: string | null = yield getEnableFirstTimeUserOnboarding();
 
   if (enable) {
-    const applicationId: string = yield getFirstTimeUserOnboardingApplicationId() ||
-      "";
-    const introModalVisibility:
-      | string
-      | null = yield getFirstTimeUserOnboardingIntroModalVisibility();
+    const applicationId: string =
+      yield getFirstTimeUserOnboardingApplicationId() || "";
+    const introModalVisibility: string | null =
+      yield getFirstTimeUserOnboardingIntroModalVisibility();
     yield put({
       type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       payload: true,

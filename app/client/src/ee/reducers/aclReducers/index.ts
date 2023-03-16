@@ -3,7 +3,7 @@ import { createReducer } from "utils/ReducerUtils";
 import { groupsReducers } from "./groupsReducer";
 import { rolesReducers } from "./rolesReducer";
 import { userReducers } from "./usersReducer";
-import {
+import type {
   GroupProps,
   RoleProps,
   UserProps,

@@ -1,10 +1,5 @@
-import React, {
-  useRef,
-  useEffect,
-  MutableRefObject,
-  forwardRef,
-  Ref,
-} from "react";
+import type { MutableRefObject, Ref } from "react";
+import React, { useRef, useEffect, forwardRef } from "react";
 import styled from "styled-components";
 import Prism from "prismjs";
 import themes from "./themes";

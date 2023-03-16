@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
-import { BaseGroupRoleProps, GroupEditProps } from "./types";
+import type { BaseGroupRoleProps, GroupEditProps } from "./types";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockGroupPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";

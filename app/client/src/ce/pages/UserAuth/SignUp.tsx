@@ -1,14 +1,10 @@
 import React, { useEffect } from "react";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import type { InjectedFormProps } from "redux-form";
+import { reduxForm, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "@appsmith/constants/forms";
-import {
-  RouteComponentProps,
-  useHistory,
-  useLocation,
-  withRouter,
-  Link,
-} from "react-router-dom";
+import type { RouteComponentProps } from "react-router-dom";
+import { useHistory, useLocation, withRouter, Link } from "react-router-dom";
 import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
@@ -32,12 +28,12 @@ import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { SignupFormValues } from "pages/UserAuth/helpers";
+import type { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -134,7 +130,7 @@ export function SignUp(props: SignUpFormProps) {
         .execute(googleRecaptchaSiteKey.apiKey, {
           action: "submit",
         })
-        .then(function(token: any) {
+        .then(function (token: any) {
           if (formElement) {
             signupURL.searchParams.append("recaptchaToken", token);
             formElement.setAttribute("action", signupURL.toString());

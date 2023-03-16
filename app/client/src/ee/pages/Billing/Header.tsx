@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, TextType } from "design-system-old";
-import { HeaderProps } from "./types";
+import type { HeaderProps } from "./types";
 import { PageHeader } from "./styles";
 
 export function BillingPageHeader(props: HeaderProps) {

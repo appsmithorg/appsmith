@@ -3,15 +3,14 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
+import type { MenuItemProps, TabProp } from "design-system-old";
 import {
   Icon,
   IconSize,
   MenuItem,
-  MenuItemProps,
   Menu,
   SearchVariant,
   TabComponent,
-  TabProp,
   Toaster,
   Variant,
 } from "design-system-old";
@@ -30,7 +29,7 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import {
+import type {
   BaseAclProps,
   GroupsForUser,
   PermissionsForUser,
@@ -126,10 +125,8 @@ export function UserEdit(props: UserEditProps) {
   const [addedAllUserGroups, setAddedAllUserGroups] = useState<BaseAclProps[]>(
     [],
   );
-  const [
-    removedActivePermissionGroups,
-    setRemovedActivePermissionGroups,
-  ] = useState<BaseAclProps[]>([]);
+  const [removedActivePermissionGroups, setRemovedActivePermissionGroups] =
+    useState<BaseAclProps[]>([]);
   const [addedAllPermGroups, setAddedAllPermGroups] = useState<BaseAclProps[]>(
     [],
   );

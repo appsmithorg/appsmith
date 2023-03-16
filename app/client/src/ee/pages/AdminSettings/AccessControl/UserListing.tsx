@@ -5,7 +5,8 @@ import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { HighlightText, MenuItemProps, Spinner } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { HighlightText, Spinner } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
@@ -44,7 +45,8 @@ import {
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
-import { BaseAclProps, ListingType, UserProps } from "./types";
+import type { BaseAclProps, UserProps } from "./types";
+import { ListingType } from "./types";
 import { getCurrentUser } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";

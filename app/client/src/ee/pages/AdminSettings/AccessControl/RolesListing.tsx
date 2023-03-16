@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { HighlightText, Icon, MenuItemProps, Spinner } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { HighlightText, Icon, Spinner } from "design-system-old";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {
@@ -37,7 +38,8 @@ import {
   getRoles,
   getSelectedRole,
 } from "@appsmith/selectors/aclSelectors";
-import { ListingType, RoleProps } from "./types";
+import type { RoleProps } from "./types";
+import { ListingType } from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,

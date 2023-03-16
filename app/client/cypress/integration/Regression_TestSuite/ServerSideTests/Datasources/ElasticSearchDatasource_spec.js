@@ -4,12 +4,12 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let elasticSearchName;
 let dataSource = ObjectsRegistry.DataSources;
 
-describe("Elastic search datasource tests", function() {
+describe("Elastic search datasource tests", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create elastic search datasource", function() {
+  it("1. Create elastic search datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.ElasticSearch).trigger("click", { force: true });
     cy.generateUUID().then((uid) => {

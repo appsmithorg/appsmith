@@ -1,4 +1,4 @@
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 
 export function dbToLogs(serverLogs: any[]): AuditLogType[] {
   return serverLogs.map((serverLog: any) => ({

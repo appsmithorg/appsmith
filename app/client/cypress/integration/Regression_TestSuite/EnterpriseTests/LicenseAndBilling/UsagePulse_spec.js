@@ -1,15 +1,13 @@
 import homePage from "../../../../locators/HomePage";
 
-describe("Usage pulse", function() {
+describe("Usage pulse", function () {
   beforeEach(() => {
     cy.intercept("POST", "/api/v1/usage-pulse").as("usagePulse");
   });
-  it("1. Should send usage pulse", function() {
+  it("1. Should send usage pulse", function () {
     cy.visit("/applications");
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).should("exist");
     cy.get(homePage.appEditIcon).click();
     cy.reload();
@@ -18,7 +16,7 @@ describe("Usage pulse", function() {
       expect(payload).to.have.property("viewMode", false);
     });
   });
-  it("2. Should send view mode as true when in deployed application", function() {
+  it("2. Should send view mode as true when in deployed application", function () {
     cy.get(homePage.shareApp).click();
     cy.enablePublicAccess(true);
     cy.window().then((window) => {

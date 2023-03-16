@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import type { MenuItemProps, TabProp } from "design-system-old";
 import {
   Button,
   HighlightText,
@@ -6,10 +7,8 @@ import {
   IconSize,
   Menu,
   MenuItem,
-  MenuItemProps,
   TabComponent,
   Table,
-  TabProp,
 } from "design-system-old";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -20,7 +19,7 @@ import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory, useParams } from "react-router";
-import {
+import type {
   BaseAclProps,
   GroupEditProps,
   Permissions,

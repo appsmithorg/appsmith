@@ -1,4 +1,4 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export const getAllAclUsers = (state: AppState) => state.acl.users;
 export const getGroups = (state: AppState) => state.acl.groups;

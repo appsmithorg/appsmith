@@ -7,14 +7,14 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "@appsmith/reducers";
-import { Action } from "entities/Action";
+import type { AppState } from "@appsmith/reducers";
+import type { Action } from "entities/Action";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_NAME_PLACEHOLDER,
@@ -66,10 +66,8 @@ type ActionNameEditorProps = {
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
-  const currentActionConfig:
-    | Action
-    | undefined = useSelector((state: AppState) =>
-    getAction(state, params.apiId || params.queryId || ""),
+  const currentActionConfig: Action | undefined = useSelector(
+    (state: AppState) => getAction(state, params.apiId || params.queryId || ""),
   );
 
   const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>

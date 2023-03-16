@@ -1,10 +1,11 @@
 import { sampleLogsFromRedux } from "./sampleLogs";
-import { IconisedDescription, iconisedDescription } from "./description";
-import { AuditLogType } from "../types";
+import type { IconisedDescription } from "./description";
+import { iconisedDescription } from "./description";
+import type { AuditLogType } from "../types";
 
-describe("audit-logs/utils/description", function() {
+describe("audit-logs/utils/description", function () {
   describe("iconisedDescription", () => {
-    it("returns proper description with correct icons", function() {
+    it("returns proper description with correct icons", function () {
       const logs = [...sampleLogsFromRedux] as AuditLogType[];
       const actual = logs.map((log) => iconisedDescription(log));
       const expected: IconisedDescription[] = [

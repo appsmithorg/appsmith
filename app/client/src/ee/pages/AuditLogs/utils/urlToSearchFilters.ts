@@ -1,5 +1,5 @@
 import { sanitiseSearchParamString } from "./sanitiseSearchParamString";
-import { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
+import type { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
 
 export type SearchFilters = {
   emails?: string[];

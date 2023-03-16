@@ -8,7 +8,7 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Delete Permission flow ", function() {
+describe("Delete Permission flow ", function () {
   let appName;
   let workspaceName;
   let newWorkspaceName;
@@ -95,9 +95,7 @@ describe("Delete Permission flow ", function() {
             PermissionWorkspaceLevel,
             workspaceName,
           );
-          cy.get(RBAC.roleRow)
-            .first()
-            .click();
+          cy.get(RBAC.roleRow).first().click();
           cy.wait("@fetchRoles").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -151,7 +149,7 @@ describe("Delete Permission flow ", function() {
     cy.LogOut();
   });
 
-  it("1. Delete permission : App level (Delete any page in same app, delete action)", function() {
+  it("1. Delete permission : App level (Delete any page in same app, delete action)", function () {
     // login as exisiting user and verify user is able to delete page in same app
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
@@ -160,9 +158,7 @@ describe("Delete Permission flow ", function() {
     cy.wait(2000);
     cy.get(homePage.searchInput).type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -178,31 +174,27 @@ describe("Delete Permission flow ", function() {
     cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
   });
 
-  it("2. Delete permission : App level; verify user don't have create permissions", function() {
+  it("2. Delete permission : App level; verify user don't have create permissions", function () {
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");
     cy.get(explorer.addEntityJSEditor).should("not.exist");
     cy.get(homePage.homeIcon).click({ force: true });
     cy.wait(2000);
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     // verify create new app button is not visible to user
     cy.get(homePage.createNewAppButton).should("not.exist");
     cy.LogOut();
   });
 
-  it("3. Delete permission : Page level (Delete query in same page)", function() {
+  it("3. Delete permission : Page level (Delete query in same page)", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
     // verify deletion of jsObject
     cy.get(homePage.searchInput).type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -217,7 +209,7 @@ describe("Delete Permission flow ", function() {
     cy.get(RBAC.JsObject1).should("not.exist");
   });
 
-  it("4. Delete permission : Page level, verify user do not have create and edit permissions", function() {
+  it("4. Delete permission : Page level, verify user do not have create and edit permissions", function () {
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");
@@ -230,19 +222,15 @@ describe("Delete Permission flow ", function() {
     cy.LogOut();
   });
 
-  it("5. Delete permission : Workspace level and delete datasource permission", function() {
+  it("5. Delete permission : Workspace level and delete datasource permission", function () {
     // verify user can delete the datasource
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -261,23 +249,17 @@ describe("Delete Permission flow ", function() {
     cy.get(explorer.addEntityJSEditor).should("not.exist");
     cy.get(homePage.homeIcon).click({ force: true });
     cy.wait(2000);
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     // verify create new app button is not visible to user
     cy.get(homePage.createNewAppButton).should("not.exist");
   });
 
-  it("6. Delete permission : Workspace level, verify user is able to delete app", function() {
+  it("6. Delete permission : Workspace level, verify user is able to delete app", function () {
     // verify user is able to delete app in same workspace
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.wait(2000);
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName2);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
+    cy.get(homePage.searchInput).clear().type(appName2);
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.wait(2000);
     cy.get(homePage.appMoreIcon)
       .should("have.length", 1)
@@ -286,9 +268,7 @@ describe("Delete Permission flow ", function() {
     cy.get(homePage.deleteAppConfirm)
       .should("be.visible")
       .click({ force: true });
-    cy.get(homePage.deleteApp)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(homePage.deleteApp).should("be.visible").click({ force: true });
     cy.wait("@deleteApplication");
     cy.get("@deleteApplication").should("have.property", "status", 200);
   });

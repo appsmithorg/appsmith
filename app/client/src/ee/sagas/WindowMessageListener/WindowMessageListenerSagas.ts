@@ -1,13 +1,12 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Channel, channel, Task } from "redux-saga";
+import type { Channel, Task } from "redux-saga";
+import { channel } from "redux-saga";
 import { spawn, cancel, take, call } from "redux-saga/effects";
-import {
-  executeAppAction,
-  TriggerMeta,
-} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import { executeAppAction } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
+import type {
   TUnlistenWindowMessageDescription,
   TWindowMessageListenerDescription,
 } from "@appsmith/workers/Evaluation/fns/messageListenerFns";

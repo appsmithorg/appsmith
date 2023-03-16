@@ -1,5 +1,5 @@
 export * from "ce/configs/types";
-import {
+import type {
   SentryConfig as CE_SentryConfig,
   AppsmithUIConfigs as CE_AppsmithUIConfigs,
 } from "ce/configs/types";

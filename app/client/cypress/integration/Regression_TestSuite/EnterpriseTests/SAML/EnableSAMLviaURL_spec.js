@@ -2,8 +2,8 @@ const adminSettings = require("../../../../locators/AdminsSettings");
 const enterpriseSettings = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("SSO with SAML test functionality", function() {
-  it("1. Go to admin settings and enable SAML via Metadata URL", function() {
+describe("SSO with SAML test functionality", function () {
+  it("1. Go to admin settings and enable SAML via Metadata URL", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -50,7 +50,7 @@ describe("SSO with SAML test functionality", function() {
     );
   });
 
-  it("2. Go to admin settings and disable SAML", function() {
+  it("2. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");

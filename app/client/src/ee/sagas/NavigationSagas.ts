@@ -12,9 +12,9 @@ export default function* rootSaga() {
   ]);
 }
 
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
-import { AppsmithLocationState } from "utils/history";
-import { Location } from "history";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { AppsmithLocationState } from "utils/history";
+import type { Location } from "history";
 import { hasNavigatedOutOfPage } from "@appsmith/pages/Editor/Explorer/helpers";
 import { call } from "redux-saga/effects";
 import { clearAllWindowMessageListeners } from "./WindowMessageListener/WindowMessageListenerSagas";

@@ -1,8 +1,8 @@
 export * from "ce/sagas/tenantSagas";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
@@ -14,11 +14,14 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
-import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
+import type {
+  TenantReduxState,
+  License,
+} from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
 import {

@@ -6,7 +6,8 @@ import {
 } from "@appsmith/utils/adminSettingsHelpers";
 import React from "react";
 import { useSelector } from "react-redux";
-import { Redirect, RouteComponentProps, useParams } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { Redirect, useParams } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 

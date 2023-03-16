@@ -8,7 +8,7 @@ import {
   getJSCollectionFromName,
   getJSActionFromJSCollection,
 } from "selectors/entitiesSelector";
-import { TMessage } from "utils/MessageUtil";
+import type { TMessage } from "utils/MessageUtil";
 import { get, set } from "lodash";
 
 export function* logJSFunctionExecution(message: TMessage<any>) {
@@ -17,18 +17,14 @@ export function* logJSFunctionExecution(message: TMessage<any>) {
   const funcLogged = {};
 
   for (const fullPath of paths) {
-    const {
-      entityName: JSObjectName,
-      propertyPath: functionName,
-    } = getEntityNameAndPropertyPath(fullPath);
+    const { entityName: JSObjectName, propertyPath: functionName } =
+      getEntityNameAndPropertyPath(fullPath);
 
     if (get(funcLogged, [JSObjectName, functionName])) return;
     set(funcLogged, [JSObjectName, functionName], true);
 
-    const currentJSCollection: ReturnType<typeof getJSCollectionFromName> = yield select(
-      getJSCollectionFromName,
-      JSObjectName,
-    );
+    const currentJSCollection: ReturnType<typeof getJSCollectionFromName> =
+      yield select(getJSCollectionFromName, JSObjectName);
     if (!currentJSCollection) return;
 
     const currentAction = getJSActionFromJSCollection(

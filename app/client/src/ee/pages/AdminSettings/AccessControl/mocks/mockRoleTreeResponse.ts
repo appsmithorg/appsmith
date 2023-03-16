@@ -1,4 +1,4 @@
-import { RoleProps, RoleTableResponse } from "../types";
+import type { RoleProps, RoleTableResponse } from "../types";
 
 export const response2: RoleTableResponse[] = [
   {
