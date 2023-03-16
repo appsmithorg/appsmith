@@ -26,6 +26,7 @@ import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export enum AppSettingsTabs {
   General,
@@ -100,6 +101,9 @@ function AppSettings() {
       name: createMessage(GENERAL_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.General });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "General",
+        });
       },
       subText: createMessage(GENERAL_SETTINGS_SECTION_HEADER_DESC),
     },
@@ -110,6 +114,9 @@ function AppSettings() {
       name: createMessage(IN_APP_EMBED_SETTING.sectionHeader),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Embed });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Embed",
+        });
       },
       subText: createMessage(IN_APP_EMBED_SETTING.sectionHeaderDesc),
     },
@@ -120,6 +127,9 @@ function AppSettings() {
       name: createMessage(THEME_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Theme });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Theme",
+        });
       },
       subText: createMessage(THEME_SETTINGS_SECTION_HEADER_DESC),
     },
@@ -130,6 +140,9 @@ function AppSettings() {
       name: createMessage(APP_NAVIGATION_SETTING.sectionHeader),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Navigation });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Navigation",
+        });
       },
       subText: createMessage(APP_NAVIGATION_SETTING.sectionHeaderDesc),
     },

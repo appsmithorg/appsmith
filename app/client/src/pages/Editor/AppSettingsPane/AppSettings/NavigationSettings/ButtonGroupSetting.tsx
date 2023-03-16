@@ -8,6 +8,7 @@ import {
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import { UpdateSetting } from ".";
+import { logEvent } from "./utils";
 
 export type ButtonGroupSettingProps = {
   heading: string;
@@ -26,7 +27,9 @@ const ButtonGroupSetting = ({
 }: ButtonGroupSettingProps) => {
   const onChange = (value: string) => {
     updateSetting(keyName as keyof NavigationSetting, value);
+    logEvent(keyName, value);
   };
+
   const visibleOptions = options.filter((item) =>
     !item.hidden
       ? {

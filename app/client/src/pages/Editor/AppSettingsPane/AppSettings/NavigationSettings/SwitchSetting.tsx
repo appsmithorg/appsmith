@@ -1,14 +1,15 @@
 import React from "react";
-import { NavigationSetting } from "constants/AppConstants";
+import { StringsFromNavigationSetting } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import SwitchWrapper from "../../Components/SwitchWrapper";
 import { Switch } from "design-system-old";
 import { UpdateSetting } from ".";
 import _ from "lodash";
+import { logEvent } from "./utils";
 
 const SwitchSetting = (props: {
   label: string;
-  keyName: keyof NavigationSetting;
+  keyName: keyof StringsFromNavigationSetting;
   value: boolean;
   updateSetting: UpdateSetting;
   tooltip?: string;
@@ -33,6 +34,7 @@ const SwitchSetting = (props: {
             large
             onChange={() => {
               updateSetting(keyName, !value);
+              logEvent(keyName, !value);
             }}
           />
         </SwitchWrapper>
