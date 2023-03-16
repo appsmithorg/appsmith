@@ -540,7 +540,6 @@ function* handleDatasourceNameChangeFailureSaga(
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   let workspaceId: string = yield select(getCurrentWorkspaceId);
-
   // test button within the import modal
   if (!workspaceId) {
     workspaceId = yield select(getWorkspaceIdForImport);
@@ -580,9 +579,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         (responseData.messages && responseData.messages.length)
       ) {
         if (responseData.invalids && responseData.invalids.length) {
-          Toaster.show({
-            text: responseData.invalids[0],
-            variant: Variant.danger,
+          responseData.invalids.forEach((message: string) => {
+            Toaster.show({
+              text: message,
+              variant: Variant.danger,
+            });
           });
         }
         if (responseData.messages && responseData.messages.length) {

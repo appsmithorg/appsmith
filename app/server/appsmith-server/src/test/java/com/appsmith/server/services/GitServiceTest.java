@@ -2263,7 +2263,7 @@ public class GitServiceTest {
 
                     Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
                     appNavigationSetting.setOrientation("top");
-                    branchedApplication.setNavigationSetting(appNavigationSetting);
+                    branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication->
@@ -2281,8 +2281,8 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2340,9 +2340,9 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2404,10 +2404,10 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
                 })
                 .verifyComplete();
     }

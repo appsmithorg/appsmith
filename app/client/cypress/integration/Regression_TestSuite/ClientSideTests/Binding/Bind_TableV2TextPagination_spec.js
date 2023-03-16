@@ -30,7 +30,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       localStorage.setItem("tableDataPage1", tableData);
     });
     /**Validate Table data on current page(page1) */
-     cy.readTableV2data("0", "4").then((tabData) => {
+    cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
     });
@@ -54,7 +54,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // Make sure onPageLoad action has run before validating the data
     cy.wait("@postExecute");
     cy.wait(2000);
-     cy.readTableV2data("0", "4").then((tabData) => {
+    cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
     });
@@ -62,7 +62,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // Make sure net page action is run
     cy.wait("@postExecute");
     cy.validateToastMessage("done");
-     cy.readTableV2data("0", "4").then((tabData) => {
+    cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("11");
     });
@@ -86,7 +86,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .should("contain", "of 2");
 
     cy.get(".t--table-widget-next-page").should("not.have.attr", "disabled");
-     cy.readTableV2data("0", "4").then((tabData) => {
+    cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
     });
@@ -132,7 +132,9 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.ValidatePaginateResponseUrlDataV2(apiPage.apiPaginationPrevTest, false);
     cy.PublishtheApp();
     cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(interception.response.body.data.body[0].name)
+      let valueToTest = JSON.stringify(
+        interception.response.body.data.body[0].name,
+      );
       cy.ValidatePaginationInputDataV2(valueToTest);
     });
     cy.get(publishPage.backToEditor).click({ force: true });
