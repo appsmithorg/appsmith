@@ -160,8 +160,8 @@ export class DataSources {
   public _urlInputControl = "input[name='url']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
-    if (mode == "View") this.agHelper.AssertElementAbsence(this._editButton);
-    else if (mode == "Edit") this.agHelper.AssertElementExist(this._editButton);
+    if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
+    else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
   }
 
   public GeneratePageWithMockDB() {
