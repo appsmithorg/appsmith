@@ -1,4 +1,3 @@
-import { klona } from "klona/lite";
 import {
   ColumnProperties,
   StickyType,

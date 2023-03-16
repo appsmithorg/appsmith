@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateApplicationLayout } from "actions/applicationActions";
-import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system-old";
 import {
   AppLayoutConfig,

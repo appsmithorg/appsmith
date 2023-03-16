@@ -1,7 +1,5 @@
 import React, { ReactNode, useRef, useState, useCallback } from "react";
 import styled from "styled-components";
-import { MaybeElement } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "widgets/BaseComponent";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
@@ -55,10 +53,6 @@ const TabsContainerWrapper = styled.div<{
   overflow: hidden;
 `;
 
-export interface TabsContainerProps {
-  isScrollable: boolean;
-}
-
 const Container = styled.div`
   width: 100%;
   align-items: flex-end;
@@ -94,13 +88,6 @@ const ScrollButton = styled(Button)<{ isVisible: boolean }>`
     transition: visibility 0s linear 300ms, opacity 300ms;
     `}
 `;
-
-export interface ScrollNavControlProps {
-  onClick: () => void;
-  icon: IconName | MaybeElement;
-  disabled?: boolean;
-  className?: string;
-}
 
 const ScrollCanvas = styled.div<{ $shouldScrollContents: boolean }>`
   overflow: hidden;

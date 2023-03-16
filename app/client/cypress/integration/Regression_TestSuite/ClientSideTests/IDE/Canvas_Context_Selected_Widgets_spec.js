@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import explorer from "../../../../locators/explorerlocators.json";
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
 

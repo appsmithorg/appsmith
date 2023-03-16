@@ -171,7 +171,7 @@ const getQuickActionButtons = ({
     {
       className: "t--bottom-bar-commit",
       count: changesToCommit,
-      icon: "plus" as IconName,
+      icon: "plus",
       loading: isFetchingGitStatus,
       onClick: commit,
       tooltipText: createMessage(COMMIT_CHANGES),
@@ -179,7 +179,7 @@ const getQuickActionButtons = ({
     {
       className: "t--bottom-bar-pull",
       count: gitStatus?.behindCount,
-      icon: "down-arrow-2" as IconName,
+      icon: "down-arrow-2",
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
       disabled: pullDisabled,
@@ -187,12 +187,12 @@ const getQuickActionButtons = ({
     },
     {
       className: "t--bottom-bar-merge",
-      icon: "fork" as IconName,
+      icon: "fork",
       onClick: merge,
       tooltipText: createMessage(MERGE),
     },
     {
-      icon: "settings-2-line" as IconName,
+      icon: "settings-2-line",
       onClick: connect,
       tooltipText: createMessage(GIT_SETTINGS),
     },

@@ -3,7 +3,6 @@ import styled, { createGlobalStyle } from "styled-components";
 import { Dropdown, DropdownOption } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes_v2";
-import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
 import { Button } from "design-system";

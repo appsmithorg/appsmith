@@ -274,7 +274,7 @@ function GitConnection({ isImport }: Props) {
 
   const submitButtonDisabled = useMemo(() => {
     const isAuthInfoUpdated = isAuthorInfoUpdated();
-    let buttonDisabled = false;
+    let buttonDisabled;
     if (isGitConnected) {
       const isFetchingConfig =
         isFetchingGlobalGitConfig || isFetchingLocalGitConfig;

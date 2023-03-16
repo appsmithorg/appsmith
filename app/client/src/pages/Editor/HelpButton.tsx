@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled, { createGlobalStyle, useTheme } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
@@ -18,7 +18,6 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
 import { BottomBarCTAStyles } from "./BottomBar/styles";
-import { Theme } from "constants/DefaultTheme";
 import { Icon } from "design-system";
 
 const HelpPopoverStyle = createGlobalStyle`
@@ -40,8 +39,6 @@ type TriggerProps = {
 };
 
 const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
-  const theme = useTheme() as Theme;
-
   return (
     <TooltipComponent
       content={createMessage(HELP_RESOURCE_TOOLTIP)}

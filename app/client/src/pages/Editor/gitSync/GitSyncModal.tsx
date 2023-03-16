@@ -15,14 +15,12 @@ import GitConnection from "./Tabs/GitConnection";
 import { DialogComponent as Dialog } from "design-system-old";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
+import styled from "styled-components";
 import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
-import { Theme } from "constants/DefaultTheme";
-import { Button, Icon } from "design-system";
+import { Button } from "design-system";
 
 const Container = styled.div`
   height: 600px;
@@ -61,7 +59,6 @@ const TabKeys: string[] = Object.values(GitSyncModalTab)
   .map((value) => value as string);
 
 function GitSyncModal(props: { isImport?: boolean }) {
-  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);

@@ -1,5 +1,4 @@
 import React, { memo } from "react";
-import { Colors } from "constants/Colors";
 
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { StyledDiv } from "./index.styled";

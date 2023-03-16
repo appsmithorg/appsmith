@@ -22,8 +22,7 @@ import {
 import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 
-import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
+import styled from "styled-components";
 import { Title } from "./components/StyledComponents";
 import {
   createMessage,
@@ -62,7 +61,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
-import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 765px;
@@ -273,7 +271,6 @@ function SuccessMessages() {
 }
 
 function ReconnectDatasourceModal() {
-  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);

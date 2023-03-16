@@ -1,4 +1,3 @@
-import { Colors } from "constants/Colors";
 import { TooltipWrapper } from "./StyledComponents";
 import { TooltipComponent } from "design-system-old";
 import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";

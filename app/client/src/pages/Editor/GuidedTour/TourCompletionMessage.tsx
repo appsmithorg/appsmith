@@ -20,7 +20,6 @@ import {
   RATING_TEXT,
   RATING_TITLE,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { Overlay, Classes } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitErrorPopupVisible } from "actions/gitSyncActions";
@@ -13,11 +13,9 @@ import {
 } from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
-import { get } from "lodash";
 
 import ConflictInfo from "../components/ConflictInfo";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { Theme } from "constants/DefaultTheme";
 import { Button } from "design-system";
 
 const StyledGitErrorPopup = styled.div`
@@ -51,7 +49,6 @@ const StyledGitErrorPopup = styled.div`
 
 function Header({ closePopup }: { closePopup: () => void }) {
   const title = createMessage(CONFLICTS_FOUND_WHILE_PULLING_CHANGES);
-  const theme = useTheme() as Theme;
 
   return (
     <div

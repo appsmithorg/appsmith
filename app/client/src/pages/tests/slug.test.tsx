@@ -21,7 +21,6 @@ import {
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
 
 describe("URL slug names", () => {

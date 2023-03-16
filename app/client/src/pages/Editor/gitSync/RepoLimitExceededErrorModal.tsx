@@ -27,7 +27,6 @@ import {
   REVOKE_EXISTING_REPOSITORIES,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
-import { get } from "lodash";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,

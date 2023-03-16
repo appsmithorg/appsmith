@@ -74,10 +74,6 @@ const CreateNewBranchContainer = styled.div`
   -webkit-box-orient: vertical;
   overflow: hidden;
 
-  & ${IconWrapper} {
-    display: inline;
-  }
-
   & div {
     margin-left: ${(props) => props.theme.spaces[4]}px;
     display: block;
