@@ -168,7 +168,7 @@ jobs:
         working-directory : app/client/cypress
         run : |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
-          docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
+       # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
        # docker restart mssqldb
        # sudo ufw allow 1433/tcp
        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
