@@ -1,18 +1,12 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
 
-public class ObjectMapperUtils {
-    private final ObjectMapper objectMapper;
-
-    public ObjectMapperUtils(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+public record ObjectMapperUtils(ObjectMapper objectMapper) {
 
     public <T> T readFromString(String src, Class viewsClass, Class<T> resultClass) throws IOException {
         return objectMapper
@@ -28,7 +22,7 @@ public class ObjectMapperUtils {
 
     public String writeAsString(Object src, Class viewsClass) throws JsonProcessingException {
         return objectMapper
-                .writerWithView(Views.Public.class)
+                .writerWithView(viewsClass)
                 .writeValueAsString(src);
     }
 }
