@@ -42,13 +42,8 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 
-const WIDGETS_WITH_CHILD_WIDGETS = [
-  "LIST_WIDGET",
-  "FORM_WIDGET",
-  "MODAL_WIDGET",
-  "TABS_WIDGET",
-];
-
+const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
+const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
@@ -107,7 +102,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     const selectedWidgetAncestry: string[] = useSelector((state: AppState) => {
-      if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return [];
+      if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) return [];
       return getSelectedWidgetAncestry(state);
     }, equal);
 
