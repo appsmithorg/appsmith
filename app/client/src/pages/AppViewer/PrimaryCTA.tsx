@@ -133,6 +133,7 @@ function PrimaryCTA(props: Props) {
           buttonVariant="PRIMARY"
           className={`t--fork-app w-full md:w-auto ${className}`}
           icon="fork"
+          insideSidebar={insideSidebar}
           navColorStyle={navColorStyle}
           onClick={() => {
             history.push(forkURL);
@@ -158,6 +159,7 @@ function PrimaryCTA(props: Props) {
                 className={`t--fork-app w-full md:w-auto ${className}`}
                 data-testid="fork-modal-trigger"
                 icon="fork"
+                insideSidebar={insideSidebar}
                 navColorStyle={navColorStyle}
                 primaryColor={primaryColor}
                 text={createMessage(FORK_APP)}
