@@ -17,19 +17,19 @@ import {
 } from "reflow/reflowTypes";
 import {
   DimensionUpdateProps,
+  RESIZE_BORDER_BUFFER,
   ResizableHandle,
   ResizableProps,
-  RESIZE_BORDER_BUFFER,
   ResizeWrapper,
 } from "resizable/common";
 import { getWidgetByID } from "sagas/selectors";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import { useReflow } from "utils/hooks/useReflow";
 
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
@@ -442,6 +442,7 @@ export function ReflowResizable(props: ResizableProps) {
           $prevents={pointerEvents}
           className={props.className}
           id={`resize-${props.widgetId}`}
+          inverted={props.topRow <= 2}
           isHovered={props.isHovered}
           ref={resizableRef}
           showBoundaries={props.showResizeBoundary}

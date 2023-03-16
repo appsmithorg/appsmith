@@ -1,5 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe("Repo Limit Exceeded Error Modal", function() {
@@ -46,7 +47,7 @@ describe("Repo Limit Exceeded Error Modal", function() {
     // cy.createAppAndConnectGit(repoName3, false);
     // cy.createAppAndConnectGit(repoName4, false, true);
 
-    if (Cypress.env("Edition") === 0) {
+    if (CURRENT_REPO === REPO.CE) {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
 
       // title and info text checking
