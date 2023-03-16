@@ -218,6 +218,23 @@ public class TenantServiceTest {
             .verify();
     }
 
+    @Test
+    @WithUserDetails("api_user")
+    public void test_getTenantConfiguration_returnsNullLicense_ifNoLicensePresent() {
+        TenantConfiguration.License license = new TenantConfiguration.License();
 
+        // Mock CS response to get valid license
+        Mockito.when(licenseValidator.licenseCheck(any()))
+                .thenReturn(Mono.just(license));
+        // Performing same process as a scheduled license check
+        tenantService.checkAndUpdateDefaultTenantLicense().block();
 
+        // Verify getTenantConfiguration() should have null license after updating with empty License object
+        StepVerifier.create(tenantService.getTenantConfiguration())
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration()).isNotNull();
+                    assertThat(tenant.getTenantConfiguration().getLicense()).isNull();
+                })
+                .verifyComplete();
+    }
 }
