@@ -3,12 +3,15 @@ package com.appsmith.server.dtos.ce;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
-public class WorkspaceMemberInfoCE_DTO {
+public class MemberInfoCE_DTO {
     String userId;
     String username;
     String name;
+    List<AutoCreatedRoleInfo> roles;
     String permissionGroupName;
     String permissionGroupId;
     String photoId;

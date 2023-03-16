@@ -1,10 +1,14 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.ce.AutoCreatedRoleInfo;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class AppsmithComparatorsCE {
 
@@ -17,12 +21,12 @@ public class AppsmithComparatorsCE {
         };
     }
 
-    public static Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
+    public static Comparator<MemberInfoDTO> getWorkspaceMemberComparator() {
         return new Comparator<>() {
             @Override
-            public int compare(WorkspaceMemberInfoDTO o1, WorkspaceMemberInfoDTO o2) {
-                int order1 = getOrder(o1.getPermissionGroupName());
-                int order2 = getOrder(o2.getPermissionGroupName());
+            public int compare(MemberInfoDTO o1, MemberInfoDTO o2) {
+                int order1 = getOrder(o1.getRoles());
+                int order2 = getOrder(o2.getRoles());
 
                 // Administrator > Developer > App viewer
                 int permissionGroupSortOrder = order1 - order2;
@@ -36,10 +40,10 @@ public class AppsmithComparatorsCE {
                 return o1.getUsername().compareTo(o2.getUsername());
             }
 
-            private int getOrder(String name) {
-                if (name.startsWith(FieldName.ADMINISTRATOR)) {
+            private int getOrder(List<AutoCreatedRoleInfo> autoCreatedRoleInfoList) {
+                if (autoCreatedRoleInfoList.stream().anyMatch(role -> role.getName().startsWith(FieldName.ADMINISTRATOR))) {
                     return 0;
-                } else if (name.startsWith(FieldName.DEVELOPER)) {
+                } else if (autoCreatedRoleInfoList.stream().anyMatch(role -> role.getName().startsWith(FieldName.DEVELOPER))) {
                     return 1;
                 } else {
                     return 2;

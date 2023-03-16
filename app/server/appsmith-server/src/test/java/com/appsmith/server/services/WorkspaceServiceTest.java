@@ -15,7 +15,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -74,6 +74,7 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -748,7 +749,7 @@ public class WorkspaceServiceTest {
         inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
-        Mono<List<WorkspaceMemberInfoDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
+        Mono<List<MemberInfoDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
 
         StepVerifier
                 .create(usersMono)
@@ -756,24 +757,30 @@ public class WorkspaceServiceTest {
                     assertThat(users).isNotNull();
                     assertThat(users.size()).isEqualTo(6);
                     // Assert that the members are sorted by the permission group and then email
-                    WorkspaceMemberInfoDTO userAndGroupDTO = users.get(0);
+                    MemberInfoDTO userAndGroupDTO = users.get(0);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("api_user");
-                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
+                    assertEquals(userAndGroupDTO.getRoles().size(), 1);
+                    assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(ADMINISTRATOR);
                     userAndGroupDTO = users.get(1);
+                    assertEquals(userAndGroupDTO.getRoles().size(), 1);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("b@usertest.com");
-                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
+                    assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(ADMINISTRATOR);
                     userAndGroupDTO = users.get(2);
+                    assertEquals(userAndGroupDTO.getRoles().size(), 1);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("a@usertest.com");
-                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(DEVELOPER);
+                    assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(DEVELOPER);
                     userAndGroupDTO = users.get(3);
+                    assertEquals(userAndGroupDTO.getRoles().size(), 1);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("d@usertest.com");
-                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(DEVELOPER);
+                    assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(DEVELOPER);
                     userAndGroupDTO = users.get(4);
+                    assertEquals(userAndGroupDTO.getRoles().size(), 1);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("a1@usertest.com");
-                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(VIEWER);
+                    assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(VIEWER);
                     userAndGroupDTO = users.get(5);
+                    assertEquals(userAndGroupDTO.getRoles().size(), 1);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("d1@usertest.com");
-                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(VIEWER);
+                    assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(VIEWER);
 
                 })
                 .verifyComplete();
