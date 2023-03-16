@@ -40,3 +40,26 @@ export const getDateString = (timestamp?: number) => {
     return createMessage(NOT_AVAILABLE);
   }
 };
+
+export const getRemainingDaysFromTimestamp = (timestamp = Date.now()) => {
+  const totalHours = Math.floor(
+    (new Date(timestamp).getTime() - Date.now()) / (1000 * 60 * 60),
+  );
+  if (totalHours <= 720 && totalHours > 708) {
+    return {
+      days: 30,
+      suffix: "days",
+    };
+  }
+  if (totalHours <= 12) {
+    return {
+      days: totalHours,
+      suffix: totalHours > 1 ? "hours" : "hour",
+    };
+  }
+  const days = Math.floor((totalHours - 12) / 24) + 1;
+  return {
+    days,
+    suffix: days > 1 ? "days" : "day",
+  };
+};

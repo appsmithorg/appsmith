@@ -2,6 +2,7 @@ export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import { AppState } from "@appsmith/reducers";
+import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
 
@@ -42,26 +43,7 @@ export const getExpiry = (state: AppState) => {
 
 export const getRemainingDays = createSelector(getExpiry, (expiry) => {
   const timeStamp = expiry * 1000;
-  const totalHours = Math.floor(
-    (new Date(timeStamp).getTime() - Date.now()) / (1000 * 60 * 60),
-  );
-  if (totalHours <= 720 && totalHours > 708) {
-    return {
-      days: 30,
-      suffix: "days",
-    };
-  }
-  if (totalHours <= 12) {
-    return {
-      days: totalHours,
-      suffix: totalHours > 1 ? "hours" : "hour",
-    };
-  }
-  const days = Math.floor((totalHours - 12) / 24) + 1;
-  return {
-    days,
-    suffix: days > 1 ? "days" : "day",
-  };
+  return getRemainingDaysFromTimestamp(timeStamp);
 });
 
 export const isTrialLicense = (state: AppState) =>
