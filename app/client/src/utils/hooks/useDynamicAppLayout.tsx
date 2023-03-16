@@ -273,7 +273,7 @@ export const useDynamicAppLayout = () => {
         calculateCanvasWidth(),
       ),
     );
-  }, [mainCanvasProps?.isMobile, appPositioningType]);
+  }, [mainCanvasProps?.isMobile]);
 
   return isCanvasInitialized;
 };

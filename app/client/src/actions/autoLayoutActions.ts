@@ -14,14 +14,16 @@ export const updateLayoutForMobileBreakpointAction = (
   parentId: string,
   isMobile: boolean,
   canvasWidth: number,
-) => ({
-  type: ReduxActionTypes.RECALCULATE_COLUMNS,
-  payload: {
-    parentId,
-    isMobile,
-    canvasWidth,
-  },
-});
+) => {
+  return {
+    type: ReduxActionTypes.RECALCULATE_COLUMNS,
+    payload: {
+      parentId,
+      isMobile,
+      canvasWidth,
+    },
+  };
+};
 
 export const updateLayoutPositioning = (
   positioningType: AppPositioningTypes,

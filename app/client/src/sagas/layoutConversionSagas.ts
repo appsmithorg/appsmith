@@ -6,7 +6,10 @@ import {
 import { AppState } from "@appsmith/reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import {
+  AppPositioningTypes,
+  SupportedLayouts,
+} from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -20,6 +23,7 @@ import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
 import { updateApplicationLayout } from "actions/applicationActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 
 /**
  * This method is used to convert from Auto layout to Fixed layout
@@ -62,6 +66,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield call(saveAllPagesSaga, pageLayouts);
     //Set type of fixed layout
     yield call(setLayoutTypePostConversion, action.payload);
+    yield call(updateApplicationLayoutType, AppPositioningTypes.FIXED);
     //update conversion form state to success
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
@@ -112,6 +117,7 @@ function* convertFromFixedToAutoSaga() {
     }
 
     yield call(saveAllPagesSaga, pageLayouts);
+    yield call(updateApplicationLayoutType, AppPositioningTypes.AUTO);
     //update conversion form state to success
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
