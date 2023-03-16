@@ -10,7 +10,7 @@ const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
 
-describe("MaintainContext&Focus", function() {
+describe("MaintainContext&Focus", function () {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {

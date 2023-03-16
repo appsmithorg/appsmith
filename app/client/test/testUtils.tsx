@@ -23,10 +23,10 @@ const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
     compose(reduxBatch, applyMiddleware(testSagaMiddleware), reduxBatch),
   );
 
-const rootSaga = function*(sagasToRun = sagasToRunForTests) {
+const rootSaga = function* (sagasToRun = sagasToRunForTests) {
   yield all(
     sagasToRun.map((saga) =>
-      spawn(function*() {
+      spawn(function* () {
         while (true) {
           yield call(saga);
           break;

@@ -485,8 +485,7 @@ export const originalDSLForDSLMigrations = {
                           shouldTruncate: false,
                           borderWidth: "",
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{List1.listData.map((currentItem) => JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end))}}",
+                          text: "{{List1.listData.map((currentItem) => JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end))}}",
                           key: "s3ajdid629",
                           labelTextSize: "0.875rem",
                           rightColumn: 64,
@@ -570,8 +569,7 @@ export const originalDSLForDSLMigrations = {
                           leftColumn: 0,
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{List1.listData.map((currentItem) => JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end))}}",
+                          text: "{{List1.listData.map((currentItem) => JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end))}}",
                           key: "s3ajdid629",
                           labelTextSize: "0.875rem",
                           rightColumn: 33,
@@ -724,8 +722,7 @@ export const originalDSLForDSLMigrations = {
                           leftColumn: 0,
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{List1.listData.map((currentItem) => 'Task: ' + currentItem.task)}}",
+                          text: "{{List1.listData.map((currentItem) => 'Task: ' + currentItem.task)}}",
                           key: "s3ajdid629",
                           labelTextSize: "0.875rem",
                           rightColumn: 22,
@@ -1282,8 +1279,7 @@ export const originalDSLForDSLMigrations = {
                                       leftColumn: 0,
                                       shouldTruncate: false,
                                       truncateButtonColor: "#FFC13D",
-                                      text:
-                                        "{{JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end)}}",
+                                      text: "{{JSObject1.timeDisplay(\ncurrentItem.time_start,\ncurrentItem.time_end)}}",
                                       key: "s3ajdid629",
                                       labelTextSize: "0.875rem",
                                       rightColumn: 33,
@@ -1366,8 +1362,7 @@ export const originalDSLForDSLMigrations = {
                                       shouldTruncate: false,
                                       borderWidth: "",
                                       truncateButtonColor: "#FFC13D",
-                                      text:
-                                        "{{JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end)}}",
+                                      text: "{{JSObject1.diffHrsMins(currentItem.time_start, currentItem.time_end)}}",
                                       key: "s3ajdid629",
                                       labelTextSize: "0.875rem",
                                       rightColumn: 64,
@@ -1720,8 +1715,7 @@ export const originalDSLForDSLMigrations = {
                           leftColumn: 18,
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{lst_user.listData.map((currentItem) => currentItem.name)}}",
+                          text: "{{lst_user.listData.map((currentItem) => currentItem.name)}}",
                           key: "u6pcautxph",
                           isDeprecated: false,
                           rightColumn: 51,
@@ -1806,8 +1800,7 @@ export const originalDSLForDSLMigrations = {
                           ],
                           shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
-                          text:
-                            "{{lst_user.listData.map((currentItem) => currentItem.email)}}",
+                          text: "{{lst_user.listData.map((currentItem) => currentItem.email)}}",
                           key: "u6pcautxph",
                           isDeprecated: false,
                           rightColumn: 63,
@@ -3239,8 +3232,7 @@ export const originalDSLForDSLMigrations = {
                       ],
                       shouldTruncate: false,
                       truncateButtonColor: "#FFC13D",
-                      text:
-                        "{{'task' in appsmith.store && appsmith.store.task?.length>0 ? `TASK ${appsmith.store.task}` : 'select a bar segment to view log entries for each Task'}}",
+                      text: "{{'task' in appsmith.store && appsmith.store.task?.length>0 ? `TASK ${appsmith.store.task}` : 'select a bar segment to view log entries for each Task'}}",
                       key: "oqp9xeolbr",
                       isDeprecated: false,
                       rightColumn: 57,
@@ -3395,8 +3387,7 @@ export const originalDSLForDSLMigrations = {
               ],
               shouldTruncate: false,
               truncateButtonColor: "#FFC13D",
-              text:
-                "Last Updated: {{appsmith.store?.updated_at || moment().format('LLL')}}",
+              text: "Last Updated: {{appsmith.store?.updated_at || moment().format('LLL')}}",
               key: "sm2eopm278",
               labelTextSize: "0.875rem",
               rightColumn: 52,

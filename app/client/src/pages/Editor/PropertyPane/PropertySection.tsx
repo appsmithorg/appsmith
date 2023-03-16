@@ -1,17 +1,11 @@
 import { Classes } from "@blueprintjs/core";
-import React, {
-  memo,
-  ReactNode,
-  useState,
-  Context,
-  createContext,
-  useCallback,
-} from "react";
+import type { ReactNode, Context } from "react";
+import React, { memo, useState, createContext, useCallback } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system-old";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
@@ -141,10 +135,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
   if (!currentWidgetId) return null;
 
-  const className = props.name
-    .split(" ")
-    .join("")
-    .toLowerCase();
+  const className = props.name.split(" ").join("").toLowerCase();
   return (
     <SectionWrapper
       className={`t--property-pane-section-wrapper ${props.className}`}

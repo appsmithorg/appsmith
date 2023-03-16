@@ -1,4 +1,4 @@
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import React from "react";
 import { isNil } from "lodash";
@@ -11,7 +11,7 @@ import {
   getPluginImages,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
@@ -155,9 +155,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           config={currentFormConfig[0]}
           datasource={datasource}
         />
-      ) : (
-        undefined
-      )}
+      ) : undefined}
     </Wrapper>
   );
 }

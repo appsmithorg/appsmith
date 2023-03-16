@@ -1,14 +1,14 @@
-import React, { ReactNode, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import React, { useState, useEffect } from "react";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import type { TabProp, IconName } from "design-system-old";
 import {
   DialogComponent as Dialog,
   TabComponent,
-  TabProp,
   Text,
   TextType,
-  IconName,
   Icon,
   IconSize,
 } from "design-system-old";

@@ -1,17 +1,16 @@
 import * as React from "react";
 import { useState } from "react";
 import styled from "styled-components";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ControlType } from "constants/PropertyControlConstants";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
-import { FilePickerV2, FileType, SetProgress } from "design-system-old";
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { SetProgress } from "design-system-old";
+import { FilePickerV2, FileType } from "design-system-old";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { DialogComponent } from "design-system-old";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";

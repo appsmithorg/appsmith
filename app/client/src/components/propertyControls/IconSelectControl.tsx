@@ -1,15 +1,15 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
-import { IconName, IconNames } from "@blueprintjs/icons";
-import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
-import {
-  GridListProps,
-  VirtuosoGrid,
-  VirtuosoGridHandle,
-} from "react-virtuoso";
+import type { IconName } from "@blueprintjs/icons";
+import { IconNames } from "@blueprintjs/icons";
+import type { ItemListRenderer, ItemRenderer } from "@blueprintjs/select";
+import { Select } from "@blueprintjs/select";
+import type { GridListProps, VirtuosoGridHandle } from "react-virtuoso";
+import { VirtuosoGrid } from "react-virtuoso";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { TooltipComponent } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";

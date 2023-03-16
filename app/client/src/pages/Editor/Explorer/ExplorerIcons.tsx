@@ -1,13 +1,12 @@
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import {
-  HTTP_METHOD,
-  HTTP_METHODS_COLOR,
-} from "constants/ApiEditorConstants/CommonApiConstants";
+import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
@@ -249,8 +248,9 @@ const EntityIconWrapper = styled.div<{
   border: ${({ borderColor, height, noBorder }) =>
     noBorder
       ? "none"
-      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${borderColor ??
-          Colors.SCORPION}`};
+      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
+          borderColor ?? Colors.SCORPION
+        }`};
   box-sizing: border-box;
   display: flex;
   align-items: center;

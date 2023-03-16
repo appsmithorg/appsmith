@@ -21,7 +21,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", function() {
+describe("Git sync apps", function () {
   before(() => {
     // cy.NavigateToHome();
     // cy.createWorkspace();
@@ -31,9 +31,7 @@ describe("Git sync apps", function() {
   });
   it("1. Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
     cy.NavigateToHome();
-    cy.get(homePage.createNew)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.createNew).first().click({ force: true });
 
     cy.wait("@createNewApplication").should(
       "have.nested.property",
@@ -72,9 +70,7 @@ describe("Git sync apps", function() {
 
     cy.get(generatePage.selectTableDropdown).click();
 
-    cy.get(generatePage.dropdownOption)
-      .contains("public.configs")
-      .click();
+    cy.get(generatePage.dropdownOption).contains("public.configs").click();
 
     //  skip optional search column selection.
     cy.get(generatePage.generatePageFormSubmitBtn).click();
@@ -217,9 +213,7 @@ describe("Git sync apps", function() {
       .find(".bp3-input")
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(`.t--entity-item:contains(${newPage})`)
-      .first()
-      .click();
+    cy.get(`.t--entity-item:contains(${newPage})`).first().click();
     cy.wait("@getPage");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
@@ -235,9 +229,7 @@ describe("Git sync apps", function() {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(`.t--entity-item:contains(${pageName})`)
-      .first()
-      .click();
+    cy.get(`.t--entity-item:contains(${pageName})`).first().click();
     cy.wait("@getPage");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
@@ -256,9 +248,7 @@ describe("Git sync apps", function() {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(".t--page-switch-tab")
-      .contains(`${newPage}`)
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
     cy.get(".bp3-input")
       .first()
       .invoke("val")
@@ -304,9 +294,7 @@ describe("Git sync apps", function() {
         cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type("get_users");
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
     // writing query to get the schema
@@ -395,9 +383,7 @@ describe("Git sync apps", function() {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(".t--page-switch-tab")
-      .contains(`${newPage}`)
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
     cy.wait(2000);
     cy.get(".bp3-input")
       .first()
@@ -530,33 +516,19 @@ describe("Git sync apps", function() {
   });
   it("10. Import app from git and verify page order should not change", () => {
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(".t--import-json-card")
-      .next()
-      .click();
+    cy.get(".t--import-json-card").next().click();
     // import application from git
     cy.importAppFromGit(repoName);
     cy.wait(2000);
     // verify page order remains same as in orignal app
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(".t--entity-item")
-      .eq(1)
-      .contains("crudpage_1");
-    cy.get(".t--entity-item")
-      .eq(2)
-      .contains("crudpage_1 Copy");
-    cy.get(".t--entity-item")
-      .eq(3)
-      .contains("ApiCalls_1");
-    cy.get(".t--entity-item")
-      .eq(4)
-      .contains("ApiCalls_1 Copy");
-    cy.get(".t--entity-item")
-      .eq(5)
-      .contains("Child_Page");
+    cy.get(".t--entity-item").eq(1).contains("crudpage_1");
+    cy.get(".t--entity-item").eq(2).contains("crudpage_1 Copy");
+    cy.get(".t--entity-item").eq(3).contains("ApiCalls_1");
+    cy.get(".t--entity-item").eq(4).contains("ApiCalls_1 Copy");
+    cy.get(".t--entity-item").eq(5).contains("Child_Page");
   });
 
   after(() => {

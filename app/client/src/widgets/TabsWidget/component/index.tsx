@@ -1,8 +1,9 @@
-import React, { ReactNode, useRef, useState, useCallback } from "react";
+import type { ReactNode } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import styled from "styled-components";
-import { MaybeElement } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { MaybeElement } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { Icon, IconSize } from "design-system-old";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";

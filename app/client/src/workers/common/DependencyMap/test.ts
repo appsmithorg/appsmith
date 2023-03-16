@@ -9,7 +9,10 @@ import ButtonWidget, {
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTree,
+  DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import { listEntityPathDependencies } from "./utils";
 
 const widgetConfigMap = {};
@@ -37,7 +40,7 @@ const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 describe("test validationDependencyMap", () => {
   beforeAll(() => {
     dataTreeEvaluator.setupFirstTree(
-      (unEvalTreeWidgetSelectWidget as unknown) as DataTree,
+      unEvalTreeWidgetSelectWidget as unknown as DataTree,
     );
     dataTreeEvaluator.evalAndValidateFirstTree();
   });
@@ -52,11 +55,8 @@ describe("test validationDependencyMap", () => {
   });
 
   it("update validation dependencyMap computation", () => {
-    const {
-      evalOrder,
-      nonDynamicFieldValidationOrder,
-      unEvalUpdates,
-    } = dataTreeEvaluator.setupUpdateTree((unEvalTree as unknown) as DataTree);
+    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+      dataTreeEvaluator.setupUpdateTree(unEvalTree as unknown as DataTree);
     dataTreeEvaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -67,9 +67,9 @@ describe("test validationDependencyMap", () => {
   });
 });
 
-describe("DependencyMap utils", function() {
+describe("DependencyMap utils", function () {
   test("listEntityPathDependencies", () => {
-    const entity = ({
+    const entity = {
       ENTITY_TYPE: "WIDGET",
       isVisible: true,
       animateLoading: true,
@@ -218,7 +218,7 @@ describe("DependencyMap utils", function() {
           key: "onClick",
         },
       ],
-    } as unknown) as DataTreeWidget;
+    } as unknown as DataTreeWidget;
     const actualResult = listEntityPathDependencies(entity, "Button1.onClick");
     const expectedResult = {
       isTrigger: true,
@@ -227,7 +227,7 @@ describe("DependencyMap utils", function() {
 
     expect(expectedResult).toStrictEqual(actualResult);
 
-    const entity2 = ({
+    const entity2 = {
       ENTITY_TYPE: "WIDGET",
       isVisible: true,
       animateLoading: true,
@@ -371,7 +371,7 @@ describe("DependencyMap utils", function() {
       overridingPropertyPaths: {},
       type: "BUTTON_WIDGET",
       dynamicTriggerPathList: [],
-    } as unknown) as DataTreeWidget;
+    } as unknown as DataTreeWidget;
     const result = listEntityPathDependencies(
       entity2,
       "Button1.googleRecaptchaKey",

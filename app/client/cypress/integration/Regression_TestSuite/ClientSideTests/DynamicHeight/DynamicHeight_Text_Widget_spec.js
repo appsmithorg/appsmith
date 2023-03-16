@@ -1,11 +1,11 @@
 const dsl = require("../../../../fixtures/textWidgetDynamicdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Dynamic Height Width validation for text widget", function() {
+describe("Dynamic Height Width validation for text widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Text widget validation of height with dynamic height feature", function() {
+  it("Text widget validation of height with dynamic height feature", function () {
     const textMsg = "Dynamic panel validation for text widget wrt height";
     //changing the Text Name and verifying
     cy.openPropertyPane("textwidget");

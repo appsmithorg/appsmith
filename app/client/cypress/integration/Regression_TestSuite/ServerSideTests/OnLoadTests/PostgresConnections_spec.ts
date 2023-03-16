@@ -8,7 +8,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function() {
+describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function () {
   before(() => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -78,7 +78,8 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
           ".data.map( (obj) =>{ return  {'label': obj.table_name, 'value': obj.table_name }})}}",
       );
       propPane.UpdatePropertyFieldValue(
-        "Default Selected Value", "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
+        "Default Selected Value",
+        "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
       agHelper.ValidateNetworkStatus("@updateLayout", 200);
     }

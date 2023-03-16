@@ -1,14 +1,13 @@
 import { get, set } from "lodash";
 
 import schemaTestData from "widgets/JSONFormWidget/schemaTestData";
+import type { Schema, SchemaItem } from "widgets/JSONFormWidget/constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FieldType,
-  Schema,
-  SchemaItem,
 } from "widgets/JSONFormWidget/constants";
-import { JSONFormWidgetProps } from "..";
+import type { JSONFormWidgetProps } from "..";
 import {
   fieldTypeUpdateHook,
   getSchemaItem,
@@ -84,11 +83,11 @@ describe(".fieldTypeUpdateHook", () => {
 
     const [result] =
       fieldTypeUpdateHook(
-        ({
+        {
           schema,
           widgetName,
           childStylesheet: schemaTestData.fieldThemeStylesheets,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         propertyPath,
         fieldType,
       ) || [];
@@ -152,11 +151,11 @@ describe(".fieldTypeUpdateHook", () => {
 
     const [result] =
       fieldTypeUpdateHook(
-        ({
+        {
           schema: oldSchema,
           widgetName,
           childStylesheet: schemaTestData.fieldThemeStylesheets,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         propertyPath,
         fieldType,
       ) || [];
@@ -182,9 +181,9 @@ describe(".hiddenIfArrayItemIsObject", () => {
 
     inputs.forEach((input, index) => {
       const result = hiddenIfArrayItemIsObject(
-        ({
+        {
           schema,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         input,
       );
 
@@ -204,9 +203,9 @@ describe(".hiddenIfArrayItemIsObject", () => {
 
     inputs.forEach((input, index) => {
       const result = hiddenIfArrayItemIsObject(
-        ({
+        {
           schema,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         input,
         {
           checkGrandParentPath: true,
@@ -224,9 +223,9 @@ describe(".getSchemaItem", () => {
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
 
     const result = getSchemaItem(
-      ({
+      {
         schema,
-      } as unknown) as JSONFormWidgetProps,
+      } as unknown as JSONFormWidgetProps,
       propertyPath,
     );
 
@@ -249,9 +248,9 @@ describe(".getSchemaItem", () => {
 
     inputs.forEach((input, index) => {
       const result = getSchemaItem(
-        ({
+        {
           schema,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         propertyPath,
       ).fieldTypeMatches(input);
 
@@ -272,9 +271,9 @@ describe(".getSchemaItem", () => {
 
     inputs.forEach((input, index) => {
       const result = getSchemaItem(
-        ({
+        {
           schema,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         propertyPath,
       ).fieldTypeNotMatches(input);
 
@@ -294,9 +293,9 @@ describe(".getSchemaItem", () => {
 
     inputs.forEach((input, index) => {
       const result = getSchemaItem(
-        ({
+        {
           schema,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         propertyPath,
       ).fieldTypeNotIncludes(input);
 
@@ -311,9 +310,9 @@ describe(".getSchemaItem", () => {
     const expectedOutput = get(schema, "__root_schema__.children.hobbies");
 
     const result = getSchemaItem(
-      ({
+      {
         schema,
-      } as unknown) as JSONFormWidgetProps,
+      } as unknown as JSONFormWidgetProps,
       propertyPath,
     ).compute((schemaItem) => schemaItem);
 
@@ -333,9 +332,9 @@ describe(".updateChildrenDisabledStateHook", () => {
 
     const [result] =
       updateChildrenDisabledStateHook(
-        ({
+        {
           schema,
-        } as unknown) as JSONFormWidgetProps,
+        } as unknown as JSONFormWidgetProps,
         propertyPath,
         isDisabled,
       ) || [];
@@ -367,10 +366,10 @@ describe(".updateChildrenDisabledStateHook", () => {
 
 describe(".getStylesheetValue", () => {
   it("returns valid stylesheet value", () => {
-    const props = ({
+    const props = {
       widgetName: "Form1",
       schema: schemaTestData.initialDataset.schemaOutput,
-    } as unknown) as JSONFormWidgetProps;
+    } as unknown as JSONFormWidgetProps;
 
     const inputAndExpectedOutput = [
       ["", ""],
