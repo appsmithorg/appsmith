@@ -6,7 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 
-public record ObjectMapperUtils(ObjectMapper objectMapper) {
+public class ObjectMapperUtils {
+    private final ObjectMapper objectMapper;
+
+    public ObjectMapperUtils(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public <T> T readFromString(String src, Class viewsClass, Class<T> resultClass) throws IOException {
         return objectMapper
