@@ -859,6 +859,13 @@ export class AggregateHelper {
     // });
   }
 
+  public UpdateInputValue(selector: string, value: string) {
+    this.GetElement(selector)
+      .closest("input")
+      //.type(this.selectAll)
+      .type(value, { delay: 0 });
+  }
+
   public BlurCodeInput(selector: string) {
     cy.wrap(selector)
       .find(".CodeMirror")

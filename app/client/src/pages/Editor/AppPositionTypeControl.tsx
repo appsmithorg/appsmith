@@ -17,7 +17,6 @@ import {
 } from "selectors/editorSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { updateLayoutPositioning } from "actions/autoLayoutActions";
-
 interface ApplicationPositionTypeConfigOption {
   name: string;
   type: AppPositioningTypes;
@@ -53,6 +52,7 @@ export function AppPositionTypeControl() {
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
+
   /**
    * return selected layout index. if there is no app
    * layout, use the default one ( fluid )

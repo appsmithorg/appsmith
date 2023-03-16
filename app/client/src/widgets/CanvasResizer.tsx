@@ -65,7 +65,7 @@ export function CanvasResizer({
 }) {
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
-  const appLayout = useSelector(getCurrentApplicationLayout) || "FLUID";
+  const appLayout = useSelector(getCurrentApplicationLayout);
   const appPositioningType = useSelector(getCurrentAppPositioningType);
   const ref = useRef(null);
   const dispatch = useDispatch();

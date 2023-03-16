@@ -23,7 +23,7 @@ describe("Bind a button and Api usecase", function() {
       .click({ force: true })
       .type("{{Button1.text", { parseSpecialCharSequences: true });
     cy.RunAPI();
-    cy.get(apiPage.jsonResponseTab).click()
+    cy.get(apiPage.jsonResponseTab).click();
     cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
