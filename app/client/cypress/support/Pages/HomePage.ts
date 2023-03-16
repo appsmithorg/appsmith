@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -25,7 +26,7 @@ export class HomePage {
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    Cypress.env("Edition") === 0
+    CURRENT_REPO === REPO.CE
       ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
       : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
@@ -125,7 +126,7 @@ export class HomePage {
       .click({ force: true });
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
-      .type(newWorkspaceName.concat("{enter}"), {delay : 0});
+      .type(newWorkspaceName.concat("{enter}"), { delay: 0 });
     this.agHelper.Sleep(2000);
     this, this.agHelper.ValidateNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
@@ -173,7 +174,7 @@ export class HomePage {
     text: string,
   ) {
     const errorMessage =
-      Cypress.env("Edition") === 0
+      CURRENT_REPO === REPO.CE
         ? "Invalid email address(es) found"
         : "Invalid email address(es) or group(s) found";
     this.StubPostHeaderReq();
