@@ -1,8 +1,5 @@
 import styled from "styled-components";
-import {
-  getMenuItemBackgroundColorWhenActive,
-  getMenuItemTextColor,
-} from "pages/AppViewer/utils";
+import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 
 export const StyledContainer = styled.div<{
@@ -11,11 +8,7 @@ export const StyledContainer = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  border-top: 1px solid
-    ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
   padding: 12px 8px 0;
-  margin-top: 12px;
 `;
 
 export const StyledTextContainer = styled.div`

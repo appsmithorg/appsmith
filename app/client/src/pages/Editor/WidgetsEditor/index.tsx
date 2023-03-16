@@ -17,6 +17,7 @@ import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
+  getAppMode,
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
@@ -36,9 +37,16 @@ import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import {
+  getAppSettingsPaneContext,
+  getIsAppSettingsPaneWithNavigationTabOpen,
+} from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import classNames from "classnames";
+import { APP_MODE } from "entities/App";
+import useGoogleFont from "utils/hooks/useGoogleFont";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -56,8 +64,13 @@ function WidgetsEditor() {
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const navigationPreviewRef = useRef(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
-  const isAppSettingsPaneWithNavigationTabOpen =
-    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const appMode = useSelector(getAppMode);
+  const isPublished = appMode === APP_MODE.PUBLISHED;
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -71,7 +84,7 @@ function WidgetsEditor() {
     navigationPreviewRef,
     isPreviewMode,
     appSettingsPaneContext?.type,
-    currentApplicationDetails?.navigationSetting,
+    currentApplicationDetails?.applicationDetail?.navigationSetting,
   ]);
 
   useEffect(() => {
@@ -153,25 +166,33 @@ function WidgetsEditor() {
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
               <div
-                className="relative flex flex-row w-full overflow-hidden justify-center"
+                className={classNames({
+                  "relative flex flex-row w-full overflow-hidden": true,
+                  "pointer-events-none select-none":
+                    isAppSettingsPaneWithNavigationTabOpen,
+                })}
                 data-testid="widgets-editor"
                 draggable
                 id="widgets-editor"
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
+                style={{
+                  fontFamily: fontFamily,
+                }}
               >
                 {showNavigation()}
 
                 <PageViewContainer
                   hasPinnedSidebar={
                     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-                      ? currentApplicationDetails?.navigationSetting
-                          ?.orientation ===
+                      ? currentApplicationDetails?.applicationDetail
+                          ?.navigationSetting?.orientation ===
                           NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
                         isAppSidebarPinned
                       : false
                   }
                   isPreviewMode={isPreviewMode}
+                  isPublished={isPublished}
                   sidebarWidth={
                     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
                       ? sidebarWidth

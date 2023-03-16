@@ -1,3 +1,4 @@
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import {
   getMenuItemBackgroundColorOnHover,
@@ -31,6 +32,12 @@ export const StyledMenuItem = styled(NavLink)<{
     transition: all 0.3s ease-in-out;
   }
 
+  .menu-item-text {
+    color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    transition: all 0.3s ease-in-out;
+  }
+
   &:hover {
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
@@ -42,6 +49,14 @@ export const StyledMenuItem = styled(NavLink)<{
       stroke: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
     }
+
+    .menu-item-text {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+        }
+      }}
+    }
   }
 
   &.is-active {
@@ -52,6 +67,11 @@ export const StyledMenuItem = styled(NavLink)<{
       fill: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
       stroke: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
+
+    .menu-item-text {
+      color: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
     }
   }

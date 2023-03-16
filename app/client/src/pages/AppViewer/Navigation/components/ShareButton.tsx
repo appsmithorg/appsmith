@@ -39,8 +39,8 @@ const ShareButton = (props: ShareButtonProps) => {
     showAppInviteUsersDialogSelector,
   );
   const navColorStyle =
-    currentApplicationDetails?.navigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",

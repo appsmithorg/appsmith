@@ -1,9 +1,6 @@
 import type { NavigationSetting } from "constants/AppConstants";
 import { getTypographyByKey } from "design-system-old";
-import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import styled from "styled-components";
-import { StyledMenuItem } from "./MenuItem.styled";
-import { StyledMenuItemInDropdown } from "./MoreDropdownButton.styled";
 
 export const StyledMenuItemText = styled.div<{
   primaryColor: string;
@@ -15,8 +12,6 @@ export const StyledMenuItemText = styled.div<{
   align-items: center;
   justify-content: center;
   ${getTypographyByKey("h5")}
-  color: ${({ navColorStyle, primaryColor }) =>
-    getMenuItemTextColor(primaryColor, navColorStyle, true)};
   transition: all 0.3s ease-in-out;
   font-weight: 400;
 
@@ -28,12 +23,5 @@ export const StyledMenuItemText = styled.div<{
     white-space: nowrap;
     display: flex;
     align-items: center;
-  }
-
-  ${StyledMenuItem}:hover &, 
-  ${StyledMenuItem}.is-active &, 
-  ${StyledMenuItemInDropdown}.is-active & {
-    color: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle)};
   }
 `;

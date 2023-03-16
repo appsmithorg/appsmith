@@ -92,6 +92,17 @@ export type StringsFromNavigationSetting = Omit<
   "showNavbar" | "showSignIn"
 >;
 
+export const keysOfNavigationSetting = {
+  showNavbar: "showNavbar",
+  showSignIn: "showSignIn",
+  orientation: "orientation",
+  navStyle: "navStyle",
+  position: "position",
+  itemStyle: "itemStyle",
+  colorStyle: "colorStyle",
+  logoConfiguration: "logoConfiguration",
+};
+
 export const defaultNavigationSetting = {
   showNavbar: true,
   showSignIn: true,

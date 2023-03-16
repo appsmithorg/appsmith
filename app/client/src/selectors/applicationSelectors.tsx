@@ -197,7 +197,8 @@ export const getAppSidebarPinned = (state: AppState) => {
  */
 export const getSidebarWidth = (state: AppState) => {
   const navigationSetting =
-    state.ui.applications.currentApplication?.navigationSetting;
+    state.ui.applications.currentApplication?.applicationDetail
+      ?.navigationSetting;
   const isAppSidebarPinned = state.ui.applications.isAppSidebarPinned;
 
   if (

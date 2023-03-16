@@ -18,7 +18,7 @@ import {
 type CollapseButtonProps = {
   borderRadius: string;
   primaryColor: string;
-  navColorStyle: NavigationSetting["navStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
   isOpen: boolean;
   isPinned: boolean;
   setIsPinned: (isPinned: boolean) => void;

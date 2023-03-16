@@ -34,7 +34,9 @@ const SidebarProfileComponent = (props: SidebarProfileComponent) => {
           },
         }}
         name={currentUser.name}
+        navColorStyle={navColorStyle}
         photoId={currentUser?.photoId}
+        primaryColor={primaryColor}
         userName={currentUser?.username || ""}
       />
 

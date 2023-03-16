@@ -1,18 +1,23 @@
 import React from "react";
-import type { NavigationSetting } from "constants/AppConstants";
+import type {
+  NavigationSetting,
+  StringsFromNavigationSetting,
+} from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import SwitchWrapper from "../../Components/SwitchWrapper";
 import { Switch } from "design-system-old";
 import type { UpdateSetting } from ".";
 import _ from "lodash";
+import { logEvent } from "./utils";
 
 const SwitchSetting = (props: {
   label: string;
-  keyName: keyof NavigationSetting;
+  keyName: keyof StringsFromNavigationSetting | keyof NavigationSetting;
   value: boolean;
   updateSetting: UpdateSetting;
+  tooltip?: string;
 }) => {
-  const { keyName, label, updateSetting, value } = props;
+  const { keyName, label, tooltip, updateSetting, value } = props;
 
   return (
     <div className="pt-4">
@@ -21,7 +26,9 @@ const SwitchSetting = (props: {
           label={label}
           lineHeight="1.17"
           maxWidth="270px"
+          tooltip={tooltip}
         />
+
         <SwitchWrapper>
           <Switch
             checked={value}
@@ -30,6 +37,7 @@ const SwitchSetting = (props: {
             large
             onChange={() => {
               updateSetting(keyName, !value);
+              logEvent(keyName as keyof StringsFromNavigationSetting, !value);
             }}
           />
         </SwitchWrapper>

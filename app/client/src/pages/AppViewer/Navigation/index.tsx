@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
@@ -23,6 +23,7 @@ import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { setAppViewHeaderHeight } from "actions/appViewActions";
 
 export function Navigation() {
   const { search } = useLocation();
@@ -43,11 +44,26 @@ export function Navigation() {
   );
   const pages = useSelector(getViewModePageList);
   const isMobile = useIsMobileDevice();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const header = document.querySelector(".js-appviewer-header");
+
+    dispatch(setAppViewHeaderHeight(header?.clientHeight || 0));
+
+    return () => {
+      dispatch(setAppViewHeaderHeight(0));
+    };
+  }, [
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle,
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.orientation,
+  ]);
 
   const renderNavigation = () => {
     if (
-      currentApplicationDetails?.navigationSetting?.orientation ===
-      NAVIGATION_SETTINGS.ORIENTATION.SIDE
+      currentApplicationDetails?.applicationDetail?.navigationSetting
+        ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE
     ) {
       return (
         <>
@@ -97,8 +113,8 @@ export function Navigation() {
         and we are creating the default values only when any nav settings via the
         settings pane has changed, we need to hide the navbar ONLY when the showNavbar
         setting is explicitly set to false by the user via the settings pane. */}
-        {currentApplicationDetails?.navigationSetting?.showNavbar !== false &&
-          renderNavigation()}
+        {currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.showNavbar !== false && renderNavigation()}
 
         {/* Mobile Sidebar */}
         <PageMenu

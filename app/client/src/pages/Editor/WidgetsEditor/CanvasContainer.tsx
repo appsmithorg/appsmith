@@ -122,7 +122,10 @@ const CanvasContainer = (props: {
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+  const shouldHaveTopMargin =
+    !isPreviewMode ||
+    !isAppSettingsPaneWithNavigationTabOpen ||
+    pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
 
@@ -252,14 +255,15 @@ const CanvasContainer = (props: {
    * - 2. top bar (header with preview/share/deploy buttons)
    * - 3. bottom bar (footer with debug/logs buttons)
    */
-  const heightWithTopMargin = `calc(100vh - ${navigationHeight}px - ${
-    theme.smallHeaderHeight
-  } - ${isPreviewMode ? "0px" : theme.bottomBarHeight})`;
+  const topMargin =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen ? "0px" : "2.25rem";
+  const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
+  const heightWithMargins = `calc(100vh - ${navigationHeight}px - ${theme.smallHeaderHeight} - ${bottomBarHeight} - ${topMargin})`;
 
   return (
     <Container
       background={
-        isPreviewMode
+        isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
           ? selectedTheme.properties.colors.backgroundColor
           : "initial"
       }
@@ -280,7 +284,7 @@ const CanvasContainer = (props: {
       key={currentPageId}
       navigationHeight={navigationHeight}
       style={{
-        height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
+        height: shouldHaveTopMargin ? heightWithMargins : "100vh",
         fontFamily: fontFamily,
       }}
     >

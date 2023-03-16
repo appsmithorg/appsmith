@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import AppsIcon from "remixicon-react/AppsLineIcon";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
@@ -31,7 +32,7 @@ const StyledAppIcon = styled(AppsIcon)<
   }
 >`
   color: ${({ navColorStyle, primaryColor }) =>
-    getMenuItemTextColor(primaryColor, navColorStyle)};
+    getMenuItemTextColor(primaryColor, navColorStyle, true)};
   border-radius: ${({ borderRadius }) => borderRadius};
   transition: all 0.3s ease-in-out;
   margin-top: ${({ forSidebar }) => (forSidebar ? " -3px" : "-2px")};
@@ -42,6 +43,12 @@ const StyledLink = styled(Link)<BackToHomeButtonProps>`
     ${StyledAppIcon} {
       background-color: ${({ navColorStyle, primaryColor }) =>
         getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+        }
+      }};
     }
   }
 `;
@@ -53,7 +60,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
   return (
     <TooltipComponent content="Back to apps" position="bottom-left">
       <StyledLink
-        className="flex items-center gap-2 group t--back-to-home hover:no-underline mr-3"
+        className="flex items-center gap-2 group t--back-to-home hover:no-underline mr-2"
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
         to="/applications"

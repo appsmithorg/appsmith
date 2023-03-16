@@ -5,11 +5,11 @@ import {
   createMessage,
   APP_NAVIGATION_SETTING,
 } from "@appsmith/constants/messages";
-import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
-import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
-import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
-import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
-import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
+// import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
+// import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
+// import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
+// import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
+// import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
@@ -42,7 +42,7 @@ function NavigationSettings() {
   const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(
-    application?.navigationSetting,
+    application?.applicationDetail?.navigationSetting,
   );
 
   const updateSetting = useCallback(
@@ -62,7 +62,9 @@ function NavigationSettings() {
           };
 
           if (!equal(navigationSetting, newSettings)) {
-            const payload: UpdateApplicationPayload = { currentApp: true };
+            const payload: UpdateApplicationPayload = {
+              currentApp: true,
+            };
 
             /**
              * If the orientation changes, we need to set a new default value
@@ -102,7 +104,14 @@ function NavigationSettings() {
             //   }
             // }
 
-            payload.navigationSetting = newSettings as NavigationSetting;
+            if (payload.applicationDetail) {
+              payload.applicationDetail.navigationSetting =
+                newSettings as NavigationSetting;
+            } else {
+              payload.applicationDetail = {
+                navigationSetting: newSettings as NavigationSetting,
+              };
+            }
 
             dispatch(updateApplication(applicationId, payload));
             setNavigationSetting(newSettings);
@@ -141,12 +150,12 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
                 value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-                icon: <NavOrientationTopIcon />,
+                // icon: <NavOrientationTopIcon />,
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
                 value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-                icon: <NavOrientationSideIcon />,
+                // icon: <NavOrientationSideIcon />,
               },
             ]}
             updateSetting={updateSetting}
@@ -167,7 +176,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
-                  icon: <NavStyleStackedIcon />,
+                  // icon: <NavStyleStackedIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -175,7 +184,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
-                  icon: <NavStyleInlineIcon />,
+                  // icon: <NavStyleInlineIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -183,7 +192,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
-                  icon: <NavStyleSidebarIcon />,
+                  // icon: <NavStyleSidebarIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.TOP,
@@ -338,6 +347,7 @@ function NavigationSettings() {
           <SwitchSetting
             keyName="showSignIn"
             label={createMessage(APP_NAVIGATION_SETTING.showSignInLabel)}
+            tooltip={createMessage(APP_NAVIGATION_SETTING.showSignInTooltip)}
             updateSetting={updateSetting}
             value={navigationSetting?.showSignIn}
           />

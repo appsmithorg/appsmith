@@ -1,5 +1,5 @@
+import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { SIDEBAR_WIDTH } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import {
@@ -43,32 +43,53 @@ export const StyledMenuContainer = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
-  margin: 16px 0;
+  margin: 16px 0 0 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
   padding: 0 8px;
   flex-grow: 1;
+  padding-bottom: 12px;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+  ${({ navColorStyle, primaryColor }) => {
+    const isThemeColorStyle: boolean =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
 
-  &::-webkit-scrollbar-track {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-  }
+    return (
+      isThemeColorStyle &&
+      `
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+      
+        &::-webkit-scrollbar-track {
+          background: ${getMenuContainerBackgroundColor(
+            primaryColor,
+            navColorStyle,
+          )};
+        }
+      
+        &::-webkit-scrollbar-thumb {
+          background: ${primaryColor};
+      
+          &:hover {
+            background: ${getMenuItemBackgroundColorOnHover(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        }
 
-  &::-webkit-scrollbar-thumb {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-    &:hover {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-    }
-  }
+        &:hover::-webkit-scrollbar-thumb {
+          background: ${getMenuItemBackgroundColorWhenActive(
+            primaryColor,
+            navColorStyle,
+          )};
+        }
+      `
+    );
+  }}
 
   ${StyledMenuItem} {
     align-self: flex-start;
@@ -92,7 +113,27 @@ export const StyledHeader = styled.div`
   justify-content: space-between;
 `;
 
-export const StyledFooter = styled.div`
+export const StyledFooter = styled.div<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+}>`
   margin-top: auto;
   padding-bottom: 16px;
+  padding-top: 12px;
+
+  ${({ navColorStyle, primaryColor, theme }) => {
+    const isThemeColorStyle =
+      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
+
+    return isThemeColorStyle
+      ? `
+        border-top: 1px solid ${getMenuItemBackgroundColorWhenActive(
+          primaryColor,
+          navColorStyle,
+        )};
+      `
+      : `
+        border-top: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
+      `;
+  }}
 `;

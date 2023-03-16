@@ -112,7 +112,9 @@ export type UpdateApplicationPayload = {
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
   embedSetting?: AppEmbedSetting;
-  navigationSetting?: NavigationSetting;
+  applicationDetail?: {
+    navigationSetting?: NavigationSetting;
+  };
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -201,7 +203,9 @@ export interface UpdateApplicationResponse {
   new: boolean;
   modifiedAt: Date;
   embedSetting: AppEmbedSetting;
-  navigationSetting: NavigationSetting;
+  applicationDetail?: {
+    navigationSetting?: NavigationSetting;
+  };
 }
 
 export interface PageDefaultMeta {

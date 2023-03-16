@@ -13,17 +13,6 @@ type MenuTextProps = {
 const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
-  const tabNameText = (
-    <StyledMenuItemText
-      navColorStyle={navColorStyle}
-      primaryColor={primaryColor}
-    >
-      <div className="relative flex items-center justify-center flex-grow">
-        <span ref={tabNameRef}>{name}</span>
-        {ellipsisActive && "..."}
-      </div>
-    </StyledMenuItemText>
-  );
 
   useEffect(() => {
     if (isEllipsisActive(tabNameRef?.current)) {
@@ -45,7 +34,15 @@ const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
       }}
       position="bottom"
     >
-      {tabNameText}
+      <StyledMenuItemText
+        navColorStyle={navColorStyle}
+        primaryColor={primaryColor}
+      >
+        <div className="relative flex items-center justify-center flex-grow menu-item-text">
+          <span ref={tabNameRef}>{name}</span>
+          {ellipsisActive && "..."}
+        </div>
+      </StyledMenuItemText>
     </TooltipComponent>
   );
 };

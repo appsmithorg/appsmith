@@ -26,8 +26,8 @@ export function TopStacked(props: TopStackedProps) {
   const { currentApplicationDetails, pages } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
-    currentApplicationDetails?.navigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -131,6 +131,7 @@ export function TopStacked(props: TopStackedProps) {
 
       <div
         className="flex w-full hidden-scrollbar gap-x-2  items-center"
+        onScroll={() => setShowScrollArrows()}
         ref={measuredTabsRef}
       >
         {appPages.map((page) => {
@@ -142,7 +143,10 @@ export function TopStacked(props: TopStackedProps) {
               tabsScrollable={tabsScrollable}
             >
               <MenuItem
-                navigationSetting={currentApplicationDetails?.navigationSetting}
+                navigationSetting={
+                  currentApplicationDetails?.applicationDetail
+                    ?.navigationSetting
+                }
                 page={page}
                 query={query}
               />

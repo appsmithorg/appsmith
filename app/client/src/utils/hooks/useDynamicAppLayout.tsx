@@ -26,8 +26,8 @@ import {
 } from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import {
-  getAppSettingsPaneContext,
   getIsAppSettingsPaneOpen,
+  getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import {
   getPaneCount,
@@ -40,7 +40,6 @@ import {
   getCurrentApplication,
   getSidebarWidth,
 } from "selectors/applicationSelectors";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
@@ -68,9 +67,9 @@ export const useDynamicAppLayout = () => {
   const paneCount = useSelector(getPaneCount);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
-  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
-  const isAppSettingsPaneWithNavigationTabOpen =
-    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isMobile = useIsMobileDevice();
   // const appPositioningType = useSelector(getCurrentAppPositioningType);
@@ -190,7 +189,9 @@ export const useDynamicAppLayout = () => {
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
-          (appMode === APP_MODE.EDIT && !isPreviewMode
+          (appMode === APP_MODE.EDIT &&
+          !isPreviewMode &&
+          !isAppSettingsPaneWithNavigationTabOpen
             ? totalWidthToSubtract
             : 0)
         );
@@ -305,8 +306,9 @@ export const useDynamicAppLayout = () => {
     propertyPaneWidth,
     isAppSettingsPaneOpen,
     isAppSidebarPinned,
-    currentApplicationDetails?.navigationSetting?.orientation,
-    currentApplicationDetails?.navigationSetting?.navStyle,
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.orientation,
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle,
     isMobile,
     currentPageId, //TODO: preet - remove this after first merge.
   ]);

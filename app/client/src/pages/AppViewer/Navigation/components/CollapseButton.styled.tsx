@@ -2,8 +2,10 @@ import styled, { createGlobalStyle } from "styled-components";
 import {
   getApplicationNameTextColor,
   getMenuItemBackgroundColorOnHover,
+  getMenuItemTextColor,
 } from "pages/AppViewer/utils";
 import { Colors } from "constants/Colors";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 
 export const StyledIconContainer = styled.div<{
@@ -23,12 +25,25 @@ export const CollapseIconContainer = styled.div<{
 }>`
   height: 24px;
   width: 24px;
-  transition: background 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  ${StyledIconContainer} {
+    color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+  }
 
   :hover {
     background: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+
+    ${StyledIconContainer} {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+        }
+      }};
+    }
   }
 
   ${({ isOpen, isPinned }) => {
@@ -46,6 +61,10 @@ export const CollapseIconContainer = styled.div<{
 
         :hover {
           background: ${Colors.GREY_3};
+
+          ${StyledIconContainer} {
+            color: ${Colors.GRAY_500};
+          }
         }
       `;
     }

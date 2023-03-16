@@ -1,3 +1,4 @@
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import {
   getMenuContainerBackgroundColor,
@@ -32,44 +33,10 @@ export const StyleMoreDropdownButton = styled(Button)<{
     align-items: center;
   }
 
-  &:hover,
-  &.is-active {
-    span {
-      color: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)} !important;
-    }
-  }
-
-  .page-icon svg path {
-    fill: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    stroke: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    transition: all 0.3s ease-in-out;
-  }
-
   &:hover {
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-
-    .page-icon svg path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-    }
-  }
-
-  &.is-active {
-    background-color: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-    .page-icon svg path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
     }
   }
 `;
@@ -80,27 +47,53 @@ export const StyledMenuDropdownContainer = styled(Menu)<{
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
   .bp3-popover {
-    max-height: 750px;
+    border-radius: ${({ borderRadius }) =>
+      `min(${borderRadius}, 0.375rem) !important`};
+    overflow: hidden;
+  }
+
+  .bp3-popover-content {
+    max-height: 550px;
     overflow-y: auto;
 
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
+    ${({ navColorStyle, primaryColor }) => {
+      const isThemeColorStyle =
+        navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
 
-    &::-webkit-scrollbar-track {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-      &:hover {
-        background: ${({ navColorStyle, primaryColor }) =>
-          getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-      }
-    }
+      return (
+        isThemeColorStyle &&
+        `
+          &::-webkit-scrollbar {
+            width: 6px;
+          }
+        
+          &::-webkit-scrollbar-track {
+            background: ${getMenuContainerBackgroundColor(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        
+          &::-webkit-scrollbar-thumb {
+            background: ${primaryColor};
+        
+            &:hover {
+              background: ${getMenuItemBackgroundColorOnHover(
+                primaryColor,
+                navColorStyle,
+              )};
+            }
+          }
+  
+          &:hover::-webkit-scrollbar-thumb {
+            background: ${getMenuItemBackgroundColorWhenActive(
+              primaryColor,
+              navColorStyle,
+            )};
+          }
+        `
+      );
+    }}
   }
 
   .bp3-popover-content > div {
@@ -122,10 +115,8 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
   padding: 12px 16px;
   background-color: transparent;
 
-  .page-icon svg path {
-    fill: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
-    stroke: ${({ navColorStyle, primaryColor }) =>
+  .menu-item-text {
+    color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle, true)};
     transition: all 0.3s ease-in-out;
   }
@@ -135,6 +126,35 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
 
+    .menu-item-text {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
+        }
+      }};
+    }
+
+    .page-icon svg path {
+      ${({ navColorStyle, primaryColor }) => {
+        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+          return `
+            fill: ${getMenuItemTextColor(primaryColor, navColorStyle)};
+            stroke: ${getMenuItemTextColor(primaryColor, navColorStyle)};
+          `;
+        }
+      }};
+    }
+  }
+
+  &.is-active {
+    background-color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
+
+    .menu-item-text {
+      color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
+
     .page-icon svg path {
       fill: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
@@ -143,15 +163,11 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
     }
   }
 
-  &.is-active {
-    background-color: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-    .page-icon svg path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-    }
+  .page-icon svg path {
+    fill: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    stroke: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    transition: all 0.3s ease-in-out;
   }
 `;

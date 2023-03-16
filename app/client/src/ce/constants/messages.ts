@@ -1464,13 +1464,15 @@ export const APP_NAVIGATION_SETTING = {
   sectionHeaderDesc: () => "Customize the navigation bar",
   showNavbarLabel: () => "Show Navbar",
   orientationLabel: () => "Orientation",
-  navStyleLabel: () => "Nav Style",
+  navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
-  colorStyleLabel: () => "Color Style",
+  colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
   logoConfigurationLabel: () => "Logo Configuration",
   showSignInLabel: () => "Show Sign In",
+  showSignInTooltip: () =>
+    "Toggle to show the sign-in button for users who are not logged in.",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;

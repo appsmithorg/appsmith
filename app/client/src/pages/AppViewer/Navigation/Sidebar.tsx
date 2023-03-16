@@ -34,9 +34,9 @@ import {
   StyledSidebar,
 } from "./Sidebar.styled";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
-import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import MenuItemContainer from "./components/MenuItemContainer";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -50,11 +50,14 @@ export function Sidebar(props: SidebarProps) {
   const { currentApplicationDetails, currentUser, currentWorkspaceId, pages } =
     props;
   const navColorStyle =
-    currentApplicationDetails?.navigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navStyle =
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle ||
+    NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
   const isMinimal =
-    currentApplicationDetails?.navigationSetting?.navStyle ===
-    NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -66,6 +69,7 @@ export function Sidebar(props: SidebarProps) {
     "inherit",
   );
   const location = useLocation();
+  const { pathname } = location;
   const [query, setQuery] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
@@ -75,13 +79,24 @@ export function Sidebar(props: SidebarProps) {
   const { x } = useMouse();
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
-  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
-  const isAppSettingsPaneWithNavigationTabOpen =
-    AppSettingsTabs.Navigation === appSettingsPaneContext?.type;
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   useEffect(() => {
     setQuery(window.location.search);
   }, [location]);
+
+  // Mark default page as first page
+  const appPages = pages;
+  if (appPages.length > 1) {
+    appPages.forEach((item, i) => {
+      if (item.isDefault) {
+        appPages.splice(i, 1);
+        appPages.unshift(item);
+      }
+    });
+  }
 
   useEffect(() => {
     setIsOpen(isPinned);
@@ -131,22 +146,25 @@ export function Sidebar(props: SidebarProps) {
       sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
-        {currentUser?.username !== ANONYMOUS_USERNAME && (
-          <BackToHomeButton
-            forSidebar
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
-        )}
+        <div className="flex">
+          {currentUser?.username !== ANONYMOUS_USERNAME && (
+            <BackToHomeButton
+              forSidebar
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
+          )}
 
-        {!isMinimal && (
-          <ApplicationName
-            appName={currentApplicationDetails?.name}
-            forSidebar
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
-        )}
+          {!isMinimal && (
+            <ApplicationName
+              appName={currentApplicationDetails?.name}
+              forSidebar
+              navColorStyle={navColorStyle}
+              navStyle={navStyle}
+              primaryColor={primaryColor}
+            />
+          )}
+        </div>
 
         {!isMinimal && (
           <CollapseButton
@@ -164,20 +182,29 @@ export function Sidebar(props: SidebarProps) {
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
       >
-        {pages.map((page) => {
+        {appPages.map((page) => {
           return (
-            <MenuItem
-              isMinimal={isMinimal}
+            <MenuItemContainer
+              forSidebar
+              isTabActive={pathname.indexOf(page.pageId) > -1}
               key={page.pageId}
-              navigationSetting={currentApplicationDetails?.navigationSetting}
-              page={page}
-              query={query}
-            />
+            >
+              <MenuItem
+                isMinimal={isMinimal}
+                key={page.pageId}
+                navigationSetting={
+                  currentApplicationDetails?.applicationDetail
+                    ?.navigationSetting
+                }
+                page={page}
+                query={query}
+              />
+            </MenuItemContainer>
           );
         })}
       </StyledMenuContainer>
 
-      <StyledFooter>
+      <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
         {currentApplicationDetails && (
           <StyledCtaContainer>
             <ShareButton
