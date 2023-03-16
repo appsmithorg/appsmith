@@ -42,6 +42,7 @@ export const getEntitiesForNavigation = createSelector(
   getDataTree,
   (actions, plugins, jsActions, widgets, pageId, dataTree: DataTree) => {
     const navigationData: EntityNavigationData = {};
+    if (!dataTree) return navigationData;
 
     actions.forEach((action) => {
       const plugin = plugins.find(
