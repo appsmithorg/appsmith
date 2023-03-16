@@ -29,9 +29,9 @@ export const Container = styled.div<{
     .scroll-arrows svg path,
     .scroll-arrows svg:hover path {
       fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
+        getMenuItemTextColor(primaryColor, navColorStyle, true)};
       stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
+        getMenuItemTextColor(primaryColor, navColorStyle, true)};
     }
   }
 `;
