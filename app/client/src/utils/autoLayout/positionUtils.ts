@@ -360,7 +360,8 @@ export function extractAlignmentInfo(
       // If the fill widget's minWidth is greater than the available space, then assign the widget's minWidth as its width.
       if (columns > fillWidgetLength) {
         width = columns;
-        fillWidgetLength = availableColumns / (fillChildren.length - index - 1);
+        fillWidgetLength =
+          (availableColumns - width) / (fillChildren.length - index - 1);
       }
       if (child.align === FlexLayerAlignment.Start) {
         startColumns += width;
