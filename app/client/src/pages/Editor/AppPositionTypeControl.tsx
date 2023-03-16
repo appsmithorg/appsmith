@@ -48,7 +48,7 @@ export const Title = styled.p`
   color: ${Colors.GRAY_800};
 `;
 
-export function AppPositionTypeControl() {
+export const AppPositionTypeControl = () => {
   const dispatch = useDispatch();
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
@@ -68,7 +68,7 @@ export function AppPositionTypeControl() {
   const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
 
   useEffect(() => {
-    if (!isAutoLayoutActive) {
+    if (!isAutoLayoutActive && selectedOption !== AppPositioningTypes.FIXED) {
       /**
        * if feature flag is disabled, set the layout to fixed.
        */
@@ -157,4 +157,8 @@ export function AppPositionTypeControl() {
       )}
     </>
   );
-}
+};
+
+AppPositionTypeControl.whyDidYouRender = {
+  logOnDifferentValues: true,
+};

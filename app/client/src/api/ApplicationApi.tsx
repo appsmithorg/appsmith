@@ -1,16 +1,16 @@
+import { ApplicationVersion } from "actions/applicationActions";
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "design-system-old";
 import { APP_MODE } from "entities/App";
-import { ApplicationVersion } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
 import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 import {
   AppLayoutConfig,
   AppPositioningTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
+import { ApiResponse } from "./ApiResponses";
 
 export type EvaluationVersion = number;
 
