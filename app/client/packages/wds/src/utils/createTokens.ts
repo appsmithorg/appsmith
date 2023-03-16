@@ -1,11 +1,11 @@
 import kebabCase from "lodash/kebabCase";
 import { css, CSSProperties } from "styled-components";
 import {
-  getAccentDarkColor,
-  getAccentHoverColor,
-  getAccentLightColor,
-  getOnAccentTextColor,
+  lightenColor,
+  darkenColor,
+  getComplementaryGrayscaleColor,
   parseColor,
+  calulateHoverColor,
 } from "./colors";
 
 /**
@@ -35,21 +35,60 @@ export const createCSSVars = css`
   }}
 `;
 
+/** Semantic tokens utils */
+
+const getBgAccent = (color: CSSProperties["color"]) => {
+  return parseColor(color).toString({ format: "hex" });
+};
+
+const getBgAccentHoverColor = (color: CSSProperties["color"]) => {
+  return calulateHoverColor(color);
+};
+
+const getBgAccentSubtleColor = (color: CSSProperties["color"]) => {
+  return lightenColor(color);
+};
+
+const getBgAccentSubtleHoverColor = (color: CSSProperties["color"]) => {
+  return calulateHoverColor(color);
+};
+
+const getBgAccentActiveColor = (color: CSSProperties["color"]) => {
+  return darkenColor(color);
+};
+
+const getFgOnAccentTextColor = (color: CSSProperties["color"]) => {
+  return getComplementaryGrayscaleColor(color);
+};
+
+const getAccentSubtleActiveColor = (color: CSSProperties["color"]) => {
+  return darkenColor(color, 0.03);
+};
+
+const getBdOnAccentColor = (color: CSSProperties["color"]) => {
+  return darkenColor(color, 0.1);
+};
+
+const getBdOnAccentSubtleColor = (color: CSSProperties["color"]) => {
+  return lightenColor(color, 0.98);
+};
+
 /**
+ * create semantic color tokens
  *
  * @param color
  * @returns
  */
 export const createSemanticColorTokens = (color: CSSProperties["color"]) => {
-  const bgAccent = parseColor(color).toString({ format: "hex" });
-  const bgAccentHover = getAccentHoverColor(color);
-  const bgAccentSubtle = getAccentLightColor(color);
-  const bgAccentActive = getAccentDarkColor(bgAccentHover);
-  const bgAccentSubtleHover = getAccentHoverColor(bgAccentSubtle);
-  const fgOnaccent = getOnAccentTextColor(bgAccent);
-  const bgAccentSubtleActive = getAccentDarkColor(bgAccentSubtleHover, 0.03);
-  const onAccentBorderColor = getAccentDarkColor(color, 0.1);
-  const onAccentLightBorderColor = getAccentLightColor(color, 0.98);
+  const bgAccent = getBgAccent(color);
+  const bgAccentHover = getBgAccentHoverColor(color);
+  const bgAccentSubtle = getBgAccentSubtleColor(color);
+  const bgAccentActive = getBgAccentActiveColor(bgAccentHover);
+  const bgAccentSubtleHover = getBgAccentSubtleHoverColor(bgAccentSubtle);
+  const fgOnaccent = getFgOnAccentTextColor(bgAccent);
+  const bgAccentSubtleActive = getAccentSubtleActiveColor(bgAccentSubtleHover);
+  const bgOnAccentColor = getBdOnAccentColor(color);
+  const bdOnAccentSubtleColor = getBdOnAccentSubtleColor(color);
 
   return {
     bgAccent,
@@ -63,7 +102,7 @@ export const createSemanticColorTokens = (color: CSSProperties["color"]) => {
     fgOnaccent,
 
     bdAccent: color,
-    bdOnaccent: onAccentBorderColor,
-    bdOnaccentSubtle: onAccentLightBorderColor,
+    bdOnaccent: bgOnAccentColor,
+    bdOnaccentSubtle: bdOnAccentSubtleColor,
   };
 };

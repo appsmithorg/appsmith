@@ -49,5 +49,5 @@ const finalTokens = {
 // write to file
 fs.writeFileSync(
   `${__dirname}/../tokens.json`,
-  JSON.stringify(finalTokens, null, 2),
+  JSON.stringify(finalTokens, null, 2) + "\r\n",
 );
