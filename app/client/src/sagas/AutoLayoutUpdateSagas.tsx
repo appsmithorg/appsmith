@@ -120,16 +120,7 @@ export function* updateLayoutPositioningSaga(
       );
     }
 
-    const applicationId: string = yield select(getCurrentApplicationId);
-    yield put(
-      updateApplication(applicationId || "", {
-        applicationDetail: {
-          appPositioning: {
-            type: payloadPositioningType,
-          },
-        },
-      }),
-    );
+    yield call(updateApplicationLayoutType, payloadPositioningType);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -318,6 +309,21 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 
   // clear the batch after processing
   autoLayoutWidgetDimensionUpdateBatch = {};
+}
+
+export function* updateApplicationLayoutType(
+  positioningType: AppPositioningTypes,
+) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  yield put(
+    updateApplication(applicationId || "", {
+      applicationDetail: {
+        appPositioning: {
+          type: positioningType,
+        },
+      },
+    }),
+  );
 }
 
 export default function* layoutUpdateSagas() {

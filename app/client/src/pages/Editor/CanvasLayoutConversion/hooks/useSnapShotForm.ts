@@ -22,7 +22,6 @@ import { Colors } from "constants/Colors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { useEffect } from "react";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
@@ -88,10 +87,6 @@ export const useSnapShotForm = (onCancel: () => void) => {
   );
   const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setLayoutConversionStateAction(CONVERSION_STATES.SNAPSHOT_START));
-  }, []);
 
   const snapshotFlowStates = snapShotFlow(
     dispatch,
