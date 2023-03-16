@@ -1,4 +1,4 @@
-import { LogLevelDesc } from "loglevel";
+import type { LogLevelDesc } from "loglevel";
 
 export type SentryConfig = {
   dsn: string;
@@ -64,4 +64,6 @@ export interface AppsmithUIConfigs {
   appsmithSupportEmail: string;
   hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
+  pricingUrl: string;
+  customerPortalUrl: string;
 }

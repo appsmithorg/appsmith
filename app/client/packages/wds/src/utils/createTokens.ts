@@ -1,5 +1,6 @@
 import kebabCase from "lodash/kebabCase";
-import { css, CSSProperties } from "styled-components";
+import type { CSSProperties } from "styled-components";
+import { css } from "styled-components";
 import {
   lightenColor,
   darkenColor,

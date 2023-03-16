@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Table Widget text wrapping functionality", function() {
+describe("Table Widget text wrapping functionality", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -115,9 +115,7 @@ describe("Table Widget text wrapping functionality", function() {
         expected: "not.exist",
       },
     ].forEach((data, i) => {
-      cy.get(commonlocators.changeColType)
-        .last()
-        .click();
+      cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
@@ -132,13 +130,8 @@ describe("Table Widget text wrapping functionality", function() {
     cy.editColumn("id");
 
     ["URL", "Number", "Plain Text"].forEach((data, i) => {
-      cy.get(commonlocators.changeColType)
-        .last()
-        .click();
-      cy.get(".t--dropdown-option")
-        .children()
-        .contains(data)
-        .click();
+      cy.get(commonlocators.changeColType).last().click();
+      cy.get(".t--dropdown-option").children().contains(data).click();
       cy.wait("@updateLayout");
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");

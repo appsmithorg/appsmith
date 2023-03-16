@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Boolean & Enum Datatype tests", function() {
+describe("Boolean & Enum Datatype tests", function () {
   before(() => {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -17,7 +17,7 @@ describe("Boolean & Enum Datatype tests", function() {
     appSettings.OpenPaneAndChangeThemeColors(-18, -20);
   });
 
-  it("1. Create Postgress DS", function() {
+  it("1. Create Postgress DS", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

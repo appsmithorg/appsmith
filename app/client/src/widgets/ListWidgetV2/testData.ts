@@ -1,10 +1,10 @@
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 
 export const simpleListInput = {
   containerParentId: "c9cgrw1iky",
   mainContainerId: "eejdk7ibci",
   mainContainerCanvasId: "y57vj73onh",
-  templateWidgets: ({
+  templateWidgets: {
     c9cgrw1iky: {
       boxShadow: "none",
       widgetName: "Canvas1",
@@ -299,14 +299,14 @@ export const simpleListInput = {
       iconAlign: "left",
       defaultText: "test",
     },
-  } as unknown) as Record<string, FlattenedWidgetProps>,
+  } as unknown as Record<string, FlattenedWidgetProps>,
 };
 
 export const nestedListInput = {
   containerParentId: "2qrmrz0b86",
   mainContainerId: "lneohookgm",
   mainContainerCanvasId: "qpgtpiw3cu",
-  templateWidgets: ({
+  templateWidgets: {
     "2qrmrz0b86": {
       boxShadow: "none",
       widgetName: "Canvas1",
@@ -836,8 +836,7 @@ export const nestedListInput = {
     },
     q8e2zhxsdb: {
       isVisible: true,
-      text:
-        '{{level_1.currentItem.id + " " + level_1.currentIndex +" " + level_1.currentView.Text1.text + " " + currentIndex + currentItem.name + currentView.Text4.text}}',
+      text: '{{level_1.currentItem.id + " " + level_1.currentIndex +" " + level_1.currentView.Text1.text + " " + currentIndex + currentItem.name + currentView.Text4.text}}',
       fontSize: "1rem",
       fontStyle: "BOLD",
       textAlign: "LEFT",
@@ -883,5 +882,5 @@ export const nestedListInput = {
       bottomRow: 8,
       parentId: "qi2677bszw",
     },
-  } as unknown) as Record<string, FlattenedWidgetProps>,
+  } as unknown as Record<string, FlattenedWidgetProps>,
 };

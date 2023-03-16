@@ -4,8 +4,8 @@ import {
   flattenDef,
   getFunctionsArgsType,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
-  DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";

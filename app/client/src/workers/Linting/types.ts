@@ -1,6 +1,6 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import { WorkerRequest } from "@appsmith/workers/common/types";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import type { WorkerRequest } from "@appsmith/workers/common/types";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",

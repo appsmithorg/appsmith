@@ -10,8 +10,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("MySQL Datatype tests", function() {
-  it("1. Create Mysql DS", function() {
+describe("MySQL Datatype tests", function () {
+  it("1. Create Mysql DS", function () {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

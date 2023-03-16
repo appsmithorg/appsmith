@@ -1,12 +1,12 @@
-import {
+import type {
   DataTree,
   DataTreeAppsmith,
   DataTreeJSAction,
-  EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";
-import {
+import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
   JSCollectionData,
@@ -14,13 +14,13 @@ import {
   JSExecutionError,
 } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
-import { JSAction } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { APP_MODE } from "entities/App";
+import type { APP_MODE } from "entities/App";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -118,9 +118,10 @@ export const updateJSCollectionInUnEvalTree = (
         const reactivePaths = oldConfig.reactivePaths;
         delete reactivePaths[oldActionName];
 
-        oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
-          (path) => path["key"] !== oldActionName,
-        );
+        oldConfig.dynamicBindingPathList =
+          oldConfig.dynamicBindingPathList.filter(
+            (path) => path["key"] !== oldActionName,
+          );
 
         const dependencyMap = oldConfig.dependencyMap["body"];
         const removeIndex = dependencyMap.indexOf(oldActionName);
@@ -181,9 +182,10 @@ export const updateJSCollectionInUnEvalTree = (
         const reactivePaths = oldConfig.reactivePaths;
         delete reactivePaths[varListItem];
 
-        oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
-          (path) => path["key"] !== varListItem,
-        );
+        oldConfig.dynamicBindingPathList =
+          oldConfig.dynamicBindingPathList.filter(
+            (path) => path["key"] !== varListItem,
+          );
 
         newVarList = newVarList.filter((item) => item !== varListItem);
         unset(modifiedUnEvalTree[jsCollection.name], varListItem);
@@ -293,10 +295,8 @@ function getJSActionFromJSCollections(
   jsCollections: JSCollectionData[],
   jsfuncFullName: string,
 ) {
-  const {
-    entityName: collectionName,
-    propertyPath: functionName,
-  } = getEntityNameAndPropertyPath(jsfuncFullName);
+  const { entityName: collectionName, propertyPath: functionName } =
+    getEntityNameAndPropertyPath(jsfuncFullName);
 
   const jsCollection = find(
     jsCollections,
