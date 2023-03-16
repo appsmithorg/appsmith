@@ -8,6 +8,7 @@ import {
   parseColor,
   calulateHoverColor,
 } from "./colors";
+import defaultsTokens from "../constants/defaultTokens.json";
 
 /**
  * This function is used to create tokens for widgets
@@ -38,7 +39,7 @@ export const createCSSVars = css`
 
 /** Semantic tokens utils */
 
-const getBgAccent = (color: CSSProperties["color"]) => {
+const getBgAccentColor = (color: CSSProperties["color"]) => {
   return parseColor(color).toString({ format: "hex" });
 };
 
@@ -80,16 +81,18 @@ const getBdOnAccentSubtleColor = (color: CSSProperties["color"]) => {
  * @param color
  * @returns
  */
-export const createSemanticColorTokens = (color: CSSProperties["color"]) => {
-  const bgAccent = getBgAccent(color);
+export const createSemanticColorTokens = (
+  color: CSSProperties["color"] = defaultsTokens.seedColor,
+) => {
+  const bgAccent = getBgAccentColor(color);
   const bgAccentHover = getBgAccentHoverColor(color);
   const bgAccentSubtle = getBgAccentSubtleColor(color);
   const bgAccentActive = getBgAccentActiveColor(bgAccentHover);
   const bgAccentSubtleHover = getBgAccentSubtleHoverColor(bgAccentSubtle);
   const fgOnaccent = getFgOnAccentTextColor(bgAccent);
   const bgAccentSubtleActive = getAccentSubtleActiveColor(bgAccentSubtleHover);
-  const bgOnAccentColor = getBdOnAccentColor(color);
-  const bdOnAccentSubtleColor = getBdOnAccentSubtleColor(color);
+  const bgOnAccent = getBdOnAccentColor(color);
+  const bdOnAccentSubtle = getBdOnAccentSubtleColor(color);
 
   return {
     bgAccent,
@@ -103,7 +106,7 @@ export const createSemanticColorTokens = (color: CSSProperties["color"]) => {
     fgOnaccent,
 
     bdAccent: color,
-    bdOnaccent: bgOnAccentColor,
-    bdOnaccentSubtle: bdOnAccentSubtleColor,
+    bdOnaccent: bgOnAccent,
+    bdOnaccentSubtle: bdOnAccentSubtle,
   };
 };

@@ -4,10 +4,15 @@ import { kebabCase, startCase, range } from "lodash";
 import defaults from "../constants/defaultTokens.json";
 import { createSemanticColorTokens } from "./createTokens";
 
+type Token = {
+  value: string;
+  type: "color" | "sizing" | "borderRadius" | "boxShadow" | "opacity";
+};
+
 // generating semantic tokens
 const semanticColors = createSemanticColorTokens(defaults.seedColor);
 
-const transformedSemanticTokens: any = {};
+const transformedSemanticTokens: Record<string, Token> = {};
 for (const [key, value] of Object.entries(semanticColors)) {
   transformedSemanticTokens[kebabCase(`color${startCase(key)}`)] = {
     value: value,
@@ -16,7 +21,7 @@ for (const [key, value] of Object.entries(semanticColors)) {
 }
 
 // generating spacing tokens
-const spacingTokens: any = {};
+const spacingTokens: Record<string, Token> = {};
 
 range(6).map((value, index) => {
   spacingTokens[`spacing-${index}`] = {
@@ -29,7 +34,7 @@ const finalTokens = {
   semantic: {
     ...transformedSemanticTokens,
     "opacity-disabled": {
-      disabledOpacity: 0.5,
+      value: 0.5,
       type: "opacity",
     },
   },
