@@ -1,8 +1,8 @@
-import {
+import type {
   DataTree,
   DataTreeAppsmith,
-  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
@@ -51,7 +51,7 @@ export const getEntitiesForNavigation = createSelector(
     jsObjectName: string | undefined,
   ) => {
     // data tree retriggers this
-    console.log("-------- handle change - jsaction updated", jsObjectName);
+    // console.log("-------- handle change - jsaction updated", jsObjectName);
     jsActions = jsActions.filter((a) => a.config.pageId === pageId);
     const navigationData: EntityNavigationData = {};
     if (!dataTree) return navigationData;

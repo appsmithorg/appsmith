@@ -1,7 +1,7 @@
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
-import { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
+import type { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";

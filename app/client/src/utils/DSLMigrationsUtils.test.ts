@@ -1,7 +1,7 @@
 import { transformDSL } from "./DSLMigrations";
 import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { OverflowTypes } from "widgets/TextWidget/constants";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 

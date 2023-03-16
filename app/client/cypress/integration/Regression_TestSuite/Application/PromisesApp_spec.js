@@ -3,7 +3,7 @@ const homePage = require("../../../locators/HomePage");
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 
-describe("JSEditor tests", function() {
+describe("JSEditor tests", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -68,9 +68,7 @@ describe("JSEditor tests", function() {
 
       // select an option from select widget
       cy.get(".bp3-button.select-button").click({ force: true });
-      cy.get(".menu-item-text")
-        .eq(2)
-        .click({ force: true });
+      cy.get(".menu-item-text").eq(2).click({ force: true });
       cy.wait(2000);
       // verify text in the text widget
       cy.get(".t--draggable-textwidget span")

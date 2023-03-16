@@ -1,11 +1,13 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
-import React, { createRef, RefObject } from "react";
+import type { RefObject } from "react";
+import React, { createRef } from "react";
 import { isEmpty, floor, isString } from "lodash";
 import { klona } from "klona";
 
-import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import derivedProperties from "./parseDerivedProperties";
 import ListComponent, { ListComponentEmpty } from "../component";
 import ListPagination, {
@@ -13,28 +15,26 @@ import ListPagination, {
 } from "../component/ListPagination";
 import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import MetaWidgetGenerator, {
-  GeneratorOptions,
-  HookOptions,
-} from "../MetaWidgetGenerator";
+import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
+import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import WidgetFactory from "utils/WidgetFactory";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type {
+  CanvasWidgetStructure,
+  FlattenedWidgetProps,
+} from "widgets/constants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import {
-  RenderModes,
-  WidgetType,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
-import { WidgetState } from "../../BaseWidget";
-import { Stylesheet } from "entities/AppTheming";
-import {
+import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetState } from "../../BaseWidget";
+import type { Stylesheet } from "entities/AppTheming";
+import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
@@ -341,11 +341,8 @@ class ListWidget extends BaseWidget<
   generateMetaWidgets = () => {
     const generatorOptions = this.metaWidgetGeneratorOptions();
 
-    const {
-      metaWidgets,
-      propertyUpdates,
-      removedMetaWidgetIds,
-    } = this.metaWidgetGenerator.withOptions(generatorOptions).generate();
+    const { metaWidgets, propertyUpdates, removedMetaWidgetIds } =
+      this.metaWidgetGenerator.withOptions(generatorOptions).generate();
 
     this.updateCurrentItemsViewBinding();
     const mainCanvasWidget = this.generateMainMetaCanvasWidget();
@@ -374,9 +371,8 @@ class ListWidget extends BaseWidget<
       (this.props.metaWidgetChildrenStructure || []).length === 0 &&
       this.prevMetaMainCanvasWidget
     ) {
-      metaWidgets[
-        this.prevMetaMainCanvasWidget.widgetId
-      ] = this.prevMetaMainCanvasWidget;
+      metaWidgets[this.prevMetaMainCanvasWidget.widgetId] =
+        this.prevMetaMainCanvasWidget;
     }
 
     const { metaWidgetId: metaMainCanvasId } =
@@ -408,9 +404,8 @@ class ListWidget extends BaseWidget<
   };
 
   generateMainMetaCanvasWidget = () => {
-    const {
-      ids: currMetaContainerIds,
-    } = this.metaWidgetGenerator.getMetaContainers();
+    const { ids: currMetaContainerIds } =
+      this.metaWidgetGenerator.getMetaContainers();
 
     const mainCanvasWidget = this.mainMetaCanvasWidget();
     if (mainCanvasWidget) {
@@ -439,9 +434,8 @@ class ListWidget extends BaseWidget<
   };
 
   updateCurrentItemsViewBinding = () => {
-    const {
-      names: currMetaContainerNames,
-    } = this.metaWidgetGenerator.getMetaContainers();
+    const { names: currMetaContainerNames } =
+      this.metaWidgetGenerator.getMetaContainers();
 
     const { prefix, suffix } = getCurrentItemsViewBindingTemplate();
 
@@ -458,9 +452,8 @@ class ListWidget extends BaseWidget<
   };
 
   syncMetaContainerNames = () => {
-    const {
-      names: currMetaContainerNames,
-    } = this.metaWidgetGenerator.getMetaContainers();
+    const { names: currMetaContainerNames } =
+      this.metaWidgetGenerator.getMetaContainers();
     this.prevMetaContainerNames = [...currMetaContainerNames];
   };
 
@@ -725,9 +718,8 @@ class ListWidget extends BaseWidget<
       return;
     }
 
-    const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
-      rowIndex,
-    );
+    const triggeredContainer =
+      this.metaWidgetGenerator.getRowContainerWidgetName(rowIndex);
 
     const selectedItemViewBinding = triggeredContainer
       ? `{{ ${triggeredContainer}.data }}`
@@ -740,9 +732,8 @@ class ListWidget extends BaseWidget<
   };
 
   updateTriggeredItemView = (rowIndex: number) => {
-    const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
-      rowIndex,
-    );
+    const triggeredContainer =
+      this.metaWidgetGenerator.getRowContainerWidgetName(rowIndex);
 
     const triggeredItemViewBinding = triggeredContainer
       ? `{{ ${triggeredContainer}.data }}`
@@ -839,12 +830,8 @@ class ListWidget extends BaseWidget<
       metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
       options: RenderChildrenOption,
     ) => {
-      const {
-        componentWidth,
-        parentColumnSpace,
-        selectedItemKey,
-        startIndex,
-      } = options;
+      const { componentWidth, parentColumnSpace, selectedItemKey, startIndex } =
+        options;
 
       const childWidgets = (metaWidgetChildrenStructure || []).map(
         (childWidgetStructure) => {
@@ -903,9 +890,8 @@ class ListWidget extends BaseWidget<
     updates: BatchPropertyUpdatePayload,
     shouldReplay: boolean,
   ) => {
-    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
-      metaWidgetId,
-    );
+    const templateWidgetId =
+      this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(metaWidgetId);
 
     // Only update the template/canvas widget properties here.
     if (!templateWidgetId) {
@@ -929,9 +915,8 @@ class ListWidget extends BaseWidget<
     metaWidgetId: string,
     payload: any,
   ) => {
-    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
-      metaWidgetId,
-    );
+    const templateWidgetId =
+      this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.updateWidget?.(operation, widgetId, payload);
@@ -942,9 +927,8 @@ class ListWidget extends BaseWidget<
     propertyName: string,
     propertyValue: any,
   ) => {
-    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
-      metaWidgetId,
-    );
+    const templateWidgetId =
+      this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.updateWidgetProperty?.(widgetId, propertyName, propertyValue);
@@ -954,9 +938,8 @@ class ListWidget extends BaseWidget<
     metaWidgetId: string,
     propertyPaths: string[],
   ) => {
-    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
-      metaWidgetId,
-    );
+    const templateWidgetId =
+      this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);

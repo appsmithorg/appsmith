@@ -2,12 +2,8 @@ import React, { Suspense, lazy } from "react";
 import styled from "styled-components";
 import { DocumentViewer } from "react-documents";
 import { includes, replace, split, get } from "lodash";
-import {
-  SUPPORTED_EXTENSIONS,
-  Renderers,
-  Renderer,
-  ViewerType,
-} from "../constants";
+import type { Renderer, ViewerType } from "../constants";
+import { SUPPORTED_EXTENSIONS, Renderers } from "../constants";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "components/utils/Skeleton";
 

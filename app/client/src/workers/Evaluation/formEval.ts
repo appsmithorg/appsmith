@@ -1,4 +1,4 @@
-import {
+import type {
   DynamicValues,
   EvaluatedFormConfig,
   FormEvalOutput,
@@ -7,9 +7,9 @@ import {
   DynamicValuesConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ActionConfig } from "entities/Action";
-import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
-import { FormConfigType } from "components/formControls/BaseControl";
+import type { ActionConfig } from "entities/Action";
+import type { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
+import type { FormConfigType } from "components/formControls/BaseControl";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -37,7 +37,8 @@ let finalEvalObj: FormEvalOutput;
 let evalConfigPaths: string[] = [];
 
 // This regex matches the config property string up to countless places.
-export const MATCH_ACTION_CONFIG_PROPERTY = /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
+export const MATCH_ACTION_CONFIG_PROPERTY =
+  /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
 export function matchExact(r: RegExp, str: string) {
   const match = str.match(r);
   return match || [];
@@ -362,37 +363,46 @@ function evaluate(
                 !actionDiffPath ||
                 hasRouteChanged
               ) {
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).allowedToFetch = output;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).isLoading = output;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).evaluatedConfig = evaluateDynamicValuesConfig(
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).allowedToFetch = output;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).isLoading = output;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).evaluatedConfig = evaluateDynamicValuesConfig(
                   actionConfiguration,
                   (currentEvalState[key].fetchDynamicValues as DynamicValues)
                     .config,
                 ) as DynamicValuesConfig;
               } else {
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).allowedToFetch = false;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).isLoading = false;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).allowedToFetch = false;
+                (
+                  currentEvalState[key].fetchDynamicValues as DynamicValues
+                ).isLoading = false;
               }
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&
               currentEvalState[key].hasOwnProperty("evaluateFormConfig") &&
               !!currentEvalState[key].evaluateFormConfig
             ) {
-              (currentEvalState[key]
-                .evaluateFormConfig as EvaluatedFormConfig).updateEvaluatedConfig = output;
+              (
+                currentEvalState[key].evaluateFormConfig as EvaluatedFormConfig
+              ).updateEvaluatedConfig = output;
               currentEvalState[key].visible = output;
               if (output && !!currentEvalState[key].evaluateFormConfig)
-                (currentEvalState[key]
-                  .evaluateFormConfig as EvaluatedFormConfig).evaluateFormConfigObject = evaluateFormConfigElements(
+                (
+                  currentEvalState[key]
+                    .evaluateFormConfig as EvaluatedFormConfig
+                ).evaluateFormConfigObject = evaluateFormConfigElements(
                   actionConfiguration,
-                  (currentEvalState[key]
-                    .evaluateFormConfig as EvaluatedFormConfig)
-                    .evaluateFormConfigObject,
+                  (
+                    currentEvalState[key]
+                      .evaluateFormConfig as EvaluatedFormConfig
+                  ).evaluateFormConfigObject,
                 );
             }
           });
@@ -524,12 +534,8 @@ export function setFormEvaluationSaga(
     // This is the initial evaluation state, evaluations can now be run on top of this
     return { [payload.formId]: finalEvalObj };
   } else {
-    const {
-      actionConfiguration,
-      actionDiffPath,
-      formId,
-      hasRouteChanged,
-    } = payload;
+    const { actionConfiguration, actionDiffPath, formId, hasRouteChanged } =
+      payload;
     // In case the formData is not ready or the form is not of type UQI, return empty state
     if (!actionConfiguration || !actionConfiguration.formData) {
       return currentEvalState;

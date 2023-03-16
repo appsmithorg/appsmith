@@ -6,7 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Layout OnLoad Actions tests", function() {
+describe("Layout OnLoad Actions tests", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -15,28 +15,25 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
+  it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     ee.SelectEntityByName("Widgets");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
-      const pageid = url
-        .split("/")[5]
-        ?.split("-")
-        .pop();
+      const pageid = url.split("/")[5]?.split("-").pop();
       cy.log(pageid + "page id");
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
-        const _emptyResp = JSON.parse(respBody).data.layouts[0]
-          .layoutOnLoadActions;
+        const _emptyResp =
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions;
         expect(JSON.parse(JSON.stringify(_emptyResp))).to.deep.eq([]);
       });
     });
   });
 
-  it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function() {
+  it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._imageWidget);
     });
@@ -137,14 +134,14 @@ describe("Layout OnLoad Actions tests", function() {
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
 
-      const _randomFlora = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[0];
-      const _randomUser = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[1];
-      const _genderize = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[2];
-      const _suggestions = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[3];
+      const _randomFlora =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[0];
+      const _randomUser =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[1];
+      const _genderize =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[2];
+      const _suggestions =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[3];
       // cy.log("_randomFlora is: " + JSON.stringify(_randomFlora))
       // cy.log("_randomUser is: " + JSON.stringify(_randomUser))
       // cy.log("_genderize is: " + JSON.stringify(_genderize))
@@ -172,7 +169,7 @@ describe("Layout OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {
+  it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
     ee.SelectEntityByName("Genderize", "Queries/JS");
     ee.ActionContextMenuByEntityName("Genderize", "Delete", "Are you sure?");
 
@@ -190,14 +187,14 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
-      const _randomFlora = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[0];
-      const _randomUser = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[1];
-      const _genderize = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[2];
-      const _suggestions = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[3];
+      const _randomFlora =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[0];
+      const _randomUser =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[1];
+      const _genderize =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[2];
+      const _suggestions =
+        JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[3];
 
       expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
         "RandomFlora",

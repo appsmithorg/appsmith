@@ -6,7 +6,7 @@ import {
 } from "../../../../../locators/WidgetLocators";
 const homePage = require("../../../../../locators/HomePage");
 
-describe("Input Widget Multiline feature", function() {
+describe("Input Widget Multiline feature", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
     const textMsg = "Dynamic panel validation for input widget wrt height";
@@ -23,13 +23,8 @@ describe("Input Widget Multiline feature", function() {
         cy.testCodeMirror(textMsg);
         cy.wait(3000);
         cy.moveToStyleTab();
-        cy.get(commonlocators.dropDownIcon)
-          .last()
-          .click();
-        cy.get(".t--dropdown-option")
-          .children()
-          .contains("XL")
-          .click();
+        cy.get(commonlocators.dropDownIcon).last().click();
+        cy.get(".t--dropdown-option").children().contains("XL").click();
         cy.wait("@updateLayout");
         cy.wait(2000);
         cy.get(".t--widget-inputwidgetv2")
@@ -47,9 +42,7 @@ describe("Input Widget Multiline feature", function() {
     const textMsg = "Dynamic panel validation for input widget wrt height";
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.openPropertyPane("inputwidgetv2");
-    cy.get(widgetsPage.datatype)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.datatype).last().click({ force: true });
     cy.get("[data-cy='t--dropdown-option-Multi-line text']").click();
 
     // verify height changes to auto height
@@ -78,13 +71,8 @@ describe("Input Widget Multiline feature", function() {
       .then((height) => {
         //Changing the text label
         cy.moveToStyleTab();
-        cy.get(commonlocators.dropDownIcon)
-          .last()
-          .click();
-        cy.get(".t--dropdown-option")
-          .children()
-          .contains("XL")
-          .click();
+        cy.get(commonlocators.dropDownIcon).last().click();
+        cy.get(".t--dropdown-option").children().contains("XL").click();
 
         cy.wait("@updateLayout");
         cy.wait(2000);
@@ -97,9 +85,7 @@ describe("Input Widget Multiline feature", function() {
     // select height as fixed for multiline datatype
     cy.openPropertyPane("inputwidgetv2");
     cy.moveToContentTab();
-    cy.get(widgetsPage.datatype)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.datatype).last().click({ force: true });
     cy.changeLayoutHeightWithoutWait(commonlocators.fixed);
     // change Label font size and verify
     cy.get(".t--widget-inputwidgetv2")
@@ -107,13 +93,8 @@ describe("Input Widget Multiline feature", function() {
       .then((height) => {
         //Changing the text label
         cy.moveToStyleTab();
-        cy.get(commonlocators.dropDownIcon)
-          .last()
-          .click();
-        cy.get(".t--dropdown-option")
-          .children()
-          .contains("S")
-          .click();
+        cy.get(commonlocators.dropDownIcon).last().click();
+        cy.get(".t--dropdown-option").children().contains("S").click();
 
         cy.wait("@updateLayout");
         cy.wait(2000);
@@ -143,9 +124,7 @@ describe("Input Widget Multiline feature", function() {
   it("3. Enter key behaviour with single line and multi line selection", () => {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.openPropertyPane(WIDGET.INPUT_V2);
-    cy.get(PROPERTY_SELECTOR.onSubmit)
-      .find(".t--js-toggle")
-      .click();
+    cy.get(PROPERTY_SELECTOR.onSubmit).find(".t--js-toggle").click();
     cy.updateCodeInput(PROPERTY_SELECTOR.onSubmit, "{{showAlert('Success')}}");
     // enter some text and hit enter
     cy.get(".t--draggable-inputwidgetv2")
@@ -155,9 +134,7 @@ describe("Input Widget Multiline feature", function() {
     // verify toast message on enter
     cy.get(homePage.toastMessage).should("contain", "Success");
     // enter key with multiline
-    cy.get(widgetsPage.datatype)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.datatype).last().click({ force: true });
     cy.get("[data-cy='t--dropdown-option-Multi-line text']").click();
     cy.get(".t--draggable-inputwidgetv2")
       .find("textarea")

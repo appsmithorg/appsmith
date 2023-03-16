@@ -5,9 +5,11 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
-import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "@appsmith/reducers";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import type { RouteComponentProps } from "react-router";
+import { useParams, withRouter } from "react-router";
+import type { AppState } from "@appsmith/reducers";
+import type { InjectedFormProps } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
 import {
   getSettings,
   getSettingsSavingState,
@@ -18,10 +20,8 @@ import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
 import { DisconnectService } from "./DisconnectService";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import {
-  SettingTypes,
-  Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,

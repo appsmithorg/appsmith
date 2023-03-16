@@ -1,6 +1,6 @@
 import { AppsmithFunction, FieldType, ViewTypes } from "../constants";
-import { TreeDropdownOption } from "design-system-old";
-import {
+import type { TreeDropdownOption } from "design-system-old";
+import type {
   FieldProps,
   KeyValueViewProps,
   SelectorViewProps,
@@ -9,7 +9,7 @@ import {
 } from "../types";
 import HightlightedCode from "../../HighlightedCode";
 import { Skin } from "../../../../constants/DefaultTheme";
-import { DropdownOption } from "../../../constants";
+import type { DropdownOption } from "../../../constants";
 import React from "react";
 import { SelectorView } from "../viewComponents/SelectorView";
 import { KeyValueView } from "../viewComponents/KeyValueView";

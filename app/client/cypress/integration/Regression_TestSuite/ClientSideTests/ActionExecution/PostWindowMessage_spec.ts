@@ -45,27 +45,19 @@ describe("Post window message", () => {
     deployMode.DeployApp();
 
     cy.get("#iframe-Iframe1").then((element) => {
-      element
-        .contents()
-        .find("body")
-        .find("#iframe-button")
-        .click();
+      element.contents().find("body").find("#iframe-button").click();
     });
     agHelper.ValidateToastMessage("I got a message from iframe");
 
     cy.get("#iframe-Iframe1").then(($element) => {
       const $body = $element.contents().find("body");
-      cy.wrap($body)
-        .find("#txtMsg")
-        .should("have.text", "Before postMessage");
+      cy.wrap($body).find("#txtMsg").should("have.text", "Before postMessage");
     });
 
     agHelper.ClickButton("Submit");
     cy.get("#iframe-Iframe1").then(($element) => {
       const $body = $element.contents().find("body");
-      cy.wrap($body)
-        .find("#txtMsg")
-        .should("have.text", "After postMessage");
+      cy.wrap($body).find("#txtMsg").should("have.text", "After postMessage");
     });
     deployMode.NavigateBacktoEditor();
   });

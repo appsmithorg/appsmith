@@ -1,5 +1,5 @@
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";

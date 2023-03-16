@@ -1,5 +1,5 @@
 import { ECMA_VERSION } from "@shared/ast";
-import { LintOptions } from "jshint";
+import type { LintOptions } from "jshint";
 
 export const lintOptions = (globalData: Record<string, boolean>) =>
   ({
@@ -36,8 +36,7 @@ export const IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE = "W117";
 // All messages can be found here => https://github.com/jshint/jshint/blob/2.9.5/src/messages.js
 export const WARNING_LINT_ERRORS = {
   W098: "'{a}' is defined but never used.",
-  W014:
-    "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
+  W014: "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
 };
 
 export function asyncActionInSyncFieldLintMessage(actionName: string) {
