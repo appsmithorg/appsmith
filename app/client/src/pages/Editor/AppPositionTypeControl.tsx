@@ -103,8 +103,10 @@ export function AppPositionTypeControl() {
     );
     dispatch(
       updateApplication(appId || "", {
-        appPositioning: {
-          type: layoutOption.type,
+        applicationDetail: {
+          appPositioning: {
+            type: layoutOption.type,
+          },
         },
       }),
     );

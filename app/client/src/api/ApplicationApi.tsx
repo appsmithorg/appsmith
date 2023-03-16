@@ -114,7 +114,9 @@ export type UpdateApplicationPayload = {
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
-  appPositioning?: AppPositioningTypeConfig;
+  applicationDetail?: {
+    appPositioning?: AppPositioningTypeConfig;
+  };
   embedSetting?: AppEmbedSetting;
 };
 

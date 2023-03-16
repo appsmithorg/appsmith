@@ -381,15 +381,16 @@ export const handlers = {
     if (action.payload.name) {
       isSavingAppName = true;
     }
-    if (state.currentApplication && action.payload.appPositioning) {
-      state.currentApplication.appPositioning = action.payload.appPositioning;
+    if (state.currentApplication && action.payload.applicationDetail) {
+      state.currentApplication.applicationDetail =
+        action.payload.applicationDetail;
     }
     return {
       ...state,
       isSavingAppName: isSavingAppName,
       isErrorSavingAppName: false,
-      ...(action.payload.appPositioning
-        ? { appPositioning: action.payload.appPositioning }
+      ...(action.payload.applicationDetail
+        ? { applicationDetail: action.payload.applicationDetail }
         : {}),
     };
   },

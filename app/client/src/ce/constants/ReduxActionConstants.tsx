@@ -1063,7 +1063,9 @@ export interface ApplicationPayload {
   slug: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
-  appPositioning?: AppPositioningTypeConfig;
+  applicationDetail?: {
+    appPositioning?: AppPositioningTypeConfig;
+  };
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
   applicationId?: string;
