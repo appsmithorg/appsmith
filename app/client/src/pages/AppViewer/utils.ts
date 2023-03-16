@@ -1,4 +1,5 @@
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import tinycolor from "tinycolor2";
 import {
@@ -56,9 +57,8 @@ export const getMenuItemTextColor = (
 ) => {
   switch (navColorStyle) {
     case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT: {
-      const resultantColor: tinycolor.ColorFormats.HSLA | string = tinycolor(
-        color,
-      ).toHsl();
+      const resultantColor: tinycolor.ColorFormats.HSLA | string =
+        tinycolor(color).toHsl();
 
       if (isDefaultState) {
         return Colors.GREY_9;

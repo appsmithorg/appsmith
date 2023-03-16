@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -148,28 +149,46 @@ public class UserWorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
+        String randomString = UUID.randomUUID().toString();
 
-        User currentUser = userRepository.findByEmail("api_user").block();
+        Workspace myWorkspace = new Workspace();
+        myWorkspace.setName("Test org" + randomString);
+        final Workspace testWorkspace = workspaceService.create(myWorkspace).block();
+
+        // Now add api_user as a developer of the workspace
+        Set<String> permissionGroupIds = testWorkspace.getDefaultPermissionGroups();
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository.findAllById(permissionGroupIds).collectList().block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        User api_user = userService.findByEmail("api_user").block();
         User usertest = userService.findByEmail("usertest@usertest.com").block();
 
+        // Make api_user and user_test administrators
+        adminPermissionGroup.setAssignedToUserIds(Set.of(usertest.getId(), api_user.getId()));
+        permissionGroupRepository.save(adminPermissionGroup).block();
+
         Application application = new Application();
-        application.setName("leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser app");
-        Application savedApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+        application.setName("Test App " + randomString);
+        Application savedApplication = applicationPageService.createApplication(application, testWorkspace.getId()).block();
 
         // Add application and workspace to the recently used list by accessing the application pages.
         newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(savedApplication.getId(), null, false, true).block();
 
-        Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService.getWorkspaceMembers(workspace.getId())
+        Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId())
                 .flatMapMany(workspaceMembers -> Flux.fromIterable(workspaceMembers))
                 .map(WorkspaceMemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
                 .block();
 
-        Mono<User> leaveWorkspaceMono = userWorkspaceService.leaveWorkspace(workspace.getId())
+        Mono<User> leaveWorkspaceMono = userWorkspaceService.leaveWorkspace(testWorkspace.getId())
                 .cache();
 
         Mono<Set<String>> uniqueUsersInWorkspaceAfterMono = leaveWorkspaceMono
-                .then(workspaceRepository.findById(workspace.getId()))
+                .then(workspaceRepository.findById(testWorkspace.getId()))
                 .flatMapMany(afterWorkspace -> {
                     Set<String> defaultPermissionGroups = afterWorkspace.getDefaultPermissionGroups();
 
@@ -186,8 +205,15 @@ public class UserWorkspaceServiceTest {
 
         StepVerifier.create(uniqueUsersInWorkspaceAfterMono)
                 .assertNext(uniqueUsersInWorkspaceAfter -> {
-                    assertThat(uniqueUsersInWorkspaceBefore).containsAll(Set.of(currentUser.getId(), usertest.getId()));
+                    assertThat(uniqueUsersInWorkspaceBefore).containsAll(Set.of(api_user.getId(), usertest.getId()));
                     assertThat(uniqueUsersInWorkspaceAfter).containsAll(Set.of(usertest.getId()));
+                })
+                .verifyComplete();
+
+        StepVerifier.create(userDataService.getForCurrentUser())
+                .assertNext(userData -> {
+                    assertThat(userData.getRecentlyUsedWorkspaceIds()).doesNotContain(testWorkspace.getId());
+                    assertThat(userData.getRecentlyUsedAppIds()).doesNotContain(savedApplication.getId());
                 })
                 .verifyComplete();
     }
@@ -242,7 +268,7 @@ public class UserWorkspaceServiceTest {
 
         StepVerifier
                 .create(updateUserRoleMono)
-                .verifyError();
+                .expectErrorMessage(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage());
     }
 
     @Test

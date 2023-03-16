@@ -5,7 +5,7 @@ import Axios from "axios";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { isBase64String, isUrlString } from "./downloadActionUtils";
 import { isBlobUrl } from "utils/AppsmithUtils";
-import { TDownloadDescription } from "workers/Evaluation/fns/download";
+import type { TDownloadDescription } from "workers/Evaluation/fns/download";
 
 function downloadBlobURL(url: string, name: string) {
   const ele = document.createElement("a");

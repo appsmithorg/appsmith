@@ -17,14 +17,12 @@ describe("File picker widget v2", () => {
     cy.updateCodeInput(".t--property-control-text", `{{FilePicker1.isDirty}}`);
   });
 
-  it("2. Check isDirty meta property", function() {
+  it("2. Check isDirty meta property", function () {
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Upload a new file
     cy.get(widgetsPage.filepickerwidgetv2).click();
-    cy.get(commonlocators.filePickerInput)
-      .first()
-      .attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerInput).first().attachFile("testFile.mov");
     cy.get(commonlocators.filePickerUploadButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -47,9 +45,7 @@ describe("File picker widget v2", () => {
       cy.wait(1000);
       cy.validateEvaluatedValue("testFile.mov");
 
-      cy.get(".t--more-action-menu")
-        .first()
-        .click({ force: true });
+      cy.get(".t--more-action-menu").first().click({ force: true });
 
       // Go back to widgets page
       cy.get(explorer.widgetSwitchId).click();

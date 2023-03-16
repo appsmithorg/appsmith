@@ -1,13 +1,13 @@
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
-import { AxiosPromise } from "axios";
-import { AppColorCode } from "constants/DefaultTheme";
-import { AppIconName } from "design-system-old";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { APP_MODE } from "entities/App";
-import { ApplicationVersion } from "actions/applicationActions";
-import { Datasource } from "entities/Datasource";
-import { NavigationSetting } from "constants/AppConstants";
+import type { ApiResponse } from "./ApiResponses";
+import type { AxiosPromise } from "axios";
+import type { AppColorCode } from "constants/DefaultTheme";
+import type { AppIconName } from "design-system-old";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type { APP_MODE } from "entities/App";
+import type { ApplicationVersion } from "actions/applicationActions";
+import type { Datasource } from "entities/Datasource";
+import type { NavigationSetting } from "constants/AppConstants";
 
 export type EvaluationVersion = number;
 
@@ -70,9 +70,8 @@ export interface FetchApplicationResponseData {
   workspaceId: string;
 }
 
-export type FetchApplicationResponse = ApiResponse<
-  FetchApplicationResponseData
->;
+export type FetchApplicationResponse =
+  ApiResponse<FetchApplicationResponseData>;
 
 export type FetchApplicationsResponse = ApiResponse<
   FetchApplicationResponseData[]

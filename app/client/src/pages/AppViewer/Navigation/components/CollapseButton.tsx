@@ -8,7 +8,7 @@ import { TooltipComponent } from "design-system-old";
 import React from "react";
 import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import {
   CollapseIconContainer,
   StyledIconContainer,
@@ -58,7 +58,8 @@ const CollapseButton = (props: CollapseButtonProps) => {
         <CollapseIconContainer
           borderRadius={borderRadius}
           className={classNames({
-            "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400 cursor-pointer": true,
+            "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400 cursor-pointer":
+              true,
           })}
           isOpen={isOpen}
           isPinned={isPinned}

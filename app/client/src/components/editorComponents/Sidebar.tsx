@@ -161,7 +161,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]:
+          true,
         relative: pinned && !isPreviewingApp,
         "-translate-x-full": (!pinned && !active) || isPreviewingApp,
         "shadow-xl": !pinned,
@@ -199,7 +200,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         <div
           className={classNames({
-            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center": true,
+            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center":
+              true,
             "bg-blue-500": resizer.resizing,
           })}
         >

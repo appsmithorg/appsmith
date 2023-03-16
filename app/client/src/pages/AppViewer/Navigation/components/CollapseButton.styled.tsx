@@ -5,7 +5,8 @@ import {
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
 import { Colors } from "constants/Colors";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 
 export const StyledIconContainer = styled.div<{
   primaryColor: string;

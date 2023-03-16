@@ -1,5 +1,5 @@
-import { FlexLayer, LayerChild } from "./autoLayoutTypes";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getLayerIndexOfWidget,
   pasteWidgetInFlexLayers,

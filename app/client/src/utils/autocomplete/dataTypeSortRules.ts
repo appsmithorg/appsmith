@@ -1,4 +1,4 @@
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import type { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
   STRING: ["selectedRow", "data", "text"],

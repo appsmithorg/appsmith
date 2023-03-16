@@ -1,7 +1,8 @@
 import React from "react";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import classNames from "classnames";
 import {
   StyledContainer,

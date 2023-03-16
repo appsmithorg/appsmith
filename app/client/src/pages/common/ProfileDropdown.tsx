@@ -1,7 +1,7 @@
 import React from "react";
+import type { CommonComponentProps } from "design-system-old";
 import {
   Classes,
-  CommonComponentProps,
   Menu,
   MenuDivider,
   MenuItem,
@@ -10,11 +10,8 @@ import {
   TooltipComponent,
 } from "design-system-old";
 import styled from "styled-components";
-import {
-  Classes as BlueprintClasses,
-  PopperModifiers,
-  Position,
-} from "@blueprintjs/core";
+import type { PopperModifiers } from "@blueprintjs/core";
+import { Classes as BlueprintClasses, Position } from "@blueprintjs/core";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -23,8 +20,8 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PROFILE } from "constants/routes";
 import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
+import type { NavigationSetting } from "constants/AppConstants";
 import {
-  NavigationSetting,
   NAVIGATION_SETTINGS,
   TOOLTIP_HOVER_ON_DELAY,
 } from "constants/AppConstants";

@@ -1,11 +1,10 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 //import * as _ from "@ObjectsCore";
 
-describe("Authentiacted Api with OAuth 2.O authorization code test cases", function() {
-  it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function() {
-
+describe("Authentiacted Api with OAuth 2.O authorization code test cases", function () {
+  it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function () {
     // Create OAuth client
-    cy.fixture("datasources").then((datasourceFormData : any) => {
+    cy.fixture("datasources").then((datasourceFormData: any) => {
       _.dataSources.CreateOAuthClient("authorization_code");
       // Create datasource
       _.agHelper.GenerateUUID();

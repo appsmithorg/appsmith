@@ -39,7 +39,7 @@ const GRAPHQL_LIMIT_DATA = [
   },
 ];
 
-describe("GraphQL Datasource Implementation", function() {
+describe("GraphQL Datasource Implementation", function () {
   before(() => {
     appName = localStorage.getItem("AppName") || "";
     _.agHelper.GenerateUUID();
@@ -50,7 +50,7 @@ describe("GraphQL Datasource Implementation", function() {
     _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
   });
 
-  it("1. Should execute the API and validate the response", function() {
+  it("1. Should execute the API and validate the response", function () {
     _.apiPage.SelectPaneTab("Body");
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_QUERY,
@@ -64,7 +64,7 @@ describe("GraphQL Datasource Implementation", function() {
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("2. Pagination for limit based should work without offset", function() {
+  it("2. Pagination for limit based should work without offset", function () {
     /* Create an API */
     _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     _.apiPage.SelectPaneTab("Body");
@@ -92,7 +92,7 @@ describe("GraphQL Datasource Implementation", function() {
     _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("3. Pagination for limit based should work with offset", function() {
+  it("3. Pagination for limit based should work with offset", function () {
     /* Create an API */
     _.dataSources.CreateDataSource("UnAuthenticatedGraphQL");
     _.apiPage.SelectPaneTab("Body");

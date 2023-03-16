@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import {
   APPLICATION_TITLE_MAX_WIDTH,
-  NavigationSetting,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 

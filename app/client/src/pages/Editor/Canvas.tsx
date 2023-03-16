@@ -3,7 +3,7 @@ import log from "loglevel";
 import React from "react";
 import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
-import { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "widgets/constants";
 
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";

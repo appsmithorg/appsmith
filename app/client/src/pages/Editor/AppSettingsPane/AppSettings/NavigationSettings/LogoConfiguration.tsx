@@ -2,10 +2,11 @@ import {
   APP_NAVIGATION_SETTING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { NavigationSetting } from "constants/AppConstants";
-import { Dropdown, DropdownOption, Text, TextType } from "design-system-old";
+import type { NavigationSetting } from "constants/AppConstants";
+import type { DropdownOption } from "design-system-old";
+import { Dropdown, Text, TextType } from "design-system-old";
 import React from "react";
-import { UpdateSetting } from ".";
+import type { UpdateSetting } from ".";
 
 const LogoConfiguration = (props: {
   options: DropdownOption[];

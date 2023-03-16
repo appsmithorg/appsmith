@@ -16,7 +16,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 

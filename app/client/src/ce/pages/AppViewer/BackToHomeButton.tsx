@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AppsIcon from "remixicon-react/AppsLineIcon";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,

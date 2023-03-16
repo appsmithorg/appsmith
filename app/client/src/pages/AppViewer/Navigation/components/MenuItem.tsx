@@ -1,6 +1,7 @@
 import React from "react";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";

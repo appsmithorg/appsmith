@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  APPLICATION_TITLE_MAX_WIDTH,
-  NavigationSetting,
-} from "constants/AppConstants";
+import { APPLICATION_TITLE_MAX_WIDTH } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { StyledApplicationName } from "./ApplicationName.styled";
 import { isEllipsisActive } from "utils/helpers";
 import { TooltipComponent } from "design-system-old";

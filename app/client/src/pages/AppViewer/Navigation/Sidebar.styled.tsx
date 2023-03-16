@@ -1,8 +1,5 @@
-import {
-  NavigationSetting,
-  NAVIGATION_SETTINGS,
-  SIDEBAR_WIDTH,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import {

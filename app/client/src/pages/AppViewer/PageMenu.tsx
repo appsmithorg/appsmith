@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -17,7 +17,8 @@ import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
@@ -95,7 +96,8 @@ export function PageMenu(props: NavigationProps) {
       {/* MAIN CONTAINER */}
       <PageMenuContainer
         className={classNames({
-          "fixed flex flex-col w-7/12 transform transition-all duration-400": true,
+          "fixed flex flex-col w-7/12 transform transition-all duration-400":
+            true,
           "-left-full": !isOpen,
           "left-0": isOpen,
         })}

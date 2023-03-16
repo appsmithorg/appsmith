@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MenuItem from "./components/MenuItem";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";

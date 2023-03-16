@@ -1,8 +1,8 @@
-import {
-  keysOfNavigationSetting,
+import type {
   NavigationSetting,
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
+import { keysOfNavigationSetting } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const logEvent = (

@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("DatePicker Widget Property pane tests with js bindings", function() {
+describe("DatePicker Widget Property pane tests with js bindings", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -31,9 +31,7 @@ describe("DatePicker Widget required property test", () => {
     cy.openPropertyPane("datepickerwidget2");
     cy.wait(1000);
     //set the required condition to true in the property pane
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
     //preview changes
     cy.PublishtheApp();
     cy.wait(1000);
