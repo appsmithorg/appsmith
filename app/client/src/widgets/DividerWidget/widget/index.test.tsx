@@ -6,10 +6,6 @@ import configureStore from "redux-mock-store";
 import { ThemeProvider } from "styled-components";
 import DividerWidget, { DividerWidgetProps } from "./";
 
-jest.mock("react-dnd", () => ({
-  useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
-}));
-
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {

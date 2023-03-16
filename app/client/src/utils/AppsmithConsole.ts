@@ -98,7 +98,7 @@ function addErrors(errors: ErrorObject[]) {
   const refinedErrors = errors.map((error) => ({
     ...error.payload,
     severity: error.severity ?? Severity.ERROR,
-    timestamp: getTimeStamp(),
+    timestamp: Date.now().toString(),
     occurrenceCount: 1,
     category: error.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
   }));
