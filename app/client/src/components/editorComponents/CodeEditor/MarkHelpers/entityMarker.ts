@@ -12,7 +12,7 @@ const hasReference = (token: CodeMirror.Token) => {
   return token.type === "variable" || tokenString === "this";
 };
 
-export const PEEKABLE_CLASSNAME = "peekaboo";
+export const PEEKABLE_CLASSNAME = "peekable-entity-highlight";
 export const PEEKABLE_ATTRIBUTE = "peek-data";
 export const PEEKABLE_LINE = "peek-line";
 export const PEEKABLE_CH_START = "peek-ch-start";
