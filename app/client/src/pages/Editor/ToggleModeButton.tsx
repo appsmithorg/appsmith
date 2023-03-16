@@ -49,14 +49,6 @@ function ToggleModeButton() {
 
   const onClickPreviewModeButton = useCallback(() => {
     dispatch(setPreviewModeInitAction(!isPreviewMode));
-
-    // TODO - @Dhruvik - ImprovedAppNav
-    // Apologies, I don't have a better solution for this at the moment.
-    setTimeout(() => {
-      const header = document.querySelector(".js-appviewer-header");
-
-      dispatch(setAppViewHeaderHeight(header?.clientHeight || 0));
-    }, 100);
   }, [dispatch, setPreviewModeInitAction, isPreviewMode]);
 
   if (isExploring || isViewMode) return null;
