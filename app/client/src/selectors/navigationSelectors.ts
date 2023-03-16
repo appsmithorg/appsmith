@@ -108,7 +108,9 @@ export const getEntitiesForNavigation = createSelector(
       });
     });
     // dataTree for peekData
-    navigationData["appsmith"] = getAppsmithNavData({} as DataTreeAppsmith);
+    navigationData["appsmith"] = getAppsmithNavData(
+      dataTree.appsmith as DataTreeAppsmith,
+    );
     if (jsObjectName && jsObjectName in navigationData) {
       return {
         ...navigationData,
