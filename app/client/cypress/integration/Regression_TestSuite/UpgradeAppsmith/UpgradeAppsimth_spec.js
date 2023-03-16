@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const testdata = require("../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { CURRENT_REPO, REPO } from "../../../fixtures/REPO";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
@@ -33,7 +34,7 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade only on CE and skip for BE
-    if (Cypress.env("Edition") === 0) {
+    if (CURRENT_REPO === REPO.CE) {
       cy.forceVisit(testdata.APPURL);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true);
       agHelper.Sleep(1000);
