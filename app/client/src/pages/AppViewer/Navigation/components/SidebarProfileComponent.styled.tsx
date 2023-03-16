@@ -3,7 +3,7 @@ import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 
 export const StyledContainer = styled.div<{
   primaryColor: string;

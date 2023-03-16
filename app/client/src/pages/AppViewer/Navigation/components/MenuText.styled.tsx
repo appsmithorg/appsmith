@@ -1,4 +1,4 @@
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { getTypographyByKey } from "design-system-old";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import styled from "styled-components";

@@ -1,13 +1,14 @@
-import React, { ReactNode, useMemo } from "react";
+import type { ReactNode } from "react";
+import React, { useMemo } from "react";
 import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
 import { isGraphqlPlugin, PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { groupBy } from "lodash";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   apiEditorIdURL,

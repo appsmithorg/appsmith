@@ -1,13 +1,14 @@
 import React from "react";
-import { TextType, Text, ButtonGroupOption } from "design-system-old";
+import type { ButtonGroupOption } from "design-system-old";
+import { TextType, Text } from "design-system-old";
 // TODO - @Dhruvik - ImprovedAppNav
 // Update the DS package
 import { ButtonGroup } from "design-system-old";
-import {
+import type {
   NavigationSetting,
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
-import { UpdateSetting } from ".";
+import type { UpdateSetting } from ".";
 
 export type ButtonGroupSettingProps = {
   heading: string;

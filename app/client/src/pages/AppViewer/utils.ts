@@ -1,4 +1,5 @@
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import tinycolor from "tinycolor2";
 import { calulateHoverColor } from "widgets/WidgetUtils";

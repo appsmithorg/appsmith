@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {

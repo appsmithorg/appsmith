@@ -1,6 +1,6 @@
 import { ENTITY_TYPE } from "design-system-old";
 import { PluginType } from "entities/Action";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 
 const dataTree: DataTree = {

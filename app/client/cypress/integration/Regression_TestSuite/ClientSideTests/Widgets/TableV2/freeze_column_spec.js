@@ -119,9 +119,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.get(".bp3-menu")
         .contains("Freeze column left")
         .then(($elem) => {
-          cy.get($elem)
-            .parent()
-            .should("not.have.class", "bp3-disabled");
+          cy.get($elem).parent().should("not.have.class", "bp3-disabled");
         });
 
       // Check in publish mode.
@@ -135,9 +133,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.get(".bp3-menu")
         .contains("Freeze column left")
         .then(($elem) => {
-          cy.get($elem)
-            .parent()
-            .should("not.have.class", "bp3-disabled");
+          cy.get($elem).parent().should("not.have.class", "bp3-disabled");
         });
       cy.goToEditFromPublish();
     });
@@ -407,9 +403,7 @@ describe.only("3. Server-side pagination when turned on test of re-ordering colu
     cy.dragAndDropColumn("productName", "id");
 
     // Check if product name is at first position
-    cy.get("[data-header]")
-      .first()
-      .should("contain.text", "productName");
+    cy.get("[data-header]").first().should("contain.text", "productName");
 
     // Check if ProductName column is at the top in property pane tableData
     cy.get(PROPERTY_SELECTOR.tableColumnNames)
@@ -431,9 +425,7 @@ describe.only("3. Server-side pagination when turned on test of re-ordering colu
     // =========================== Scenario 2 ===========================
     cy.dragAndDropColumn("id", "email");
 
-    cy.get("[data-header]")
-      .eq(1)
-      .should("contain.text", "email");
+    cy.get("[data-header]").eq(1).should("contain.text", "email");
 
     cy.get(PROPERTY_SELECTOR.tableColumnNames)
       .eq(1)
@@ -446,9 +438,7 @@ describe.only("3. Server-side pagination when turned on test of re-ordering colu
 
     cy.dragAndDropColumn("id", "orderAmount");
 
-    cy.get("[data-header]")
-      .last()
-      .should("contain.text", "id");
+    cy.get("[data-header]").last().should("contain.text", "id");
 
     cy.get(PROPERTY_SELECTOR.tableColumnNames)
       .last()
@@ -464,9 +454,7 @@ describe.only("3. Server-side pagination when turned on test of re-ordering colu
     cy.dragAndDropColumn("orderAmount", "id");
 
     // Check if orderAmount is at 3rd position
-    cy.get("[data-header]")
-      .eq(2)
-      .should("contain.text", "orderAmount");
+    cy.get("[data-header]").eq(2).should("contain.text", "orderAmount");
 
     // Check if id column is at the top in property pane tableData
     cy.get(PROPERTY_SELECTOR.tableColumnNames)
@@ -484,9 +472,7 @@ describe.only("3. Server-side pagination when turned on test of re-ordering colu
 
     cy.dragAndDropColumn("productName", "id");
 
-    cy.get("[data-header]")
-      .eq(1)
-      .should("contain.text", "productName");
+    cy.get("[data-header]").eq(1).should("contain.text", "productName");
 
     cy.get(PROPERTY_SELECTOR.tableColumnNames)
       .eq(1)

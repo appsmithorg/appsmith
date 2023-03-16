@@ -1,8 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export enum CursorPositionOrigin {
   Navigation = "Navigation",
@@ -151,9 +149,8 @@ export const editorContextReducer = createImmerReducer(initialState, {
         selectedPropertyTabIndex: index,
       };
     } else {
-      state.propertyPanelState[
-        panelPropertyPath
-      ].selectedPropertyTabIndex = index;
+      state.propertyPanelState[panelPropertyPath].selectedPropertyTabIndex =
+        index;
     }
   },
   [ReduxActionTypes.SET_PANEL_PROPERTY_SECTION_STATE]: (
@@ -172,9 +169,8 @@ export const editorContextReducer = createImmerReducer(initialState, {
       };
     }
 
-    state.propertyPanelState[panelPropertyPath].propertySectionState[
-      key
-    ] = isOpen;
+    state.propertyPanelState[panelPropertyPath].propertySectionState[key] =
+      isOpen;
   },
   [ReduxActionTypes.SET_PANEL_PROPERTIES_STATE]: (
     state: EditorContextState,

@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 // import { get } from "lodash";
 // import { useSelector } from "react-redux";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";

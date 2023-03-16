@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -18,7 +18,8 @@ import {
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
@@ -46,12 +47,8 @@ type SidebarProps = {
 
 export function Sidebar(props: SidebarProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const {
-    currentApplicationDetails,
-    currentUser,
-    currentWorkspaceId,
-    pages,
-  } = props;
+  const { currentApplicationDetails, currentUser, currentWorkspaceId, pages } =
+    props;
   const navColorStyle =
     currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;

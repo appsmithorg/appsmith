@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { get } from "lodash";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -19,7 +19,8 @@ import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
 } from "./utils";
-import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 
 const PageTab = styled(NavLink)<{
   primaryColor: string;

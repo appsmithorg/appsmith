@@ -1,4 +1,4 @@
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -19,7 +19,8 @@ import ApplicationName from "./ApplicationName";
 import ShareButton from "./ShareButton";
 import HeaderRightItemContainer from "./HeaderRightItemContainer";
 import PrimaryCTA from "pages/AppViewer/PrimaryCTA";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";

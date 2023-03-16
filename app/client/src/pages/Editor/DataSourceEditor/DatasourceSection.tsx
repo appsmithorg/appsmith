@@ -1,4 +1,4 @@
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import React from "react";
 import { map, get, isArray } from "lodash";
 import { Colors } from "constants/Colors";
@@ -42,11 +42,13 @@ export default class RenderDatasourceInformation extends React.Component<{
       const firstConfigProperty = children[0].configProperty;
       const configPropertyInfo = firstConfigProperty.split("[*].");
       const values = get(this.props.datasource, configPropertyInfo[0], null);
-      const renderValues: Array<Array<{
-        key: string;
-        value: any;
-        label: string;
-      }>> = children.reduce(
+      const renderValues: Array<
+        Array<{
+          key: string;
+          value: any;
+          label: string;
+        }>
+      > = children.reduce(
         (
           acc,
           { configProperty, label }: { configProperty: string; label: string },

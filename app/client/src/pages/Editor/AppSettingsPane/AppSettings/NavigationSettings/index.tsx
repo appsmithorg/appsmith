@@ -10,12 +10,13 @@ import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/
 import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
 import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
 import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
-import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
 import ColorStyleIcon from "./ColorStyleIcon";
 import SwitchSetting from "./SwitchSetting";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import type { UpdateApplicationPayload } from "api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "actions/applicationActions";

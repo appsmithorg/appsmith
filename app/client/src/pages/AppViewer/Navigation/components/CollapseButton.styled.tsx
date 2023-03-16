@@ -4,7 +4,7 @@ import {
   getMenuItemBackgroundColorOnHover,
 } from "pages/AppViewer/utils";
 import { Colors } from "constants/Colors";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 
 export const StyledIconContainer = styled.div<{
   primaryColor: string;

@@ -1,11 +1,13 @@
-import {
+import type {
   ApplicationPayload,
   Page,
   ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import ApplicationApi, {
+import type {
   ApplicationObject,
   ApplicationPagePayload,
   ApplicationResponsePayload,
@@ -27,13 +29,14 @@ import ApplicationApi, {
   UpdateApplicationRequest,
   UpdateApplicationResponse,
 } from "api/ApplicationApi";
+import ApplicationApi from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
   fetchApplication,
@@ -59,9 +62,12 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
-import { Workspace, Workspaces } from "@appsmith/constants/workspaceConstants";
-import { AppIconName } from "design-system-old";
-import { AppColorCode } from "constants/DefaultTheme";
+import type {
+  Workspace,
+  Workspaces,
+} from "@appsmith/constants/workspaceConstants";
+import type { AppIconName } from "design-system-old";
+import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -89,7 +95,7 @@ import {
   setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
 import { failFastApiCalls } from "./InitSagas";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
@@ -101,7 +107,8 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
@@ -181,22 +188,23 @@ export function* getAllApplicationSaga() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
-        (userWorkspaces: WorkspaceApplicationObject) => ({
-          workspace: userWorkspaces.workspace,
-          users: userWorkspaces.users,
-          applications: !userWorkspaces.applications
-            ? []
-            : userWorkspaces.applications.map(
-                (application: ApplicationObject) => {
-                  return {
-                    ...application,
-                    defaultPageId: getDefaultPageId(application.pages),
-                  };
-                },
-              ),
-        }),
-      );
+      const workspaceApplication: WorkspaceApplicationObject[] =
+        response.data.workspaceApplications.map(
+          (userWorkspaces: WorkspaceApplicationObject) => ({
+            workspace: userWorkspaces.workspace,
+            users: userWorkspaces.users,
+            applications: !userWorkspaces.applications
+              ? []
+              : userWorkspaces.applications.map(
+                  (application: ApplicationObject) => {
+                    return {
+                      ...application,
+                      defaultPageId: getDefaultPageId(application.pages),
+                    };
+                  },
+                ),
+          }),
+        );
 
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
@@ -596,8 +604,7 @@ export function* createApplicationSaga(
           FirstTimeUserOnboardingApplicationId === ""
         ) {
           yield put({
-            type:
-              ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+            type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
         }
@@ -683,12 +690,8 @@ function* showReconnectDatasourcesModalSaga(
     pageId?: string;
   }>,
 ) {
-  const {
-    application,
-    pageId,
-    unConfiguredDatasourceList,
-    workspaceId,
-  } = action.payload;
+  const { application, pageId, unConfiguredDatasourceList, workspaceId } =
+    action.payload;
   yield put(getAllApplications());
   yield put(importApplicationSuccess(application));
   yield put(fetchPlugins({ workspaceId }));

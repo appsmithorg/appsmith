@@ -1,4 +1,5 @@
-import React, { forwardRef, LegacyRef } from "react";
+import type { LegacyRef } from "react";
+import React, { forwardRef } from "react";
 import classNames from "classnames";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";

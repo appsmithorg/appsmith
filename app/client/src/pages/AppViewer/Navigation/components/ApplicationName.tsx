@@ -1,5 +1,5 @@
 import React from "react";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { StyledApplicationName } from "./ApplicationName.styled";
 
 type ApplicationNameProps = {

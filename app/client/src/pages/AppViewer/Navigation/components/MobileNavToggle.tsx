@@ -2,7 +2,7 @@ import React from "react";
 import MenuIcon from "remixicon-react/MenuFillIcon";
 import CloseIcon from "remixicon-react/CloseFillIcon";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 
 type MobileNavToggleProps = {
   isMenuOpen: boolean;

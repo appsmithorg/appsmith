@@ -23,7 +23,7 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { Icon } from "design-system-old";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";

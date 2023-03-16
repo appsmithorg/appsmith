@@ -1,4 +1,4 @@
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemBackgroundColorWhenActive,

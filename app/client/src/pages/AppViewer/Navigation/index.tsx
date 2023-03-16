@@ -1,17 +1,17 @@
 import React, { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
-import { Theme } from "constants/DefaultTheme";
+import type { User } from "constants/userConstants";
+import type { Theme } from "constants/DefaultTheme";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import HtmlTitle from "../AppViewerHtmlTitle";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";

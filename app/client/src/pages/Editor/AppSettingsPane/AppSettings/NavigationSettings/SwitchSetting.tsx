@@ -1,9 +1,9 @@
 import React from "react";
-import { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import SwitchWrapper from "../../Components/SwitchWrapper";
 import { Switch } from "design-system-old";
-import { UpdateSetting } from ".";
+import type { UpdateSetting } from ".";
 import _ from "lodash";
 
 const SwitchSetting = (props: {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -11,7 +12,7 @@ import {
   StyledMenuItemInDropdown,
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";

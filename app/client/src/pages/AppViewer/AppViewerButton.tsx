@@ -1,5 +1,6 @@
-import { ButtonVariant, ButtonVariantTypes } from "components/constants";
-import { NavigationSetting } from "constants/AppConstants";
+import type { ButtonVariant } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
+import type { NavigationSetting } from "constants/AppConstants";
 import styled from "styled-components";
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import {

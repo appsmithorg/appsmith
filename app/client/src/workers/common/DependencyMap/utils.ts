@@ -1,9 +1,8 @@
 import { find, get, isEmpty, union } from "lodash";
 import toPath from "lodash/toPath";
+import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
-  EvalError,
-  DependencyMap,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
@@ -16,7 +15,7 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
+import type {
   DataTreeAction,
   DataTreeEntity,
   DataTreeJSAction,
@@ -155,9 +154,8 @@ export function listTriggerFieldDependencies(
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
-        triggerFieldDependency[
-          `${entityName}.${propertyPath}`
-        ] = existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
+        triggerFieldDependency[`${entityName}.${propertyPath}`] =
+          existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
       });
     }
   }
@@ -178,9 +176,8 @@ export function listValidationDependencies(
           const dependencyArray = validationConfig.dependentPaths.map(
             (path) => `${entityName}.${path}`,
           );
-          validationDependency[
-            `${entityName}.${propertyPath}`
-          ] = dependencyArray;
+          validationDependency[`${entityName}.${propertyPath}`] =
+            dependencyArray;
         }
       },
     );

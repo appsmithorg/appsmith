@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Character Datatype tests", function() {
+describe("Character Datatype tests", function () {
   before(() => {
     cy.fixture("Datatypes/CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -17,7 +17,7 @@ describe("Character Datatype tests", function() {
     appSettings.OpenPaneAndChangeTheme("Pacific");
   });
 
-  it("1. Create Postgress DS", function() {
+  it("1. Create Postgress DS", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

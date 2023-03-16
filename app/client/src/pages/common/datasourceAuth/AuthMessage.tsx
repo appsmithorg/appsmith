@@ -1,7 +1,7 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
 import { CalloutV2 } from "design-system-old";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPluginTypeFromDatasourceId } from "selectors/entitiesSelector";

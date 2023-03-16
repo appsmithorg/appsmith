@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { IconName } from "@blueprintjs/icons";
-import { ButtonVariant } from "components/constants";
-import { BaseCellComponentProps } from "../Constants";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonVariant } from "components/constants";
+import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 

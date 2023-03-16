@@ -15,8 +15,9 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_CUSTOM_PATH,
 } from "constants/routes";
-import { withRouter, RouteComponentProps } from "react-router";
 import Navigation from "pages/AppViewer/Navigation";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import AppEditorHeader from "pages/Editor/EditorHeader";
 
 type Props = RouteComponentProps;
