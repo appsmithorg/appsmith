@@ -11,6 +11,7 @@ export const StyledMenuItem = styled(NavLink)<{
   borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  forSidebar?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -56,7 +57,14 @@ export const StyledMenuItem = styled(NavLink)<{
     }
   }
 
-  &:last-child {
-    margin-bottom: 16px;
-  }
+  ${({ forSidebar }) => {
+    return (
+      forSidebar &&
+      `
+        &:last-child {
+          margin-bottom: 16px;
+        }
+      `
+    );
+  }};
 `;

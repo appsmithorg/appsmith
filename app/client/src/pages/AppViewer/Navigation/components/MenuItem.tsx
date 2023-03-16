@@ -19,9 +19,11 @@ type MenuItemProps = {
   query: string;
   navigationSetting?: NavigationSetting;
   isMinimal?: boolean;
+  forSidebar?: boolean;
 };
 
 const MenuItem = ({
+  forSidebar,
   isMinimal,
   navigationSetting,
   page,
@@ -51,6 +53,7 @@ const MenuItem = ({
       activeClassName="is-active"
       borderRadius={borderRadius}
       className="t--page-switch-tab"
+      forSidebar={forSidebar}
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
       to={{

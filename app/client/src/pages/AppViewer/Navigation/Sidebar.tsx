@@ -186,6 +186,7 @@ export function Sidebar(props: SidebarProps) {
         {appPages.map((page) => {
           return (
             <MenuItem
+              forSidebar
               isMinimal={isMinimal}
               key={page.pageId}
               navigationSetting={
