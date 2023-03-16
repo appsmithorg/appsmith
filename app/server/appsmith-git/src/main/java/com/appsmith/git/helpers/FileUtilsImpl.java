@@ -286,10 +286,11 @@ public class FileUtilsImpl implements FileInterface {
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveActions(
                                         resource.getValue(),
-                                        applicationGitReference.getActionBody().containsKey(resource.getKey()) ? applicationGitReference.getActionBody().get(resource.getKey()) : null,
+                                        applicationGitReference.getActionBody().getOrDefault(resource.getKey(), null),
                                         queryName,
                                         actionSpecificDirectory.resolve(queryName),
-                                        gson
+                                        gson,
+                                        applicationGitReference.getActionsFileMapping().getOrDefault(resource.getKey(), CommonConstants.JSON_EXTENSION)
                                 );
                                 // Delete the resource from the old file structure v2
                                 deleteFile(pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION));
@@ -409,13 +410,13 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return if the file operation is successful
      */
-    private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path, Gson gson) {
+    private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path, Gson gson, String fileType) {
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
             // Body will be null if the action is of type JS
             if (body != null) {
-                Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
+                Path bodyPath = path.resolve(resourceName + fileType);
                 writeStringToFile(body, bodyPath);
             }
 

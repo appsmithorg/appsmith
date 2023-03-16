@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.constants.GitPluginTypeFileMapping;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
@@ -154,6 +155,7 @@ public class GitFileUtils {
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
         Map<String, String> resourceMapBody = new HashMap<>();
+        Map<String, String> fileExtensionMapping = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -205,10 +207,15 @@ public class GitFileUtils {
                         // For the regular actions we save the body field to git repo
                         resourceMapBody.put(prefix, body);
                     }
+
+                    // prefix will be used for naming the json file while saving the action to git repo
+                    fileExtensionMapping.put(prefix, GitPluginTypeFileMapping.valueOf(newAction.getPluginType().toString()).getValue());
+
                     resourceMap.put(prefix, newAction);
                 });
         applicationReference.setActions(new HashMap<>(resourceMap));
         applicationReference.setActionBody(new HashMap<>(resourceMapBody));
+        applicationReference.setActionsFileMapping(new HashMap<>(fileExtensionMapping));
         resourceMap.clear();
         resourceMapBody.clear();
 
