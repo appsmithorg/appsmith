@@ -236,9 +236,13 @@ const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
 const getAppPositioningType = (state: AppState) => {
-  if (state.ui.applications?.currentApplication?.appPositioning?.type) {
+  if (
+    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
+      ?.type
+  ) {
     return AppPositioningTypes[
-      state.ui.applications.currentApplication?.appPositioning?.type
+      state.ui.applications.currentApplication?.applicationDetail
+        ?.appPositioning?.type
     ];
   }
   return AppPositioningTypes.FIXED;
