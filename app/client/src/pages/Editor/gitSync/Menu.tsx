@@ -13,6 +13,8 @@ type Props = {
 const TabWrapper = styled.div`
   .react-tabs {
     border-bottom: 1px solid ${Colors.ALTO2};
+    z-index: 3;
+    position: relative;
   }
   .react-tabs__tab {
     margin-right: 0px;
