@@ -393,6 +393,7 @@ class CodeEditor extends Component<Props, State> {
           editor.setSize("100%", "100%");
         }
 
+        // console.log("handle change - did mount");
         CodeEditor.updateMarkings(
           editor,
           this.props.marking,
@@ -510,11 +511,17 @@ class CodeEditor extends Component<Props, State> {
         this.setEditorInput("");
       }
 
-      CodeEditor.updateMarkings(
-        this.editor,
-        this.props.marking,
-        this.props.entitiesForNavigation,
-      );
+      if (
+        this.props.entitiesForNavigation !== prevProps.entitiesForNavigation ||
+        this.props.marking !== prevProps.marking
+      ) {
+        // console.log(
+        //   "handle change - did update",
+        //   this.props.entitiesForNavigation !== prevProps.entitiesForNavigation,
+        //   this.props.marking !== prevProps.marking,
+        // );
+        this.debouncedUpdateMarkings();
+      }
     });
   }
 
@@ -964,11 +971,13 @@ class CodeEditor extends Component<Props, State> {
       }
     }
 
-    if (this.editor) {
+    if (this.editor && changeObj) {
       CodeEditor.updateMarkings(
         this.editor,
         this.props.marking,
         this.props.entitiesForNavigation,
+        changeObj.from,
+        changeObj.to,
       );
     }
   };
@@ -1129,9 +1138,19 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
     entityNavigationData: EntityNavigationData,
+    from?: CodeMirror.Position,
+    to?: CodeMirror.Position,
   ) => {
-    marking.forEach((helper) => helper(editor, entityNavigationData));
+    marking.forEach((helper) => helper(editor, entityNavigationData, from, to));
   };
+
+  debouncedUpdateMarkings = debounce(() => {
+    CodeEditor.updateMarkings(
+      this.editor,
+      this.props.marking,
+      this.props.entitiesForNavigation,
+    );
+  }, 600);
 
   updatePropertyValue(value: string, cursor?: number) {
     this.editor.focus();
