@@ -6,18 +6,12 @@ describe("Slug URLs", () => {
   it("Checks URL redirection from legacy URLs to slug URLs", () => {
     applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
-      const pageId = pathname
-        .split("/")[3]
-        ?.split("-")
-        .pop();
+      const pageId = pathname.split("/")[3]?.split("-").pop();
       cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`).then(
         () => {
           cy.wait(10000);
           cy.location("pathname").then((pathname) => {
-            const pageId = pathname
-              .split("/")[3]
-              ?.split("-")
-              .pop();
+            const pageId = pathname.split("/")[3]?.split("-").pop();
             const appName = localStorage.getItem("AppName");
             expect(pathname).to.be.equal(
               `/app/${appName}/page1-${pageId}/edit`,
@@ -39,10 +33,7 @@ describe("Slug URLs", () => {
         200,
       );
       cy.location("pathname").then((pathname) => {
-        const pageId = pathname
-          .split("/")[3]
-          ?.split("-")
-          .pop();
+        const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
@@ -55,9 +46,7 @@ describe("Slug URLs", () => {
       cy.get(".t--context-menu").click({ force: true });
     });
     cy.selectAction("Edit Name");
-    cy.get(explorer.editEntity)
-      .last()
-      .type("Page renamed", { force: true });
+    cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
     cy.get("body").click(0, 0);
     cy.wait("@updatePage").should(
       "have.nested.property",
@@ -65,10 +54,7 @@ describe("Slug URLs", () => {
       200,
     );
     cy.location("pathname").then((pathname) => {
-      const pageId = pathname
-        .split("/")[3]
-        ?.split("-")
-        .pop();
+      const pageId = pathname.split("/")[3]?.split("-").pop();
       expect(pathname).to.be.equal(
         `/app/${applicationName}/page-renamed-${pageId}/edit`,
       );

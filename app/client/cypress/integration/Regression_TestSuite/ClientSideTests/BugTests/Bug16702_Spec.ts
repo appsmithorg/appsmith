@@ -23,8 +23,8 @@ const GRAPHQL_RESPONSE = {
   mission_name: "Sentinel-6 Michael Freilich",
 };
 
-describe("Binding Expressions should not be truncated in Url and path extraction", function() {
-  it.skip("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function() {
+describe("Binding Expressions should not be truncated in Url and path extraction", function () {
+  it.skip("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
     const jsObjectBody = `export default {
       limitValue: 1,
       offsetValue: 1,

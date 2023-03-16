@@ -1,5 +1,5 @@
 import React from "react";
-import { Severity } from "entities/AppsmithConsole";
+import type { Severity } from "entities/AppsmithConsole";
 import moment from "moment";
 
 // This component is used to render the timestamp in the error logs.

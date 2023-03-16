@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("MySQL Datatype tests", function() {
+describe("MySQL Datatype tests", function () {
   before(() => {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -18,7 +18,7 @@ describe("MySQL Datatype tests", function() {
     appSettings.OpenPaneAndChangeTheme("Moon");
   });
 
-  it("1. Create Mysql DS", function() {
+  it("1. Create Mysql DS", function () {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -88,7 +88,7 @@ describe("MySQL Datatype tests", function() {
     cy.wait(2000);
     inputData.result.forEach((res_array, i) => {
       res_array.forEach((value, j) => {
-        table.ReadTableRowColumnData(j, i, "v1",0).then(($cellData) => {
+        table.ReadTableRowColumnData(j, i, "v1", 0).then(($cellData) => {
           if (i === inputData.result.length - 1) {
             const obj = JSON.parse($cellData);
             expect(JSON.stringify(obj)).to.eq(JSON.stringify(value));

@@ -14,7 +14,7 @@ import {
   AppThemingMode,
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";

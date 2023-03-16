@@ -275,9 +275,7 @@ export class DataSources {
   }
 
   public ExpandSection(index: number) {
-    cy.get(this._collapseContainer)
-      .eq(index)
-      .click();
+    cy.get(this._collapseContainer).eq(index).click();
     cy.get(this._collapseContainer)
       .eq(index)
       .find(this.locator._chevronUp)
@@ -340,9 +338,7 @@ export class DataSources {
       : datasourceFormData["postgres-databaseName"];
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["postgres-port"].toString());
-    cy.get(this._databaseName)
-      .clear()
-      .type(databaseName);
+    cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(
       username == "" ? datasourceFormData["postgres-username"] : username,
@@ -373,9 +369,7 @@ export class DataSources {
       : datasourceFormData["mysql-databaseName"];
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["mysql-port"].toString());
-    cy.get(this._databaseName)
-      .clear()
-      .type(databaseName);
+    cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
@@ -578,9 +572,7 @@ export class DataSources {
     if (newValue) toChange = true;
     if (toChange) {
       cy.xpath(this._dropdownTitle(ddTitle)).click(); //to expand the dropdown
-      cy.xpath(this._visibleTextSpan(newValue))
-        .last()
-        .click({ force: true }); //to select the new value
+      cy.xpath(this._visibleTextSpan(newValue)).last().click({ force: true }); //to select the new value
     }
   }
 
@@ -621,10 +613,7 @@ export class DataSources {
   public ReadQueryTableResponse(index: number, timeout = 100) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
-    return cy
-      .xpath(this._queryTableResponse)
-      .eq(index)
-      .invoke("text");
+    return cy.xpath(this._queryTableResponse).eq(index).invoke("text");
   }
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {
