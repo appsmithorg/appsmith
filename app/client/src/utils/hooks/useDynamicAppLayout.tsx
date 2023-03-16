@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
@@ -193,6 +193,17 @@ export const useDynamicAppLayout = () => {
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
+    debounce(() => {
+      dispatch(
+        updateLayoutForMobileBreakpointAction(
+          MAIN_CONTAINER_WIDGET_ID,
+          appPositioningType === AppPositioningTypes.AUTO
+            ? mainCanvasProps?.isMobile
+            : false,
+          calculatedWidth,
+        ),
+      );
+    }, 250)();
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
