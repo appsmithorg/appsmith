@@ -111,7 +111,10 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
-    const { minWidth } = getWidgetMinMaxDimensionsInPixel(widget, canvasWidth);
+    const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+      widget,
+      mainCanvasWidth,
+    );
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = GridDefaults.DEFAULT_GRID_COLUMNS;
       widget.mobileLeftColumn = 0;
