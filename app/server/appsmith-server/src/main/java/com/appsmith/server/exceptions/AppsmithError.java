@@ -157,6 +157,7 @@ public enum AppsmithError {
     SESSION_BAD_STATE(500, AppsmithErrorCode.SESSION_BAD_STATE.getCode(), "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, "Invalid user session", ErrorType.INTERNAL_ERROR, null),
     INVALID_LICENSE_KEY_ENTERED(400, AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(), "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, "Invalid license key", ErrorType.ARGUMENT_ERROR, null),
     GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.", AppsmithErrorAction.DEFAULT, "Git repo is locked", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
+    CSRF_TOKEN_INVALID(403, AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(), "CSRF token missing/invalid. Please try again.", AppsmithErrorAction.DEFAULT, "CSRF token missing/invalid", ErrorType.BAD_REQUEST, null),
     ;
 
     private final Integer httpErrorCode;

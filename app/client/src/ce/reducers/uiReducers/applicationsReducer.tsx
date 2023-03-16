@@ -381,10 +381,17 @@ export const handlers = {
     if (action.payload.name) {
       isSavingAppName = true;
     }
+    if (state.currentApplication && action.payload.applicationDetail) {
+      state.currentApplication.applicationDetail =
+        action.payload.applicationDetail;
+    }
     return {
       ...state,
       isSavingAppName: isSavingAppName,
       isErrorSavingAppName: false,
+      ...(action.payload.applicationDetail
+        ? { applicationDetail: action.payload.applicationDetail }
+        : {}),
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (

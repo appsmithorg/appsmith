@@ -10,7 +10,10 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import {
+  AppLayoutConfig,
+  AppPositioningTypeConfig,
+} from "reducers/entityReducers/pageListReducer";
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 export const ReduxSagaChannels = {
@@ -1073,6 +1076,9 @@ export interface ApplicationPayload {
   slug: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
+  applicationDetail?: {
+    appPositioning?: AppPositioningTypeConfig;
+  };
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
   applicationId?: string;
