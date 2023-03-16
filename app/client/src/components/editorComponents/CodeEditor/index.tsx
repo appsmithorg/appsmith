@@ -520,7 +520,11 @@ class CodeEditor extends Component<Props, State> {
         //   this.props.entitiesForNavigation !== prevProps.entitiesForNavigation,
         //   this.props.marking !== prevProps.marking,
         // );
-        this.debouncedUpdateMarkings();
+        CodeEditor.updateMarkings(
+          this.editor,
+          this.props.marking,
+          this.props.entitiesForNavigation,
+        );
       }
     });
   }
@@ -1144,14 +1148,6 @@ class CodeEditor extends Component<Props, State> {
     marking.forEach((helper) => helper(editor, entityNavigationData, from, to));
   };
 
-  debouncedUpdateMarkings = debounce(() => {
-    CodeEditor.updateMarkings(
-      this.editor,
-      this.props.marking,
-      this.props.entitiesForNavigation,
-    );
-  }, 600);
-
   updatePropertyValue(value: string, cursor?: number) {
     this.editor.focus();
     if (value) {
@@ -1384,12 +1380,10 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
-  entitiesForNavigation: props.isJSObject
-    ? addThisReference(
-        getEntitiesForNavigation(state),
-        props.dataTreePath?.split(".")[0],
-      )
-    : getEntitiesForNavigation(state),
+  entitiesForNavigation: getEntitiesForNavigation(
+    state,
+    props.isJSObject ? props.dataTreePath?.split(".")[0] : undefined,
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1405,16 +1399,3 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
-
-const addThisReference = (
-  navigationData: EntityNavigationData,
-  entityName?: string,
-) => {
-  if (entityName && entityName in navigationData) {
-    return {
-      ...navigationData,
-      this: navigationData[entityName],
-    };
-  }
-  return navigationData;
-};
