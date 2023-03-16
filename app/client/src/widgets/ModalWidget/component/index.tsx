@@ -28,6 +28,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
 const Container = styled.div<{
   width?: number;
@@ -40,6 +42,8 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
+  headerHeight?: number;
+  smallHeaderHeight?: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -47,13 +51,16 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: var(--view-mode-header-height, 0);
+      top: ${(props) =>
+        `calc(${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        })`};
       right: 0;
       bottom: 0;
       height: ${(props) =>
-        props.isEditMode
-          ? "100vh"
-          : `calc(100vh - var(--view-mode-header-height, 0))`};
+        `calc(100vh - (${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        }))`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -170,6 +177,8 @@ export default function ModalComponent(props: ModalComponentProps) {
 
     return omit(allHandles, disabledResizeHandles);
   }, [disabledResizeHandles]);
+  const headerHeight = useSelector(getAppViewHeaderHeight);
+  const theme = useSelector(getCurrentThemeDetails);
 
   useEffect(() => {
     setTimeout(() => {
@@ -285,12 +294,14 @@ export default function ModalComponent(props: ModalComponentProps) {
       >
         <Container
           bottom={props.bottom}
+          headerHeight={headerHeight}
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
           maxWidth={props.maxWidth}
           minSize={props.minSize}
           right={props.bottom}
+          smallHeaderHeight={theme.smallHeaderHeight}
           top={props.top}
           width={props.width}
           zIndex={
