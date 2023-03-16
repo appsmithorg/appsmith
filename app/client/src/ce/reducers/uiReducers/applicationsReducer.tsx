@@ -1,27 +1,27 @@
-import { createReducer } from "utils/ReducerUtils";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-  ApplicationPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
-  Workspaces,
-  WorkspaceUser,
-} from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
 } from "@appsmith/constants/messages";
 import {
+  ApplicationPayload,
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  Workspaces,
+  WorkspaceUser,
+} from "@appsmith/constants/workspaceConstants";
+import { ConnectToGitResponse } from "actions/gitSyncActions";
+import {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
 } from "api/ApplicationApi";
+import { AppIconName } from "design-system-old";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { ConnectToGitResponse } from "actions/gitSyncActions";
-import { AppIconName } from "design-system-old";
+import { createReducer } from "utils/ReducerUtils";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -381,10 +381,17 @@ export const handlers = {
     if (action.payload.name) {
       isSavingAppName = true;
     }
+    if (state.currentApplication && action.payload.applicationDetail) {
+      state.currentApplication.applicationDetail =
+        action.payload.applicationDetail;
+    }
     return {
       ...state,
       isSavingAppName: isSavingAppName,
       isErrorSavingAppName: false,
+      ...(action.payload.applicationDetail
+        ? { applicationDetail: action.payload.applicationDetail }
+        : {}),
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (

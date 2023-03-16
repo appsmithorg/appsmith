@@ -8,12 +8,11 @@ import { get, omit } from "lodash";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { ReflowResizable as AutoLayoutResizable } from "resizable/autolayoutresize";
 import { ReflowResizable as FixedLayoutResizable } from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 import {
-  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -25,6 +24,7 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   getWidgetHeight,
@@ -37,7 +37,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
-import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   WidgetOperations,
   WidgetProps,
@@ -45,7 +44,7 @@ import {
 } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
-import { computeFinalRowCols, UIElementSize } from "./ResizableUtils";
+import { UIElementSize, computeFinalRowCols } from "./ResizableUtils";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,
@@ -74,8 +73,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
   const dispatch = useDispatch();
-  const isAutoLayout =
-    useSelector(getCurrentAppPositioningType) === AppPositioningTypes.AUTO;
+  const isAutoLayout = useSelector(getIsAutoLayout);
+
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -375,6 +374,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       responsiveBehavior={props.responsiveBehavior}
       showResizeBoundary={showResizeBoundary}
       snapGrid={snapGrid}
+      topRow={props.topRow}
       updateBottomRow={updateBottomRow}
       // Used only for performance tracking, can be removed after optimization.
       widgetId={props.widgetId}

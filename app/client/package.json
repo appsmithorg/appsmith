@@ -202,6 +202,7 @@
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
     "@faker-js/faker": "^7.4.0",
+    "@redux-saga/testing-utils": "^1.1.5",
     "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
@@ -319,6 +320,9 @@
     "dns-packet": "5.4.0",
     "glob-parent": "5.1.2",
     "ua-parser-js": "1.0.33",
-    "got": "11.8.5"
+    "got": "11.8.5",
+    "trim-newlines": "3.0.1",
+    "trim": "0.0.3",
+    "webpack": "5.76.0"
   }
 }

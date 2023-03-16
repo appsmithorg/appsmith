@@ -9,13 +9,13 @@ export class ApiPage {
   private _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
-    ".t--actionConfiguration\\.headers\\[0\\]\\.key\\." + index + "";
+    ".t--actionConfiguration\\.headers\\[" + index + "\\]\\.key\\." + index + "";
   private _headerValue = (index: number) =>
-    ".t--actionConfiguration\\.headers\\[0\\]\\.value\\." + index + "";
+    ".t--actionConfiguration\\.headers\\[" + index + "\\]\\.value\\." + index + "";
   private _paramKey = (index: number) =>
-    ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\." + index + "";
+    ".t--actionConfiguration\\.queryParameters\\[" + index + "\\]\\.key\\." + index + "";
   private _paramValue = (index: number) =>
-    ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\." + index + "";
+    ".t--actionConfiguration\\.queryParameters\\[" + index + "\\]\\.value\\." + index + "";
   private _importedKey = (index: number, keyValueName: string) =>
     `.t--${keyValueName}-key-${index}`;
   private _importedValue = (index: number, keyValueName: string) =>
@@ -110,16 +110,16 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  EnterHeader(hKey: string, hValue: string) {
+  EnterHeader(hKey: string, hValue: string, index = 0) {
     this.SelectPaneTab("Headers");
     this.agHelper.EnterValue(hKey, {
-      propFieldName: this._headerKey(0),
+      propFieldName: this._headerKey(index),
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.PressEscape();
     this.agHelper.EnterValue(hValue, {
-      propFieldName: this._headerValue(0),
+      propFieldName: this._headerValue(index),
       directInput: true,
       inputFieldName: "",
     });
@@ -127,16 +127,16 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  EnterParams(pKey: string, pValue: string) {
+  EnterParams(pKey: string, pValue: string, index = 0) {
     this.SelectPaneTab("Params");
     this.agHelper.EnterValue(pKey, {
-      propFieldName: this._paramKey(0),
+      propFieldName: this._paramKey(index),
       directInput: true,
       inputFieldName: "",
     });
     this.agHelper.PressEscape();
     this.agHelper.EnterValue(pValue, {
-      propFieldName: this._paramValue(0),
+      propFieldName: this._paramValue(index),
       directInput: true,
       inputFieldName: "",
     });

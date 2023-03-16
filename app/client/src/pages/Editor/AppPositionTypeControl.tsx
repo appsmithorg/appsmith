@@ -14,11 +14,13 @@ import {
   AppPositioningTypes,
 } from "reducers/entityReducers/pageListReducer";
 import {
+  getCurrentApplicationId,
   getCurrentAppPositioningType,
   isAutoLayoutEnabled,
 } from "selectors/editorSelectors";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
+import { updateApplication } from "actions/applicationActions";
 interface ApplicationPositionTypeConfigOption {
   name: string;
   type: AppPositioningTypes;
@@ -54,6 +56,8 @@ export function AppPositionTypeControl() {
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
+  const appId = useSelector(getCurrentApplicationId);
+
   /**
    * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
@@ -96,6 +100,15 @@ export function AppPositionTypeControl() {
           },
         },
       ]),
+    );
+    dispatch(
+      updateApplication(appId || "", {
+        applicationDetail: {
+          appPositioning: {
+            type: layoutOption.type,
+          },
+        },
+      }),
     );
   };
 

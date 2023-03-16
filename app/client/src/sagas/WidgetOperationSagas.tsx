@@ -6,15 +6,15 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
-  updateMultipleWidgetPropertiesAction,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
+  batchUpdateWidgetProperty,
+  updateMultipleWidgetPropertiesAction,
 } from "actions/controlActions";
 import { resetWidgetMetaProperty } from "actions/metaActions";
-import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
+import { WidgetResize, updateAndSaveLayout } from "actions/pageActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   GridDefaults,
@@ -56,20 +56,20 @@ import {
   isPathADynamicBinding,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
+import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 import {
-  createMessage,
-  ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
-  ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_CUT_NOT_ALLOWED,
+  ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
+  createMessage,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Toaster, Variant } from "design-system-old";
@@ -81,6 +81,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { validateProperty } from "./EvaluationsSaga";
 
+import { builderURL } from "RouteBuilder";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -97,7 +98,6 @@ import {
   SpaceMap,
 } from "reflow/reflowTypes";
 import { getBottomMostRow } from "reflow/reflowUtils";
-import { builderURL } from "RouteBuilder";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
@@ -125,8 +125,10 @@ import {
 } from "./WidgetBlueprintSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import {
-  changeIdsOfPastePositions,
   CopiedWidgetGroup,
+  NewPastePositionVariables,
+  WIDGET_PASTE_PADDING,
+  changeIdsOfPastePositions,
   createSelectedWidgetsAsCopiedWidgets,
   createWidgetCopy,
   doesTriggerPathsContainPropertyPath,
@@ -155,12 +157,10 @@ import {
   isDropTarget,
   isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
-  NewPastePositionVariables,
   purgeOrphanedDynamicPaths,
-  WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
-import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
