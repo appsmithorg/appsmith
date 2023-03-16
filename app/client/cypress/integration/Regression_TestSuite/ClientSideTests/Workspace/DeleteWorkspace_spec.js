@@ -11,7 +11,7 @@ describe("Delete workspace test spec", function() {
     cy.get("@guid").then((uid) => {
       newWorkspaceName = "Deleteworkspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
-      _.homePage.DeleteWorkspace(newWorkspaceName)
+      _.homePage.DeleteWorkspace(newWorkspaceName);
       cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(200);
       });
