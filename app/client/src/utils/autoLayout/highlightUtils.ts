@@ -17,13 +17,13 @@ import {
   getWidgetWidth,
 } from "./flexWidgetUtils";
 import {
-  AlignmentChildren,
-  AlignmentInfo,
   getAlignmentSizeInfo,
   getTotalRowsOfAllChildren,
   getWrappedAlignmentInfo,
 } from "./positionUtils";
 import {
+  AlignmentChildren,
+  AlignmentInfo,
   DropZone,
   FlexLayer,
   HighlightInfo,
