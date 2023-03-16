@@ -56,8 +56,8 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
+import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
-  bindingMarker,
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
   PEEKABLE_ATTRIBUTE,
@@ -65,7 +65,7 @@ import {
   PEEKABLE_CH_START,
   PEEKABLE_LINE,
   PEEK_STYLE_PERSIST_CLASS,
-} from "components/editorComponents/CodeEditor/markHelpers";
+} from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
