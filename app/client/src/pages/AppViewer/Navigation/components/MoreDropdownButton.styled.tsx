@@ -117,6 +117,7 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
   .menu-item-text {
     color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    transition: all 0.3s ease-in-out;
   }
 
   &:hover {

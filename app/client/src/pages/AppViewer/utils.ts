@@ -19,11 +19,14 @@ export const getMenuItemBackgroundColorWhenActive = (
     case NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT: {
       if (isLightColor(color)) {
         colorHsl.l -= 0.1;
+
+        return tinycolor(colorHsl).toHexString();
       } else {
         colorHsl.l += 0.35;
-      }
+        colorHsl.a = 0.3;
 
-      return tinycolor(colorHsl).toHexString();
+        return tinycolor(colorHsl).toHex8String();
+      }
     }
     case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
       return calulateHoverColor(color);
@@ -63,16 +66,25 @@ export const getMenuItemTextColor = (
 
       if (isLightColor(color)) {
         resultantColor.l += 0.35;
+
+        return tinycolor(resultantColor).toHexString();
       } else {
-        if (resultantColor.l < 0.15) {
+        if (resultantColor.l <= 0.05) {
+          /**
+           * if the color is close to black, it will have a near transparent background
+           * due to the getMenuItemBackgroundColorWhenActive function.
+           * Therefore, only black text will be accessible and suitable in this case.
+           */
+          return Colors.BLACK;
+        } else if (resultantColor.l > 0.05 && resultantColor.l <= 0.15) {
           // if the color is extremely dark
           return getComplementaryGrayscaleColor(color);
         } else {
           resultantColor.l -= 0.1;
+
+          return tinycolor(resultantColor).toHexString();
         }
       }
-
-      return tinycolor(resultantColor).toHexString();
     }
     case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
       return getComplementaryGrayscaleColor(color);
