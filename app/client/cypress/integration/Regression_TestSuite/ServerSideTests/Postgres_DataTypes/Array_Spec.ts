@@ -15,7 +15,7 @@ describe("Array Datatype tests", function() {
     _.appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
 
-  it("1. Creating _.table query - arraytypes + Bug 14493", () => {
+  it("1. Creating table query - arraytypes + Bug 14493", () => {
     query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
     _.dataSources.NavigateFromActiveDS(dsName, true);
     _.agHelper.GetNClick(_.dataSources._templateMenu);
@@ -58,7 +58,7 @@ describe("Array Datatype tests", function() {
     query = `DELETE FROM public."arraytypes"`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "deleteAllRecords"); //Creating query from EE overlay
 
-    query = `drop _.table public."arraytypes"`;
+    query = `DROP table public."arraytypes"`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
 
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
