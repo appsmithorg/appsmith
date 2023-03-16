@@ -53,6 +53,7 @@ export const StyledMenuContainer = styled.div<{
   overflow-y: auto;
   padding: 0 8px;
   flex-grow: 1;
+  padding-bottom: 12px;
 
   ${({ navColorStyle, primaryColor }) => {
     const isThemeColorStyle: boolean =

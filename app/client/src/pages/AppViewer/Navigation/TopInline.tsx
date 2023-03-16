@@ -81,7 +81,7 @@ export function TopInline(props: TopInlineProps) {
       const resizeObserver = new ResizeObserver(onResize);
 
       resizeObserver.observe(navRef.current);
-      navRef.current.addEventListener("scroll", onResize);
+      navRef.current.addEventListener("resize", onResize);
     }
 
     return () => {

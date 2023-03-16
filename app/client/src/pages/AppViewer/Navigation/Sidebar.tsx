@@ -35,6 +35,7 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import MenuItemContainer from "./components/MenuItemContainer";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -71,6 +72,7 @@ export function Sidebar(props: SidebarProps) {
     "inherit",
   );
   const location = useLocation();
+  const { pathname } = location;
   const [query, setQuery] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
@@ -185,16 +187,22 @@ export function Sidebar(props: SidebarProps) {
       >
         {appPages.map((page) => {
           return (
-            <MenuItem
+            <MenuItemContainer
               forSidebar
-              isMinimal={isMinimal}
+              isTabActive={pathname.indexOf(page.pageId) > -1}
               key={page.pageId}
-              navigationSetting={
-                currentApplicationDetails?.applicationDetail?.navigationSetting
-              }
-              page={page}
-              query={query}
-            />
+            >
+              <MenuItem
+                isMinimal={isMinimal}
+                key={page.pageId}
+                navigationSetting={
+                  currentApplicationDetails?.applicationDetail
+                    ?.navigationSetting
+                }
+                page={page}
+                query={query}
+              />
+            </MenuItemContainer>
           );
         })}
       </StyledMenuContainer>
