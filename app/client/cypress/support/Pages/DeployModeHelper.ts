@@ -103,10 +103,7 @@ export class DeployMode {
   }
 
   public SelectJsonFormDropDown(dropdownOption: string, index = 0) {
-    cy.get(this._jsonSelectDropdown)
-      .eq(index)
-      .scrollIntoView()
-      .click();
+    cy.get(this._jsonSelectDropdown).eq(index).scrollIntoView().click();
     cy.get(this.locator._selectOptionValue(dropdownOption)).click({
       force: true,
     });

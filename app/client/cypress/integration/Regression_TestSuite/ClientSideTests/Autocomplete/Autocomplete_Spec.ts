@@ -8,8 +8,8 @@ const {
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
-describe("Autocomplete bug fixes", function() {
-  it("1. Bug #12790 Verifies if selectedRow is in best match", function() {
+describe("Autocomplete bug fixes", function () {
+  it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
     ee.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
     ee.DragDropWidgetNVerify(WIDGET.TEXT, 200, 600);
     ee.SelectEntityByName("Text1");
@@ -24,7 +24,7 @@ describe("Autocomplete bug fixes", function() {
     );
   });
 
-  it("2. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function() {
+  it("2. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function () {
     ee.CopyPasteWidget("Text1");
     ee.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue("Text", "");
@@ -39,7 +39,7 @@ describe("Autocomplete bug fixes", function() {
     );
   });
 
-  it("3. Bug #14100 Custom columns name label change should reflect in autocomplete", function() {
+  it("3. Bug #14100 Custom columns name label change should reflect in autocomplete", function () {
     // select table widget
     ee.SelectEntityByName("Table1");
     // add new column
@@ -64,7 +64,7 @@ describe("Autocomplete bug fixes", function() {
     );
   });
 
-  it("4. feat #16426 Autocomplete for fast-xml-parser", function() {
+  it("4. feat #16426 Autocomplete for fast-xml-parser", function () {
     ee.SelectEntityByName("Text1");
     propPane.TypeTextIntoField("Text", "{{xmlParser.j");
     agHelper.GetNAssertElementText(locator._hints, "j2xParser");
@@ -73,7 +73,7 @@ describe("Autocomplete bug fixes", function() {
     agHelper.GetNAssertElementText(locator._hints, "parse");
   });
 
-  it("5. Installed library should show up in autocomplete", function() {
+  it("5. Installed library should show up in autocomplete", function () {
     ee.ExpandCollapseEntity("Libraries");
     installer.openInstaller();
     installer.installLibrary("uuidjs", "UUID");
@@ -83,7 +83,7 @@ describe("Autocomplete bug fixes", function() {
     agHelper.GetNAssertElementText(locator._hints, "UUID");
   });
 
-  it("6. No autocomplete for Removed libraries", function() {
+  it("6. No autocomplete for Removed libraries", function () {
     ee.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
     installer.uninstallLibrary("uuidjs");
     propPane.TypeTextIntoField("Text", "{{UUID.");

@@ -1,4 +1,4 @@
-import { FetchApplicationResponse } from "api/ApplicationApi";
+import type { FetchApplicationResponse } from "api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
 

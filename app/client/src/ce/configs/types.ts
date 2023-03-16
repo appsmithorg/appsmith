@@ -1,4 +1,4 @@
-import { LogLevelDesc } from "loglevel";
+import type { LogLevelDesc } from "loglevel";
 
 export type SentryConfig = {
   dsn: string;

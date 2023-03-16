@@ -4,10 +4,10 @@
  */
 import { Component } from "react";
 import _ from "lodash";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {

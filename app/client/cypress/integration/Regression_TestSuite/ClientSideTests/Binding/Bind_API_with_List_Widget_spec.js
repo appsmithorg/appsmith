@@ -4,13 +4,13 @@ const dsl = require("../../../../fixtures/listwidgetdsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiPage from "../../../../locators/ApiEditor";
 
-describe("Test Create Api and Bind to List widget", function() {
+describe("Test Create Api and Bind to List widget", function () {
   let valueToTest;
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Test_Add users api and execute api", function() {
+  it("1. Test_Add users api and execute api", function () {
     cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
     cy.RunAPI();
     cy.get(apiPage.jsonResponseTab).click();
@@ -28,7 +28,7 @@ describe("Test Create Api and Bind to List widget", function() {
       });
   });
 
-  it("2. Test_Validate the Api data is updated on List widget", function() {
+  it("2. Test_Validate the Api data is updated on List widget", function () {
     cy.SearchEntityandOpen("List1");
     cy.testJsontext("items", "{{Api1.data}}");
     cy.get(".t--draggable-textwidget span").should("have.length", 8);
@@ -62,7 +62,7 @@ describe("Test Create Api and Bind to List widget", function() {
       });
   });
 
-  it("3. Test_Validate the list widget ", function() {
+  it("3. Test_Validate the list widget ", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(

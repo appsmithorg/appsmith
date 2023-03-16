@@ -9,7 +9,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("1. With Optional chaining : {{ this?.params?.condition }}", function() {
+  it("1. With Optional chaining : {{ this?.params?.condition }}", function () {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -53,7 +53,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function() {
+  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -68,7 +68,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function() {
+  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -83,7 +83,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("4. With Optional chaining : {{ this?.params.condition }}", function() {
+  it("4. With Optional chaining : {{ this?.params.condition }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -98,7 +98,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function() {
+  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -113,7 +113,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function() {
+  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -128,7 +128,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("7. With No Optional chaining : {{ this.params.condition }}", function() {
+  it("7. With No Optional chaining : {{ this.params.condition }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -143,7 +143,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function() {
+  it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -158,7 +158,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function() {
+  it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -173,7 +173,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function() {
+  it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
@@ -182,9 +182,9 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     //Verifh when No selected option passed
-    cy.xpath(
-      _.locators._selectWidgetDropdownInDeployed("selectwidget"),
-    ).within(() => cy.get(_.locators._crossBtn).click());
+    cy.xpath(_.locators._selectWidgetDropdownInDeployed("selectwidget")).within(
+      () => cy.get(_.locators._crossBtn).click(),
+    );
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
@@ -192,7 +192,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function() {
+  it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(

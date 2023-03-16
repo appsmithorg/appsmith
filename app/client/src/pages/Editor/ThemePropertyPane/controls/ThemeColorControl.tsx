@@ -3,7 +3,7 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import { TooltipComponent } from "design-system-old";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
@@ -34,7 +34,8 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                 <ColorBox
                   background={userDefinedColors[colorName]}
                   className={classNames({
-                    "w-6 h-6 rounded-full border-2 cursor-pointer ring-gray-700": true,
+                    "w-6 h-6 rounded-full border-2 cursor-pointer ring-gray-700":
+                      true,
                     "ring-1": selectedColor === colorName,
                   })}
                   onClick={() => {
