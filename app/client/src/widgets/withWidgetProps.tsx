@@ -42,7 +42,12 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 
-const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
+const WIDGETS_WITH_CHILD_WIDGETS = [
+  "LIST_WIDGET",
+  "FORM_WIDGET",
+  "MODAL_WIDGET",
+  "TABS_WIDGET",
+];
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
@@ -62,7 +67,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getWidget(state, widgetId),
     );
     const metaWidget = useSelector(getMetaWidget(widgetId));
-    const selectedWidgetAncestry = useSelector(getSelectedWidgetAncestry);
 
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -100,6 +104,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           referencedWidgetId || widgetId,
         );
       }
+    }, equal);
+
+    const selectedWidgetAncestry: string[] = useSelector((state: AppState) => {
+      if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return [];
+      return getSelectedWidgetAncestry(state);
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;

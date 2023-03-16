@@ -133,10 +133,13 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   getModalVisibility() {
-    return (
-      this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
-      !!this.props.isVisible
-    );
+    if (this.props.selectedWidgetAncestry) {
+      return (
+        this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
+        !!this.props.isVisible
+      );
+    }
+    return !!this.props.isVisible;
   }
 
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {

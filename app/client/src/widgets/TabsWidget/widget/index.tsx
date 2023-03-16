@@ -393,7 +393,7 @@ class TabsWidget extends BaseWidget<
     if (this.props.children) {
       selectedTabWidgetId =
         this.props.children.find((tab) =>
-          this.props.selectedWidgetAncestry.includes(tab.widgetId),
+          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;
