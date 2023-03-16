@@ -114,18 +114,20 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
   padding: 12px 16px;
   background-color: transparent;
 
+  .menu-item-text {
+    color: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+  }
+
   &:hover {
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
 
-    span {
+    .menu-item-text {
       ${({ navColorStyle, primaryColor }) => {
         if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-          return `color: ${getMenuItemTextColor(
-            primaryColor,
-            navColorStyle,
-          )} !important;`;
+          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
         }
       }};
     }
@@ -146,9 +148,9 @@ export const StyledMenuItemInDropdown = styled(NavLink)<{
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
 
-    span {
+    .menu-item-text {
       color: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)} !important;
+        getMenuItemTextColor(primaryColor, navColorStyle)};
     }
 
     .page-icon svg path {

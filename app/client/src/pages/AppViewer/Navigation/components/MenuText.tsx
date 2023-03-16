@@ -38,7 +38,7 @@ const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
       >
-        <div className="relative flex items-center justify-center flex-grow">
+        <div className="relative flex items-center justify-center flex-grow menu-item-text">
           <span ref={tabNameRef}>{name}</span>
           {ellipsisActive && "..."}
         </div>
