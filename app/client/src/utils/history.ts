@@ -10,6 +10,9 @@ export enum NavigationMethod {
   EntityExplorer = "EntityExplorer",
   Omnibar = "Omnibar",
   Debugger = "Debugger",
+  CanvasClick = "CanvasClick",
+  ActionBackButton = "ActionBackButton",
+  BackButton = "BackButton",
 }
 
 export type AppsmithLocationState = {

@@ -2,8 +2,6 @@ import { fork, put, select } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
-import type { Location } from "history";
-import type { AppsmithLocationState } from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import type { ReduxAction } from "ce/constants/ReduxActionConstants";
@@ -49,9 +47,7 @@ function* appBackgroundHandler() {
   changeAppBackground(currentTheme);
 }
 
-function* logNavigationAnalytics(payload: {
-  location: Location<AppsmithLocationState>;
-}) {
+function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const {
     location: { pathname, state },
   } = payload;
