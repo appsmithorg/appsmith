@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.time.Instant;
 
+/**
+ * DTO to store the fields which will be used while creating offline license on Keygen
+ * Ref: https://keygen.sh/docs/choosing-a-licensing-model/offline-licenses/
+ */
 @Data
 public class OfflineLicenseDataset {
 
