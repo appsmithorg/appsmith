@@ -26,6 +26,9 @@ export type ReadableSnapShotDetails = {
   readableDate: string;
 };
 
+export const getIsCurrentlyConvertingLayout = (state: AppState) =>
+  state.ui.layoutConversion.isConverting;
+
 export const getFlexLayers = (parentId: string) => {
   return createSelector(getWidgets, (widgets): FlexLayer[] => {
     const parent = widgets[parentId];

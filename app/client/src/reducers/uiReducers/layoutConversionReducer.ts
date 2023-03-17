@@ -30,6 +30,7 @@ const initialState: layoutConversionReduxState = {
   snapshotDetails: undefined,
   conversionError: undefined,
   conversionState: CONVERSION_STATES.START,
+  isConverting: false,
 };
 
 const layoutConversionReducer = createImmerReducer(initialState, {
@@ -47,6 +48,13 @@ const layoutConversionReducer = createImmerReducer(initialState, {
   ) => {
     state.conversionState = CONVERSION_STATES.START;
     state.conversionError = undefined;
+    state.isConverting = true;
+  },
+  [ReduxActionTypes.STOP_CONVERSION_FLOW]: (
+    state: layoutConversionReduxState,
+  ) => {
+    state.isConverting = false;
+    state.conversionError = undefined;
   },
   [ReduxActionTypes.UPDATE_SNAPSHOT_DETAILS]: (
     state: layoutConversionReduxState,
@@ -60,6 +68,7 @@ export interface layoutConversionReduxState {
   snapshotDetails: SnapShotDetails | undefined;
   conversionError: Error | undefined;
   conversionState: CONVERSION_STATES;
+  isConverting: boolean;
 }
 
 export default layoutConversionReducer;

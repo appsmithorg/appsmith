@@ -44,6 +44,7 @@ import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "actions/applicationActions";
+import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -54,6 +55,13 @@ export function* updateLayoutForMobileCheckpoint(
 ) {
   try {
     const start = performance.now();
+
+    //Do not recalculate columns and update layout while converting layout
+    const isCurrentlyConvertingLayout: boolean = yield select(
+      getIsCurrentlyConvertingLayout,
+    );
+    if (isCurrentlyConvertingLayout) return;
+
     const { canvasWidth, isMobile, parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
