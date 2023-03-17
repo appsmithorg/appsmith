@@ -22,7 +22,7 @@ export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
-  typeof value === "string" && DATA_BIND_REGEX.test(value);
+  DATA_BIND_REGEX.test(value);
 
 //{{}}{{}}}
 export function getDynamicStringSegments(dynamicString: string): string[] {
