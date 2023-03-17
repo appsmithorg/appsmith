@@ -1,0 +1,66 @@
+diff --git a/node_modules/remixicon-react/BookmarkFillIcon.d.ts b/node_modules/remixicon-react/BookmarkFillIcon.d.ts
+index 5c81db9..e0e5de6 100644
+--- a/node_modules/remixicon-react/BookmarkFillIcon.d.ts
++++ b/node_modules/remixicon-react/BookmarkFillIcon.d.ts
+@@ -1,4 +1,4 @@
+ import { RemixiconReactIconComponentType } from './dist/typings';
+ 
+-declare const BookMarkFillIcon: RemixiconReactIconComponentType;
+-export default BookMarkFillIcon;
++declare const BookmarkFillIcon: RemixiconReactIconComponentType;
++export default BookmarkFillIcon;
+diff --git a/node_modules/remixicon-react/BookmarkFillIcon.js b/node_modules/remixicon-react/BookmarkFillIcon.js
+index b04699b..4d54c3f 100644
+--- a/node_modules/remixicon-react/BookmarkFillIcon.js
++++ b/node_modules/remixicon-react/BookmarkFillIcon.js
+@@ -32,7 +32,7 @@ var objectWithoutProperties = function (obj, keys) {
+   return target;
+ };
+ 
+-var BookMarkFillIcon = function BookMarkFillIcon(_ref) {
++var BookmarkFillIcon = function BookmarkFillIcon(_ref) {
+   var _ref$color = _ref.color,
+       color = _ref$color === undefined ? 'currentColor' : _ref$color,
+       _ref$size = _ref.size,
+@@ -49,6 +49,6 @@ var BookMarkFillIcon = function BookMarkFillIcon(_ref) {
+   );
+ };
+ 
+-var BookMarkFillIcon$1 = React__default['default'].memo ? React__default['default'].memo(BookMarkFillIcon) : BookMarkFillIcon;
++var BookmarkFillIcon$1 = React__default['default'].memo ? React__default['default'].memo(BookmarkFillIcon) : BookmarkFillIcon;
+ 
+-module.exports = BookMarkFillIcon$1;
++module.exports = BookmarkFillIcon$1;
+diff --git a/node_modules/remixicon-react/BookmarkLineIcon.d.ts b/node_modules/remixicon-react/BookmarkLineIcon.d.ts
+index 4b19fdd..b70278f 100644
+--- a/node_modules/remixicon-react/BookmarkLineIcon.d.ts
++++ b/node_modules/remixicon-react/BookmarkLineIcon.d.ts
+@@ -1,4 +1,4 @@
+ import { RemixiconReactIconComponentType } from './dist/typings';
+ 
+-declare const BookMarkLineIcon: RemixiconReactIconComponentType;
+-export default BookMarkLineIcon;
++declare const BookmarkLineIcon: RemixiconReactIconComponentType;
++export default BookmarkLineIcon;
+diff --git a/node_modules/remixicon-react/BookmarkLineIcon.js b/node_modules/remixicon-react/BookmarkLineIcon.js
+index e45896b..fd994a8 100644
+--- a/node_modules/remixicon-react/BookmarkLineIcon.js
++++ b/node_modules/remixicon-react/BookmarkLineIcon.js
+@@ -32,7 +32,7 @@ var objectWithoutProperties = function (obj, keys) {
+   return target;
+ };
+ 
+-var BookMarkLineIcon = function BookMarkLineIcon(_ref) {
++var BookmarkLineIcon = function BookmarkLineIcon(_ref) {
+   var _ref$color = _ref.color,
+       color = _ref$color === undefined ? 'currentColor' : _ref$color,
+       _ref$size = _ref.size,
+@@ -49,6 +49,6 @@ var BookMarkLineIcon = function BookMarkLineIcon(_ref) {
+   );
+ };
+ 
+-var BookMarkLineIcon$1 = React__default['default'].memo ? React__default['default'].memo(BookMarkLineIcon) : BookMarkLineIcon;
++var BookmarkLineIcon$1 = React__default['default'].memo ? React__default['default'].memo(BookmarkLineIcon) : BookmarkLineIcon;
+ 
+-module.exports = BookMarkLineIcon$1;
++module.exports = BookmarkLineIcon$1;
