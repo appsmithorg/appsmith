@@ -1,8 +1,8 @@
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { convertNormalizedDSLToFixed } from "../autoToFixedLayout";
 
 describe("test Auto to Fixed Conversion methods", () => {
-  const autoLayoutWidgets = ({
+  const autoLayoutWidgets = {
     "0": {
       widgetName: "MainContainer",
       topRow: 0,
@@ -485,7 +485,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       alignment: "start",
       flexVerticalAlignment: "start",
     },
-  } as unknown) as CanvasWidgetsReduxState;
+  } as unknown as CanvasWidgetsReduxState;
 
   const fixedLayoutWidgets = {
     "0": {

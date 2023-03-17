@@ -171,26 +171,43 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     Toaster.clear();
     const start = performance.now();
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const stateWidget: FlattenedWidgetProps = yield select(
+      getWidget,
+      resizeAction.payload.widgetId,
+    );
+    const widgets = { ...stateWidgets };
+    let widget = { ...stateWidget };
     const {
-      bottomRow,
-      leftColumn,
+      bottomRow = widget.bottomRow,
+      leftColumn = widget.leftColumn,
+      mobileBottomRow = widget.mobileBottomRow,
+      mobileLeftColumn = widget.mobileLeftColumn,
+      mobileRightColumn = widget.mobileRightColumn,
+      mobileTopRow = widget.mobileTopRow,
       parentId,
-      rightColumn,
+      rightColumn = widget.rightColumn,
       snapColumnSpace,
       snapRowSpace,
-      topRow,
+      topRow = widget.topRow,
       widgetId,
     } = resizeAction.payload;
 
-    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    let widget = { ...stateWidget };
-    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const widgets = { ...stateWidgets };
     const appPositioningType: AppPositioningTypes = yield select(
       getCurrentAppPositioningType,
     );
     const mainCanvasWidth: number = yield select(getCanvasWidth);
-    widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
+    widget = {
+      ...widget,
+      leftColumn,
+      rightColumn,
+      topRow,
+      bottomRow,
+      mobileLeftColumn,
+      mobileRightColumn,
+      mobileTopRow,
+      mobileBottomRow,
+    };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(

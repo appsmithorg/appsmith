@@ -42,6 +42,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
 import type { UIElementSize } from "./ResizableUtils";
 import { computeFinalRowCols } from "./ResizableUtils";
+import { computeFinalAutoLayoutRowCols } from "./ResizableUtils";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,
@@ -56,6 +57,12 @@ import {
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
+};
+export const DefaultDimensionMap = {
+  leftColumn: "leftColumn",
+  rightColumn: "rightColumn",
+  topRow: "topRow",
+  bottomRow: "bottomRow",
 };
 
 export const ResizableComponent = memo(function ResizableComponent(
@@ -157,26 +164,60 @@ export const ResizableComponent = memo(function ResizableComponent(
   // 1) There is no collision
   // 2) There is a change in widget size
   // Update widget, if both of the above are true.
-  const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
+  const updateSize = (
+    newDimensions: UIElementSize,
+    position: XYCord,
+    dimensionMap = DefaultDimensionMap,
+  ) => {
     // Get the difference in size of the widget, before and after resizing.
     const delta: UIElementSize = {
       height: newDimensions.height - dimensions.height,
       width: newDimensions.width - dimensions.width,
     };
 
+    const {
+      bottomRow: bottomRowMap,
+      leftColumn: leftColumnMap,
+      rightColumn: rightColumnMap,
+      topRow: topRowMap,
+    } = dimensionMap;
+    const {
+      parentColumnSpace,
+      parentRowSpace,
+      [bottomRowMap]: bottomRow,
+      [leftColumnMap]: leftColumn,
+      [rightColumnMap]: rightColumn,
+      [topRowMap]: topRow,
+    } = props as any;
+
     // Get the updated Widget rows and columns props
     // False, if there is collision
     // False, if none of the rows and cols have changed.
-    const newRowCols: WidgetRowCols | false = computeFinalRowCols(
-      delta,
-      position,
-      props,
-    );
+    const newRowCols: WidgetRowCols | false = isAutoLayout
+      ? computeFinalAutoLayoutRowCols(delta, position, {
+          bottomRow,
+          topRow,
+          leftColumn,
+          rightColumn,
+          parentColumnSpace,
+          parentRowSpace,
+        })
+      : computeFinalRowCols(delta, position, {
+          bottomRow,
+          topRow,
+          leftColumn,
+          rightColumn,
+          parentColumnSpace,
+          parentRowSpace,
+        });
 
     if (newRowCols) {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, {
-          ...newRowCols,
+          [leftColumnMap]: newRowCols.leftColumn,
+          [rightColumnMap]: newRowCols.rightColumn,
+          [topRowMap]: newRowCols.topRow,
+          [bottomRowMap]: newRowCols.bottomRow,
           parentId: props.parentId,
           snapColumnSpace: props.parentColumnSpace,
           snapRowSpace: props.parentRowSpace,

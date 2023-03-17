@@ -1,4 +1,5 @@
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
+import { DefaultDimensionMap } from "components/editorComponents/ResizableComponent";
 import {
   isHandleResizeAllowed,
   isResizingDisabled,
@@ -25,11 +26,11 @@ import {
 } from "resizable/common";
 import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import { getWidgets } from "sagas/selectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   getCanvasWidth,
   getContainerOccupiedSpacesSelectorWhileResizing,
 } from "selectors/editorSelectors";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import {
   getFillWidgetLengthForLayer,
@@ -50,8 +51,6 @@ import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
-  const isAutoLayout = useSelector(getIsAutoLayout);
-
   const occupiedSpacesBySiblingWidgets = useSelector(
     getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
   );
@@ -120,20 +119,41 @@ export function ReflowResizable(props: ResizableProps) {
     reflectPosition: true,
   });
   const allWidgets = useSelector(getWidgets);
-  const widgetAlignment =
-    allWidgets[props.widgetId]?.alignment || FlexLayerAlignment.Start;
+  const isMobile = useSelector(getIsMobile);
+  const dimensionMap = isMobile
+    ? {
+        leftColumn: "mobileLeftColumn",
+        rightColumn: "mobileRightColumn",
+        topRow: "mobileTopRow",
+        bottomRow: "mobileBottomRow",
+      }
+    : DefaultDimensionMap;
+  const {
+    bottomRow: bottomRowMap,
+    leftColumn: leftColumnMap,
+    rightColumn: rightColumnMap,
+    topRow: topRowMap,
+  } = dimensionMap;
   const dispatch = useDispatch();
-  const layer = useMemo(() => {
+  const { computedAlignment, layer } = useMemo(() => {
     const { widgetId } = props;
     const widget = allWidgets[widgetId];
-    if (!widget || !widget?.parentId) return {};
-    const parent = allWidgets[widget?.parentId];
-    if (!parent) return {};
-    const flexLayers = parent.flexLayers;
-    const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
-    if (layerIndex === -1) return {};
-    return flexLayers[layerIndex];
-  }, [props, allWidgets]);
+    const layer = (() => {
+      if (!widget || !widget?.parentId) return {};
+      const parent = allWidgets[widget?.parentId];
+      if (!parent) return {};
+      const flexLayers = parent.flexLayers;
+      const layerIndex = getLayerIndexOfWidget(flexLayers, widgetId);
+      if (layerIndex === -1) return {};
+      return flexLayers[layerIndex];
+    })();
+    const computedAlignment = (() => {
+      const centerColumn = GridDefaults.DEFAULT_GRID_COLUMNS / 2;
+      const leftColumn = widget[leftColumnMap];
+      return leftColumn > centerColumn ? "end" : "start";
+    })();
+    return { computedAlignment, layer };
+  }, [props, allWidgets, leftColumnMap]);
   const hasFillChild =
     !!layer &&
     layer?.children?.length &&
@@ -141,6 +161,9 @@ export function ReflowResizable(props: ResizableProps) {
       const widget = allWidgets[each.id];
       return widget && widget?.responsiveBehavior === ResponsiveBehavior.Fill;
     });
+  const widgetAlignment = hasFillChild
+    ? computedAlignment
+    : allWidgets[props.widgetId]?.alignment || FlexLayerAlignment.Start;
   const triggerAutoLayoutBasedReflow = (resizedPositions: OccupiedSpace) => {
     let canHorizontalMove = false;
     const widgets = {
@@ -162,7 +185,7 @@ export function ReflowResizable(props: ResizableProps) {
         if (
           childWidget &&
           childWidget.responsiveBehavior === ResponsiveBehavior.Fill &&
-          (childWidget?.rightColumn - childWidget?.leftColumn) *
+          (childWidget[rightColumnMap] - childWidget[leftColumnMap]) *
             childWidget.parentColumnSpace !==
             updatedWidth
         ) {
@@ -188,7 +211,6 @@ export function ReflowResizable(props: ResizableProps) {
     const { canResizeHorizontally, canResizeVertically } =
       props.getResizedPositions(resizedPositions);
     const canResize = canResizeHorizontally || canResizeVertically;
-
     if (canResize) {
       set((prevState) => {
         let newRect = { ...rect };
@@ -214,12 +236,12 @@ export function ReflowResizable(props: ResizableProps) {
           ({ canHorizontalMove, canVerticalMove } =
             movementLimitMap[resizedPositions.id]);
         }
-        if (isAutoLayout && hasFillChild) {
+        if (!isMobile && hasFillChild) {
           canHorizontalMove = triggerAutoLayoutBasedReflow(resizedPositions);
         }
 
         //if it should not resize horizontally, we keep keep the previous horizontal dimensions
-        if (!canHorizontalMove || !canResizeHorizontally) {
+        if (!canHorizontalMove || !(canResizeHorizontally || hasFillChild)) {
           newRect = {
             ...newRect,
             width: prevState.width,
@@ -265,13 +287,14 @@ export function ReflowResizable(props: ResizableProps) {
   const { minHeight: widgetMinHeight, minWidth: widgetMinWidth } =
     getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
   const resizedPositions = {
-    left: widget?.leftColumn,
-    right: widget?.rightColumn,
-    top: widget?.topRow,
-    bottom: widget?.bottomRow,
+    left: widget[leftColumnMap],
+    right: widget[rightColumnMap],
+    top: widget[topRowMap],
+    bottom: widget[bottomRowMap],
     id: widget?.widgetId,
   };
-  if (!(isAutoLayout && widget?.leftColumn === 0) && props.handles.left) {
+  const updatedPositions = useRef(resizedPositions);
+  if (widget[leftColumnMap] !== 0 && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
         if (
@@ -280,7 +303,6 @@ export function ReflowResizable(props: ResizableProps) {
           x > 0
         )
           return;
-        const updatedPositions = { ...resizedPositions };
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
@@ -291,42 +313,40 @@ export function ReflowResizable(props: ResizableProps) {
           width: props.componentWidth,
           x: x,
         };
-        if (isAutoLayout) {
-          if (widgetAlignment === "start" || hasFillChild) {
-            updatedPositions.right =
-              widget?.rightColumn - x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth - x,
-              x: 0,
-            };
-          } else if (widgetAlignment === "center") {
-            updatedPositions.right =
-              widget?.rightColumn - x / widget?.parentColumnSpace;
-            updatedPositions.left =
-              widget?.leftColumn - x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth - 2 * x,
-              x: 0,
-              reflectDimension: true,
-              reflectPosition: true,
-            };
-          } else {
-            updatedPositions.left =
-              widget?.leftColumn + x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth - x,
-              x,
-            };
-          }
-          setNewDimensions(
-            ReflowDirection.LEFT,
-            updatedPositions,
-            dimensionUpdates,
-          );
+        if (widgetAlignment === "start") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] - x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth - x,
+            x: 0,
+          };
+        } else if (widgetAlignment === "center") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] - x / widget?.parentColumnSpace;
+          updatedPositions.current.left =
+            widget[leftColumnMap] + x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth - 2 * x,
+            x: 0,
+            reflectDimension: true,
+            reflectPosition: true,
+          };
+        } else {
+          updatedPositions.current.left =
+            widget[leftColumnMap] + x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth - x,
+            x,
+          };
         }
+        setNewDimensions(
+          ReflowDirection.LEFT,
+          updatedPositions.current,
+          dimensionUpdates,
+        );
       },
       component: props.handles.left,
       handleDirection: ReflowDirection.LEFT,
@@ -335,9 +355,8 @@ export function ReflowResizable(props: ResizableProps) {
 
   if (
     !(
-      isAutoLayout &&
-      widget?.leftColumn !== 0 &&
-      widget?.rightColumn === GridDefaults.DEFAULT_GRID_COLUMNS
+      widget[leftColumnMap] !== 0 &&
+      widget[rightColumnMap] === GridDefaults.DEFAULT_GRID_COLUMNS
     ) &&
     props.handles.right
   ) {
@@ -349,7 +368,6 @@ export function ReflowResizable(props: ResizableProps) {
           x < 0
         )
           return;
-        const updatedPositions = { ...resizedPositions };
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
@@ -360,42 +378,40 @@ export function ReflowResizable(props: ResizableProps) {
           width: props.componentWidth,
           x: x,
         };
-        if (isAutoLayout) {
-          if (widgetAlignment === "start" || hasFillChild) {
-            updatedPositions.right =
-              widget?.rightColumn + x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth + x,
-              x: 0,
-            };
-          } else if (widgetAlignment === "center") {
-            updatedPositions.right =
-              widget?.rightColumn + x / widget?.parentColumnSpace;
-            updatedPositions.left =
-              widget?.leftColumn + x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth + 2 * x,
-              x: 0,
-              reflectDimension: true,
-              reflectPosition: true,
-            };
-          } else {
-            updatedPositions.left =
-              widget?.leftColumn - x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth + x,
-              x: 0,
-            };
-          }
-          setNewDimensions(
-            ReflowDirection.RIGHT,
-            updatedPositions,
-            dimensionUpdates,
-          );
+        if (widgetAlignment === "start") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] + x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth + x,
+            x: 0,
+          };
+        } else if (widgetAlignment === "center") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] + x / widget?.parentColumnSpace;
+          updatedPositions.current.left =
+            widget[leftColumnMap] - x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth + 2 * x,
+            x: 0,
+            reflectDimension: true,
+            reflectPosition: true,
+          };
+        } else {
+          updatedPositions.current.left =
+            widget[leftColumnMap] - x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth + x,
+            x: 0,
+          };
         }
+        setNewDimensions(
+          ReflowDirection.RIGHT,
+          updatedPositions.current,
+          dimensionUpdates,
+        );
       },
       component: props.handles.right,
       handleDirection: ReflowDirection.RIGHT,
@@ -411,10 +427,9 @@ export function ReflowResizable(props: ResizableProps) {
           y < 0
         )
           return;
-        const updatedPositions = { ...resizedPositions };
-        updatedPositions.bottom =
-          widget?.bottomRow + x / widget?.parentRowSpace;
-        setNewDimensions(ReflowDirection.RIGHT, updatedPositions, {
+        updatedPositions.current.bottom =
+          widget[bottomRowMap] + y / widget?.parentRowSpace;
+        setNewDimensions(ReflowDirection.RIGHT, updatedPositions.current, {
           width: newDimensions.width,
           height: props.componentHeight + y,
           x: newDimensions.x,
@@ -433,7 +448,6 @@ export function ReflowResizable(props: ResizableProps) {
   if (props.handles.bottomRight) {
     handles.push({
       dragCallback: (x: number, y: number) => {
-        const updatedPositions = { ...resizedPositions };
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
@@ -445,42 +459,42 @@ export function ReflowResizable(props: ResizableProps) {
           X: x,
           Y: y,
         };
-        if (isAutoLayout) {
-          if (widgetAlignment === "start" || hasFillChild) {
-            updatedPositions.right =
-              widget?.rightColumn + x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth + x,
-              x: 0,
-            };
-          } else if (widgetAlignment === "center") {
-            updatedPositions.right =
-              widget?.rightColumn + x / widget?.parentColumnSpace;
-            updatedPositions.left =
-              widget?.leftColumn + x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth + 2 * x,
-              x: 0,
-              reflectDimension: true,
-              reflectPosition: true,
-            };
-          } else {
-            updatedPositions.left =
-              widget?.leftColumn - x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth + x,
-              x: 0,
-            };
-          }
-          setNewDimensions(
-            ReflowDirection.BOTTOMRIGHT,
-            updatedPositions,
-            dimensionUpdates,
-          );
+        updatedPositions.current.bottom =
+          widget[bottomRowMap] + y / widget?.parentRowSpace;
+        if (widgetAlignment === "start") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] + x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth + x,
+            x: 0,
+          };
+        } else if (widgetAlignment === "center") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] + x / widget?.parentColumnSpace;
+          updatedPositions.current.left =
+            widget[leftColumnMap] - x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth + 2 * x,
+            x: 0,
+            reflectDimension: true,
+            reflectPosition: true,
+          };
+        } else {
+          updatedPositions.current.left =
+            widget[leftColumnMap] - x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth + x,
+            x: 0,
+          };
         }
+        setNewDimensions(
+          ReflowDirection.BOTTOMRIGHT,
+          updatedPositions.current,
+          dimensionUpdates,
+        );
       },
       component: props.handles.bottomRight,
       affectsWidth: true,
@@ -490,7 +504,6 @@ export function ReflowResizable(props: ResizableProps) {
   if (props.handles.bottomLeft) {
     handles.push({
       dragCallback: (x: number, y: number) => {
-        const updatedPositions = { ...resizedPositions };
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
@@ -502,42 +515,42 @@ export function ReflowResizable(props: ResizableProps) {
           X: x,
           Y: y,
         };
-        if (isAutoLayout) {
-          if (widgetAlignment === "start" || hasFillChild) {
-            updatedPositions.right =
-              widget?.rightColumn - x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth - x,
-              x: 0,
-            };
-          } else if (widgetAlignment === "center") {
-            updatedPositions.right =
-              widget?.rightColumn - x / widget?.parentColumnSpace;
-            updatedPositions.left =
-              widget?.leftColumn - x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth - 2 * x,
-              x: 0,
-              reflectDimension: true,
-              reflectPosition: true,
-            };
-          } else {
-            updatedPositions.left =
-              widget?.leftColumn + x / widget?.parentColumnSpace;
-            dimensionUpdates = {
-              ...dimensionUpdates,
-              width: props.componentWidth - x,
-              x,
-            };
-          }
-          setNewDimensions(
-            ReflowDirection.BOTTOMLEFT,
-            updatedPositions,
-            dimensionUpdates,
-          );
+        updatedPositions.current.bottom =
+          widget[bottomRowMap] + y / widget?.parentRowSpace;
+        if (widgetAlignment === "start") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] - x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth - x,
+            x: 0,
+          };
+        } else if (widgetAlignment === "center") {
+          updatedPositions.current.right =
+            widget[rightColumnMap] - x / widget?.parentColumnSpace;
+          updatedPositions.current.left =
+            widget[leftColumnMap] + x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth - 2 * x,
+            x: 0,
+            reflectDimension: true,
+            reflectPosition: true,
+          };
+        } else {
+          updatedPositions.current.left =
+            widget[leftColumnMap] + x / widget?.parentColumnSpace;
+          dimensionUpdates = {
+            ...dimensionUpdates,
+            width: props.componentWidth - x,
+            x,
+          };
         }
+        setNewDimensions(
+          ReflowDirection.BOTTOMLEFT,
+          updatedPositions.current,
+          dimensionUpdates,
+        );
       },
       component: props.handles.bottomLeft,
       affectsWidth: true,
@@ -545,18 +558,28 @@ export function ReflowResizable(props: ResizableProps) {
   }
   const onResizeStop = () => {
     togglePointerEvents(true);
-    if (isAutoLayout) {
-      dispatch(stopReflowAction());
-    }
+    dispatch(stopReflowAction());
+
     props.onStop(
       {
-        width: newDimensions.width,
-        height: newDimensions.height,
+        width:
+          props.componentWidth +
+          (updatedPositions.current.right - resizedPositions.right) *
+            widget.parentColumnSpace,
+        height:
+          props.componentHeight +
+          (updatedPositions.current.bottom - resizedPositions.bottom) *
+            widget.parentRowSpace,
       },
       {
-        x: newDimensions.x,
-        y: newDimensions.y,
+        x:
+          (updatedPositions.current.left - resizedPositions.left) *
+          widget.parentColumnSpace,
+        y:
+          (updatedPositions.current.top - resizedPositions.top) *
+          widget.parentRowSpace,
       },
+      dimensionMap,
     );
     setResizing(false);
   };
@@ -601,6 +624,7 @@ export function ReflowResizable(props: ResizableProps) {
         onStart={() => {
           togglePointerEvents(false);
           props.onStart();
+          updatedPositions.current = resizedPositions;
           setResizing(true);
         }}
         onStop={onResizeStop}

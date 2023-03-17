@@ -2,7 +2,7 @@ import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

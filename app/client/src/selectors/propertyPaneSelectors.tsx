@@ -24,6 +24,7 @@ import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getCurrentAppPositioningType } from "./editorSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
