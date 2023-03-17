@@ -15,6 +15,11 @@ import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { GridDefaults } from "constants/WidgetConstants";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 
 const DEFAULT_LIST_DATA = [
   {
