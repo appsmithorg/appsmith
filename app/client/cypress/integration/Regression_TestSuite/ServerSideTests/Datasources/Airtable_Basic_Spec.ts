@@ -26,11 +26,13 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Base ID ",
     });
+    _.agHelper.Sleep(500);
     _.agHelper.EnterValue(datasourceFormData.AirtableTable, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Table Name",
     });
+    _.agHelper.Sleep(500);
     _.dataSources.RunQuery(false);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
@@ -41,7 +43,7 @@ describe("Validate Airtable Ds", () => {
       expect(specieslist.length).eq(54); //making sure all fields are returned
     });
 
-    //Filter by Species_ID, Species field only
+    //Filter Species_ID, Species fields only
     const allowedFields = ["Species_ID", "Species"];
     _.agHelper.EnterValue("fields%5B%5D=Species_ID&fields%5B%5D=Species", {
       propFieldName: "",
@@ -167,11 +169,40 @@ describe("Validate Airtable Ds", () => {
       cy.log("Desc Sorted specieslist is :" + desc_specieslist);
       expect(sorted).to.be.true; //making records returned are Sorted by Species_ID - in descending
     });
+
+    //Validate View - desc
+    let view_specieslist = new Array();
+    const isValidSpeciesID = (id: string) => ["EO", "PE"].includes(id);
+    _.agHelper.EnterValue("", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Sort",
+    }); //Removing Sort
+
+    _.agHelper.EnterValue("GridView_CI", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "View",
+    });
+
+    _.dataSources.RunQuery(false);
+    _.agHelper.Sleep(2000); // for query to run complete
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(true);
+      jsonSpecies = JSON.parse(response?.body.data.body);
+      const isJSONValid = jsonSpecies.records.every(
+        (record: { fields: { Species_ID: any } }) => {
+          const speciesID = record.fields.Species_ID;
+          view_specieslist.push(record.fields.Species_ID);
+          return isValidSpeciesID(speciesID);
+        },
+      );
+      cy.log("View specieslist is :" + view_specieslist);
+      expect(isJSONValid).to.be.true; //Verify if records Species_ID is part of View data
+    });
+
     _.agHelper.ActionContextMenuWithInPane("Delete");
-
   });
-
-  it("2. Validate sorting, pagination etc", () => {});
 
   after("Delete the datasource", () => {
     _.entityExplorer.SelectEntityByName(dsName, "Datasources");

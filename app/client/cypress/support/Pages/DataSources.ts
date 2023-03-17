@@ -419,6 +419,7 @@ export class DataSources {
       this.locator._inputFieldByName("Bearer Token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
+    this.agHelper.Sleep();
   }
 
   public FillFirestoreDSForm() {
