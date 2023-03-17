@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getActionBlocks } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
-import { Action } from "./viewComponents/Action";
 import { getCodeFromMoustache } from "./utils";
 import { diff } from "deep-diff";
 import RootAction from "./viewComponents/ActionV2/RootActionV2";
@@ -24,6 +23,7 @@ export const ActionCreatorContext = React.createContext<{
   selectBlock: () => {
     return;
   },
+  selectedBlockId: "",
 });
 
 const ActionCreator = React.forwardRef(
@@ -74,6 +74,9 @@ const ActionCreator = React.forwardRef(
           } else if (childUpdate.current && updatedIdRef?.current) {
             // Child updates come with the id of the block that was updated
             newActions[updatedIdRef.current] = block;
+            prevIdValuePairs = prevIdValuePairs.filter(
+              ([id]) => id !== updatedIdRef.current,
+            );
             updatedIdRef.current = "";
             childUpdate.current = false;
           } else {
@@ -97,13 +100,18 @@ const ActionCreator = React.forwardRef(
                 return;
               }
             }
-            newActions[uuidv4()] = block;
+            newActionBlockId.current = uuidv4();
+            newActions[newActionBlockId.current] = block;
           }
         });
         previousBlocks.current = [...newBlocks];
         return newActions;
       });
     }, [props.value]);
+
+    const newActionBlockId = useRef<string>("");
+    const focusBlockId = newActionBlockId.current;
+    newActionBlockId.current = "";
 
     const save = useCallback(
       (newActions) => {
@@ -124,26 +132,22 @@ const ActionCreator = React.forwardRef(
      */
     const childUpdate = React.useRef(false);
 
-    const handleActionChange = useCallback(
-      (id: string) => (value: string) => {
-        const newValueWithoutMoustache = getCodeFromMoustache(value);
-        const newActions = { ...actions };
-        updatedIdRef.current = id;
-        childUpdate.current = true;
-        if (newValueWithoutMoustache) {
-          newActions[id] = newValueWithoutMoustache;
-        } else {
-          delete newActions[id];
-        }
-        save(newActions);
-      },
-      [save, actions],
-    );
+    const handleActionChange = (id: string) => (value: string) => {
+      const newValueWithoutMoustache = getCodeFromMoustache(value);
+      const newActions = { ...actions };
+      updatedIdRef.current = id;
+      childUpdate.current = true;
+      if (newValueWithoutMoustache) {
+        newActions[id] = newValueWithoutMoustache;
+      } else {
+        delete newActions[id];
+      }
+      save(newActions);
+    };
 
     // We need a unique id for each action when it's mapped
     // We can't use index for obvious reasons
     // We can't use the action value itself because it's not unique and changes on action change
-
     const [selectedBlockId, selectBlock] = useState<string | undefined>(
       undefined,
     );
@@ -152,14 +156,14 @@ const ActionCreator = React.forwardRef(
       <ActionCreatorContext.Provider
         value={{ label: props.action, selectedBlockId, selectBlock }}
       >
-        <div className="flex flex-col gap-[2px] mb-2" ref={ref}>
-          {Object.entries(actions || {}).map(([id, value]) => (
+        <div className="flex flex-col gap-[2px]" ref={ref}>
+          {Object.entries(actions).map(([id, value]) => (
             <RootAction
               code={value}
               id={id}
-              // additionalAutoComplete={props.additionalAutoComplete}
               key={id}
               onChange={handleActionChange(id)}
+              shouldFocus={id === focusBlockId}
             />
           ))}
         </div>

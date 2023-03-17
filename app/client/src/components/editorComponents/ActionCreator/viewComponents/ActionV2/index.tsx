@@ -1,9 +1,8 @@
-import { Collapse } from "@blueprintjs/core";
 import clsx from "clsx";
 import TreeStructure from "components/utils/TreeStructure";
 import { Icon, TooltipComponent } from "design-system-old";
 import { klona } from "klona/lite";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import { TActionBlock } from "../../types";
@@ -120,11 +119,13 @@ export default function ActionV2(props: {
     <div className={props.className}>
       <ActionSelector
         action={actionBlock}
+        id={id}
         onChange={props.onChange}
         open={isOpen}
       >
         <ActionCard
           actionBlock={actionBlock}
+          id={id}
           onSelect={handleCardSelection}
           selected={isOpen}
           variant={props.variant}
@@ -166,11 +167,9 @@ export default function ActionV2(props: {
                     <button
                       className={clsx(
                         "action-callback-add",
-                        selectedBlockId?.endsWith("_0") && "hide-bottom-border",
-                        "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
-                        callbacks.length === 0 &&
-                          "border-b-[1px] border-b-gray-200",
-                        // isNewActionSelected(blockType) && "selected",
+                        "flex justify-between bg-gray-50 border-[1px] border-gray-200 box-border",
+                        selectedBlockId === `${id}_${blockType}_0` &&
+                          "border-b-gray-500",
                       )}
                       onClick={handleAddBlock}
                     >
@@ -197,18 +196,29 @@ export default function ActionV2(props: {
                         className={`mt-0`}
                         id={`${id}_${blockType}_${index}`}
                         key={`${id}_${blockType}_${index}`}
-                        onChange={(childActionBlock) => {
+                        onChange={(
+                          childActionBlock: TActionBlock,
+                          del?: boolean,
+                        ) => {
                           const newActionBlock = klona(actionBlock);
-                          if (blockType === "failure") {
-                            newActionBlock.error.blocks[
-                              index
-                            ] = childActionBlock;
+                          const blocks =
+                            blockType === "failure"
+                              ? newActionBlock.error.blocks
+                              : newActionBlock.success.blocks;
+                          let isDummyBlockDelete = false;
+                          if (del) {
+                            isDummyBlockDelete =
+                              blocks[index].actionType ===
+                              AppsmithFunction.none;
+                            blocks.splice(index, 1);
                           } else {
-                            newActionBlock.success.blocks[
-                              index
-                            ] = childActionBlock;
+                            blocks[index] = childActionBlock;
                           }
-                          props.onChange(newActionBlock);
+                          if (isDummyBlockDelete) {
+                            setActionBlock(newActionBlock);
+                          } else {
+                            props.onChange(newActionBlock);
+                          }
                         }}
                         variant="callbackBlock"
                       />

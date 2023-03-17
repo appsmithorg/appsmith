@@ -425,7 +425,9 @@ export function actionToCode(
     const withSuccessCallback = successCallbackCode
       ? setCallbackFunctionField(
           code,
-          `(${successParams?.join(",")}) => { ${successCallbackCode} }`,
+          `(${
+            successParams ? successParams.join(",") : ""
+          }) => { ${successCallbackCode} }`,
           0,
           self.evaluationVersion,
         )
@@ -433,7 +435,9 @@ export function actionToCode(
 
     const withThenCallback = setThenBlockInQuery(
       withSuccessCallback,
-      `(${successParams?.join(",")}) => { ${thenCallbackCode} }`,
+      `(${
+        successParams ? successParams.join(",") : ""
+      }) => { ${thenCallbackCode} }`,
       self.evaluationVersion,
     );
 
@@ -441,7 +445,9 @@ export function actionToCode(
     const withErrorCallback = errorCallbackCode
       ? setCallbackFunctionField(
           withThenCallback,
-          `(${errorParams?.join(",")}) => { ${errorCallbackCode} }`,
+          `(${
+            errorParams ? errorParams.join(",") : ""
+          }) => { ${errorCallbackCode} }`,
           1,
           self.evaluationVersion,
         )
@@ -449,7 +455,9 @@ export function actionToCode(
 
     const withCatchCallback = setCatchBlockInQuery(
       withErrorCallback,
-      `(${errorParams?.join(",")}) => { ${catchCallbackCode} }`,
+      `(${
+        errorParams ? errorParams.join(",") : ""
+      }) => { ${catchCallbackCode} }`,
       self.evaluationVersion,
     );
 

@@ -1,6 +1,6 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { Icon, TreeDropdownOption } from "design-system-old";
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
@@ -19,16 +19,23 @@ export default function ActionSelector(props: {
   action: TActionBlock;
   children: React.ReactNode;
   open: boolean;
-  onChange: (actionBlock: TActionBlock) => void;
+  id: string;
+  onChange: (actionBlock: TActionBlock, del?: boolean) => void;
 }) {
   const action = props.action;
+  const isNested = props.id?.split("_").length > 1;
+  const popoverClassName = isNested
+    ? "w-[280px] !translate-x-[-32px]"
+    : "w-[280px] !translate-x-[-17px]";
+
   return (
     <Popover2
+      canEscapeKeyClose
       className="w-full"
       content={<ActionSelectorForm action={action} onChange={props.onChange} />}
       isOpen={props.open}
       minimal
-      popoverClassName="!translate-x-[-18px] w-[280px]"
+      popoverClassName={popoverClassName}
       position="left"
       positioningStrategy="fixed"
     >
@@ -39,7 +46,7 @@ export default function ActionSelector(props: {
 
 type TActionSelectorFormProps = {
   action: TActionBlock;
-  onChange: (actionBlock: TActionBlock) => void;
+  onChange: (actionBlock: TActionBlock, del?: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
 };
 
@@ -55,9 +62,38 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const { action, additionalAutoComplete, onChange } = props;
   const { code } = action;
   const isCallbackBlockSelected = true;
-  const { selectBlock } = React.useContext(ActionCreatorContext);
+  const { selectBlock, selectedBlockId } = React.useContext(
+    ActionCreatorContext,
+  );
+  const isChainedAction = Boolean(selectedBlockId?.split("_").length);
+
+  const ref = useRef<HTMLDivElement>(null);
+  const handleOutsideClick = useCallback(
+    (e) => {
+      const paths = e.composedPath() || [];
+      for (const path of paths) {
+        if (path.classList?.contains("CodeMirror-hints")) {
+          return;
+        }
+        if (ref?.current && path === ref.current) {
+          return;
+        }
+      }
+      selectBlock("-1");
+      return;
+    },
+    [selectBlock],
+  );
+
+  React.useEffect(() => {
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full" ref={ref}>
       <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
         <div className="text-sm font-medium text-gray">
           {isCallbackBlockSelected
@@ -79,12 +115,16 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
           hoverFillColor="var(--ads-color-black-700)"
           name="delete"
           onClick={() => {
-            onChange({
-              code: "",
-              actionType: AppsmithFunction.none,
-              error: { blocks: [] },
-              success: { blocks: [] },
-            });
+            onChange(
+              {
+                code: "",
+                actionType: AppsmithFunction.none,
+                error: { blocks: [] },
+                success: { blocks: [] },
+              },
+              true,
+            );
+            selectBlock("-1");
           }}
           size="extraLarge"
         />
@@ -94,6 +134,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
         <FieldGroup
           additionalAutoComplete={additionalAutoComplete}
           integrationOptions={integrationOptions}
+          isChainedAction={isChainedAction}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
             const code = getCodeFromMoustache(newValue);
