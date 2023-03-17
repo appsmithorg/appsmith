@@ -1,25 +1,22 @@
-import React, {
+import type {
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   RefObject,
-  useCallback,
-  useEffect,
-  useRef,
 } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
 import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import WidgetStyleContainer, {
-  WidgetStyleContainerProps,
-} from "components/designSystems/appsmith/WidgetStyleContainer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { WidgetType } from "utils/WidgetFactory";
+import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
 import { getCurrentAppPositioningType } from "selectors/editorSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { WidgetType } from "utils/WidgetFactory";
-import { scrollCSS } from "widgets/WidgetUtils";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -37,9 +34,7 @@ const StyledContainerComponent = styled.div<
   &:hover {
     background-color: ${(props) => {
       return props.onClickCapture && props.backgroundColor
-        ? tinycolor(props.backgroundColor)
-            .darken(5)
-            .toString()
+        ? tinycolor(props.backgroundColor).darken(5).toString()
         : props.backgroundColor;
     }};
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};

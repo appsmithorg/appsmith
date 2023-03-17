@@ -2807,4 +2807,23 @@ public class DatabaseChangelog2 {
         update.set("datasourceConfiguration.connection.ssl.authType", "DISABLE");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
     }
+
+    @ChangeSet(order = "042", id = "add-oracle-plugin", author = "")
+    public void addOraclePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Oracle Plugin");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("oracle-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle-db.jpg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }

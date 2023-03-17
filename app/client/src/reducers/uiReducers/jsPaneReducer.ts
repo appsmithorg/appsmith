@@ -1,10 +1,10 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { JSCollection } from "entities/JSCollection";
+import type { JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export interface JsPaneReduxState {

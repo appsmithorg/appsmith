@@ -1,4 +1,4 @@
-import {
+import type {
   AlignmentChildren,
   AlignmentInfo,
   FlexLayer,
@@ -9,7 +9,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -406,9 +406,11 @@ export function extractAlignmentInfo(
   };
 }
 
-export function getAlignmentSizeInfo(
-  arr: AlignmentInfo[],
-): { startSize: number; centerSize: number; endSize: number } {
+export function getAlignmentSizeInfo(arr: AlignmentInfo[]): {
+  startSize: number;
+  centerSize: number;
+  endSize: number;
+} {
   let startSize = 0,
     centerSize = 0,
     endSize = 0;

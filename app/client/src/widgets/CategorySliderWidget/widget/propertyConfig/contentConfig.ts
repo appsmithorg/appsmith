@@ -4,7 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { CategorySliderWidgetProps } from "..";
+import type { CategorySliderWidgetProps } from "..";
 import {
   defaultOptionValidation,
   optionsCustomValidation,

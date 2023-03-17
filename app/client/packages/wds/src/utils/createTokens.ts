@@ -25,9 +25,8 @@ export const createTokens = css`
     const lightAccentColor = lightenColor(color);
     const accentActiveColor = darkenColor(accentHoverColor);
     const lightAccentHoverColor = calulateHoverColor(lightAccentColor);
-    const complementaryAccentColor = getComplementaryGrayscaleColor(
-      accentColor,
-    );
+    const complementaryAccentColor =
+      getComplementaryGrayscaleColor(accentColor);
     const lightAcctentActiveColor = darkenColor(lightAccentHoverColor, 0.03);
     const onAccentBorderColor = darkenColor(color, 0.1);
     const onAccentLightBorderColor = lightenColor(color, 0.98);

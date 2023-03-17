@@ -27,7 +27,7 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   getIsFetchingApplications,
@@ -37,7 +37,7 @@ import { getAllApplications } from "actions/applicationActions";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
-import { Template } from "api/TemplatesApi";
+import type { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 const SentryRoute = Sentry.withSentryRouting(Route);

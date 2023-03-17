@@ -1,4 +1,4 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =

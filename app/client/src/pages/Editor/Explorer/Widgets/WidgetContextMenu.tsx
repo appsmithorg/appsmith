@@ -1,13 +1,12 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown, {
-  TreeDropdownOption,
-} from "pages/Editor/Explorer/TreeDropdown";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,

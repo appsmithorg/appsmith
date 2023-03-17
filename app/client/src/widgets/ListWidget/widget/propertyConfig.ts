@@ -1,6 +1,6 @@
 import { get } from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ListWidgetProps } from "../constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ListWidgetProps } from "../constants";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";

@@ -6,11 +6,10 @@ import styled from "styled-components";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
 import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
 import { Colors } from "constants/Colors";
-import { IconName, TooltipComponent } from "design-system-old";
-import {
-  AppPositioningTypeConfig,
-  AppPositioningTypes,
-} from "reducers/entityReducers/pageListReducer";
+import type { IconName } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
+import type { AppPositioningTypeConfig } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentAppPositioningType,
   isAutoLayoutEnabled,
@@ -125,7 +124,8 @@ export function AppPositionTypeControl() {
                   >
                     <button
                       className={classNames({
-                        "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                        "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200":
+                          true,
                         "bg-white border-gray-300": selectedIndex === index,
                         "bg-gray-100 hover:bg-gray-200":
                           selectedIndex !== index,

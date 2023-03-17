@@ -1,6 +1,7 @@
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import React, { useState } from "react";
-import { PropsWithChildren, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import type { PropsWithChildren } from "react";
 import styled from "styled-components";
 
 const SimpleContainer = styled.div`

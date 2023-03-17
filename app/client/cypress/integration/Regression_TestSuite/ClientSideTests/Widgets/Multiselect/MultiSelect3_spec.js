@@ -2,12 +2,12 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/widgetPopupDsl.json");
 
-describe("Dropdown Widget Functionality", function() {
+describe("Dropdown Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Verify dropdown width of Select widgets and menu button", function() {
+  it("Verify dropdown width of Select widgets and menu button", function () {
     // Select
     cy.wait(450);
     cy.get(formWidgetsPage.selectwidget)
@@ -96,7 +96,7 @@ describe("Dropdown Widget Functionality", function() {
       });
   });
 
-  it("Verify dropdown width of Select widgets with Label", function() {
+  it("Verify dropdown width of Select widgets with Label", function () {
     // Select
     cy.openPropertyPane("selectwidget");
     cy.testJsontext("text", "Label");

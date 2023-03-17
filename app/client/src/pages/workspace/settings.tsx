@@ -8,7 +8,8 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { MenuItemProps, TabComponent, TabProp } from "design-system-old";
+import type { MenuItemProps, TabProp } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 
 import MemberSettings from "@appsmith/pages/workspace/Members";

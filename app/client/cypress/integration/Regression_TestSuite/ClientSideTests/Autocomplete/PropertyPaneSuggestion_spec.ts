@@ -1,11 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const {
-  AggregateHelper,
-  CommonLocators,
-  EntityExplorer,
-  PropertyPane,
-} = ObjectsRegistry;
+const { AggregateHelper, CommonLocators, EntityExplorer, PropertyPane } =
+  ObjectsRegistry;
 
 describe("Property Pane Suggestions", () => {
   before(() => {

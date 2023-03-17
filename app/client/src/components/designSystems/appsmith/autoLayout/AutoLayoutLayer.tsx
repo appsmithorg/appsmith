@@ -1,8 +1,8 @@
-import { GridDefaults } from "constants/WidgetConstants";
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { LayoutDirection } from "utils/autoLayout/constants";
+import type { LayoutDirection } from "utils/autoLayout/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.

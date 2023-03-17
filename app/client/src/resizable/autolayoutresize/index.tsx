@@ -3,7 +3,7 @@ import {
   isHandleResizeAllowed,
   isResizingDisabled,
 } from "components/editorComponents/ResizableUtils";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   WIDGET_PADDING,
@@ -12,19 +12,18 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Spring } from "react-spring";
-import {
+import type {
   MovementLimitMap,
-  ReflowDirection,
   ReflowedSpace,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
+import { ReflowDirection } from "reflow/reflowTypes";
 import {
-  DimensionUpdateProps,
   ResizableHandle,
-  ResizableProps,
   RESIZE_BORDER_BUFFER,
   ResizeWrapper,
 } from "resizable/common";
+import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import { getWidgets } from "sagas/selectors";
 import {
   getCanvasWidth,
@@ -186,10 +185,8 @@ export function ReflowResizable(props: ResizableProps) {
     resizedPositions: OccupiedSpace,
     rect: DimensionUpdateProps,
   ) => {
-    const {
-      canResizeHorizontally,
-      canResizeVertically,
-    } = props.getResizedPositions(resizedPositions);
+    const { canResizeHorizontally, canResizeVertically } =
+      props.getResizedPositions(resizedPositions);
     const canResize = canResizeHorizontally || canResizeVertically;
 
     if (canResize) {
@@ -214,9 +211,8 @@ export function ReflowResizable(props: ResizableProps) {
           movementLimitMap &&
           movementLimitMap[resizedPositions.id]
         ) {
-          ({ canHorizontalMove, canVerticalMove } = movementLimitMap[
-            resizedPositions.id
-          ]);
+          ({ canHorizontalMove, canVerticalMove } =
+            movementLimitMap[resizedPositions.id]);
         }
         if (isAutoLayout && hasFillChild) {
           canHorizontalMove = triggerAutoLayoutBasedReflow(resizedPositions);
@@ -266,10 +262,8 @@ export function ReflowResizable(props: ResizableProps) {
 
   const handles = [];
   const widget = allWidgets[props.widgetId];
-  const {
-    minHeight: widgetMinHeight,
-    minWidth: widgetMinWidth,
-  } = getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
+  const { minHeight: widgetMinHeight, minWidth: widgetMinWidth } =
+    getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
   const resizedPositions = {
     left: widget?.leftColumn,
     right: widget?.rightColumn,
@@ -659,13 +653,13 @@ export function ReflowResizable(props: ResizableProps) {
         maxHeight:
           (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        transform: `translate3d(${(newDimensions.reflectPosition
-          ? newDimensions.x
-          : 0) -
-          RESIZE_BORDER_BUFFER / 2}px,${(newDimensions.reflectPosition
-          ? newDimensions.y
-          : 0) -
-          RESIZE_BORDER_BUFFER / 2}px,0)`,
+        transform: `translate3d(${
+          (newDimensions.reflectPosition ? newDimensions.x : 0) -
+          RESIZE_BORDER_BUFFER / 2
+        }px,${
+          (newDimensions.reflectPosition ? newDimensions.y : 0) -
+          RESIZE_BORDER_BUFFER / 2
+        }px,0)`,
       }}
     >
       {(_props) => (

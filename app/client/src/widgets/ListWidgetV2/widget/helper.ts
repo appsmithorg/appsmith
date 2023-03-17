@@ -1,7 +1,7 @@
-import { WidgetBaseProps } from "widgets/BaseWidget";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { WidgetBaseProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { FlexLayer, LayerChild } from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer, LayerChild } from "utils/autoLayout/autoLayoutTypes";
 
 export const extractTillNestedListWidget = (
   flattenedWidgets: WidgetBaseProps["flattenedChildCanvasWidgets"],

@@ -27,9 +27,7 @@ const store = localforage.createInstance({
 });
 
 export const resetAuthExpiration = () => {
-  const expireBy = moment()
-    .add(1, "h")
-    .format();
+  const expireBy = moment().add(1, "h").format();
   store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
     log.error("Unable to set expiration time");
     log.error(error);

@@ -3,9 +3,9 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
+import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
 import { RenderModes } from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   extractAlignmentInfo,
   getAlignmentSizeInfo,

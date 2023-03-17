@@ -1,15 +1,13 @@
-import {
-  ExtraDef,
-  generateTypeDef,
-} from "utils/autocomplete/dataTreeTypeDefCreator";
-import {
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type {
   DataTreeAction,
   DataTreeAppsmith,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { Def } from "tern";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { Def } from "tern";
 
 const isVisible = {
   "!type": "bool",

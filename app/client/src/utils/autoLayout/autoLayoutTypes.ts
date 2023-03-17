@@ -1,5 +1,5 @@
-import { FlattenedWidgetProps } from "widgets/constants";
-import { FlexLayerAlignment } from "./constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlexLayerAlignment } from "./constants";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;

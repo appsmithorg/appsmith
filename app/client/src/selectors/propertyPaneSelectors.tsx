@@ -1,15 +1,14 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { find, get, pick, set } from "lodash";
 import { createSelector } from "reselect";
 
-import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
-import {
+import type {
   DataTree,
   DataTreeEntity,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
@@ -21,8 +20,8 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { WidgetProps } from "widgets/BaseWidget";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 
@@ -204,9 +203,9 @@ const getCurrentEvaluatedWidget = createSelector(
     widget: WidgetProps | undefined,
     evaluatedTree: DataTree,
   ): DataTreeWidget => {
-    return (widget?.widgetName
-      ? evaluatedTree[widget.widgetName]
-      : {}) as DataTreeWidget;
+    return (
+      widget?.widgetName ? evaluatedTree[widget.widgetName] : {}
+    ) as DataTreeWidget;
   },
 );
 

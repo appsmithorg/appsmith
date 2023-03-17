@@ -1,4 +1,4 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { createSelector } from "reselect";
 import { getCurrentAppPositioningType } from "./editorSelectors";

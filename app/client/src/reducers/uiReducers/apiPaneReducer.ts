@@ -1,11 +1,11 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Action } from "entities/Action";
-import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import type { Action } from "entities/Action";
+import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: ApiPaneReduxState = {

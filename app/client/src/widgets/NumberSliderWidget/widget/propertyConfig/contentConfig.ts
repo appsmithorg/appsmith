@@ -4,7 +4,7 @@ import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { NumberSliderWidgetProps } from "..";
+import type { NumberSliderWidgetProps } from "..";
 import {
   defaultValueValidation,
   maxValueValidation,
