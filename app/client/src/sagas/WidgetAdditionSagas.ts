@@ -81,6 +81,9 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+    type,
+  );
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   if (!widgetName) {
@@ -111,11 +114,9 @@ function* getChildWidgetProps(
   }
 
   const isAutoLayout = isStack(widgets, parent);
-  if (
-    isAutoLayout &&
-    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
-  )
-    columns = 64;
+  const isFillWidget =
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+  if (isAutoLayout && isFillWidget) columns = 64;
 
   const widgetProps = {
     ...restDefaultConfig,
@@ -150,7 +151,11 @@ function* getChildWidgetProps(
     restDefaultConfig.version,
   );
 
-  widget.widthInPixel = columns * widget.parentColumnSpace;
+  // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
+  if (!isFillWidget && !disableResizeHandles?.horizontal) {
+    widget.widthInPercentage = (columns * parentColumnSpace) / mainCanvasWidth;
+  }
+
   widget.widgetId = newWidgetId;
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
