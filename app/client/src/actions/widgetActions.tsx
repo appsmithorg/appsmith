@@ -55,13 +55,6 @@ export const showModal = (id: string, shouldSelectModal = true) => {
   };
 };
 
-export const closeAllModals = () => {
-  return {
-    type: ReduxActionTypes.CLOSE_MODAL,
-    payload: {},
-  };
-};
-
 export const closePropertyPane = () => {
   return {
     type: ReduxActionTypes.HIDE_PROPERTY_PANE,
