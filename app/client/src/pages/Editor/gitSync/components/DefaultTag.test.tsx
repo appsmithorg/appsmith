@@ -11,8 +11,8 @@ describe("DefaultTag", () => {
     // renders
     expect(actual).not.toBeNull();
 
-    // contains DEFAULT text
-    expect(actual?.innerHTML.includes("DEFAULT")).toBeTruthy();
+    // contains Default text
+    expect(actual?.innerHTML.includes("Default")).toBeTruthy();
 
     // styles
     expect(actual).toHaveStyleRule("display", "inline-block");
