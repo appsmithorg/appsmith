@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AppsIcon from "remixicon-react/AppsLineIcon";
@@ -11,20 +11,15 @@ import {
 } from "pages/AppViewer/utils";
 import styled from "styled-components";
 import { TooltipComponent } from "design-system-old";
-// import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import classNames from "classnames";
 
 type BackToHomeButtonProps = {
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   forSidebar?: boolean;
+  isLogoVisible?: boolean;
+  setIsLogoVisible?: (isLogoVisible: boolean) => void;
 };
-
-// const StyledLabel = styled.span<BackToHomeButtonProps>`
-//   color: ${({ navColorStyle, primaryColor }) =>
-//     getMenuItemTextColor(primaryColor, navColorStyle)};
-//   font-size: ${({ forSidebar }) =>
-//     forSidebar ? THEMEING_TEXT_SIZES.sm : THEMEING_TEXT_SIZES.base};
-// `;
 
 const StyledAppIcon = styled(AppsIcon)<
   BackToHomeButtonProps & {
@@ -38,9 +33,9 @@ const StyledAppIcon = styled(AppsIcon)<
   margin-top: ${({ forSidebar }) => (forSidebar ? " -3px" : "-2px")};
 `;
 
-const StyledLink = styled(Link)<BackToHomeButtonProps>`
+export const StyledLink = styled(Link)<BackToHomeButtonProps>`
   &:hover {
-    ${StyledAppIcon} {
+    svg {
       background-color: ${({ navColorStyle, primaryColor }) =>
         getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
 
@@ -54,13 +49,30 @@ const StyledLink = styled(Link)<BackToHomeButtonProps>`
 `;
 
 function BackToHomeButton(props: BackToHomeButtonProps) {
-  const { forSidebar, navColorStyle, primaryColor } = props;
+  const {
+    forSidebar,
+    isLogoVisible,
+    navColorStyle,
+    primaryColor,
+    setIsLogoVisible,
+  } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
+
+  useEffect(() => {
+    if (setIsLogoVisible) {
+      setIsLogoVisible(false);
+    }
+  }, []);
 
   return (
     <TooltipComponent content="Back to apps" position="bottom-left">
       <StyledLink
-        className="flex items-center gap-2 group t--back-to-home hover:no-underline mr-2"
+        className={classNames({
+          "flex items-center gap-2 group t--back-to-home hover:no-underline":
+            true,
+          "mr-2": !isLogoVisible,
+          "mb-2 mr-3": isLogoVisible,
+        })}
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
         to="/applications"
@@ -72,13 +84,6 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
         />
-        {/* <StyledLabel
-        className="hidden md:block"
-        navColorStyle={navColorStyle}
-        primaryColor={primaryColor}
-      >
-        Apps
-      </StyledLabel> */}
       </StyledLink>
     </TooltipComponent>
   );

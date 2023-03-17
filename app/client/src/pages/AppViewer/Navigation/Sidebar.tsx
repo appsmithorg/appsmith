@@ -82,6 +82,7 @@ export function Sidebar(props: SidebarProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const [isLogoVisible, setIsLogoVisible] = useState(false);
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -146,12 +147,19 @@ export function Sidebar(props: SidebarProps) {
       sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
-        <div className="flex">
+        <div
+          className={classNames({
+            flex: true,
+            "flex-col": isLogoVisible,
+          })}
+        >
           {currentUser?.username !== ANONYMOUS_USERNAME && (
             <BackToHomeButton
               forSidebar
+              isLogoVisible={isLogoVisible}
               navColorStyle={navColorStyle}
               primaryColor={primaryColor}
+              setIsLogoVisible={setIsLogoVisible}
             />
           )}
 

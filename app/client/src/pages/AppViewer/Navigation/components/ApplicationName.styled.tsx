@@ -20,7 +20,7 @@ export const StyledApplicationName = styled.div<{
 
   ${({ forSidebar, isMobile, navStyle }) => {
     if (navStyle === NAVIGATION_SETTINGS.NAV_STYLE.STACKED && !isMobile) {
-      return `max-width: 70vw;`;
+      return `max-width: 500px;`;
     } else if (forSidebar) {
       return `max-width: ${APPLICATION_TITLE_MAX_WIDTH - 40}px;`;
     } else {
