@@ -140,6 +140,13 @@ public enum AclPermission {
 
     public static boolean isPermissionForEntity(AclPermission aclPermission, Class clazz) {
         Class entityClass = clazz;
+        /*
+         * Action class has been deprecated, and we have started using NewAction class instead.
+         * Page class has been deprecated, and we have started using NewPage class instead.
+         * NewAction and ActionCollection are similar entities w.r.t. AclPermissions.
+         * Hence, whenever we want to check for any Permission w.r.t. NewAction or Action Collection, we use Action, and
+         * whenever we want to check for any Permission w.r.t. NewPage, we use Page.
+         */
         if (entityClass.equals(NewAction.class) || entityClass.equals(ActionCollection.class)) {
             entityClass = Action.class;
         } else if (entityClass.equals(NewPage.class)) {
