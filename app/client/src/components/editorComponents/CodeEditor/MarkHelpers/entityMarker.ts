@@ -19,6 +19,8 @@ export const PEEKABLE_CH_START = "peek-ch-start";
 export const PEEKABLE_CH_END = "peek-ch-end";
 export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
 
+// let count = 0;
+
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
@@ -26,7 +28,6 @@ export const entityMarker: MarkHelper = (
   to,
 ) => {
   let markers: CodeMirror.TextMarker[] = [];
-  // console.log("markers count", editor.getAllMarks().length);
   if (from && to) {
     markers = editor.findMarks(
       {
@@ -40,6 +41,8 @@ export const entityMarker: MarkHelper = (
       },
     );
     clearMarkers(markers);
+
+    // console.log(`markers count - ${markers.length},`, ++count);
     // console.log("handle change ft markers");
     // console.log("handle change ft markers", from, to, markers);
 
@@ -53,6 +56,7 @@ export const entityMarker: MarkHelper = (
     editor.eachLine((line: CodeMirror.LineHandle) => {
       addMarksForLine(editor, line, entityNavigationData);
     });
+    // console.log(`markers count - ${markers.length},`, ++count);
     // console.log("handle change all markers");
     // console.log("handle change all markers", markers);
   }
