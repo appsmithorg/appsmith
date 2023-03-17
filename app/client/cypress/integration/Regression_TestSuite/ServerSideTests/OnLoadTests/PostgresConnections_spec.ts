@@ -76,7 +76,11 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
           ".data.map( (obj) =>{ return  {'label': obj.table_name, 'value': obj.table_name }})}}",
       );
 <<<<<<< HEAD
+<<<<<<< HEAD
       propPane.UpdatePropertyFieldValue(
+=======
+      _.propPane.UpdatePropertyFieldValue(
+>>>>>>> 214fb1705a3c1de8d6f8aaec3b0e7bfc003bc7d8
 =======
       _.propPane.UpdatePropertyFieldValue(
 >>>>>>> 214fb1705a3c1de8d6f8aaec3b0e7bfc003bc7d8
