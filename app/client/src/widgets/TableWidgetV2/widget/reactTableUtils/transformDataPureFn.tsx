@@ -7,7 +7,8 @@ import { ColumnTypes, DateInputFormat } from "../../constants";
 import type { ReactTableColumnProps } from "../../component/Constants";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
-type tableData = Array<Record<string, unknown>>;
+
+export type tableData = Array<Record<string, unknown>>;
 
 //TODO: (Vamsi) need to unit test this function
 export const transformDataPureFn = (
@@ -104,7 +105,8 @@ export const transformDataPureFn = (
   }
 };
 
-const memoizedTransformData = memoizeOne(transformDataPureFn, shallowEqual);
+// lazily generate the cache so that we can create several memoised instances
+const getMemoizedTransformData = () => memoizeOne(transformDataPureFn);
 
 export const injectEditableCellToTableData = (
   tableData: tableData,
@@ -127,25 +129,34 @@ export const injectEditableCellToTableData = (
   return copy;
 };
 
-const memoiseInjectEditableCellToTableData = memoizeOne(
-  injectEditableCellToTableData,
-  (prev, next) => {
+const getMemoiseInjectEditableCellToTableData = () =>
+  memoizeOne(injectEditableCellToTableData, (prev, next) => {
     const [prevTableData, prevCellEditable] = prev;
     const [nextTableData, nextCellEditable] = next;
     //shallow compare the cellEditable properties
     if (!shallowEqual(prevCellEditable, nextCellEditable)) return false;
-    return shallowEqual(prevTableData, nextTableData);
-  },
-);
 
-export const memoiseTransformDataWithEditableCell = memoizeOne(
-  (
-    editableCell: EditableCell | undefined,
-    tableData: Array<Record<string, unknown>>,
-    columns: ReactTableColumnProps[],
-  ) => {
-    const transformedData = memoizedTransformData(tableData, columns);
-    return memoiseInjectEditableCellToTableData(transformedData, editableCell);
-  },
-  shallowEqual,
-);
+    return shallowEqual(prevTableData, nextTableData);
+  });
+
+export type transformDataWithEditableCell = (
+  editableCell: EditableCell | undefined,
+  tableData: Array<Record<string, unknown>>,
+  columns: ReactTableColumnProps[],
+) => tableData;
+
+// the result of this cache function is a prop for the useTable hook, this prop needs to memoised as per their docs
+// we have noticed expensive computation from the useTable if tableData isnt memoised
+export const getMemoiseTransformDataWithEditableCell =
+  (): transformDataWithEditableCell => {
+    const memoizedTransformData = getMemoizedTransformData();
+    const memoiseInjectEditableCellToTableData =
+      getMemoiseInjectEditableCellToTableData();
+    return memoizeOne((editableCell, tableData, columns) => {
+      const transformedData = memoizedTransformData(tableData, columns);
+      return memoiseInjectEditableCellToTableData(
+        transformedData,
+        editableCell,
+      );
+    });
+  };

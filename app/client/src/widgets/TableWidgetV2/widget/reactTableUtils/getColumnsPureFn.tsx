@@ -13,17 +13,27 @@ import type {
   ReactTableColumnProps,
 } from "../../component/Constants";
 import memoizeOne from "memoize-one";
-import shallowEqual from "shallowequal";
 
-//TODO: (Vamsi) need to unit test this function
-export const getColumnsPureFn = (
+export type getColumns = (
   renderCell: any,
-  columnWidthMap: { [key: string]: number } = {},
-  orderedTableColumns = [],
+  columnWidthMap: { [key: string]: number } | undefined,
+  orderedTableColumns: any,
   componentWidth: number,
   primaryColumns: Record<string, ColumnProperties>,
   renderMode: RenderMode,
   widgetId: string,
+) => ReactTableColumnProps[];
+
+//TODO: (Vamsi) need to unit test this function
+
+export const getColumnsPureFn: getColumns = (
+  renderCell,
+  columnWidthMap = {},
+  orderedTableColumns = [],
+  componentWidth,
+  primaryColumns,
+  renderMode,
+  widgetId,
 ) => {
   let columns: ReactTableColumnProps[] = [];
   const hiddenColumns: ReactTableColumnProps[] = [];
@@ -137,14 +147,18 @@ export const getColumnsPureFn = (
   return columns.filter((column: ReactTableColumnProps) => !!column.id);
 };
 
-export const memoisedGetColumns = memoizeOne(getColumnsPureFn, shallowEqual);
+// the result of this cache function is a prop for the useTable hook, this prop needs to memoised as per their docs
+// we have noticed expensive computation from the useTable if columns isnt memoised
+export const getMemoiseGetColumnsWithLocalStorageFn = () => {
+  const memoisedGetColumns = memoizeOne(getColumnsPureFn);
 
-export const memoiseGetColumnsWithLocalStorage = memoizeOne(
-  //we are not using this parameter it is used by the memoisation comparator
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (widgetLocalStorageState) => {
-    memoisedGetColumns.clear();
-    return memoisedGetColumns;
-  },
-  isEqual,
-);
+  return memoizeOne(
+    //we are not using this parameter it is used by the memoisation comparator
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (widgetLocalStorageState) => {
+      memoisedGetColumns.clear();
+      return memoisedGetColumns as getColumns;
+    },
+    isEqual,
+  );
+};

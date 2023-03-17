@@ -96,9 +96,13 @@ import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { memoiseGetColumnsWithLocalStorage } from "./reactTableUtils/getColumnsPureFn";
-import shallowEqual from "shallowequal";
-import { memoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
+import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
+import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
+import type {
+  tableData,
+  transformDataWithEditableCell,
+} from "./reactTableUtils/transformDataPureFn";
+import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -106,18 +110,25 @@ const ReactTableComponent = lazy(() =>
 
 const emptyArr: any = [];
 
-const memoisedAddNewRow = memoizeOne(
-  (tableData, isAddRowInProgress, newRowContent) => {
+type addNewRowToTable = (
+  tableData: tableData,
+  isAddRowInProgress: boolean,
+  newRowContent: Record<string, unknown>,
+) => tableData;
+
+const getMemoisedAddNewRow = (): addNewRowToTable =>
+  memoizeOne((tableData, isAddRowInProgress, newRowContent) => {
     if (isAddRowInProgress) {
       return [newRowContent, ...tableData];
     }
     return tableData;
-  },
-  shallowEqual,
-);
+  });
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
+  memoisedAddNewRow: addNewRowToTable;
+  memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
+  memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
 
   static getPropertyPaneContentConfig() {
     return contentConfig;
@@ -125,6 +136,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+  constructor(props: TableWidgetProps) {
+    super(props);
+    // generate new cache instances so that each table widget instance has its own respective cache instance
+    this.memoisedAddNewRow = getMemoisedAddNewRow();
+    this.memoiseGetColumnsWithLocalStorage =
+      getMemoiseGetColumnsWithLocalStorageFn();
+    this.memoiseTransformDataWithEditableCell =
+      getMemoiseTransformDataWithEditableCell();
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -227,9 +247,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     const { componentWidth } = this.getPaddingAdjustedDimensions();
     const widgetLocalStorageState = getColumnOrderByWidgetIdFromLS(widgetId);
-    const memoisdGetColumnsWithLocalStorage = memoiseGetColumnsWithLocalStorage(
-      widgetLocalStorageState,
-    );
+    const memoisdGetColumnsWithLocalStorage =
+      this.memoiseGetColumnsWithLocalStorage(widgetLocalStorageState);
     return memoisdGetColumnsWithLocalStorage(
       this.renderCell,
       columnWidthMap,
@@ -245,7 +264,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     tableData: Array<Record<string, unknown>>,
     columns: ReactTableColumnProps[],
   ) => {
-    return memoiseTransformDataWithEditableCell(
+    return this.memoiseTransformDataWithEditableCell(
       this.props.editableCell,
       tableData,
       columns,
@@ -762,7 +781,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const { componentHeight, componentWidth } =
       this.getPaddingAdjustedDimensions();
-    const finalTableData = memoisedAddNewRow(
+    const finalTableData = this.memoisedAddNewRow(
       transformedData,
       this.props.isAddRowInProgress,
       this.props.newRowContent,
