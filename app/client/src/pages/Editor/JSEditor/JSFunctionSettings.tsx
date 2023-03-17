@@ -10,7 +10,7 @@ import {
   RadioComponent,
   TooltipComponent,
 } from "design-system-old";
-import { JSAction } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

@@ -1,6 +1,8 @@
-import {
+import type {
   EvaluationReduxAction,
   ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -14,11 +16,17 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { Datasource } from "entities/Datasource";
-import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
-import { ApiResponse } from "api/ApiResponses";
-import PageApi, { FetchPageResponse } from "api/PageApi";
+import type { Datasource } from "entities/Datasource";
+import type { ActionCreateUpdateResponse } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
+import type { ApiResponse } from "api/ApiResponses";
+import type { FetchPageResponse } from "api/PageApi";
+import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
+import type {
+  FetchActionsPayload,
+  SetActionPropertyPayload,
+} from "actions/pluginActionActions";
 import {
   copyActionError,
   copyActionSuccess,
@@ -26,10 +34,8 @@ import {
   deleteActionSuccess,
   fetchActionsForPage,
   fetchActionsForPageSuccess,
-  FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
-  SetActionPropertyPayload,
   updateAction,
   updateActionProperty,
   updateActionSuccess,
@@ -39,16 +45,18 @@ import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
+import type {
   Action,
   ActionViewMode,
+  SlashCommandPayload,
+} from "entities/Action";
+import {
   isAPIAction,
   PluginPackageName,
   PluginType,
   SlashCommand,
-  SlashCommandPayload,
 } from "entities/Action";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -98,8 +106,8 @@ import {
   onApiEditor,
   onQueryEditor,
 } from "components/editorComponents/Debugger/helpers";
-import { Plugin } from "api/PluginApi";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { Plugin } from "api/PluginApi";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
 import { shouldBeDefined } from "utils/helpers";
@@ -145,9 +153,8 @@ export function* createActionSaga(
       payload = merge(initialValues, actionPayload.payload);
     }
 
-    const response: ApiResponse<ActionCreateUpdateResponse> = yield ActionAPI.createAction(
-      payload,
-    );
+    const response: ApiResponse<ActionCreateUpdateResponse> =
+      yield ActionAPI.createAction(payload);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageName: string = yield select(
@@ -229,9 +236,8 @@ export function* fetchActionsForViewModeSaga(
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: ApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
-      applicationId,
-    );
+    const response: ApiResponse<ActionViewMode[]> =
+      yield ActionAPI.fetchActionsForViewMode(applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const correctFormatResponse = response.data.map((action) => {
@@ -524,9 +530,8 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
     delete copyAction.id;
-    const response: ApiResponse<ActionCreateUpdateResponse> = yield ActionAPI.createAction(
-      copyAction,
-    );
+    const response: ApiResponse<ActionCreateUpdateResponse> =
+      yield ActionAPI.createAction(copyAction);
     const datasources: Datasource[] = yield select(getDatasources);
 
     const isValidResponse: boolean = yield validateResponse(response);
@@ -830,10 +835,7 @@ function* buildMetaForSnippets(
     dataType: [`${expectedType}<score=3>`, `UNKNOWN<score=1>`],
   };
   if (propertyPath) {
-    const relevantField = propertyPath
-      .split(".")
-      .slice(-1)
-      .pop();
+    const relevantField = propertyPath.split(".").slice(-1).pop();
     fieldMeta.fields = [`${relevantField}<score=10>`];
   }
   if (entityType === ENTITY_TYPE.ACTION && entityId) {

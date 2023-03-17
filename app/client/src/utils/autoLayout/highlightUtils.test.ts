@@ -3,13 +3,13 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { HighlightInfo } from "./autoLayoutTypes";
+import type { HighlightInfo } from "./autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
+import type { VerticalHighlightsPayload } from "./highlightUtils";
 import {
   deriveHighlightsFromLayers,
   generateHighlightsForAlignment,
   generateVerticalHighlights,
-  VerticalHighlightsPayload,
 } from "./highlightUtils";
 
 describe("test HighlightUtils methods", () => {

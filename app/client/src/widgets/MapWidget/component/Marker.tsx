@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { DEFAULT_MARKER_COLOR, MARKER_ICON } from "../constants";
 
 type MarkerProps = google.maps.MarkerOptions & {

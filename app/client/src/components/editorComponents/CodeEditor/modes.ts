@@ -5,7 +5,7 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";
 import "codemirror/addon/hint/sql-hint";
 
-CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function(config) {
+CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function (config) {
   // @ts-expect-error: Types are not available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, EditorModes.TEXT),
@@ -19,7 +19,7 @@ CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function(config) {
   );
 });
 
-CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function(config) {
+CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function (config) {
   // @ts-expect-error: Types are not available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, { name: "javascript", json: true }),
@@ -33,7 +33,7 @@ CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function(config) {
   );
 });
 
-CodeMirror.defineMode(EditorModes.SQL_WITH_BINDING, function(config) {
+CodeMirror.defineMode(EditorModes.SQL_WITH_BINDING, function (config) {
   // @ts-expect-error: Types are not available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, EditorModes.SQL),
@@ -47,7 +47,7 @@ CodeMirror.defineMode(EditorModes.SQL_WITH_BINDING, function(config) {
   );
 });
 
-CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function(config) {
+CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function (config) {
   // @ts-expect-error: Types are not available
   return CodeMirror.multiplexingMode(
     CodeMirror.getMode(config, EditorModes.GRAPHQL),

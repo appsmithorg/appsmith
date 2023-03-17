@@ -1,4 +1,4 @@
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import { migrateChartWidgetReskinningData } from "./ChartWidgetReskinningMigrations";
 
 const currentDslWithoutCustomConfig = {
@@ -176,7 +176,7 @@ const expectedDslWithoutCustomConfig = {
 describe("Chart Widget Reskinning Migration - ", () => {
   it("should add accentColor and fontFamily properties with Dynamic values (without customFusionChartConfig)", () => {
     const migratedDsl = migrateChartWidgetReskinningData(
-      (currentDslWithoutCustomConfig as unknown) as DSLWidget,
+      currentDslWithoutCustomConfig as unknown as DSLWidget,
     );
     expect(migratedDsl).toEqual(expectedDslWithoutCustomConfig);
   });

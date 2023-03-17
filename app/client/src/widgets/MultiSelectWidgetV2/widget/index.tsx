@@ -2,20 +2,20 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import { WidgetType } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
-import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import type { LoDashStatic } from "lodash";
+import { isArray, isFinite, isString, xorWith } from "lodash";
+import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";

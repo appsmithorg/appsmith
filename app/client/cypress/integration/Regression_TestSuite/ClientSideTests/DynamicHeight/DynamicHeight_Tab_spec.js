@@ -3,7 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Dynamic Height Width validation for Tab widget", function() {
+describe("Dynamic Height Width validation for Tab widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -30,7 +30,7 @@ describe("Dynamic Height Width validation for Tab widget", function() {
           });
       });
   }
-  it("Tab widget validation of height with dynamic height feature with publish mode", function() {
+  it("Tab widget validation of height with dynamic height feature with publish mode", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");

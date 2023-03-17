@@ -3,8 +3,8 @@ import {
   stringToJS,
 } from "components/propertyControls/SelectDefaultValueControl";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { DSLWidget } from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 
 const SelectTypeWidgets = ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"];
 

@@ -1,6 +1,6 @@
-import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 

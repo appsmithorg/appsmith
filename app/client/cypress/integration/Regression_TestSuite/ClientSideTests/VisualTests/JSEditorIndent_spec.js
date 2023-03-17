@@ -319,9 +319,7 @@ myFun2: async () => {
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
 
-    cy.get("div.CodeMirror")
-      .type("{shift+cmd+p}")
-      .wait(1000);
+    cy.get("div.CodeMirror").type("{shift+cmd+p}").wait(1000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted

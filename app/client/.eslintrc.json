@@ -6,7 +6,6 @@
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
     "plugin:cypress/recommended",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
@@ -21,6 +20,8 @@
   },
   "rules": {
     "@typescript-eslint/no-explicit-any": 0,
+    // enforce `import type` for all type-only imports so the bundler knows to erase them
+    "@typescript-eslint/consistent-type-imports": "error",
     "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/no-use-before-define": 0,
     "@typescript-eslint/no-var-requires": 0,

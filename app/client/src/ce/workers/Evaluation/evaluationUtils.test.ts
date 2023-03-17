@@ -1,22 +1,21 @@
-import {
-  DependencyMap,
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
+import type {
   DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
+import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "entities/DataTree/types";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
-  DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
   getAllPrivateWidgetsInDataTree,
@@ -26,21 +25,21 @@ import {
   translateDiffEventToDataTreeDiffEvent,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { warn as logWarn } from "loglevel";
-import { Diff } from "deep-diff";
+import type { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";
 import {
   overrideWidgetProperties,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
-import { WidgetConfiguration } from "widgets/constants";
+import type { WidgetConfiguration } from "widgets/constants";
 import { createNewEntity } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
@@ -217,9 +216,8 @@ describe("2. privateWidgets", () => {
       Text3: true,
     };
 
-    const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
-      testDataTree,
-    );
+    const actualPrivateWidgetsList =
+      getAllPrivateWidgetsInDataTree(testDataTree);
 
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
   });
@@ -279,9 +277,8 @@ describe("2. privateWidgets", () => {
       },
     };
 
-    const actualDataTreeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
-      testDataTree,
-    );
+    const actualDataTreeWithoutPrivateWidgets =
+      getDataTreeWithoutPrivateWidgets(testDataTree);
 
     expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
       actualDataTreeWithoutPrivateWidgets,
@@ -464,9 +461,9 @@ describe("4. translateDiffEvent", () => {
     const actualTranslations = flatten(
       diffs.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, {
-          JsObject: ({
+          JsObject: {
             ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-          } as unknown) as DataTreeEntity,
+          } as unknown as DataTreeEntity,
         }),
       ),
     );
@@ -583,7 +580,7 @@ describe("5. overrideWidgetProperties", () => {
     registerWidget(TableWidget, TableWidgetConfig);
     registerWidget(
       InputWidget,
-      (InputWidgetV2Config as unknown) as WidgetConfiguration,
+      InputWidgetV2Config as unknown as WidgetConfiguration,
     );
   });
 
@@ -779,7 +776,7 @@ describe("6. Evaluated Datatype of a given value", () => {
     expect(findDatatype({ a: 1 })).toBe("object");
     expect(findDatatype({})).toBe("object");
     expect(findDatatype(new Date())).toBe("date");
-    const func = function() {
+    const func = function () {
       return "hello world";
     };
     expect(findDatatype(func)).toBe("function");
@@ -869,8 +866,7 @@ describe("convertJSFunctionsToString", () => {
       myVar2: "{}",
       myFun1: JSObject2MyFun1,
       myFun2: JSObject2MyFun2,
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
 
       meta: {
@@ -967,8 +963,7 @@ describe("convertJSFunctionsToString", () => {
       myVar2: "{}",
       myFun1: "() => {}",
       myFun2: "async () => {}",
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
       "myFun1.data": {},
       "myFun2.data": {},
