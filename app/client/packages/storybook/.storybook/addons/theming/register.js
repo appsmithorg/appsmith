@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React from "react";
 import { addons, types } from "@storybook/addons";
 import {
   Icons,

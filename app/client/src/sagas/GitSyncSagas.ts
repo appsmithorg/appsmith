@@ -98,6 +98,7 @@ import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
 import { APP_MODE } from "../entities/App";
 import { toast } from "design-system";
+import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};

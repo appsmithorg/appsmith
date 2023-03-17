@@ -18,6 +18,7 @@ import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 import { toast } from "design-system";
+import type { Theme } from "constants/DefaultTheme";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;

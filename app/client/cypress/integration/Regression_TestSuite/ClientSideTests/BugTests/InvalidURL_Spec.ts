@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { WIDGET } from "../../../../locators/WidgetLocators";
 
 const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
