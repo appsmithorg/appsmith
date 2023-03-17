@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -31,4 +32,9 @@ public class DBAuth extends AuthenticationDTO {
     String password;
 
     String databaseName;
+
+    @Override
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
+        secretExistsIndicator.setPassword(StringUtils.hasLength(password));
+    }
 }

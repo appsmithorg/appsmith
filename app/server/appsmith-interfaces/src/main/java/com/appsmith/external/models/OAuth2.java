@@ -97,6 +97,11 @@ public class OAuth2 extends AuthenticationDTO {
     }
 
     @Override
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
+        secretExistsIndicator.setClientSecret(StringUtils.hasLength(clientSecret));
+    }
+
+    @Override
     public Mono<Boolean> hasExpired() {
         if (this.authenticationResponse == null) {
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));

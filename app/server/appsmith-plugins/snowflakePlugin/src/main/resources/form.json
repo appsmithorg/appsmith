@@ -65,7 +65,8 @@
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "isRequired": true,
-              "encrypted": true
+              "encrypted": true,
+              "isSecretExistsPath": "datasourceConfiguration.authentication.secretExists.password"
             }
           ]
         }

@@ -352,7 +352,7 @@ export class DataSources {
       username == "" ? datasourceFormData["postgres-username"] : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["postgres-password"] : password,
+      password == "" ? datasourceFormData["postgres-password"] : password, {force:true}
     );
   }
 
@@ -841,7 +841,7 @@ export class DataSources {
   //Update with new password in the datasource conf page
   public UpdatePassword(newPassword: string) {
     this.ExpandSectionByName(this._sectionAuthentication);
-    cy.get(this._password).type(newPassword);
+    cy.get(this._password).type(newPassword,{force:true});
   }
 
   //Fetch schema from server and validate UI for the updates

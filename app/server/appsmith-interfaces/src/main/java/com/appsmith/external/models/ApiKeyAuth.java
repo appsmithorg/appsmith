@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Builder
 @Getter
@@ -34,4 +35,9 @@ public class ApiKeyAuth extends AuthenticationDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
     String value;
+
+    @Override
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
+        secretExistsIndicator.setValue(StringUtils.hasLength(value));
+    }
 }

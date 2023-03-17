@@ -62,7 +62,8 @@
           "dataType": "PASSWORD",
           "initialValue": "",
           "isRequired": true,
-          "encrypted": true
+          "encrypted": true,
+          "isSecretExistsPath": "datasourceConfiguration.authentication.secretExists.password"
         },
         {
           "label": "Endpoint URL (with or without protocol and port no)",

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -23,4 +24,9 @@ public class BasicAuth extends AuthenticationDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
     String password;
+
+    @Override
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
+        secretExistsIndicator.setPassword(StringUtils.hasLength(password));
+    }
 }

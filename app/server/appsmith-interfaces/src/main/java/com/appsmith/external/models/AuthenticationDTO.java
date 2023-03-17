@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.EqualsAndHashCode;
@@ -48,6 +49,16 @@ public class AuthenticationDTO implements AppsmithDomain {
 
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
+
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
+    }
+
+    @JsonProperty("secretExists")
+    protected SecretExistsIndicator createSecretExists() {
+        SecretExistsIndicator secretExistsIndicator = new SecretExistsIndicator();
+        configureSecretExistsIndicator(secretExistsIndicator);
+        return secretExistsIndicator;
+    }
 
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
