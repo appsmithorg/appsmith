@@ -2,9 +2,11 @@ name: Build WDS Vercel Preview
 on:
   issue_comment:
   workflow_dispatch:
+    repository_dispatch:
+    types: [ build-wds-preview-command ]
 jobs:
   vercel-build:
-    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/build-wds-preview') }}
+    # if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/build-wds-preview') }}
     name: vercel-wds-build
     runs-on: ubuntu-latest
     defaults:
