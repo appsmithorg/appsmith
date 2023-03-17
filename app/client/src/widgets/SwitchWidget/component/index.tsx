@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
@@ -74,8 +74,7 @@ export const StyledSwitch = styled(Switch)<{
     input:checked:not(:disabled):focus ~ .bp3-control-indicator {
       background: ${({ $accentColor }) =>
         `${darkenColor($accentColor)}`} !important;
-      border: 1px solid ${({ $accentColor }) =>
-        `${darkenColor($accentColor)}`} !important;
+      border: 1px solid ${({ $accentColor }) => `${darkenColor($accentColor)}`} !important;
     }
   }
 

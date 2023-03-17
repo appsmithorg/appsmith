@@ -1,14 +1,14 @@
-import { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import {
+import type {
   ConfigTree,
   DataTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { get, isUndefined, set } from "lodash";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
   isPathDynamicTrigger,
@@ -21,7 +21,7 @@ import {
   resetValidationErrorsForEntityProperty,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
-import { EvalProps } from ".";
+import type { EvalProps } from ".";
 
 export function validateAndParseWidgetProperty({
   configTree,
@@ -142,12 +142,8 @@ export function getValidatedTree(
         const value = get(entity, property);
         // const value = get(parsedEntity, property);
         // Pass it through parse
-        const {
-          isValid,
-          messages,
-          parsed,
-          transformed,
-        } = validateWidgetProperty(validation, value, entity, property);
+        const { isValid, messages, parsed, transformed } =
+          validateWidgetProperty(validation, value, entity, property);
         set(entity, property, parsed);
         const evaluatedValue = isValid
           ? parsed

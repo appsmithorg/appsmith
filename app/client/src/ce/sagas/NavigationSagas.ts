@@ -1,14 +1,15 @@
 import { fork, put, select } from "redux-saga/effects";
-import { RouteChangeActionPayload } from "actions/focusHistoryActions";
+import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
-import { Location } from "history";
-import { AppsmithLocationState } from "utils/history";
+import type { Location } from "history";
+import type { AppsmithLocationState } from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
+import type { BackgroundTheme } from "sagas/ThemeSaga";
+import { changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {

@@ -1,16 +1,14 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
-import {
-  ISO_DATE_FORMAT,
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
-import { DatePickerType } from "../constants";
+import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 function defaultDateValidation(

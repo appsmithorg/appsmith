@@ -13,13 +13,8 @@ describe("Table widget - Select column type functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
 
-    cy.get(commonlocators.changeColType)
-      .last()
-      .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Select")
-      .click();
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Select").click();
     cy.wait("@updateLayout");
   });
 
@@ -67,9 +62,7 @@ describe("Table widget - Select column type functionality", () => {
         value: "#3",
       },
     ].forEach((item) => {
-      cy.get(".menu-item-text")
-        .contains(item.value)
-        .should("exist");
+      cy.get(".menu-item-text").contains(item.value).should("exist");
     });
 
     cy.get(".menu-item-active.has-focus").should("contain", "#1");
@@ -162,9 +155,7 @@ describe("Table widget - Select column type functionality", () => {
     `,
     );
     cy.editTableSelectCell(0, 0);
-    cy.get(".menu-item-link")
-      .contains("#3")
-      .click();
+    cy.get(".menu-item-link").contains("#3").click();
 
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)
@@ -194,28 +185,16 @@ describe("Table widget - Select column type functionality", () => {
     `,
     );
     cy.editTableSelectCell(0, 0);
-    cy.get(".menu-item-text")
-      .contains("#1")
-      .should("exist");
-    cy.get(".menu-item-text")
-      .contains("#2")
-      .should("not.exist");
+    cy.get(".menu-item-text").contains("#1").should("exist");
+    cy.get(".menu-item-text").contains("#2").should("not.exist");
 
     cy.editTableSelectCell(0, 1);
-    cy.get(".menu-item-text")
-      .contains("#2")
-      .should("exist");
-    cy.get(".menu-item-text")
-      .contains("#1")
-      .should("not.exist");
+    cy.get(".menu-item-text").contains("#2").should("exist");
+    cy.get(".menu-item-text").contains("#1").should("not.exist");
 
     cy.editTableSelectCell(0, 2);
-    cy.get(".menu-item-text")
-      .contains("#3")
-      .should("exist");
-    cy.get(".menu-item-text")
-      .contains("#1")
-      .should("not.exist");
+    cy.get(".menu-item-text").contains("#3").should("exist");
+    cy.get(".menu-item-text").contains("#1").should("not.exist");
   });
 
   it("8. should check that server side filering is working", () => {

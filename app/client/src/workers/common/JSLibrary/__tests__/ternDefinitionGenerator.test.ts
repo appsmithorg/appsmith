@@ -11,7 +11,7 @@ describe("Tests tern definition generator", () => {
     var7: () => {
       return "there!";
     },
-    var8: function() {
+    var8: function () {
       return "hey, ";
     },
     var9: new Date(),

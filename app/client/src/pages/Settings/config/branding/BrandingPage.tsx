@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import Previews from "./previews";
 import SettingsForm from "./SettingsForm";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 import UpgradeBanner from "@appsmith/pages/AdminSettings/config/branding/UpgradeBanner";
 

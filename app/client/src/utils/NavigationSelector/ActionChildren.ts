@@ -1,9 +1,10 @@
 import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { EntityNavigationData } from "selectors/navigationSelectors";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
-import { ActionEntity } from "entities/DataTree/types";
+import type { ActionEntity } from "entities/DataTree/types";
 
 export const getActionChildrenNavData = (
   action: ActionData,
@@ -29,7 +30,7 @@ export const getActionChildrenNavData = (
           });
         } else if (key === "run" || key === "clear") {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          peekData[key] = function() {}; // tern inference required here
+          peekData[key] = function () {}; // tern inference required here
           childNavData[key] = createNavData({
             id: `${action.config.name}.${key}`,
             name: `${action.config.name}.${key}`,

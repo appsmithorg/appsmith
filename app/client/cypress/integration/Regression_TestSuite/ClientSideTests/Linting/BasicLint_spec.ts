@@ -55,7 +55,7 @@ describe("Linting", () => {
     ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
-      dsName = ($dsName as unknown) as string;
+      dsName = $dsName as unknown as string;
     });
   });
 
