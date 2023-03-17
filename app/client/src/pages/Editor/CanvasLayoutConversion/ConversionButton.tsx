@@ -35,6 +35,10 @@ export function ConversionButton() {
       dispatch({
         type: ReduxActionTypes.START_CONVERSION_FLOW,
       });
+    } else {
+      dispatch({
+        type: ReduxActionTypes.STOP_CONVERSION_FLOW,
+      });
     }
   }, []);
 
