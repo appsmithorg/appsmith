@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import datasourceFormData from "../../../../fixtures/datasources.json";
 
-let dsName: any, jsonSpecies: any;
+let dsName: any, jsonSpecies: any, offset: any;
 describe("Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     _.dataSources.CreateDataSource("Airtable", true, false);
@@ -43,7 +43,7 @@ describe("Validate Airtable Ds", () => {
       expect(specieslist.length).eq(54); //making sure all fields are returned
     });
 
-    //Filter Species_ID, Species fields only
+    //Filter Species_ID & Species fields only
     const allowedFields = ["Species_ID", "Species"];
     _.agHelper.EnterValue("fields%5B%5D=Species_ID&fields%5B%5D=Species", {
       propFieldName: "",
@@ -64,7 +64,7 @@ describe("Validate Airtable Ds", () => {
     });
 
     //Validate Max records
-    _.agHelper.EnterValue("10", {
+    _.agHelper.EnterValue("11", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Max Records",
@@ -79,11 +79,11 @@ describe("Validate Airtable Ds", () => {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
-      expect(jsonSpecies.records.length).to.eq(10); //making sure only 10 record fields are returned
+      expect(jsonSpecies.records.length).to.eq(11); //making sure only 11 record fields are returned
     });
 
     //Validate Page Size
-    _.agHelper.EnterValue("5", {
+    _.agHelper.EnterValue("6", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Page Size",
@@ -93,7 +93,23 @@ describe("Validate Airtable Ds", () => {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
-      expect(jsonSpecies.records.length).to.eq(5); //making sure only 5 record fields are returned, honouring the PageSize
+      expect(jsonSpecies.records.length).to.eq(6); //making sure only 6 record fields are returned, honouring the PageSize
+
+      //Validating offset
+      offset = jsonSpecies.offset;
+      _.agHelper.EnterValue(offset, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Offset",
+      });
+
+      _.dataSources.RunQuery(false);
+      _.agHelper.Sleep(); // for query to run complete
+      cy.wait("@postExecute").then(({ response }) => {
+        expect(response?.body.data.isExecutionSuccess).to.eq(true);
+        jsonSpecies = JSON.parse(response?.body.data.body);
+        expect(jsonSpecies.records.length).to.eq(5); //making sure only remaining records are returned
+      });
     });
 
     //Validate Sort - asc
@@ -103,6 +119,16 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Page Size",
     }); //Removing Page Size
+    _.agHelper.EnterValue("", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Offset",
+    }); //Removing Offset
+    _.agHelper.EnterValue("10", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Max Records",
+    });
     _.agHelper.EnterValue("sort%5B0%5D%5Bfield%5D=Species_ID", {
       propFieldName: "",
       directInput: false,
