@@ -1,6 +1,8 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { IconName, ButtonGroup, Button, Classes } from "@blueprintjs/core";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { IconName } from "@blueprintjs/core";
+import { ButtonGroup, Button, Classes } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 const iconNames: string[] = Object.values({ ...IconNames });
 

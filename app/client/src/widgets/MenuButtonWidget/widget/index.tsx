@@ -1,14 +1,14 @@
-import {
-  EventType,
-  ExecuteTriggerPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import { Stylesheet } from "entities/AppTheming";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { Stylesheet } from "entities/AppTheming";
 import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
 import MenuButtonComponent from "../component";
-import { MenuButtonWidgetProps, MenuItem, MenuItemsSource } from "../constants";
+import type { MenuButtonWidgetProps, MenuItem } from "../constants";
+import { MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 
@@ -53,12 +53,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   getVisibleItems = () => {
-    const {
-      configureMenuItems,
-      menuItems,
-      menuItemsSource,
-      sourceData,
-    } = this.props;
+    const { configureMenuItems, menuItems, menuItemsSource, sourceData } =
+      this.props;
     if (menuItemsSource === MenuItemsSource.STATIC) {
       const visibleItems = Object.keys(menuItems)
         .map((itemKey) => menuItems[itemKey])

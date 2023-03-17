@@ -87,14 +87,9 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath(template.selectAllPages)
-      .next()
-      .click();
+    cy.xpath(template.selectAllPages).next().click();
     cy.wait(1000);
-    cy.xpath("//span[text()='2 APPLICATION UPLOAD']")
-      .parent()
-      .next()
-      .click();
+    cy.xpath("//span[text()='2 APPLICATION UPLOAD']").parent().next().click();
     // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
     cy.get(template.templateViewForkButton).click();
     cy.wait("@fetchTemplate").should(

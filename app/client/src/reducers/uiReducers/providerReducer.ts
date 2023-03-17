@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-import {
+import type {
   Providers,
   ProvidersDataArray,
   ProviderTemplates,
@@ -15,7 +15,7 @@ import {
   SearchResultsProviders,
   FetchProviderDetailsResponse,
 } from "constants/providerConstants";
-import { SearchApiOrProviderResponse } from "api/ProvidersApi";
+import type { SearchApiOrProviderResponse } from "api/ProvidersApi";
 
 const initialState: ProvidersReduxState = {
   isFetchingProviders: false,

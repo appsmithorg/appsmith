@@ -4,8 +4,8 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "@appsmith/reducers";
-import { JSCollection } from "entities/JSCollection";
+import type { AppState } from "@appsmith/reducers";
+import type { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { getJSCollection, getPlugin } from "selectors/entitiesSelector";
@@ -15,7 +15,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { PluginType } from "entities/Action";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { Spinner } from "@blueprintjs/core";
 import EditableText, {
   EditInteractionKind,
@@ -67,10 +67,8 @@ const JSIconWrapper = styled.img`
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
   const params = useParams<{ collectionId?: string; queryId?: string }>();
 
-  const currentJSObjectConfig:
-    | JSCollection
-    | undefined = useSelector((state: AppState) =>
-    getJSCollection(state, params.collectionId || ""),
+  const currentJSObjectConfig: JSCollection | undefined = useSelector(
+    (state: AppState) => getJSCollection(state, params.collectionId || ""),
   );
 
   const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>

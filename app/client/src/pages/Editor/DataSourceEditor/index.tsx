@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { get, isEqual } from "lodash";
 import {
   getPluginImages,
@@ -25,8 +25,8 @@ import {
 } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
-import { Datasource } from "entities/Datasource";
-import { RouteComponentProps } from "react-router";
+import type { Datasource } from "entities/Datasource";
+import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
@@ -500,7 +500,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
   const initialValue = getFormInitialValues(formName)(state) as Datasource;
-  const defaultKeyValueArrayConfig = datasourcePane?.defaultKeyValueArrayConfig as any;
+  const defaultKeyValueArrayConfig =
+    datasourcePane?.defaultKeyValueArrayConfig as any;
 
   return {
     datasourceId,

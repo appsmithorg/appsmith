@@ -1,8 +1,8 @@
-import { SwitcherProps, TreeDropdownOption } from "design-system-old";
-import { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
-import React from "react";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { FieldType, ViewTypes, AppsmithFunction } from "./constants";
+import type { SwitcherProps, TreeDropdownOption } from "design-system-old";
+import type { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
+import type React from "react";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -12,9 +12,10 @@ export type SwitchType = {
   action: () => void;
 };
 
-export type ActionType = typeof AppsmithFunction[keyof typeof AppsmithFunction];
+export type ActionType =
+  (typeof AppsmithFunction)[keyof typeof AppsmithFunction];
 
-export type ViewType = typeof ViewTypes[keyof typeof ViewTypes];
+export type ViewType = (typeof ViewTypes)[keyof typeof ViewTypes];
 
 export type ViewProps = {
   label: string;

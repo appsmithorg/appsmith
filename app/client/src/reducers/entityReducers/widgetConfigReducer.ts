@@ -1,10 +1,8 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetFeatures } from "utils/WidgetFeatures";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
 
 const initialState: WidgetConfigReducerState = { config: {} };
 

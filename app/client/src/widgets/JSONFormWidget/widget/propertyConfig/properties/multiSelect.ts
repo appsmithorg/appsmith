@@ -1,17 +1,12 @@
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
-import { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import type { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { JSONFormWidgetProps } from "../..";
+import type { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,

@@ -1,9 +1,8 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
-import {
-  createEvaluationContext,
-  EvalContext,
-} from "workers/Evaluation/evaluate";
+import type { EvalContext } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { MessageType } from "utils/MessageUtil";
 import {
   addDataTreeToContext,
@@ -475,8 +474,7 @@ const dataTree = {
     actionId: "637cda3b2f8e175c6f5269d5",
     pluginType: "JS",
     ENTITY_TYPE: "JSACTION",
-    body:
-      "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
+    body: "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
     meta: {
       newFunction: {
         arguments: [],
@@ -529,7 +527,7 @@ describe("Test addDataTreeToContext method", () => {
   beforeAll(() => {
     addDataTreeToContext({
       EVAL_CONTEXT: evalContext,
-      dataTree: (dataTree as unknown) as DataTree,
+      dataTree: dataTree as unknown as DataTree,
       isTriggerBased: true,
     });
     addPlatformFunctionsToEvalContext(evalContext);
