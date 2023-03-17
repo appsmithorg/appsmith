@@ -3,11 +3,8 @@ package com.appsmith.server.acl;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -136,15 +133,5 @@ public enum AclPermission {
             }
         }
         return null;
-    }
-
-    public static boolean isPermissionForEntity(AclPermission aclPermission, Class clazz) {
-        Class entityClass = clazz;
-        if (entityClass.equals(NewAction.class) || entityClass.equals(ActionCollection.class)) {
-            entityClass = Action.class;
-        } else if (entityClass.equals(NewPage.class)) {
-            entityClass = Page.class;
-        }
-        return aclPermission.getEntity().equals(entityClass);
     }
 }
