@@ -12,11 +12,9 @@ import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 import com.appsmith.server.services.ConfigService;
@@ -24,10 +22,8 @@ import com.appsmith.server.services.ConfigService;
 /**
  * Class dedicated to SELF_SERVE and ENTERPRISE license validations
  */
-@Service
 @RequiredArgsConstructor
 @Slf4j
-@Primary
 public class OnlineLicenseValidatorImpl implements LicenseValidator {
     private final CloudServicesConfig cloudServicesConfig;
     private final ConfigService configService;
@@ -39,7 +35,7 @@ public class OnlineLicenseValidatorImpl implements LicenseValidator {
      * @return License
      */
     public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
-        log.debug("Initiating License Check");
+        log.debug("Initiating online license check");
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (StringUtils.isEmpty(baseUrl)) {
             log.debug("Unable to find cloud services base URL. Shutting down.");

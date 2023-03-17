@@ -7,14 +7,13 @@ import java.time.Instant;
 
 @Data
 public class OfflineLicenseDataset {
-    // AIR_GAP
-    String origin;
-    // PAID/TRIAL
+
     LicenseType type;
-    // As per the contract
+    // Expiry of the license
     Instant expiry;
     String email;
-    // USAGE_BASED(v1.1)/FIXED_EXPIRY
+    // For v1 we are expecting this to be FIXED_EXPIRY but depending upon usage we may want to offer USAGE_BASED
+    // plans as well in future
     String contractType;
     Instant createdAt;
 }

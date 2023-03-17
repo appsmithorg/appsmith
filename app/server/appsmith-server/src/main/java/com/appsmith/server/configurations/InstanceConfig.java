@@ -2,12 +2,14 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.solutions.LicenseValidator;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +65,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         Mono<?> startupProcess = checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
-                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache());
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
+                .then(performLicenseCheck());
+
         try {
             startupProcess.block();
         } catch(Exception e) {
@@ -186,6 +190,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     public boolean getIsRtsAccessible() {
         return this.isRtsAccessible;
+    }
+
+    private Mono<Tenant> performLicenseCheck() {
+        // TODO introduce license check for all the tenants once the multi-tenancy is introduced
+        return tenantService.checkAndUpdateDefaultTenantLicense();
     }
 
 }

@@ -30,7 +30,6 @@ import java.util.Map;
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
 
     private final LicenseValidator licenseValidator;
-    private final LicenseConfig licenseConfig;
 
     @Autowired
     public TenantServiceImpl(Scheduler scheduler,
@@ -40,17 +39,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                              TenantRepository repository,
                              AnalyticsService analyticsService,
                              ConfigService configService,
-                             LicenseConfig licenseConfig,
-                             @Qualifier("onlineLicenseValidatorImpl") LicenseValidator onlineLicenseValidator,
-                             @Qualifier("offlineLicenseValidatorImpl") LicenseValidator offlineLicenseValidator) {
+                             LicenseValidator licenseValidator){
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
-        this.licenseConfig = licenseConfig;
-        if (Boolean.TRUE.equals(licenseConfig.isAirGapInstance())) {
-            this.licenseValidator = offlineLicenseValidator;
-        } else {
-            this.licenseValidator = onlineLicenseValidator;
-        }
+        this.licenseValidator = licenseValidator;
     }
 
     @Override

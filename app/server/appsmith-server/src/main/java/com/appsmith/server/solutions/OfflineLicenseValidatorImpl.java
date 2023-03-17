@@ -7,15 +7,13 @@ import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.OfflineLicenseDataset;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.util.encoders.Hex;
-import org.springframework.stereotype.Service;
+
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -26,7 +24,7 @@ import java.util.Base64;
 /**
  * Class dedicated to Air-gap license validations
  */
-@Service
+
 @Slf4j
 @RequiredArgsConstructor
 public class OfflineLicenseValidatorImpl implements LicenseValidator {
@@ -37,7 +35,7 @@ public class OfflineLicenseValidatorImpl implements LicenseValidator {
     @Override
     public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
 
-        log.debug("Initiating License Check");
+        log.debug("Initiating offline license check");
         TenantConfiguration.License license = isLicenseKeyValid(tenant)
             ? tenant.getTenantConfiguration().getLicense()
             : new TenantConfiguration.License();
@@ -88,30 +86,28 @@ public class OfflineLicenseValidatorImpl implements LicenseValidator {
                 byte[] datasetBytes = Base64.getUrlDecoder().decode(encodedDataset);
                 String dataset = new String(datasetBytes);
 
-                log.info("Provided license key is valid!");
-                log.info("> Dataset: {}", dataset);
+                log.debug("> Dataset: {}", dataset);
                 OfflineLicenseDataset licenseDataset = gson.fromJson(dataset, OfflineLicenseDataset.class);
-                if (!this.isLicenseDatasetValid(licenseDataset)) {
-                    throw new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED);
+                if (this.isLicenseDatasetValid(licenseDataset)) {
+                    log.debug("Provided license key is valid!");
+                    license.setExpiry(licenseDataset.getExpiry());
+                    license.setActive(Instant.now().isBefore(license.getExpiry()));
+                    license.setOrigin(LicenseOrigin.AIR_GAP);
+                    license.setKey(licenseKey);
+                    license.setType(licenseDataset.getType());
+                    if (Boolean.TRUE.equals(license.getActive())) {
+                        license.setStatus(LicenseStatus.ACTIVE);
+                    } else {
+                        license.setStatus(LicenseStatus.EXPIRED);
+                    }
+                    return license;
                 }
-                license.setExpiry(licenseDataset.getExpiry());
-                license.setActive(Instant.now().isBefore(license.getExpiry()));
-                license.setOrigin(LicenseOrigin.AIR_GAP);
-                license.setKey(licenseKey);
-                license.setType(licenseDataset.getType());
-                if (Boolean.TRUE.equals(license.getActive())) {
-                    license.setStatus(LicenseStatus.ACTIVE);
-                } else {
-                    license.setStatus(LicenseStatus.EXPIRED);
-                }
-                return license;
-            } else {
-                log.debug("License key is invalid!");
-                TenantConfiguration.License license1 = new TenantConfiguration.License();
-                license1.setActive(false);
-                license1.setKey(licenseKey);
-                return license1;
             }
+            log.debug("License key is invalid!");
+            TenantConfiguration.License license1 = new TenantConfiguration.License();
+            license1.setActive(false);
+            license1.setKey(licenseKey);
+            return license1;
         } catch(Exception e) {
             log.debug("Exception while processing the offline license: {}", e.getMessage());
             return new TenantConfiguration.License();
