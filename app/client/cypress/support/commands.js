@@ -1080,7 +1080,7 @@ Cypress.Commands.add(
         interception.response.body.data.body[0].name,
       );
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");      
+      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
       cy.isSelectRow(0);
       if (isNext) {
