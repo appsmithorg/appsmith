@@ -117,6 +117,7 @@ type RenderChildrenOption = {
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
+const EMPTY_BINDING = "{{{}}}";
 
 class ListWidget extends BaseWidget<
   ListWidgetProps,
@@ -220,7 +221,10 @@ class ListWidget extends BaseWidget<
       this.updatePageSize();
     }
 
-    if (this.props.selectedItemKey || this.props.triggeredItemKey) {
+    if (
+      isString(this.props.selectedItemKey) ||
+      isString(this.props.triggeredItemKey)
+    ) {
       /**
        * Resetting selected Items and triggered items when the list widget is mounted
        * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
@@ -242,7 +246,7 @@ class ListWidget extends BaseWidget<
     }
 
     if (
-      this.props.selectedItemKey &&
+      isString(this.props.selectedItemKey) &&
       this.primaryKeys &&
       !this.props.serverSidePagination
     ) {
@@ -260,7 +264,7 @@ class ListWidget extends BaseWidget<
 
     if (
       this.props.defaultSelectedItem &&
-      !this.props.selectedItemKey &&
+      !isString(this.props.selectedItemKey) &&
       !this.props.serverSidePagination
     ) {
       // There are some mounting cases where the defaultSelectedItem isn't mapped with selectedItemKey
@@ -342,8 +346,18 @@ class ListWidget extends BaseWidget<
      * 2. DefaultSelectedItem is set when the component is mounted (Primarily to update updateSelectedItemView)
      *
      */
-    if (this.shouldUpdateSelectedItemAndView() && this.props.selectedItemKey) {
+    if (
+      this.shouldUpdateSelectedItemAndView() &&
+      isString(this.props.selectedItemKey)
+    ) {
       this.updateSelectedItemAndPageOnResetOrMount();
+    }
+
+    if (
+      !this.didDefaultSelectedItemChange(prevProps) &&
+      this.props.serverSidePagination
+    ) {
+      this.resetSelectedItemKey();
     }
   }
 
@@ -623,7 +637,7 @@ class ListWidget extends BaseWidget<
 
   // This is only for client-side data
   updatePageNumber = (key: string) => {
-    if (this.props.serverSidePagination || !key) return;
+    if (this.props.serverSidePagination) return;
 
     const rowIndex = this.getRowIndexOfSelectedItem(key);
 
@@ -640,9 +654,9 @@ class ListWidget extends BaseWidget<
     const { serverSidePagination } = this.props;
     return Boolean(
       !serverSidePagination &&
-        this.props.selectedItemKey &&
+        isString(this.props.selectedItemKey) &&
         (!this.props.selectedItem ||
-          isEmpty(this.props.selectedItemView) ||
+          this.props.selectedItemView === EMPTY_BINDING ||
           this.pageChangeEventTriggerFromSelectedKey),
     );
   };
@@ -662,7 +676,7 @@ class ListWidget extends BaseWidget<
       this.updatePageNumber(selectedItemKey);
       this.updateSelectedItem(rowIndex);
 
-      if (!isEmpty(binding)) {
+      if (binding !== EMPTY_BINDING) {
         this.pageChangeEventTriggerFromSelectedKey = true;
       } else {
         this.updateSelectedItemView(rowIndex);
@@ -670,6 +684,12 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  /**
+   *
+   * This is to check if the defaultSelectedItem has changed.
+   * If the defaultSelectedItem changes, the selectedItemKey would change and the selectedItem would
+   * remain the same.
+   */
   didDefaultSelectedItemChange = (prevProps: ListWidgetProps) =>
     Boolean(
       this.props.selectedItemKey !== prevProps.selectedItemKey &&
@@ -679,7 +699,7 @@ class ListWidget extends BaseWidget<
   handleDefaultSelectedItemChange = () => {
     if (this.props.serverSidePagination) return;
 
-    const selectedItemKey = String(this.props.defaultSelectedItem);
+    const selectedItemKey = String(this.props.selectedItemKey);
     const rowIndex = this.getRowIndexOfSelectedItem(selectedItemKey);
 
     if (rowIndex !== -1) {
@@ -687,7 +707,7 @@ class ListWidget extends BaseWidget<
       this.updateSelectedItem(rowIndex);
       const binding = this.getItemViewBindingByRowIndex(rowIndex);
 
-      if (isEmpty(binding)) {
+      if (binding === EMPTY_BINDING) {
         this.pageChangeEventTriggerFromSelectedKey = true;
       } else {
         this.updateSelectedItemView(rowIndex);
@@ -808,7 +828,7 @@ class ListWidget extends BaseWidget<
       this.props.triggeredItemKey !== prevProps.triggeredItemKey ||
       this.props.selectedItemKey !== prevProps.selectedItemKey ||
       (!prevProps.serverSidePagination && this.props.serverSidePagination) ||
-      (this.props.selectedItemKey &&
+      (isString(this.props.selectedItemKey) &&
         !this.metaWidgetGenerator
           .getCurrCachedRows()
           .has(this.props.selectedItemKey))
@@ -910,7 +930,9 @@ class ListWidget extends BaseWidget<
     const container =
       this.metaWidgetGenerator.getRowContainerWidgetName(rowIndex);
 
-    const itemViewBinding = container ? `{{ ${container}.data }}` : {};
+    const itemViewBinding = container
+      ? `{{ ${container}.data }}`
+      : EMPTY_BINDING;
 
     return itemViewBinding;
   };
@@ -1301,7 +1323,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number | null)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
-  defaultSelectedItem?: string | number;
+  defaultSelectedItem?: string;
   totalRecordsCount?: number | string;
 }
 

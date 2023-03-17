@@ -758,7 +758,7 @@ class MetaWidgetGenerator {
 
     const metaWidgetName =
       currentCache.metaWidgetName ||
-      `${this.widgetName}_${templateWidgetName}_${templateWidgetId}_${metaWidgetId}`;
+      `${this.widgetName}_${templateWidgetName}_${metaWidgetId}`;
     const entityDefinition = generateEntityDefinition
       ? currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type)
