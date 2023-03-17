@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import type { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget from "./BaseWidget";
 
 const SkeletonWrapper = styled.div`
   height: 100%;

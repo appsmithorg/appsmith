@@ -1,6 +1,6 @@
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
-import { WidgetMetaState } from ".";
+import type { WidgetMetaState } from ".";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: DataTreeWidget | undefined,

@@ -1,5 +1,5 @@
-import { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
-import {
+import type { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
+import type {
   EventType,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";

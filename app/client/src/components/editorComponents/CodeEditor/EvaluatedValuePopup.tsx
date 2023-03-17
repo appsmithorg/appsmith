@@ -4,12 +4,10 @@ import { isObject, isString } from "lodash";
 import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import {
-  EditorTheme,
-  FieldEntityInformation,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
-import { Placement } from "popper.js";
+import type { Placement } from "popper.js";
 import {
   ScrollIndicator,
   Toaster,
@@ -18,26 +16,22 @@ import {
 } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import {
-  Button,
-  Classes,
-  Collapse,
-  Icon,
-  IPopoverSharedProps,
-} from "@blueprintjs/core";
+import type { IPopoverSharedProps } from "@blueprintjs/core";
+import { Button, Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
-import { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
-import { Indices, Layers } from "constants/Layers";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import type { Indices } from "constants/Layers";
+import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
@@ -472,14 +466,8 @@ function PopoverContent(props: PopoverContentProps) {
     setOpenExpectedDataType(!openExpectedDataType);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const {
-    errors,
-    expected,
-    hasError,
-    onMouseEnter,
-    onMouseLeave,
-    theme,
-  } = props;
+  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
+    props;
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];

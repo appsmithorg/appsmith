@@ -2,13 +2,14 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import * as Sentry from "@sentry/react";
-import { Property } from "api/ActionAPI";
-import { AppIconCollection, AppIconName } from "design-system-old";
+import type { Property } from "api/ActionAPI";
+import type { AppIconName } from "design-system-old";
+import { AppIconCollection } from "design-system-old";
 import _ from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "./AnalyticsUtil";
 
 export const initializeAnalyticsAndTrackers = () => {
@@ -296,9 +297,7 @@ export const getApplicationIcon = (initials: string): AppIconName => {
   return AppIconCollection[asciiSum % AppIconCollection.length];
 };
 
-export function hexToRgb(
-  hex: string,
-): {
+export function hexToRgb(hex: string): {
   r: number;
   g: number;
   b: number;
@@ -386,10 +385,11 @@ export const parseBlobUrl = (blobId: string) => {
 export const getCamelCaseString = (sourceString: string) => {
   let out = "";
   // Split the input string to separate words using RegEx
-  const regEx = /[A-Z\xC0-\xD6\xD8-\xDE]?[a-z\xDF-\xF6\xF8-\xFF]+|[A-Z\xC0-\xD6\xD8-\xDE]+(?![a-z\xDF-\xF6\xF8-\xFF])|\d+/g;
+  const regEx =
+    /[A-Z\xC0-\xD6\xD8-\xDE]?[a-z\xDF-\xF6\xF8-\xFF]+|[A-Z\xC0-\xD6\xD8-\xDE]+(?![a-z\xDF-\xF6\xF8-\xFF])|\d+/g;
   const words = sourceString.match(regEx);
   if (words) {
-    words.forEach(function(el, idx) {
+    words.forEach(function (el, idx) {
       const add = el.toLowerCase();
       out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
     });

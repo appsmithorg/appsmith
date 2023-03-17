@@ -1,6 +1,6 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getMovementMap } from "./reflowHelpers";
-import {
+import type {
   BlockSpace,
   CollidingSpaceMap,
   CollisionMap,
@@ -8,12 +8,12 @@ import {
   MovementLimitMap,
   OrientationAccessors,
   PrevReflowState,
-  ReflowDirection,
   ReflowedSpaceMap,
   SecondOrderCollisionMap,
   SpaceAttributes,
   SpaceMap,
 } from "./reflowTypes";
+import { ReflowDirection } from "./reflowTypes";
 import {
   changeExitContainerDirection,
   filterCommonSpaces,
@@ -78,9 +78,8 @@ export function reflow(
   );
 
   //initializing variables
-  let movementLimitMap: MovementLimitMap = initializeMovementLimitMap(
-    newSpacePositions,
-  );
+  let movementLimitMap: MovementLimitMap =
+    initializeMovementLimitMap(newSpacePositions);
   const globalCollidingSpaces: CollidingSpaceMap = {
     horizontal: {},
     vertical: {},
@@ -111,9 +110,8 @@ export function reflow(
   const maxSpaceAttributes = getMaxSpaceAttributes(currentAccessor);
 
   //The primary and secondary Orientations
-  const orientation: OrientationAccessors = getOrientationAccessors(
-    isHorizontal,
-  );
+  const orientation: OrientationAccessors =
+    getOrientationAccessors(isHorizontal);
 
   const delta = getDelta(newSpacePositionsMap, OGSpacePositionsMap, direction);
 
@@ -260,11 +258,8 @@ function getOrientationalMovementInfo(
   primaryCollisionMap?: CollisionMap,
   primarySecondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
-  const {
-    prevCollidingSpaceMap,
-    prevMovementMap,
-    prevSpacesMap,
-  } = prevReflowState;
+  const { prevCollidingSpaceMap, prevMovementMap, prevSpacesMap } =
+    prevReflowState;
   const accessors = getAccessor(direction);
   const orientationAccessor = getOrientationAccessor(isHorizontal);
 
@@ -343,27 +338,24 @@ function getOrientationalMovementInfo(
     ? orientationOccupiedSpacesMap
     : occupiedSpacesMap;
 
-  const {
-    movementMap,
-    movementVariablesMap,
-    secondOrderCollisionMap,
-  } = getMovementMap(
-    currSpacePositions,
-    currSpacePositionMap,
-    currentOccupiedSpaces,
-    currentOccupiedSpacesMap,
-    occupiedSpacesMap,
-    collidingSpaces,
-    collidingSpaceMap,
-    gridProps,
-    delta,
-    shouldResize,
-    direction,
-    isHorizontal,
-    prevReflowState,
-    primaryMovementMap,
-    primarySecondOrderCollisionMap,
-  );
+  const { movementMap, movementVariablesMap, secondOrderCollisionMap } =
+    getMovementMap(
+      currSpacePositions,
+      currSpacePositionMap,
+      currentOccupiedSpaces,
+      currentOccupiedSpacesMap,
+      occupiedSpacesMap,
+      collidingSpaces,
+      collidingSpaceMap,
+      gridProps,
+      delta,
+      shouldResize,
+      direction,
+      isHorizontal,
+      prevReflowState,
+      primaryMovementMap,
+      primarySecondOrderCollisionMap,
+    );
 
   return {
     movementMap,
