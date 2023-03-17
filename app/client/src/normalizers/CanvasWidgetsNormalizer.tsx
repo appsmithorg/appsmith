@@ -1,5 +1,5 @@
 import { normalize, schema, denormalize } from "normalizr";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 
 export const widgetSchema = new schema.Entity(
   "canvasWidgets",

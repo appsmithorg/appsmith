@@ -6,12 +6,12 @@ const ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators;
 
-describe("Entity explorer tests related to pinning and unpinning", function() {
+describe("Entity explorer tests related to pinning and unpinning", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("checks entity explorer visibility on unpin", function() {
+  it("checks entity explorer visibility on unpin", function () {
     cy.wait(5000);
     cy.get(".t--entity-explorer").should("be.visible");
     cy.get(".t--pin-entity-explorer").click();
@@ -21,12 +21,12 @@ describe("Entity explorer tests related to pinning and unpinning", function() {
     cy.get(".t--entity-explorer").should("not.be.visible");
   });
 
-  it("checks entity explorer visibility on pin", function() {
+  it("checks entity explorer visibility on pin", function () {
     cy.get(".t--pin-entity-explorer").click();
     cy.get(".t--entity-explorer").should("be.visible");
   });
 
-  it("Widgets visibility in widget pane", function() {
+  it("Widgets visibility in widget pane", function () {
     ee.NavigateToSwitcher("widgets");
     agHelper.ScrollTo(locator._widgetPane, "bottom");
     agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));

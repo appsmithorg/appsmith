@@ -4,7 +4,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/SMTPTestdsl.json");
 let datasourceName;
 
-describe("SMTP datasource test cases using ted", function() {
+describe("SMTP datasource test cases using ted", function () {
   let SMTPDatasourceName;
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -13,7 +13,7 @@ describe("SMTP datasource test cases using ted", function() {
     cy.addDsl(dsl);
   });
 
-  it("1. Create and configure smtp datasource and query, binding widgets to query fields", function() {
+  it("1. Create and configure smtp datasource and query, binding widgets to query fields", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.SMTP).click();
     cy.generateUUID().then((uid) => {
@@ -53,14 +53,10 @@ describe("SMTP datasource test cases using ted", function() {
     cy.wait(2000);
   });
 
-  it("2. On canvas, passing wrong email address in widgets should give error", function() {
+  it("2. On canvas, passing wrong email address in widgets should give error", function () {
     // verify an error is thrown when recipient address is not added
-    cy.xpath("//input[@class='bp3-input']")
-      .eq(0)
-      .type("test@appsmith.com");
-    cy.get("span.bp3-button-text:contains('Run query')")
-      .closest("div")
-      .click();
+    cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
+    cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
       expect(response.body.data.body).to.contain(
@@ -68,15 +64,9 @@ describe("SMTP datasource test cases using ted", function() {
       );
     });
     // verify an error is thrown when sender address is not added
-    cy.xpath("//input[@class='bp3-input']")
-      .eq(0)
-      .clear();
-    cy.xpath("//input[@class='bp3-input']")
-      .eq(1)
-      .type("qwerty@appsmith.com");
-    cy.get("span.bp3-button-text:contains('Run query')")
-      .closest("div")
-      .click();
+    cy.xpath("//input[@class='bp3-input']").eq(0).clear();
+    cy.xpath("//input[@class='bp3-input']").eq(1).type("qwerty@appsmith.com");
+    cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
       expect(response.body.data.body).to.contain(

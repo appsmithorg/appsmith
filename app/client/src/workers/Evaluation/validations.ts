@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import {
-  ValidationTypes,
-  ValidationResponse,
-  Validator,
-} from "constants/WidgetValidation";
+import type { ValidationResponse, Validator } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import _, {
   compact,
   get,
@@ -19,7 +16,7 @@ import _, {
 } from "lodash";
 
 import moment from "moment";
-import { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
@@ -1125,9 +1122,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         },
       ],
     };
-    const base64Regex = /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
+    const base64Regex =
+      /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
     const base64ImageRegex = /^data:image\/.*;base64/;
-    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    const imageUrlRegex =
+      /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
     if (
       value === undefined ||
       value === null ||

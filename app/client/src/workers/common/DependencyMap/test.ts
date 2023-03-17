@@ -9,17 +9,17 @@ import ButtonWidget, {
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
-import {
+import type {
   DataTree,
   ConfigTree,
   WidgetEntity,
-  WidgetEntityConfig,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
   unEvalTreeWidgetSelectWidgetConfig,
   configTree,
 } from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
+
 import { listEntityPathDependencies } from "./utils";
 
 const widgetConfigMap = {};
@@ -47,8 +47,8 @@ const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 describe("test validationDependencyMap", () => {
   beforeAll(() => {
     dataTreeEvaluator.setupFirstTree(
-      (unEvalTreeWidgetSelectWidget as unknown) as DataTree,
-      (unEvalTreeWidgetSelectWidgetConfig as unknown) as ConfigTree,
+      unEvalTreeWidgetSelectWidget as unknown as DataTree,
+      unEvalTreeWidgetSelectWidgetConfig as unknown as ConfigTree,
     );
     dataTreeEvaluator.evalAndValidateFirstTree();
   });
@@ -63,19 +63,16 @@ describe("test validationDependencyMap", () => {
   });
 
   it("update validation dependencyMap computation", () => {
-    const {
-      evalOrder,
-      nonDynamicFieldValidationOrder,
-      unEvalUpdates,
-    } = dataTreeEvaluator.setupUpdateTree(
-      (unEvalTree as unknown) as DataTree,
-      (configTree as unknown) as ConfigTree,
-    );
+    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+      dataTreeEvaluator.setupUpdateTree(
+        unEvalTree as unknown as DataTree,
+        configTree as unknown as ConfigTree,
+      );
 
     dataTreeEvaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
-      (configTree as unknown) as ConfigTree,
+      configTree as unknown as ConfigTree,
       unEvalUpdates,
     );
 
@@ -83,9 +80,9 @@ describe("test validationDependencyMap", () => {
   });
 });
 
-describe("DependencyMap utils", function() {
+describe("DependencyMap utils", function () {
   test("listEntityPathDependencies", () => {
-    const entity = ({
+    const entity = {
       ENTITY_TYPE: "WIDGET",
       isVisible: true,
       animateLoading: true,
@@ -113,9 +110,9 @@ describe("DependencyMap utils", function() {
       onClick: "",
       meta: {},
       type: "BUTTON_WIDGET",
-    } as unknown) as WidgetEntity;
+    } as unknown as WidgetEntity;
 
-    const entityConfig = ({
+    const entityConfig = {
       widgetId: "hmqejzs6wz",
       ENTITY_TYPE: "WIDGET",
       type: "BUTTON_WIDGET",
@@ -181,7 +178,7 @@ describe("DependencyMap utils", function() {
       triggerPaths: {
         onClick: true,
       },
-    } as unknown) as DataTreeEntityConfig;
+    } as unknown as DataTreeEntityConfig;
 
     const actualResult = listEntityPathDependencies(
       entity,
@@ -195,7 +192,7 @@ describe("DependencyMap utils", function() {
 
     expect(expectedResult).toStrictEqual(actualResult);
 
-    const entity2 = ({
+    const entity2 = {
       ENTITY_TYPE: "WIDGET",
       isVisible: true,
       animateLoading: true,
@@ -223,9 +220,9 @@ describe("DependencyMap utils", function() {
       googleRecaptchaKey: "{{JSObject.myVar1}}",
       meta: {},
       type: "BUTTON_WIDGET",
-    } as unknown) as WidgetEntity;
+    } as unknown as WidgetEntity;
 
-    const entityConfig2 = ({
+    const entityConfig2 = {
       ENTITY_TYPE: "WIDGET",
       widgetId: "35z8qp6hkj",
       defaultProps: {},
@@ -345,8 +342,7 @@ describe("DependencyMap utils", function() {
       privateWidgets: {},
       propertyOverrideDependency: {},
       overridingPropertyPaths: {},
-    } as unknown) as DataTreeEntityConfig;
-
+    } as unknown as DataTreeEntityConfig;
     const result = listEntityPathDependencies(
       entity2,
       "Button1.googleRecaptchaKey",

@@ -3,20 +3,17 @@ import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
-import { Datasource } from "entities/Datasource";
-import {
-  getFormMeta,
-  getFormValues,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { Datasource } from "entities/Datasource";
+import type { InjectedFormProps } from "redux-form";
+import { getFormMeta, getFormValues, reduxForm } from "redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { ApiActionConfig, PluginType } from "entities/Action";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { AppState } from "@appsmith/reducers";
+import type { ApiActionConfig } from "entities/Action";
+import { PluginType } from "entities/Action";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Button, Category, Toaster, Variant } from "design-system-old";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
@@ -27,13 +24,13 @@ import {
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
 } from "transformers/RestAPIDatasourceFormTransformer";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import {
-  ApiDatasourceForm,
   ApiKeyAuthType,
   AuthType,
   GrantType,
@@ -388,14 +385,8 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderEditor = () => {
-    const {
-      datasource,
-      datasourceId,
-      formData,
-      isSaving,
-      messages,
-      pageId,
-    } = this.props;
+    const { datasource, datasourceId, formData, isSaving, messages, pageId } =
+      this.props;
     const isAuthorized = _.get(
       datasource,
       "datasourceConfiguration.authentication.isAuthorized",

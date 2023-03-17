@@ -65,17 +65,13 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.togglebar(`${propertyControlPrefix}-required input`);
 
     cy.get(backBtn).click({ force: true });
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .wait(300);
+    cy.get(`${fieldPrefix}-name input`).clear().wait(300);
     cy.get("button")
       .contains("Submit")
       .parent("button")
       .should("have.attr", "disabled");
 
-    cy.get(`${fieldPrefix}-name input`)
-      .type("JOHN")
-      .wait(300);
+    cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
 
     cy.get("button")
       .contains("Submit")
@@ -89,15 +85,11 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
 
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .wait(300);
+    cy.get(`${fieldPrefix}-name input`).clear().wait(300);
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
 
-    cy.get(`${fieldPrefix}-name input`)
-      .type("JOHN")
-      .wait(300);
+    cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
   });
@@ -116,12 +108,9 @@ describe("JSON Form Widget Form Bindings", () => {
     });
     */
     // Click Icon property
-    cy.get(submitButtonStylesSection)
-      .contains("(none)")
-      .parent()
-      .click({
-        force: true,
-      });
+    cy.get(submitButtonStylesSection).contains("(none)").parent().click({
+      force: true,
+    });
 
     // Check if icon selector opened
     cy.get(".bp3-select-popover .virtuoso-grid-item").should("be.visible");
@@ -173,9 +162,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
     // Click reset button
-    cy.get("button")
-      .contains("Reset")
-      .click({ force: true });
+    cy.get("button").contains("Reset").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
     // Type JOHN in name field
@@ -183,9 +170,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("true");
 
     // Click reset button
-    cy.get("button")
-      .contains("Reset")
-      .click({ force: true });
+    cy.get("button").contains("Reset").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
     cy.get(publishPage.backToEditor).click({ force: true });
