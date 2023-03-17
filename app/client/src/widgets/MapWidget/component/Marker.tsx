@@ -12,15 +12,8 @@ type MarkerProps = google.maps.MarkerOptions & {
 };
 
 const Marker: React.FC<MarkerProps> = (options) => {
-  const {
-    color,
-    map,
-    markerClusterer,
-    onClick,
-    onDragEnd,
-    position,
-    title,
-  } = options;
+  const { color, map, markerClusterer, onClick, onDragEnd, position, title } =
+    options;
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   const icon = {
