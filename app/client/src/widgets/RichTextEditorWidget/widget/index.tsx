@@ -11,7 +11,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
 
 export enum RTEFormats {
@@ -250,6 +250,7 @@ class RichTextEditorWidget extends BaseWidget<
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

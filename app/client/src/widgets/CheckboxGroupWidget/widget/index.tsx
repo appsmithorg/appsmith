@@ -326,6 +326,7 @@ class CheckboxGroupWidget extends BaseWidget<
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
