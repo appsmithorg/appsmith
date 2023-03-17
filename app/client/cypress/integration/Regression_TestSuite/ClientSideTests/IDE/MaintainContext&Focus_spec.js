@@ -170,9 +170,9 @@ describe("MaintainContext&Focus", function () {
     dataSources.ExpandSection(0);
     agHelper.GoBack();
     ee.SelectEntityByName("Github", "Datasources");
-    dataSources.AssertViewMode();
+    dataSources.AssertDSEditViewMode("View");
     ee.SelectEntityByName("Appsmith", "Datasources");
-    dataSources.AssertEditMode();
+    dataSources.AssertDSEditViewMode("Edit");
     dataSources.AssertSectionCollapseState(0, false);
   });
 
