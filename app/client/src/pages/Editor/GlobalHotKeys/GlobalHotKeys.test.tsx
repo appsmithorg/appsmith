@@ -65,7 +65,7 @@ describe("Canvas Hot Keys", () => {
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
-    const mockGenerator = function*() {
+    const mockGenerator = function* () {
       yield all([]);
     };
 
@@ -145,9 +145,8 @@ describe("Canvas Hot Keys", () => {
           fireEvent.click(canvasWidgets[0].firstChild);
         }
       });
-      const tabsWidgetName: any = component.container.querySelector(
-        `span.t--widget-name`,
-      );
+      const tabsWidgetName: any =
+        component.container.querySelector(`span.t--widget-name`);
       fireEvent.click(tabsWidgetName);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,

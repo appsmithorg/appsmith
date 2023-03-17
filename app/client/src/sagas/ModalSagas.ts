@@ -9,17 +9,14 @@ import {
 } from "redux-saga/effects";
 
 import { generateReactKey } from "utils/generators";
-import {
-  ModalWidgetResize,
-  updateAndSaveLayout,
-  WidgetAddChild,
-} from "actions/pageActions";
+import type { ModalWidgetResize, WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
@@ -33,7 +30,7 @@ import {
   getWidgets,
   getWidgetsMeta,
 } from "sagas/selectors";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -44,7 +41,7 @@ import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { toast } from "design-system";

@@ -4,8 +4,8 @@ import log from "loglevel";
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ListWidgetProps } from ".";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
@@ -138,7 +138,7 @@ const getPrimaryKeyFromDynamicValue = (
 export const primaryKeyOptions = (props: ListWidgetProps) => {
   const { widgetName } = props;
   // Since this is uneval value, coercing it to primitive type
-  const primaryKeys = (props.primaryKeys as unknown) as string | undefined;
+  const primaryKeys = props.primaryKeys as unknown as string | undefined;
   const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
   const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 

@@ -37,14 +37,14 @@ import {
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   clearInstalls,
   installLibraryInit,
   toggleInstaller,
 } from "actions/JSLibraryActions";
 import classNames from "classnames";
-import { TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { toast } from "design-system";
 
@@ -205,7 +205,8 @@ const StatusIconWrapper = styled.div<{
 `;
 
 function isValidJSFileURL(url: string) {
-  const JS_FILE_REGEX = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  const JS_FILE_REGEX =
+    /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
   return JS_FILE_REGEX.test(url);
 }
 
@@ -215,9 +216,10 @@ function StatusIcon(props: {
   action?: any;
 }) {
   const { action, isInstalled = false, status } = props;
-  const actionProps = useMemo(() => (action ? { onClick: action } : {}), [
-    action,
-  ]);
+  const actionProps = useMemo(
+    () => (action ? { onClick: action } : {}),
+    [action],
+  );
   if (status === InstallState.Success || isInstalled)
     return (
       <StatusIconWrapper addHoverState={false} className="installed">
@@ -503,7 +505,7 @@ function LibraryCard({
   lib,
   onClick,
 }: {
-  lib: typeof recommendedLibraries[0];
+  lib: (typeof recommendedLibraries)[0];
   onClick: (url: string) => void;
   isLastCard: boolean;
 }) {

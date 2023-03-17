@@ -3,7 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formWithRTEDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("RichTextEditor Widget Functionality in Form", function() {
+describe("RichTextEditor Widget Functionality in Form", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -13,7 +13,7 @@ describe("RichTextEditor Widget Functionality in Form", function() {
     cy.openPropertyPane("richtexteditorwidget");
   });
 
-  it("RichTextEditor required functionality", function() {
+  it("RichTextEditor required functionality", function () {
     //changing the Text Name
     cy.widgetText(
       this.data.RichTextEditorName,

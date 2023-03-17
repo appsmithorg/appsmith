@@ -1,15 +1,18 @@
-import {
+import type {
   ApplicationPayload,
   ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call, select, take } from "redux-saga/effects";
-import TemplatesAPI, {
+import type {
   ImportTemplateResponse,
   FetchTemplateResponse,
   TemplateFiltersResponse,
 } from "api/TemplatesApi";
+import TemplatesAPI from "api/TemplatesApi";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import {

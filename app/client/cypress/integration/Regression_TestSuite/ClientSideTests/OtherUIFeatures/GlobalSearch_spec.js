@@ -5,7 +5,7 @@ const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 
-describe("GlobalSearch", function() {
+describe("GlobalSearch", function () {
   before(() => {
     cy.addDsl(dsl);
   });

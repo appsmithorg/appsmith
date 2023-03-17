@@ -1,5 +1,5 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -17,15 +17,14 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import {
-  setSelectedWidgets,
-  WidgetSelectionRequestPayload,
-} from "actions/widgetSelectionActions";
+import type { WidgetSelectionRequestPayload } from "actions/widgetSelectionActions";
+import { setSelectedWidgets } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppState } from "@appsmith/reducers";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { AppState } from "@appsmith/reducers";
 import { closeAllModals, showModal } from "actions/widgetActions";
-import history, { NavigationMethod } from "utils/history";
+import type { NavigationMethod } from "utils/history";
+import history from "utils/history";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
@@ -37,6 +36,7 @@ import {
   getCanvasWidgets,
   getParentModalId,
 } from "selectors/entitiesSelector";
+import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   assertParentId,
   isInvalidSelectionRequest,
@@ -45,7 +45,6 @@ import {
   SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
-  SetSelectionResult,
   setWidgetAncestry,
   shiftSelectWidgets,
   unselectWidget,

@@ -1,15 +1,13 @@
-import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
-import { Types } from "utils/TypeHelpers";
-import {
-  ActionTriggerKeys,
-  getActionTriggerFunctionNames,
-} from "@appsmith/workers/Evaluation/fns/index";
+import type { Types } from "utils/TypeHelpers";
+import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { toast } from "design-system";
 import { getAppMode } from "../../selectors/applicationSelectors";

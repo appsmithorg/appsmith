@@ -1,8 +1,6 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type {
   DeleteMetaWidgetsPayload,
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,

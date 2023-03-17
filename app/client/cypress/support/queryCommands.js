@@ -24,9 +24,7 @@ export const initLocalstorage = () => {
 };
 
 Cypress.Commands.add("NavigateToQueryEditor", () => {
-  cy.get(explorer.addDBQueryEntity)
-    .last()
-    .click({ force: true });
+  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
@@ -94,17 +92,12 @@ Cypress.Commands.add("runQuery", (expectedRes = true) => {
 });
 
 Cypress.Commands.add("onlyQueryRun", () => {
-  cy.xpath(queryEditor.runQuery)
-    .last()
-    .click({ force: true })
-    .wait(1000);
+  cy.xpath(queryEditor.runQuery).last().click({ force: true }).wait(1000);
   cy.get(".cs-spinner").should("not.exist");
 });
 
 Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
-  cy.xpath(queryEditor.runQuery)
-    .last()
-    .click({ force: true });
+  cy.xpath(queryEditor.runQuery).last().click({ force: true });
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -113,9 +106,7 @@ Cypress.Commands.add("hoverAndClick", () => {
     .should("be.hidden")
     .invoke("show")
     .click({ force: true });
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+  cy.xpath(apiwidget.popover).last().click({ force: true });
 });
 
 Cypress.Commands.add("hoverAndClickParticularIndex", (index) => {
@@ -138,13 +129,9 @@ Cypress.Commands.add("deleteQuery", () => {
 });
 
 Cypress.Commands.add("deleteQueryUsingContext", () => {
-  cy.get(queryEditor.queryMoreAction)
-    .first()
-    .click();
+  cy.get(queryEditor.queryMoreAction).first().click();
   cy.get(queryEditor.deleteUsingContext).click();
-  cy.get(queryEditor.deleteUsingContext)
-    .contains("Are you sure?")
-    .click();
+  cy.get(queryEditor.deleteUsingContext).contains("Are you sure?").click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -191,9 +178,7 @@ Cypress.Commands.add("CreateMockQuery", (queryName) => {
 });
 
 Cypress.Commands.add("ValidateQueryParams", (param) => {
-  cy.xpath(apiwidget.paramsTab)
-    .should("be.visible")
-    .click({ force: true });
+  cy.xpath(apiwidget.paramsTab).should("be.visible").click({ force: true });
 
   cy.validateCodeEditorContent(apiwidget.paramKey, param.key);
   cy.validateCodeEditorContent(apiwidget.paramValue, param.value);
@@ -247,10 +232,7 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   "TargetFormControlAndSwitchViewType",
   (formControlIdentifier, newViewType) => {
-    cy.get(formControlIdentifier)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    cy.get(formControlIdentifier).scrollIntoView().should("be.visible").click();
 
     if (newViewType === "json") {
       cy.get(formControlIdentifier)
@@ -297,11 +279,7 @@ Cypress.Commands.add("NavigateToAction", (actionName) => {
     .click();
 });
 Cypress.Commands.add("SelecJSFunctionAndRun", (functionName) => {
-  cy.xpath("//span[@name='expand-more']")
-    .first()
-    .click();
+  cy.xpath("//span[@name='expand-more']").first().click();
   cy.get(`[data-cy='t--dropdown-option-${functionName}']`).click();
-  cy.get(jsEditorLocators.runButton)
-    .first()
-    .click();
+  cy.get(jsEditorLocators.runButton).first().click();
 });

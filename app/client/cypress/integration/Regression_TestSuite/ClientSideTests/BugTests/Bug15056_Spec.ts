@@ -6,12 +6,12 @@ const jsEditor = ObjectsRegistry.JSEditor;
 const apiPage = ObjectsRegistry.ApiPage;
 const ee = ObjectsRegistry.EntityExplorer;
 
-describe("JS data update on button click", function() {
+describe("JS data update on button click", function () {
   before(() => {
     agHelper.AddDsl(dsl);
   });
 
-  it("Populates js function data when triggered via button click", function() {
+  it("Populates js function data when triggered via button click", function () {
     apiPage.CreateAndFillApi(
       "https://jsonplaceholder.typicode.com/posts",
       "Api1",

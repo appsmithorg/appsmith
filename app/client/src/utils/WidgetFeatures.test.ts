@@ -1,5 +1,5 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import {
   DynamicHeight,
   hideDynamicHeightPropertyControl,

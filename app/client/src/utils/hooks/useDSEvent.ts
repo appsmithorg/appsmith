@@ -1,5 +1,7 @@
-import { RefObject, useRef } from "react";
-import { DSEventDetail, emitDSEvent } from "utils/AppsmithUtils";
+import type { RefObject } from "react";
+import { useRef } from "react";
+import type { DSEventDetail } from "utils/AppsmithUtils";
+import { emitDSEvent } from "utils/AppsmithUtils";
 
 export default function useDSEvent<T extends HTMLElement>(
   isCallbackRef = false,
