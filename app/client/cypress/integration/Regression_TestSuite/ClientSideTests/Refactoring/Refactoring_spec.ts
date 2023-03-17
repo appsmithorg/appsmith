@@ -41,10 +41,11 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       //Initialize new JSObject with custom code
       _.jsEditor.CreateJSObject(jsCode);
       //Initialize new Query entity with custom query
-      _.entityExplorer.CreateNewDsQuery(dsName);
-      _.agHelper.RenameWithInPane(refactorInput.query.oldName);
-      _.agHelper.GetNClick(_.dataSources._templateMenu);
-      _.dataSources.EnterQuery(query);
+      _.dataSources.CreateQueryFromOverlay(
+        dsName,
+        query,
+        refactorInput.query.oldName,
+      ); //Creating query from EE overlay
       //Initialize new API entity with custom header
       _.apiPage.CreateAndFillApi(
         datasourceFormData["mockApiUrl"],
