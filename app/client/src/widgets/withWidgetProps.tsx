@@ -219,7 +219,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
-      if (widgetProps.bottomRow !== widgetProps.topRow) {
+      if (
+        widgetProps.bottomRow !== widgetProps.topRow &&
+        !widgetProps.isMetaWidget
+      ) {
         dispatch({
           type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
           payload: {
