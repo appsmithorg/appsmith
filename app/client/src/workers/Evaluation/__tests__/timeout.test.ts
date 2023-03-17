@@ -1,5 +1,6 @@
 import { PluginType } from "entities/Action";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";

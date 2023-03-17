@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore"
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("clearStore Action test", () => {
   before(() => {
@@ -6,7 +6,7 @@ describe("clearStore Action test", () => {
     _.entityExplorer.NavigateToSwitcher("explorer");
   });
 
-  it("1. Feature 11639 : Clear all store value", function() {
+  it("1. Feature 11639 : Clear all store value", function () {
     const JS_OBJECT_BODY = `export default {
         storeValue: async () => {
             let values =

@@ -9,7 +9,7 @@ import {
   TooltipComponent,
 } from "design-system-old";
 
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
 import { getAppMode } from "selectors/applicationSelectors";

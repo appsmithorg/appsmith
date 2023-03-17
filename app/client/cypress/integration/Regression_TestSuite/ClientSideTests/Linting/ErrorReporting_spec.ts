@@ -307,11 +307,7 @@ describe("Lint error reporting", () => {
     const element = isError
       ? cy.get(locator._lintErrorElement)
       : cy.get(locator._lintWarningElement);
-    element
-      .contains(lintOn)
-      .should("exist")
-      .first()
-      .trigger("mouseover");
+    element.contains(lintOn).should("exist").first().trigger("mouseover");
     agHelper.AssertContains(debugMsg);
   }
 

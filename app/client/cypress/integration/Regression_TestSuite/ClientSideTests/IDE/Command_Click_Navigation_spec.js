@@ -28,7 +28,7 @@ const JSInput2TestCode =
 
 let repoName;
 
-describe("1. CommandClickNavigation", function() {
+describe("1. CommandClickNavigation", function () {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.reload();
@@ -185,9 +185,7 @@ describe("1. CommandClickNavigation", function() {
   });
 
   it.skip("Will work with string arguments in framework functions", () => {
-    cy.get(PROPERTY_SELECTOR.onClick)
-      .find(".t--js-toggle")
-      .click();
+    cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,
       "{{ resetWidget('Input1') }}",

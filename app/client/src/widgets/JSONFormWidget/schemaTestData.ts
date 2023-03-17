@@ -1,13 +1,12 @@
 import { klona } from "klona";
 import { isEmpty, startCase } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { FieldThemeStylesheet, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
-  FieldThemeStylesheet,
   FieldType,
   ROOT_SCHEMA_KEY,
-  SchemaItem,
 } from "./constants";
 
 export const schemaItemStyles = {
@@ -1386,7 +1385,7 @@ const withRemovedAddedKeyToInitialDataset = {
   },
 };
 
-const fieldThemeStylesheets = ({
+const fieldThemeStylesheets = {
   CHECKBOX: {
     backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -1450,7 +1449,7 @@ const fieldThemeStylesheets = ({
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     boxShadow: "none",
   },
-} as unknown) as FieldThemeStylesheet;
+} as unknown as FieldThemeStylesheet;
 
 export default {
   initialDataset,

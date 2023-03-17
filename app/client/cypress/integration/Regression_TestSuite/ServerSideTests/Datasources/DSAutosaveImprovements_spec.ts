@@ -5,7 +5,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 let dsName: any;
 
-describe("Datasource Autosave Improvements Tests", function() {
+describe("Datasource Autosave Improvements Tests", function () {
   it("1. Test to verify that delete button is disabled when datasource is in temporary state.", () => {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();

@@ -16,7 +16,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     if (INTERCEPT.MONGO) {
       cy.log("Mongo DB is not found. Using intercept");
       dataSources.StartInterceptRoutesForMongo();
@@ -62,7 +62,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     // agHelper.NavigateBacktoEditor();
   });
 
-  it("2. Generate CRUD page from datasource present in ACTIVE section", function() {
+  it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown);

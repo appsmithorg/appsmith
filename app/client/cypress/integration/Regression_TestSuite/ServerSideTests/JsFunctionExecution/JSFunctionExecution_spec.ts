@@ -14,7 +14,7 @@ let onPageLoadAndConfirmExecuteFunctionsLength: number,
   functionsLength: number,
   jsObj: string;
 
-describe("JS Function Execution", function() {
+describe("JS Function Execution", function () {
   interface IFunctionSettingData {
     name: string;
     onPageLoad: boolean;
@@ -59,7 +59,7 @@ describe("JS Function Execution", function() {
     // sorts functions alphabetically
     const sortFunctions = (data: IFunctionSettingData[]) =>
       data.sort((a, b) => a.name.localeCompare(b.name));
-    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
+    cy.get(jsEditor._asyncJSFunctionSettings).then(function ($lis) {
       const asyncFunctionLength = $lis.length;
       // Assert number of async functions
       expect(asyncFunctionLength).to.equal(functionsLength);
@@ -72,7 +72,7 @@ describe("JS Function Execution", function() {
     });
   }
 
-  it("1. Allows execution of js function when lint warnings(not errors) are present in code", function() {
+  it("1. Allows execution of js function when lint warnings(not errors) are present in code", function () {
     jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>{
@@ -93,7 +93,7 @@ describe("JS Function Execution", function() {
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("2. Prevents execution of js function when parse errors are present in code", function() {
+  it("2. Prevents execution of js function when parse errors are present in code", function () {
     jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>>{
@@ -113,7 +113,7 @@ describe("JS Function Execution", function() {
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function() {
+  it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function () {
     const JSObjectWithFunctionExecutionParseErrors = `export default {
       myFun1 :()=>{
         return f
@@ -317,12 +317,13 @@ describe("JS Function Execution", function() {
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
-    onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
-      (func) => func.onPageLoad && func.confirmBeforeExecute,
-    ).length;
+    onPageLoadAndConfirmExecuteFunctionsLength =
+      FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
+        (func) => func.onPageLoad && func.confirmBeforeExecute,
+      ).length;
 
     getJSObject = (data: IFunctionSettingData[]) => {
       let JS_OBJECT_BODY = `export default`;

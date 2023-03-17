@@ -3,7 +3,7 @@ import FormControl from "pages/Editor/FormControl";
 import { Icon, IconSize } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
-import { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
