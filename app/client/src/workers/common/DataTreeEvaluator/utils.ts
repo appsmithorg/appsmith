@@ -4,7 +4,7 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
+import type {
   DataTree,
   DataTreeAction,
   DataTreeEntity,

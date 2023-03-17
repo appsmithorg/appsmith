@@ -1,4 +1,4 @@
-import { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
 
 export const addThisReference = (
   navigationData: EntityNavigationData,

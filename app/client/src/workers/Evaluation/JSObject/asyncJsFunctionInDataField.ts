@@ -2,9 +2,10 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { difference, get } from "lodash";
-import { DependencyMap, isChildPropertyPath } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
   isDataField,
   isWidgetActionOrJsObject,
@@ -27,11 +28,12 @@ class AsyncJsFunctionInDataField {
     // Only datafields can cause updates
     if (!isDataField(fullPath, unEvalDataTree)) return [];
 
-    const asyncJSFunctionsInvokedInPath = this.getAsyncJSFunctionInvocationsInPath(
-      referencesInPath,
-      unEvalDataTree,
-      fullPath,
-    );
+    const asyncJSFunctionsInvokedInPath =
+      this.getAsyncJSFunctionInvocationsInPath(
+        referencesInPath,
+        unEvalDataTree,
+        fullPath,
+      );
 
     for (const asyncJSFunc of asyncJSFunctionsInvokedInPath) {
       updatedAsyncJSFunctionsInMap.add(asyncJSFunc);
@@ -44,9 +46,8 @@ class AsyncJsFunctionInDataField {
 
   handlePathDeletion(deletedPath: string, unevalTree: DataTree) {
     const updatedAsyncJSFunctionsInMap = new Set<string>();
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      deletedPath,
-    );
+    const { entityName, propertyPath } =
+      getEntityNameAndPropertyPath(deletedPath);
     const entity = unevalTree[entityName];
     if (
       isWidgetActionOrJsObject(entity) ||
@@ -89,11 +90,12 @@ class AsyncJsFunctionInDataField {
   ) {
     const updatedAsyncJSFunctionsInMap = new Set<string>();
     if (isDataField(editedPath, unevalTree)) {
-      const asyncJSFunctionInvocationsInPath = this.getAsyncJSFunctionInvocationsInPath(
-        dependenciesInPath,
-        unevalTree,
-        editedPath,
-      );
+      const asyncJSFunctionInvocationsInPath =
+        this.getAsyncJSFunctionInvocationsInPath(
+          dependenciesInPath,
+          unevalTree,
+          editedPath,
+        );
       asyncJSFunctionInvocationsInPath.forEach((funcName) => {
         updatedAsyncJSFunctionsInMap.add(funcName);
         updateMap(this.asyncFunctionsInDataFieldsMap, funcName, [editedPath], {
@@ -142,11 +144,12 @@ class AsyncJsFunctionInDataField {
             isDataField(path, unevalTree),
           );
           for (const dataFieldPath of boundDataFields) {
-            const asyncJSFunctionInvocationsInPath = this.getAsyncJSFunctionInvocationsInPath(
-              [editedPath],
-              unevalTree,
-              dataFieldPath,
-            );
+            const asyncJSFunctionInvocationsInPath =
+              this.getAsyncJSFunctionInvocationsInPath(
+                [editedPath],
+                unevalTree,
+                dataFieldPath,
+              );
             if (asyncJSFunctionInvocationsInPath) {
               updatedAsyncJSFunctionsInMap.add(editedPath);
               updateMap(
