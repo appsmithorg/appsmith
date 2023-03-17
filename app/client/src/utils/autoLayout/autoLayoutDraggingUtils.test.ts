@@ -1,5 +1,5 @@
-import { FlexLayer } from "./autoLayoutTypes";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer } from "./autoLayoutTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   addNewLayer,
   createFlexLayer,

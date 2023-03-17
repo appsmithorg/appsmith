@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
 import SearchBox from "./SearchBox";
@@ -27,9 +27,14 @@ import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
+import type {
+  DocSearchItem,
+  SearchCategory,
+  SearchItem,
+  SelectEvent,
+} from "./utils";
 import {
   algoliaHighlightTag,
-  DocSearchItem,
   filterCategories,
   getEntityId,
   getFilterCategoryList,
@@ -45,13 +50,10 @@ import {
   isSnippet,
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
-  SearchCategory,
-  SearchItem,
-  SelectEvent,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
@@ -221,10 +223,8 @@ function GlobalSearch() {
 
   const scrollPositionRef = useRef(0);
 
-  const [
-    documentationSearchResults,
-    setDocumentationSearchResultsInState,
-  ] = useState<Array<DocSearchItem>>([]);
+  const [documentationSearchResults, setDocumentationSearchResultsInState] =
+    useState<Array<DocSearchItem>>([]);
 
   const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {

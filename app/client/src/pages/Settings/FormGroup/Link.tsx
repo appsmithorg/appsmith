@@ -5,7 +5,7 @@ import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { SettingComponentProps } from "./Common";
+import type { SettingComponentProps } from "./Common";
 
 const LinkWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[16]}px;

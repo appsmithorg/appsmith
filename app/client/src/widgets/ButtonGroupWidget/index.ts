@@ -2,12 +2,12 @@ import { ButtonVariantTypes } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
 import { get } from "lodash";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
-import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget, { ButtonGroupWidgetProps } from "./widget";
+import Widget from "./widget";
+import type { ButtonGroupWidgetProps } from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),

@@ -4,11 +4,11 @@ const locators = {
   errorPageTitle: ".t--error-page-title",
 };
 
-describe("Pages", function() {
+describe("Pages", function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 
-  it("1. Clone page", function() {
+  it("1. Clone page", function () {
     //cy.NavigateToAPI_Panel();
     _.apiPage.CreateApi(apiName);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");

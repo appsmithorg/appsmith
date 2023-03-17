@@ -6,17 +6,15 @@ import {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 import get from "lodash/get";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 

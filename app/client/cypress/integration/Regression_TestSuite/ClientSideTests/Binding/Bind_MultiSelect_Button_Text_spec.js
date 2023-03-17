@@ -28,7 +28,7 @@ const widgetsToTest = {
 };
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
-  describe(`${testConfig.widgetName} widget test for validating reset action`, function() {
+  describe(`${testConfig.widgetName} widget test for validating reset action`, function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
     });
@@ -40,17 +40,15 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.addDsl(dsl);
     });
 
-    it(`1. DragDrop Widget ${testConfig.widgetName}`, function() {
+    it(`1. DragDrop Widget ${testConfig.widgetName}`, function () {
       cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
       cy.get(getWidgetSelector(widgetSelector)).should("exist");
     });
 
-    it("2. Bind Button on click  and Text widget content", function() {
+    it("2. Bind Button on click  and Text widget content", function () {
       cy.openPropertyPane(WIDGET.BUTTON);
-      cy.get(PROPERTY_SELECTOR.onClick)
-        .find(".t--js-toggle")
-        .click();
+      cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
         `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("success"))}}`,
@@ -78,7 +76,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.wait(4000);
     });
 
-    it("3. Publish the app and validate reset action", function() {
+    it("3. Publish the app and validate reset action", function () {
       cy.PublishtheApp();
       cy.get(".rc-select-selection-overflow").click({ force: true });
       cy.get(".rc-select-item-option:contains('Blue')").click({ force: true });

@@ -5,7 +5,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -21,7 +21,7 @@ import {
   getTotalRowsOfAllChildren,
   getWrappedAlignmentInfo,
 } from "./positionUtils";
-import {
+import type {
   AlignmentChildren,
   AlignmentInfo,
   DropZone,

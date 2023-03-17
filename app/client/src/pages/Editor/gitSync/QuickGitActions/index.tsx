@@ -39,12 +39,12 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import type { IconName } from "design-system-old";
 import {
   Button,
   Category,
   getTypographyByKey,
   Icon,
-  IconName,
   IconSize,
   Size,
   TooltipComponent as Tooltip,
@@ -292,10 +292,8 @@ export default function QuickGitActions() {
   const gitStatus = useSelector(getGitStatus);
   const pullFailed = useSelector(getPullFailed);
 
-  const {
-    disabled: pullDisabled,
-    message: pullTooltipMessage,
-  } = getPullBtnStatus(gitStatus, !!pullFailed);
+  const { disabled: pullDisabled, message: pullTooltipMessage } =
+    getPullBtnStatus(gitStatus, !!pullFailed);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);

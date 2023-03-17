@@ -1,16 +1,22 @@
 import React from "react";
 
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import ContainerComponent, { ContainerStyle } from "../component";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
+import type { ContainerStyle } from "../component";
+import ContainerComponent from "../component";
+
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+
 import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Stylesheet } from "entities/AppTheming";
+
+import type { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,

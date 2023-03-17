@@ -62,9 +62,7 @@ describe("Upgrade appsmith version", () => {
         "have.value",
       );
 
-      cy.get(".t--jsonformfield-label input")
-        .clear()
-        .type("DevelopmentUpdate");
+      cy.get(".t--jsonformfield-label input").clear().type("DevelopmentUpdate");
       agHelper.GetNClick(".t--jsonform-footer button", 1, true);
       agHelper.Sleep(2000);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
@@ -77,9 +75,7 @@ describe("Upgrade appsmith version", () => {
 
       //Resetting the data
       agHelper.GetNClick(".tbody>div", 1, true, 1000);
-      cy.get(".t--jsonformfield-label input")
-        .clear()
-        .type("Development");
+      cy.get(".t--jsonformfield-label input").clear().type("Development");
       agHelper.GetNClick(".t--jsonform-footer button", 1, true);
       agHelper.Sleep(2000);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);

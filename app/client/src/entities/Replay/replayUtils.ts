@@ -1,4 +1,4 @@
-import { Diff } from "deep-diff";
+import type { Diff } from "deep-diff";
 import { get, isArray, isEmpty, set } from "lodash";
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;

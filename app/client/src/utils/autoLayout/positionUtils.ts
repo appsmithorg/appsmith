@@ -1,4 +1,4 @@
-import {
+import type {
   AlignmentChildren,
   AlignmentInfo,
   FlexLayer,
@@ -9,7 +9,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -110,16 +110,6 @@ export function updateWidgetPositions(
         ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
           allWidgets[parent.parentId].type,
         );
-      // console.log(
-      //   "#### update height",
-      //   parent.widgetName,
-      //   "parentHeight",
-      //   parentHeight,
-      //   "height",
-      //   height,
-      //   shouldUpdateHeight,
-      //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
-      // );
       if (shouldUpdateHeight && parent.parentId)
         return updateWidgetPositions(
           widgets,
@@ -406,9 +396,11 @@ export function extractAlignmentInfo(
   };
 }
 
-export function getAlignmentSizeInfo(
-  arr: AlignmentInfo[],
-): { startSize: number; centerSize: number; endSize: number } {
+export function getAlignmentSizeInfo(arr: AlignmentInfo[]): {
+  startSize: number;
+  centerSize: number;
+  endSize: number;
+} {
   let startSize = 0,
     centerSize = 0,
     endSize = 0;

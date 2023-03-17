@@ -1,11 +1,11 @@
 import { updateAndSaveLayout } from "actions/pageActions";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import log from "loglevel";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
   call,
@@ -30,7 +30,7 @@ import {
   getCurrentAppPositioningType,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";

@@ -2,7 +2,7 @@ import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 
 import IconSVG from "./icon.svg";

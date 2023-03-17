@@ -9,7 +9,7 @@ import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
 } from "actions/helpActions";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 
 const HelpIcon = ControlIcons.HELP_CONTROL;
 const helpControlIcon = (

@@ -10,8 +10,8 @@ before(() => {
   cy.addDsl(dsl);
 });
 
-describe("Test Suite to validate copy/delete/undo functionalites", function() {
-  it.only("Drag and drop form widget and validate copy widget via toast message", function() {
+describe("Test Suite to validate copy/delete/undo functionalites", function () {
+  it.only("Drag and drop form widget and validate copy widget via toast message", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
     cy.openPropertyPane("formwidget");
@@ -24,10 +24,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(commonlocators.toastBody)
-      .first()
-      .contains("Copied")
-      .click();
+    cy.get(commonlocators.toastBody).first().contains("Copied").click();
     cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -44,7 +41,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("FormTest");
     ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTestCopy.data}}");
@@ -53,12 +50,8 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       cy.get($lis.eq(1))
         .contains("{{FormTestCopy.data}}")
         .click({ force: true });
-      cy.get(".bp3-input")
-        .first()
-        .click({ force: true });
-      cy.get(".bp3-input")
-        .first()
-        .type(`{${modifierKey}}v`, { force: true });
+      cy.get(".bp3-input").first().click({ force: true });
+      cy.get(".bp3-input").first().type(`{${modifierKey}}v`, { force: true });
     });
   });
 });

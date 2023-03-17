@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import styled from "styled-components";
-import { TabComponent, TabProp, Text, TextType } from "design-system-old";
+import type { TabProp } from "design-system-old";
+import { TabComponent, Text, TextType } from "design-system-old";
 import { Icon } from "@blueprintjs/core";
 import General from "./General";
 import { Colors } from "constants/Colors";

@@ -13,9 +13,9 @@ import {
   REFRESH_THE_APP,
   SEND_REPORT,
 } from "@appsmith/constants/messages";
-import { ConversionProps } from "../ConversionForm";
+import type { ConversionProps } from "../ConversionForm";
 
-import { Dispatch } from "redux";
+import type { Dispatch } from "redux";
 import {
   AlertType,
   CONVERSION_STATES,

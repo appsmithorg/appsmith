@@ -1,10 +1,10 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
 import {
   isJSObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DependencyMap } from "./DynamicBindingUtils";
+import type { DependencyMap } from "./DynamicBindingUtils";
 import WidgetFactory from "./WidgetFactory";
 
 type GroupedDependencyMap = Record<string, DependencyMap>;

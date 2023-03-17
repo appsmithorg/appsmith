@@ -627,10 +627,10 @@ export const MultiSelectContainer = styled.div<{
             : "var(--wds-color-border-danger)"};
       &:hover {
         border: 1px solid
-        ${(props) =>
-          props.isValid
-            ? "var(--wds-color-border-hover)"
-            : "var(--wds-color-border-danger-hover)"};
+          ${(props) =>
+            props.isValid
+              ? "var(--wds-color-border-hover)"
+              : "var(--wds-color-border-danger-hover)"};
       }
     }
   }

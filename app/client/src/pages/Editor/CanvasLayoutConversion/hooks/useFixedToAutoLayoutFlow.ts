@@ -9,9 +9,9 @@ import {
   SAVE_SNAPSHOT,
   SAVE_SNAPSHOT_TEXT,
 } from "@appsmith/constants/messages";
-import { ConversionProps } from "../ConversionForm";
+import type { ConversionProps } from "../ConversionForm";
 
-import { Dispatch } from "redux";
+import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";

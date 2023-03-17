@@ -1,4 +1,5 @@
-import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import { hideByColumnType } from "../../propertyUtils";
 import commonValidations from "./Validations/Common";

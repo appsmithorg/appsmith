@@ -1,8 +1,8 @@
 import adminSettings from "../../../../locators/AdminsSettings";
 import homePage from "../../../../locators/HomePage";
 
-describe("Form Login test functionality", function() {
-  it("1. Go to admin settings and disable Form Signup", function() {
+describe("Form Login test functionality", function () {
+  it("1. Go to admin settings and disable Form Signup", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -66,7 +66,7 @@ describe("Form Login test functionality", function() {
     });
   });
 
-  it("2. Go to admin settings and disable Form Login", function() {
+  it("2. Go to admin settings and disable Form Login", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");

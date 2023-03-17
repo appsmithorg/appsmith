@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type {
   CONVERSION_STATES,
   SnapShotDetails,
 } from "reducers/uiReducers/layoutConversionReducer";

@@ -1,4 +1,4 @@
-import { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
+import type { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
 
 /**
  * Util method that makes it easier

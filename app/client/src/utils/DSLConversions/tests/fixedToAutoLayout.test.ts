@@ -1,5 +1,5 @@
 import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import {
   fitChildWidgetsIntoLayers,
   getAutoCanvasWidget,
@@ -9,7 +9,7 @@ import {
 } from "../fixedToAutoLayout";
 
 describe("test fixed to Auto Conversion methods", () => {
-  const childWidgets = ([
+  const childWidgets = [
     {
       boxShadow: "none",
       widgetName: "Button1",
@@ -230,7 +230,7 @@ describe("test fixed to Auto Conversion methods", () => {
       rightColumn: 62.0,
       parentId: "0",
     },
-  ] as unknown) as DSLWidget[];
+  ] as unknown as DSLWidget[];
 
   const convertedChildren = [
     {
@@ -590,7 +590,7 @@ describe("test fixed to Auto Conversion methods", () => {
       flexLayers: [],
     };
 
-    expect(getAutoCanvasWidget((canvasDsl as unknown) as DSLWidget)).toEqual(
+    expect(getAutoCanvasWidget(canvasDsl as unknown as DSLWidget)).toEqual(
       responsiveCanvasDsl,
     );
   });
@@ -637,7 +637,7 @@ describe("test fixed to Auto Conversion methods", () => {
 
     const calculatedBottomRow = 75;
     expect(
-      fitChildWidgetsIntoLayers((childWidgets as unknown) as DSLWidget[]),
+      fitChildWidgetsIntoLayers(childWidgets as unknown as DSLWidget[]),
     ).toEqual({ children: convertedChildren, flexLayers, calculatedBottomRow });
   });
 

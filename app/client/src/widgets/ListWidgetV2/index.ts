@@ -1,18 +1,11 @@
 import { get } from "lodash";
 
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import {
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import type { WidgetProps } from "widgets/BaseWidget";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,
@@ -20,8 +13,13 @@ import {
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { GridDefaults } from "constants/WidgetConstants";
-import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 
 const DEFAULT_LIST_DATA = [
   {

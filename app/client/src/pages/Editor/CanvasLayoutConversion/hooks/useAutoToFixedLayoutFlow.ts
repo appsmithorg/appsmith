@@ -15,11 +15,11 @@ import {
   SNAPSHOT_TIME_FROM_MESSAGE,
   USE_SNAPSHOT,
 } from "@appsmith/constants/messages";
-import { ConversionProps } from "../ConversionForm";
+import type { ConversionProps } from "../ConversionForm";
 
-import { Dispatch } from "redux";
+import type { Dispatch } from "redux";
 import { useState } from "react";
-import { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "design-system-old";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { Colors } from "constants/Colors";

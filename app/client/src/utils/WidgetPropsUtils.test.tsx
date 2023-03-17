@@ -18,7 +18,7 @@ import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
-import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {
@@ -79,10 +79,10 @@ describe("WidgetProps tests", () => {
       parentRowSpace: 10,
       maxGridColumns: 64,
     };
-    const mouseEvent = ({
+    const mouseEvent = {
       offsetX: 500,
       offsetY: 600,
-    } as unknown) as MouseEvent;
+    } as unknown as MouseEvent;
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
       top: 59,
@@ -97,10 +97,10 @@ describe("WidgetProps tests", () => {
       parentRowSpace: 10,
       maxGridColumns: 64,
     };
-    const mouseEvent = ({
+    const mouseEvent = {
       offsetX: 2,
       offsetY: 5,
-    } as unknown) as MouseEvent;
+    } as unknown as MouseEvent;
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
       top: -1,

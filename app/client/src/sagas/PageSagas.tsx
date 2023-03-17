@@ -1,20 +1,24 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   Page,
   ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
   UpdateCanvasPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type {
   ClonePageActionPayload,
-  clonePageSuccess,
   CreatePageActionPayload,
+  FetchPageListPayload,
+} from "actions/pageActions";
+import {
+  clonePageSuccess,
   deletePageSuccess,
   fetchAllPageEntityCompletion,
   fetchPage,
-  FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   generateTemplateError,
@@ -30,7 +34,7 @@ import {
   updatePageSuccess,
   updateWidgetNameSuccess,
 } from "actions/pageActions";
-import PageApi, {
+import type {
   ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
@@ -50,7 +54,8 @@ import PageApi, {
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
 } from "api/PageApi";
-import {
+import PageApi from "api/PageApi";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -71,7 +76,7 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import { getAllPageIds, getEditorConfigs, getWidgets } from "./selectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -88,7 +93,7 @@ import {
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
 } from "actions/pluginActionActions";
-import { UrlDataState } from "reducers/entityReducers/appReducer";
+import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/URLUtils";
@@ -533,13 +538,11 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
           canvasWidgets: widgets,
         });
-        const correctedWidgets = migrateIncorrectDynamicBindingPathLists(
-          denormalizedWidgets,
-        );
+        const correctedWidgets =
+          migrateIncorrectDynamicBindingPathLists(denormalizedWidgets);
         // Normalize the widgets because the save page needs it in the flat structure
-        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
-          correctedWidgets,
-        );
+        const normalizedWidgets =
+          CanvasWidgetsNormalizer.normalize(correctedWidgets);
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),

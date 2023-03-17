@@ -8,20 +8,18 @@ import {
   USE_SNAPSHOT,
   USE_SNAPSHOT_TEXT,
 } from "ce/constants/messages";
-import { ConversionProps } from "../ConversionForm";
+import type { ConversionProps } from "../ConversionForm";
 
-import { Dispatch } from "redux";
+import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  getReadableSnapShotDetails,
-  ReadableSnapShotDetails,
-} from "selectors/autoLayoutSelectors";
+import type { ReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
+import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { Colors } from "constants/Colors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
