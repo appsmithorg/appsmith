@@ -316,6 +316,12 @@ export const generateWidgetProps = (
       topRow,
       bottomRow: topRow + widgetConfig.rows,
     };
+    const mobileSizes = {
+      mobileLeftColumn: leftColumn,
+      mobileRightColumn: leftColumn + widgetConfig.columns,
+      mobileTopRow: topRow,
+      mobileBottomRow: topRow + widgetConfig.rows,
+    };
 
     const others = {};
     const props: DSLWidget = {
@@ -328,6 +334,7 @@ export const generateWidgetProps = (
       parentColumnSpace,
       parentRowSpace,
       ...sizes,
+      ...mobileSizes,
       ...others,
       parentId: parent.widgetId,
       version,

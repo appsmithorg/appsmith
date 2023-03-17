@@ -110,16 +110,6 @@ export function updateWidgetPositions(
         ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
           allWidgets[parent.parentId].type,
         );
-      // console.log(
-      //   "#### update height",
-      //   parent.widgetName,
-      //   "parentHeight",
-      //   parentHeight,
-      //   "height",
-      //   height,
-      //   shouldUpdateHeight,
-      //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
-      // );
       if (shouldUpdateHeight && parent.parentId)
         return updateWidgetPositions(
           widgets,
