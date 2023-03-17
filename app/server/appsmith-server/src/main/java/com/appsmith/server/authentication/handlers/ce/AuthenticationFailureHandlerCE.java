@@ -35,13 +35,10 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
         // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
         // login page again with an error message shown to the user.
-        String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+        String state = queryParams.getFirst(Security.QUERY_PARAMETER_STATE);
         String originHeader = "/";
-        String redirectUrl = null;
-        if (queryParams.getFirst(REDIRECT_URL_QUERY_PARAM) != null) {
-            redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
-        }
+        String redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
         if (state != null && !state.isEmpty()) {
             // This is valid for OAuth2 login failures. We derive the client login URL from the state query parameter
@@ -88,7 +85,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
                 url = originHeader + "/user/login?error=true";
             }
         }
-        if (redirectUrl != null){
+        if (redirectUrl != null && !redirectUrl.trim().isEmpty()){
             url = url + "&" + REDIRECT_URL_QUERY_PARAM + "=" + redirectUrl;
         }
         defaultRedirectLocation = URI.create(url);
