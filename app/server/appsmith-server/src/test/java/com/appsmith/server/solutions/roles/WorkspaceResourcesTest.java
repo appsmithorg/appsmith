@@ -1529,6 +1529,10 @@ public class WorkspaceResourcesTest {
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
         PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
 
+        PermissionGroup permissionGroup2 = new PermissionGroup();
+        permissionGroup2.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup2 = permissionGroupService.create(permissionGroup2).block();
+
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
 
         // Add entity changes
@@ -1536,7 +1540,7 @@ public class WorkspaceResourcesTest {
         UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
                 Application.class.getSimpleName(),
                 createdApplication.getId(),
-                List.of(0, 1, 0, 1, 0, 0),
+                List.of(1, 1, 1, 1, 1, 1),
                 createdApplication.getName()
         );
         updateRoleConfigDTO.setEntitiesChanged(Set.of(
@@ -1546,6 +1550,7 @@ public class WorkspaceResourcesTest {
 
         // Make the role configuration changes in a blocking manner
         roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+        roleConfigurationSolution.updateRoles(createdPermissionGroup2.getId(), updateRoleConfigDTO).block();
 
         // Fetch the application again to ensure the changes are persisted
         // Fetch the themes : 1. Edit mode theme is custom, so we should hav gotten edit and view theme permissions. 2. View mode theme is system default, so we should not have updated the policies.
@@ -1565,9 +1570,9 @@ public class WorkspaceResourcesTest {
         updatedApplication.getPolicies().stream().forEach(
                 policy -> {
                     if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     }
                 }
         );
@@ -1576,9 +1581,9 @@ public class WorkspaceResourcesTest {
         editModeTheme.getPolicies().stream().forEach(
                 policy -> {
                     if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     }
                 }
         );
@@ -1588,37 +1593,37 @@ public class WorkspaceResourcesTest {
         publishedModeTheme.getPolicies().stream().forEach(
                 policy -> {
                     if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
-                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
-                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
                     }
                 }
         );
 
         themePostUpdate1.getPolicies().forEach(policy -> {
             if (policy.getPermission().equals(READ_THEMES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
             }
             if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
             }
         });
 
         themePostUpdate2.getPolicies().forEach(policy -> {
             if (policy.getPermission().equals(READ_THEMES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
             }
             if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
             }
         });
 
         themePostUpdate3.getPolicies().forEach(policy -> {
             if (policy.getPermission().equals(READ_THEMES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
             }
             if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId(), createdPermissionGroup2.getId());
             }
         });
 
