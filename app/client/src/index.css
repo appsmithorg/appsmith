@@ -12,7 +12,7 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FFF !important;
+  background-color: #fff !important;
 }
 
 body.dragging * {
@@ -21,7 +21,7 @@ body.dragging * {
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-  monospace;
+    monospace;
 }
 
 * {
@@ -101,9 +101,9 @@ div.bp3-popover-arrow {
   border-radius: 0 !important;
 }
 
-
 /* making both the Modal layer and the Dropdown layer */
-.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+.bp3-modal-widget,
+.appsmith_widget_0 > .bp3-portal {
   z-index: 2 !important;
 }
 
@@ -111,11 +111,11 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
-.widget-name-popper{
+.widget-name-popper {
   box-shadow: none !important;
 }
 
-.widget-name-popper > .bp3-popover2-content{
+.widget-name-popper > .bp3-popover2-content {
   border-radius: 4px !important;
 }
 .bp3-overlay-backdrop {

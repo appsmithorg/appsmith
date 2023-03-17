@@ -5,43 +5,46 @@ import {
   getWidgets,
 } from "./selectors";
 import _, { find, isString, reduce, remove } from "lodash";
+import type { WidgetType } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { select } from "redux-saga/effects";
 import { getCopiedWidgets } from "utils/storage";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateReactKey } from "utils/generators";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   getDynamicBindings,
   combineDynamicBindings,
-  DynamicPath,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
 import { areIntersecting } from "utils/boxHelpers";
-import {
+import type {
   GridProps,
   PrevReflowState,
-  ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
 } from "reflow/reflowTypes";
+import { ReflowDirection } from "reflow/reflowTypes";
 import {
   getBaseWidgetClassName,
   getStickyCanvasName,
@@ -51,10 +54,10 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { MetaState } from "reducers/entityReducers/metaReducer";
+import type { MetaState } from "reducers/entityReducers/metaReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -307,7 +310,7 @@ export function getWidgetChildrenIds(
 function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   return reduce(
     widgetsMeta,
-    function(
+    function (
       result: {
         childrenWidgetsMeta: MetaState;
         otherWidgetsMeta: MetaState;
@@ -363,7 +366,7 @@ export function getWidgetDescendantToReset(
   for (const childMetaWidgetId of Object.keys(
     sortedWidgetsMeta.childrenWidgetsMeta,
   )) {
-    const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
+    const evaluatedChildWidget = find(evaluatedDataTree, function (entity) {
       return isWidget(entity) && entity.widgetId === childMetaWidgetId;
     }) as DataTreeWidget | undefined;
     descendantList.push({
@@ -414,7 +417,7 @@ export function getWidgetDescendantToReset(
   return descendantList;
 }
 
-export const getParentWidgetIdForPasting = function*(
+export const getParentWidgetIdForPasting = function* (
   widgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
 ) {
@@ -481,7 +484,7 @@ export const getParentWidgetIdForPasting = function*(
   return newWidgetParentId;
 };
 
-export const getSelectedWidgetIfPastingIntoListWidget = function(
+export const getSelectedWidgetIfPastingIntoListWidget = function (
   canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
   copiedWidgets: CopiedWidgetGroup[],
@@ -586,7 +589,7 @@ export function checkForListWidgetInCopiedWidgets(
  * @param copiedWidgetGroups
  * @returns
  */
-export const getBoundaryWidgetsFromCopiedGroups = function(
+export const getBoundaryWidgetsFromCopiedGroups = function (
   copiedWidgetGroups: CopiedWidgetGroup[],
 ) {
   const topMostWidget = copiedWidgetGroups.sort(
@@ -659,7 +662,7 @@ export function getBoundariesFromSelectedWidgets(
  * @param copiedWidgetGroups
  * @returns
  */
-export const getSelectedWidgetWhenPasting = function*() {
+export const getSelectedWidgetWhenPasting = function* () {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
 
@@ -1124,7 +1127,7 @@ export function isDropTarget(type: WidgetType, includeCanvasWidget = false) {
  * @param pastingIntoWidgetId
  * @returns
  */
-export const groupWidgetsIntoContainer = function*(
+export const groupWidgetsIntoContainer = function* (
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
   isThereACollision: boolean,
@@ -1143,12 +1146,8 @@ export const groupWidgetsIntoContainer = function*(
     evalTree,
   );
   let reflowedMovementMap, bottomMostRow, gridProps;
-  const {
-    bottomMostWidget,
-    leftMostWidget,
-    rightMostWidget,
-    topMostWidget,
-  } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
+  const { bottomMostWidget, leftMostWidget, rightMostWidget, topMostWidget } =
+    getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
 
   const copiedWidgets = copiedWidgetGroups.map((copiedWidgetGroup) =>
     copiedWidgetGroup.list.find(
@@ -1267,9 +1266,8 @@ export const groupWidgetsIntoContainer = function*(
 
   // if there are no collision already then reflow the below widgets by 2 rows.
   if (!isThereACollision) {
-    const widgetSpacesSelector = getContainerWidgetSpacesSelector(
-      pastingIntoWidgetId,
-    );
+    const widgetSpacesSelector =
+      getContainerWidgetSpacesSelector(pastingIntoWidgetId);
     const widgetSpaces: WidgetSpace[] = yield select(widgetSpacesSelector) ||
       [];
 
@@ -1339,7 +1337,7 @@ export const groupWidgetsIntoContainer = function*(
  *
  * @returns
  */
-export const createSelectedWidgetsAsCopiedWidgets = function*() {
+export const createSelectedWidgetsAsCopiedWidgets = function* () {
   const canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = yield select(getWidgets);
@@ -1363,7 +1361,7 @@ export const createSelectedWidgetsAsCopiedWidgets = function*() {
  *
  * @return
  */
-export const filterOutSelectedWidgets = function*(
+export const filterOutSelectedWidgets = function* (
   parentId: string,
   copiedWidgetGroups: CopiedWidgetGroup[],
 ) {
@@ -1403,19 +1401,15 @@ export const filterOutSelectedWidgets = function*(
  * @param copiedWidgetGroups
  * @returns
  */
-export const isSelectedWidgetsColliding = function*(
+export const isSelectedWidgetsColliding = function* (
   widgets: CanvasWidgetsReduxState,
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
 ) {
   if (!copiedWidgetGroups.length) return false;
 
-  const {
-    bottomMostWidget,
-    leftMostWidget,
-    rightMostWidget,
-    topMostWidget,
-  } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
+  const { bottomMostWidget, leftMostWidget, rightMostWidget, topMostWidget } =
+    getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
 
   const widgetsWithSameParent = _.omitBy(widgets, (widget) => {
     return widget.parentId !== pastingIntoWidgetId;

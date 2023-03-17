@@ -1,16 +1,16 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
@@ -18,7 +18,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -83,9 +83,7 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class ComputeTablePropertyControlV2 extends BaseControl<
-  ComputeTablePropertyControlPropsV2
-> {
+class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
   static getBindingPrefix(tableName: string) {
     return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
   }
@@ -140,9 +138,8 @@ class ComputeTablePropertyControlV2 extends BaseControl<
   }
 
   static getInputComputedValue = (propertyValue: string, tableName: string) => {
-    const bindingPrefix = ComputeTablePropertyControlV2.getBindingPrefix(
-      tableName,
-    );
+    const bindingPrefix =
+      ComputeTablePropertyControlV2.getBindingPrefix(tableName);
 
     if (propertyValue.includes(bindingPrefix)) {
       const value = `${propertyValue.substring(

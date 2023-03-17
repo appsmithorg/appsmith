@@ -12,38 +12,38 @@ import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import {
   batchUpdateMultipleWidgetProperties,
   batchUpdateWidgetProperty,
   deleteWidgetProperty,
   setWidgetDynamicProperty,
-  UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import {
+import type {
   PropertyHookUpdates,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { IPanelProps } from "@blueprintjs/core";
+import type { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
-  DynamicPath,
   getEvalValuePath,
   isDynamicValue,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
+import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import {
   getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
-  WidgetProperties,
 } from "selectors/propertyPaneSelectors";
-import { EnhancementFns } from "selectors/widgetEnhancementSelectors";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
-import { ControlData } from "components/propertyControls/BaseControl";
-import { AppState } from "@appsmith/reducers";
+import type { ControlData } from "components/propertyControls/BaseControl";
+import type { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { TooltipComponent } from "design-system-old";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
@@ -55,7 +55,7 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -386,9 +386,8 @@ const PropertyControl = memo((props: Props) => {
         widgetProperties,
       );
       if (Array.isArray(relatedWidgetUpdates) && relatedWidgetUpdates.length) {
-        otherWidgetPropertiesToUpdates = otherWidgetPropertiesToUpdates.concat(
-          relatedWidgetUpdates,
-        );
+        otherWidgetPropertiesToUpdates =
+          otherWidgetPropertiesToUpdates.concat(relatedWidgetUpdates);
       }
     }
     return otherWidgetPropertiesToUpdates;
@@ -414,17 +413,11 @@ const PropertyControl = memo((props: Props) => {
         isUpdatedFromSearchResult: props.isSearchResult,
       });
 
-      const selfUpdates:
-        | UpdateWidgetPropertyPayload
-        | undefined = getWidgetsOwnUpdatesOnPropertyChange(
-        propertyName,
-        propertyValue,
-      );
+      const selfUpdates: UpdateWidgetPropertyPayload | undefined =
+        getWidgetsOwnUpdatesOnPropertyChange(propertyName, propertyValue);
 
-      const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
-        propertyName,
-        propertyValue,
-      );
+      const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] =
+        getOtherWidgetPropertyChanges(propertyName, propertyValue);
       let allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
       if (selfUpdates) {
         allPropertiesToUpdates.push(selfUpdates);
@@ -527,10 +520,7 @@ const PropertyControl = memo((props: Props) => {
 
     const isDynamic: boolean = widgetProperties.isPropertyDynamicPath;
     const isConvertible = !!props.isJSConvertible;
-    const className = label
-      .split(" ")
-      .join("")
-      .toLowerCase();
+    const className = label.split(" ").join("").toLowerCase();
 
     let additionAutocomplete: AdditionalDynamicDataTree | undefined;
     if (additionalAutoComplete) {
@@ -574,9 +564,8 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
-    const canDisplayValueInUI = PropertyControlFactory.controlUIToggleValidation.get(
-      config.controlType,
-    );
+    const canDisplayValueInUI =
+      PropertyControlFactory.controlUIToggleValidation.get(config.controlType);
 
     const customJSControl = getCustomJSControl();
 
@@ -592,9 +581,8 @@ const PropertyControl = memo((props: Props) => {
         let value = propertyValue;
         // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
         if (customJSControl && isDynamicValue(value)) {
-          const extractValue = PropertyControlFactory.inputComputedValueMap.get(
-            customJSControl,
-          );
+          const extractValue =
+            PropertyControlFactory.inputComputedValueMap.get(customJSControl);
           if (extractValue)
             value = extractValue(value, widgetProperties.widgetName);
         }

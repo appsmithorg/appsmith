@@ -1,5 +1,5 @@
 import { uniqueId } from "lodash";
-import { TDefaultMessage } from "utils/MessageUtil";
+import type { TDefaultMessage } from "utils/MessageUtil";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { promisify } from "./utils/Promisify";
@@ -126,7 +126,8 @@ export type TStopWatchGeoLocationArgs = Parameters<
 export type TStopWatchGeoLocationDescription = ReturnType<
   typeof stopWatchGeoLocationFnDescriptor
 >;
-export type TStopWatchGeoLocationActionType = TStopWatchGeoLocationDescription["type"];
+export type TStopWatchGeoLocationActionType =
+  TStopWatchGeoLocationDescription["type"];
 
 export async function stopWatchGeoLocation() {
   const executor = promisify(stopWatchGeoLocationFnDescriptor);
