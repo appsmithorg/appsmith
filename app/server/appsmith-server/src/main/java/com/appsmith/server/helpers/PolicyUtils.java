@@ -177,15 +177,6 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionsWithPermissionGroup(Set<AclPermission> permissions, String permissionGroupId) {
-        List<Map<String, Policy>> policyMaps = permissions.stream()
-                .map(permission -> generatePolicyFromPermissionWithPermissionGroup(permission, permissionGroupId))
-                .toList();
-        Map<String, Policy> completePolicyMap = new HashMap<>();
-        policyMaps.forEach(completePolicyMap::putAll);
-        return completePolicyMap;
-    }
-
 
     public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(Set<AclPermission> permissions, List<User> users) {
         Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());

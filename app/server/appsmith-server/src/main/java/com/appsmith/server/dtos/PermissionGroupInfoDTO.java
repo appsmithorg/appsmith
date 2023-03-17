@@ -10,7 +10,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PermissionGroupInfoDTO extends PermissionGroupInfoCE_DTO {
 
-    public PermissionGroupInfoDTO(String id, String name) {
-        super(id, name);
+    public PermissionGroupInfoDTO(String id, String name, String description) {
+        super(id, name, description);
+    }
+
+    public PermissionGroupInfoDTO(String id, String name, String description, String entityId, String entityType, String entityName) {
+        super(id, name, description, entityId, entityType, entityName);
     }
 }

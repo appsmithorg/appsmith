@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.dtos.ce.AutoCreatedRoleInfo;
 import com.appsmith.server.dtos.ce.MemberInfoCE_DTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import java.util.List;
 public class MemberInfoDTO extends MemberInfoCE_DTO {
 
     @Builder
-    public MemberInfoDTO(String userId, String username, String name, List<AutoCreatedRoleInfo> roles, String photoId) {
+    public MemberInfoDTO(String userId, String username, String name, List<PermissionGroupInfoDTO> roles, String photoId) {
         super(userId, username, name, roles, photoId);
     }
 }

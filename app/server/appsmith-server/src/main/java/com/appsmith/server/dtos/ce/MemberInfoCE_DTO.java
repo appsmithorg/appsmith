@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,6 +12,6 @@ public class MemberInfoCE_DTO {
     String userId;
     String username;
     String name;
-    List<AutoCreatedRoleInfo> roles;
+    List<PermissionGroupInfoDTO> roles;
     String photoId;
 }

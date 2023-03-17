@@ -5,6 +5,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.ce.AutoCreatedRoleInfo;
@@ -41,8 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.appsmith.server.dtos.ce.AutoCreatedRoleInfo.constructFromRole;
 
 
 @Slf4j
@@ -194,16 +193,17 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                             .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
                 });
 
-        return Mono.zip(changePermissionGroupsMono, userMono, workspaceMono)
-                .map(tuple -> {
-                    User user = tuple.getT2();
-                    AutoCreatedRoleInfo autoCreatedRoleInfo = constructFromRole(tuple.getT1());
-                    Workspace workspace = tuple.getT3();
-                    autoCreatedRoleInfo.setEntityName(workspace.getName());
+        return changePermissionGroupsMono
+                .zipWith(userMono)
+                .map(pair -> {
+                    User user = pair.getT2();
+                    PermissionGroup role = pair.getT1();
+                    PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(), role.getDescription());
+                    roleInfoDTO.setEntityType(Workspace.class.getSimpleName());
                     return MemberInfoDTO.builder()
                             .username(user.getUsername())
                             .name(user.getName())
-                            .roles(List.of(autoCreatedRoleInfo))
+                            .roles(List.of(roleInfoDTO))
                             .build();
                 });
     }
@@ -341,12 +341,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Set<String> userIds = new HashSet<>(); // Set of already collected users
         List<MemberInfoDTO> userAndGroupDTOList = new ArrayList<>();
         permissionGroupList.forEach(permissionGroup -> {
+            PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(permissionGroup.getId(), permissionGroup.getName(), permissionGroup.getDescription());
+            roleInfoDTO.setEntityType(Workspace.class.getSimpleName());
             Stream.ofNullable(permissionGroup.getAssignedToUserIds()).flatMap(Collection::stream).filter(userId -> !userIds.contains(userId)).forEach(userId -> {
                 userAndGroupDTOList.add(MemberInfoDTO.builder()
                         .userId(userId)
-                        .roles(List.of(constructFromRole(permissionGroup)))
-//                        .permissionGroupName(permissionGroup.getName())
-//                        .permissionGroupId(permissionGroup.getId())
+                        .roles(List.of(roleInfoDTO))
                         .build()); // collect user
                 userIds.add(userId); // update set of already collected users
             });

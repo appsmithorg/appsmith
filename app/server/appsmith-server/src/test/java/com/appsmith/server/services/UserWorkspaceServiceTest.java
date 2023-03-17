@@ -287,8 +287,6 @@ public class UserWorkspaceServiceTest {
                             assertEquals(developerPermissionGroup.getId(), userRole1.getRoles().get(0).getId());
                             assertEquals(developerPermissionGroup.getName(), userRole1.getRoles().get(0).getName());
                             assertEquals(Workspace.class.getSimpleName(), userRole1.getRoles().get(0).getEntityType());
-                            assertEquals(workspace.getId(), userRole1.getRoles().get(0).getEntityId());
-                            assertEquals(workspace.getName(), userRole1.getRoles().get(0).getEntityName());
                         }
                 )
                 .verifyComplete();
