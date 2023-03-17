@@ -25,6 +25,7 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import { updateApplication } from "actions/applicationActions";
+import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -35,6 +36,13 @@ export function* updateLayoutForMobileCheckpoint(
 ) {
   try {
     const start = performance.now();
+
+    //Do not recalculate columns and update layout while converting layout
+    const isCurrentlyConvertingLayout: boolean = yield select(
+      getIsCurrentlyConvertingLayout,
+    );
+    if (isCurrentlyConvertingLayout) return;
+
     const { canvasWidth, isMobile, parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
