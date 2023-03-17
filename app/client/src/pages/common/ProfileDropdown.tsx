@@ -31,7 +31,6 @@ import { get } from "lodash";
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorOnHover,
-  getMenuItemBackgroundColorWhenActive,
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
 
@@ -58,8 +57,11 @@ const StyledMenu = styled(Menu)<{
   }
 
   .bp3-popover-content > div {
-    background-color: ${({ navColorStyle, primaryColor }) =>
-      getMenuContainerBackgroundColor(primaryColor, navColorStyle)} !important;
+    background-color: ${({ primaryColor }) =>
+      getMenuContainerBackgroundColor(
+        primaryColor,
+        NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+      )} !important;
   }
 `;
 
@@ -70,54 +72,39 @@ const StyledMenuItem = styled(MenuItem)<{
   svg {
     width: 18px;
     height: 18px;
-    fill: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)} !important;
+    fill: ${({ primaryColor }) =>
+      getMenuItemTextColor(
+        primaryColor,
+        NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+        true,
+      )} !important;
 
     path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle, true)} !important;
+      fill: ${({ primaryColor }) =>
+        getMenuItemTextColor(
+          primaryColor,
+          NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+          true,
+        )} !important;
     }
   }
 
   .cs-text {
-    color: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    color: ${({ primaryColor }) =>
+      getMenuItemTextColor(
+        primaryColor,
+        NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+        true,
+      )};
     line-height: unset;
   }
 
   &:hover {
-    background-color: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-
-    svg {
-      ${({ navColorStyle, primaryColor }) => {
-        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-          return `fill: ${getMenuItemTextColor(
-            primaryColor,
-            navColorStyle,
-          )} !important;`;
-        }
-      }}
-
-      path {
-        ${({ navColorStyle, primaryColor }) => {
-          if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-            return `fill: ${getMenuItemTextColor(
-              primaryColor,
-              navColorStyle,
-            )} !important;`;
-          }
-        }}
-      }
-    }
-
-    .cs-text {
-      ${({ navColorStyle, primaryColor }) => {
-        if (navColorStyle !== NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-          return `color: ${getMenuItemTextColor(primaryColor, navColorStyle)};`;
-        }
-      }}
-    }
+    background-color: ${({ primaryColor }) =>
+      getMenuItemBackgroundColorOnHover(
+        primaryColor,
+        NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+      )};
   }
 `;
 
@@ -136,8 +123,12 @@ const UserInformation = styled.div<{
     text-overflow: ellipsis;
 
     .${Classes.TEXT} {
-      color: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle, true)};
+      color: ${({ primaryColor }) =>
+        getMenuItemTextColor(
+          primaryColor,
+          NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+          true,
+        )};
     }
   }
 
@@ -148,8 +139,12 @@ const UserInformation = styled.div<{
     text-overflow: ellipsis;
 
     .${Classes.TEXT} {
-      color: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle, true)};
+      color: ${({ primaryColor }) =>
+        getMenuItemTextColor(
+          primaryColor,
+          NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+          true,
+        )};
     }
   }
 
@@ -173,21 +168,8 @@ const StyledMenuDivider = styled(MenuDivider)<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
-  ${({ navColorStyle, primaryColor, theme }) => {
-    const isThemeColorStyle =
-      navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME;
-
-    return isThemeColorStyle
-      ? `
-        border-top: 1px solid ${getMenuItemBackgroundColorWhenActive(
-          primaryColor,
-          navColorStyle,
-        )};
-      `
-      : `
-        border-top: 1px solid ${theme.colors.header.tabsHorizontalSeparator};
-      `;
-  }}
+  ${({ theme }) =>
+    `border-top: 1px solid ${theme.colors.header.tabsHorizontalSeparator}`}
 `;
 
 export default function ProfileDropdown(props: TagProps) {

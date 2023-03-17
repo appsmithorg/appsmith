@@ -89,7 +89,6 @@ const MoreDropdownButton = ({
       borderRadius={borderRadius}
       closeOnItemClick
       isOpen={isOpen}
-      navColorStyle={navColorStyle}
       onClose={() => {
         setIsOpen(false);
       }}
@@ -112,7 +111,6 @@ const MoreDropdownButton = ({
             activeClassName="is-active"
             borderRadius={borderRadius}
             key={page.pageId}
-            navColorStyle={navColorStyle}
             primaryColor={primaryColor}
             to={{
               pathname: trimQueryString(pageURL),
