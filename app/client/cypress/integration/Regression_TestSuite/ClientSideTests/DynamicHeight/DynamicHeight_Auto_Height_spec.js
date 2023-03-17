@@ -6,7 +6,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Dynamic Height Width validation", function() {
+describe("Dynamic Height Width validation", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -14,7 +14,7 @@ describe("Dynamic Height Width validation", function() {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
-  it("Validate change with auto height width for widgets", function() {
+  it("Validate change with auto height width for widgets", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
@@ -91,7 +91,7 @@ describe("Dynamic Height Width validation", function() {
       });
   });
 
-  it("Validate container with auto height and child widgets with fixed height", function() {
+  it("Validate container with auto height and child widgets with fixed height", function () {
     cy.addDsl(cdsl);
     cy.wait(3000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");

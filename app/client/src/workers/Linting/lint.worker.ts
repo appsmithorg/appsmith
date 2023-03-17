@@ -1,13 +1,14 @@
 import { isEqual } from "lodash";
 import { WorkerErrorTypes } from "@appsmith/workers/common/types";
 import { JSLibraries, resetJSLibraries } from "workers/common/JSLibrary";
-import {
+import type {
   LintWorkerRequest,
   LintTreeResponse,
-  LINT_WORKER_ACTIONS,
   LintTreeRequest,
 } from "./types";
-import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
+import { LINT_WORKER_ACTIONS } from "./types";
+import type { TMessage } from "utils/MessageUtil";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 import { getlintErrorsFromTree } from ".";
 
 function messageEventListener(fn: typeof eventRequestHandler) {

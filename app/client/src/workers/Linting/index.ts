@@ -3,8 +3,8 @@ import {
   isJSObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { get, set } from "lodash";
-import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import { getlintErrorsFromTreeProps } from "./types";
+import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
+import type { getlintErrorsFromTreeProps } from "./types";
 import {
   getEvaluationContext,
   lintBindingPath,
@@ -46,10 +46,10 @@ export function getlintErrorsFromTree({
   bindingPaths.forEach((bindingPath) => {
     const { entityName } = getEntityNameAndPropertyPath(bindingPath);
     const entity = unEvalTree[entityName];
-    const unEvalPropertyValue = (get(
+    const unEvalPropertyValue = get(
       unEvalTree,
       bindingPath,
-    ) as unknown) as string;
+    ) as unknown as string;
     const lintErrors = lintBindingPath({
       dynamicBinding: unEvalPropertyValue,
       entity,
@@ -71,10 +71,10 @@ export function getlintErrorsFromTree({
     triggerPaths.forEach((triggerPath) => {
       const { entityName } = getEntityNameAndPropertyPath(triggerPath);
       const entity = unEvalTree[entityName];
-      const unEvalPropertyValue = (get(
+      const unEvalPropertyValue = get(
         unEvalTree,
         triggerPath,
-      ) as unknown) as string;
+      ) as unknown as string;
       // remove all lint errors from path
       set(lintTreeErrors, `["${triggerPath}"]`, []);
       const lintErrors = lintTriggerPath({

@@ -1,9 +1,7 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
-import {
-  EvaluationError,
-  PropertyEvaluationErrorCategory,
-} from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.";

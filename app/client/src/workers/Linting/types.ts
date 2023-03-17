@@ -1,12 +1,15 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import { WorkerRequest } from "@appsmith/workers/common/types";
-import { TJSPropertiesState } from "workers/common/DataTreeEvaluator";
-import {
+import type {
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeFactory";
+import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
+import type { WorkerRequest } from "@appsmith/workers/common/types";
+import type { TJSPropertiesState } from "workers/common/DataTreeEvaluator";
+import type {
   createEvaluationContext,
   EvaluationScriptType,
 } from "workers/Evaluation/evaluate";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",

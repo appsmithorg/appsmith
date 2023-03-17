@@ -1,26 +1,27 @@
-import {
+import type {
   DataTree,
   DataTreeEntity,
   UnEvalTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
-import { Position } from "codemirror";
-import {
-  DependencyMap,
-  isDynamicValue,
-  isPathADynamicBinding,
-  LintError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import type { Position } from "codemirror";
+import type { LintError } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { JSHINT as jshint, LintError as JSHintError } from "jshint";
+import { JSHINT as jshint } from "jshint";
+import type { LintError as JSHintError } from "jshint";
 import { get, isEmpty, isNil, isNumber, keys, last } from "lodash";
+import type { MemberExpressionData } from "@shared/ast";
 import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
-  MemberExpressionData,
 } from "@shared/ast";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  getDynamicBindings,
+  isDynamicValue,
+  isPathADynamicBinding,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import {
   createEvaluationContext,
   EvaluationScripts,
@@ -51,7 +52,7 @@ import {
   WARNING_LINT_ERRORS,
 } from "./constants";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import {
+import type {
   getLintingErrorsProps,
   lintBindingPathProps,
   LintTreeSagaRequestData,
@@ -59,7 +60,7 @@ import {
 } from "./types";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { Severity } from "entities/AppsmithConsole";
-import {
+import type {
   TJSFunctionPropertyState,
   TJSPropertiesState,
   TJSpropertyState,
@@ -154,10 +155,10 @@ export function pathRequiresLinting(
   fullPropertyPath: string,
 ): boolean {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-  const unEvalPropertyValue = (get(
+  const unEvalPropertyValue = get(
     dataTree,
     fullPropertyPath,
-  ) as unknown) as string;
+  ) as unknown as string;
 
   if (isATriggerPath(entity, propertyPath)) {
     return isDynamicValue(unEvalPropertyValue);
@@ -383,11 +384,12 @@ function getInvalidPropertyErrorsFromScript(
 ): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
   try {
-    invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
-      script,
-      data,
-      self.evaluationVersion,
-    );
+    invalidTopLevelMemberExpressions =
+      extractInvalidTopLevelMemberExpressionsFromCode(
+        script,
+        data,
+        self.evaluationVersion,
+      );
   } catch (e) {}
 
   const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
@@ -518,7 +520,7 @@ export function lintJSObject(
     const jsObject = data.dataWithFunctions[jsObjectName];
     const jsBodyToLint = getJSToLint(
       jsObject,
-      ((jsObject as unknown) as UnEvalTreeJSAction).body,
+      (jsObject as unknown as UnEvalTreeJSAction).body,
       "body",
     );
     const jsObjectBodyLintErrors = lintJSObjectBody(
@@ -531,9 +533,8 @@ export function lintJSObject(
   for (const jsProperty of Object.keys(jsObjectState)) {
     const jsPropertyFullName = `${jsObjectName}.${jsProperty}`;
     const jsPropertyState = jsObjectState[jsProperty];
-    const isAsyncJSFunctionBoundToSyncField = asyncJSFunctionsInSyncFields.hasOwnProperty(
-      jsPropertyFullName,
-    );
+    const isAsyncJSFunctionBoundToSyncField =
+      asyncJSFunctionsInSyncFields.hasOwnProperty(jsPropertyFullName);
     const globalData = isAsyncJSFunctionBoundToSyncField
       ? data.dataWithoutFunctions
       : data.dataWithFunctions;
@@ -607,9 +608,8 @@ export function sortLintingPathsByType(
   const jsObjectPaths = new Set<string>();
 
   for (const fullPropertyPath of pathsToLint) {
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      fullPropertyPath,
-    );
+    const { entityName, propertyPath } =
+      getEntityNameAndPropertyPath(fullPropertyPath);
     const entity = unevalTree[entityName];
 
     // We are only interested in paths that require linting
@@ -632,14 +632,14 @@ function generateAsyncFunctionBoundToDataFieldCustomError(
   jsPropertyState: TJSpropertyState,
   jsPropertyFullName: string,
 ): LintError {
-  const { propertyPath: jsPropertyName } = getEntityNameAndPropertyPath(
-    jsPropertyFullName,
-  );
-  const lintErrorMessage = CUSTOM_LINT_ERRORS.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD(
-    dataFieldBindings,
-    jsPropertyFullName,
-    (jsPropertyState as TJSFunctionPropertyState).isMarkedAsync,
-  );
+  const { propertyPath: jsPropertyName } =
+    getEntityNameAndPropertyPath(jsPropertyFullName);
+  const lintErrorMessage =
+    CUSTOM_LINT_ERRORS.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD(
+      dataFieldBindings,
+      jsPropertyFullName,
+      (jsPropertyState as TJSFunctionPropertyState).isMarkedAsync,
+    );
 
   return {
     errorType: PropertyEvaluationErrorType.LINT,

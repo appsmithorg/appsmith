@@ -6,7 +6,7 @@ import { tailwindLayers } from "constants/Layers";
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";

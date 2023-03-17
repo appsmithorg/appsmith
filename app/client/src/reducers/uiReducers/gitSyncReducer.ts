@@ -1,12 +1,13 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
-import { PageDefaultMeta } from "api/ApplicationApi";
+import type { GitConfig, MergeStatus } from "entities/GitSync";
+import { GitSyncModalTab } from "entities/GitSync";
+import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import type { PageDefaultMeta } from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,

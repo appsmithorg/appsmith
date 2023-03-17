@@ -1,7 +1,7 @@
 import homePage from "../../../../locators/HomePage";
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 
-describe("Workspace Import Application", function() {
+describe("Workspace Import Application", function () {
   let workspaceId;
   let newWorkspaceName;
   let appname;
@@ -10,19 +10,15 @@ describe("Workspace Import Application", function() {
     cy.addDsl(dsl);
   });
 
-  it("Can Import Application from json", function() {
+  it("Can Import Application from json", function () {
     cy.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.searchInput).clear();
     cy.get(`a[id=t--export-app-link]`).then((anchor) => {

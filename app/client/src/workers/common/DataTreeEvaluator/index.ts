@@ -1,9 +1,11 @@
-import {
+import type {
   DataTreeEvaluationProps,
   DependencyMap,
   EvalError,
-  EvalErrorTypes,
   EvaluationError,
+} from "utils/DynamicBindingUtils";
+import {
+  EvalErrorTypes,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEntityId,
@@ -16,22 +18,23 @@ import {
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import {
+import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
-  EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE, PrivateWidgets } from "entities/DataTree/types";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { PrivateWidgets } from "entities/DataTree/types";
+import { ENTITY_TYPE } from "entities/DataTree/types";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
   convertPathToString,
   CrashingError,
-  DataTreeDiff,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   isAction,
@@ -59,7 +62,8 @@ import {
   unset,
 } from "lodash";
 
-import { applyChange, Diff, diff } from "deep-diff";
+import type { Diff } from "deep-diff";
+import { applyChange, diff } from "deep-diff";
 import toposort from "toposort";
 import {
   EXECUTION_PARAM_KEY,
@@ -67,22 +71,19 @@ import {
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluateSync, {
-  EvalResult,
-  EvaluateContext,
-  evaluateAsync,
-} from "workers/Evaluation/evaluate";
+import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
+import evaluateSync, { evaluateAsync } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
-import { JSUpdate } from "utils/JSPaneUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
 
-import {
+import type {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
   createDependencyMap,
@@ -100,7 +101,7 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import { JSPropertyPosition } from "@shared/ast";
+import type { JSPropertyPosition } from "@shared/ast";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJsFunctionInDataField";
@@ -201,9 +202,7 @@ export default class DataTreeEvaluator {
    * Method to create all data required for linting and
    * evaluation of the first tree
    */
-  setupFirstTree(
-    unEvalTree: DataTree,
-  ): {
+  setupFirstTree(unEvalTree: DataTree): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
     lintOrder: string[];
@@ -370,9 +369,7 @@ export default class DataTreeEvaluator {
    * evaluation of the updated tree
    */
 
-  setupUpdateTree(
-    unEvalTree: DataTree,
-  ): {
+  setupUpdateTree(unEvalTree: DataTree): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
     lintOrder: string[];
@@ -733,19 +730,14 @@ export default class DataTreeEvaluator {
     const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
-    const {
-      isFirstTree,
-      metaWidgets,
-      skipRevalidation,
-      unevalUpdates,
-    } = options;
+    const { isFirstTree, metaWidgets, skipRevalidation, unevalUpdates } =
+      options;
     let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
-          const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-            fullPropertyPath,
-          );
+          const { entityName, propertyPath } =
+            getEntityNameAndPropertyPath(fullPropertyPath);
           const entity = currentTree[entityName] as
             | DataTreeWidget
             | DataTreeAction;
@@ -1032,9 +1024,10 @@ export default class DataTreeEvaluator {
           if (fullPropertyPath && evalErrors.length) {
             //modify
             if (isDataField(fullPropertyPath, data)) {
-              const asyncFunctionBindingInPath = asyncJsFunctionInDataFields.getAsyncFunctionBindingInDataField(
-                fullPropertyPath,
-              );
+              const asyncFunctionBindingInPath =
+                asyncJsFunctionInDataFields.getAsyncFunctionBindingInDataField(
+                  fullPropertyPath,
+                );
               if (asyncFunctionBindingInPath) {
                 pathErrors = errorModifier.modifyAsyncInvocationErrors(
                   evalErrors,
@@ -1198,9 +1191,8 @@ export default class DataTreeEvaluator {
     currentTree: DataTree;
   }) {
     if (this.inverseValidationDependencyMap[fullPropertyPath]) {
-      const pathsToRevalidate = this.inverseValidationDependencyMap[
-        fullPropertyPath
-      ];
+      const pathsToRevalidate =
+        this.inverseValidationDependencyMap[fullPropertyPath];
       pathsToRevalidate.forEach((fullPath) => {
         validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
@@ -1208,10 +1200,10 @@ export default class DataTreeEvaluator {
           currentTree,
           // we supply non-transformed evaluated value
           evalPropertyValue: get(this.getUnParsedEvalTree(), fullPath),
-          unEvalPropertyValue: (get(
+          unEvalPropertyValue: get(
             this.oldUnEvalTree,
             fullPath,
-          ) as unknown) as string,
+          ) as unknown as string,
           evalProps: this.evalProps,
         });
       });
@@ -1223,9 +1215,8 @@ export default class DataTreeEvaluator {
     currentTree: DataTree,
   ) {
     nonDynamicFieldValidationOrder.forEach((fullPropertyPath) => {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        fullPropertyPath,
-      );
+      const { entityName, propertyPath } =
+        getEntityNameAndPropertyPath(fullPropertyPath);
       const entity = currentTree[entityName];
       if (isWidget(entity) && !isPathDynamicTrigger(entity, propertyPath)) {
         this.reValidateWidgetDependentProperty({
@@ -1338,9 +1329,8 @@ export default class DataTreeEvaluator {
         }
         let entityDynamicBindingPaths: string[] = [];
         if (isAction(entity)) {
-          const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
-            entity,
-          );
+          const entityDynamicBindingPathList =
+            getEntityDynamicBindingPathList(entity);
           entityDynamicBindingPaths = entityDynamicBindingPathList.map(
             (path) => {
               return path.key;

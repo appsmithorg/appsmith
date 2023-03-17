@@ -1,7 +1,7 @@
 const dsl = require("../../../fixtures/TabWidgetDsl.json");
 
-describe("Tab widget", function() {
-  it("Movement of tabs inside Tab widget ", function() {
+describe("Tab widget", function () {
+  it("Movement of tabs inside Tab widget ", function () {
     // Drag and drop the Tab widget
     // click on "Add a Tab"
     // Add multiple Tabs
@@ -9,7 +9,7 @@ describe("Tab widget", function() {
     // and observe if the tab are moved in the same
   });
 
-  it(" Deletion of Tabs and adding them back with Undo", function() {
+  it(" Deletion of Tabs and adding them back with Undo", function () {
     // Drag and drop the Tab widget
     // click on "Add a Tab"
     // Add multiple Tabs
@@ -21,7 +21,7 @@ describe("Tab widget", function() {
     //and observe that the Tab is added back
   });
 
-  it("Test Ideas for testing the Visible option for tabs ", function() {
+  it("Test Ideas for testing the Visible option for tabs ", function () {
     // Drag and drop the Tab widget
     // click on "Add a Tab"
     // Click on Property pane of the tab widget
@@ -38,7 +38,7 @@ describe("Tab widget", function() {
     // Now observe the Tab must be visible and normal
   });
 
-  it("Test Ideas for testing the Show Tabs Feature ", function() {
+  it("Test Ideas for testing the Show Tabs Feature ", function () {
     // Drag and drop the Tab widget
     // Click on Property pane of the tab widget
     // Scroll down to Show Tabs option
@@ -53,7 +53,7 @@ describe("Tab widget", function() {
     // Now observe the Tab must be visible
   });
 
-  it("Adding multiple widgets inside the Tab widget", function() {
+  it("Adding multiple widgets inside the Tab widget", function () {
     // Drag and drop the Tab widget
     // Ensure default 2 Tabs are dispalyed to user
     // Add date picker, Text and Button into Tab1
@@ -63,7 +63,7 @@ describe("Tab widget", function() {
     // Ensure the Tab widget with widgets are displayed to user
   });
 
-  it("Adding action while changing the Tab ", function() {
+  it("Adding action while changing the Tab ", function () {
     // Drag and drop the Tab widget
     // Click on Property pane of the tab widget
     // Navigate to Action section
@@ -74,7 +74,7 @@ describe("Tab widget", function() {
     // and observe the modal pop up is displayed to user
   });
 
-  it("Binding the Tab to widget ", function() {
+  it("Binding the Tab to widget ", function () {
     // Drag and drop the Tab widget
     // Click on Property pane of the tab widget
     // Navigate to control pane

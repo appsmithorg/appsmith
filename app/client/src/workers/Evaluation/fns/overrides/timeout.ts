@@ -8,7 +8,7 @@ const _internalClearTimeout = self.clearTimeout;
 function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
   return _internalSetTimeout(
-    function(...args: any) {
+    function (...args: any) {
       const evalContext = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},

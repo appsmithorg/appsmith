@@ -19,15 +19,15 @@ describe("getParsedText", () => {
 
     expect(text).toBe(null);
 
-    text = getParsedText((undefined as unknown) as string, InputTypes.NUMBER);
+    text = getParsedText(undefined as unknown as string, InputTypes.NUMBER);
 
     expect(text).toBe(null);
 
-    text = getParsedText((null as unknown) as string, InputTypes.NUMBER);
+    text = getParsedText(null as unknown as string, InputTypes.NUMBER);
 
     expect(text).toBe(null);
 
-    text = getParsedText((1 as unknown) as string, InputTypes.NUMBER);
+    text = getParsedText(1 as unknown as string, InputTypes.NUMBER);
 
     expect(text).toBe(1);
 
