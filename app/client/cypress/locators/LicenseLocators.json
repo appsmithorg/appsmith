@@ -23,5 +23,6 @@
   "alreadyUpgraded": "[data-testid=t--already-upgraded]",
   "licenseRefreshBtn": "[data-testid=t--license-refresh-btn]",
   "warningBanner": ".trial-warning-banner",
-  "welcomeBanner": "[data-testid=t--welcome-banner]"
+  "welcomeBanner": "[data-testid=t--welcome-banner]",
+  "wrapperBanner": ".wrapper-banner"
 }

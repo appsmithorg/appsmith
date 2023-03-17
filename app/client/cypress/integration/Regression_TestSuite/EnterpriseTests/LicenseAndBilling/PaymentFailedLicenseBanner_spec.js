@@ -1,7 +1,7 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 
-describe("Payment Failed License Banner", function () {
-  it("1. should show payment failure banner for tenants with payment failure", function () {
+describe("Payment Failed License Banner", function() {
+  it("1. should show payment failure banner for tenants with payment failure", function() {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "PAID",
@@ -13,7 +13,7 @@ describe("Payment Failed License Banner", function () {
     cy.get(LicenseLocators.warningBanner).should("be.visible");
   });
 
-  it("2. should show payment failure banner for tenants with payment failure with red color for less than 3 days", function () {
+  it("2. should show payment failure banner for tenants with payment failure with red color for less than 3 days", function() {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "PAID",
@@ -42,16 +42,17 @@ describe("Payment Failed License Banner", function () {
     cy.get(LicenseLocators.warningBanner).should("not.exist");
   });
 
-  it("4. should not show payment failure banner for tenants with payment failure for non admin users", function () {
+  it("4. should not show payment failure banner for tenants with payment failure for non admin users", function() {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "PAID",
       licenseStatus: "IN_GRACE_PERIOD",
     });
-    cy.LogOut();
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.visit("/applications");
+    cy.reload();
     cy.wait(2000);
-    cy.get(LicenseLocators.warningBanner).should("not.exist");
+    cy.get(LicenseLocators.wrapperBanner).should("not.exist");
   });
 });
