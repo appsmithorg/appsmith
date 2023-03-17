@@ -32,20 +32,17 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "Table Name",
     });
     _.dataSources.RunQuery(false);
-    _.agHelper.Sleep();
-    cy.wait("@postExecute").then((response: any) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
       jsonSpecies.records.forEach((record: { fields: any }) => {
-        specieslist.push(record.fields);
+        specieslist.push(record.fields.Species_ID);
       });
-      //cy.log("jsonSpecies is" + specieslist);
       expect(specieslist.length).eq(54); //making sure all fields are returned
     });
 
     //Filter by Species_ID, Species field only
     const allowedFields = ["Species_ID", "Species"];
-
     _.agHelper.EnterValue("fields%5B%5D=Species_ID&fields%5B%5D=Species", {
       propFieldName: "",
       directInput: false,
@@ -54,7 +51,7 @@ describe("Validate Airtable Ds", () => {
 
     _.dataSources.RunQuery(false);
     _.agHelper.Sleep(2500); // for query to run complete
-    cy.wait("@postExecute").then((response: any) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
       const isValid = jsonSpecies.records.every((record: any) => {
@@ -77,7 +74,7 @@ describe("Validate Airtable Ds", () => {
     });
     _.dataSources.RunQuery(false);
     _.agHelper.Sleep(2500); // for query to run complete
-    cy.wait("@postExecute").then((response: any) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
       expect(jsonSpecies.records.length).to.eq(10); //making sure only 10 record fields are returned
@@ -91,14 +88,14 @@ describe("Validate Airtable Ds", () => {
     });
     _.dataSources.RunQuery(false);
     _.agHelper.Sleep(); // for query to run complete
-    cy.wait("@postExecute").then((response: any) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
       expect(jsonSpecies.records.length).to.eq(5); //making sure only 5 record fields are returned, honouring the PageSize
     });
 
     //Validate Sort - asc
-    specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
+    let asc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
     _.agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
@@ -112,30 +109,31 @@ describe("Validate Airtable Ds", () => {
 
     _.dataSources.RunQuery(false);
     _.agHelper.Sleep(2500); // for query to run complete
-    cy.wait("@postExecute").then((response: any) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
       const sorted = jsonSpecies.records.every(
         (record: { fields: { Species_ID: string } }, i: number) => {
-          specieslist.push(record.fields.Species_ID);
-          if (i === 0) return true;
-          return (
+          if (i === 0) {
+            asc_specieslist.push(record.fields.Species_ID);
+            return true;
+          }
+          if (
             record.fields.Species_ID >=
             jsonSpecies.records[i - 1].fields.Species_ID
-          );
-          // if (record.fields.Species_ID < jsonSpecies.records[i-1].fields.Species_ID) {
-          //   //console.log(`Species_ID ${record.fields.Species_ID} is less than ${jsonSpecies.records[i-1].fields.Species_ID}`);
-          //   return false;
-          // }
-          // return true;
+          ) {
+            asc_specieslist.push(record.fields.Species_ID);
+            return true;
+          }
+          return false;
         },
       );
-      cy.log("Sorted specieslist is" + specieslist);
+      cy.log("Sorted specieslist is :" + asc_specieslist);
       expect(sorted).to.be.true; //making records returned are Sorted by Species_ID - in ascending
     });
 
     //Validate Sort - desc
-    specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
+    let desc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
     _.agHelper.EnterValue(
       "sort%5B0%5D%5Bfield%5D=Species_ID&sort%5B0%5D%5Bdirection%5D=desc",
       {
@@ -147,23 +145,41 @@ describe("Validate Airtable Ds", () => {
 
     _.dataSources.RunQuery(false);
     _.agHelper.Sleep(3000); // for query to run complete
-    cy.wait("@postExecute").then((response: any) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
       const sorted = jsonSpecies.records.every(
         (record: { fields: { Species_ID: string } }, i: number) => {
-          specieslist.push(record.fields.Species_ID);
-          if (i === 0) return true;
-          return (
+          if (i === 0) {
+            desc_specieslist.push(record.fields.Species_ID);
+            return true;
+          }
+          if (
             record.fields.Species_ID <=
             jsonSpecies.records[i - 1].fields.Species_ID
-          );
+          ) {
+            desc_specieslist.push(record.fields.Species_ID);
+            return true;
+          }
+          return false;
         },
       );
-      cy.log("Desc Sorted specieslist is" + specieslist);
+      cy.log("Desc Sorted specieslist is :" + desc_specieslist);
       expect(sorted).to.be.true; //making records returned are Sorted by Species_ID - in descending
     });
+    _.agHelper.ActionContextMenuWithInPane("Delete");
+
   });
 
   it("2. Validate sorting, pagination etc", () => {});
+
+  after("Delete the datasource", () => {
+    _.entityExplorer.SelectEntityByName(dsName, "Datasources");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      dsName,
+      "Delete",
+      "Are you sure?",
+    );
+    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+  });
 });
