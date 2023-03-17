@@ -1,8 +1,6 @@
 import { Severity } from "entities/AppsmithConsole";
-import {
-  LintError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { CODE_EDITOR_START_POSITION } from "./constants";
 import {
   getKeyPositionInString,
@@ -11,7 +9,7 @@ import {
   getFirstNonEmptyPosition,
 } from "./lintHelpers";
 
-describe("getAllWordOccurences()", function() {
+describe("getAllWordOccurences()", function () {
   it("should get all the indexes", () => {
     const res = getAllWordOccurrences("this is a `this` string", "this");
     expect(res).toEqual([0, 11]);
@@ -48,8 +46,7 @@ describe("getLintAnnotations()", () => {
     const errors1: LintError[] = [
       {
         errorType: LINT,
-        raw:
-          "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
+        raw: "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
         errorMessage: {
           name: "LintingError",
@@ -64,8 +61,7 @@ describe("getLintAnnotations()", () => {
       },
       {
         errorType: LINT,
-        raw:
-          "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
+        raw: "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
         errorMessage: {
           name: "LintingError",
@@ -84,8 +80,7 @@ describe("getLintAnnotations()", () => {
           message: "'test' is not defined.",
         },
         severity: WARNING,
-        raw:
-          "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
+        raw: "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         errorType: LINT,
         originalBinding: " world == test ",
         errorSegment: "    const result =  world == test ",
@@ -141,8 +136,7 @@ describe("getLintAnnotations()", () => {
     const errors2: LintError[] = [
       {
         errorType: LINT,
-        raw:
-          "\n  function closedFunction () {\n    const result = hss\n    return result;\n  }\n  closedFunction.call(THIS_CONTEXT)\n  ",
+        raw: "\n  function closedFunction () {\n    const result = hss\n    return result;\n  }\n  closedFunction.call(THIS_CONTEXT)\n  ",
         severity: ERROR,
         errorMessage: {
           name: "LintingError",
@@ -180,8 +174,7 @@ describe("getLintAnnotations()", () => {
     const errors: LintError[] = [
       {
         errorType: LINT,
-        raw:
-          "\n  function closedFunction () {\n    const result =  world\n\n    return result;\n  }\n  closedFunction()\n  ",
+        raw: "\n  function closedFunction () {\n    const result =  world\n\n    return result;\n  }\n  closedFunction()\n  ",
         severity: ERROR,
         errorMessage: {
           name: "LintingError",

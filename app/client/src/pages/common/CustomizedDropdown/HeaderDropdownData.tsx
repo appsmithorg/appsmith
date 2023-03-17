@@ -1,8 +1,8 @@
 import { Directions } from "utils/helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
-import { CustomizedDropdownProps } from "./index";
-import { User } from "constants/userConstants";
+import type { CustomizedDropdownProps } from "./index";
+import type { User } from "constants/userConstants";
 
 export const options = (
   user: User,

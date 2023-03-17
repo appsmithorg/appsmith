@@ -3,7 +3,7 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const dsl = require("../../../../fixtures/noiseDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("MySQL noise test", function() {
+describe("MySQL noise test", function () {
   let datasourceName;
 
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe("MySQL noise test", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Verify after killing MySQL session, app should not crash", function() {
+  it("Verify after killing MySQL session, app should not crash", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasourceEditor.MySQL).click();
     cy.generateUUID().then((uid) => {

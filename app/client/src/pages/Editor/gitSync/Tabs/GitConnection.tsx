@@ -474,10 +474,7 @@ function GitConnection({ isImport }: Props) {
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => {
                   generateSSHKey(
-                    remoteUrl
-                      .toString()
-                      .toLocaleLowerCase()
-                      .includes("azure")
+                    remoteUrl.toString().toLocaleLowerCase().includes("azure")
                       ? "RSA"
                       : "ECDSA",
                   );

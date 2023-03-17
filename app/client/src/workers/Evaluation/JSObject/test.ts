@@ -1,13 +1,12 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from ".";
 
-describe("updateJSCollectionInUnEvalTree", function() {
+describe("updateJSCollectionInUnEvalTree", function () {
   it("updates async value of jsAction", () => {
     const jsUpdates = {
       JSObject1: {
         parsedBody: {
-          body:
-            "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
+          body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
           actions: [
             {
               name: "myFun1",
@@ -94,16 +93,15 @@ describe("updateJSCollectionInUnEvalTree", function() {
       myVar2: "{}",
       myFun1: new String("() => {}"),
       myFun2: new String("async () => {\n  yeso;\n}"),
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
     };
     (JSObject1["myFun1"] as any).data = {};
     (JSObject1["myFun2"] as any).data = {};
     Object.setPrototypeOf(JSObject1, JSObject1Prototype);
-    const localUnEvalTree = ({
+    const localUnEvalTree = {
       JSObject1,
-    } as unknown) as DataTree;
+    } as unknown as DataTree;
 
     const actualResult = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -168,8 +166,7 @@ describe("updateJSCollectionInUnEvalTree", function() {
       myVar2: "{}",
       myFun1: new String("() => {}"),
       myFun2: new String("() => {\n  yeso;\n}"),
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
       variables: ["myVar1", "myVar2"],
     };

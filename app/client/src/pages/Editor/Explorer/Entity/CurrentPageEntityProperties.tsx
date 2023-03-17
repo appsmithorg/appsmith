@@ -1,15 +1,14 @@
 import React, { memo, useEffect } from "react";
-import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
+import type { EntityPropertyProps } from "./EntityProperty";
+import EntityProperty from "./EntityProperty";
 import { isFunction } from "lodash";
-import {
-  entityDefinitions,
-  EntityDefinitionsOptions,
-} from "@appsmith/utils/autocomplete/EntityDefinitions";
-import {
-  ENTITY_TYPE,
+import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import type {
   DataTreeAction,
   DataTree,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {

@@ -17,7 +17,8 @@ export const getViewerCustomPath = (customSlug: string, pageId: string) =>
   `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
 export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
-export const VIEWER_PATH_DEPRECATED_REGEX = /\/applications\/[^/]+\/pages\/[^/]+/;
+export const VIEWER_PATH_DEPRECATED_REGEX =
+  /\/applications\/[^/]+\/pages\/[^/]+/;
 
 export const VIEWER_FORK_PATH = `/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;

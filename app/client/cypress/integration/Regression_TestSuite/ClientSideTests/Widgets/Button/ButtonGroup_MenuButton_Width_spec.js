@@ -1,6 +1,6 @@
 const dsl = require("../../../../../fixtures/ButtonGroup_MenuButton_Width_dsl.json");
 
-describe("In a button group widget, menu button width", function() {
+describe("In a button group widget, menu button width", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -88,9 +88,7 @@ describe("In a button group widget, menu button width", function() {
     const widgetId = "t5l24fccio";
     cy.get(".t--property-pane-back-btn").click();
     // Change the first button text
-    cy.get(".t--property-control-buttons input")
-      .first()
-      .type("increase width");
+    cy.get(".t--property-control-buttons input").first().type("increase width");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

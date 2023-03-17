@@ -41,13 +41,11 @@ import {
   getWorkspaceIdForImport,
   getUserApplicationsWorkspaces,
 } from "selectors/applicationSelectors";
-import {
-  ApplicationPayload,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import InfoWrapper from "./components/InfoWrapper";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 600px;

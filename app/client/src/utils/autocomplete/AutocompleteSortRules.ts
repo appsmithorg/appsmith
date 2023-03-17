@@ -1,10 +1,12 @@
-import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { DataTreeFunctionSortOrder, PriorityOrder } from "./dataTypeSortRules";
+import type {
+  Completion,
+  DataTreeDefEntityInformation,
+} from "./CodemirrorTernService";
 import {
   AutocompleteDataType,
-  Completion,
   createCompletionHeader,
-  DataTreeDefEntityInformation,
 } from "./CodemirrorTernService";
 
 interface AutocompleteRule {

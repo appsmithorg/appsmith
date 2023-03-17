@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { defaultOptionValueValidation, MultiSelectWidgetProps } from ".";
+import type { MultiSelectWidgetProps } from ".";
+import { defaultOptionValueValidation } from ".";
 
 const props = {
   serverSideFiltering: false,
