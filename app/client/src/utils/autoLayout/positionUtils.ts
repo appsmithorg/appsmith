@@ -28,6 +28,7 @@ import {
   setDimensions,
 } from "./flexWidgetUtils";
 import { getCanvasDimensions } from "./AutoLayoutUtils";
+import WidgetFactory from "utils/WidgetFactory";
 
 /**
  * Calculate widget position on canvas.
@@ -315,12 +316,32 @@ export function extractAlignmentInfo(
       widget,
       mainCanvasWidth,
     );
+
+    const width = columns * columnSpace;
     // If the widget's width is less than its min width, then calculate the number of columns based on min width.
-    if (minWidth && columns * columnSpace < minWidth) {
+    if (minWidth && width < minWidth) {
       columns = minWidth / columnSpace;
     }
 
     const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
+    const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+      widget.type,
+    );
+
+    // For hug widgets with horizontal resizing enabled,
+    // make sure the width is not getting greater than user defined width
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (
+        widget.widthInPixel &&
+        width > widget.widthInPixel
+        // &&
+        // minWidth &&
+        // widget.widthInPixel < minWidth
+      ) {
+        columns = widget.widthInPixel / columnSpace;
+      }
+    }
+
     // Store the min columns and rows information of each fill widget.
     if (isFillWidget)
       fillChildren.push({

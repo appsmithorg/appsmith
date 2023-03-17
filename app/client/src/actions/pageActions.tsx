@@ -256,6 +256,7 @@ export type WidgetAddChild = {
   tabId: string;
   props?: Record<string, any>;
   dynamicBindingPathList?: DynamicPath[];
+  widthInPixel?: number;
 };
 
 export type WidgetRemoveChild = {
