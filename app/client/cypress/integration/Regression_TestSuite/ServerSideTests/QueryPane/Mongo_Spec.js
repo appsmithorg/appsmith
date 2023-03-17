@@ -416,9 +416,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Insert Document(s)",
     );
 
-    let nonAsciiDoc = `[{"_id":1, "Från" :"Raksha" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Basilika - Thai 'Siam Qu_.entityExplorern'"},
-    {"_id":2, "Från" :"Vivek" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
-    {"_id":3, "Från" :"Prapulla" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
+    let nonAsciiDoc = `[{"_id":1, "Från" :"Alen" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Basilika - Thai 'Siam Qu_.entityExplorern'"},
+    {"_id":2, "Från" :"Joann" , "Frõ" :"Active",   "Leverantör":"De Bolster",   "Frö":"Sallad - Oakleaf 'Salad Bowl'"},
+    {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
     _.agHelper.EnterValue("NonAsciiTest", {
       propFieldName: "",
@@ -580,7 +580,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Raw",
     );
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
-    _.dataSources.RunQuery();
+    cy.wait(1000); //Waiting a bit before runing the command
+    _.dataSources.RunQuery(true, true, 2000);
     cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");

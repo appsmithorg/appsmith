@@ -34,6 +34,7 @@ export SECRET=ee"$PULL_REQUEST_NUMBER"
 export DBNAME=ee"$PULL_REQUEST_NUMBER"
 export DOMAINNAME=ee-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 
+
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
 export HELMCHART_VERSION="2.0.0"

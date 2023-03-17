@@ -1,12 +1,21 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
+import { WIDGET } from "../../locators/WidgetLocators";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
+  MsSql: "Microsoft SQL Server",
 }; //DataSources KeyValuePair
+
+export enum Widgets {
+  Dropdown,
+  Table,
+  Chart,
+  Text,
+}
 
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -125,7 +134,8 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  public _urlInputControl = "input[name='url']";
+  private _suggestedWidget = (widgetType: string) =>
+    ".t--suggested-widget-" + widgetType + "";
 
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
@@ -147,13 +157,11 @@ export class DataSources {
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
+  public _urlInputControl = "input[name='url']";
 
-  public AssertViewMode() {
-    this.agHelper.AssertElementExist(this._editButton);
-  }
-
-  public AssertEditMode() {
-    this.agHelper.AssertElementAbsence(this._editButton);
+  public AssertDSEditViewMode(mode: "Edit" | "View") {
+    if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
+    else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
   }
 
   public GeneratePageWithMockDB() {
@@ -373,6 +381,31 @@ export class DataSources {
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
+  }
+
+  public FillMsSqlDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["mssql-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["mssql-port"].toString(),
+    );
+    this.agHelper.ClearTextField(this._databaseName);
+    // this.agHelper.UpdateInputValue(
+    //   this._databaseName,
+    //   datasourceFormData["mssql-databaseName"],
+    // ); //Commenting until MsSQL is init loaded into container
+    this.ExpandSectionByName(this._sectionAuthentication);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["mssql-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["mssql-password"],
+    );
   }
 
   public FillFirestoreDSForm() {
@@ -684,7 +717,7 @@ export class DataSources {
   }
 
   public CreateDataSource(
-    dsType: "Postgres" | "Mongo" | "MySql" | "UnAuthenticatedGraphQL",
+    dsType: "Postgres" | "Mongo" | "MySql" | "UnAuthenticatedGraphQL" | "MsSql",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -702,6 +735,8 @@ export class DataSources {
         if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
         else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
+        else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
+          this.FillMsSqlDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -854,8 +889,10 @@ export class DataSources {
   }
 
   public FillAuthAPIUrl() {
-    const URL = datasourceFormData["authenticatedApiUrl"];
-    this.agHelper.TypeText(this._urlInputControl, URL);
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("URL"),
+      datasourceFormData.authenticatedApiUrl,
+    );
   }
 
   public AssertCursorPositionForTextInput(
@@ -864,10 +901,8 @@ export class DataSources {
     typeText = "as",
     cursorPosition = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator
+    this.agHelper
+      .GetElement(selector)
       .type(moveCursor)
       .type(typeText)
       .should("have.prop", "selectionStart", cursorPosition);
@@ -1006,5 +1041,34 @@ export class DataSources {
       this.locator._inputFieldByName("Authorization URL"),
       datasourceFormData["OAuth_AuthUrl"],
     );
+  }
+
+  public AddSuggesstedWidget(widget: Widgets) {
+    switch (widget) {
+      case Widgets.Dropdown:
+        this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.SELECT),
+        );
+        break;
+      case Widgets.Table:
+        this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.TABLE),
+        );
+        break;
+      case Widgets.Chart:
+        this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.CHART),
+        );
+        break;
+      case Widgets.Text:
+        this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
+        this.agHelper.AssertElementVisible(
+          this.locator._widgetInCanvas(WIDGET.TEXT),
+        );
+        break;
+    }
   }
 }
