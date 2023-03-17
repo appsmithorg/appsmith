@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { getTypographyByKey } from "design-system-old";
 import { Button } from "design-system";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
@@ -11,7 +11,7 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
@@ -20,8 +20,8 @@ const StyledDiv = styled.div`
   ${getTypographyByKey("p1")}
   background-color: ${(props) =>
     props.theme.colors.propertyPane.ctaBackgroundColor};
-  padding: ${(props) => props.theme.spaces[3]}px ${(props) =>
-  props.theme.spaces[7]}px;
+  padding: ${(props) => props.theme.spaces[3]}px
+    ${(props) => props.theme.spaces[7]}px;
   margin: ${(props) => props.theme.spaces[2]}px 0.75rem;
 
   button:first-child {
@@ -38,7 +38,8 @@ const StyledDiv = styled.div`
     ${getTypographyByKey("p3")}
     margin-top: ${(props) => props.theme.spaces[2]}px;
 
-    :hover, :focus {
+    :hover,
+    :focus {
       text-decoration: underline;
     }
   }

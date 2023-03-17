@@ -288,10 +288,8 @@ export default function QuickGitActions() {
   const gitStatus = useSelector(getGitStatus);
   const pullFailed = useSelector(getPullFailed);
 
-  const {
-    disabled: pullDisabled,
-    message: pullTooltipMessage,
-  } = getPullBtnStatus(gitStatus, !!pullFailed);
+  const { disabled: pullDisabled, message: pullTooltipMessage } =
+    getPullBtnStatus(gitStatus, !!pullFailed);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);

@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
-import { DebouncedFunc } from "lodash";
-import {
-  Menu,
-  MenuItem,
-  MenuItemProps,
-  SearchVariant,
-} from "design-system-old";
+import type { DebouncedFunc } from "lodash";
+import type { MenuItemProps } from "design-system-old";
+import { Menu, MenuItem, SearchVariant } from "design-system-old";
 import { Button } from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {

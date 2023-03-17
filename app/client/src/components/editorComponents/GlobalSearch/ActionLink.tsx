@@ -2,7 +2,7 @@ import React from "react";
 import { useContext } from "react";
 import styled from "styled-components";
 import SearchContext from "./GlobalSearchContext";
-import { SearchItem } from "./utils";
+import type { SearchItem } from "./utils";
 import { Button } from "design-system";
 
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`

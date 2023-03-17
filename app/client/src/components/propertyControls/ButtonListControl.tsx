@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
@@ -185,8 +186,8 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
-        buttonColor: this.props.widgetProperties.childStylesheet.button
-          .buttonColor,
+        buttonColor:
+          this.props.widgetProperties.childStylesheet.button.buttonColor,
       },
     };
 

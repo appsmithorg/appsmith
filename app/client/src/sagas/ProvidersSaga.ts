@@ -6,15 +6,17 @@ import {
   select,
   debounce,
 } from "redux-saga/effects";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
+import type {
   ReduxActionWithPromise,
   ReduxAction,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
-import ProvidersApi, {
+import type {
   FetchProviderTemplateResponse,
   FetchProviderTemplatesRequest,
   AddApiToPageRequest,
@@ -24,8 +26,9 @@ import ProvidersApi, {
   FetchProviderDetailsByProviderIdRequest,
   FetchProviderDetailsResponse,
 } from "api/ProvidersApi";
-import { Providers } from "constants/providerConstants";
-import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
+import ProvidersApi from "api/ProvidersApi";
+import type { Providers } from "constants/providerConstants";
+import type { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { fetchActions } from "actions/pluginActionActions";
 import {
   getCurrentApplicationId,
@@ -46,9 +49,8 @@ export function* fetchProviderTemplatesSaga(
   try {
     const request: FetchProviderTemplatesRequest = { providerId };
 
-    const response: FetchProviderTemplateResponse = yield ProvidersApi.fetchProviderTemplates(
-      request,
-    );
+    const response: FetchProviderTemplateResponse =
+      yield ProvidersApi.fetchProviderTemplates(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -77,9 +79,8 @@ export function* addApiToPageSaga(
     workspaceId,
   };
   try {
-    const response: FetchProviderTemplateResponse = yield ProvidersApi.addApiToPage(
-      request,
-    );
+    const response: FetchProviderTemplateResponse =
+      yield ProvidersApi.addApiToPage(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -176,9 +177,8 @@ export function* fetchProviderDetailsByProviderIdSaga(
   try {
     const request: FetchProviderDetailsByProviderIdRequest = { providerId };
 
-    const response: FetchProviderDetailsResponse = yield ProvidersApi.fetchProviderDetailsByProviderId(
-      request,
-    );
+    const response: FetchProviderDetailsResponse =
+      yield ProvidersApi.fetchProviderDetailsByProviderId(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 

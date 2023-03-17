@@ -8,11 +8,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button } from "design-system";
-import { Message } from "entities/AppsmithConsole";
+import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const Wrapper = styled.div`
   display: flex;

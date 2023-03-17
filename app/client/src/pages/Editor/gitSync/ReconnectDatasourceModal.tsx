@@ -51,7 +51,8 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
-import { AuthType, Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
+import { AuthType } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";

@@ -27,21 +27,33 @@ describe("Mongo Form to Native conversion works", () => {
       formControls.mongoFindProjection,
     );
 
-    _.dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Find Document(s)",
+      "Raw",
+    );
 
     _.agHelper.VerifyCodeInputValue(formControls.rawBody, expectedOutput);
 
     // then we test to check if the conversion is only done once.
     // and then we ensure that upon switching between another command and Raw, the Template menu does not show up.
 
-    _.dataSources.ValidateNSelectDropdown("Commands", "Raw", "Find Document(s)");
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Raw",
+      "Find Document(s)",
+    );
 
     _.agHelper.TypeDynamicInputValueNValidate(
       "modifyCollection",
       formControls.mongoCollection,
     );
 
-    _.dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "Find Document(s)",
+      "Raw",
+    );
 
     // make sure template menu no longer reappears
     _.agHelper.AssertElementAbsence(_.dataSources._templateMenu);

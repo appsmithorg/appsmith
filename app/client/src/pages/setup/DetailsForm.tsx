@@ -24,7 +24,7 @@ import {
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { SetupFormProps } from "./SetupForm";
+import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup as StyledFormGroup } from "design-system-old";
 import { Button } from "design-system";

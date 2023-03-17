@@ -1,4 +1,5 @@
-import React, { ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useState } from "react";
 import { DialogComponent as Dialog, Dropdown } from "design-system-old";
 import { Button } from "design-system";
 import { useDispatch, useSelector } from "react-redux";

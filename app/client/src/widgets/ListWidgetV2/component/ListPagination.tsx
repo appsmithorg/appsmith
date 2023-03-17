@@ -443,8 +443,9 @@ export function ServerSideListPagination(props: ServerSideListPaginationProps) {
       disabled={props.disabled || props.isLoading}
     >
       <li
-        className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===
-          1 && "rc-pagination-disabled"}`}
+        className={`t--list-widget-prev-page rc-pagination-prev ${
+          props.pageNo === 1 && "rc-pagination-disabled"
+        }`}
         title="Previous Page"
       >
         <Button
@@ -466,8 +467,9 @@ export function ServerSideListPagination(props: ServerSideListPaginationProps) {
         <a rel="nofollow">{props.pageNo}</a>
       </li>
       <li
-        className={`t--list-widget-next-page rc-pagination-next ${props.disableNextPage &&
-          "rc-pagination-disabled"}`}
+        className={`t--list-widget-next-page rc-pagination-next ${
+          props.disableNextPage && "rc-pagination-disabled"
+        }`}
         title="Next Page"
       >
         <Button

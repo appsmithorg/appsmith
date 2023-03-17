@@ -1,5 +1,5 @@
-describe("Shared user icon  ", function() {
-  it(" User Icon is disaplyed to user ", function() {
+describe("Shared user icon  ", function () {
+  it(" User Icon is disaplyed to user ", function () {
     // Navigate to home Page
     //Click on Share Icon
     // Click on Field to add an Email Id

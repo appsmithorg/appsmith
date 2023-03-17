@@ -440,8 +440,9 @@ export function ServerSideListPagination(props: any) {
       disabled={props.disabled}
     >
       <li
-        className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===
-          1 && "rc-pagination-disabled"}`}
+        className={`t--list-widget-prev-page rc-pagination-prev ${
+          props.pageNo === 1 && "rc-pagination-disabled"
+        }`}
         title="Previous Page"
       >
         <Button

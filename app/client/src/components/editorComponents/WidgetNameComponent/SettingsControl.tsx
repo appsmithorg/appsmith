@@ -1,7 +1,8 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
-import React, { CSSProperties } from "react";
+import type { CSSProperties } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";

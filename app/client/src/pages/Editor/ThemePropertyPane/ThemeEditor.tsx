@@ -25,7 +25,7 @@ import {
 } from "actions/appThemingActions";
 import SettingSection from "./SettingSection";
 import SaveThemeModal from "./SaveThemeModal";
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";

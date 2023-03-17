@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { updateApplicationLayout } from "actions/applicationActions";
 import { TooltipComponent } from "design-system-old";
-import {
+import type {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
@@ -129,7 +129,8 @@ export function MainContainerLayoutControl() {
               {/* TODO (tanvi): Is this a toggle button? */}
               <button
                 className={classNames({
-                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200":
+                    true,
                   "bg-white border-gray-300": selectedIndex === index,
                   "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
                 })}

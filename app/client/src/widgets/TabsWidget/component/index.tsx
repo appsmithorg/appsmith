@@ -1,6 +1,7 @@
-import React, { ReactNode, useRef, useState, useCallback } from "react";
+import type { ReactNode } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";

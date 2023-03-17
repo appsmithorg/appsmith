@@ -3,7 +3,7 @@ import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getDatasourceCollapsibleState } from "selectors/ui";
 import { setDatasourceCollapsible } from "actions/datasourceActions";
 import isUndefined from "lodash/isUndefined";

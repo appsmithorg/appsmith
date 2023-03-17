@@ -15,7 +15,7 @@ import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getRolesForField,
   getAllUsers,
@@ -23,10 +23,8 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  InviteUsersToWorkspaceFormValues,
-  inviteUsersToWorkspace,
-} from "@appsmith/pages/workspace/helpers";
+import type { InviteUsersToWorkspaceFormValues } from "@appsmith/pages/workspace/helpers";
+import { inviteUsersToWorkspace } from "@appsmith/pages/workspace/helpers";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
   createMessage,
@@ -44,15 +42,8 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  Classes,
-  Callout,
-  DropdownOption,
-  Text,
-  TextType,
-  TextProps,
-  Variant,
-} from "design-system-old";
+import type { DropdownOption, TextProps } from "design-system-old";
+import { Classes, Callout, Text, TextType, Variant } from "design-system-old";
 import { Button } from "design-system";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";

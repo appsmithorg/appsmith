@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import {
   Classes,

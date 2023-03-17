@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { ControlWrapper, StyledInputGroup } from "./StyledControls";
-import { DropDownOptionWithKey } from "./OptionControl";
-import { DropdownOption } from "components/constants";
+import type { DropDownOptionWithKey } from "./OptionControl";
+import type { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
 import { Button } from "design-system";
 import { debounce } from "lodash";

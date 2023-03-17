@@ -1,7 +1,11 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import styled from "styled-components";
-import { BaseItemProps, RenderComponentProps } from "./DraggableListComponent";
+import type {
+  BaseItemProps,
+  RenderComponentProps,
+} from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";

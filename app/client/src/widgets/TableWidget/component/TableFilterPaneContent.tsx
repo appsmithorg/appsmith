@@ -2,13 +2,13 @@ import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import {
+import type {
   ReactTableColumnProps,
   ReactTableFilter,
   Operator,
-  OperatorTypes,
 } from "./Constants";
-import { DropdownOption } from "./TableFilters";
+import { OperatorTypes } from "./Constants";
+import type { DropdownOption } from "./TableFilters";
 import Button from "components/editorComponents/Button";
 import CascadeFields from "./CascadeFields";
 import {

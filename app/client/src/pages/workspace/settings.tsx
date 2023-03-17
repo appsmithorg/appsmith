@@ -8,7 +8,8 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { MenuItemProps, TabComponent, TabProp } from "design-system-old";
+import type { MenuItemProps, TabProp } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 
 import MemberSettings from "@appsmith/pages/workspace/Members";
@@ -29,6 +30,7 @@ import {
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
+  SEARCH_USERS,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -195,7 +197,7 @@ export default function Settings() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search"
+            searchPlaceholder={createMessage(SEARCH_USERS, cloudHosting)}
             showMoreOptions={false}
             showSearchNButton={isMembersPage}
             title={pageTitle}

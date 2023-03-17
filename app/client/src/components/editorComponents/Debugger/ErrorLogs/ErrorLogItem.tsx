@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import {
-  Log,
-  LOG_CATEGORY,
-  Message,
-  Severity,
-  SourceEntity,
-} from "entities/AppsmithConsole";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
 import {
   Classes,
@@ -20,13 +15,14 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
 import ContextualMenu from "../ContextualMenu";
 import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment";
 import { Button, Icon } from "design-system";
 
@@ -212,13 +208,36 @@ export type LogItemProps = {
 // Log item component
 function ErrorLogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const expandToggle = () => {
+    //Add telemetry for expand.
+    if (!isOpen) {
+      AnalyticsUtil.logEvent("DEBUGGER_LOG_ITEM_EXPAND", {
+        errorType: props.logType,
+        errorSubType: props.messages && props.messages[0].message.name,
+        appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
+        downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const addHelpTelemetry = () => {
+    AnalyticsUtil.logEvent("DEBUGGER_HELP_CLICK", {
+      errorType: props.logType,
+      errorSubType: props.messages && props.messages[0].message.name,
+      appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
+      downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
+    });
+  };
+
   const { collapsable } = props;
 
   return (
     <Wrapper className={props.severity} collapsed={!isOpen}>
       <InnerWrapper
         onClick={() => {
-          if (collapsable) setIsOpen(!isOpen);
+          if (collapsable) expandToggle();
         }}
       >
         <FlexWrapper
@@ -250,7 +269,7 @@ function ErrorLogItem(props: LogItemProps) {
               data-isOpen={isOpen}
               isDisabled={!collapsable}
               kind="tertiary"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => expandToggle()}
               startIcon={"expand-more"}
             />
           )}
@@ -290,7 +309,12 @@ function ErrorLogItem(props: LogItemProps) {
         {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
           props.severity === Severity.ERROR &&
           props.logType !== LOG_TYPE.LINT_ERROR && (
-            <ContextWrapper onClick={(e) => e.stopPropagation()}>
+            <ContextWrapper
+              onClick={(e) => {
+                addHelpTelemetry();
+                e.stopPropagation();
+              }}
+            >
               <ContextualMenu
                 entity={props.source}
                 error={{ message: { name: "", message: "" } }}

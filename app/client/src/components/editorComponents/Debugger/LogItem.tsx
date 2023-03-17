@@ -1,13 +1,9 @@
 import { Collapse } from "@blueprintjs/core";
 import { isString } from "lodash";
-import {
-  Log,
-  LOG_CATEGORY,
-  Message,
-  Severity,
-  SourceEntity,
-} from "entities/AppsmithConsole";
-import React, { useState, PropsWithChildren } from "react";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import type { PropsWithChildren } from "react";
+import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
@@ -26,6 +22,7 @@ import {
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
 import { Button, Icon } from "design-system";
+import moment from "moment";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -289,7 +286,9 @@ function LogItem(props: LogItemProps) {
           startIcon={props.icon}
         />
         <span className={`debugger-time ${props.severity}`}>
-          {props.timestamp}
+          {props.severity === Severity.ERROR
+            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
+            : props.timestamp}
         </span>
 
         <StyledButton

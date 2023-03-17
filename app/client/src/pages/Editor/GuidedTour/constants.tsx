@@ -1,6 +1,6 @@
 import React from "react";
-import { ReactNode } from "react";
-import { Dispatch } from "redux";
+import type { ReactNode } from "react";
+import type { Dispatch } from "redux";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {

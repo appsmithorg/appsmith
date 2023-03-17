@@ -2,8 +2,8 @@ const onboarding = require("../../../locators/Onboarding.json");
 const explorer = require("../../../locators/explorerlocators.json");
 const loginPage = require("../../../locators/LoginPage.json");
 
-describe("Onboarding flow", function() {
-  it("Onboarding using Google Id ", function() {
+describe("Onboarding flow", function () {
+  it("Onboarding using Google Id ", function () {
     // Navigate to Login Page
     // Click on "Sign In with Google"
     // Ensure user is navigated to Google Account
@@ -14,7 +14,7 @@ describe("Onboarding flow", function() {
     // Click on Logout
   });
 
-  it("Onboarding using Github ID ", function() {
+  it("Onboarding using Github ID ", function () {
     // Navigate to Login Page
     // Click on "Sign In with Github"
     // Ensure user is navigated to Github Account

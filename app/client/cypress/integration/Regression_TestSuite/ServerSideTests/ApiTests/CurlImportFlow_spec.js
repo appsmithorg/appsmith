@@ -3,8 +3,8 @@ const pages = require("../../../../locators/Pages.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 
-describe("Test curl import flow", function() {
-  it("Test curl import flow Run and Delete", function() {
+describe("Test curl import flow", function () {
+  it("Test curl import flow Run and Delete", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");
       cy.NavigateToApiEditor();
@@ -29,20 +29,16 @@ describe("Test curl import flow", function() {
       cy.RunAPI();
       cy.ResponseStatusCheck("200 OK");
       cy.get(ApiEditor.formActionButtons).should("be.visible");
-      cy.get(ApiEditor.ApiActionMenu)
-        .first()
-        .click();
+      cy.get(ApiEditor.ApiActionMenu).first().click();
       cy.get(ApiEditor.ApiDeleteBtn).click();
-      cy.get(ApiEditor.ApiDeleteBtn)
-        .contains("Are you sure?")
-        .click();
+      cy.get(ApiEditor.ApiDeleteBtn).contains("Are you sure?").click();
       cy.wait("@deleteAction");
       cy.get("@deleteAction").then((response) => {
         cy.expect(response.response.body.responseMeta.success).to.eq(true);
       });
     });
   });
-  it("Bug:15175 Creating new cURL import query from entity explorer crashes the app", function() {
+  it("Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       cy.CheckAndUnfoldEntityItem("Pages");
       cy.get(`.t--entity-name:contains("Page1")`)

@@ -1,7 +1,7 @@
 import React from "react";
 import { HelpIcons } from "icons/HelpIcons";
 import styled, { useTheme } from "styled-components";
-import { Color } from "constants/Colors";
+import type { Color } from "constants/Colors";
 import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
 import { Button, Icon } from "design-system";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
@@ -10,7 +10,7 @@ import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 type Props = {
   isModalOpen: boolean;

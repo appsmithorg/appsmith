@@ -6,7 +6,8 @@ import { Button, Icon } from "design-system";
 import { TooltipComponent, Text, TextType } from "design-system-old";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
-import React, { ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,

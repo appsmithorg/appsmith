@@ -1,10 +1,10 @@
-import { ActionResponse } from "api/ActionAPI";
-import { PluginId } from "api/PluginApi";
-import { ValidationConfig } from "constants/PropertyControlConstants";
-import { ActionConfig, PluginType } from "entities/Action";
-import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import { Variable } from "entities/JSCollection";
-import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import type { ActionResponse } from "api/ActionAPI";
+import type { PluginId } from "api/PluginApi";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ActionConfig, PluginType } from "entities/Action";
+import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
+import type { Variable } from "entities/JSCollection";
+import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 

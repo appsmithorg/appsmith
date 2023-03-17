@@ -1,5 +1,5 @@
 import React from "react";
-import { SupportedKeyType } from "./SupportedKeyTypeList";
+import type { SupportedKeyType } from "./SupportedKeyTypeList";
 import { MenuItem } from "design-system-old";
 import { Icon } from "design-system";
 

@@ -1,4 +1,5 @@
-import React, { RefObject, useRef } from "react";
+import type { RefObject } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";

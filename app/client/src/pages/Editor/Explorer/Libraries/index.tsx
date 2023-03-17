@@ -1,4 +1,5 @@
-import React, { MutableRefObject, useCallback, useRef } from "react";
+import type { MutableRefObject } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Toaster, TooltipComponent, Variant } from "design-system-old";
 import { Button, Icon, Spinner } from "design-system";
@@ -24,7 +25,7 @@ import {
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
@@ -175,7 +176,7 @@ const Version = styled.div<{ version?: string }>`
   margin: ${(props) => (props.version ? "0 8px" : "0")};
 `;
 
-const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
+const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
   const installationStatus = useSelector(selectInstallationStatus);
   const dispatch = useDispatch();
 

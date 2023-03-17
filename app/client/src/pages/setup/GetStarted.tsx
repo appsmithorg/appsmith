@@ -16,13 +16,9 @@ import {
   WELCOME_FORM_ROLE,
 } from "@appsmith/constants/messages";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import {
-  Field,
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { AppState } from "@appsmith/reducers";
+import type { InjectedFormProps } from "redux-form";
+import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { DropdownWrapper, withDropdown } from "./common";
 import { roleOptions, useCaseOptions } from "./constants";
@@ -122,6 +118,7 @@ function NonSuperUser(
           className="t--get-started-button"
           isDisabled={props.invalid}
           onClick={() =>
+            !props.invalid && // temp fix - design system needs to be fixed for disabling click
             props.onGetStarted &&
             props.onGetStarted(
               props.role !== "other" ? props.role : props.role_name,

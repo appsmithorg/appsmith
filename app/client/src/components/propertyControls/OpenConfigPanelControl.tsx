@@ -1,5 +1,6 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import styled from "styled-components";
 import { Button } from "design-system";
 

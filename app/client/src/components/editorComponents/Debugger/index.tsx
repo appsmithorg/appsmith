@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   setCanvasDebuggerSelectedTab,
   showDebugger as showDebuggerAction,

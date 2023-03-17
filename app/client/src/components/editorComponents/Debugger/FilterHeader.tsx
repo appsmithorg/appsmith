@@ -1,8 +1,9 @@
-import React, { MutableRefObject, useRef } from "react";
+import type { MutableRefObject } from "react";
+import React, { useRef } from "react";
+import type { DropdownOption } from "design-system-old";
 import {
   Classes,
   Dropdown,
-  DropdownOption,
   TextInput,
   TooltipComponent,
 } from "design-system-old";

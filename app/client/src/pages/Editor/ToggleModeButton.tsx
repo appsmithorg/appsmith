@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { TooltipComponent } from "design-system-old";
 import { Button } from "design-system";
 
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
 import { getAppMode } from "selectors/applicationSelectors";

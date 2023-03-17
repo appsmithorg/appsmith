@@ -12,7 +12,8 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { CalloutV2, CalloutType } from "design-system-old";
+import type { CalloutType } from "design-system-old";
+import { CalloutV2 } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system-old";
 import { Button, Icon } from "design-system";

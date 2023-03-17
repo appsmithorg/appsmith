@@ -46,9 +46,9 @@ import {
   ONBOARDING_CHECKLIST_BANNER_BUTTON,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Datasource } from "entities/Datasource";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { Datasource } from "entities/Datasource";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 
@@ -232,16 +232,14 @@ export default function OnboardingChecklist() {
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
     return <Redirect to={builderURL({ pageId })} />;
   }
-  const {
-    completedTasks,
-    suggestedNextAction,
-  } = getSuggestedNextActionAndCompletedTasks(
-    datasources,
-    actions,
-    widgets,
-    isConnectionPresent,
-    isDeployed,
-  );
+  const { completedTasks, suggestedNextAction } =
+    getSuggestedNextActionAndCompletedTasks(
+      datasources,
+      actions,
+      widgets,
+      isConnectionPresent,
+      isDeployed,
+    );
   const onconnectYourWidget = () => {
     const action = actions[0];
     if (action && applicationId && pageId) {
