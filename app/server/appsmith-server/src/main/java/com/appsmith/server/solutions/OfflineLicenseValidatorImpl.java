@@ -14,6 +14,7 @@ import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.util.encoders.Hex;
 
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -25,8 +26,9 @@ import java.util.Base64;
  * Class dedicated to Air-gap license validations
  */
 
-@Slf4j
+@Component
 @RequiredArgsConstructor
+@Slf4j
 public class OfflineLicenseValidatorImpl implements LicenseValidator {
 
     private final LicenseConfig licenseConfig;

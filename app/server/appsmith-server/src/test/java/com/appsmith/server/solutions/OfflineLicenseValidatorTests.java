@@ -4,6 +4,7 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.domains.TenantConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.shaded.org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +25,7 @@ import java.util.Base64;
 @SpringBootTest
 @Slf4j
 @RequiredArgsConstructor
-public class LicenseValidatorTests {
+public class OfflineLicenseValidatorTests {
 
     @Autowired
     OfflineLicenseValidatorImpl licenseValidator;
