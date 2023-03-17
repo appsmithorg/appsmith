@@ -231,7 +231,7 @@ describe("Git discard changes:", function () {
 
     _.agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
     _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
-    cy.intercept("PUT", "/api/v1/git/discard/app/*?doPull=*", {
+    cy.intercept("PUT", "/api/v1/git/discard/app/*", {
       body: {
         responseMeta: {
           status: 500,
