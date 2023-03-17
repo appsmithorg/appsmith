@@ -6,7 +6,7 @@ import {
 } from "constants/WidgetConstants";
 import { partition } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
@@ -15,7 +15,7 @@ import {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import WidgetFactory from "utils/WidgetFactory";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 
 const unHandledWidgets = ["LIST_WIDGET", "FORM_WIDGET", "MODAL_WIDGET"];
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
@@ -30,8 +30,8 @@ export default function convertDSLtoAutoAndUpdatePositions(dsl: DSLWidget) {
 
   if (!autoDSL || !autoDSL.children) return autoDSL;
 
-  const normalizedAutoDSL = CanvasWidgetsNormalizer.normalize(autoDSL).entities
-    .canvasWidgets;
+  const normalizedAutoDSL =
+    CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets;
 
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,
@@ -78,11 +78,8 @@ export function convertDSLtoAuto(dsl: DSLWidget) {
  * @returns auto layout converted Auto Widget
  */
 export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
-  const {
-    calculatedBottomRow,
-    children,
-    flexLayers,
-  } = fitChildWidgetsIntoLayers(dsl.children);
+  const { calculatedBottomRow, children, flexLayers } =
+    fitChildWidgetsIntoLayers(dsl.children);
 
   let bottomRow = calculatedBottomRow
     ? calculatedBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
@@ -115,9 +112,7 @@ export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
  * @param widgets
  * @returns modified Children, FlexLayers and new bottom most row of the Canvas
  */
-export function fitChildWidgetsIntoLayers(
-  widgets: DSLWidget[] | undefined,
-): {
+export function fitChildWidgetsIntoLayers(widgets: DSLWidget[] | undefined): {
   children: DSLWidget[];
   flexLayers: FlexLayer[];
   calculatedBottomRow?: number;
@@ -148,12 +143,8 @@ export function fitChildWidgetsIntoLayers(
   let childrenHeight = 0;
   //Iterate till widgets are left in the Children array
   while (widgetsLeft.length > 0) {
-    const {
-      flexLayer,
-      layerHeight,
-      leftOverWidgets,
-      widgetsInLayer,
-    } = getNextLayer(widgetsLeft);
+    const { flexLayer, layerHeight, leftOverWidgets, widgetsInLayer } =
+      getNextLayer(widgetsLeft);
     widgetsLeft = [...leftOverWidgets];
     modifiedWidgets = modifiedWidgets.concat(widgetsInLayer);
     flexLayers.push(flexLayer);
@@ -182,9 +173,7 @@ export function fitChildWidgetsIntoLayers(
  * @param currWidgets
  * @returns
  */
-function getNextLayer(
-  currWidgets: DSLWidget[],
-): {
+function getNextLayer(currWidgets: DSLWidget[]): {
   flexLayer: FlexLayer;
   widgetsInLayer: DSLWidget[];
   leftOverWidgets: DSLWidget[];

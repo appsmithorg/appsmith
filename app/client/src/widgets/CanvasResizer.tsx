@@ -97,7 +97,7 @@ export function CanvasResizer({
 
         // Handle the mousedown event
         // that's triggered when user drags the resizer
-        const mouseDownHandler = function(e: any) {
+        const mouseDownHandler = function (e: any) {
           maxWidth =
             wrapperElement.offsetWidth - AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
           // Get the current mouse position
@@ -117,7 +117,7 @@ export function CanvasResizer({
           // e.stopPropagation();
         };
 
-        const mouseMoveHandler = function(e: any) {
+        const mouseMoveHandler = function (e: any) {
           // How far the mouse has been moved
           // const multiplier = rightHandle ? 2 : -2;
           const multiplier = 2;
@@ -135,7 +135,7 @@ export function CanvasResizer({
           // e.stopPropagation();
         };
 
-        const mouseUpHandler = function(e: any) {
+        const mouseUpHandler = function (e: any) {
           // Remove the handlers of `mousemove` and `mouseup`
           mouseMoveHandler(e);
           dispatch(setAutoCanvasResizing(false));

@@ -1,7 +1,7 @@
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
-import { WidgetSizeConfig } from "widgets/constants";
+import type { WidgetSizeConfig } from "widgets/constants";
 
 export interface MinMaxSize {
   minHeight: number | string;
@@ -139,9 +139,8 @@ function getMinMaxSize(
   if (!sizeConfig) return;
 
   // Get the minimum & maximum size for the widget at this breakpoint.
-  const { maxHeight, maxWidth, minHeight, minWidth } = sizeConfig.configuration(
-    widget,
-  );
+  const { maxHeight, maxWidth, minHeight, minWidth } =
+    sizeConfig.configuration(widget);
 
   return { maxHeight, maxWidth, minHeight, minWidth };
 }

@@ -4,8 +4,8 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
 import {
   alterLayoutForDesktop,
@@ -18,7 +18,7 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
@@ -42,8 +42,8 @@ export default function convertDSLtoFixed(
   dsl: DSLWidget,
   destinationLayout: SupportedLayouts,
 ) {
-  const allWidgets = CanvasWidgetsNormalizer.normalize(dsl).entities
-    .canvasWidgets;
+  const allWidgets =
+    CanvasWidgetsNormalizer.normalize(dsl).entities.canvasWidgets;
 
   const convertedWidgets = convertNormalizedDSLToFixed(
     allWidgets,

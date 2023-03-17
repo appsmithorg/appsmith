@@ -1,6 +1,7 @@
 import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
-import Widget, { RateWidgetProps } from "./widget";
+import Widget from "./widget";
+import type { RateWidgetProps } from "./widget";
 
 export const CONFIG = {
   features: {

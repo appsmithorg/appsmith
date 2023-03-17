@@ -1,22 +1,18 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "@appsmith/reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import {
-  AppPositioningTypes,
-  SupportedLayouts,
-} from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
+import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getPageWidgets } from "selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import { createSnapshotSaga } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";

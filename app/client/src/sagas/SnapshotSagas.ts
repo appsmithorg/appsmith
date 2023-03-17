@@ -2,14 +2,12 @@ import {
   setLayoutConversionStateAction,
   updateSnapshotDetails,
 } from "actions/autoLayoutActions";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import ApplicationApi from "api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
-import {
-  CONVERSION_STATES,
-  SnapShotDetails,
-} from "reducers/uiReducers/layoutConversionReducer";
+import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";

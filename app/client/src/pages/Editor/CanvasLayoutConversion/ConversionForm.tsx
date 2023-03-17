@@ -1,12 +1,13 @@
 import React from "react";
-import { InfoBlock, InfoBlockProps } from "./InfoBlock";
+import type { InfoBlockProps } from "./InfoBlock";
+import { InfoBlock } from "./InfoBlock";
+import type { DropdownOption } from "design-system-old";
 import {
   BannerMessage,
   Button,
   Category,
   Collapsible,
   Dropdown,
-  DropdownOption,
   Icon,
   IconSize,
   Size,
@@ -15,10 +16,8 @@ import {
   Text,
 } from "design-system-old";
 import { Colors } from "constants/Colors";
-import {
-  ConversionCompleteLayout,
-  ConversionCompleteLayoutProps,
-} from "./ConversionCompleteLayout";
+import type { ConversionCompleteLayoutProps } from "./ConversionCompleteLayout";
+import { ConversionCompleteLayout } from "./ConversionCompleteLayout";
 
 type ConversionFormProps = {
   onCancel: () => void;
