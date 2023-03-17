@@ -71,7 +71,10 @@ describe("Dynamic input autocomplete", () => {
     cy.wait(1000);
 
     cy.evaluateErrorMessage(
-      "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.",
+      "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.".replaceAll(
+        "{{actionName}}",
+        "storeValue()",
+      ),
     );
   });
 });

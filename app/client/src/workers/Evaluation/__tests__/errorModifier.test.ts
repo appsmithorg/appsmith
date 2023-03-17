@@ -132,7 +132,7 @@ describe("Test error modifier", () => {
     expect(result).toEqual({
       name: "ValidationError",
       message:
-        "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.",
+        "Found a reference to Api2.run() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
     });
   });
 
@@ -155,7 +155,7 @@ describe("Test error modifier", () => {
     expect(result).toEqual({
       name: "ValidationError",
       message:
-        "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.",
+        "Found a reference to storeValue() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
     });
   });
 
