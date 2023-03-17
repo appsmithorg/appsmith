@@ -5,9 +5,8 @@ import {
   PropertyEvaluationErrorCategory,
 } from "utils/DynamicBindingUtils";
 
-const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
-  "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
-
+const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
+  "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.";
 class ErrorModifier {
   private errorNamesToScan = ["ReferenceError", "TypeError"];
   // Note all regex below groups the async function name
@@ -30,17 +29,14 @@ class ErrorModifier {
       if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
         return {
           name: "ValidationError",
-          message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-            "{{actionName}}",
-            asyncFunctionFullPath + "()",
-          ),
+          message: FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE,
         };
       }
     }
 
     return errorMessage;
   }
-  modifyAsyncErrors(errors: EvaluationError[], asyncFunc: string) {
+  modifyAsyncInvocationErrors(errors: EvaluationError[], asyncFunc: string) {
     return errors.map((error) => {
       if (isAsyncFunctionCalledInSyncFieldError(error)) {
         error.kind = {
@@ -56,14 +52,11 @@ class ErrorModifier {
 
 export const errorModifier = new ErrorModifier();
 
-const FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE =
-  "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
-
 export class FoundPromiseInSyncEvalError extends Error {
   constructor() {
     super();
     this.name = "";
-    this.message = FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE;
+    this.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
   }
 }
 
@@ -77,10 +70,7 @@ export class ActionCalledInSyncFieldError extends Error {
     }
 
     this.name = "";
-    this.message = UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-      "{{actionName}}",
-      actionName + "()",
-    );
+    this.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
   }
 }
 
@@ -100,10 +90,6 @@ export const getErrorMessageWithType = (error: Error) => {
   return error.name ? `${error.name}: ${error.message}` : error.message;
 };
 
-const ACTION_CALLED_IN_SYNC_FIELD_REGEX = /Found a reference to .+? during evaluation\. Sync fields cannot execute framework actions\. Please remove any direct\/indirect references to .+? and try again\./gm;
 function isAsyncFunctionCalledInSyncFieldError(error: EvaluationError) {
-  return (
-    error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE ||
-    ACTION_CALLED_IN_SYNC_FIELD_REGEX.test(error.errorMessage.message)
-  );
+  return error.errorMessage.message === FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
 }

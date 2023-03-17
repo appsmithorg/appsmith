@@ -76,6 +76,7 @@ import {
   getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
+  PropertyEvaluationErrorCategory,
 } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
@@ -1183,11 +1184,17 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getAsyncFuncErrorRootCauseUrl(errors: EvaluationError[]) {
-    const asyncInvocationError = errors.find((error) => !!error.kind)?.kind
-      ?.rootcause;
+    const asyncInvocationError = errors.find(
+      (error) =>
+        error.kind &&
+        error.kind.category ===
+          PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
+    );
     if (!asyncInvocationError) return undefined;
+    const asyncInvocationErrorRootcause = asyncInvocationError.kind?.rootcause;
+
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      asyncInvocationError,
+      asyncInvocationErrorRootcause as string,
     );
     const jsObjectNavigationData = this.props.entitiesForNavigation[entityName];
 

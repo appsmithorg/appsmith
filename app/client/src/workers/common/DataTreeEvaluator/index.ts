@@ -1036,7 +1036,7 @@ export default class DataTreeEvaluator {
                 fullPropertyPath,
               );
               if (asyncFunctionBindingInPath) {
-                pathErrors = errorModifier.modifyAsyncErrors(
+                pathErrors = errorModifier.modifyAsyncInvocationErrors(
                   evalErrors,
                   asyncFunctionBindingInPath,
                 );
