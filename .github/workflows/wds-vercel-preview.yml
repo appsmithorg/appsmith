@@ -1,7 +1,7 @@
 name: Build WDS Vercel Preview
 on:
   issue_comment:
-
+  workflow_dispatch:
 jobs:
   vercel-build:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/build-wds-preview') }}
