@@ -2,11 +2,9 @@ import React, { useState } from "react";
 
 import styled from "styled-components";
 import { Classes, MenuItem } from "@blueprintjs/core";
-import type { noop } from "lodash";
-import _ from "lodash";
+import _, { noop } from "lodash";
 
-import type { CommonComponentProps } from "design-system-old";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey, CommonComponentProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { MenuDivider } from "design-system-old";

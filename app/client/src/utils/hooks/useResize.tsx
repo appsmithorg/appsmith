@@ -1,5 +1,4 @@
-import type { MutableRefObject } from "react";
-import React from "react";
+import React, { MutableRefObject } from "react";
 
 export enum DIRECTION {
   vertical,

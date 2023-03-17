@@ -1,12 +1,11 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import IframeComponent from "../component";
-import type { IframeWidgetProps } from "../constants";
+import { IframeWidgetProps } from "../constants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {

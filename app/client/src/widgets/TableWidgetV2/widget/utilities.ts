@@ -1,18 +1,19 @@
 import { Colors } from "constants/Colors";
-import type { RenderMode } from "constants/WidgetConstants";
-import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  RenderMode,
+  RenderModes,
+} from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
-import type {
+import {
+  CellAlignmentTypes,
   CellLayoutProperties,
   ColumnProperties,
   ReactTableColumnProps,
+  StickyType,
   TableColumnProps,
   TableStyles,
-} from "../component/Constants";
-import {
-  CellAlignmentTypes,
-  StickyType,
   VerticalAlignmentTypes,
 } from "../component/Constants";
 import {
@@ -23,7 +24,7 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import type { TableWidgetProps } from "../constants";
+import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
@@ -33,10 +34,10 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
-import type React from "react";
+import React from "react";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -539,7 +540,9 @@ export function getSelectColumnTypeOptions(value: unknown) {
  */
 export const getSelectedRowBgColor = (accentColor: string) => {
   const tinyAccentColor = tinycolor(accentColor);
-  const brightness = tinycolor(accentColor).greyscale().getBrightness();
+  const brightness = tinycolor(accentColor)
+    .greyscale()
+    .getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
   let nextBrightness = 0;
@@ -928,8 +931,12 @@ export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
       );
 
       if (parsedTableWidgetColumnOrder[widgetId]) {
-        const { columnOrder, columnUpdatedAt, leftOrder, rightOrder } =
-          parsedTableWidgetColumnOrder[widgetId];
+        const {
+          columnOrder,
+          columnUpdatedAt,
+          leftOrder,
+          rightOrder,
+        } = parsedTableWidgetColumnOrder[widgetId];
         return {
           columnOrder,
           columnUpdatedAt,

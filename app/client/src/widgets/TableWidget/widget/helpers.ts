@@ -1,10 +1,10 @@
-import type { TableWidgetProps } from "../constants";
+import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 /**
  * this is a getter function to get stylesheet value of the property from the config
@@ -47,8 +47,9 @@ export const getPrimaryColumnStylesheetValue = (
     `childStylesheet.${columnType}.${propertyName}`,
   );
 
-  const { jsSnippets, stringSegments } =
-    getDynamicBindings(themeStylesheetValue);
+  const { jsSnippets, stringSegments } = getDynamicBindings(
+    themeStylesheetValue,
+  );
 
   const js = combineDynamicBindings(jsSnippets, stringSegments);
 

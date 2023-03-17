@@ -1,6 +1,6 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormControlRegistry from "./formControl/FormControlRegistry";
-import type { LogLevelDesc } from "loglevel";
+import { LogLevelDesc } from "loglevel";
 import localStorage from "utils/localStorage";
 import * as log from "loglevel";
 import Modal from "react-modal";

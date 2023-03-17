@@ -1,6 +1,5 @@
 import { FieldType } from "../constants";
-import type { PhoneInputFieldProps } from "./PhoneInputField";
-import { isValid } from "./PhoneInputField";
+import { isValid, PhoneInputFieldProps } from "./PhoneInputField";
 
 describe("Phone Input Field", () => {
   it("return validity when not required", () => {

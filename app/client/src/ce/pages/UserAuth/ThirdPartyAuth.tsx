@@ -1,10 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import type { SocialLoginType } from "@appsmith/constants/SocialLogin";
-import { getSocialLoginButtonProps } from "@appsmith/constants/SocialLogin";
+import {
+  getSocialLoginButtonProps,
+  SocialLoginType,
+} from "@appsmith/constants/SocialLogin";
 import { getTypographyByKey } from "design-system-old";
-import type { EventName } from "utils/AnalyticsUtil";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -23,8 +24,7 @@ const StyledSocialLoginButton = styled.a`
   border: solid 1px ${(props) => props.theme.colors.auth.socialBtnBorder};
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
 
-  &:only-child,
-  &:last-child {
+  &:only-child, &:last-child {
     margin-bottom: 0;
   }
 

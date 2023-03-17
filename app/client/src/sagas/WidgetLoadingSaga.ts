@@ -1,12 +1,12 @@
-import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import { call, fork, put, select, take } from "redux-saga/effects";
 import {
   getEvaluationInverseDependencyMap,
   getDataTree,
 } from "selectors/dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
-import type {
+import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";

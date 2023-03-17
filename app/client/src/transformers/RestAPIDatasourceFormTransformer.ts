@@ -1,16 +1,18 @@
-import type { Property } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
-import type {
+import { Property } from "entities/Action";
+import { Datasource } from "entities/Datasource";
+import {
   ApiDatasourceForm,
   Authentication,
   AuthorizationCode,
+  AuthType,
   ClientCredentials,
+  GrantType,
   Oauth2Common,
   Basic,
   ApiKey,
   BearerToken,
+  SSLType,
 } from "entities/Datasource/RestAPIForm";
-import { AuthType, GrantType, SSLType } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
 export const datasourceToFormValues = (

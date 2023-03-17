@@ -1,7 +1,9 @@
 import React from "react";
 import _ from "lodash";
-import type { DropdownProps } from "components/designSystems/appsmith/Dropdown";
-import { BaseDropdown } from "components/designSystems/appsmith/Dropdown";
+import {
+  BaseDropdown,
+  DropdownProps,
+} from "components/designSystems/appsmith/Dropdown";
 import { Field } from "redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
 

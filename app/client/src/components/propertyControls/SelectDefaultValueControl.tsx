@@ -1,13 +1,13 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
+  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
@@ -86,7 +86,9 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class SelectDefaultValueControl extends BaseControl<SelectDefaultValueControlProps> {
+class SelectDefaultValueControl extends BaseControl<
+  SelectDefaultValueControlProps
+> {
   render() {
     const {
       dataTreePath,

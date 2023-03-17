@@ -11,8 +11,8 @@ let homePage = ObjectsRegistry.HomePage,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("AForce - Community Issues page validations", function () {
-  before(function () {
+describe("AForce - Community Issues page validations", function() {
+  before(function() {
     agHelper.ClearLocalStorageCache();
   });
 
@@ -66,9 +66,8 @@ describe("AForce - Community Issues page validations", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("serversidepagination", "checked");
 
-    propPane
-      .ValidatePropertyFieldValue("Default Selected Row", "0")
-      .then(($selectedRow: any) => {
+    propPane.ValidatePropertyFieldValue("Default Selected Row", "0")
+    .then(($selectedRow: any) => {
         selectedRow = Number($selectedRow);
         table.AssertSelectedRow(selectedRow);
       });
@@ -238,18 +237,20 @@ describe("AForce - Community Issues page validations", function () {
       });
     }
     cy.wrap(filterTitle).as("filterTitleText"); // alias it for later
-    cy.get("@filterTitleText").its("length").should("eq", 2);
+    cy.get("@filterTitleText")
+      .its("length")
+      .should("eq", 2);
 
     table.RemoveFilterNVerify("Question", true, false);
 
     //Two filters - AND
     table.OpenNFilterTable("Votes", "greater than", "2");
-    table.ReadTableRowColumnData(0, 1, "v1", 3000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1,"v1", 3000).then(($cellData) => {
       expect($cellData).to.eq("Combine queries from different datasources");
     });
 
     table.OpenNFilterTable("Title", "contains", "button", "AND", 1);
-    table.ReadTableRowColumnData(0, 1, "v1", 3000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1,"v1", 3000).then(($cellData) => {
       expect($cellData).to.eq(
         "Change the video in the video player with a button click",
       );
@@ -261,7 +262,9 @@ describe("AForce - Community Issues page validations", function () {
     // agHelper.DeployApp()
     // table.WaitUntilTableLoad()
 
-    cy.get(table._addIcon).closest("div").click();
+    cy.get(table._addIcon)
+      .closest("div")
+      .click();
     agHelper.AssertElementVisible(locator._modal);
     agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
@@ -294,7 +297,7 @@ describe("AForce - Community Issues page validations", function () {
     table.SearchTable("Suggestion", 2);
     table.WaitUntilTableLoad();
 
-    table.ReadTableRowColumnData(0, 0, "v1", 4000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0,"v1", 4000).then((cellData) => {
       expect(cellData).to.be.equal("Suggestion");
     });
 
@@ -355,7 +358,7 @@ describe("AForce - Community Issues page validations", function () {
     );
     agHelper.ClickButton("Save");
     agHelper.Sleep(2000);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0,"v1",2000).then((cellData) => {
       expect(cellData).to.be.equal("Troubleshooting");
     });
 
@@ -373,7 +376,9 @@ describe("AForce - Community Issues page validations", function () {
     table.SelectTableRow(0);
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
-    cy.get(table._trashIcon).closest("div").click({ force: true });
+    cy.get(table._trashIcon)
+      .closest("div")
+      .click({ force: true });
     agHelper.WaitUntilEleDisappear(locator._widgetInDeployed("tabswidget"));
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.WaitForTableEmpty();

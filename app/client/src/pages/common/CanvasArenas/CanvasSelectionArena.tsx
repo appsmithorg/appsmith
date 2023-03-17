@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
@@ -24,7 +24,7 @@ import {
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
-import type { XYCord } from "./hooks/useRenderBlocksOnCanvas";
+import { XYCord } from "./hooks/useRenderBlocksOnCanvas";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
@@ -275,8 +275,12 @@ export function CanvasSelectionArena({
           left: 0,
         };
         if (slidingArenaRef.current && startPoints) {
-          const { height, left, top, width } =
-            slidingArenaRef.current.getBoundingClientRect();
+          const {
+            height,
+            left,
+            top,
+            width,
+          } = slidingArenaRef.current.getBoundingClientRect();
           const outOfMaxBounds = {
             x: startPoints.x < left + width,
             y: startPoints.y < top + height,
@@ -390,8 +394,11 @@ export function CanvasSelectionArena({
         }
       };
       const onScroll = () => {
-        const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
-          scrollObj;
+        const {
+          lastMouseMoveEvent,
+          lastScrollHeight,
+          lastScrollTop,
+        } = scrollObj;
         if (
           lastMouseMoveEvent &&
           Number.isInteger(lastScrollHeight) &&

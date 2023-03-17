@@ -1,10 +1,12 @@
 import React from "react";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
-import { Field } from "redux-form";
-import type { InputType } from "design-system-old";
-import { TextInput } from "design-system-old";
+import {
+  Field,
+  WrappedFieldMetaProps,
+  WrappedFieldInputProps,
+} from "redux-form";
+import { TextInput, InputType } from "design-system-old";
 
-import type { Intent } from "constants/DefaultTheme";
+import { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system-old";
 
 const renderComponent = (

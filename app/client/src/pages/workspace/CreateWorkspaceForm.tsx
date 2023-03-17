@@ -1,9 +1,10 @@
 import React, { useCallback } from "react";
-import type { InjectedFormProps } from "redux-form";
-import { Form, reduxForm } from "redux-form";
+import { Form, reduxForm, InjectedFormProps } from "redux-form";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
-import type { CreateWorkspaceFormValues } from "@appsmith/pages/workspace/helpers";
-import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
+import {
+  CreateWorkspaceFormValues,
+  createWorkspaceSubmitHandler,
+} from "@appsmith/pages/workspace/helpers";
 import { noSpaces } from "utils/formhelpers";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormGroup from "components/editorComponents/form/FormGroup";
@@ -19,8 +20,14 @@ export function CreateApplicationForm(
     onCancel: () => void;
   },
 ) {
-  const { error, handleSubmit, invalid, onCancel, pristine, submitting } =
-    props;
+  const {
+    error,
+    handleSubmit,
+    invalid,
+    onCancel,
+    pristine,
+    submitting,
+  } = props;
   const submitHandler = useCallback(
     async (data, dispatch) => {
       const result = await createWorkspaceSubmitHandler(data, dispatch);

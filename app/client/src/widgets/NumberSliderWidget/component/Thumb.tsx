@@ -2,8 +2,7 @@ import React, { useState, forwardRef } from "react";
 import styled from "styled-components";
 
 import { getRgbaColor } from "widgets/WidgetUtils";
-import type { SliderSizes } from "../utils";
-import { thumbSizeMap } from "../utils";
+import { SliderSizes, thumbSizeMap } from "../utils";
 
 interface ThumbProps {
   thumbBgColor: string;

@@ -4,18 +4,16 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isString, xor } from "lodash";
 import React from "react";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { LabelPosition } from "components/constants";
-import type { TextSize } from "constants/WidgetConstants";
-import type { Stylesheet } from "entities/AppTheming";
+import { TextSize } from "constants/WidgetConstants";
+import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import type { OptionProps } from "../component";
-import SwitchGroupComponent from "../component";
+import SwitchGroupComponent, { OptionProps } from "../component";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,

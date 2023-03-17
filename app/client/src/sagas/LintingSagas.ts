@@ -1,17 +1,19 @@
 import { setLintingErrors } from "actions/lintingActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import type { TJSLibrary } from "workers/common/JSLibrary";
-import type {
+import { TJSLibrary } from "workers/common/JSLibrary";
+import {
   LintTreeRequest,
   LintTreeResponse,
   LintTreeSagaRequestData,
+  LINT_WORKER_ACTIONS,
 } from "workers/Linting/types";
-import { LINT_WORKER_ACTIONS } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 

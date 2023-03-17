@@ -121,8 +121,12 @@ export function getNextTabbableDescendant(
       nextTabbableDescendant,
     );
 
-    const { bottom, left, right, top } =
-      nextTabbableDescendant.getBoundingClientRect();
+    const {
+      bottom,
+      left,
+      right,
+      top,
+    } = nextTabbableDescendant.getBoundingClientRect();
 
     const sortedTabbableDescendants = sortWidgetsByPosition(
       {
@@ -221,8 +225,10 @@ export function sortWidgetsByPosition(
 
   let tabbableElementsByPosition = Array.from(tabbableDescendants).map(
     (element) => {
-      const { left: elementLeft, top: elementTop } =
-        element.getBoundingClientRect();
+      const {
+        left: elementLeft,
+        top: elementTop,
+      } = element.getBoundingClientRect();
       const topDiff = elementTop - top;
       const leftDiff = elementLeft - left;
 

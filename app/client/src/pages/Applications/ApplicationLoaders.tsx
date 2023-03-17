@@ -1,5 +1,5 @@
 import { Classes } from "@blueprintjs/core";
-import type { Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 

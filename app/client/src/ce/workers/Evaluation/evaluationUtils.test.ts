@@ -1,23 +1,23 @@
-import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-
-import type {
+import {
   ConfigTree,
   DataTreeEntity,
   WidgetEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
 import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
+  DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
   getAllPrivateWidgetsInDataTree,
@@ -27,21 +27,21 @@ import {
   translateDiffEventToDataTreeDiffEvent,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { warn as logWarn } from "loglevel";
-import type { Diff } from "deep-diff";
+import { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";
 import {
   overrideWidgetProperties,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
-import type { WidgetConfiguration } from "widgets/constants";
+import { WidgetConfiguration } from "widgets/constants";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
@@ -262,41 +262,45 @@ describe("2. privateWidgets", () => {
   });
 
   it("3. Returns data tree without privateWidgets", () => {
-    const expectedDataTreeWithoutPrivateWidgets: Record<string, WidgetEntity> =
-      {
-        Text1: {
-          ...BASE_WIDGET,
-          widgetName: "Text1",
-          text: "Label",
-          type: "TEXT_WIDGET",
-        },
+    const expectedDataTreeWithoutPrivateWidgets: Record<
+      string,
+      WidgetEntity
+    > = {
+      Text1: {
+        ...BASE_WIDGET,
+        widgetName: "Text1",
+        text: "Label",
+        type: "TEXT_WIDGET",
+      },
 
-        Text4: {
-          ...BASE_WIDGET,
-          widgetName: "Text4",
-          text: "{{Text1.text}}",
-          type: "TEXT_WIDGET",
-        },
+      Text4: {
+        ...BASE_WIDGET,
+        widgetName: "Text4",
+        text: "{{Text1.text}}",
+        type: "TEXT_WIDGET",
+      },
 
-        List1: {
-          ...BASE_WIDGET,
-        },
-        List2: {
-          ...BASE_WIDGET,
-        },
-        Button1: {
-          ...BASE_WIDGET,
-          text: "undefined",
-          __evaluation__: {
-            errors: {
-              text: [],
-            },
+      List1: {
+        ...BASE_WIDGET,
+      },
+      List2: {
+        ...BASE_WIDGET,
+      },
+      Button1: {
+        ...BASE_WIDGET,
+        text: "undefined",
+        __evaluation__: {
+          errors: {
+            text: [],
           },
         },
-      };
+      },
+    };
 
-    const actualDataTreeWithoutPrivateWidgets =
-      getDataTreeWithoutPrivateWidgets(testDataTree, testConfigTree);
+    const actualDataTreeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+      testDataTree,
+      testConfigTree,
+    );
 
     expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
       actualDataTreeWithoutPrivateWidgets,
@@ -479,9 +483,9 @@ describe("4. translateDiffEvent", () => {
     const actualTranslations = flatten(
       diffs.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, {
-          JsObject: {
+          JsObject: ({
             ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-          } as unknown as DataTreeEntity,
+          } as unknown) as DataTreeEntity,
         }),
       ),
     );
@@ -598,7 +602,7 @@ describe("5. overrideWidgetProperties", () => {
     registerWidget(TableWidget, TableWidgetConfig);
     registerWidget(
       InputWidget,
-      InputWidgetV2Config as unknown as WidgetConfiguration,
+      (InputWidgetV2Config as unknown) as WidgetConfiguration,
     );
   });
 
@@ -807,7 +811,7 @@ describe("6. Evaluated Datatype of a given value", () => {
     expect(findDatatype({ a: 1 })).toBe("object");
     expect(findDatatype({})).toBe("object");
     expect(findDatatype(new Date())).toBe("date");
-    const func = function () {
+    const func = function() {
       return "hello world";
     };
     expect(findDatatype(func)).toBe("function");
@@ -856,7 +860,7 @@ describe("convertJSFunctionsToString", () => {
   const JSObject2MyFun2 = new String("async () => {}");
   set(JSObject2MyFun2, "data", {});
 
-  const configTree = {
+  const configTree = ({
     JSObject1: {
       variables: [],
       meta: {
@@ -943,7 +947,7 @@ describe("convertJSFunctionsToString", () => {
         body: ["myFun1", "myFun2"],
       },
     },
-  } as unknown as ConfigTree;
+  } as unknown) as ConfigTree;
 
   const jsCollections: Record<string, JSActionEntity> = {
     JSObject1: {
@@ -958,7 +962,8 @@ describe("convertJSFunctionsToString", () => {
       myVar2: "{}",
       myFun1: JSObject2MyFun1,
       myFun2: JSObject2MyFun2,
-      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      body:
+        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
 
       actionId: "63f78437d1a4ef55755952f1",
@@ -977,7 +982,8 @@ describe("convertJSFunctionsToString", () => {
       myVar2: "{}",
       myFun1: "() => {}",
       myFun2: "async () => {}",
-      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      body:
+        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
       "myFun1.data": {},
       "myFun2.data": {},

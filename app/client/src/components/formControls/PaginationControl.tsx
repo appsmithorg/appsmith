@@ -1,7 +1,6 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import BaseControl, { ControlProps } from "./BaseControl";
+import { ControlType } from "constants/PropertyControlConstants";
 import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";

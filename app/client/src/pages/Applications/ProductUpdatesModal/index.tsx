@@ -9,12 +9,11 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
 import UpdatesButton from "./UpdatesButton";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
-import type { Release } from "./ReleaseComponent";
-import ReleaseComponent from "./ReleaseComponent";
+import ReleaseComponent, { Release } from "./ReleaseComponent";
 import { DialogComponent as Dialog, ScrollIndicator } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 

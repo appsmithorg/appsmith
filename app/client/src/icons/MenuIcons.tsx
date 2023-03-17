@@ -1,6 +1,5 @@
 import React from "react";
-import type { IconProps } from "constants/IconConstants";
-import { IconWrapper } from "constants/IconConstants";
+import { IconProps, IconWrapper } from "constants/IconConstants";
 import WidgetsIcon from "remixicon-react/FunctionLineIcon";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/menu/workspace.svg";

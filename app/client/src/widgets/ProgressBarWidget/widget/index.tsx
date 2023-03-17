@@ -1,15 +1,14 @@
 import React from "react";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import ProgressBarComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,

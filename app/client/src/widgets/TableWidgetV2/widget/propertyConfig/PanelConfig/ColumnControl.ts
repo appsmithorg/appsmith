@@ -1,6 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  DateInputFormat,
+  TableWidgetProps,
+} from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import Clusterer from "./Clusterer";
 import SearchBox from "./SearchBox";
-import type { MapComponentProps } from ".";
+import { MapComponentProps } from ".";
 import PickMyLocation from "./PickMyLocation";
 import Markers from "./Markers";
 

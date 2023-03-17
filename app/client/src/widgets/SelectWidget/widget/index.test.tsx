@@ -1,6 +1,5 @@
 import _ from "lodash";
-import type { SelectWidgetProps } from ".";
-import { defaultOptionValueValidation } from ".";
+import { SelectWidgetProps, defaultOptionValueValidation } from ".";
 
 describe("defaultOptionValueValidation - ", () => {
   it("should get tested with simple string", () => {

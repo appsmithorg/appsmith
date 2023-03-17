@@ -3,10 +3,12 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "widgets/constants";
-import type { NonSerialisableWidgetConfigs, WidgetType } from "./WidgetFactory";
-import WidgetFactory from "./WidgetFactory";
+import { WidgetProps } from "widgets/BaseWidget";
+import { FlattenedWidgetProps } from "widgets/constants";
+import WidgetFactory, {
+  NonSerialisableWidgetConfigs,
+  WidgetType,
+} from "./WidgetFactory";
 
 /**
  * This returns the number of rows which is not occupied by a Canvas Widget within
@@ -21,8 +23,9 @@ export const getCanvasHeightOffset = (
   props: WidgetProps,
 ) => {
   // Get the non serialisable configs for the widget type
-  const config: Record<NonSerialisableWidgetConfigs, unknown> | undefined =
-    WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
+  const config:
+    | Record<NonSerialisableWidgetConfigs, unknown>
+    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
   let offset = 0;
   // If this widget has a registered canvasHeightOffset function
   if (config?.canvasHeightOffset) {

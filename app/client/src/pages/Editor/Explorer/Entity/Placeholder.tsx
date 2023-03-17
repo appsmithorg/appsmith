@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import React from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 const Wrapper = styled.div<{ step: number }>`

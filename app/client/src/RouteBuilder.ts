@@ -8,7 +8,7 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import type {
+import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";

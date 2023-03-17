@@ -1,7 +1,7 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { get } from "lodash";
-import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import type { LintError } from "utils/DynamicBindingUtils";
+import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import { LintError } from "utils/DynamicBindingUtils";
 
 export const getAllLintErrors = (state: AppState): LintErrors =>
   state.linting.errors;

@@ -1,5 +1,4 @@
-import type { CurrencyInputFieldProps } from "./CurrencyInputField";
-import { isValid } from "./CurrencyInputField";
+import { CurrencyInputFieldProps, isValid } from "./CurrencyInputField";
 
 describe("Currency Input Field", () => {
   it("return validity when not required", () => {

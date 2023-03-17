@@ -1,22 +1,23 @@
 import { Alignment } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
+import { IconName } from "@blueprintjs/icons";
 import { LabelPosition } from "components/constants";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
 import { checkInputTypeTextByProps } from "../utils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
-  K extends WidgetState,
+  K extends WidgetState
 > extends BaseWidget<T, K> {
   constructor(props: T) {
     super(props);

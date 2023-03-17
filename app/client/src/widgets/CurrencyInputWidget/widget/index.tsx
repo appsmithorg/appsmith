@@ -1,16 +1,19 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
-import type { CurrencyInputComponentProps } from "../component";
-import CurrencyInputComponent from "../component";
+import { WidgetState } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
+import CurrencyInputComponent, {
+  CurrencyInputComponentProps,
+} from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationTypes,
+  ValidationResponse,
+} from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
@@ -19,7 +22,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import {
@@ -33,7 +36,7 @@ import {
   getLocaleThousandSeparator,
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
 
 export function defaultValueValidation(

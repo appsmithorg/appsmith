@@ -1,7 +1,9 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import type { NavigationMethod } from "utils/history";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "utils/history";
 
 export type WidgetSelectionRequestPayload = {
   selectionRequestType: SelectionRequestType;

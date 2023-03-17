@@ -1,10 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { Switch } from "design-system-old";
-import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,

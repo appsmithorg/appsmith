@@ -1,12 +1,21 @@
-import type { RefObject } from "react";
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  memo,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { isNumber, isNil } from "lodash";
 
-import type { BaseCellComponentProps, VerticalAlignment } from "../Constants";
-import { ALIGN_ITEMS } from "../Constants";
-import type { EditableCell } from "widgets/TableWidgetV2/constants";
+import {
+  ALIGN_ITEMS,
+  BaseCellComponentProps,
+  VerticalAlignment,
+} from "../Constants";
 import {
   ColumnTypes,
+  EditableCell,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";

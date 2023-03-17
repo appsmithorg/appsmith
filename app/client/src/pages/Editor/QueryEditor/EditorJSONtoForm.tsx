@@ -1,25 +1,23 @@
-import type { RefObject } from "react";
-import React, { useCallback, useRef } from "react";
-import type { InjectedFormProps } from "redux-form";
+import React, { RefObject, useCallback, useRef } from "react";
+import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
-import type {
+import {
+  components,
   MenuListComponentProps,
   OptionProps,
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
-import { components } from "react-select";
-import type { Datasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
-import type { Action, QueryAction, SaaSAction } from "entities/Action";
-import { SlashCommand } from "entities/Action";
+import { Action, QueryAction, SaaSAction, SlashCommand } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import type { ControlProps } from "components/formControls/BaseControl";
+import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
 import {
@@ -79,27 +77,28 @@ import {
   CREATE_NEW_DATASOURCE,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
-import type { AppState } from "@appsmith/reducers";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { AppState } from "@appsmith/reducers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import type { SuggestedWidget } from "api/ActionAPI";
-import type { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
+import { SuggestedWidget } from "api/ActionAPI";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
-import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  FormEvalOutput,
+  isValidFormConfig,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   responseTabComponent,
   InlineButton,
@@ -171,6 +170,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
+
   }
   &&& {
     ul.react-tabs__tab-list {
@@ -734,33 +734,31 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   // Recursive call to render forms pre UQI
-  const renderEachConfig =
-    (formName: string) =>
-    (section: any): any => {
-      return section.children.map(
-        (formControlOrSection: ControlProps, idx: number) => {
-          if (isHidden(props.formData, section.hidden)) return null;
-          if (formControlOrSection.hasOwnProperty("children")) {
-            return renderEachConfig(formName)(formControlOrSection);
-          } else {
-            try {
-              const { configProperty } = formControlOrSection;
-              return (
-                <FieldWrapper key={`${configProperty}_${idx}`}>
-                  <FormControl
-                    config={formControlOrSection}
-                    formName={formName}
-                  />
-                </FieldWrapper>
-              );
-            } catch (e) {
-              log.error(e);
-            }
+  const renderEachConfig = (formName: string) => (section: any): any => {
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (isHidden(props.formData, section.hidden)) return null;
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfig(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
           }
-          return null;
-        },
-      );
-    };
+        }
+        return null;
+      },
+    );
+  };
 
   const responeTabOnRunClick = () => {
     props.onRunClick();
@@ -920,20 +918,19 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
-  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
-    dataSources.reduce(
-      (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
-        if (dataSource.pluginId === plugin?.id) {
-          acc.push({
-            label: dataSource.name,
-            value: dataSource.id,
-            image: pluginImages[dataSource.pluginId],
-          });
-        }
-        return acc;
-      },
-      [],
-    );
+  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> = dataSources.reduce(
+    (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
+      if (dataSource.pluginId === plugin?.id) {
+        acc.push({
+          label: dataSource.name,
+          value: dataSource.id,
+          image: pluginImages[dataSource.pluginId],
+        });
+      }
+      return acc;
+    },
+    [],
+  );
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 

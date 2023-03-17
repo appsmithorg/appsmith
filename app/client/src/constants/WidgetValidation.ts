@@ -1,5 +1,5 @@
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ValidationConfig } from "./PropertyControlConstants";
+import { ValidationConfig } from "./PropertyControlConstants";
 
 // Always add a validator function in ./worker/validation for these types
 export enum ValidationTypes {

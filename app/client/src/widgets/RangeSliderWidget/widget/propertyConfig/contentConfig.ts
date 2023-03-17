@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { RangeSliderWidgetProps } from "..";
+import { RangeSliderWidgetProps } from "..";
 import {
   endValueValidation,
   maxValueValidation,

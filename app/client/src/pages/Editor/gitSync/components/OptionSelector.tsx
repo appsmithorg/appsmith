@@ -1,10 +1,8 @@
 import React from "react";
-import type {
-  DefaultDropDownValueNodeProps,
-  DropdownOption,
-} from "design-system-old";
 import {
   Dropdown,
+  DefaultDropDownValueNodeProps,
+  DropdownOption,
   DropdownWrapper,
   DropdownContainer as DropdownComponentContainer,
 } from "design-system-old";

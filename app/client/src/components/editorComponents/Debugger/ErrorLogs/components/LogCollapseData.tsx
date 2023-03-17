@@ -1,5 +1,4 @@
-import type { PropsWithChildren } from "react";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";

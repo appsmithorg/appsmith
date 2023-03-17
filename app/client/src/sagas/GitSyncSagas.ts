@@ -1,11 +1,9 @@
-import type {
+import {
   ApplicationPayload,
   ReduxAction,
-  ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   actionChannel,
@@ -15,23 +13,19 @@ import {
   select,
   take,
 } from "redux-saga/effects";
-import type { TakeableChannel } from "@redux-saga/core";
-import type { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
-import GitSyncAPI from "api/GitSyncAPI";
+import { TakeableChannel } from "@redux-saga/core";
+import GitSyncAPI, {
+  MergeBranchPayload,
+  MergeStatusPayload,
+} from "api/GitSyncAPI";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
-import type {
-  ConnectToGitReduxAction,
-  GenerateSSHKeyPairReduxAction,
-  GenerateSSHKeyPairResponsePayload,
-  GetSSHKeyPairReduxAction,
-  GetSSHKeyResponseData,
-} from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
+  ConnectToGitReduxAction,
   connectToGitSuccess,
   deleteBranchError,
   deleteBranchSuccess,
@@ -48,9 +42,13 @@ import {
   fetchLocalGitConfigSuccess,
   fetchMergeStatusFailure,
   fetchMergeStatusSuccess,
+  GenerateSSHKeyPairReduxAction,
+  GenerateSSHKeyPairResponsePayload,
   generateSSHKeyPairSuccess,
   getSSHKeyPairError,
+  GetSSHKeyPairReduxAction,
   getSSHKeyPairSuccess,
+  GetSSHKeyResponseData,
   gitPullSuccess,
   importAppViaGitStatusReset,
   importAppViaGitSuccess,
@@ -65,9 +63,8 @@ import {
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 
-import type { ApiResponse } from "api/ApiResponses";
-import type { GitConfig } from "entities/GitSync";
-import { GitSyncModalTab } from "entities/GitSync";
+import { ApiResponse } from "api/ApiResponses";
+import { GitConfig, GitSyncModalTab } from "entities/GitSync";
 import { Toaster, Variant } from "design-system-old";
 import {
   getCurrentAppGitMetaData,
@@ -81,7 +78,7 @@ import {
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import type { GitApplicationMetadata } from "api/ApplicationApi";
+import { GitApplicationMetadata } from "api/ApplicationApi";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
@@ -93,12 +90,12 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
 import { APP_MODE } from "../entities/App";
-import type { GitDiscardResponse } from "../reducers/uiReducers/gitSyncReducer";
+import { GitDiscardResponse } from "../reducers/uiReducers/gitSyncReducer";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -872,7 +869,8 @@ function* discardChanges() {
   let response: ApiResponse<GitDiscardResponse>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
-    response = yield GitSyncAPI.discardChanges(appId);
+    const doPull = true;
+    response = yield GitSyncAPI.discardChanges(appId, doPull);
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
@@ -902,7 +900,7 @@ function* discardChanges() {
 }
 
 const gitRequestActions: Record<
-  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
+  typeof ReduxActionTypes[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
 > = {
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: commitToGitRepoSaga,

@@ -1,16 +1,18 @@
 import { isNil, isPlainObject, merge } from "lodash";
-import type { LabelInValueType } from "rc-select/lib/Select";
+import { LabelInValueType } from "rc-select/lib/Select";
 
 import {
   isDynamicValue,
   getDynamicBindings,
   combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import type { FieldThemeStylesheet, Schema, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
+  FieldThemeStylesheet,
   FieldType,
   inverseFieldType,
+  Schema,
+  SchemaItem,
   getBindingTemplate,
 } from "./constants";
 
@@ -66,8 +68,9 @@ export const getFieldStylesheet = (
           fieldStylesheet[fieldPropertyKey],
         );
         const js = combineDynamicBindings(jsSnippets, stringSegments);
-        const { prefixTemplate, suffixTemplate } =
-          getBindingTemplate(widgetName);
+        const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+          widgetName,
+        );
         const computedValue = `${prefixTemplate}${js}${suffixTemplate}`;
 
         computedFieldStylesheet[fieldPropertyKey] = computedValue;

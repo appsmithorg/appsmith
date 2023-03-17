@@ -1,4 +1,4 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 
 export const createReducer = (

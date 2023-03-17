@@ -1,18 +1,16 @@
-import type { WidgetType } from "constants/WidgetConstants";
-import { DEFAULT_CENTER } from "constants/WidgetConstants";
+import { DEFAULT_CENTER, WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import MapComponent from "../component";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { MarkerProps } from "../constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 const DisabledContainer = styled.div<{

@@ -1,9 +1,12 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  ConfigTree,
+  DataTree,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { uniqueId, get, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
-import type { Def } from "tern";
+import { Def } from "tern";
 import {
   isAction,
   isAppsmithEntity,
@@ -11,12 +14,12 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
+import { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 
 export type ExtraDef = Record<string, Def | string>;
 
-import type { JSActionEntityConfig } from "entities/DataTree/types";
-import type { Variable } from "entities/JSCollection";
+import { Variable } from "entities/JSCollection";
+import { JSActionEntityConfig } from "entities/DataTree/types";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them

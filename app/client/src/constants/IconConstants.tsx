@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import type { Color } from "./Colors";
+import { Color } from "./Colors";
 
 export type IconProps = {
   width?: number;

@@ -2,20 +2,19 @@ import React from "react";
 import styled from "styled-components";
 import { isString } from "lodash";
 
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
+  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
-import type { ListWidgetProps } from "widgets/ListWidgetV2/widget";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { ListWidgetProps } from "widgets/ListWidgetV2/widget";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { getBindingTemplate } from "widgets/ListWidgetV2/constants";
 
 const PromptMessage = styled.span`

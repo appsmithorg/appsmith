@@ -1,6 +1,5 @@
 import { Layers } from "constants/Layers";
-import type { RefObject } from "react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 

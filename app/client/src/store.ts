@@ -1,7 +1,6 @@
 import { reduxBatch } from "@manaflair/redux-batch";
 import { createStore, applyMiddleware, compose } from "redux";
-import type { AppState } from "@appsmith/reducers";
-import appReducer from "@appsmith/reducers";
+import appReducer, { AppState } from "@appsmith/reducers";
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "@appsmith/sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";

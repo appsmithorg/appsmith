@@ -1,5 +1,5 @@
 import { transformTableDataIntoCsv } from "./Utilities";
-import type { TableColumnProps } from "../../Constants";
+import { TableColumnProps } from "../../Constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 describe("TransformTableDataIntoArrayOfArray", () => {

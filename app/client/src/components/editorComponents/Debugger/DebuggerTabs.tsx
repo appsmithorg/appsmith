@@ -1,5 +1,4 @@
-import type { RefObject } from "react";
-import React, { useRef } from "react";
+import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";

@@ -42,7 +42,7 @@ import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
-import type { Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 const ListContainer = styled.div`
   flex: 1;

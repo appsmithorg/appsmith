@@ -1,5 +1,5 @@
 import { APP_MODE } from "entities/App";
-import type AppEngine from ".";
+import AppEngine from ".";
 import AppEditorEngine from "./AppEditorEngine";
 import AppViewerEngine from "./AppViewerEngine";
 

@@ -5,7 +5,7 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
-describe("Undo/Redo functionality", function () {
+describe("Undo/Redo functionality", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   let postgresDatasourceName;
 
@@ -29,20 +29,24 @@ describe("Undo/Redo functionality", function () {
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
-    cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
+    cy.get(datasourceEditor.sectionAuthentication)
+      .trigger("click")
+      .wait(1000);
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(
       `${datasourceEditor.sectionAuthentication} .bp3-icon-chevron-up`,
     ).should("exist");
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").eq(1).trigger("mouseover");
+    cy.get("li:contains(Edit)")
+      .eq(1)
+      .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     cy.get(datasourceEditor.username).should("be.empty");
     cy.get(datasourceEditor.saveBtn).click({ force: true });
   });
 
-  it("2. Checks undo/redo for Api pane", function () {
+  it("2. Checks undo/redo for Api pane", function() {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
@@ -84,10 +88,13 @@ describe("Undo/Redo functionality", function () {
   it("3. Checks undo/redo in query editor", () => {
     cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
-      force: true,
-      parseSpecialCharSequences: false,
-    });
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type("{{FirstAPI}}", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
     cy.get("body").click(0, 0);
     // verifying Relationships is visible on dynamic binding
     cy.get(".icon-text")
@@ -113,7 +120,9 @@ describe("Undo/Redo functionality", function () {
     cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
     // undo/redo through app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").eq(1).trigger("mouseover");
+    cy.get("li:contains(Edit)")
+      .eq(1)
+      .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
   });
@@ -136,7 +145,9 @@ describe("Undo/Redo functionality", function () {
     cy.contains("testJSFunction").should("exist");
     // performing undo from app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").eq(1).trigger("mouseover");
+    cy.get("li:contains(Edit)")
+      .eq(1)
+      .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     // cy.get(".function-name").should("not.contain.text", "test");
   });

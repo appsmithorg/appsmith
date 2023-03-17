@@ -3,7 +3,7 @@ const dsl = require("../../../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Input Widget Functionality", function () {
+describe("Input Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -28,7 +28,7 @@ describe("Input Widget Functionality", function () {
   //   cy.reload();
   // });
 
-  it("Input Widget Functionality", function () {
+  it("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidgetv2");
     /**
      * @param{Text} Random Text
@@ -42,7 +42,9 @@ describe("Input Widget Functionality", function () {
       .children()
       .contains("Single-line text")
       .click({ force: true });
-    cy.get(widgetsPage.innertext).click({ force: true }).type(this.data.para);
+    cy.get(widgetsPage.innertext)
+      .click({ force: true })
+      .type(this.data.para);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.para);
@@ -68,7 +70,7 @@ describe("Input Widget Functionality", function () {
     );
     cy.PublishtheApp();
   });
-  it("Input Widget Functionality To Validate Default Text and Placeholder", function () {
+  it("Input Widget Functionality To Validate Default Text and Placeholder", function() {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
@@ -78,7 +80,7 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("isSpellCheck: true", function () {
+  it("isSpellCheck: true", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.spellCheck + " " + "input");
     cy.PublishtheApp();
@@ -88,7 +90,7 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("isSpellCheck: false", function () {
+  it("isSpellCheck: false", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
     cy.PublishtheApp();
@@ -98,28 +100,28 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("Input Widget Functionality To Check Disabled Widget", function () {
+  it("Input Widget Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
     cy.get(publish.backToEditor).click({ force: true });
   });
-  it("Input Widget Functionality To Check Enabled Widget", function () {
+  it("Input Widget Functionality To Check Enabled Widget", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
     cy.get(publish.backToEditor).click({ force: true });
   });
-  it("Input Functionality To Unchecked Visible Widget", function () {
+  it("Input Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
-  it("Input Functionality To Check Visible Widget", function () {
+  it("Input Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -127,9 +129,11 @@ describe("Input Widget Functionality", function () {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("Input Functionality To check number input type with custom regex", function () {
+  it("Input Functionality To check number input type with custom regex", function() {
     cy.openPropertyPane("inputwidgetv2");
-    cy.get(commonlocators.dataType).last().click({ force: true });
+    cy.get(commonlocators.dataType)
+      .last()
+      .click({ force: true });
     /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/
@@ -138,11 +142,16 @@ describe("Input Widget Functionality", function () {
       .contains("Number")
       .click({ force: true });
     cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
-    cy.get(widgetsPage.innertext).click().clear().type("1.255");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear()
+      .type("1.255");
     cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain("Invalid input");
     });
-    cy.get(widgetsPage.innertext).click({ force: true }).clear();
+    cy.get(widgetsPage.innertext)
+      .click({ force: true })
+      .clear();
     cy.closePropertyPane("inputwidgetv2");
   });
 
@@ -173,7 +182,9 @@ describe("Input Widget Functionality", function () {
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
-    cy.get(".bp3-icon-add").first().click({ force: true });
+    cy.get(".bp3-icon-add")
+      .first()
+      .click({ force: true });
     cy.get(".bp3-input-group .bp3-icon-add").should("exist");
   });
 

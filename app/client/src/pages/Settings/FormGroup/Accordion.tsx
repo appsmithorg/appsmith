@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { createMessage } from "@appsmith//constants/messages";
 import { StyledLabel } from "./Common";
 import Group from "./group";

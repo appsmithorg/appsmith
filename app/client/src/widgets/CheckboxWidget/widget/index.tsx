@@ -1,15 +1,14 @@
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import CheckboxComponent from "../component";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {

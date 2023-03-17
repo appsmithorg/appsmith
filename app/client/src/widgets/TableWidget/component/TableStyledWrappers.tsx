@@ -1,11 +1,6 @@
 import styled, { css } from "styled-components";
-import type {
-  TableSizes,
-  CellLayoutProperties,
-  CellAlignment,
-} from "./Constants";
-import type { Color } from "constants/Colors";
-import { Colors } from "constants/Colors";
+import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
+import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import {
   fontSizeUtility,

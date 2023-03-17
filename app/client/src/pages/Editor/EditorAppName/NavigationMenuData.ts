@@ -1,13 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import type { noop } from "lodash";
+import { noop } from "lodash";
 
 import { Toaster, Variant } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
-import type { MenuItemData } from "./NavigationMenuItem";
-import { MenuTypes } from "./NavigationMenuItem";
+import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
@@ -22,7 +21,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import type { ThemeProp } from "widgets/constants";
+import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;

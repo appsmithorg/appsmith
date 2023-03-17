@@ -1,17 +1,16 @@
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { isBoolean, get, set, isString } from "lodash";
-import type {
+import {
   ConditionalOutput,
   FormConfigEvalObject,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import type { FormConfigType, HiddenType } from "./BaseControl";
-import type { Diff } from "deep-diff";
-import { diff } from "deep-diff";
+import { FormConfigType, HiddenType } from "./BaseControl";
+import { diff, Diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
-import type { Action } from "@sentry/react/dist/types";
+import { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
-import type FeatureFlags from "entities/FeatureFlags";
+import FeatureFlags from "entities/FeatureFlags";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,

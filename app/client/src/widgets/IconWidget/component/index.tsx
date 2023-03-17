@@ -1,7 +1,6 @@
 import React from "react";
-import type { Intent } from "@blueprintjs/core";
-import { Icon } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
+import { Icon, Intent } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 import { noop } from "utils/AppsmithUtils";
 export type IconType = IconName | string;
 

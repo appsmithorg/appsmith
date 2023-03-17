@@ -5,10 +5,10 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
-import type { Datasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
 import {
   saveDatasourceName,
@@ -34,8 +34,10 @@ type FormTitleProps = ComponentProps;
 
 function FormTitle(props: FormTitleProps) {
   const params = useParams<{ datasourceId: string }>();
-  const currentDatasource: Datasource | undefined = useSelector(
-    (state: AppState) => getDatasource(state, params.datasourceId),
+  const currentDatasource:
+    | Datasource
+    | undefined = useSelector((state: AppState) =>
+    getDatasource(state, params.datasourceId),
   );
   const datasources: Datasource[] = useSelector(getDatasources);
   const [forceUpdate, setForceUpdate] = useState(false);

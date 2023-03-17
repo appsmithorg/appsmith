@@ -1,13 +1,12 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type {
+import {
+  ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { uniq, get, set } from "lodash";
-import type { Diff } from "deep-diff";
-import { diff } from "deep-diff";
+import { Diff, diff } from "deep-diff";
 import {
   getCanvasBottomRow,
   getCanvasWidgetHeightsToUpdate,
@@ -94,8 +93,10 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       }
     }
 
-    const canvasWidgetHeightsToUpdate: Record<string, number> =
-      getCanvasWidgetHeightsToUpdate(listOfUpdatedWidgets, state);
+    const canvasWidgetHeightsToUpdate: Record<
+      string,
+      number
+    > = getCanvasWidgetHeightsToUpdate(listOfUpdatedWidgets, state);
 
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
@@ -124,11 +125,13 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       });
     }
 
-    const canvasWidgetHeightsToUpdate: Record<string, number> =
-      getCanvasWidgetHeightsToUpdate(
-        Object.keys(action.payload.widgetsToUpdate),
-        state,
-      );
+    const canvasWidgetHeightsToUpdate: Record<
+      string,
+      number
+    > = getCanvasWidgetHeightsToUpdate(
+      Object.keys(action.payload.widgetsToUpdate),
+      state,
+    );
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
     }

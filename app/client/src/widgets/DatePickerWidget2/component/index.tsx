@@ -1,15 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { IntentColors } from "constants/DefaultTheme";
-import type { IRef, Alignment } from "@blueprintjs/core";
-import { ControlGroup, Classes } from "@blueprintjs/core";
-import type { ComponentProps } from "widgets/BaseComponent";
+import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
+import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import type { DatePickerType } from "../constants";
-import { TimePrecision } from "../constants";
-import type { TextSize } from "constants/WidgetConstants";
+import { DatePickerType, TimePrecision } from "../constants";
+import { TextSize } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -52,13 +50,13 @@ const StyledControlGroup = styled(ControlGroup)<{
     has fixed height and stretch the container.
   */
     ${({ labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) {
-      return `
+      if (labelPosition === LabelPosition.Left) {
+        return `
       height: auto !important;
       align-items: stretch;
       `;
-    }
-  }}
+      }
+    }}
 
   &&& {
     .${Classes.INPUT} {

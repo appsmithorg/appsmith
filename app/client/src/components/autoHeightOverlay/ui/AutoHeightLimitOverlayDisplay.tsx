@@ -5,7 +5,9 @@ interface AutoHeightLimitOverlayDisplayProps {
   height: number;
 }
 
-const AutoHeightLimitOverlayDisplay = styled.div<AutoHeightLimitOverlayDisplayProps>`
+const AutoHeightLimitOverlayDisplay = styled.div<
+  AutoHeightLimitOverlayDisplayProps
+>`
   display: ${(props) => (props.isActive ? "block" : "none")};
   position: absolute;
   top: 0;

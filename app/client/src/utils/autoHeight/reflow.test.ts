@@ -1,4 +1,4 @@
-import type { TreeNode } from "./constants";
+import { TreeNode } from "./constants";
 import { computeChangeInPositionBasedOnDelta } from "./reflow";
 
 describe("reflow", () => {

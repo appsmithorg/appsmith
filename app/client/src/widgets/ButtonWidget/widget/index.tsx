@@ -1,25 +1,24 @@
 import { Alignment } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
-import type {
-  ButtonPlacement,
-  ButtonVariant,
-  RecaptchaType,
-} from "components/constants";
+import { IconName } from "@blueprintjs/icons";
 import {
+  ButtonPlacement,
   ButtonPlacementTypes,
+  ButtonVariant,
   ButtonVariantTypes,
+  RecaptchaType,
   RecaptchaTypes,
 } from "components/constants";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import ButtonComponent, { ButtonType } from "../component";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {

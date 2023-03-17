@@ -7,8 +7,11 @@ import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.s
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableFilterPane from "./TableFilterPane";
 
-import type { ReactTableColumnProps, ReactTableFilter } from "./Constants";
-import { OperatorTypes } from "./Constants";
+import {
+  ReactTableColumnProps,
+  ReactTableFilter,
+  OperatorTypes,
+} from "./Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";

@@ -3,7 +3,7 @@ import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
 } from "./hooks";
-import type { Datasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "react-redux";
 import {
@@ -35,7 +35,7 @@ import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,

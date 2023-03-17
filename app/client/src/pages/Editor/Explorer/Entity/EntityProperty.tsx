@@ -1,5 +1,4 @@
-import type { MutableRefObject } from "react";
-import React, { memo, useCallback, useRef } from "react";
+import React, { memo, MutableRefObject, useCallback, useRef } from "react";
 import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,

@@ -21,7 +21,7 @@ import {
   pageIcon,
 } from "../ExplorerIcons";
 import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import styled from "styled-components";
@@ -36,8 +36,10 @@ import {
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { tailwindLayers } from "constants/Layers";
-import type { CallbackResponseType } from "utils/hooks/useResize";
-import useResize, { DIRECTION } from "utils/hooks/useResize";
+import useResize, {
+  CallbackResponseType,
+  DIRECTION,
+} from "utils/hooks/useResize";
 import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
@@ -46,7 +48,7 @@ import {
   hasCreatePagePermission,
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;

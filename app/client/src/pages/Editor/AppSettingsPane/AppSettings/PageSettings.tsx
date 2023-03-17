@@ -1,6 +1,6 @@
 import { ApplicationVersion } from "actions/applicationActions";
 import { setPageAsDefault, updatePage } from "actions/pageActions";
-import type { UpdatePageRequest } from "api/PageApi";
+import { UpdatePageRequest } from "api/PageApi";
 import {
   PAGE_SETTINGS_SHOW_PAGE_NAV,
   PAGE_SETTINGS_PAGE_NAME_LABEL,
@@ -15,7 +15,7 @@ import {
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
   PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
 } from "@appsmith/constants/messages";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Text, TextInput, TextType } from "design-system-old";
@@ -33,7 +33,7 @@ import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
 import { getUrlPreview } from "../Utils";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
 import SwitchWrapper from "../Components/SwitchWrapper";

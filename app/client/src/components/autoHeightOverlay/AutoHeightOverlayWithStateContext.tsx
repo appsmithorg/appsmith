@@ -1,6 +1,5 @@
 import React from "react";
-import type { AutoHeightOverlayProps } from "./AutoHeightOverlay";
-import AutoHeightOverlay from "./AutoHeightOverlay";
+import AutoHeightOverlay, { AutoHeightOverlayProps } from "./AutoHeightOverlay";
 import { AutoHeightLimitsStateContextProvider } from "./store";
 
 function AutoHeightOverlayWithStateContext(props: AutoHeightOverlayProps) {

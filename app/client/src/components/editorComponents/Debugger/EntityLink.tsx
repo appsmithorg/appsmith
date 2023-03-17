@@ -1,11 +1,10 @@
 import { PluginType } from "entities/Action";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -20,7 +19,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history, { NavigationMethod } from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
-import type LOG_TYPE from "entities/AppsmithConsole/logtype";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);

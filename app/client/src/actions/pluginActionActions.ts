@@ -1,18 +1,16 @@
-import type { ActionResponse, PaginationField } from "api/ActionAPI";
-import type {
+import { ActionResponse, PaginationField } from "api/ActionAPI";
+import {
   EvaluationReduxAction,
   AnyReduxAction,
   ReduxAction,
-  ReduxActionWithoutPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
+import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
-import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {

@@ -6,7 +6,7 @@ import {
 } from "components/propertyControls/StyledControls";
 import DividerComponent from "widgets/DividerWidget/component";
 import { FieldType } from "./constants";
-import type { FieldsProps } from "./types";
+import { FieldsProps } from "./types";
 import { Field } from "./Field";
 
 /**

@@ -1,5 +1,4 @@
-import type { TableColumnProps } from "./Constants";
-import { ColumnTypes } from "./Constants";
+import { ColumnTypes, TableColumnProps } from "./Constants";
 import { isPlainObject, isNil, isString } from "lodash";
 import moment from "moment";
 

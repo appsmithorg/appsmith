@@ -1,15 +1,15 @@
 import React from "react";
-import type {
+import {
   ChangeSelectedAppThemeAction,
   DeleteAppThemeAction,
   FetchAppThemesAction,
   FetchSelectedAppThemeAction,
   SaveAppThemeAction,
+  updateisBetaCardShownAction,
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { updateisBetaCardShownAction } from "actions/appThemingActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -28,16 +28,18 @@ import { undoAction, updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import store from "store";
 import { getAppMode } from "selectors/applicationSelectors";
-import type { APP_MODE } from "entities/App";
+import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import {
+  batchUpdateMultipleWidgetProperties,
+  UpdateWidgetPropertyPayload,
+} from "actions/controlActions";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
-import type { ApiResponse } from "api/ApiResponses";
-import type { AppTheme } from "entities/AppTheming";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { ApiResponse } from "api/ApiResponses";
+import { AppTheme } from "entities/AppTheming";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getCurrentApplicationId,
   selectApplicationVersion,
@@ -46,8 +48,8 @@ import { find } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { getAllPageIds } from "./selectors";
-import type { SagaIterator } from "@redux-saga/types";
-import type { AxiosPromise } from "axios";
+import { SagaIterator } from "@redux-saga/types";
+import { AxiosPromise } from "axios";
 
 /**
  * init app theming
@@ -305,8 +307,9 @@ function* resetTheme() {
     const canvasWidgets: CanvasWidgetsReduxState = yield select(
       getCanvasWidgets,
     );
-    const propertiesToUpdate: UpdateWidgetPropertyPayload[] =
-      getPropertiesToUpdateForReset(canvasWidgets);
+    const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(
+      canvasWidgets,
+    );
 
     if (propertiesToUpdate.length) {
       yield put(batchUpdateMultipleWidgetProperties(propertiesToUpdate));

@@ -3,8 +3,7 @@ import algoliasearch from "algoliasearch/lite";
 import { InstantSearch } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { debounce } from "lodash";
-import type { SearchCategory } from "./utils";
-import { isSnippet } from "./utils";
+import { isSnippet, SearchCategory } from "./utils";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);

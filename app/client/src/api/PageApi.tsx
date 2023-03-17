@@ -1,17 +1,16 @@
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
-import type { AxiosPromise, CancelTokenSource } from "axios";
-import axios from "axios";
-import type {
+import { ApiResponse } from "./ApiResponses";
+import axios, { AxiosPromise, CancelTokenSource } from "axios";
+import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DSLWidget } from "widgets/constants";
-import type {
+import { DSLWidget } from "widgets/constants";
+import {
   ClonePageActionPayload,
   CreatePageActionPayload,
 } from "actions/pageActions";
-import type { FetchApplicationResponse } from "./ApplicationApi";
+import { FetchApplicationResponse } from "./ApplicationApi";
 
 export type FetchPageRequest = {
   id: string;
@@ -150,13 +149,15 @@ export type FetchPageListResponse = ApiResponse<FetchPageListResponseData>;
 
 export type UpdateWidgetNameResponse = ApiResponse<PageLayout>;
 
-export type GenerateTemplatePageRequestResponse =
-  ApiResponse<GenerateTemplatePageResponseData>;
+export type GenerateTemplatePageRequestResponse = ApiResponse<
+  GenerateTemplatePageResponseData
+>;
 
 export type FetchPageResponse = ApiResponse<FetchPageResponseData>;
 
-export type FetchPublishedPageResponse =
-  ApiResponse<FetchPublishedPageResponseData>;
+export type FetchPublishedPageResponse = ApiResponse<
+  FetchPublishedPageResponseData
+>;
 
 class PageApi extends Api {
   static url = "v1/pages";

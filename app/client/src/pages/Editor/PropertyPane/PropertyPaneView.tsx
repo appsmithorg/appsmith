@@ -1,9 +1,14 @@
-import type { ReactElement } from "react";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
-import type { IPanelProps, Position } from "@blueprintjs/core";
+import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
@@ -13,9 +18,11 @@ import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
-import type { WidgetType } from "constants/WidgetConstants";
-import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
-import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
+import { WidgetType } from "constants/WidgetConstants";
+import {
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
+} from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
@@ -178,10 +185,9 @@ function PropertyPaneView(
   // generate messages
   const deprecationMessage = buildDeprecationWidgetMessage(widgetReplacedWith);
 
-  const isContentConfigAvailable =
-    WidgetFactory.getWidgetPropertyPaneContentConfig(
-      widgetProperties.type,
-    ).length;
+  const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
+    widgetProperties.type,
+  ).length;
 
   const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
     widgetProperties.type,

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 
 import {
   moveActionRequest,
@@ -25,7 +25,7 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
-import type { IconName } from "@blueprintjs/icons";
+import { IconName } from "@blueprintjs/icons";
 
 type EntityContextMenuProps = {
   id: string;

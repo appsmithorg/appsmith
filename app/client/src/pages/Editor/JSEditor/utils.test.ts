@@ -1,4 +1,4 @@
-import type { JSAction } from "entities/JSCollection";
+import { JSAction } from "entities/JSCollection";
 import { uniqueId } from "lodash";
 import { NO_FUNCTION_DROPDOWN_OPTION } from "./constants";
 import {

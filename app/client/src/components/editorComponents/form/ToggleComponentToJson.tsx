@@ -5,13 +5,12 @@ import {
   switchViewType,
   ViewTypes,
 } from "components/formControls/utils";
-import type { AppState } from "@appsmith/reducers";
-import type { Action } from "entities/Action";
-import type { ControlProps } from "components/formControls/BaseControl";
+import { AppState } from "@appsmith/reducers";
+import { Action } from "entities/Action";
+import { ControlProps } from "components/formControls/BaseControl";
 import { connect, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
-import type { AnyAction, Dispatch } from "redux";
-import { bindActionCreators } from "redux";
+import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { change } from "redux-form";
 import { JSToggleButton, TooltipComponent } from "design-system-old";
 import { get } from "lodash";

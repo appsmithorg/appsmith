@@ -1,6 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import { Action } from "entities/Action";
 
 export const changeQuery = (
   id: string,

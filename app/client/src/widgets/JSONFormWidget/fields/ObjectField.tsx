@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import type { ControllerRenderProps } from "react-hook-form";
+import { ControllerRenderProps } from "react-hook-form";
 import { sortBy } from "lodash";
 
 import Accordion from "../component/Accordion";
@@ -9,7 +9,7 @@ import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useUpdateAccessor from "./useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
-import type {
+import {
   BaseFieldComponentProps,
   FieldComponent,
   FieldComponentBaseProps,

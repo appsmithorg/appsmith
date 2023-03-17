@@ -1,17 +1,17 @@
-import type { Log } from "entities/AppsmithConsole";
 import {
   ENTITY_TYPE,
+  Log,
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import type {
+import {
   ConfigTree,
   DataTree,
   UnEvalTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
+  DataTreeDiff,
   DataTreeDiffEvent,
   getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
@@ -19,12 +19,16 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
+import {
+  EvalError,
+  EvalErrorTypes,
+  EvaluationError,
+  getEvalErrorPath,
+} from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
@@ -37,16 +41,16 @@ import {
   JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import type FeatureFlags from "entities/FeatureFlags";
-import type { JSAction } from "entities/JSCollection";
+import FeatureFlags from "entities/FeatureFlags";
+import { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
-import type { ActionEntityConfig } from "entities/DataTree/types";
+import { ActionEntityConfig } from "entities/DataTree/types";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -64,8 +68,9 @@ function logLatestEvalPropertyErrors(
   };
 
   for (const evaluatedPath of evaluationOrder) {
-    const { entityName, propertyPath } =
-      getEntityNameAndPropertyPath(evaluatedPath);
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      evaluatedPath,
+    );
     const entity = dataTree[entityName];
     const entityConfig = configTree[entityName] as any;
 
@@ -329,8 +334,9 @@ export function* logSuccessfulBindings(
     return;
   }
   evaluationOrder.forEach((evaluatedPath) => {
-    const { entityName, propertyPath } =
-      getEntityNameAndPropertyPath(evaluatedPath);
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      evaluatedPath,
+    );
     const entity = dataTree[entityName];
     const entityConfig = configTree[entityName] as
       | WidgetEntityConfig

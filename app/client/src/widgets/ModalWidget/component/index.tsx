@@ -1,14 +1,20 @@
-import type { ReactNode, RefObject } from "react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Classes, Overlay } from "@blueprintjs/core";
 import { get, omit } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { closeTableFilterPane } from "actions/widgetActions";
-import type { UIElementSize } from "components/editorComponents/ResizableUtils";
+import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
@@ -137,8 +143,9 @@ export type ModalComponentProps = {
 
 /* eslint-disable react/display-name */
 export default function ModalComponent(props: ModalComponentProps) {
-  const modalContentRef: RefObject<HTMLDivElement> =
-    useRef<HTMLDivElement>(null);
+  const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
+    null,
+  );
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");

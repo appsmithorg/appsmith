@@ -1,9 +1,10 @@
-import type { ReactNode, RefObject } from "react";
 import React, {
+  ReactNode,
   useEffect,
   useRef,
   forwardRef,
   useCallback,
+  RefObject,
   useMemo,
 } from "react";
 import styled, { css } from "styled-components";
@@ -26,7 +27,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 
 export enum EntityClassNames {

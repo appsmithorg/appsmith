@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import type { JSONFormWidgetProps } from "../..";
+import { JSONFormWidgetProps } from "../..";
 import { defaultOptionValueValidation } from "./select";
 
 describe(".defaultOptionValueValidation", () => {

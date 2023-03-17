@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
-import type { RouteComponentProps } from "react-router-dom";
-import { withRouter } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Spinner } from "@blueprintjs/core";
-import type { BuilderRouteParams } from "constants/routes";
-import type { AppState } from "@appsmith/reducers";
+import { BuilderRouteParams } from "constants/routes";
+import { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
 import {
   getCurrentApplicationId,
@@ -14,17 +13,20 @@ import {
   getIsPublishingApplication,
   getPublishingError,
 } from "selectors/editorSelectors";
-import type { InitializeEditorPayload } from "actions/initActions";
-import { initEditor, resetEditorRequest } from "actions/initActions";
+import {
+  initEditor,
+  InitializeEditorPayload,
+  resetEditorRequest,
+} from "actions/initActions";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import * as Sentry from "@sentry/react";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";

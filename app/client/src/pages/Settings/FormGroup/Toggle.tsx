@@ -1,10 +1,12 @@
 import React, { memo } from "react";
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field } from "redux-form";
+import {
+  Field,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
 import styled from "styled-components";
-import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
-import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { FormGroup, SettingComponentProps } from "./Common";
+import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Toggle } from "design-system-old";
 import { createMessage } from "@appsmith/constants/messages";
 

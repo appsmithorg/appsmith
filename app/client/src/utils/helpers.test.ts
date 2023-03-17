@@ -260,7 +260,8 @@ describe("#captureInvalidDynamicBindingPath", () => {
               type: ValidationTypes.FUNCTION,
               params: {
                 expected: {
-                  type: 'Array<{ "label": "string", "value": "string" | number}>',
+                  type:
+                    'Array<{ "label": "string", "value": "string" | number}>',
                   example: '[{"label": "abc", "value": "abc" | 1}]',
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
@@ -430,7 +431,8 @@ describe("#captureInvalidDynamicBindingPath", () => {
               type: ValidationTypes.FUNCTION,
               params: {
                 expected: {
-                  type: 'Array<{ "label": "string", "value": "string" | number}>',
+                  type:
+                    'Array<{ "label": "string", "value": "string" | number}>',
                   example: '[{"label": "abc", "value": "abc" | 1}]',
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },

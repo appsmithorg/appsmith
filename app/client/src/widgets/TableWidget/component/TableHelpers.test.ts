@@ -1,4 +1,4 @@
-import type { ColumnProperties } from "./Constants";
+import { ColumnProperties } from "./Constants";
 import { reorderColumns } from "./TableHelpers";
 import { getCurrentRowBinding } from "widgets/TableWidget/constants";
 const MOCK_COLUMNS: Record<string, ColumnProperties> = {

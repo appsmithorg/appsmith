@@ -2,7 +2,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { Positioning } from "utils/autoLayout/constants";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

@@ -2,7 +2,7 @@ import React from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import type { BaseCellComponentProps, ImageSize } from "../Constants";
+import { BaseCellComponentProps, ImageSize } from "../Constants";
 
 /*
  * Function to split the CSV of image url's
@@ -85,8 +85,7 @@ export function ImageCell(props: renderImageType) {
     );
   }
 
-  const imageUrlRegex =
-    /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+  const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
   const base64ImageRegex = /^data:image\/.*;base64/;
   return (
     <CellWrapper

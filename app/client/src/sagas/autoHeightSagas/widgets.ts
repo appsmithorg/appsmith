@@ -5,14 +5,14 @@ import {
 } from "constants/WidgetConstants";
 import { groupBy, uniq } from "lodash";
 import log from "loglevel";
-import type {
+import {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
@@ -29,18 +29,20 @@ import {
   shouldCollapseThisWidget,
 } from "./helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
-import type { UpdateWidgetAutoHeightPayload } from "actions/autoHeightActions";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import {
+  generateAutoHeightLayoutTreeAction,
+  UpdateWidgetAutoHeightPayload,
+} from "actions/autoHeightActions";
 import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
-import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
+import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 import {
   getAutoHeightLayoutTree,
   getCanvasLevelMap,
 } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 import WidgetFactory from "utils/WidgetFactory";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { TreeNode } from "utils/autoHeight/constants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
@@ -274,8 +276,10 @@ export function* updateWidgetAutoHeightSaga(
 
     // Initialise a list of changes so far.
     // This contains a map of widgetIds with their new topRow and bottomRow
-    let changesSoFar: Record<string, { topRow: number; bottomRow: number }> =
-      {};
+    let changesSoFar: Record<
+      string,
+      { topRow: number; bottomRow: number }
+    > = {};
 
     // start with the bottom most level (maxLevel)
     // We do this so, that we don't have to re-comupte the higher levels,
@@ -339,19 +343,21 @@ export function* updateWidgetAutoHeightSaga(
             // Get the child we need to consider
             // For a container widget, it will be the child canvas
             // For a tabs widget, it will be the currently open tab's canvas
-            const childWidgetId: string | undefined =
-              yield getChildOfContainerLikeWidget(parentContainerLikeWidget);
+            const childWidgetId:
+              | string
+              | undefined = yield getChildOfContainerLikeWidget(
+              parentContainerLikeWidget,
+            );
             // Skip computations for the parent container like widget
             // if this child canvas is not the one currently visible
             if (childWidgetId !== parentCanvasWidget.widgetId) continue;
 
-            let minCanvasHeightInRows: number =
-              yield getMinHeightBasedOnChildren(
-                parentCanvasWidget.widgetId,
-                changesSoFar,
-                true,
-                dynamicHeightLayoutTree,
-              );
+            let minCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
+              parentCanvasWidget.widgetId,
+              changesSoFar,
+              true,
+              dynamicHeightLayoutTree,
+            );
 
             // Add extra rows, this is to accommodate for padding and margins in the parent
             minCanvasHeightInRows += GridDefaults.CANVAS_EXTENSION_OFFSET;
@@ -529,13 +535,12 @@ export function* updateWidgetAutoHeightSaga(
     // The same logic to compute the minimum height of the MainContainer
     // Based on how many rows are being occuped by children.
 
-    const maxPossibleCanvasHeightInRows: number =
-      yield getMinHeightBasedOnChildren(
-        MAIN_CONTAINER_WIDGET_ID,
-        changesSoFar,
-        true,
-        dynamicHeightLayoutTree,
-      );
+    const maxPossibleCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
+      MAIN_CONTAINER_WIDGET_ID,
+      changesSoFar,
+      true,
+      dynamicHeightLayoutTree,
+    );
 
     maxCanvasHeightInRows = Math.max(
       maxPossibleCanvasHeightInRows,
@@ -557,8 +562,9 @@ export function* updateWidgetAutoHeightSaga(
     // To the widgetsToUpdate data structure for final reducer update.
 
     for (const changedWidgetId in changesSoFar) {
-      const { originalBottomRow, originalTopRow } =
-        dynamicHeightLayoutTree[changedWidgetId];
+      const { originalBottomRow, originalTopRow } = dynamicHeightLayoutTree[
+        changedWidgetId
+      ];
 
       const canvasOffset = getCanvasHeightOffset(
         stateWidgets[changedWidgetId].type,

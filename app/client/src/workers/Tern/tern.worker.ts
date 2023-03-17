@@ -1,14 +1,12 @@
-import type { Server, Def } from "tern";
-import tern from "tern";
-import type { CallbackFn } from "utils/autocomplete/types";
-import { TernWorkerAction } from "utils/autocomplete/types";
+import tern, { Server, Def } from "tern";
+import { CallbackFn, TernWorkerAction } from "utils/autocomplete/types";
 
 let server: Server;
 
 let nextId = 0;
 const pending: { [x: number]: CallbackFn } = {};
 
-self.onmessage = function (e) {
+self.onmessage = function(e) {
   const data = e.data;
   switch (data.type) {
     case TernWorkerAction.INIT:
@@ -18,7 +16,7 @@ self.onmessage = function (e) {
     case TernWorkerAction.DELETE_FILE:
       return server.delFile(data.name);
     case TernWorkerAction.REQUEST:
-      return server.request(data.body, function (err, reqData) {
+      return server.request(data.body, function(err, reqData) {
         postMessage({ id: data.id, body: reqData, err: err && String(err) });
       });
     case TernWorkerAction.GET_FILE:
@@ -52,7 +50,7 @@ function startServer(defs: Def[], plugins = {}, scripts?: string[]) {
 
 self.console = {
   ...self.console,
-  log: function (v) {
+  log: function(v) {
     postMessage({ type: TernWorkerAction.DEBUG, message: v });
   },
 };

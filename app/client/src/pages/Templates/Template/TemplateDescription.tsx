@@ -1,4 +1,4 @@
-import type { Template } from "api/TemplatesApi";
+import { Template } from "api/TemplatesApi";
 import React from "react";
 import { useHistory, useParams } from "react-router";
 import styled from "styled-components";

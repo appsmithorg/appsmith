@@ -1,8 +1,11 @@
 import { Alignment, Label } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import type { TextSize } from "constants/WidgetConstants";
-import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 import { LabelPosition } from "components/constants";
 import {
   LABEL_MAX_WIDTH_RATE,
@@ -24,8 +27,7 @@ export const TextLabelWrapper = styled.div<{
         ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${
-      position === LabelPosition.Left &&
+    ${position === LabelPosition.Left &&
       `
       ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
@@ -37,8 +39,7 @@ export const TextLabelWrapper = styled.div<{
             : `text-align: left`
         };
       }
-    `
-    }
+    `}
   `}
 `;
 

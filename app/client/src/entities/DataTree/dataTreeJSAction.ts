@@ -1,8 +1,9 @@
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { MetaArgs } from "./types";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import { MetaArgs } from "./types";
 
 const reg = /this\./g;
 

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import type { Log } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { AppState } from "@appsmith/reducers";
+import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
+import { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
@@ -45,8 +44,9 @@ export const useFilteredLogs = (query: string, filter?: any) => {
         return true;
       if (
         !!log.state &&
-        JSON.stringify(log.state).toUpperCase().indexOf(query.toUpperCase()) !==
-          -1
+        JSON.stringify(log.state)
+          .toUpperCase()
+          .indexOf(query.toUpperCase()) !== -1
       )
         return true;
     });

@@ -1,9 +1,11 @@
-import type { AppState } from "@appsmith/reducers";
-import type { WidgetType } from "constants/WidgetConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { AppState } from "@appsmith/reducers";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetType,
+} from "constants/WidgetConstants";
 import { get, set } from "lodash";
 import { useSelector } from "react-redux";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { select } from "redux-saga/effects";
 import WidgetFactory from "utils/WidgetFactory";

@@ -1,8 +1,9 @@
 import { find, get, isEmpty, union } from "lodash";
 import toPath from "lodash/toPath";
-import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
+  EvalError,
+  DependencyMap,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
@@ -15,8 +16,7 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-
-import type {
+import {
   ConfigTree,
   DataTree,
   DataTreeEntity,
@@ -30,7 +30,7 @@ import {
 } from "constants/WidgetValidation";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
-import type {
+import {
   ActionEntityConfig,
   JSActionEntityConfig,
   ActionEntity,
@@ -164,8 +164,9 @@ export function listTriggerFieldDependencies(
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
-        triggerFieldDependency[`${entityName}.${propertyPath}`] =
-          existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
+        triggerFieldDependency[
+          `${entityName}.${propertyPath}`
+        ] = existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
       });
     }
   }
@@ -187,8 +188,9 @@ export function listValidationDependencies(
           const dependencyArray = validationConfig.dependentPaths.map(
             (path) => `${entityName}.${path}`,
           );
-          validationDependency[`${entityName}.${propertyPath}`] =
-            dependencyArray;
+          validationDependency[
+            `${entityName}.${propertyPath}`
+          ] = dependencyArray;
         }
       },
     );
@@ -296,8 +298,9 @@ export function listEntityDependencies(
   if (isAction(entity) || isWidget(entity)) {
     // add the dynamic binding paths to the dependency map
     const entityConfig = configTree[entityName];
-    const dynamicBindingPathList =
-      getEntityDynamicBindingPathList(entityConfig);
+    const dynamicBindingPathList = getEntityDynamicBindingPathList(
+      entityConfig,
+    );
     if (dynamicBindingPathList.length) {
       dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;

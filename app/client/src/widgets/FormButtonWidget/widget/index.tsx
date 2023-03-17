@@ -1,26 +1,25 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ButtonType } from "widgets/ButtonWidget/component";
-import ButtonComponent from "widgets/ButtonWidget/component";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import ButtonComponent, { ButtonType } from "widgets/ButtonWidget/component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import ButtonWidget from "widgets/ButtonWidget";
-import type {
-  ButtonBorderRadius,
-  ButtonVariant,
-  RecaptchaType,
-} from "components/constants";
 import {
+  ButtonBorderRadius,
   ButtonPlacementTypes,
+  ButtonVariant,
   ButtonVariantTypes,
+  RecaptchaType,
   RecaptchaTypes,
 } from "components/constants";
-import type { IconName } from "@blueprintjs/icons";
+import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
-import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
-import type { Stylesheet } from "entities/AppTheming";
+import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import { Stylesheet } from "entities/AppTheming";
 
 class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {

@@ -107,9 +107,15 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -118,7 +124,7 @@ export class PropertyPane {
   public GetJSONFormConfigurationFileds() {
     const fieldNames: string[] = [];
     let fieldInvokeValue: string;
-    cy.xpath(this._jsonFieldConfigList).each(function ($item) {
+    cy.xpath(this._jsonFieldConfigList).each(function($item) {
       cy.wrap($item)
         .invoke("val")
         .then(($fieldName: any) => {
@@ -164,11 +170,15 @@ export class PropertyPane {
   }
 
   public moveToContentTab() {
-    cy.get(this._contentTabBtn).first().click({ force: true });
+    cy.get(this._contentTabBtn)
+      .first()
+      .click({ force: true });
   }
 
   public moveToStyleTab() {
-    cy.get(this._styleTabBtn).first().click({ force: true });
+    cy.get(this._styleTabBtn)
+      .first()
+      .click({ force: true });
   }
 
   public SelectPropertiesDropDown(
@@ -229,9 +239,14 @@ export class PropertyPane {
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
     let val: any;
     if (fieldName) {
-      cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
+      cy.xpath(this.locator._existingFieldValueByName(fieldName))
+        .eq(0)
+        .click();
       val = cy.get(fieldName).then(($field) => {
-        cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
+        cy.wrap($field)
+          .find(".CodeMirror-code span")
+          .first()
+          .invoke("text");
       });
     } else {
       cy.xpath(this.locator._codeMirrorCode).click();

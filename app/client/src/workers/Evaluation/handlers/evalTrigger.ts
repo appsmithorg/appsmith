@@ -1,8 +1,8 @@
 import { dataTreeEvaluator } from "./evalTree";
-import type { EvalWorkerASyncRequest } from "../types";
+import { EvalWorkerASyncRequest } from "../types";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
-export default async function (request: EvalWorkerASyncRequest) {
+export default async function(request: EvalWorkerASyncRequest) {
   const { data } = request;
   const {
     callbackData,
@@ -17,11 +17,14 @@ export default async function (request: EvalWorkerASyncRequest) {
   }
 
   ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
-  const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-    dataTreeEvaluator.setupUpdateTree(
-      unEvalTree.unEvalTree,
-      unEvalTree.configTree,
-    );
+  const {
+    evalOrder,
+    nonDynamicFieldValidationOrder,
+    unEvalUpdates,
+  } = dataTreeEvaluator.setupUpdateTree(
+    unEvalTree.unEvalTree,
+    unEvalTree.configTree,
+  );
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,

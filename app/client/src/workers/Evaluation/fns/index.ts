@@ -1,63 +1,64 @@
-import type {
+import navigateTo, {
   TNavigateToActionType,
   TNavigateToDescription,
 } from "./navigateTo";
-import navigateTo from "./navigateTo";
-import type { TShowAlertActionType, TShowAlertDescription } from "./showAlert";
-import showAlert from "./showAlert";
-import type {
+import showAlert, {
+  TShowAlertActionType,
+  TShowAlertDescription,
+} from "./showAlert";
+import {
+  closeModal,
+  showModal,
   TCloseModalActionType,
   TCloseModalDescription,
   TShowModalActionType,
   TShowModalDescription,
 } from "./modalFns";
-import { closeModal, showModal } from "./modalFns";
-import type { TDownloadActionType, TDownloadDescription } from "./download";
-import download from "./download";
-import type {
+import download, {
+  TDownloadActionType,
+  TDownloadDescription,
+} from "./download";
+import postWindowMessage, {
   TPostWindowMessageActionType,
   TPostWindowMessageDescription,
 } from "./postWindowMessage";
-import postWindowMessage from "./postWindowMessage";
-import type {
+import copyToClipboard, {
   TCopyToClipboardActionType,
   TCopyToClipboardDescription,
 } from "./copyToClipboard";
-import copyToClipboard from "./copyToClipboard";
-import type {
+import resetWidget, {
   TResetWidgetActionType,
   TResetWidgetDescription,
 } from "./resetWidget";
-import resetWidget from "./resetWidget";
-import type {
+import {
+  clearStore,
+  removeValue,
+  storeValue,
   TClearStoreDescription,
   TRemoveValueDescription,
   TStoreValueDescription,
 } from "./storeFns";
-import { clearStore, removeValue, storeValue } from "./storeFns";
-import type {
+import run, {
+  clear,
   TClearActionType,
   TClearDescription,
   TRunActionType,
   TRunDescription,
 } from "./actionFns";
-import run, { clear } from "./actionFns";
 import {
   isAction,
   isAppsmithEntity,
 } from "ce/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import type {
+import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  getGeoLocation,
+  stopWatchGeoLocation,
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
   TStopWatchGeoLocationActionType,
   TStopWatchGeoLocationDescription,
   TWatchGeoLocationActionType,
   TWatchGeoLocationDescription,
-} from "./geolocationFns";
-import {
-  getGeoLocation,
-  stopWatchGeoLocation,
   watchGeoLocation,
 } from "./geolocationFns";
 import { isAsyncGuard } from "./utils/fnGuard";

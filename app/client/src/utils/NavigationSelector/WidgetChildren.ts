@@ -1,11 +1,16 @@
-import type { EntityDefinitionsOptions } from "ce/utils/autocomplete/EntityDefinitions";
-import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  entityDefinitions,
+  EntityDefinitionsOptions,
+} from "ce/utils/autocomplete/EntityDefinitions";
+import {
+  DataTree,
+  WidgetEntity,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { isFunction } from "lodash";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { builderURL } from "RouteBuilder";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
 
 export const getWidgetChildrenNavData = (

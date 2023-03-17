@@ -1,5 +1,7 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   checkContainersForAutoHeightAction,
   setAutoHeightLayoutTreeAction,
@@ -8,7 +10,7 @@ import log from "loglevel";
 import { put, select } from "redux-saga/effects";
 import { getAutoHeightLayoutTree } from "selectors/autoHeightSelectors";
 import { getOccupiedSpacesGroupedByParentCanvas } from "selectors/editorSelectors";
-import type { TreeNode } from "utils/autoHeight/constants";
+import { TreeNode } from "utils/autoHeight/constants";
 import { generateTree } from "utils/autoHeight/generateTree";
 import { shouldWidgetsCollapse } from "./helpers";
 

@@ -3,12 +3,10 @@ import React, { useState, useCallback } from "react";
 import styled, { useTheme } from "styled-components";
 import { Classes, Menu, Position } from "@blueprintjs/core";
 import { Classes as Popover2Classes, Popover2 } from "@blueprintjs/popover2";
-import type { noop } from "lodash";
-import type {
+import { noop } from "lodash";
+import {
   CommonComponentProps,
   EditInteractionKind,
-} from "design-system-old";
-import {
   getTypographyByKey,
   Icon,
   IconSize,
@@ -19,7 +17,7 @@ import {
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
-import type { Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;

@@ -9,18 +9,18 @@ import {
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorModes,
   EditorSize,
+  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes, MultiSwitch } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 
@@ -66,8 +66,13 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const { apiId, dataTreePath, displayFormat, theme, updateBodyContentType } =
-    props;
+  const {
+    apiId,
+    dataTreePath,
+    displayFormat,
+    theme,
+    updateBodyContentType,
+  } = props;
 
   const tabComponentsMap = (key: string, contentType: string): JSX.Element => {
     return {

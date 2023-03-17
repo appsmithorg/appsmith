@@ -19,12 +19,13 @@ import testData, {
   schemaItemFactory,
   schemaItemStyles,
 } from "./schemaTestData";
-import type { Schema, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FieldType,
   ROOT_SCHEMA_KEY,
+  Schema,
+  SchemaItem,
 } from "./constants";
 
 const widgetName = "JSONForm1";
@@ -47,12 +48,15 @@ describe("#parse", () => {
       `${BASE_PATH}.children.__`,
     ];
     const expectedModifiedSchemaItems = {};
-    const { modifiedSchemaItems, removedSchemaItems, schema } =
-      SchemaParser.parse(widgetName, {
-        currSourceData: testData.withRemovedKeyFromInitialDataset.dataSource,
-        schema: testData.initialDataset.schemaOutput,
-        fieldThemeStylesheets: testData.fieldThemeStylesheets,
-      });
+    const {
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+    } = SchemaParser.parse(widgetName, {
+      currSourceData: testData.withRemovedKeyFromInitialDataset.dataSource,
+      schema: testData.initialDataset.schemaOutput,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(schema).toEqual(
       testData.withRemovedKeyFromInitialDataset.schemaOutput,
@@ -70,16 +74,19 @@ describe("#parse", () => {
       `${BASE_PATH}.children.__`,
     ];
     const expectedModifiedSchemaItems = {
-      [`${BASE_PATH}.children.gender`]:
-        expectedSchema.__root_schema__.children.gender,
+      [`${BASE_PATH}.children.gender`]: expectedSchema.__root_schema__.children
+        .gender,
     };
 
-    const { modifiedSchemaItems, removedSchemaItems, schema } =
-      SchemaParser.parse(widgetName, {
-        currSourceData: testData.withRemovedAddedKeyToInitialDataset.dataSource,
-        schema: testData.initialDataset.schemaOutput,
-        fieldThemeStylesheets: testData.fieldThemeStylesheets,
-      });
+    const {
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+    } = SchemaParser.parse(widgetName, {
+      currSourceData: testData.withRemovedAddedKeyToInitialDataset.dataSource,
+      schema: testData.initialDataset.schemaOutput,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(schema).toEqual(expectedSchema);
     expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);
@@ -254,8 +261,8 @@ describe("#parse", () => {
         sourceData: "20",
         ...schemaItemStyles,
       }),
-      [`${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key2`]:
-        schemaItemFactory({
+      [`${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key2`]: schemaItemFactory(
+        {
           isSpellCheck: false,
           iconAlign: "left",
           defaultValue: undefined,
@@ -263,9 +270,10 @@ describe("#parse", () => {
           identifier: "key2",
           position: 0,
           ...schemaItemStyles,
-        }),
-      [`${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key3`]:
-        schemaItemFactory({
+        },
+      ),
+      [`${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key3`]: schemaItemFactory(
+        {
           isSpellCheck: false,
           iconAlign: "left",
           dataType: DataType.NUMBER,
@@ -275,7 +283,8 @@ describe("#parse", () => {
           identifier: "key3",
           position: 1,
           ...schemaItemStyles,
-        }),
+        },
+      ),
       [`${BASE_PATH}.children.address.children.city`]: schemaItemFactory({
         isSpellCheck: false,
         iconAlign: "left",
@@ -1289,8 +1298,9 @@ describe("#convertArrayToSchema", () => {
     };
 
     const expectedModifiedSchemaItems = {
-      [`schema.${ROOT_SCHEMA_KEY}.entries.${ARRAY_ITEM_KEY}`]:
-        expectedSchema[ARRAY_ITEM_KEY],
+      [`schema.${ROOT_SCHEMA_KEY}.entries.${ARRAY_ITEM_KEY}`]: expectedSchema[
+        ARRAY_ITEM_KEY
+      ],
     };
 
     const result = SchemaParser.convertArrayToSchema({
@@ -1420,8 +1430,9 @@ describe("#convertArrayToSchema", () => {
     };
 
     const expectedModifiedSchemaItems = {
-      [`schema.${ROOT_SCHEMA_KEY}.entries.${ARRAY_ITEM_KEY}.children.lastName`]:
-        expectedSchema[ARRAY_ITEM_KEY].children.lastName,
+      [`schema.${ROOT_SCHEMA_KEY}.entries.${ARRAY_ITEM_KEY}.children.lastName`]: expectedSchema[
+        ARRAY_ITEM_KEY
+      ].children.lastName,
     };
 
     const result = SchemaParser.convertArrayToSchema({

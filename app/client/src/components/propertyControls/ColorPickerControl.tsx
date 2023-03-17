@@ -1,10 +1,9 @@
 import React from "react";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,

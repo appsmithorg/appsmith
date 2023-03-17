@@ -1,8 +1,10 @@
 import equal from "fast-deep-equal/es6";
 import { isEmpty } from "lodash";
 import { debug } from "loglevel";
-import type { AdditionalDynamicDataTree } from "./customTreeTypeDefCreator";
-import { customTreeTypeDefCreator } from "./customTreeTypeDefCreator";
+import {
+  AdditionalDynamicDataTree,
+  customTreeTypeDefCreator,
+} from "./customTreeTypeDefCreator";
 import CodemirrorTernService from "./CodemirrorTernService";
 
 class CustomDef {

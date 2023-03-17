@@ -24,7 +24,9 @@ describe("List v2- Tabs Widget", () => {
     // Enable Scroll Content
     cy.togglebar(commonlocators.scrollView);
     // Check if enabled
-    cy.get(commonlocators.scrollView).parent().should("have.class", "checked");
+    cy.get(commonlocators.scrollView)
+      .parent()
+      .should("have.class", "checked");
     // Check if Tab 1 still selected
     cy.get(".t--page-switch-tab.is-active").contains("Tab 1");
   });

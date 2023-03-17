@@ -1,12 +1,12 @@
-import type { Diff } from "deep-diff";
-import type { Action } from "entities/Action";
+import { Diff } from "deep-diff";
+import { Action } from "entities/Action";
 import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
-import type { JSActionConfig } from "entities/JSCollection";
-import type { Datasource } from "entities/Datasource";
-import type { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { JSActionConfig } from "entities/JSCollection";
+import { Datasource } from "entities/Datasource";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import isEmpty from "lodash/isEmpty";
-import type { Canvas } from "./ReplayCanvas";
+import { Canvas } from "./ReplayCanvas";
 
 /*
  This type represents all the form objects that can be undone/redone.

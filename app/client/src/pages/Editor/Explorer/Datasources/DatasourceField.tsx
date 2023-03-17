@@ -6,7 +6,7 @@ import {
 } from "../ExplorerIcons";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
+import { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${(props) =>

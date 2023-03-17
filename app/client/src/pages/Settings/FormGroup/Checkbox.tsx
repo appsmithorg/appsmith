@@ -1,15 +1,18 @@
 import React, { memo } from "react";
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field, getFormValues } from "redux-form";
+import {
+  Field,
+  getFormValues,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
 import styled from "styled-components";
-import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
-import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { FormGroup, SettingComponentProps } from "./Common";
+import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Button, Category, Checkbox } from "design-system-old";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
-import type { EventName } from "utils/AnalyticsUtil";
+import { EventName } from "utils/AnalyticsUtil";
 
 const CheckboxWrapper = styled.div`
   display: grid;

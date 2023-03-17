@@ -2,7 +2,7 @@ import { debounce, set } from "lodash";
 import { useMemo, useContext, useCallback } from "react";
 import { klona } from "klona";
 
-import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
+import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
 
 export type UseUpdateInternalMetaStateProps = {

@@ -1,7 +1,7 @@
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
-import type {
+import {
   CollidingSpace,
   CollisionAccessors,
   CollisionMap,
@@ -11,15 +11,13 @@ import type {
   DirectionalMovement,
   DirectionalVariables,
   GridProps,
+  HORIZONTAL_RESIZE_MIN_LIMIT,
   PrevReflowState,
+  ReflowDirection,
   ReflowedSpaceMap,
   SecondOrderCollisionMap,
   SpaceMap,
   SpaceMovementMap,
-} from "./reflowTypes";
-import {
-  HORIZONTAL_RESIZE_MIN_LIMIT,
-  ReflowDirection,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "./reflowTypes";
 import {
@@ -138,8 +136,9 @@ export function getMovementMap(
       directionalVariables[childNode.collidingId] = {};
     }
     if (directionalVariables[childNode.collidingId][childDirection]) {
-      [staticOccupiedLength, maxOccupiedSpace] =
-        directionalVariables[childNode.collidingId][childDirection];
+      [staticOccupiedLength, maxOccupiedSpace] = directionalVariables[
+        childNode.collidingId
+      ][childDirection];
     }
     staticOccupiedLength = Math.max(staticOccupiedLength, occupiedLength);
     maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace);
@@ -235,27 +234,29 @@ export function getCollisionTree(
       );
 
       // this method recursively builds the tree structure
-      const { collisionTree: currentCollisionTree, occupiedLength } =
-        getCollisionTreeHelper(
-          newSpacePositions,
-          currentOccSpaces,
-          currentOccSpacesMap,
-          OGOccupiedSpacesMap,
-          currentCollidingSpace,
-          globalDirection,
-          currentDirection,
-          currentAccessors,
-          collidingSpaces,
-          collidingSpaceMap,
-          gridProps,
-          i,
-          prevMovementMap,
-          prevReflowState,
-          true,
-          isSecondRun,
-          globalProcessedNodes,
-          secondOrderCollisionMap,
-        );
+      const {
+        collisionTree: currentCollisionTree,
+        occupiedLength,
+      } = getCollisionTreeHelper(
+        newSpacePositions,
+        currentOccSpaces,
+        currentOccSpacesMap,
+        OGOccupiedSpacesMap,
+        currentCollidingSpace,
+        globalDirection,
+        currentDirection,
+        currentAccessors,
+        collidingSpaces,
+        collidingSpaceMap,
+        gridProps,
+        i,
+        prevMovementMap,
+        prevReflowState,
+        true,
+        isSecondRun,
+        globalProcessedNodes,
+        secondOrderCollisionMap,
+      );
       //To get colliding Value of the space relative to the Canvas edges
       const relativeCollidingValue = getRelativeCollidingValue(
         currentAccessors,
@@ -373,18 +374,20 @@ function getCollisionTreeHelper(
     return {};
 
   // to get it's colliding spaces
-  const { collidingSpaces, occupiedSpacesInDirection } =
-    getCollidingSpacesInDirection(
-      resizedDimensions,
-      collidingSpace,
-      globalDirection,
-      direction,
-      gridProps,
-      prevReflowState,
-      collidingSpaceMap,
-      occupiedSpaces,
-      isDirectCollidingSpace,
-    );
+  const {
+    collidingSpaces,
+    occupiedSpacesInDirection,
+  } = getCollidingSpacesInDirection(
+    resizedDimensions,
+    collidingSpace,
+    globalDirection,
+    direction,
+    gridProps,
+    prevReflowState,
+    collidingSpaceMap,
+    occupiedSpaces,
+    isDirectCollidingSpace,
+  );
 
   if (isDirectCollidingSpace && secondOrderCollisionMap) {
     //initialize if undefined

@@ -1,12 +1,12 @@
 import { Colors } from "constants/Colors";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import type { SpaceMap } from "reflow/reflowTypes";
+import { SpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import { modifyDrawingRectangles } from "./canvasDraggingUtils";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 export interface XYCord {
   x: number;

@@ -3,12 +3,12 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
-import type {
+import {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   VerifyTokenRequest,
 } from "@appsmith/api/UserApi";
-import type FeatureFlags from "entities/FeatureFlags";
+import FeatureFlags from "entities/FeatureFlags";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,

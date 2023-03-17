@@ -8,8 +8,8 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -19,29 +19,28 @@ import {
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
-import type {
+import {
   JSCollectionData,
   JSCollectionDataState,
 } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { JSCollection, JSAction } from "entities/JSCollection";
+import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { JSUpdate } from "utils/JSPaneUtils";
 import {
   getDifferenceInJSCollection,
+  JSUpdate,
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
 } from "utils/JSPaneUtils";
-import type {
+import JSActionAPI, {
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
 } from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
@@ -69,21 +68,19 @@ import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { FetchPageResponse } from "api/PageApi";
-import PageApi from "api/PageApi";
+import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
-import type { ApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
@@ -262,8 +259,9 @@ function* updateJSCollection(data: {
   try {
     const { deletedActions, jsCollection, newActions, updatedActions } = data;
     if (jsCollection) {
-      const response: JSCollectionCreateUpdateResponse =
-        yield JSActionAPI.updateJSCollection(jsCollection);
+      const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
+        jsCollection,
+      );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         if (newActions && newActions.length) {
@@ -503,8 +501,9 @@ function* handleUpdateJSCollectionBody(
   jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
-      const response: JSCollectionCreateUpdateResponse =
-        yield JSActionAPI.updateJSCollection(jsCollection);
+      const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
+        jsCollection,
+      );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         // @ts-expect-error: response is of type unknown
@@ -555,8 +554,9 @@ function* handleRefactorJSActionNameSaga(
     };
     // call to refactor action
     try {
-      const refactorResponse: ApiResponse =
-        yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
+      const refactorResponse: ApiResponse = yield JSActionAPI.updateJSCollectionActionRefactor(
+        requestData,
+      );
 
       const isRefactorSuccessful: boolean = yield validateResponse(
         refactorResponse,
@@ -627,8 +627,9 @@ function* handleUpdateJSFunctionPropertySaga(
         return jsAction;
       });
       collection.actions = updatedActions;
-      const response: ApiResponse<JSCollectionCreateUpdateResponse> =
-        yield JSActionAPI.updateJSCollection(collection);
+      const response: ApiResponse<JSCollectionCreateUpdateResponse> = yield JSActionAPI.updateJSCollection(
+        collection,
+      );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         const fieldToBeUpdated = propertyName.replace(

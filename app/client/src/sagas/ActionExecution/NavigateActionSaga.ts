@@ -1,7 +1,7 @@
 import { call, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -12,8 +12,10 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
 import { isValidURL } from "utils/URLUtils";
-import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
-import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
+import {
+  NavigationTargetType,
+  TNavigateToDescription,
+} from "workers/Evaluation/fns/navigateTo";
 
 export enum NavigationTargetType_Dep {
   SAME_WINDOW = "SAME_WINDOW",

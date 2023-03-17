@@ -3,8 +3,7 @@ import styled from "styled-components";
 // Include the react-fusioncharts component
 import ReactFC from "react-fusioncharts";
 // Include the fusioncharts library
-import type { ChartObject } from "fusioncharts";
-import FusionCharts from "fusioncharts";
+import FusionCharts, { ChartObject } from "fusioncharts";
 
 // Import FusionMaps
 import FusionMaps from "fusioncharts/fusioncharts.maps";
@@ -15,8 +14,7 @@ import USA from "fusioncharts/maps/fusioncharts.usa";
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 
 // Import the dataset and the colorRange of the map
-import type { MapColorObject } from "../constants";
-import { dataSetForWorld, MapTypes } from "../constants";
+import { dataSetForWorld, MapTypes, MapColorObject } from "../constants";
 import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 import { Colors } from "constants/Colors";
 
@@ -69,8 +67,14 @@ export interface EntityData {
 }
 
 function MapChartComponent(props: MapChartComponentProps) {
-  const { caption, colorRange, data, onDataPointClick, showLabels, type } =
-    props;
+  const {
+    caption,
+    colorRange,
+    data,
+    onDataPointClick,
+    showLabels,
+    type,
+  } = props;
 
   const fontFamily =
     props.fontFamily === "System Default" ? "inherit" : props.fontFamily;

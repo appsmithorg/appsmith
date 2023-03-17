@@ -1,11 +1,16 @@
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
-import type { HiddenFnParams } from "../helper";
-import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import {
+  HiddenFnParams,
+  getSchemaItem,
+  getAutocompleteProperties,
+} from "../helper";
 
 /**
  * Alias function is used to test the optionsCustomValidation separately

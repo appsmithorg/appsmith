@@ -1,7 +1,7 @@
 import React from "react";
 import PreviewBox from "./PreviewBox";
 
-import type { PreviewsProps } from ".";
+import { PreviewsProps } from ".";
 
 const NotFoundPreview = (props: PreviewsProps) => {
   const { shades } = props;

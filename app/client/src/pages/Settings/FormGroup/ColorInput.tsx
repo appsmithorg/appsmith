@@ -1,6 +1,9 @@
 import React, { memo, useRef, useCallback, useState } from "react";
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field } from "redux-form";
+import {
+  Field,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
@@ -8,11 +11,10 @@ import { TooltipComponent } from "design-system-old";
 import { InputGroup, Classes } from "@blueprintjs/core";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
-import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
-import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { FormGroup, SettingComponentProps } from "./Common";
+import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
-import type { brandColorsKeys } from "../config/branding/BrandingPage";
+import { brandColorsKeys } from "../config/branding/BrandingPage";
 
 export const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
@@ -94,8 +96,9 @@ const LeftIcon = (
 };
 
 export const ColorInput = (props: ColorInputProps) => {
-  const [selectedIndex, setSelectedIndex] =
-    useState<brandColorsKeys>("primary");
+  const [selectedIndex, setSelectedIndex] = useState<brandColorsKeys>(
+    "primary",
+  );
   const {
     className,
     onChange,

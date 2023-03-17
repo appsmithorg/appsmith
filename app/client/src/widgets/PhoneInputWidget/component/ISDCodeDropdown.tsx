@@ -1,10 +1,8 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import type { DropdownOption } from "design-system-old";
-import { Dropdown, Icon, IconSize } from "design-system-old";
+import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
 import { countryToFlag } from "./utilities";
-import type { ISDCodeProps } from "constants/ISDCodes_v2";
-import { ISDCodeOptions } from "constants/ISDCodes_v2";
+import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes_v2";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
@@ -14,7 +12,9 @@ type DropdownTriggerIconWrapperProp = {
   disabled?: boolean;
 };
 
-const DropdownTriggerIconWrapper = styled.button<DropdownTriggerIconWrapperProp>`
+const DropdownTriggerIconWrapper = styled.button<
+  DropdownTriggerIconWrapperProp
+>`
   height: 100%;
   display: flex;
   align-items: center;

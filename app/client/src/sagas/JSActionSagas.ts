@@ -1,8 +1,6 @@
-import type {
+import {
   ReduxAction,
   EvaluationReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -14,8 +12,8 @@ import {
   select,
   call,
 } from "redux-saga/effects";
-import type { FetchActionsPayload } from "actions/pluginActionActions";
-import type { JSCollection, JSAction } from "entities/JSCollection";
+import { FetchActionsPayload } from "actions/pluginActionActions";
+import { JSCollection, JSAction } from "entities/JSCollection";
 import {
   createJSCollectionSuccess,
   deleteJSCollectionSuccess,
@@ -33,8 +31,7 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
@@ -46,19 +43,17 @@ import {
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import type { FetchPageResponse, PageLayout } from "api/PageApi";
-import PageApi from "api/PageApi";
+import PageApi, { FetchPageResponse, PageLayout } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import type { ApiResponse } from "api/ApiResponses";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { CreateJSCollectionRequest } from "api/JSActionAPI";
+import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
-import type { EventLocation } from "utils/AnalyticsUtil";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export function* fetchJSCollectionsSaga(
@@ -66,8 +61,9 @@ export function* fetchJSCollectionsSaga(
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollections(applicationId);
+    const response: ApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollections(
+      applicationId,
+    );
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],
@@ -88,8 +84,9 @@ export function* createJSCollectionSaga(
 ) {
   try {
     const payload = actionPayload.payload.request;
-    const response: JSCollectionCreateUpdateResponse =
-      yield JSActionAPI.createJSCollection(payload);
+    const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.createJSCollection(
+      payload,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const actionName = payload.name ? payload.name : "";
@@ -144,8 +141,9 @@ function* copyJSCollectionSaga(
       });
       copyJSCollection.actions = newJSSubActions;
     }
-    const response: JSCollectionCreateUpdateResponse =
-      yield JSActionAPI.copyJSCollection(copyJSCollection);
+    const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.copyJSCollection(
+      copyJSCollection,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
@@ -340,14 +338,15 @@ export function* refactorJSObjectName(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse: ApiResponse =
-      yield JSActionAPI.updateJSCollectionOrActionName({
+    const refactorResponse: ApiResponse = yield JSActionAPI.updateJSCollectionOrActionName(
+      {
         layoutId,
         actionCollectionId: id,
         pageId: pageId,
         oldName: oldName,
         newName: newName,
-      });
+      },
+    );
 
     const isRefactorSuccessful: boolean = yield validateResponse(
       refactorResponse,
@@ -401,8 +400,9 @@ export function* fetchJSCollectionsForViewModeSaga(
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollectionsForViewMode(applicationId);
+    const response: ApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
+      applicationId,
+    );
     const resultJSCollections = response.data;
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

@@ -169,7 +169,9 @@ describe("Table widget inline editing functionality", () => {
       },
     ].forEach((data) => {
       cy.editColumn("step");
-      cy.get(commonlocators.changeColType).last().click();
+      cy.get(commonlocators.changeColType)
+        .last()
+        .click();
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
@@ -223,7 +225,9 @@ describe("Table widget inline editing functionality", () => {
         expected: "exist",
       },
     ].forEach((data) => {
-      cy.get(commonlocators.changeColType).last().click();
+      cy.get(commonlocators.changeColType)
+        .last()
+        .click();
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
@@ -461,7 +465,9 @@ describe("Table widget inline editing functionality", () => {
         expected: "not.exist",
       },
     ].forEach((data) => {
-      cy.get(commonlocators.changeColType).last().click();
+      cy.get(commonlocators.changeColType)
+        .last()
+        .click();
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
@@ -513,7 +519,9 @@ describe("Table widget inline editing functionality", () => {
         expected: "exist",
       },
     ].forEach((data) => {
-      cy.get(commonlocators.changeColType).last().click();
+      cy.get(commonlocators.changeColType)
+        .last()
+        .click();
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
@@ -715,7 +723,9 @@ describe("Table widget inline editing functionality", () => {
 
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.get(".t--widget-buttonwidget").should("exist");
-    cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
     cy.updateCodeInput(".t--property-control-label", "Reset");
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,
@@ -765,7 +775,9 @@ describe("Table widget inline editing functionality", () => {
 
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.get(".t--widget-buttonwidget").should("exist");
-    cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
     cy.updateCodeInput(".t--property-control-label", "Reset");
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,

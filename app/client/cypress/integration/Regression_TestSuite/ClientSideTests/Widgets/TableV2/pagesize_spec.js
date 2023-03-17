@@ -2,8 +2,8 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propPane = ObjectsRegistry.PropertyPane;
 
-describe("Table widget v2", function () {
-  it("1. should test that pageSize is computed properly for all the row sizes", function () {
+describe("Table widget v2", function() {
+  it("1. should test that pageSize is computed properly for all the row sizes", function() {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 100 });
     cy.openPropertyPane("textwidget");
     propPane.UpdatePropertyFieldValue("Text", "{{Table1.pageSize}}");
@@ -11,7 +11,7 @@ describe("Table widget v2", function () {
     cy.openPropertyPane("tablewidgetv2");
 
     cy.moveToStyleTab();
-    cy.get(".t--button-group-SHORT").click();
+    cy.get(".t--button-group-SHORT").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "7");
 
     cy.get(".t--button-group-DEFAULT").click({ force: true });

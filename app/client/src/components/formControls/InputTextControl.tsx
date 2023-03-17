@@ -1,14 +1,17 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import BaseControl, { ControlProps } from "./BaseControl";
+import { ControlType } from "constants/PropertyControlConstants";
 import { TextInput } from "design-system-old";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import type { InputType } from "components/constants";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
-import { Field, formValueSelector } from "redux-form";
+import { InputType } from "components/constants";
+import {
+  Field,
+  WrappedFieldMetaProps,
+  WrappedFieldInputProps,
+  formValueSelector,
+} from "redux-form";
 import { connect } from "react-redux";
 
 export const StyledInfo = styled.span`

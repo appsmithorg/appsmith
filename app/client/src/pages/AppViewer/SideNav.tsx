@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Menu, Button } from "@blueprintjs/core";
-import type { SideNavItemProps } from "./SideNavItem";
-import SideNavItem from "./SideNavItem";
+import SideNavItem, { SideNavItemProps } from "./SideNavItem";
 import LetterIcon from "components/editorComponents/LetterIcon";
 type SideNavProps = {
   items?: SideNavItemProps[];

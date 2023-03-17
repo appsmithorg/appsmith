@@ -1,4 +1,4 @@
-import type { ApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 
 export type ProvidersDataArray = ApiResponse & {
   id: string;

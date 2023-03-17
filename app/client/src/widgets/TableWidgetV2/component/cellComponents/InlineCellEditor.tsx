@@ -4,9 +4,12 @@ import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import type { EditableCell } from "widgets/TableWidgetV2/constants";
-import type { VerticalAlignment } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
+import { EditableCell } from "widgets/TableWidgetV2/constants";
+import {
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+  VerticalAlignment,
+} from "../Constants";
 
 const FOCUS_CLASS = "has-focus";
 
@@ -39,10 +42,8 @@ const Wrapper = styled.div<{
         : "100%";
     } else {
       return props.paddedInput
-        ? `${
-            TABLE_SIZES[props.compactMode].ROW_HEIGHT -
-            EDITABLE_CELL_PADDING_OFFSET
-          }px`
+        ? `${TABLE_SIZES[props.compactMode].ROW_HEIGHT -
+            EDITABLE_CELL_PADDING_OFFSET}px`
         : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
     }
   }};
@@ -205,9 +206,10 @@ export function InlineCellEditor({
     <Wrapper
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
-      className={`${hasFocus ? FOCUS_CLASS : ""} t--inlined-cell-editor ${
-        !isEditableCellValid && "t--inlined-cell-editor-has-error"
-      }`}
+      className={`${
+        hasFocus ? FOCUS_CLASS : ""
+      } t--inlined-cell-editor ${!isEditableCellValid &&
+        "t--inlined-cell-editor-has-error"}`}
       compactMode={compactMode}
       isEditableCellValid={isEditableCellValid}
       paddedInput

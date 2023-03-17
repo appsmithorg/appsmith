@@ -1,9 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import type { ICheckboxProps } from "@blueprintjs/core";
-import { Checkbox as BlueprintCheckbox } from "@blueprintjs/core";
-import type { Intent } from "constants/DefaultTheme";
-import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import {
+  Checkbox as BlueprintCheckbox,
+  ICheckboxProps,
+} from "@blueprintjs/core";
+import {
+  IntentColors,
+  Intent,
+  getBorderCSSShorthand,
+} from "constants/DefaultTheme";
 
 export type CheckboxProps = ICheckboxProps & {
   intent: Intent;

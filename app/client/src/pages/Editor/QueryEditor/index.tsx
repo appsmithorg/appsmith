@@ -1,28 +1,26 @@
 import React from "react";
-import type { RouteComponentProps } from "react-router";
+import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import type { QueryEditorRouteParams } from "constants/routes";
-import { INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
-import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import {
   deleteAction,
   runAction,
   setActionResponseDisplayFormat,
+  UpdateActionPropertyActionPayload,
   setActionProperty,
 } from "actions/pluginActionActions";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import type { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
-import type { Datasource } from "entities/Datasource";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
+import { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
@@ -32,7 +30,7 @@ import {
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import type { QueryAction, SaaSAction } from "entities/Action";
+import { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import {
@@ -45,8 +43,7 @@ import PerformanceTracker, {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
-import type { Diff } from "deep-diff";
-import { diff } from "deep-diff";
+import { diff, Diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";

@@ -12,9 +12,8 @@ const PreviewBox = (props: PreviewBoxProps) => {
 
   return (
     <div
-      className={`flex justify-center h-full border relative ${
-        className ?? ""
-      }`}
+      className={`flex justify-center h-full border relative ${className ??
+        ""}`}
       {...rest}
     >
       {children}

@@ -1,9 +1,10 @@
-import type { Schema, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FieldType,
   ROOT_SCHEMA_KEY,
+  Schema,
+  SchemaItem,
 } from "./constants";
 import {
   convertSchemaItemToFormData,
@@ -15,7 +16,7 @@ import {
 
 describe(".schemaItemDefaultValue", () => {
   it("returns array default value when sub array fields don't have default value", () => {
-    const schemaItem = {
+    const schemaItem = ({
       accessor: "education",
       identifier: "education",
       originalIdentifier: "education",
@@ -61,7 +62,7 @@ describe(".schemaItemDefaultValue", () => {
           },
         },
       },
-    } as unknown as SchemaItem;
+    } as unknown) as SchemaItem;
 
     const expectedDefaultValue = [
       {
@@ -76,7 +77,7 @@ describe(".schemaItemDefaultValue", () => {
   });
 
   it("returns array default value when sub array fields don't have default value with accessor keys", () => {
-    const schemaItem = {
+    const schemaItem = ({
       accessor: "education 1",
       identifier: "education",
       originalIdentifier: "education",
@@ -122,7 +123,7 @@ describe(".schemaItemDefaultValue", () => {
           },
         },
       },
-    } as unknown as SchemaItem;
+    } as unknown) as SchemaItem;
 
     const expectedDefaultValue = [
       {
@@ -137,7 +138,7 @@ describe(".schemaItemDefaultValue", () => {
   });
 
   it("returns merged default value when sub array fields have default value", () => {
-    const schemaItem = {
+    const schemaItem = ({
       name: "education",
       accessor: "education",
       identifier: "education",
@@ -188,7 +189,7 @@ describe(".schemaItemDefaultValue", () => {
           },
         },
       },
-    } as unknown as SchemaItem;
+    } as unknown) as SchemaItem;
 
     const expectedDefaultValue = [
       {
@@ -203,7 +204,7 @@ describe(".schemaItemDefaultValue", () => {
   });
 
   it("returns merged default value when array field has default value more than one item", () => {
-    const schemaItem = {
+    const schemaItem = ({
       name: "education",
       accessor: "education",
       identifier: "education",
@@ -257,7 +258,7 @@ describe(".schemaItemDefaultValue", () => {
           },
         },
       },
-    } as unknown as SchemaItem;
+    } as unknown) as SchemaItem;
 
     const expectedDefaultValue = [
       {
@@ -276,7 +277,7 @@ describe(".schemaItemDefaultValue", () => {
   });
 
   it("returns only sub array fields default value, when array level default value is empty", () => {
-    const schemaItem = {
+    const schemaItem = ({
       accessor: "education",
       identifier: "education",
       originalIdentifier: "education",
@@ -314,7 +315,7 @@ describe(".schemaItemDefaultValue", () => {
           },
         },
       },
-    } as unknown as SchemaItem;
+    } as unknown) as SchemaItem;
 
     const expectedDefaultValue = [
       {
@@ -329,7 +330,7 @@ describe(".schemaItemDefaultValue", () => {
   });
 
   it("returns valid default value when non compliant keys in default value is present", () => {
-    const schemaItem = {
+    const schemaItem = ({
       accessor: "education",
       identifier: "education",
       originalIdentifier: "education",
@@ -375,7 +376,7 @@ describe(".schemaItemDefaultValue", () => {
           },
         },
       },
-    } as unknown as SchemaItem;
+    } as unknown) as SchemaItem;
 
     const expectedDefaultValue = [
       {
@@ -575,7 +576,7 @@ describe(".countFields", () => {
 });
 
 describe(".convertSchemaItemToFormData", () => {
-  const schema = {
+  const schema = ({
     __root_schema__: {
       children: {
         customField1: {
@@ -738,7 +739,7 @@ describe(".convertSchemaItemToFormData", () => {
       originalIdentifier: "",
       isVisible: true,
     },
-  } as unknown as Schema;
+  } as unknown) as Schema;
 
   it("replaces data with accessor keys to identifier keys", () => {
     const formData = {

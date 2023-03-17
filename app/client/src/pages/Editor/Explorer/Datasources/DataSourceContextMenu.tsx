@@ -16,12 +16,12 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import type { TreeDropdownOption } from "design-system-old";
+import { TreeDropdownOption } from "design-system-old";
 import { getDatasource } from "selectors/entitiesSelector";
 
 export function DataSourceContextMenu(props: {

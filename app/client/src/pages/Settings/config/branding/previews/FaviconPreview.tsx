@@ -3,7 +3,7 @@ import PreviewBox from "./PreviewBox";
 
 import AddIcon from "remixicon-react/AddFillIcon";
 
-import type { PreviewsProps } from ".";
+import { PreviewsProps } from ".";
 
 const FaviconPreview = (props: PreviewsProps) => {
   const { favicon } = props;

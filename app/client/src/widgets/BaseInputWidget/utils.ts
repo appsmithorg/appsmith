@@ -1,5 +1,5 @@
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { InputType } from "widgets/InputWidget/constants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { InputType } from "widgets/InputWidget/constants";
 import { InputTypes } from "./constants";
 
 function isInputTypeSingleLineOrMultiLine(inputType: InputType) {

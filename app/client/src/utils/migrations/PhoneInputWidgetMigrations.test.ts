@@ -1,4 +1,4 @@
-import type { DSLWidget } from "widgets/constants";
+import { DSLWidget } from "widgets/constants";
 import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
@@ -2983,7 +2983,9 @@ describe("PhoneInputWidgetMigrations - ", () => {
   describe("migratePhoneInputWidgetAllowFormatting - ", () => {
     it("should test that its only migrating allowFormatting", () => {
       expect(
-        migratePhoneInputWidgetAllowFormatting(oldDSL as unknown as DSLWidget),
+        migratePhoneInputWidgetAllowFormatting(
+          (oldDSL as unknown) as DSLWidget,
+        ),
       ).toEqual(newDSL);
     });
   });
@@ -2992,7 +2994,7 @@ describe("PhoneInputWidgetMigrations - ", () => {
     it("should test that its only migrating default dial code with dynamic value", () => {
       expect(
         migratePhoneInputWidgetDefaultDialCode(
-          oldDSLWithDialCode as unknown as DSLWidget,
+          (oldDSLWithDialCode as unknown) as DSLWidget,
         ),
       ).toEqual(expectedDSLWithDefaultDialCode);
     });
@@ -3000,7 +3002,7 @@ describe("PhoneInputWidgetMigrations - ", () => {
     it("should test that its only migrating default dial code without dynamic value", () => {
       expect(
         migratePhoneInputWidgetDefaultDialCode(
-          oldDSLWithDialCode2 as unknown as DSLWidget,
+          (oldDSLWithDialCode2 as unknown) as DSLWidget,
         ),
       ).toEqual(expectedDSLWithDefaultDialCode2);
     });

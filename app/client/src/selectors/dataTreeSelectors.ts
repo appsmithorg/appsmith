@@ -6,8 +6,11 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeFactory,
+  WidgetEntity,
+} from "entities/DataTree/dataTreeFactory";
 import {
   getMetaWidgets,
   getWidgetsForEval,
@@ -15,12 +18,11 @@ import {
 } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import { get } from "lodash";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getEvalErrorPath } from "utils/DynamicBindingUtils";
+import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 
 export const getUnevaluatedDataTree = createSelector(

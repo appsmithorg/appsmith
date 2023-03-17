@@ -1,7 +1,6 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import BaseControl, { ControlProps } from "./BaseControl";
+import { ControlType } from "constants/PropertyControlConstants";
 import NumberField from "components/editorComponents/form/fields/NumberField";
 import { Classes, Text, TextType } from "design-system-old";
 import styled from "styled-components";
@@ -35,8 +34,13 @@ export function InputText(props: {
 
 class InputNumberControl extends BaseControl<InputControlProps> {
   render() {
-    const { configProperty, dataType, label, placeholderText, propertyValue } =
-      this.props;
+    const {
+      configProperty,
+      dataType,
+      label,
+      placeholderText,
+      propertyValue,
+    } = this.props;
 
     return (
       <InputText

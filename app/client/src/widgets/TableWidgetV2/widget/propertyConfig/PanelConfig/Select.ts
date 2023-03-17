@@ -1,6 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
   selectColumnOptionsValidation,
@@ -23,7 +22,8 @@ export default {
         type: ValidationTypes.FUNCTION,
         params: {
           expected: {
-            type: 'Array<{ "label": string | number, "value": string | number}>',
+            type:
+              'Array<{ "label": string | number, "value": string | number}>',
             example: '[{"label": "abc", "value": "abc"}]',
           },
           fnString: selectColumnOptionsValidation.toString(),

@@ -3,16 +3,15 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
-import type { Channel } from "redux-saga";
+import { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
-import type {
+import {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
 } from "reducers/entityReducers/jsActionsReducer";
-import type { TMessage } from "utils/MessageUtil";
-import { MessageType } from "utils/MessageUtil";
-import type { ResponsePayload } from "../sagas/EvaluationsSaga";
+import { MessageType, TMessage } from "utils/MessageUtil";
 import {
+  ResponsePayload,
   evalWorker,
   executeTriggerRequestSaga,
 } from "../sagas/EvaluationsSaga";

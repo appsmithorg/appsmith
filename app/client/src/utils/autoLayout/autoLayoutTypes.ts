@@ -1,4 +1,4 @@
-import type { FlexLayerAlignment } from "./constants";
+import { FlexLayerAlignment } from "./constants";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;

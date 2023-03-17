@@ -1,18 +1,21 @@
-import type { LogDebuggerErrorAnalyticsPayload } from "actions/debuggerActions";
 import {
   addErrorLogs,
   debuggerLog,
   debuggerLogInit,
   deleteErrorLog,
+  LogDebuggerErrorAnalyticsPayload,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type {
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  ENTITY_TYPE,
   Log,
   LogActionPayload,
   LogObject,
+  LOG_CATEGORY,
 } from "entities/AppsmithConsole";
-import { ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import {
   all,
   call,
@@ -29,11 +32,10 @@ import {
   getPlugin,
   getJSCollection,
 } from "selectors/entitiesSelector";
-import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
+import { Action, PluginType } from "entities/Action";
+import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   getConfigTree,
   getDataTree,
@@ -51,12 +53,12 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
+import { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -252,9 +254,9 @@ function* onTriggerPropertyUpdates(payload: Log[]) {
       errorsPathsToDeleteFromConsole.add(`${source.id}-${source.propertyPath}`);
     }
   }
-  const errorIdsToDelete = Array.from(errorsPathsToDeleteFromConsole).map(
-    (path) => ({ id: path }),
-  );
+  const errorIdsToDelete = Array.from(
+    errorsPathsToDeleteFromConsole,
+  ).map((path) => ({ id: path }));
   AppsmithConsole.deleteErrors(errorIdsToDelete);
 }
 

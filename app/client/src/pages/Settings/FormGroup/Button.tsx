@@ -4,8 +4,7 @@ import { Button, Category } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
+import { FormGroup, SettingComponentProps } from "./Common";
 
 const ButtonWrapper = styled.div`
   width: 357px;

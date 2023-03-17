@@ -1,7 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import log from "loglevel";
-import type { MomentInput } from "moment";
-import moment from "moment";
+import moment, { MomentInput } from "moment";
 import _, {
   isNumber,
   isString,
@@ -20,25 +19,21 @@ import _, {
   filter,
 } from "lodash";
 
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import {
+  RenderModes,
+  WidgetType,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-import type { ReactTableFilter } from "../component/Constants";
 import {
+  ReactTableFilter,
   AddNewRowActions,
   StickyType,
   DEFAULT_FILTER,
 } from "../component/Constants";
-import type {
-  EditableCell,
-  OnColumnEventArgs,
-  TableWidgetProps,
-  TransientDataPayload,
-} from "../constants";
 import {
   ActionColumnTypes,
   ColumnTypes,
@@ -49,10 +44,14 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  EditableCell,
   EditableCellActions,
   InlineEditingSaveOptions,
+  OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
+  TableWidgetProps,
   TABLE_COLUMN_ORDER_KEY,
+  TransientDataPayload,
   DEFAULT_COLUMN_NAME,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
@@ -74,16 +73,16 @@ import {
   updateAndSyncTableLocalColumnOrders,
   getAllStickyColumnsCount,
 } from "./utilities";
-import type {
+import {
   ColumnProperties,
   ReactTableColumnProps,
+  CompactModeTypes,
+  SortOrderTypes,
 } from "../component/Constants";
-import { CompactModeTypes, SortOrderTypes } from "../component/Constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
-import { IconNames } from "@blueprintjs/icons";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { IconName, IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
@@ -101,10 +100,9 @@ import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
-import type { MenuItem } from "widgets/MenuButtonWidget/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
@@ -506,8 +504,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     });
 
-    const derivedColumns: Record<string, ColumnProperties> =
-      getDerivedColumns(primaryColumns);
+    const derivedColumns: Record<string, ColumnProperties> = getDerivedColumns(
+      primaryColumns,
+    );
 
     const updatedDerivedColumns = this.updateDerivedColumnsIndex(
       derivedColumns,
@@ -947,8 +946,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisiblePagination ||
       isVisibleSearch;
 
-    const { componentHeight, componentWidth } =
-      this.getPaddingAdjustedDimensions();
+    const {
+      componentHeight,
+      componentWidth,
+    } = this.getPaddingAdjustedDimensions();
 
     if (this.props.isAddRowInProgress) {
       transformedData.unshift(this.props.newRowContent);
@@ -1288,8 +1289,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleRowClick = (row: Record<string, unknown>, selectedIndex: number) => {
-    const { multiRowSelection, selectedRowIndex, selectedRowIndices } =
-      this.props;
+    const {
+      multiRowSelection,
+      selectedRowIndex,
+      selectedRowIndices,
+    } = this.props;
 
     if (multiRowSelection) {
       let indices: Array<number>;
@@ -1811,8 +1815,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       case ColumnTypes.MENU_BUTTON:
         const getVisibleItems = (rowIndex: number) => {
-          const { configureMenuItems, menuItems, menuItemsSource, sourceData } =
-            cellProperties;
+          const {
+            configureMenuItems,
+            menuItems,
+            menuItemsSource,
+            sourceData,
+          } = cellProperties;
 
           if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
             const visibleItems = Object.values(menuItems)?.filter((item) =>

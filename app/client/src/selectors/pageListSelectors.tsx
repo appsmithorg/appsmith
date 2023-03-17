@@ -1,7 +1,7 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 
-import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 

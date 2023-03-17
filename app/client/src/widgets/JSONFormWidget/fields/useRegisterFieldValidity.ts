@@ -1,12 +1,11 @@
 import * as Sentry from "@sentry/react";
 import { set } from "lodash";
-import type { ControllerProps } from "react-hook-form";
-import { useFormContext } from "react-hook-form";
+import { ControllerProps, useFormContext } from "react-hook-form";
 import { useContext, useEffect } from "react";
 import { klona } from "klona";
 
 import FormContext from "../FormContext";
-import type { FieldType } from "../constants";
+import { FieldType } from "../constants";
 
 export type UseRegisterFieldValidityProps = {
   isValid: boolean;

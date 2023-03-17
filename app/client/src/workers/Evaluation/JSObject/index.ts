@@ -1,12 +1,12 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
+import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
-import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import evaluateSync from "workers/Evaluation/evaluate";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
+  DataTreeDiff,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
@@ -16,7 +16,7 @@ import {
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
-import type { JSActionEntity } from "entities/DataTree/types";
+import { JSActionEntity } from "entities/DataTree/types";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body

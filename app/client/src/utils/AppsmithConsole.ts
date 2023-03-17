@@ -4,9 +4,13 @@ import {
   debuggerLogInit,
   deleteErrorLogsInit,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { LogActionPayload, Log } from "entities/AppsmithConsole";
-import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import {
+  Severity,
+  LogActionPayload,
+  Log,
+  LOG_CATEGORY,
+} from "entities/AppsmithConsole";
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";

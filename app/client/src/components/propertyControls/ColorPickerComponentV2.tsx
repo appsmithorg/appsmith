@@ -423,11 +423,9 @@ const ColorPickerComponent = React.forwardRef(
                 currentFocus.current % MAX_COLS === 0
                   ? currentFocus.current - MAX_COLS
                   : totalColors - (totalColors % MAX_COLS);
-            (
-              document.activeElement?.parentElement?.childNodes[
-                currentFocus.current
-              ] as any
-            ).focus();
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
             break;
           }
           case "ArrowLeft": {
@@ -443,11 +441,9 @@ const ColorPickerComponent = React.forwardRef(
               if (currentFocus.current > totalColors)
                 currentFocus.current = totalColors - 1;
             }
-            (
-              document.activeElement?.parentElement?.childNodes[
-                currentFocus.current
-              ] as any
-            ).focus();
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
             break;
           }
           case "ArrowDown": {
@@ -458,11 +454,9 @@ const ColorPickerComponent = React.forwardRef(
             currentFocus.current = currentFocus.current + MAX_COLS;
             if (currentFocus.current >= totalColors)
               currentFocus.current = currentFocus.current % MAX_COLS;
-            (
-              document.activeElement?.parentElement?.childNodes[
-                currentFocus.current
-              ] as any
-            ).focus();
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
             break;
           }
           case "ArrowUp": {
@@ -478,11 +472,9 @@ const ColorPickerComponent = React.forwardRef(
                 currentFocus.current = nextIndex - MAX_COLS;
               else currentFocus.current = nextIndex;
             }
-            (
-              document.activeElement?.parentElement?.childNodes[
-                currentFocus.current
-              ] as any
-            ).focus();
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
             break;
           }
         }

@@ -1,5 +1,5 @@
 import { getPlatformOS, PLATFORM_OS } from "utils/helpers";
-import type CodeMirror from "codemirror";
+import CodeMirror from "codemirror";
 import { isNil } from "lodash";
 
 const autoIndentShortcut = {

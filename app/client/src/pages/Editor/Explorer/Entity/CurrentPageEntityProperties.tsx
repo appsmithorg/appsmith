@@ -1,17 +1,17 @@
 import React, { memo, useEffect } from "react";
-import type { EntityPropertyProps } from "./EntityProperty";
-import EntityProperty from "./EntityProperty";
+import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
-import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  entityDefinitions,
+  EntityDefinitionsOptions,
+} from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { ENTITY_TYPE, DataTree } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import type { ActionEntity } from "entities/DataTree/types";
+import { ActionEntity } from "entities/DataTree/types";
 import * as Sentry from "@sentry/react";
 
 export const CurrentPageEntityProperties = memo(

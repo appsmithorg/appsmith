@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useMemo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";

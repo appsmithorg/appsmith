@@ -1,13 +1,11 @@
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import type {
-  MovementLimitMap,
-  ReflowedSpaceMap,
-  SpaceMap,
-} from "reflow/reflowTypes";
 import {
   HORIZONTAL_RESIZE_MIN_LIMIT,
+  MovementLimitMap,
   ReflowDirection,
+  ReflowedSpaceMap,
+  SpaceMap,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
 import {
@@ -15,7 +13,7 @@ import {
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas
@@ -194,8 +192,15 @@ export const modifyBlockDimension = (
   canExtend: boolean,
   modifyBlock: boolean,
 ) => {
-  const { columnWidth, fixedHeight, height, left, rowHeight, top, width } =
-    draggingBlock;
+  const {
+    columnWidth,
+    fixedHeight,
+    height,
+    left,
+    rowHeight,
+    top,
+    width,
+  } = draggingBlock;
 
   //get left and top of widget on canvas grid
   const [leftColumn, topRow] = getDropZoneOffsets(

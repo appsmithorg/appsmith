@@ -1,10 +1,12 @@
 import { set, split, unset } from "lodash";
 
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export type MetaWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
@@ -53,8 +55,12 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     state: MetaWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {
-    const { addOrUpdate, creatorId, deleteIds, propertyUpdates } =
-      action.payload;
+    const {
+      addOrUpdate,
+      creatorId,
+      deleteIds,
+      propertyUpdates,
+    } = action.payload;
 
     if (addOrUpdate) {
       Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {

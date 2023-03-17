@@ -16,14 +16,13 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { APP_MODE } from "entities/App";
+import { APP_MODE } from "entities/App";
 import { call, put } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import type { AppEnginePayload } from ".";
-import AppEngine, { ActionsNotFoundError } from ".";
+import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import {
   waitForSegmentInit,

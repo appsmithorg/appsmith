@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   snipingModeSelector,
   previewModeSelector,

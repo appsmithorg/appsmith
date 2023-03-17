@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
-import type { RouteComponentProps } from "react-router-dom";
-import { withRouter, Link } from "react-router-dom";
-import type { InjectedFormProps } from "redux-form";
-import { change, reduxForm, formValueSelector } from "redux-form";
+import { withRouter, RouteComponentProps, Link } from "react-router-dom";
+import {
+  change,
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+} from "redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
   FormActions,
@@ -27,12 +30,14 @@ import FormTextField from "components/utils/ReduxFormTextField";
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
-import type { ForgotPasswordFormValues } from "./helpers";
-import { forgotPasswordSubmitHandler } from "./helpers";
+import {
+  ForgotPasswordFormValues,
+  forgotPasswordSubmitHandler,
+} from "./helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import Container from "./Container";
 import { useTheme } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -53,8 +58,13 @@ type ForgotPasswordProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { emailValue: string };
 
 export const ForgotPassword = (props: ForgotPasswordProps) => {
-  const { error, handleSubmit, submitFailed, submitSucceeded, submitting } =
-    props;
+  const {
+    error,
+    handleSubmit,
+    submitFailed,
+    submitSucceeded,
+    submitting,
+  } = props;
   const theme = useTheme() as Theme;
   const dispatch = useDispatch();
 

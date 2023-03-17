@@ -1,15 +1,15 @@
 import * as React from "react";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 
-import type { RangeSliderComponentProps } from "../component/RangeSlider";
-import RangeSliderComponent from "../component/RangeSlider";
+import RangeSliderComponent, {
+  RangeSliderComponentProps,
+} from "../component/RangeSlider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,

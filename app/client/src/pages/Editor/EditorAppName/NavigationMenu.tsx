@@ -1,9 +1,12 @@
 import React from "react";
 
-import type { noop } from "lodash";
+import { noop } from "lodash";
 
-import type { MenuItemData } from "./NavigationMenuItem";
-import { NavigationMenuItem, MenuTypes } from "./NavigationMenuItem";
+import {
+  NavigationMenuItem,
+  MenuTypes,
+  MenuItemData,
+} from "./NavigationMenuItem";
 
 type NavigationMenuProps = {
   menuItems: MenuItemData[] | undefined;

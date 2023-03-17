@@ -1,5 +1,4 @@
-import type { RefObject } from "react";
-import React, { forwardRef, useEffect, useRef } from "react";
+import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import { useSelector } from "react-redux";
@@ -91,8 +90,9 @@ export const StickyCanvasArena = forwardRef(
     };
 
     const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
-      const canvasCtx: CanvasRenderingContext2D =
-        stickyCanvasRef.current.getContext("2d");
+      const canvasCtx: CanvasRenderingContext2D = stickyCanvasRef.current.getContext(
+        "2d",
+      );
       if (isMultiPane) {
         stickyCanvasRef.current.height =
           entry.intersectionRect.height * canvasScale;

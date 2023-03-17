@@ -1,6 +1,5 @@
 import React from "react";
-import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
+import { FormGroup, SettingComponentProps } from "./Common";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 
 export default function DropDown(
@@ -12,9 +11,8 @@ export default function DropDown(
 
   return (
     <FormGroup
-      className={`t--admin-settings-dropdown t--admin-settings-${
-        setting.name || setting.id
-      }`}
+      className={`t--admin-settings-dropdown t--admin-settings-${setting.name ||
+        setting.id}`}
       setting={setting}
     >
       <SelectField

@@ -1,4 +1,4 @@
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,

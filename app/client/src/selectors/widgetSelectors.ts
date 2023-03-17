@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
-import type { AppState } from "@appsmith/reducers";
-import type {
+import { AppState } from "@appsmith/reducers";
+import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";

@@ -1,13 +1,12 @@
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { Alignment } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
-import { IconNames } from "@blueprintjs/icons";
-import type {
+import { WidgetProps } from "widgets/BaseWidget";
+import { Alignment } from "@blueprintjs/core";
+import { IconName, IconNames } from "@blueprintjs/icons";
+import {
   ButtonBorderRadius,
   ButtonVariant,
   ButtonPlacement,
 } from "components/constants";
-import type { RenderMode } from "constants/WidgetConstants";
+import { RenderMode } from "constants/WidgetConstants";
 
 export enum MenuItemsSource {
   STATIC = "STATIC",

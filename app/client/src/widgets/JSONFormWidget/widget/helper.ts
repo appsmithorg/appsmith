@@ -4,19 +4,17 @@ import log from "loglevel";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { MetaInternalFieldState } from ".";
-import type {
-  FieldState,
-  FieldThemeStylesheet,
-  JSON,
-  Schema,
-  SchemaItem,
-} from "../constants";
+import { MetaInternalFieldState } from ".";
 import {
   ARRAY_ITEM_KEY,
   AUTO_JS_ENABLED_FIELDS,
+  FieldState,
+  FieldThemeStylesheet,
   FieldType,
+  JSON,
   MAX_ALLOWED_FIELDS,
+  Schema,
+  SchemaItem,
 } from "../constants";
 import { countFields } from "../helper";
 import SchemaParser from "../schemaParser";
@@ -295,12 +293,15 @@ export const computeSchema = ({
 
   const start = performance.now();
 
-  const { modifiedSchemaItems, removedSchemaItems, schema } =
-    SchemaParser.parse(widgetName, {
-      fieldThemeStylesheets,
-      currSourceData,
-      schema: prevSchema,
-    });
+  const {
+    modifiedSchemaItems,
+    removedSchemaItems,
+    schema,
+  } = SchemaParser.parse(widgetName, {
+    fieldThemeStylesheets,
+    currSourceData,
+    schema: prevSchema,
+  });
 
   log.debug(
     "JSONForm widget schema parsing took",

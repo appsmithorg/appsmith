@@ -1,13 +1,12 @@
-import type { ControlType } from "constants/PropertyControlConstants";
-import type {
+import { ControlType } from "constants/PropertyControlConstants";
+import BaseControl, {
   ControlBuilder,
   ControlProps,
   ControlFunctions,
   ControlData,
 } from "components/propertyControls/BaseControl";
-import type BaseControl from "components/propertyControls/BaseControl";
 import { isArray } from "lodash";
-import type { AdditionalDynamicDataTree } from "./autocomplete/customTreeTypeDefCreator";
+import { AdditionalDynamicDataTree } from "./autocomplete/customTreeTypeDefCreator";
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();

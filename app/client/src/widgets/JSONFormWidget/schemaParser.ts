@@ -10,22 +10,20 @@ import {
 import { klona } from "klona";
 
 import { sanitizeKey } from "widgets/WidgetUtils";
-import type {
-  FieldComponentBaseProps,
-  Schema,
-  SchemaItem,
-  FieldThemeStylesheet,
-} from "./constants";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
   DataType,
   FIELD_MAP,
   FIELD_TYPE_TO_POTENTIAL_DATA,
+  FieldComponentBaseProps,
   FieldType,
   getBindingTemplate,
   RESTRICTED_KEYS,
   ROOT_SCHEMA_KEY,
+  Schema,
+  SchemaItem,
+  FieldThemeStylesheet,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
 
@@ -716,8 +714,9 @@ class SchemaParser {
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
     const schema = klona(prevSchema);
-    const origIdentifierToIdentifierMap =
-      mapOriginalIdentifierToSanitizedIdentifier(schema);
+    const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
+      schema,
+    );
 
     if (!isObject(currSourceData)) {
       return schema;

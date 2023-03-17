@@ -1,16 +1,15 @@
-import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import RateComponent from "../component";
-import type { RateSize } from "../constants";
+import { RateSize } from "../constants";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {

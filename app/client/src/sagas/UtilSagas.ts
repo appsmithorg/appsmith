@@ -1,9 +1,11 @@
 import { all, takeEvery, race, put, take } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
 import { showActionConfirmationModal } from "actions/pluginActionActions";
-import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 function* redirectWindowLocationSaga(
   actionPayload: ReduxAction<{ url: string }>,

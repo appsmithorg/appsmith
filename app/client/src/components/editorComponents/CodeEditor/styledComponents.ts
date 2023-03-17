@@ -1,11 +1,10 @@
 import styled from "styled-components";
-import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
+  CodeEditorBorder,
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { Theme } from "constants/DefaultTheme";
-import { Skin } from "constants/DefaultTheme";
+import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
   NAVIGATION_CLASSNAME,
@@ -118,21 +117,20 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: 0px;
-      border: 1px solid
-        ${(props) => {
-          switch (true) {
-            case props.border === "none":
-              return "transparent";
-            case props.border === "bottom-side":
-              return Colors.MERCURY;
-            case props.hasError:
-              return "red";
-            case props.isFocused:
-              return "var(--appsmith-input-focus-border-color)";
-            default:
-              return Colors.GREY_5;
-          }
-        }};
+      border: 1px solid ${(props) => {
+        switch (true) {
+          case props.border === "none":
+            return "transparent";
+          case props.border === "bottom-side":
+            return Colors.MERCURY;
+          case props.hasError:
+            return "red";
+          case props.isFocused:
+            return "var(--appsmith-input-focus-border-color)";
+          default:
+            return Colors.GREY_5;
+        }
+      }};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
@@ -170,9 +168,9 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
-
+    
     .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
-      background-color: #f4ffde;
+      background-color:	#F4FFDE;
     }
 
     .${NAVIGATION_CLASSNAME} {
@@ -201,12 +199,12 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #fff0f0;
-      border: 1px solid #f22b2b;
+      background: #FFF0F0;
+      border: 1px solid #F22B2B;
     }
     .datasource-highlight-success {
-      background: #e3fff3;
-      border: 1px solid #03b365;
+      background: #E3FFF3;
+      border: 1px solid #03B365;
     }
     .CodeMirror {
       flex: 1;

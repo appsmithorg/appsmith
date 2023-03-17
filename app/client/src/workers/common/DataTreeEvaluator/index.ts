@@ -1,11 +1,9 @@
-import type {
+import {
   DataTreeEvaluationProps,
   DependencyMap,
   EvalError,
-  EvaluationError,
-} from "utils/DynamicBindingUtils";
-import {
   EvalErrorTypes,
+  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEntityId,
@@ -18,26 +16,28 @@ import {
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import type {
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import {
   DataTree,
   DataTreeEntity,
   WidgetEntity,
+  EvaluationSubstitutionType,
   ConfigTree,
   WidgetEntityConfig,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets } from "entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/types";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-
+import {
+  ENTITY_TYPE,
+  PrivateWidgets,
+  ActionEntity,
+  JSActionEntity,
+} from "entities/DataTree/types";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
   convertPathToString,
   CrashingError,
+  DataTreeDiff,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   isAction,
@@ -65,8 +65,7 @@ import {
   unset,
 } from "lodash";
 
-import type { Diff } from "deep-diff";
-import { applyChange, diff } from "deep-diff";
+import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
 import {
   EXECUTION_PARAM_KEY,
@@ -74,19 +73,22 @@ import {
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
-import evaluateSync, { evaluateAsync } from "workers/Evaluation/evaluate";
+import evaluateSync, {
+  EvalResult,
+  EvaluateContext,
+  evaluateAsync,
+} from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
-import type { JSUpdate } from "utils/JSPaneUtils";
+import { JSUpdate } from "utils/JSPaneUtils";
 
-import type {
+import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
   createDependencyMap,
@@ -748,14 +750,19 @@ export default class DataTreeEvaluator {
     const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
-    const { isFirstTree, metaWidgets, skipRevalidation, unevalUpdates } =
-      options;
+    const {
+      isFirstTree,
+      metaWidgets,
+      skipRevalidation,
+      unevalUpdates,
+    } = options;
     let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
-          const { entityName, propertyPath } =
-            getEntityNameAndPropertyPath(fullPropertyPath);
+          const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+            fullPropertyPath,
+          );
           const entity = currentTree[entityName] as WidgetEntity | ActionEntity;
           const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
           const entityConfig = oldConfigTree[entityName];
@@ -1216,8 +1223,9 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree;
   }) {
     if (this.inverseValidationDependencyMap[fullPropertyPath]) {
-      const pathsToRevalidate =
-        this.inverseValidationDependencyMap[fullPropertyPath];
+      const pathsToRevalidate = this.inverseValidationDependencyMap[
+        fullPropertyPath
+      ];
       pathsToRevalidate.forEach((fullPath) => {
         validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
@@ -1226,10 +1234,10 @@ export default class DataTreeEvaluator {
           configTree,
           // we supply non-transformed evaluated value
           evalPropertyValue: get(this.getUnParsedEvalTree(), fullPath),
-          unEvalPropertyValue: get(
+          unEvalPropertyValue: (get(
             this.oldUnEvalTree,
             fullPath,
-          ) as unknown as string,
+          ) as unknown) as string,
           evalProps: this.evalProps,
         });
       });
@@ -1242,8 +1250,9 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree,
   ) {
     nonDynamicFieldValidationOrder.forEach((fullPropertyPath) => {
-      const { entityName, propertyPath } =
-        getEntityNameAndPropertyPath(fullPropertyPath);
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        fullPropertyPath,
+      );
       const entity = currentTree[entityName];
       if (isWidget(entity) && !isPathDynamicTrigger(entity, propertyPath)) {
         this.reValidateWidgetDependentProperty({
@@ -1357,8 +1366,9 @@ export default class DataTreeEvaluator {
         }
         let entityDynamicBindingPaths: string[] = [];
         if (isAction(entity)) {
-          const entityDynamicBindingPathList =
-            getEntityDynamicBindingPathList(entityConfig);
+          const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
+            entityConfig,
+          );
           entityDynamicBindingPaths = entityDynamicBindingPathList.map(
             (path) => {
               return path.key;

@@ -1,4 +1,4 @@
-import type { PropertyPaneSectionConfig } from "constants/PropertyControlConstants";
+import { PropertyPaneSectionConfig } from "constants/PropertyControlConstants";
 import { searchPropertyPaneConfig } from "./propertyPaneSearch";
 
 describe("Property configuration search", () => {

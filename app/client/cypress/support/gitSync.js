@@ -15,7 +15,10 @@ const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
 
 Cypress.Commands.add("revokeAccessGit", (appName) => {
-  cy.xpath("//span[text()= `${appName}`]").parent().next().click();
+  cy.xpath("//span[text()= `${appName}`]")
+    .parent()
+    .next()
+    .click();
   cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
   cy.get(gitSyncLocators.disconnectButton).click();
   cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
@@ -162,7 +165,9 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
   cy.wait(1000);
-  cy.get(gitSyncLocators.branchListItem).contains(branch).click();
+  cy.get(gitSyncLocators.branchListItem)
+    .contains(branch)
+    .click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
     cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
@@ -260,7 +265,9 @@ Cypress.Commands.add(
   "createAppAndConnectGit",
   (appname, shouldConnect = true, assertConnectFailure) => {
     cy.get(homePage.homeIcon).click({ force: true });
-    cy.get(homePage.createNew).first().click({ force: true });
+    cy.get(homePage.createNew)
+      .first()
+      .click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -301,7 +308,9 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   );
   cy.wait(3000);
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
-  cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
+  cy.get(commonLocators.dropdownmenu)
+    .contains(destinationBranch)
+    .click();
   agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
   cy.wait("@mergeStatus", { timeout: 35000 }).should(
     "have.nested.property",

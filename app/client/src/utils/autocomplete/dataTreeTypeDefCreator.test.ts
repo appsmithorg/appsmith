@@ -4,13 +4,11 @@ import {
   flattenDef,
   getFunctionsArgsType,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type {
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
 import {
+  WidgetEntity,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 

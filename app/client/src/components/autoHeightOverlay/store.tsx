@@ -105,8 +105,9 @@ interface StateContextType {
   dispatch: React.Dispatch<AutoHeightLimitsUIAction>;
 }
 
-export const AutoHeightLimitsStateContext =
-  React.createContext<StateContextType>({} as StateContextType);
+export const AutoHeightLimitsStateContext = React.createContext<
+  StateContextType
+>({} as StateContextType);
 
 export const AutoHeightLimitsStateContextProvider: React.FC<{
   children: React.ReactNode;

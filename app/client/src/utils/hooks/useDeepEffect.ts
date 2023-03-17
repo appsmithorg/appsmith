@@ -1,6 +1,5 @@
 import equal from "fast-deep-equal/es6";
-import type { DependencyList, EffectCallback } from "react";
-import { useEffect, useRef } from "react";
+import { DependencyList, EffectCallback, useEffect, useRef } from "react";
 
 const STARTS_WITH_PRIMITIVE_REGEX = /^[sbn]/;
 

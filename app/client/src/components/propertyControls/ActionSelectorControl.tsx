@@ -1,10 +1,9 @@
 import React from "react";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 import ActionCreator from "components/editorComponents/ActionCreator";
-import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,

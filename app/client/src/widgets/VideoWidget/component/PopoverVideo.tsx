@@ -5,8 +5,7 @@ import {
   PopoverPosition,
 } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import type { VideoComponentProps } from "./";
-import VideoComponent from "./";
+import VideoComponent, { VideoComponentProps } from "./";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 

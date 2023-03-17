@@ -4,7 +4,7 @@ import { keyBy } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo, useCallback } from "react";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";

@@ -1,6 +1,5 @@
 import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
-import type { AppsmithEntity } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { AppsmithEntity, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createNavData, createObjectNavData } from "./common";
 
 export const getAppsmithNavData = (dataTree: AppsmithEntity) => {

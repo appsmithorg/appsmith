@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { Category, Size } from "design-system-old";
 

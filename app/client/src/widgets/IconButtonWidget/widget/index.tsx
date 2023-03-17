@@ -1,16 +1,14 @@
-import type { IconName } from "@blueprintjs/icons";
+import { IconName } from "@blueprintjs/icons";
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { IconNames } from "@blueprintjs/icons";
-import type { ButtonVariant } from "components/constants";
-import { ButtonVariantTypes } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import IconButtonComponent from "../component";
 

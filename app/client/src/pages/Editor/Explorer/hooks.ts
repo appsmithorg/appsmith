@@ -1,17 +1,22 @@
-import type { MutableRefObject } from "react";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import {
+  useEffect,
+  MutableRefObject,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
-import type { Datasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getActions, getDatasources } from "selectors/entitiesSelector";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,

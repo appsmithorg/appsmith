@@ -1,5 +1,4 @@
-import type { MenuButtonWidgetProps } from "../../constants";
-import { MenuItemsSource } from "../../constants";
+import { MenuButtonWidgetProps, MenuItemsSource } from "../../constants";
 
 export const updateMenuItemsSource = (
   props: MenuButtonWidgetProps,

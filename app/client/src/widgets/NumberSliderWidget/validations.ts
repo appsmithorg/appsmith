@@ -1,4 +1,4 @@
-import type { NumberSliderWidgetProps } from "./widget";
+import { NumberSliderWidgetProps } from "./widget";
 
 export function minValueValidation(
   min: unknown,

@@ -3,11 +3,11 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { FlexLayer } from "./autoLayoutTypes";
+import { FlexLayer } from "./autoLayoutTypes";
 import { RenderModes } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { AlignmentInfo, Row } from "./positionUtils";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  AlignmentInfo,
   extractAlignmentInfo,
   getAlignmentSizeInfo,
   getStartingPosition,
@@ -15,6 +15,7 @@ import {
   getWrappedRows,
   placeWidgetsWithoutWrap,
   placeWrappedWidgets,
+  Row,
   updateWidgetPositions,
 } from "./positionUtils";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";

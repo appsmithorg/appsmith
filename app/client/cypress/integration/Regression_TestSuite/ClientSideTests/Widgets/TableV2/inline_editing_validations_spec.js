@@ -31,20 +31,40 @@ describe("Table widget inline editing validation functionality", () => {
     cy.editColumn("step");
     propPane.ToggleOnOrOff("Editable", "On");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
-    cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Number").click();
+    cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains("Number")
+      .click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
-    cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Plain Text").click();
+    cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains("Plain Text")
+      .click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
-    cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Date").click();
+    cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains("Date")
+      .click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
-    cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Plain Text").click();
+    cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains("Plain Text")
+      .click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
   });
@@ -63,8 +83,13 @@ describe("Table widget inline editing validation functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     propPane.ToggleOnOrOff("Editable", "On");
-    cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Number").click();
+    cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains("Number")
+      .click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     ["min", "max", "regex", "valid", "errormessage", "required"].forEach(
@@ -133,8 +158,13 @@ describe("Table widget inline editing validation functionality", () => {
       cy.editColumn("step");
       propPane.ToggleOnOrOff("Editable", "On");
 
-      cy.get(commonlocators.changeColType).last().click();
-      cy.get(".t--dropdown-option").children().contains("Number").click();
+      cy.get(commonlocators.changeColType)
+        .last()
+        .click();
+      cy.get(".t--dropdown-option")
+        .children()
+        .contains("Number")
+        .click();
       cy.wait("@updateLayout");
 
       propPane.UpdatePropertyFieldValue("Min", "5");
@@ -164,8 +194,13 @@ describe("Table widget inline editing validation functionality", () => {
       cy.editColumn("step");
       propPane.ToggleOnOrOff("Editable", "On");
 
-      cy.get(commonlocators.changeColType).last().click();
-      cy.get(".t--dropdown-option").children().contains("Number").click();
+      cy.get(commonlocators.changeColType)
+        .last()
+        .click();
+      cy.get(".t--dropdown-option")
+        .children()
+        .contains("Number")
+        .click();
       cy.wait("@updateLayout");
 
       propPane.UpdatePropertyFieldValue("Max", "5");

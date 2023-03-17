@@ -1,12 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import type { INumericInputProps } from "@blueprintjs/core";
-import { Classes, NumericInput } from "@blueprintjs/core";
+import { Classes, INumericInputProps, NumericInput } from "@blueprintjs/core";
 
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
-import type { ThemeProp } from "widgets/constants";
+import { ThemeProp } from "widgets/constants";
 
 const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
   &&& {

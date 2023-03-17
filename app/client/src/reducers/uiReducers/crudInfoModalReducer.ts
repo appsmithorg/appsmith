@@ -1,7 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { SetCrudInfoModalOpenPayload } from "actions/crudInfoModalActions";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { SetCrudInfoModalOpenPayload } from "actions/crudInfoModalActions";
 
 const initialState: CrudInfoModalReduxState = {
   crudInfoModalOpen: false,

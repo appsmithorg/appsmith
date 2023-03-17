@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 export function fetchJSLibraries(applicationId: string) {
   return {

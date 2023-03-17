@@ -8,9 +8,13 @@ import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "../../../cellComponents/AutoToolTipComponent";
-import type { Condition, Operator, ReactTableFilter } from "../../../Constants";
-import { OperatorTypes } from "../../../Constants";
-import type { DropdownOption } from "./index";
+import {
+  OperatorTypes,
+  Condition,
+  Operator,
+  ReactTableFilter,
+} from "../../../Constants";
+import { DropdownOption } from "./index";
 import { RenderOptionWrapper } from "../../../TableStyledWrappers";
 
 //TODO(abhinav): Fix this cross import between widgets
@@ -472,10 +476,9 @@ function CaseCaseFieldReducer(
 }
 
 function CascadeField(props: CascadeFieldProps) {
-  const memoizedState = React.useMemo(
-    () => calculateInitialState(props),
-    [props],
-  );
+  const memoizedState = React.useMemo(() => calculateInitialState(props), [
+    props,
+  ]);
   return <Fields state={memoizedState} {...props} />;
 }
 

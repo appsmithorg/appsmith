@@ -1,8 +1,6 @@
-import type { CheckboxProps } from "design-system-old";
-import { Checkbox } from "design-system-old";
+import { Checkbox, CheckboxProps } from "design-system-old";
 import React from "react";
-import type { BaseFieldProps } from "redux-form";
-import { Field } from "redux-form";
+import { Field, BaseFieldProps } from "redux-form";
 
 type RenderComponentProps = CheckboxProps & {
   input?: {

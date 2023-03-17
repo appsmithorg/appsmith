@@ -1,7 +1,10 @@
-import type { Plugin } from "api/PluginApi";
+import { Plugin } from "api/PluginApi";
 import { PluginPackageName } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
-import { AuthenticationStatus, AuthType } from "entities/Datasource";
+import {
+  AuthenticationStatus,
+  AuthType,
+  Datasource,
+} from "entities/Datasource";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -45,18 +48,16 @@ export function getPropertyControlFocusElement(
       if (uiInputElement) {
         return uiInputElement;
       }
-      const codeEditorInputElement =
-        propertyInputElement.getElementsByClassName("CodeEditorTarget")[0] as
-          | HTMLElement
-          | undefined;
+      const codeEditorInputElement = propertyInputElement.getElementsByClassName(
+        "CodeEditorTarget",
+      )[0] as HTMLElement | undefined;
       if (codeEditorInputElement) {
         return codeEditorInputElement;
       }
 
-      const lazyCodeEditorInputElement =
-        propertyInputElement.getElementsByClassName("LazyCodeEditor")[0] as
-          | HTMLElement
-          | undefined;
+      const lazyCodeEditorInputElement = propertyInputElement.getElementsByClassName(
+        "LazyCodeEditor",
+      )[0] as HTMLElement | undefined;
       if (lazyCodeEditorInputElement) {
         return lazyCodeEditorInputElement;
       }

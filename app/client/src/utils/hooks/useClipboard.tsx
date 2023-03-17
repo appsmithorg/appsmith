@@ -1,4 +1,4 @@
-import type { MutableRefObject } from "react";
+import { MutableRefObject } from "react";
 
 const writeToClipboard = async (
   text: string,

@@ -3,14 +3,14 @@ import {
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
 import difference from "lodash/difference";
-import type { Def } from "tern";
+import { Def } from "tern";
 import {
   JSLibraries,
   libraryReservedIdentifiers,
   resetJSLibraries,
 } from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
-import type { EvalWorkerSyncRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 
 enum LibraryInstallError {
   NameCollisionError,
@@ -78,10 +78,9 @@ export function installLibrary(request: EvalWorkerSyncRequest) {
     }
 
     // Find keys add that were installed to the global scope.
-    const accessor = difference(
-      Object.keys(self),
-      currentEnvKeys,
-    ) as Array<string>;
+    const accessor = difference(Object.keys(self), currentEnvKeys) as Array<
+      string
+    >;
 
     checkForNameCollision(accessor, takenNamesMap);
 

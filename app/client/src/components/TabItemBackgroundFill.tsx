@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import type { TabProp } from "design-system-old";
-import { getTypographyByKey } from "design-system-old";
-import type { Theme } from "constants/DefaultTheme";
+import { getTypographyByKey, TabProp } from "design-system-old";
+import { Theme } from "constants/DefaultTheme";
 
 type WrapperProps = {
   selected: boolean;

@@ -1,10 +1,8 @@
 import { cancelled, delay, put, take } from "redux-saga/effects";
-import type { Channel } from "redux-saga";
-import { channel, buffers } from "redux-saga";
+import { channel, Channel, buffers } from "redux-saga";
 import { uniqueId } from "lodash";
 import log from "loglevel";
-import type { TMessage } from "./MessageUtil";
-import { MessageType, sendMessage } from "./MessageUtil";
+import { TMessage, MessageType, sendMessage } from "./MessageUtil";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.

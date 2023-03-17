@@ -1,19 +1,18 @@
-import type { WidgetAddChild } from "actions/pageActions";
-import { updateAndSaveLayout } from "actions/pageActions";
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { Toaster } from "design-system-old";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type {
+import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -28,7 +27,7 @@ import {
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
@@ -38,7 +37,7 @@ import {
 } from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
@@ -66,8 +65,14 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, newWidgetId, topRow, type } = params;
-  let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
-    params;
+  let {
+    columns,
+    parentColumnSpace,
+    parentRowSpace,
+    props,
+    rows,
+    widgetName,
+  } = params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",

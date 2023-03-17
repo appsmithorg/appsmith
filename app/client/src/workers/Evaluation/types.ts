@@ -1,23 +1,24 @@
-import type {
+import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { AppTheme } from "entities/AppTheming";
+import {
   ConfigTree,
   DataTree,
+  UnEvalTree,
   unEvalAndConfigTree,
 } from "entities/DataTree/dataTreeFactory";
-import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import type { AppTheme } from "entities/AppTheming";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
-import type {
+import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
 } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import type { JSUpdate } from "utils/JSPaneUtils";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import type { WorkerRequest } from "@appsmith/workers/common/types";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { JSUpdate } from "utils/JSPaneUtils";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { WorkerRequest } from "@appsmith/workers/common/types";
+import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export type EvalWorkerSyncRequest = WorkerRequest<any, EVAL_WORKER_SYNC_ACTION>;
 export type EvalWorkerASyncRequest = WorkerRequest<

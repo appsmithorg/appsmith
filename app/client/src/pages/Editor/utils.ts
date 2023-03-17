@@ -3,14 +3,14 @@ import _, { debounce } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
-import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
 } from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "RouteBuilder";
+import { URLBuilderParams } from "RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
@@ -108,8 +108,10 @@ export const draggableElement = (
   const calculateNewPosition = () => {
     const { height, left, top, width } = element.getBoundingClientRect();
     const isElementOpen = height && width;
-    const { left: calculatedLeft, top: calculatedTop } =
-      calculateBoundaryConfinedPosition(left, top);
+    const {
+      left: calculatedLeft,
+      top: calculatedTop,
+    } = calculateBoundaryConfinedPosition(left, top);
 
     return {
       updatePosition: isDragged && isElementOpen,
@@ -138,7 +140,7 @@ export const draggableElement = (
   };
   const debouncedUpdatePosition = debounce(updateElementPosition, 50);
 
-  const resizeObserver = new ResizeObserver(function () {
+  const resizeObserver = new ResizeObserver(function() {
     debouncedUpdatePosition();
   });
 

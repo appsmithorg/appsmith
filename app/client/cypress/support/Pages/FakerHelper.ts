@@ -11,10 +11,7 @@ export class FakerHelper {
     return faker.image.imageUrl();
   }
 
-  public GetRandomText(
-    textLength = 10,
-    casing: "upper" | "lower" | "mixed" = "mixed",
-  ) {
+  public GetRandomText(textLength = 10, casing : "upper" | "lower" | "mixed" = "mixed") {
     return faker.random.alphaNumeric(textLength, { casing: casing });
   }
 
@@ -23,6 +20,6 @@ export class FakerHelper {
   }
 
   public GetRandomNumber(length = 6) {
-    return faker.random.numeric(length, { allowLeadingZeros: true });
+    return faker.random.numeric(length, {allowLeadingZeros: true});
   }
 }

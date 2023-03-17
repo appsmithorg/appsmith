@@ -1,6 +1,6 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { set } from "lodash";
-import type { EvalProps } from "workers/common/DataTreeEvaluator";
+import { EvalProps } from "workers/common/DataTreeEvaluator";
 import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**

@@ -1,9 +1,9 @@
 export * from "ce/constants/SocialLogin";
-import type {
+import {
   SocialLoginButtonProps,
+  SocialLoginButtonPropsList,
   SocialLoginType,
 } from "ce/constants/SocialLogin";
-import { SocialLoginButtonPropsList } from "ce/constants/SocialLogin";
 
 export const getSocialLoginButtonProps = (
   logins: SocialLoginType[],

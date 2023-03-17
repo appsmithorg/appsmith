@@ -1,13 +1,10 @@
 import { pick } from "lodash";
 
-import type {
+import {
   CanvasStructure,
   DSL,
 } from "reducers/uiReducers/pageCanvasStructureReducer";
-import type {
-  CanvasWidgetStructure,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
 import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
 
 type DenormalizeOptions = {

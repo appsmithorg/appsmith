@@ -1,6 +1,6 @@
-import type { AxiosPromise } from "axios";
+import { AxiosPromise } from "axios";
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 
 export interface CurlImportRequest {
   type: string;

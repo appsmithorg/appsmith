@@ -1,4 +1,4 @@
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import {
   ENTITY_TYPE,

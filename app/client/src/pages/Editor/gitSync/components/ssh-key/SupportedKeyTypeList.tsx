@@ -1,4 +1,4 @@
-import type { SSHKeyType } from "actions/gitSyncActions";
+import { SSHKeyType } from "actions/gitSyncActions";
 export type SupportedKeyType = SSHKeyType & {
   text: string;
   generated: boolean;

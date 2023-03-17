@@ -17,11 +17,11 @@
   "mysql-username": "root",
   "mysql-password": "root",
 
-	"mssql-host": "host.docker.internal",
+	"mssql-host": "localhost",
   "mssql-port": 1433,
   "mssql-databaseName": "fakeapi",
   "mssql-username": "SA",
-  "mssql-password": "Root@123",
+  "mssql-password": "Root$123",
 
 	"arango-host": "localhost",
   "arango-port": 8529,

@@ -1,4 +1,4 @@
-import type { RangeSliderWidgetProps } from "./widget";
+import { RangeSliderWidgetProps } from "./widget";
 
 export function minValueValidation(
   min: unknown,

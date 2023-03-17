@@ -33,7 +33,7 @@ public class SSLDetails implements AppsmithDomain {
         // Following for MongoDB Connections.
         CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE,
 
-        // For MsSQL, Oracle DB Connections
+        // For MsSQL connections
         NO_VERIFY
     }
 
@@ -61,4 +61,5 @@ public class SSLDetails implements AppsmithDomain {
     Boolean usePemCertificate;
 
     PEMCertificate pemCertificate;
+
 }

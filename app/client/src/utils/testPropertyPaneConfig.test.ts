@@ -1,4 +1,4 @@
-import type {
+import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,

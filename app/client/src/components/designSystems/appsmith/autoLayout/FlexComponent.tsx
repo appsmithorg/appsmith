@@ -1,13 +1,11 @@
-import type { CSSProperties, ReactNode } from "react";
-import React, { useCallback, useMemo } from "react";
+import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import type { WidgetType } from "constants/WidgetConstants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
-import type {
+import {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,

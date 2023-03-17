@@ -4,10 +4,12 @@ import { getWidgets } from "sagas/selectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import type { Point } from "utils/autoLayout/highlightSelectionUtils";
-import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import {
+  getHighlightPayload,
+  Point,
+} from "utils/autoLayout/highlightSelectionUtils";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];

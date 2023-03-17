@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import type { InputType } from "components/constants";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { InputType } from "components/constants";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -13,7 +12,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import CodeEditor from "../editorComponents/LazyCodeEditorWrapper";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 export function InputText(props: {
   label: string;

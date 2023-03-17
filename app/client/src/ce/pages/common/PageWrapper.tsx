@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import React from "react";
+import React, { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
@@ -34,8 +33,8 @@ export const Wrapper = styled.section<{ isFixed?: boolean }>`
 
 export const PageBody = styled.div<{ isSavable?: boolean }>`
   height: calc(
-    100vh - ${(props) => props.theme.homePage.header}px -
-      ${(props) => (props.isSavable ? "84px" : "0px")}
+    100vh - ${(props) => props.theme.homePage.header}px - ${(props) =>
+  props.isSavable ? "84px" : "0px"}
   );
   display: flex;
   flex-direction: column;

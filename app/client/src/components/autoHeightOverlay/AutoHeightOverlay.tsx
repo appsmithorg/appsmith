@@ -11,7 +11,7 @@ import {
 } from "./hooks";
 import { LayersContext } from "constants/Layers";
 import { useAutoHeightLimitsState } from "./store";
-import type { AutoHeightOverlayContainerProps } from ".";
+import { AutoHeightOverlayContainerProps } from ".";
 
 interface StyledAutoHeightOverlayProps {
   layerIndex: number;
@@ -67,11 +67,21 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       batchUpdate,
     });
 
-    const { isMaxDotDragging, isMinDotDragging, maxdY, maxY, mindY, minY } =
-      useAutoHeightLimitsState();
+    const {
+      isMaxDotDragging,
+      isMinDotDragging,
+      maxdY,
+      maxY,
+      mindY,
+      minY,
+    } = useAutoHeightLimitsState();
 
-    const { setMaxdY, setMaxY, setMindY, setMinY } =
-      useAutoHeightOverlayUIStateActions();
+    const {
+      setMaxdY,
+      setMaxY,
+      setMindY,
+      setMinY,
+    } = useAutoHeightOverlayUIStateActions();
 
     const finalMaxY = maxY + maxdY;
     const finalMinY = minY + mindY;

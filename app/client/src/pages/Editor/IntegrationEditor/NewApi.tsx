@@ -5,14 +5,13 @@ import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
-import type { EventLocation } from "utils/AnalyticsUtil";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";

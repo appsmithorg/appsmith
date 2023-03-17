@@ -1,21 +1,21 @@
 import { isString } from "lodash";
 import moment from "moment";
-import type { IconName } from "@blueprintjs/icons";
-import type { Alignment } from "@blueprintjs/core";
-import type {
+import { IconName } from "@blueprintjs/icons";
+import { Alignment } from "@blueprintjs/core";
+import {
   ButtonBorderRadius,
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
-import type { DropdownOption } from "widgets/SelectWidget/constants";
-import type {
+import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
   ConfigureMenuItems,
   MenuItem,
   MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
-import type { ColumnTypes } from "../constants";
-import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { ColumnTypes } from "../constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 
 export type TableSizes = {

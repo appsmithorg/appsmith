@@ -1,14 +1,12 @@
-import type {
-  ReduxAction,
-  EvaluationReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
+  ReduxAction,
+  EvaluationReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { JSCollection } from "entities/JSCollection";
-import type { CreateJSCollectionRequest } from "api/JSActionAPI";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import { JSCollection } from "entities/JSCollection";
+import { CreateJSCollectionRequest } from "api/JSActionAPI";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 export type FetchJSCollectionsPayload = {
   applicationId: string;

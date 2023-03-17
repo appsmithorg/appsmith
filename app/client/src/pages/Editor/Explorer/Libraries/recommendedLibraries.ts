@@ -34,7 +34,8 @@ export default [
     docsURL:
       "https://github.com/amplitude/Amplitude-TypeScript/tree/main/packages/analytics-browser#usage",
     version: "1.6.1",
-    url: "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@1.6.1/lib/scripts/amplitude-min.umd.js",
+    url:
+      "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@1.6.1/lib/scripts/amplitude-min.umd.js",
     icon: "https://github.com/amplitude.png?s=20",
   },
   {
@@ -43,7 +44,8 @@ export default [
     author: "supabase",
     docsURL: "https://supabase.com/docs/reference/javascript",
     version: "2.4.0",
-    url: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.4.0/dist/umd/supabase.min.js",
+    url:
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.4.0/dist/umd/supabase.min.js",
     icon: "https://github.com/supabase.png?s=20",
   },
   {
@@ -125,7 +127,8 @@ export default [
   },
   {
     name: "browser-image-compression",
-    url: "https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.0/dist/browser-image-compression.min.js",
+    url:
+      "https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.0/dist/browser-image-compression.min.js",
     version: "2.0.0",
     author: "Donaldcwl",
     docsURL:

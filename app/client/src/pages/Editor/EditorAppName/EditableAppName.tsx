@@ -1,14 +1,12 @@
 import React from "react";
 
 import styled from "styled-components";
-import type { noop } from "lodash";
+import { noop } from "lodash";
 
-import type {
-  CommonComponentProps,
-  EditInteractionKind,
-} from "design-system-old";
 import {
+  CommonComponentProps,
   EditableTextSubComponent,
+  EditInteractionKind,
   SavingState,
   UNFILLED_WIDTH,
 } from "design-system-old";

@@ -1,16 +1,15 @@
 import React from "react";
 import { connect } from "react-redux";
-import type { InjectedFormProps } from "redux-form";
-import { Form, reduxForm, Field } from "redux-form";
+import { Form, reduxForm, InjectedFormProps, Field } from "redux-form";
 import { CREATE_APPLICATION_FORM_NAME } from "@appsmith/constants/forms";
 import {
   createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
   NAME_SPACE_ERROR,
 } from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
-import type { CreateApplicationFormValues } from "./helpers";
+import { AppState } from "@appsmith/reducers";
 import {
+  CreateApplicationFormValues,
   createApplicationFormSubmitHandler,
   CREATE_APPLICATION_FORM_NAME_FIELD,
 } from "./helpers";

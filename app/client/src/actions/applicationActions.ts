@@ -1,15 +1,15 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type {
+import {
   AppEmbedSetting,
   ApplicationResponsePayload,
 } from "api/ApplicationApi";
-import type {
+import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
   FetchApplicationPayload,
 } from "api/ApplicationApi";
-import type { AppIconName } from "design-system-old";
-import type { Datasource } from "entities/Datasource";
+import { AppIconName } from "design-system-old";
+import { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
   DEFAULT = 1,

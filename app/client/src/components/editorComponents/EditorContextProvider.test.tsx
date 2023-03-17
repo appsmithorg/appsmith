@@ -3,8 +3,10 @@ import store from "store";
 import TestRenderer from "react-test-renderer";
 import { Provider } from "react-redux";
 
-import type { EditorContextType } from "./EditorContextProvider";
-import EditorContextProvider, { EditorContext } from "./EditorContextProvider";
+import EditorContextProvider, {
+  EditorContext,
+  EditorContextType,
+} from "./EditorContextProvider";
 
 type TestChildProps = {
   editorContext: EditorContextType;

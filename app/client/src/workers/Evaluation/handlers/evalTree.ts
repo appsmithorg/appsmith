@@ -1,20 +1,23 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import type ReplayEntity from "entities/Replay";
+import { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
-import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-import type { JSUpdate } from "utils/JSPaneUtils";
+import {
+  DependencyMap,
+  EvalError,
+  EvalErrorTypes,
+} from "utils/DynamicBindingUtils";
+import { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { initiateLinting } from "workers/Linting/utils";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
+  DataTreeDiff,
   getSafeToRenderDataTree,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
+import {
   EvalTreeRequestData,
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
@@ -24,7 +27,7 @@ export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
-export default function (request: EvalWorkerSyncRequest) {
+export default function(request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
   let lintOrder: string[] = [];
@@ -69,6 +72,7 @@ export default function (request: EvalWorkerSyncRequest) {
         unevalTree,
         configTree,
       );
+
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;

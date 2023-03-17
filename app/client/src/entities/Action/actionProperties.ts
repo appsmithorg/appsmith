@@ -1,4 +1,4 @@
-import type { Action } from "entities/Action/index";
+import { Action } from "entities/Action/index";
 import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
@@ -94,10 +94,11 @@ export const getBindingAndReactivePathsOfAction = (
                 dynamicFields.includes(schemaField.controlType)
               ) {
                 const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
-                bindingPaths[arrayConfigPath] =
-                  getCorrectEvaluationSubstitutionType(
-                    formConfig.evaluationSubstitutionType,
-                  );
+                bindingPaths[
+                  arrayConfigPath
+                ] = getCorrectEvaluationSubstitutionType(
+                  formConfig.evaluationSubstitutionType,
+                );
               }
             });
           }

@@ -1,4 +1,4 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
@@ -18,8 +18,7 @@ export const getIsStartingWithRemoteBranches = (
   );
 };
 
-const GIT_REMOTE_URL_PATTERN =
-  /^((git|ssh)|(git@[\w\-\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)]+)[^\/]$/im;
+const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\-\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)]+)[^\/]$/im;
 
 const gitRemoteUrlRegExp = new RegExp(GIT_REMOTE_URL_PATTERN);
 

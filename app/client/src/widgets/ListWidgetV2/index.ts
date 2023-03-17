@@ -2,10 +2,12 @@ import { get } from "lodash";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { FlattenedWidgetProps } from "widgets/constants";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  FlattenedWidgetProps,
+} from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,

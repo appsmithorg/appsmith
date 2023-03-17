@@ -1,6 +1,6 @@
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { groupBy } from "lodash";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { selectJSCollections } from "selectors/editorSelectors";
 import store from "store";
 

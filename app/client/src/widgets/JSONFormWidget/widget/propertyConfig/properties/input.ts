@@ -1,13 +1,18 @@
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
-import type { HiddenFnParams } from "../helper";
-import { getAutocompleteProperties, getSchemaItem } from "../helper";
-import type { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
+import {
+  getAutocompleteProperties,
+  getSchemaItem,
+  HiddenFnParams,
+} from "../helper";
+import { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
 import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
-import type { JSONFormWidgetProps } from "../..";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { JSONFormWidgetProps } from "../..";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { ICON_NAMES } from "widgets/constants";
 
 function defaultValueValidation(

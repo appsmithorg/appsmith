@@ -2,12 +2,15 @@ import React from "react";
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
 } from "./CurrencyCodeDropdown";
-import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
-import BaseInputComponent from "widgets/BaseInputWidget/component";
+import BaseInputComponent, {
+  BaseInputComponentProps,
+} from "widgets/BaseInputWidget/component";
 import { RenderModes } from "constants/WidgetConstants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 
-class CurrencyInputComponent extends React.Component<CurrencyInputComponentProps> {
+class CurrencyInputComponent extends React.Component<
+  CurrencyInputComponentProps
+> {
   onKeyDown = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>

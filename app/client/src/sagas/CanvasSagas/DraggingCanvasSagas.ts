@@ -1,14 +1,13 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import type { WidgetAddChild } from "actions/pageActions";
-import { updateAndSaveLayout } from "actions/pageActions";
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -16,13 +15,13 @@ import {
 import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
-import type { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import type {
+import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
@@ -39,7 +38,7 @@ import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 
 export type WidgetMoveParams = {

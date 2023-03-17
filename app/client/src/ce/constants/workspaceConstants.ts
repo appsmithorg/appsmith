@@ -1,4 +1,4 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
 export type WorkspaceRole = {
   id: string;

@@ -1,27 +1,28 @@
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaState } from "reducers/entityReducers/metaReducer";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import type { AppDataState } from "reducers/entityReducers/appReducer";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MetaState } from "reducers/entityReducers/metaReducer";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
+import { AppDataState } from "reducers/entityReducers/appReducer";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import type { AppTheme } from "entities/AppTheming";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { AppTheme } from "entities/AppTheming";
 import log from "loglevel";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import type {
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import {
   ActionDispatcher,
   ActionEntityConfig,
   ActionEntity,
+  ENTITY_TYPE,
   JSActionEntityConfig,
   JSActionEntity,
   WidgetConfig,
+  EvaluationSubstitutionType,
 } from "./types";
-import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity

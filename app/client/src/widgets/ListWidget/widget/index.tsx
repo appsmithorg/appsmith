@@ -1,11 +1,14 @@
 import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
 import { Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WidgetType,
+} from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import { Stylesheet } from "entities/AppTheming";
+import { PrivateWidgets } from "entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import {
@@ -27,9 +30,8 @@ import shallowEqual from "shallowequal";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
 import WidgetFactory from "utils/WidgetFactory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -167,8 +169,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
           childrenDefaultPropertiesMap = {
             ...childrenDefaultPropertiesMap,
-            [`${key}.${defaultPropertyKey}`]:
-              defaultProperties[defaultPropertyKey],
+            [`${key}.${defaultPropertyKey}`]: defaultProperties[
+              defaultPropertyKey
+            ],
           };
         });
       });
@@ -409,8 +412,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
-    const { dynamicBindingPathList, dynamicTriggerPathList, template } =
-      this.props;
+    const {
+      dynamicBindingPathList,
+      dynamicTriggerPathList,
+      template,
+    } = this.props;
     const { widgetName = "" } = widget;
     // Update properties if they're dynamic
     // `template` property should have an array of values
@@ -659,11 +665,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "children[0]",
         );
         // Set properties of the container's canvas child widget
-        const updatedListItemContainerCanvas =
-          this.updateNonTemplateWidgetProperties(
-            listItemContainerCanvas,
-            listItemIndex,
-          );
+        const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
+          listItemContainerCanvas,
+          listItemIndex,
+        );
         // Set the item container's canvas child widget
         set(
           updatedListItemContainer,

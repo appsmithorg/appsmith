@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import type { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 export const setTabsPaneWidth = (width: number) => {
   return {

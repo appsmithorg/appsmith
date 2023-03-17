@@ -1,7 +1,6 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import equal from "fast-deep-equal/es6";
-import type { ReactNode } from "react";
-import React, { useCallback } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {

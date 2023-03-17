@@ -2,21 +2,22 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import type { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import type { WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import BaseWidget, { WidgetState } from "../../BaseWidget";
 import TabsComponent from "../component";
-import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function selectedTabValidation(

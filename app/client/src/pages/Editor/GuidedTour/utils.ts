@@ -1,5 +1,4 @@
-import type { AnimationItem } from "lottie-web";
-import lottie from "lottie-web";
+import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-indicator.json";
 import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
 import {

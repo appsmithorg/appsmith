@@ -1,22 +1,19 @@
-import type { ReactNode } from "react";
-import React from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
-import type { ItemRenderer } from "@blueprintjs/select";
-import { Select } from "@blueprintjs/select";
-import type { Intent as BlueprintIntent } from "@blueprintjs/core";
+import { ItemRenderer, Select } from "@blueprintjs/select";
 import {
   Button,
   MenuItem,
+  Intent as BlueprintIntent,
   PopoverPosition,
   PopoverInteractionKind,
 } from "@blueprintjs/core";
-import type { ControlIconName } from "icons/ControlIcons";
-import { ControlIcons } from "icons/ControlIcons";
+import { ControlIconName, ControlIcons } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
-import type { Intent } from "constants/DefaultTheme";
-import type { IconProps } from "constants/IconConstants";
+import { Intent } from "constants/DefaultTheme";
+import { IconProps } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
-import type { DropdownOption } from "components/constants";
+import { DropdownOption } from "components/constants";
 
 export type ContextDropdownOption = DropdownOption & {
   onSelect: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;

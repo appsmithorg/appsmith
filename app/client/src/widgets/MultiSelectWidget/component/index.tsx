@@ -1,26 +1,24 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import type { SelectProps } from "rc-select";
-import Select from "rc-select";
-import type { DraftValueType } from "rc-select/lib/Select";
+import Select, { SelectProps } from "rc-select";
+import { DraftValueType } from "rc-select/lib/Select";
 import {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
 } from "./index.styled";
-import type { TextSize } from "constants/WidgetConstants";
 import {
   CANVAS_SELECTOR,
   MODAL_PORTAL_CLASSNAME,
+  TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import { Icon } from "design-system-old";
-import type { Alignment } from "@blueprintjs/core";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
-import type { LabelPosition } from "components/constants";
+import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
@@ -149,10 +147,12 @@ function MultiSelectComponent({
   // input is always a string.
   const filterOption = useCallback(
     (input, option) =>
-      String(option?.props.label).toLowerCase().indexOf(input.toLowerCase()) >=
-        0 ||
-      String(option?.props.value).toLowerCase().indexOf(input.toLowerCase()) >=
-        0,
+      String(option?.props.label)
+        .toLowerCase()
+        .indexOf(input.toLowerCase()) >= 0 ||
+      String(option?.props.value)
+        .toLowerCase()
+        .indexOf(input.toLowerCase()) >= 0,
     [],
   );
 

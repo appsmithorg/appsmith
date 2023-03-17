@@ -7,9 +7,14 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Card, Classes, Position } from "@blueprintjs/core";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import {
+  Card,
+  Classes,
+  HTMLDivProps,
+  ICardProps,
+  Position,
+} from "@blueprintjs/core";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
@@ -21,9 +26,9 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import type { AppIconName, MenuItemProps } from "design-system-old";
 import {
   AppIcon,
+  AppIconName,
   Button,
   Category,
   Classes as CsClasses,
@@ -37,6 +42,7 @@ import {
   Menu,
   MenuDivider,
   MenuItem,
+  MenuItemProps,
   SavingState,
   Size,
   Toaster,
@@ -46,7 +52,7 @@ import {
   Variant,
 } from "design-system-old";
 import { useSelector } from "react-redux";
-import type {
+import {
   ApplicationPagePayload,
   UpdateApplicationPayload,
 } from "api/ApplicationApi";
@@ -90,8 +96,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
         .overlay {
           position: relative;
-          ${
-            props.hasReadPermission &&
+          ${props.hasReadPermission &&
             `text-decoration: none;
              &:after {
                 left: 0;
@@ -137,8 +142,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                     }
                   }
                 }
-              }`
-          }
+              }`}
 
           & div.overlay-blur {
             position: absolute;
@@ -438,8 +442,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isForkApplicationModalopen, setForkApplicationModalOpen] =
-    useState(false);
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
+    false,
+  );
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -734,10 +739,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
 
   function setURLParams() {
-    const page: ApplicationPagePayload | undefined =
-      props.application.pages.find(
-        (page) => page.id === props.application.defaultPageId,
-      );
+    const page:
+      | ApplicationPagePayload
+      | undefined = props.application.pages.find(
+      (page) => page.id === props.application.defaultPageId,
+    );
     if (!page) return;
     urlBuilder.updateURLParams(
       {

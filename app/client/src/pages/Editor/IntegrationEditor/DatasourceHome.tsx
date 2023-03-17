@@ -3,20 +3,20 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
+import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 // This function remove the given key from queryParams and return string

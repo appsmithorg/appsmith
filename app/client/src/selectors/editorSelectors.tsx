@@ -1,31 +1,28 @@
 import { createSelector } from "reselect";
 
-import type { AppState } from "@appsmith/reducers";
-import type {
+import { AppState } from "@appsmith/reducers";
+import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
+import {
   AppLayoutConfig,
   PageListReduxState,
 } from "reducers/entityReducers/pageListReducer";
-import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "actions/applicationActions";
 // import { Positioning } from "utils/autoLayout/constants";
-import type {
-  OccupiedSpace,
-  WidgetSpace,
-} from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import type {
+import {
   DataTree,
   ConfigTree,
   WidgetEntity,
@@ -34,13 +31,12 @@ import type {
 import { find, sortBy } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import {
   getDataTree,
   getLoadingEntities,
   getConfigTree,
 } from "selectors/dataTreeSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-
 import {
   getActions,
   getCanvasWidgets,
@@ -52,9 +48,9 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";

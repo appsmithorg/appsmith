@@ -4,59 +4,58 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
-import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import {
+  EditorContext,
+  EditorContextType,
+} from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type {
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import {
   CSSUnit,
+  GridDefaults,
   PositionType,
   RenderMode,
-  WidgetType,
-} from "constants/WidgetConstants";
-import {
-  GridDefaults,
   RenderModes,
+  WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { get, memoize } from "lodash";
-import type { Context, ReactNode, RefObject } from "react";
-import React, { Component } from "react";
-import type {
+import React, { Component, Context, ReactNode, RefObject } from "react";
+import {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
-import type { CSSProperties } from "styled-components";
+import { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import type {
+import {
+  FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { FlexVerticalAlignment } from "utils/autoLayout/constants";
-import type {
+import {
   DataTreeEvaluationProps,
   EvaluationError,
+  EVAL_ERROR_PATH,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
 import Skeleton from "./Skeleton";
 import {
   getWidgetMaxAutoHeight,
@@ -64,7 +63,7 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 
 /***
  * BaseWidget
@@ -84,7 +83,7 @@ const REFERENCE_KEY = "$$refs$$";
 abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState,
-  TCache = unknown,
+  TCache = unknown
 > extends Component<T, K> {
   static contextType = EditorContext;
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
@@ -708,7 +707,7 @@ export type WidgetState = Record<string, unknown>;
 
 export interface WidgetBuilder<
   T extends CanvasWidgetStructure,
-  S extends WidgetState,
+  S extends WidgetState
 > {
   buildWidget(widgetProps: T): JSX.Element;
 }
@@ -821,7 +820,6 @@ export const WidgetOperations = {
   ADD_CHILDREN: "ADD_CHILDREN",
 };
 
-export type WidgetOperation =
-  (typeof WidgetOperations)[keyof typeof WidgetOperations];
+export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 export default BaseWidget;

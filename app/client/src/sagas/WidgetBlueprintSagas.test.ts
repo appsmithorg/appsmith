@@ -1,8 +1,10 @@
 import WidgetFactory from "utils/WidgetFactory";
 import { BlueprintOperationTypes } from "widgets/constants";
 
-import type { BlueprintOperation } from "./WidgetBlueprintSagas";
-import { executeWidgetBlueprintChildOperations } from "./WidgetBlueprintSagas";
+import {
+  BlueprintOperation,
+  executeWidgetBlueprintChildOperations,
+} from "./WidgetBlueprintSagas";
 
 describe("WidgetBlueprintSagas", () => {
   it("should returns widgets after executing the child operation", async () => {

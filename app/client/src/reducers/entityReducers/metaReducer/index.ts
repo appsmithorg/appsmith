@@ -1,19 +1,19 @@
 import { set } from "lodash";
 import { createReducer } from "utils/ReducerUtils";
-import type {
+import {
   UpdateWidgetMetaPropertyPayload,
   ResetWidgetMetaPayload,
 } from "actions/metaActions";
 
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
+  ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { getMetaWidgetResetObj } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;

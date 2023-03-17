@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const getSettings = (state: AppState) => state.settings.config;
 

@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -193,8 +192,8 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
-        buttonColor:
-          this.props.widgetProperties.childStylesheet.button.buttonColor,
+        buttonColor: this.props.widgetProperties.childStylesheet.button
+          .buttonColor,
       },
     };
 

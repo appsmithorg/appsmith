@@ -1,4 +1,4 @@
-import type { CallbackHandlerEventType } from "./CallbackHandlerEventType";
+import { CallbackHandlerEventType } from "./CallbackHandlerEventType";
 
 export type CallbackHandlerBaseEvents = Record<CallbackHandlerEventType, any[]>;
 

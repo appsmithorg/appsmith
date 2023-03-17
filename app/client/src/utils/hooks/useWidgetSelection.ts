@@ -4,7 +4,7 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import type { NavigationMethod } from "utils/history";
+import { NavigationMethod } from "utils/history";
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();

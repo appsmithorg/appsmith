@@ -1,19 +1,17 @@
-import type {
+import {
   ClonePageSuccessPayload,
   Page,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type {
+import {
   GenerateCRUDSuccess,
   UpdatePageErrorPayload,
 } from "actions/pageActions";
-import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
+import { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
 import { sortBy } from "lodash";
-import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
 
 const initialState: PageListReduxState = {

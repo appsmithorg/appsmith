@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useRef } from "react";
-import type { ControllerRenderProps } from "react-hook-form";
-import { useFormContext } from "react-hook-form";
+import { ControllerRenderProps, useFormContext } from "react-hook-form";
 
 import FormContext from "../FormContext";
-import type { SchemaItem } from "../constants";
-import { FIELD_MAP } from "../constants";
+import { FIELD_MAP, SchemaItem } from "../constants";
 
 type FieldRendererProps = {
   fieldName: ControllerRenderProps["name"];

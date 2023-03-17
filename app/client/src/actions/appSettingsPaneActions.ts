@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppSettingsPaneContext } from "reducers/uiReducers/appSettingsPaneReducer";
-import type { Action } from "redux";
+import { AppSettingsPaneContext } from "reducers/uiReducers/appSettingsPaneReducer";
+import { Action } from "redux";
 
 export const openAppSettingsPaneAction = (context?: AppSettingsPaneContext) => {
   return {

@@ -1,4 +1,4 @@
-import type { ChartDataPoint } from "../constants";
+import { ChartDataPoint } from "../constants";
 
 export const getSeriesChartData = (
   data: ChartDataPoint[],

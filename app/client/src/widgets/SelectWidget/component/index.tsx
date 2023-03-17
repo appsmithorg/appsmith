@@ -1,9 +1,8 @@
 import React from "react";
-import type { ComponentProps } from "widgets/BaseComponent";
-import type { Alignment } from "@blueprintjs/core";
-import { Classes } from "@blueprintjs/core";
-import type { DropdownOption } from "../constants";
-import type {
+import { ComponentProps } from "widgets/BaseComponent";
+import { Alignment, Classes } from "@blueprintjs/core";
+import { DropdownOption } from "../constants";
+import {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
@@ -11,7 +10,7 @@ import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
 import equal from "fast-deep-equal/es6";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
-import type { TextSize } from "constants/WidgetConstants";
+import { TextSize } from "constants/WidgetConstants";
 import {
   StyledControlGroup,
   StyledSingleDropDown,
@@ -20,7 +19,7 @@ import {
   MenuItem,
 } from "./index.styled";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import type { LabelPosition } from "components/constants";
+import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import { labelMargin } from "../../WidgetUtils";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
@@ -100,8 +99,13 @@ class SelectComponent extends React.Component<
 
     const filter = items.filter(
       (item) =>
-        item.label?.toString().toLowerCase().includes(query.toLowerCase()) ||
-        String(item.value).toLowerCase().includes(query.toLowerCase()),
+        item.label
+          ?.toString()
+          .toLowerCase()
+          .includes(query.toLowerCase()) ||
+        String(item.value)
+          .toLowerCase()
+          .includes(query.toLowerCase()),
     );
     return filter;
   }

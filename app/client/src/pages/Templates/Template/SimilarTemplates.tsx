@@ -3,11 +3,10 @@ import {
   SIMILAR_TEMPLATES,
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
-import type { Template as TemplateInterface } from "api/TemplatesApi";
+import { Template as TemplateInterface } from "api/TemplatesApi";
 import { FontWeight, TextType, Text, Icon, IconSize } from "design-system-old";
 import React from "react";
-import type { MasonryProps } from "react-masonry-css";
-import Masonry from "react-masonry-css";
+import Masonry, { MasonryProps } from "react-masonry-css";
 import styled from "styled-components";
 import Template from ".";
 import { Section } from "./TemplateDescription";

@@ -1,19 +1,21 @@
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import equal from "fast-deep-equal/es6";
-import type { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
-import type { Task } from "redux-saga";
+import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/boxHelpers";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface StartingSelectionState {
@@ -30,8 +32,11 @@ function* selectAllWidgetsInAreaSaga(
   StartingSelectionState: StartingSelectionState,
   action: ReduxAction<any>,
 ) {
-  const { lastSelectedWidgets, mainContainer, widgetOccupiedSpaces } =
-    StartingSelectionState;
+  const {
+    lastSelectedWidgets,
+    mainContainer,
+    widgetOccupiedSpaces,
+  } = StartingSelectionState;
   const {
     isMultiSelect,
     selectionArena,

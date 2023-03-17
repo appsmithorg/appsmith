@@ -3,9 +3,9 @@ import {
   logActionExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { isEmpty } from "lodash";
-import type { TPostWindowMessageDescription } from "workers/Evaluation/fns/postWindowMessage";
+import { TPostWindowMessageDescription } from "workers/Evaluation/fns/postWindowMessage";
 
 export function* postMessageSaga(
   action: TPostWindowMessageDescription,

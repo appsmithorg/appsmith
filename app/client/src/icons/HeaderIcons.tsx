@@ -1,7 +1,5 @@
-import type { JSXElementConstructor } from "react";
-import React from "react";
-import type { IconProps } from "constants/IconConstants";
-import { IconWrapper } from "constants/IconConstants";
+import React, { JSXElementConstructor } from "react";
+import { IconProps, IconWrapper } from "constants/IconConstants";
 import ShareIcon from "remixicon-react/ShareBoxFillIcon";
 import DeployIcon from "remixicon-react/Rocket2FillIcon";
 import FeedbackIcon from "remixicon-react/FeedbackFillIcon";

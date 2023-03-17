@@ -1,12 +1,8 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
-import type {
-  BaseItemProps,
-  RenderComponentProps,
-} from "./DraggableListComponent";
+import { BaseItemProps, RenderComponentProps } from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import { CanvasWidgetStructure } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
 
 const PageView = styled.div<{ width: number }>`

@@ -1,10 +1,10 @@
-import type {
+import {
   WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
-import type { WidgetMetaState } from ".";
-import type { PropertyOverrideDependency } from "entities/DataTree/types";
+import { WidgetMetaState } from ".";
+import { PropertyOverrideDependency } from "entities/DataTree/types";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,

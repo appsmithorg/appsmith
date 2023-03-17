@@ -1,7 +1,6 @@
 import classNames from "classnames";
 import { isFunction } from "lodash";
-import type { Ref } from "react";
-import React, { forwardRef, useState, useCallback } from "react";
+import React, { forwardRef, Ref, useState, useCallback } from "react";
 
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";

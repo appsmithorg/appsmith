@@ -10,16 +10,16 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
-import type {
+import {
   DataTree,
   ConfigTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
+import { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
 export default function* resetWidgetActionSaga(
   action: TResetWidgetDescription,

@@ -1,13 +1,15 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
@@ -15,7 +17,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getLayoutTree } from "./layoutTree";
 
 export function* dynamicallyUpdateContainersSaga(
@@ -62,8 +64,11 @@ export function* dynamicallyUpdateContainersSaga(
         // Get the child we need to consider
         // For a container widget, it will be the child canvas
         // For a tabs widget, it will be the currently open tab's canvas
-        const childWidgetId: string | undefined =
-          yield getChildOfContainerLikeWidget(parentContainerWidget);
+        const childWidgetId:
+          | string
+          | undefined = yield getChildOfContainerLikeWidget(
+          parentContainerWidget,
+        );
 
         // This can be different from the canvas widget in consideration
         // For example, if this canvas widget in consideration
@@ -98,13 +103,12 @@ export function* dynamicallyUpdateContainersSaga(
           Array.isArray(canvasWidget.children) &&
           canvasWidget.children.length > 0
         ) {
-          let maxBottomRowBasedOnChildren: number =
-            yield getMinHeightBasedOnChildren(
-              canvasWidget.widgetId,
-              {},
-              true,
-              dynamicHeightLayoutTree,
-            );
+          let maxBottomRowBasedOnChildren: number = yield getMinHeightBasedOnChildren(
+            canvasWidget.widgetId,
+            {},
+            true,
+            dynamicHeightLayoutTree,
+          );
           // Add a canvas extension offset
           maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
 

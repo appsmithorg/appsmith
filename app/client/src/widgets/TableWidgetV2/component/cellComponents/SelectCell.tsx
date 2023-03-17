@@ -1,11 +1,14 @@
 import React from "react";
 import SelectComponent from "widgets/SelectWidget/component";
 import styled from "styled-components";
-import type { DropdownOption } from "widgets/SelectWidget/constants";
-import type { BaseCellComponentProps } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
+import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
+  BaseCellComponentProps,
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
 

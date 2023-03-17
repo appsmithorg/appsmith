@@ -7,7 +7,7 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
   CHANGES_FROM_APPSMITH,
   createMessage,

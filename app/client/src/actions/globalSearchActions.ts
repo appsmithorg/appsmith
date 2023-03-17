@@ -1,10 +1,8 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type {
-  RecentEntity,
-  SearchCategory,
-} from "components/editorComponents/GlobalSearch/utils";
 import {
   filterCategories,
+  RecentEntity,
+  SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 

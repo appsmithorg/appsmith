@@ -1,5 +1,4 @@
 Create database fakeapi;
-USE fakeapi;
 
 CREATE TABLE amazon_sales(
    uniq_id                                    VARCHAR(32) NOT NULL PRIMARY KEY

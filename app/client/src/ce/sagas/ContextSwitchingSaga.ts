@@ -1,15 +1,18 @@
-import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import type {
+import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
+import {
+  call,
   CallEffectDescriptor,
+  put,
   PutEffectDescriptor,
+  select,
   SelectEffectDescriptor,
   SimpleEffect,
+  take,
 } from "redux-saga/effects";
-import { call, put, select, take } from "redux-saga/effects";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
-import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
   FocusEntity,
+  FocusEntityInfo,
   FocusStoreHierarchy,
   identifyEntityFromPath,
   shouldStoreURLForFocus,
@@ -17,12 +20,14 @@ import {
 import { FocusElementsConfig } from "navigation/FocusElements";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { builderURL } from "RouteBuilder";
-import type { AppsmithLocationState } from "utils/history";
-import history, { NavigationMethod } from "utils/history";
+import history, {
+  AppsmithLocationState,
+  NavigationMethod,
+} from "utils/history";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
+import { Action } from "entities/Action";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
+import { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
 
@@ -139,11 +144,9 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
 
 function* getEntitySubType(entityInfo: FocusEntityInfo) {
   if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
-    const action: Action | undefined = yield select(getAction, entityInfo.id);
-    if (action) {
-      const plugin: Plugin = yield select(getPlugin, action.pluginId);
-      return plugin.packageName;
-    }
+    const action: Action = yield select(getAction, entityInfo.id);
+    const plugin: Plugin = yield select(getPlugin, action.pluginId);
+    return plugin.packageName;
   }
 }
 

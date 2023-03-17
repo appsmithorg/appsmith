@@ -8,21 +8,20 @@ import FormTitle from "./FormTitle";
 import { Callout, Category, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
-import type { Datasource } from "entities/Datasource";
-import type { InjectedFormProps } from "redux-form";
-import { reduxForm } from "redux-form";
+import { Datasource } from "entities/Datasource";
+import { reduxForm, InjectedFormProps } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
-import type { AppState } from "@appsmith/reducers";
-import type { JSONtoFormProps } from "./JSONtoForm";
+import { AppState } from "@appsmith/reducers";
 import {
   EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
+  JSONtoFormProps,
   PluginImage,
 } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";

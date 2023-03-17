@@ -1,7 +1,5 @@
-import type { JSXElementConstructor } from "react";
-import React from "react";
-import type { IconProps } from "constants/IconConstants";
-import { IconWrapper } from "constants/IconConstants";
+import React, { JSXElementConstructor } from "react";
+import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as InfoIcon } from "assets/icons/alert/info.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/alert/success.svg";
 import { ReactComponent as ErrorIcon } from "assets/icons/alert/error.svg";

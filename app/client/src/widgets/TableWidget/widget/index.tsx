@@ -16,12 +16,9 @@ import {
 } from "lodash";
 import equal from "fast-deep-equal/es6";
 
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { RenderMenuButtonProps } from "../component/TableUtilities";
 import {
   getDefaultColumnProperties,
   getTableStyles,
@@ -29,37 +26,34 @@ import {
   renderDropdown,
   renderActions,
   renderMenuButton,
+  RenderMenuButtonProps,
   renderIconButton,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import type { ReactTableFilter } from "../component/Constants";
-import { OperatorTypes } from "../component/Constants";
-import type { TableWidgetProps } from "../constants";
+import { DynamicPath, getDynamicBindings } from "utils/DynamicBindingUtils";
+import { ReactTableFilter, OperatorTypes } from "../component/Constants";
+import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { selectRowIndex, selectRowIndices } from "./utilities";
 
-import type {
+import {
   ColumnProperties,
   ReactTableColumnProps,
-} from "../component/Constants";
-import {
   ColumnTypes,
   CompactModeTypes,
   SortOrderTypes,
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -532,12 +526,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           // Update column types using types from the table before migration
           if (
-            (
-              columnTypeMap as Record<
-                string,
-                { type: ColumnTypes; inputFormat?: string; format?: string }
-              >
-            )[i]
+            (columnTypeMap as Record<
+              string,
+              { type: ColumnTypes; inputFormat?: string; format?: string }
+            >)[i]
           ) {
             columnProperties.columnType = columnTypeMap[i].type;
             columnProperties.inputFormat = columnTypeMap[i].inputFormat;
@@ -809,8 +801,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getSelectedRowIndices = () => {
-    let selectedRowIndices: number[] | undefined =
-      this.props.selectedRowIndices;
+    let selectedRowIndices: number[] | undefined = this.props
+      .selectedRowIndices;
     if (!this.props.multiRowSelection) selectedRowIndices = undefined;
     else {
       if (!Array.isArray(selectedRowIndices)) {

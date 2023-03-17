@@ -1,4 +1,4 @@
-import type { Completion } from "./CodemirrorTernService";
+import { Completion } from "./CodemirrorTernService";
 
 export const getCompletionsForKeyword = (
   completion: Completion,

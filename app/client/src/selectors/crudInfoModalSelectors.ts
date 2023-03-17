@@ -1,6 +1,6 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import type {
+import {
   CrudInfoModalReduxState,
   GenerateCRUDSuccessInfoData,
 } from "reducers/uiReducers/crudInfoModalReducer";

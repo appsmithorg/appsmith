@@ -1,22 +1,20 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import type { DatePickerType } from "../constants";
-import { TimePrecision } from "../constants";
+import { DatePickerType, TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -87,7 +85,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               params: {
                 fn: allowedRange,
                 expected: {
-                  type: "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+                  type:
+                    "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
                   example: "0",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },

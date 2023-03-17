@@ -4,9 +4,8 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "@appsmith/reducers";
-import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { AppState } from "@appsmith/reducers";
+import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   AUTH_LOGIN_URL,
   APPLICATIONS_URL,

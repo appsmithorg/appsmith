@@ -1,6 +1,5 @@
 import { isArray } from "lodash";
-import type { CSSProperties, ReactNode } from "react";
-import React, { useMemo } from "react";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 
 import {
   FlexLayerAlignment,
@@ -11,7 +10,7 @@ import { useSelector } from "react-redux";
 import { getAppMode } from "selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import type {
+import {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
   FlexLayer,

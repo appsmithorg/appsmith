@@ -5,7 +5,7 @@ const queryLocators = require("../../../../../locators/QueryEditor.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Git discard changes:", function () {
+describe("Git discard changes:", function() {
   let datasourceName;
   let repoName;
   const query1 = "get_users";
@@ -39,7 +39,9 @@ describe("Git discard changes:", function () {
     });
     // Create new postgres query
     cy.get(queryLocators.queryNameField).type(`${query1}`);
-    cy.get(queryLocators.switch).last().click({ force: true });
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
@@ -54,7 +56,9 @@ describe("Git discard changes:", function () {
 
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.wait(1000);
-    cy.get(".t--entity-item:contains(Page1)").first().click();
+    cy.get(".t--entity-item:contains(Page1)")
+      .first()
+      .click();
     cy.wait("@getPage");
     // bind input widget to postgres query on page1
     cy.get(explorer.addWidget).click();
@@ -71,7 +75,9 @@ describe("Git discard changes:", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage(page2);
     cy.wait(1000);
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    cy.get(`.t--entity-item:contains(${page2})`)
+      .first()
+      .click();
     cy.wait("@getPage");
     cy.createJSObject('return "Success";');
     cy.get(explorer.addWidget).click();
@@ -96,7 +102,9 @@ describe("Git discard changes:", function () {
   });
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {
-    cy.get(`.t--entity-item:contains("Page1")`).first().click();
+    cy.get(`.t--entity-item:contains("Page1")`)
+      .first()
+      .click();
     cy.wait("@getPage");
     // create new postgres query
     cy.NavigateToQueryEditor();
@@ -110,7 +118,9 @@ describe("Git discard changes:", function () {
         cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type(`${query2}`);
-    cy.get(queryLocators.switch).last().click({ force: true });
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
@@ -123,7 +133,9 @@ describe("Git discard changes:", function () {
     cy.WaitAutoSave();
     cy.runQuery();
     // navoigate to Page1
-    cy.get(`.t--entity-item:contains(Page1)`).first().click();
+    cy.get(`.t--entity-item:contains(Page1)`)
+      .first()
+      .click();
     cy.wait("@getPage");
     // discard changes
     cy.gitDiscardChanges();
@@ -155,7 +167,9 @@ describe("Git discard changes:", function () {
     cy.wait(5000);
     // verify page2 is recovered back
     cy.get(`.t--entity-name:contains(${page2})`).should("be.visible");
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    cy.get(`.t--entity-item:contains(${page2})`)
+      .first()
+      .click();
     cy.wait("@getPage");
     // verify data binding on page2
     cy.get(".bp3-input").should("have.value", "Success");
@@ -181,7 +195,9 @@ describe("Git discard changes:", function () {
   it("6. Delete JSObject1 and trigger discard flow, JSObject1 should be active again", () => {
     // navigate to page2
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    cy.get(`.t--entity-item:contains(${page2})`)
+      .first()
+      .click();
     cy.wait("@getPage");
     cy.wait(3000);
     /* create and save jsObject */
@@ -198,7 +214,9 @@ describe("Git discard changes:", function () {
     cy.gitDiscardChanges();
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    cy.get(`.t--entity-item:contains(${page2})`)
+      .first()
+      .click();
     cy.wait("@getPage");
     cy.wait(3000);
     //verify JSObject is recovered
@@ -209,7 +227,9 @@ describe("Git discard changes:", function () {
   it("7. Add new page i.e page3, go to page2 & discard changes, verify page3 is removed", () => {
     // create new page page3 and move to page1
     cy.Createpage(page3);
-    cy.get(`.t--entity-item:contains(${page2})`).first().click();
+    cy.get(`.t--entity-item:contains(${page2})`)
+      .first()
+      .click();
     // discard changes
     cy.gitDiscardChanges();
     cy.wait(5000);

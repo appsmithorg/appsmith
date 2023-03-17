@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type {
+import {
   SaveWorkspaceLogo,
   SaveWorkspaceRequest,
 } from "@appsmith/api/WorkspaceApi";

@@ -1,7 +1,9 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { TreeNode } from "utils/autoHeight/constants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
 
 export type AutoHeightLayoutTreePayload = {

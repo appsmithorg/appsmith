@@ -1,11 +1,11 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
-import type {
+import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
+import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -15,7 +15,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
@@ -218,8 +218,7 @@ export function* shouldCollapseThisWidget(
   widgetId: string,
 ) {
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
-  const canCollapseAllWidgets: boolean =
-    yield shouldAllInvisibleWidgetsInAutoHeightContainersCollapse();
+  const canCollapseAllWidgets: boolean = yield shouldAllInvisibleWidgetsInAutoHeightContainersCollapse();
   const widget = stateWidgets[widgetId];
 
   // If we're in preview or view mode

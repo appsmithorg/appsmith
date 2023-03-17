@@ -2,21 +2,19 @@ import { klona } from "klona";
 import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
-import type {
+import {
+  FieldType,
   SchemaItem,
+  ARRAY_ITEM_KEY,
   Schema,
   HookResponse,
   FieldThemeStylesheet,
+  ROOT_SCHEMA_KEY,
 } from "../../constants";
-import { FieldType, ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
-import type { JSONFormWidgetProps } from "..";
+import { JSONFormWidgetProps } from "..";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import type {
-  ButtonStyles,
-  ChildStylesheet,
-  Stylesheet,
-} from "entities/AppTheming";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];

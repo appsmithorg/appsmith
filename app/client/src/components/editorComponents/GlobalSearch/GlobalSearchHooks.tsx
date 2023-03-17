@@ -1,6 +1,6 @@
 import React from "react";
 import { INTEGRATION_TABS } from "constants/routes";
-import type { Datasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
@@ -12,7 +12,7 @@ import {
   getPlugins,
 } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   actionOperations,
@@ -30,7 +30,7 @@ import {
   hasCreateDatasourceActionPermission,
   hasCreateDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 export const useFilteredFileOperations = (query = "") => {
@@ -77,12 +77,14 @@ export const useFilteredFileOperations = (query = "") => {
     );
 
     if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
-      const showCreateQuery = [...filteredAppWideDS, ...otherFilteredDS].some(
-        (ds: Datasource) =>
-          hasCreateDatasourceActionPermission([
-            ...(ds.userPermissions ?? []),
-            ...pagePermissions,
-          ]),
+      const showCreateQuery = [
+        ...filteredAppWideDS,
+        ...otherFilteredDS,
+      ].some((ds: Datasource) =>
+        hasCreateDatasourceActionPermission([
+          ...(ds.userPermissions ?? []),
+          ...pagePermissions,
+        ]),
       );
 
       fileOperations = [

@@ -10,14 +10,11 @@ export class PageSettings {
     _customSlugField: "#t--page-settings-custom-slug",
     _showPageNavSwitch: "#t--page-settings-show-nav-control",
     _setAsHomePageSwitch: "#t--page-settings-home-page-control",
-    _setHomePageToggle: ".bp3-control-indicator",
+    _setHomePageToggle : ".bp3-control-indicator",
     _homePageHeader: "#t--page-settings-default-page",
   };
 
-  UpdatePageNameAndVerifyTextValue(
-    newPageName: string,
-    verifyPageNameAs: string,
-  ) {
+  UpdatePageNameAndVerifyTextValue(newPageName: string, verifyPageNameAs: string) {
     this.AssertPageValue(
       this.locators._pageNameField,
       newPageName,
@@ -88,10 +85,7 @@ export class PageSettings {
             );
             this.agHelper.PressEnter();
             this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-            this.appSettings.CheckUrl(
-              appName as string,
-              currentPageName as string,
-            );
+            this.appSettings.CheckUrl(appName as string, currentPageName as string);
           }
         });
       });

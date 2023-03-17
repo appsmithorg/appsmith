@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import {
   Button,
   Category,

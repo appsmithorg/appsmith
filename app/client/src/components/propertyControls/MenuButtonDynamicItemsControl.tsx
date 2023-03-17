@@ -1,13 +1,13 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
+  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -17,8 +17,8 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
 
 const PromptMessage = styled.span`
@@ -84,7 +84,9 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsControlProps> {
+class MenuButtonDynamicItemsControl extends BaseControl<
+  MenuButtonDynamicItemsControlProps
+> {
   render() {
     const {
       dataTreePath,

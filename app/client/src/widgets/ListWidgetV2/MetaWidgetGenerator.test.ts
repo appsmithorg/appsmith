@@ -1,13 +1,15 @@
 import { difference } from "lodash";
 import { klona } from "klona";
 
-import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
-import MetaWidgetGenerator from "./MetaWidgetGenerator";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import MetaWidgetGenerator, {
+  ConstructorProps,
+  GeneratorOptions,
+} from "./MetaWidgetGenerator";
+import { FlattenedWidgetProps } from "widgets/constants";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
-import type { LevelData } from "./widget";
+import { LevelData } from "./widget";
 
 type Validator = {
   widgetType: string;

@@ -1,6 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type {
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   EventType,
   ExecuteTriggerPayload,
   TriggerSource,
@@ -36,7 +38,7 @@ import {
   watchCurrentLocation,
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
+import { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 
 export type TriggerMeta = {
   source?: TriggerSource;

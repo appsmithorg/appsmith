@@ -1,6 +1,5 @@
-import type { AppState } from "@appsmith/reducers";
-import type { Theme } from "constants/DefaultTheme";
-import { dark, light, theme } from "constants/DefaultTheme";
+import { AppState } from "@appsmith/reducers";
+import { dark, light, Theme, theme } from "constants/DefaultTheme";
 
 export enum ThemeMode {
   LIGHT = "LIGHT",

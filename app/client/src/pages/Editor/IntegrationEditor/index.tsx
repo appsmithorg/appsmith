@@ -1,6 +1,6 @@
 import React from "react";
 import IntegrationsHomeScreen from "./IntegrationsHomeScreen";
-import type { RouteComponentProps } from "react-router";
+import { RouteComponentProps } from "react-router";
 import * as Sentry from "@sentry/react";
 
 type Props = RouteComponentProps<{

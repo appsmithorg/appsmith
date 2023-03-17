@@ -150,8 +150,10 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
       payload: updatedPagePayload,
     });
-    const { applicationSlug, pageSlug: updatedPageSlug } =
-      urlBuilder.getURLParams(updatedPagePayload.id);
+    const {
+      applicationSlug,
+      pageSlug: updatedPageSlug,
+    } = urlBuilder.getURLParams(updatedPagePayload.id);
 
     expect(applicationSlug).toBe(updatedApplicationPayload.slug);
 
@@ -185,8 +187,9 @@ describe("URL slug names", () => {
       "/app/custom-63c63d944ae4345e31af12a7/edit/saas/google-sheets-plugin/api/63c63d984ae4345e31af12e5";
 
     // verify path match overlap
-    const matchBuilderCustomPath =
-      matchPath_BuilderCustomSlug(customSlug_pathname);
+    const matchBuilderCustomPath = matchPath_BuilderCustomSlug(
+      customSlug_pathname,
+    );
     const matchViewerSlugPath = matchPath_ViewerSlug(customSlug_pathname);
     expect(matchViewerSlugPath).not.toBeNull();
     expect(matchBuilderCustomPath).not.toBeNull();

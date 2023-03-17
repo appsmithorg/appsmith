@@ -4,15 +4,14 @@ import {
   GOOGLE_SIGNUP_SETUP_DOC,
   SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  AdminConfigType,
   SettingCategories,
   SettingSubCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import type { AuthMethodType } from "./AuthPage";
-import { AuthPage } from "./AuthPage";
+import { AuthMethodType, AuthPage } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
@@ -24,8 +23,11 @@ import {
   REDIRECT_URL_FORM,
 } from "@appsmith/constants/forms";
 
-const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
-  getAppsmithConfigs();
+const {
+  disableLoginForm,
+  enableGithubOAuth,
+  enableGoogleOAuth,
+} = getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,

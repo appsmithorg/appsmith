@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { ActionWrapper } from "../TableStyledWrappers";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
 
 const StyledButton = styled(BaseButton)<{

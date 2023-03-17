@@ -15,7 +15,4 @@ public class CommonFieldName {
 
     public static final String FILE_TYPE = "FILE";
     public static final String REDACTED_DATA = "<redacted>";
-
-    public static final String PREPARED_STATEMENT= "preparedStatement";
-    public static final String BODY = "body";
 }

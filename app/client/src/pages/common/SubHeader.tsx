@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import React from "react";
+import React, { ReactNode } from "react";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";

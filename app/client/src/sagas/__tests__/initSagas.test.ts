@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
-import type AppEngine from "entities/Engine";
+import AppEngine from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import { call } from "redux-saga/effects";
 import { startAppEngine } from "sagas/InitSagas";

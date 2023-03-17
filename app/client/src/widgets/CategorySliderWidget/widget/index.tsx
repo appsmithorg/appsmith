@@ -1,14 +1,14 @@
 import * as React from "react";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { SliderComponentProps } from "../../NumberSliderWidget/component/Slider";
-import SliderComponent from "../../NumberSliderWidget/component/Slider";
-import type { Stylesheet } from "entities/AppTheming";
+import SliderComponent, {
+  SliderComponentProps,
+} from "../../NumberSliderWidget/component/Slider";
+import { Stylesheet } from "entities/AppTheming";
 
 export type SliderOption = {
   label: string;

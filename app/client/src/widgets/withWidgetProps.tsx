@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import React from "react";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 import {
   GridDefaults,
@@ -31,9 +31,8 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import type { WidgetProps } from "./BaseWidget";
-import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,

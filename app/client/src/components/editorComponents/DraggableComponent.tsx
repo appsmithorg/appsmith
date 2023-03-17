@@ -1,10 +1,9 @@
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import type { CSSProperties } from "react";
-import React, { useMemo, useRef } from "react";
+import React, { CSSProperties, useMemo, useRef } from "react";
 import styled from "styled-components";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,

@@ -6,8 +6,7 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import type { ControllerRenderProps } from "react-hook-form";
-import { useFormContext } from "react-hook-form";
+import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 import { klona } from "klona";
@@ -19,14 +18,14 @@ import FormContext from "../FormContext";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useDeepEffect from "utils/hooks/useDeepEffect";
 import useUpdateAccessor from "./useObserveAccessor";
-import type {
+import {
+  ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
   FieldComponent,
   FieldComponentBaseProps,
   FieldState,
   SchemaItem,
 } from "../constants";
-import { ARRAY_ITEM_KEY } from "../constants";
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
@@ -167,8 +166,9 @@ function ArrayField({
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   const value = watch(name);
   const valueLength = value?.length || 0;
-  const [cachedDefaultValue, setCachedDefaultValue] =
-    useState<unknown[]>(defaultValue);
+  const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
+    defaultValue,
+  );
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
@@ -242,7 +242,9 @@ function ArrayField({
     } else if (keysRef.current.length < valueLength) {
       const diff = valueLength - keysRef.current.length;
 
-      const newKeys = Array(diff).fill(0).map(generateReactKey);
+      const newKeys = Array(diff)
+        .fill(0)
+        .map(generateReactKey);
 
       keysRef.current = [...keysRef.current, ...newKeys];
     }
@@ -272,8 +274,10 @@ function ArrayField({
 
       if (Array.isArray(currMetaInternalFieldState)) {
         if (currMetaInternalFieldState.length > itemKeys.length) {
-          const updatedMetaInternalFieldState =
-            currMetaInternalFieldState.slice(0, itemKeys.length);
+          const updatedMetaInternalFieldState = currMetaInternalFieldState.slice(
+            0,
+            itemKeys.length,
+          );
 
           set(metaInternalFieldState, name, updatedMetaInternalFieldState);
         }

@@ -1,9 +1,9 @@
-import type {
+import {
   AdminConfigType,
   Category,
   Setting,
+  SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 export class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];

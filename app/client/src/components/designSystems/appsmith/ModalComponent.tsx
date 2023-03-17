@@ -1,5 +1,4 @@
-import type { ReactNode, RefObject } from "react";
-import React, { useRef, useEffect } from "react";
+import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -81,8 +80,9 @@ export type ModalComponentProps = {
 
 /* eslint-disable react/display-name */
 export function ModalComponent(props: ModalComponentProps) {
-  const modalContentRef: RefObject<HTMLDivElement> =
-    useRef<HTMLDivElement>(null);
+  const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
+    null,
+  );
   useEffect(() => {
     return () => {
       // handle modal close events when this component unmounts

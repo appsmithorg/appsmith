@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import type { DefaultTheme } from "styled-components";
-import styled, { useTheme } from "styled-components";
+import styled, { DefaultTheme, useTheme } from "styled-components";
 import { get, isUndefined } from "lodash";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
@@ -18,9 +17,8 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
-import type { Theme } from "constants/DefaultTheme";
-import { thinScrollbar } from "constants/DefaultTheme";
-import type { IconName } from "@blueprintjs/core";
+import { Theme, thinScrollbar } from "constants/DefaultTheme";
+import { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LIST_HEADER_HEIGHT = "38px";

@@ -1,11 +1,12 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
-import type { InputComponentProps } from "../component";
-import InputComponent from "../component";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
+import InputComponent, { InputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationTypes,
+  ValidationResponse,
+} from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
@@ -14,20 +15,20 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   InputTypes,
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";

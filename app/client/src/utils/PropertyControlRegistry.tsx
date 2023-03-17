@@ -1,12 +1,15 @@
 import React from "react";
 import PropertyControlFactory from "./PropertyControlFactory";
-import type { PropertyControlPropsType } from "components/propertyControls";
-import { PropertyControls } from "components/propertyControls";
-import type { ControlProps } from "components/propertyControls/BaseControl";
-import type BaseControl from "components/propertyControls/BaseControl";
-import type { InteractionAnalyticsEventDetail } from "./AppsmithUtils";
+import {
+  PropertyControls,
+  PropertyControlPropsType,
+} from "components/propertyControls";
+import BaseControl, {
+  ControlProps,
+} from "components/propertyControls/BaseControl";
 import {
   interactionAnalyticsEvent,
+  InteractionAnalyticsEventDetail,
   INTERACTION_ANALYTICS_EVENT,
 } from "./AppsmithUtils";
 

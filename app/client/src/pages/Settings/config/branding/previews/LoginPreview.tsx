@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { PreviewsProps } from ".";
+import { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 
 const LoginPreview = (props: PreviewsProps) => {

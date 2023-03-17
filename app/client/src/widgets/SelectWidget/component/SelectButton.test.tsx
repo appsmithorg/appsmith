@@ -1,8 +1,7 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 
-import type { SelectButtonProps } from "./SelectButton";
-import SelectButton from "./SelectButton";
+import SelectButton, { SelectButtonProps } from "./SelectButton";
 
 const defaultProps: SelectButtonProps = {
   disabled: false,

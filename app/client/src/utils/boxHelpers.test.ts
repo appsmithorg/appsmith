@@ -1,5 +1,4 @@
-import type { Rect } from "./boxHelpers";
-import { areIntersecting } from "./boxHelpers";
+import { areIntersecting, Rect } from "./boxHelpers";
 
 describe("boxHelpers", () => {
   describe("areIntersecting", () => {

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import React from "react";
-import type { WidgetProps } from "./BaseWidget";
-import type BaseWidget from "./BaseWidget";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
 import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 import { useSelector } from "react-redux";
 import { selectFeatureFlags } from "selectors/usersSelectors";

@@ -7,13 +7,13 @@ import FormContext from "../FormContext";
 import SelectComponent from "widgets/SelectWidget/component";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
-import type {
+import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
 } from "../constants";
-import { ActionUpdateDependency } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DropdownOption } from "widgets/SelectWidget/constants";
+import { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
 import { isNil } from "lodash";
 import { Colors } from "constants/Colors";

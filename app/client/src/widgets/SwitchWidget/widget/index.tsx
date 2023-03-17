@@ -1,7 +1,6 @@
-import type { WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import SwitchComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -9,10 +8,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {

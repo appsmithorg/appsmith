@@ -9,7 +9,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
-import type { Action, PluginType } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";

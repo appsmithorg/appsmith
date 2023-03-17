@@ -7,13 +7,13 @@ import FormContext from "../FormContext";
 import Field from "../component/Field";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { AlignWidget } from "widgets/constants";
-import type {
+import { AlignWidget } from "widgets/constants";
+import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { ActionUpdateDependency } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
@@ -58,8 +58,10 @@ function CheckboxField({
   passedDefaultValue,
   schemaItem,
 }: CheckboxFieldProps) {
-  const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
-    schemaItem;
+  const {
+    onBlur: onBlurDynamicString,
+    onFocus: onFocusDynamicString,
+  } = schemaItem;
   const { executeAction } = useContext(FormContext);
 
   const {

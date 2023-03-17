@@ -1,5 +1,4 @@
-import type { RefObject, ReactNode } from "react";
-import React from "react";
+import React, { RefObject, ReactNode } from "react";
 import styled from "styled-components";
 import { Collapse } from "@blueprintjs/core";
 

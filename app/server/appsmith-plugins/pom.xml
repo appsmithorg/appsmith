@@ -116,7 +116,6 @@
 
     </dependencies>
     <modules>
-        <module>oraclePlugin</module>
         <module>postgresPlugin</module>
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>

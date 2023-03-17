@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { StyledLabel } from "./Common";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
@@ -144,9 +146,8 @@ export default function Group({
               case SettingTypes.CHECKBOX:
                 return (
                   <div
-                    className={`admin-settings-group-${
-                      setting.name || setting.id
-                    } ${setting.isHidden ? "hide" : ""}`}
+                    className={`admin-settings-group-${setting.name ||
+                      setting.id} ${setting.isHidden ? "hide" : ""}`}
                     data-testid="admin-settings-group-checkbox"
                     key={setting.name || setting.id}
                   >
@@ -167,11 +168,11 @@ export default function Group({
                         actionLabel={createMessage(LEARN_MORE)}
                         desc={createMessage(() => setting.label || "")}
                         onClick={
-                          (() => {
+                          ((() => {
                             if (setting.action) {
                               setting.action(calloutDispatch);
                             }
-                          }) as unknown as React.MouseEvent<HTMLElement>
+                          }) as unknown) as React.MouseEvent<HTMLElement>
                         }
                         type={setting.calloutType || "Notify"}
                       />

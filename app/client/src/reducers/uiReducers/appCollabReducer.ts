@@ -1,7 +1,9 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import type { User } from "entities/AppCollab/CollabInterfaces";
+import { User } from "entities/AppCollab/CollabInterfaces";
 import { cloneDeep } from "lodash";
 
 const initialState: AppCollabReducerState = {

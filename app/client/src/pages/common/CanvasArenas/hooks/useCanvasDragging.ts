@@ -1,26 +1,24 @@
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
-import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import type React from "react";
-import { useEffect, useRef } from "react";
+import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import type {
+import {
   MovementLimitMap,
+  ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
 } from "reflow/reflowTypes";
-import { ReflowDirection } from "reflow/reflowTypes";
 import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
 import { getCanvasScale } from "selectors/editorSelectors";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type { ReflowInterface } from "utils/hooks/useReflow";
-import { useReflow } from "utils/hooks/useReflow";
+import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
 import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
@@ -35,8 +33,10 @@ import {
   updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
 import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
+import {
+  useBlocksToBeDraggedOnCanvas,
+  WidgetDraggingBlock,
+} from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
 
@@ -108,14 +108,17 @@ export const useCanvasDragging = (
 
   // eslint-disable-next-line prefer-const
 
-  const { calculateHighlights, cleanUpTempStyles, getDropPosition } =
-    useAutoLayoutHighlights({
-      blocksToDraw,
-      canvasId: widgetId,
-      isCurrentDraggedCanvas,
-      isDragging,
-      useAutoLayout,
-    });
+  const {
+    calculateHighlights,
+    cleanUpTempStyles,
+    getDropPosition,
+  } = useAutoLayoutHighlights({
+    blocksToDraw,
+    canvasId: widgetId,
+    isCurrentDraggedCanvas,
+    isDragging,
+    useAutoLayout,
+  });
   let selectedHighlight: HighlightInfo | undefined;
 
   if (useAutoLayout) {
@@ -128,8 +131,11 @@ export const useCanvasDragging = (
     }
   }
 
-  const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
-    useWidgetDragResize();
+  const {
+    setDraggingCanvas,
+    setDraggingNewWidget,
+    setDraggingState,
+  } = useWidgetDragResize();
 
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
@@ -548,8 +554,11 @@ export const useCanvasDragging = (
         // the onscroll that resets intersectionObserver in StickyCanvasArena.tsx
         const onScroll = () =>
           setTimeout(() => {
-            const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
-              scrollObj;
+            const {
+              lastMouseMoveEvent,
+              lastScrollHeight,
+              lastScrollTop,
+            } = scrollObj;
             if (
               lastMouseMoveEvent &&
               typeof lastScrollHeight === "number" &&

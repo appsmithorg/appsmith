@@ -1,19 +1,19 @@
 import { IconNames } from "@blueprintjs/icons";
-import type { Theme } from "constants/DefaultTheme";
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { Theme } from "constants/DefaultTheme";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import type {
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { WidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "./BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { WidgetFeatures } from "utils/WidgetFeatures";
+import { WidgetProps } from "./BaseWidget";
 
 export interface WidgetConfiguration {
   type: string;
@@ -206,8 +206,7 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
   },
 };
 
-export const YOUTUBE_URL_REGEX =
-  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+export const YOUTUBE_URL_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
 
 export const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],

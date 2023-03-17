@@ -1,6 +1,5 @@
 // import { ReactComponent as CanvasResizer } from "assets/icons/ads/app-icons/canvas-resizer.svg";
-import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {

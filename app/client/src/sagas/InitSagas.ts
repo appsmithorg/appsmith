@@ -9,13 +9,13 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import type {
+import {
   ApplicationPayload,
   Page,
   ReduxAction,
+  ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "actions/applicationActions";
@@ -31,11 +31,12 @@ import {
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import type { AppEnginePayload } from "entities/Engine";
-import type AppEngine from "entities/Engine";
-import { AppEngineApiError } from "entities/Engine";
+import AppEngine, {
+  AppEngineApiError,
+  AppEnginePayload,
+} from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
-import type { ApplicationPagePayload } from "api/ApplicationApi";
+import { ApplicationPagePayload } from "api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 

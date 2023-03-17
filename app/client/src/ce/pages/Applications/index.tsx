@@ -10,7 +10,7 @@ import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
   thinScrollbar,
@@ -28,21 +28,22 @@ import {
   getUserApplicationsWorkspaces,
   getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ApplicationPayload,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import type { User } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import type { IconName } from "design-system-old";
 import {
   AppIconCollection,
   Button,
@@ -51,6 +52,7 @@ import {
   EditableText,
   EditInteractionKind,
   Icon,
+  IconName,
   IconSize,
   Menu,
   MenuItem,
@@ -65,12 +67,12 @@ import {
   updateApplication,
 } from "actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import type { UpdateApplicationPayload } from "api/ApplicationApi";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
-import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
+import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
   saveWorkspace,
@@ -862,21 +864,20 @@ export function ApplicationsSection(props: any) {
                               text="Import"
                             />
                           )}
-                        {hasManageWorkspacePermissions &&
-                          canInviteToWorkspace && (
-                            <MenuItem
-                              icon="member"
-                              onSelect={() =>
-                                getOnSelectAction(
-                                  DropdownOnSelectActions.REDIRECT,
-                                  {
-                                    path: `/workspace/${workspace.id}/settings/members`,
-                                  },
-                                )
-                              }
-                              text="Members"
-                            />
-                          )}
+                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
+                          <MenuItem
+                            icon="member"
+                            onSelect={() =>
+                              getOnSelectAction(
+                                DropdownOnSelectActions.REDIRECT,
+                                {
+                                  path: `/workspace/${workspace.id}/settings/members`,
+                                },
+                              )
+                            }
+                            text="Members"
+                          />
+                        )}
                         {canInviteToWorkspace && (
                           <MenuItem
                             icon="logout"
@@ -1005,7 +1006,7 @@ export interface ApplicationState {
 
 export class Applications<
   Props extends ApplicationProps,
-  State extends ApplicationState,
+  State extends ApplicationState
 > extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

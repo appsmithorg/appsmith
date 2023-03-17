@@ -1,5 +1,7 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
   call,
@@ -14,15 +16,15 @@ import {
   restoreRecentEntitiesSuccess,
   setRecentEntities,
 } from "actions/globalSearchActions";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import type { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";
+import { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";
 
 const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
   branch ? `${applicationId}-${branch}` : applicationId;

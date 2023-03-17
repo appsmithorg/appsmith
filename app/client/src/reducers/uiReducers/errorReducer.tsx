@@ -1,10 +1,10 @@
 import { createReducer } from "utils/ReducerUtils";
-import type {
+import {
   ReduxAction,
+  ReduxActionTypes,
   ReduxActionErrorPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import _ from "lodash";
 
 const initialState: ErrorReduxState = {

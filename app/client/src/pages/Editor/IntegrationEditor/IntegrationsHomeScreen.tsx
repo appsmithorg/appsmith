@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import type { InjectedFormProps } from "redux-form";
-import { reduxForm } from "redux-form";
+import { reduxForm, InjectedFormProps } from "redux-form";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
 import { Colors } from "constants/Colors";
 import NewApiScreen from "./NewApi";
@@ -12,9 +11,14 @@ import ActiveDataSources from "./ActiveDataSources";
 import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
-import type { Datasource, MockDatasource } from "entities/Datasource";
-import type { TabProp } from "design-system-old";
-import { IconSize, TabComponent, Text, TextType } from "design-system-old";
+import { Datasource, MockDatasource } from "entities/Datasource";
+import {
+  IconSize,
+  TabComponent,
+  TabProp,
+  Text,
+  TextType,
+} from "design-system-old";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";

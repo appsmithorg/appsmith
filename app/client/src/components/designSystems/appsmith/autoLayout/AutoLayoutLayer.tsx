@@ -1,8 +1,7 @@
-import type { ReactNode } from "react";
-import React from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
 
-import type { LayoutDirection } from "utils/autoLayout/constants";
+import { LayoutDirection } from "utils/autoLayout/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.

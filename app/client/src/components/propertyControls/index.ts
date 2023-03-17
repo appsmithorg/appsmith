@@ -1,37 +1,50 @@
-import type { InputControlProps } from "components/propertyControls/InputTextControl";
-import InputTextControl from "components/propertyControls/InputTextControl";
-import type { DropDownControlProps } from "components/propertyControls/DropDownControl";
-import DropDownControl from "components/propertyControls/DropDownControl";
-import type { SwitchControlProps } from "components/propertyControls/SwitchControl";
-import SwitchControl from "components/propertyControls/SwitchControl";
+import InputTextControl, {
+  InputControlProps,
+} from "components/propertyControls/InputTextControl";
+import DropDownControl, {
+  DropDownControlProps,
+} from "components/propertyControls/DropDownControl";
+import SwitchControl, {
+  SwitchControlProps,
+} from "components/propertyControls/SwitchControl";
 import OptionControl from "components/propertyControls/OptionControl";
-import type { ControlProps } from "components/propertyControls/BaseControl";
-import type BaseControl from "components/propertyControls/BaseControl";
+import BaseControl, {
+  ControlProps,
+} from "components/propertyControls/BaseControl";
 import CodeEditorControl from "components/propertyControls/CodeEditorControl";
-import type { DatePickerControlProps } from "components/propertyControls/DatePickerControl";
-import DatePickerControl from "components/propertyControls/DatePickerControl";
+import DatePickerControl, {
+  DatePickerControlProps,
+} from "components/propertyControls/DatePickerControl";
 import ChartDataControl from "components/propertyControls/ChartDataControl";
 import LocationSearchControl from "components/propertyControls/LocationSearchControl";
-import type { StepControlProps } from "components/propertyControls/StepControl";
-import StepControl from "components/propertyControls/StepControl";
+import StepControl, {
+  StepControlProps,
+} from "components/propertyControls/StepControl";
 import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
-import type { PrimaryColumnDropdownControlProps } from "components/propertyControls/PrimaryColumnDropdownControl";
-import PrimaryColumnDropdownControl from "components/propertyControls/PrimaryColumnDropdownControl";
-import type { ColorPickerControlProps } from "components/propertyControls/ColorPickerControl";
-import ColorPickerControl from "components/propertyControls/ColorPickerControl";
-import type { PrimaryColumnColorPickerControlProps } from "components/propertyControls/PrimaryColumnColorPickerControl";
-import PrimaryColumnColorPickerControl from "components/propertyControls/PrimaryColumnColorPickerControl";
-import type { ComputeTablePropertyControlProps } from "components/propertyControls/ComputeTablePropertyControl";
-import ComputeTablePropertyControl from "components/propertyControls/ComputeTablePropertyControl";
-import type { IconTabControlProps } from "components/propertyControls/IconTabControl";
-import IconTabControl from "components/propertyControls/IconTabControl";
-import type { ButtonTabControlProps } from "components/propertyControls/ButtonTabControl";
-import ButtonTabControl from "components/propertyControls/ButtonTabControl";
-import type { MultiSwitchControlProps } from "components/propertyControls/MultiSwitchControl";
-import MultiSwitchControl from "components/propertyControls/MultiSwitchControl";
+import PrimaryColumnDropdownControl, {
+  PrimaryColumnDropdownControlProps,
+} from "components/propertyControls/PrimaryColumnDropdownControl";
+import ColorPickerControl, {
+  ColorPickerControlProps,
+} from "components/propertyControls/ColorPickerControl";
+import PrimaryColumnColorPickerControl, {
+  PrimaryColumnColorPickerControlProps,
+} from "components/propertyControls/PrimaryColumnColorPickerControl";
+import ComputeTablePropertyControl, {
+  ComputeTablePropertyControlProps,
+} from "components/propertyControls/ComputeTablePropertyControl";
+import IconTabControl, {
+  IconTabControlProps,
+} from "components/propertyControls/IconTabControl";
+import ButtonTabControl, {
+  ButtonTabControlProps,
+} from "components/propertyControls/ButtonTabControl";
+import MultiSwitchControl, {
+  MultiSwitchControlProps,
+} from "components/propertyControls/MultiSwitchControl";
 import MenuItemsControl from "./MenuItemsControl";
 import OpenConfigPanelControl from "./OpenConfigPanelControl";
 import ButtonListControl from "./ButtonListControl";
@@ -43,22 +56,29 @@ import FieldConfigurationControl from "components/propertyControls/FieldConfigur
 import JSONFormComputeControl from "./JSONFormComputeControl";
 import ButtonControl from "./ButtonControl";
 import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
-import type { NumericInputControlProps } from "./NumericInputControl";
-import NumericInputControl from "./NumericInputControl";
+import NumericInputControl, {
+  NumericInputControlProps,
+} from "./NumericInputControl";
 import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
-import type { SelectDefaultValueControlProps } from "./SelectDefaultValueControl";
-import SelectDefaultValueControl from "./SelectDefaultValueControl";
-import type { ComputeTablePropertyControlPropsV2 } from "components/propertyControls/TableComputeValue";
-import ComputeTablePropertyControlV2 from "components/propertyControls/TableComputeValue";
-import type { PrimaryColumnColorPickerControlPropsV2 } from "components/propertyControls/PrimaryColumnColorPickerControlV2";
-import PrimaryColumnColorPickerControlV2 from "components/propertyControls/PrimaryColumnColorPickerControlV2";
-import type { TableInlineEditValidationControlProps } from "./TableInlineEditValidationControl";
-import TableInlineEditValidationControl from "./TableInlineEditValidationControl";
+import SelectDefaultValueControl, {
+  SelectDefaultValueControlProps,
+} from "./SelectDefaultValueControl";
+import ComputeTablePropertyControlV2, {
+  ComputeTablePropertyControlPropsV2,
+} from "components/propertyControls/TableComputeValue";
+import PrimaryColumnColorPickerControlV2, {
+  PrimaryColumnColorPickerControlPropsV2,
+} from "components/propertyControls/PrimaryColumnColorPickerControlV2";
+import TableInlineEditValidationControl, {
+  TableInlineEditValidationControlProps,
+} from "./TableInlineEditValidationControl";
 import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyControl";
-import type { MenuButtonDynamicItemsControlProps } from "components/propertyControls/MenuButtonDynamicItemsControl";
-import MenuButtonDynamicItemsControl from "components/propertyControls/MenuButtonDynamicItemsControl";
-import type { ListComputeControlProps } from "./ListComputeControl";
-import ListComputeControl from "./ListComputeControl";
+import MenuButtonDynamicItemsControl, {
+  MenuButtonDynamicItemsControlProps,
+} from "components/propertyControls/MenuButtonDynamicItemsControl";
+import ListComputeControl, {
+  ListComputeControlProps,
+} from "./ListComputeControl";
 
 export const PropertyControls = {
   InputTextControl,

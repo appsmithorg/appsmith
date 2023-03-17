@@ -1,4 +1,4 @@
-import type {
+import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";

@@ -1,8 +1,10 @@
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
-import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
+import {
+  CodeScannerWidgetProps,
+  ScannerLayout,
+} from "widgets/CodeScannerWidget/constants";
 export default [
   {
     sectionName: "Basic",

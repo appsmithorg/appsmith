@@ -4,16 +4,18 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 
-import type { Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import CameraComponent from "../component";
-import type { CameraMode } from "../constants";
-import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
+import {
+  CameraMode,
+  CameraModeTypes,
+  MediaCaptureStatusTypes,
+} from "../constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {

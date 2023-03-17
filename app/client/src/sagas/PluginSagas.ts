@@ -1,11 +1,10 @@
 import { all, takeEvery, call, put, select } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
-import PluginsApi from "api/PluginApi";
+import PluginsApi, { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
@@ -15,8 +14,8 @@ import {
   getPluginForm,
   getPlugins,
 } from "selectors/entitiesSelector";
-import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
+import { Datasource } from "entities/Datasource";
+import { Plugin } from "api/PluginApi";
 import {
   fetchPluginFormConfigsSuccess,
   fetchPluginFormConfigSuccess,
@@ -28,17 +27,17 @@ import {
   defaultActionSettings,
   defaultDatasourceFormButtonConfig,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
 import { getGraphQLPlugin, PluginType } from "entities/Action";
-import type {
+import {
   FormEditorConfigs,
   FormSettingsConfigs,
   FormDependencyConfigs,
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -179,8 +178,9 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       pluginId,
     );
     if (!formConfig) {
-      const formConfigResponse: ApiResponse<PluginFormPayload> =
-        yield PluginApi.fetchFormConfig(pluginId);
+      const formConfigResponse: ApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
+        pluginId,
+      );
       yield validateResponse(formConfigResponse);
       if (!formConfigResponse.data.setting) {
         formConfigResponse.data.setting = defaultActionSettings[plugin.type];

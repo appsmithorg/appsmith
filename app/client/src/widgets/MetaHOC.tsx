@@ -1,15 +1,14 @@
 import React from "react";
-import type { WidgetProps } from "./BaseWidget";
-import type BaseWidget from "./BaseWidget";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
 import { debounce, fromPairs } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,

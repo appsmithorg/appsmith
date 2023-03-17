@@ -1,6 +1,10 @@
 import React from "react";
-import type { BaseCellComponentProps, CellAlignment } from "../Constants";
-import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
+import {
+  ALIGN_ITEMS,
+  BaseCellComponentProps,
+  CellAlignment,
+  JUSTIFY_CONTENT,
+} from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";

@@ -1,4 +1,4 @@
-import type { Property } from "entities/Action";
+import { Property } from "entities/Action";
 
 export enum AuthType {
   NONE = "dbAuth",

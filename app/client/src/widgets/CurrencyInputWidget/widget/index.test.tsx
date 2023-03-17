@@ -1,5 +1,4 @@
-import type { CurrencyInputWidgetProps } from "./index";
-import { defaultValueValidation } from "./index";
+import { defaultValueValidation, CurrencyInputWidgetProps } from "./index";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {

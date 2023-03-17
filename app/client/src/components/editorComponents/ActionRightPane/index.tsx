@@ -17,21 +17,21 @@ import { useState } from "react";
 import history from "utils/history";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
-import type { ReactNode } from "react";
+import { ReactNode } from "react";
 import { useEffect } from "react";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   BACK_TO_CANVAS,
   createMessage,
   NO_CONNECTIONS,
 } from "@appsmith/constants/messages";
-import type {
+import {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";

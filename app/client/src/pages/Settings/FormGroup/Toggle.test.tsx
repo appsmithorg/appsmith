@@ -1,7 +1,9 @@
 import { render } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import Toggle from "./Toggle";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";

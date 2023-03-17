@@ -1,4 +1,4 @@
-import type { HighlightInfo } from "./autoLayoutTypes";
+import { HighlightInfo } from "./autoLayoutTypes";
 
 export interface Point {
   x: number;

@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import Excel from "exceljs";
-import type { Column } from "react-table";
-import { useTable } from "react-table";
+import { useTable, Column } from "react-table";
 import _ from "lodash";
 
 const StyledViewer = styled.div`
@@ -154,8 +153,13 @@ export default function XlsxViewer(props: { blob?: Blob }) {
     [],
   );
 
-  const { getTableBodyProps, getTableProps, headerGroups, prepareRow, rows } =
-    useTable({ columns: headerData, data: tableData });
+  const {
+    getTableBodyProps,
+    getTableProps,
+    headerGroups,
+    prepareRow,
+    rows,
+  } = useTable({ columns: headerData, data: tableData });
 
   return (
     <StyledViewer>

@@ -1,12 +1,10 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import type { DropdownOption } from "design-system-old";
+import { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { DSEventDetail } from "utils/AppsmithUtils";
-import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
+import { DSEventDetail, DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {

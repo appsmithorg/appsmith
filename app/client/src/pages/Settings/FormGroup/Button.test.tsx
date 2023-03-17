@@ -1,7 +1,9 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import ButtonComponent from "./Button";
 
 let container: any = null;

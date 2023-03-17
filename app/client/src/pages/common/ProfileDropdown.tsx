@@ -1,7 +1,7 @@
 import React from "react";
-import type { CommonComponentProps } from "design-system-old";
 import {
   Classes,
+  CommonComponentProps,
   Menu,
   MenuDivider,
   MenuItem,
@@ -10,8 +10,11 @@ import {
   TooltipComponent,
 } from "design-system-old";
 import styled from "styled-components";
-import type { PopperModifiers } from "@blueprintjs/core";
-import { Classes as BlueprintClasses, Position } from "@blueprintjs/core";
+import {
+  Classes as BlueprintClasses,
+  PopperModifiers,
+  Position,
+} from "@blueprintjs/core";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,

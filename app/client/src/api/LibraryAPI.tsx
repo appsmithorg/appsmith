@@ -1,5 +1,5 @@
 import { APP_MODE } from "entities/App";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import { TJSLibrary } from "workers/common/JSLibrary";
 import Api from "./Api";
 
 export default class LibraryApi extends Api {

@@ -1,7 +1,7 @@
-import type { AxiosPromise } from "axios";
+import { AxiosPromise } from "axios";
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
-import type {
+import { ApiResponse } from "./ApiResponses";
+import {
   Providers,
   ProviderTemplates,
   SearchResultsProviders,
@@ -90,7 +90,9 @@ export class ProvidersApi extends Api {
     return Api.post(ProvidersApi.addApiToPageURL, request);
   }
 
-  static fetchProvidersCategories(): AxiosPromise<FetchProviderCategoriesResponse> {
+  static fetchProvidersCategories(): AxiosPromise<
+    FetchProviderCategoriesResponse
+  > {
     return Api.get(ProvidersApi.providerCategoriesURL);
   }
 

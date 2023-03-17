@@ -6,10 +6,10 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import type { AppStoreState } from "reducers/entityReducers/appReducer";
+import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
 import moment from "moment";
-import type {
+import {
   TClearStoreDescription,
   TRemoveValueDescription,
   TStoreValueDescription,

@@ -1,7 +1,6 @@
-import type { DropdownOption, RenderOption } from "design-system-old";
-import { Dropdown } from "design-system-old";
+import { Dropdown, DropdownOption, RenderOption } from "design-system-old";
 import React, { useEffect, useState } from "react";
-import type { DropdownOnSelect } from "./SelectField";
+import { DropdownOnSelect } from "./SelectField";
 
 type DropdownWrapperProps = {
   allowDeselection?: boolean;

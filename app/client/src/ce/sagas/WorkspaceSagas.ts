@@ -1,18 +1,16 @@
 import { call, put, select } from "redux-saga/effects";
-import type {
-  ReduxAction,
-  ReduxActionWithPromise,
-} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
+  ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionWithPromise,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   validateResponse,
   callAPI,
   getResponseErrorMessage,
 } from "sagas/ErrorSagas";
-import type {
+import WorkspaceApi, {
   FetchWorkspaceRolesResponse,
   SaveWorkspaceRequest,
   FetchWorkspaceRequest,
@@ -26,17 +24,16 @@ import type {
   FetchAllRolesRequest,
   SaveWorkspaceLogo,
 } from "@appsmith/api/WorkspaceApi";
-import WorkspaceApi from "@appsmith/api/WorkspaceApi";
-import type { ApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { Toaster, Variant } from "design-system-old";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
 import log from "loglevel";
-import type { User } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import {
   createMessage,
   DELETE_WORKSPACE_SUCCESSFUL,

@@ -1,9 +1,8 @@
 import styled from "styled-components";
-import type { RefObject, ReactNode } from "react";
-import React, { useMemo } from "react";
+import React, { RefObject, ReactNode, useMemo } from "react";
 
-import type { ListWidgetProps } from "../constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { ListWidgetProps } from "../constants";
+import { WidgetProps } from "widgets/BaseWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 
 interface ListComponentProps {

@@ -1,7 +1,7 @@
 import React from "react";
 import AppsIcon from "remixicon-react/AppsLineIcon";
 
-import type { PreviewsProps } from ".";
+import { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 
 const AppPreview = (props: PreviewsProps) => {

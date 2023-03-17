@@ -2,8 +2,7 @@ import {
   sortTableFunction,
   transformTableDataIntoCsv,
 } from "./CommonUtilities";
-import type { TableColumnProps } from "./Constants";
-import { ColumnTypes } from "./Constants";
+import { ColumnTypes, TableColumnProps } from "./Constants";
 
 describe("TableUtilities", () => {
   it("works as expected for sort table rows", () => {

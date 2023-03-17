@@ -38,7 +38,7 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
@@ -53,10 +53,10 @@ import {
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import type FeatureFlags from "entities/FeatureFlags";
+import FeatureFlags from "entities/FeatureFlags";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";

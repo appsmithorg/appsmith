@@ -1,13 +1,13 @@
 import React from "react";
-import type { IconName } from "@blueprintjs/icons";
-import type { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import { Alignment } from "@blueprintjs/core";
 
-import type { BaseCellComponentProps } from "../Constants";
-import type { ButtonVariant } from "components/constants";
+import { BaseCellComponentProps } from "../Constants";
+import { ButtonVariant } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import MenuButtonTableComponent from "./menuButtonTableComponent";
-import type {
+import {
   ConfigureMenuItems,
   MenuItem,
   MenuItems,

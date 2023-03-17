@@ -1,14 +1,14 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type {
+import {
   ReduxAction,
+  ReduxActionTypes,
   UpdateCanvasPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { UpdateCanvasLayoutPayload } from "actions/controlActions";
+import { UpdateCanvasLayoutPayload } from "actions/controlActions";
 
 const initialState: MainCanvasReduxState = {
   initialized: false,

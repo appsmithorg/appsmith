@@ -4,14 +4,19 @@ import {
   GridDefaults,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
-import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { CallbackHandlerEventType } from "utils/CallbackHandler/CallbackHandlerEventType";
 import DynamicHeightCallbackHandler from "utils/CallbackHandler/DynamicHeightCallbackHandler";
 import { useAutoHeightLimitsDispatch, useAutoHeightLimitsState } from "./store";
-import type { onMouseHoverCallbacksProps } from "./types";
+import { onMouseHoverCallbacksProps } from "./types";
 import { getSnappedValues } from "./utils";
-import type { AppState } from "@appsmith/reducers";
+import { AppState } from "@appsmith/reducers";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { useSelector } from "react-redux";
 import {
@@ -85,11 +90,15 @@ export const usePositionedStyles = ({
 };
 
 export const useMaxMinPropertyPaneFieldsFocused = () => {
-  const [isPropertyPaneMinFieldFocused, setPropertyPaneMinFieldFocused] =
-    useState(false);
+  const [
+    isPropertyPaneMinFieldFocused,
+    setPropertyPaneMinFieldFocused,
+  ] = useState(false);
 
-  const [isPropertyPaneMaxFieldFocused, setPropertyPaneMaxFieldFocused] =
-    useState(false);
+  const [
+    isPropertyPaneMaxFieldFocused,
+    setPropertyPaneMaxFieldFocused,
+  ] = useState(false);
 
   function handleOnMaxLimitPropertyPaneFieldFocus() {
     setPropertyPaneMaxFieldFocused(true);
@@ -248,13 +257,19 @@ export function useDragCallbacksForHandles({
   const parentWidgetToSelect = useSelector(getParentToOpenSelector(widgetId));
 
   const showTableFilterPane = useShowTableFilterPane();
-  const { isAutoHeightWithLimitsChanging, setIsAutoHeightWithLimitsChanging } =
-    useAutoHeightUIState();
+  const {
+    isAutoHeightWithLimitsChanging,
+    setIsAutoHeightWithLimitsChanging,
+  } = useAutoHeightUIState();
 
   const { maxdY, maxY, mindY, minY } = useAutoHeightLimitsState();
 
-  const { setIsMaxDotDragging, setIsMinDotDragging, setMaxdY, setMindY } =
-    useAutoHeightOverlayUIStateActions();
+  const {
+    setIsMaxDotDragging,
+    setIsMinDotDragging,
+    setMaxdY,
+    setMindY,
+  } = useAutoHeightOverlayUIStateActions();
 
   const snapGrid = useMemo(
     () => ({

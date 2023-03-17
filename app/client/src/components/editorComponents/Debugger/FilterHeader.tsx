@@ -1,10 +1,9 @@
-import type { MutableRefObject } from "react";
-import React, { useRef } from "react";
+import React, { MutableRefObject, useRef } from "react";
 import { get } from "lodash";
-import type { DropdownOption } from "design-system-old";
 import {
   Classes,
   Dropdown,
+  DropdownOption,
   Icon,
   IconSize,
   TextInput,
@@ -16,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import type { Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 const Wrapper = styled.div`
   flex-direction: row;
