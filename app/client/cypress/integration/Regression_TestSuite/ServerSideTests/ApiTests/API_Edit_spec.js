@@ -3,11 +3,11 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
-describe("API Panel Test Functionality", function() {
+describe("API Panel Test Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Test Search API fetaure", function() {
+  it("Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
@@ -30,15 +30,13 @@ describe("API Panel Test Functionality", function() {
     cy.hoverAndClick();
     cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
-    cy.get(explorer.editEntity)
-      .last()
-      .type("SecondAPI", { force: true });
+    cy.get(explorer.editEntity).last().type("SecondAPI", { force: true });
     cy.DeleteAPI();
     cy.wait(2000);
     cy.get(".t--entity-name:contains('SecondAPI')").should("not.exist");
   });
 
-  it("Should update loading state after cancellation of confirmation for run query", function() {
+  it("Should update loading state after cancellation of confirmation for run query", function () {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
@@ -50,16 +48,11 @@ describe("API Panel Test Functionality", function() {
     cy.get(apiwidget.settings).click({ force: true });
     cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
     cy.get(apiwidget.runQueryButton).click();
-    cy.get(".bp3-dialog")
-      .find("button")
-      .contains("No")
-      .click();
-    cy.get(apiwidget.runQueryButton)
-      .children()
-      .should("have.length", 1);
+    cy.get(".bp3-dialog").find("button").contains("No").click();
+    cy.get(apiwidget.runQueryButton).children().should("have.length", 1);
   });
 
-  it("Should not crash on key delete", function() {
+  it("Should not crash on key delete", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("CrashTestAPI");
     cy.SelectAction(testdata.postAction);
@@ -74,7 +67,7 @@ describe("API Panel Test Functionality", function() {
     cy.get(apiwidget.headerKey).should("have.value", "");
   });
 
-  it("Should correctly parse query params", function() {
+  it("Should correctly parse query params", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("APIWithQueryParams");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methodWithQueryParam);
@@ -84,7 +77,7 @@ describe("API Panel Test Functionality", function() {
     });
   });
 
-  it("Shows evaluated value pane when url field is focused", function() {
+  it("Shows evaluated value pane when url field is focused", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("TestAPI");
     cy.get(".CodeMirror textarea")

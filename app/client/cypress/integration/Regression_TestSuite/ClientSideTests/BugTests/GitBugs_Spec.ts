@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 
 let repoName: any;
-describe("Git Bugs", function() {
+describe("Git Bugs", function () {
   before(() => {
     _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
@@ -12,7 +12,7 @@ describe("Git Bugs", function() {
     });
   });
 
-  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
+  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const largeResponseApiUrl = "https://jsonplaceholder.typicode.com/users";
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
@@ -24,7 +24,7 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateNetworkStatus("@postExecute");
   });
 
-  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
+  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
     _.gitSync.CreateNConnectToGit();
     _.gitSync.CreateGitBranch();
     _.dataSources.NavigateToDSCreateNew();

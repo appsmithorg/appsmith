@@ -1,22 +1,19 @@
 import React from "react";
 import { connect } from "react-redux";
-import { RouteComponentProps, withRouter } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
-import { APIEditorRouteParams } from "constants/routes";
-import { Spinner, IIconProps } from "@blueprintjs/core";
+import type { AppState } from "@appsmith/reducers";
+import type { APIEditorRouteParams } from "constants/routes";
+import type { IIconProps } from "@blueprintjs/core";
+import { Spinner } from "@blueprintjs/core";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Fuse from "fuse.js";
 import Button from "components/editorComponents/Button";
-import {
-  DragDropContext,
-  Draggable,
-  DragStart,
-  Droppable,
-  DropResult,
-} from "react-beautiful-dnd";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { DragStart, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";

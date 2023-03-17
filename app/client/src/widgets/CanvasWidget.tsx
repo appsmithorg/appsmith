@@ -7,16 +7,17 @@ import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import React, { CSSProperties } from "react";
+import type { CSSProperties } from "react";
+import React from "react";
 import { getCanvasClassName } from "utils/generators";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import ContainerWidget, {
-  ContainerWidgetProps,
-} from "widgets/ContainerWidget/widget";
-import { CanvasWidgetStructure, DSLWidget } from "./constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import ContainerWidget from "widgets/ContainerWidget/widget";
+import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 
 class CanvasWidget extends ContainerWidget {

@@ -14,7 +14,7 @@ import TemplatesList from "./TemplateList";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { isEmpty } from "lodash";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 function TemplatesModal() {
   const templatesModalOpen = useSelector(templateModalOpenSelector);

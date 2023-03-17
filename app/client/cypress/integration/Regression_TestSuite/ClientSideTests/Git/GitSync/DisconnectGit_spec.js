@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let windowOpenSpy;
-describe("Git disconnect modal:", function() {
+describe("Git disconnect modal:", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -17,7 +17,7 @@ describe("Git disconnect modal:", function() {
     });
   });
 
-  it("1. should be opened with proper components", function() {
+  it("1. should be opened with proper components", function () {
     _.gitSync.AuthorizeKeyToGitea(repoName);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
@@ -59,7 +59,7 @@ describe("Git disconnect modal:", function() {
     cy.wait(2000);
   });
 
-  it("2. should have disconnect repo button", function() {
+  it("2. should have disconnect repo button", function () {
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
 

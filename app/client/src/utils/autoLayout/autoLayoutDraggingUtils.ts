@@ -1,7 +1,7 @@
 import { FlexLayerAlignment } from "utils/autoLayout/constants";
-import { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import { isArray } from "lodash";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetPositions } from "./positionUtils";
 
 /**

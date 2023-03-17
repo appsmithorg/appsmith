@@ -1,23 +1,23 @@
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
+import type {
   ConfigTree,
   DataTree,
   WidgetEntity,
-  ENTITY_TYPE,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import WidgetFactory from "./WidgetFactory";
-import { WidgetProps } from "widgets/BaseWidget";
-import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,

@@ -1,7 +1,7 @@
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { ActionEntity } from "entities/DataTree/types";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity } from "entities/DataTree/types";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
 

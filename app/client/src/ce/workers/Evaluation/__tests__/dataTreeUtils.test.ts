@@ -1,8 +1,4 @@
-import {
-  UnEvalTree,
-  ActionEntity,
-  DataTree,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 
 const unevalTreeFromMainThread = {
@@ -26,8 +22,7 @@ const unevalTreeFromMainThread = {
     storeTest2: {
       data: {},
     },
-    body:
-      "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
+    body: "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
     ENTITY_TYPE: "JSACTION",
   },
   MainContainer: {
@@ -150,7 +145,7 @@ const unevalTreeFromMainThread = {
 describe("7. Test util methods", () => {
   it("3. makeDataTreeEntityConfigAsProperty method", () => {
     const dataTree = makeEntityConfigsAsObjProperties(
-      (unevalTreeFromMainThread as unknown) as DataTree,
+      unevalTreeFromMainThread as unknown as DataTree,
     );
 
     expect(dataTree.Api2).not.toHaveProperty("__evaluation__");

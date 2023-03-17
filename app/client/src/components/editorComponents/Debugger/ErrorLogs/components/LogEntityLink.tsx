@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { keyBy } from "lodash";
-import { LogItemProps } from "../ErrorLogItem";
+import type { LogItemProps } from "../ErrorLogItem";
 import { Colors } from "constants/Colors";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import {

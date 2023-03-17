@@ -1,10 +1,9 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import {
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { BatchAction } from "actions/batchActions";
+import { batchAction } from "actions/batchActions";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,

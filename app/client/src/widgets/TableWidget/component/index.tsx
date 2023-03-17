@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo } from "react";
 import Table from "./Table";
-import {
-  ColumnTypes,
+import type {
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
 } from "./Constants";
-import { Row } from "react-table";
+import { ColumnTypes } from "./Constants";
+import type { Row } from "react-table";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
 
 export interface ColumnMenuOptionProps {

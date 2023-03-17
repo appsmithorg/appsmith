@@ -1,6 +1,6 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

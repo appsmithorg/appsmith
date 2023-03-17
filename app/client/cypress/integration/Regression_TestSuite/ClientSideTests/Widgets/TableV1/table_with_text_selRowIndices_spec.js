@@ -2,11 +2,11 @@ const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Table widget edge case scenario testing", function() {
+describe("Table widget edge case scenario testing", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Check if the selectedRowIndices does not contain -1", function() {
+  it("Check if the selectedRowIndices does not contain -1", function () {
     cy.openPropertyPane("tablewidget");
 
     //Update the property default selected row to blank

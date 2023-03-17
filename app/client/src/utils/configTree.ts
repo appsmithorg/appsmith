@@ -1,4 +1,4 @@
-import { ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree } from "entities/DataTree/dataTreeFactory";
 
 export default class ConfigTreeActions {
   static tree: ConfigTree = {};

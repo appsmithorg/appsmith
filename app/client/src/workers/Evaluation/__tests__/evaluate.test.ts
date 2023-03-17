@@ -1,9 +1,6 @@
 import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
-import {
-  DataTree,
-  WidgetEntity,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { functionDeterminer } from "../functionDeterminer";

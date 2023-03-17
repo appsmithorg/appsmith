@@ -1,16 +1,18 @@
 import { PluginType, PaginationType } from "entities/Action";
-import {
+import type {
   DataTree,
-  EvaluationSubstitutionType,
   WidgetEntity,
-  ENTITY_TYPE,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
+import {
+  EvaluationSubstitutionType,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
+import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {
-    Api1: ({
+    Api1: {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
@@ -43,8 +45,8 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
-    } as unknown) as ActionEntity,
-    Text1: ({
+    } as unknown as ActionEntity,
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -77,7 +79,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as WidgetEntity,
+    } as unknown as WidgetEntity,
   },
   apiSuccessUnEvalTree: {
     // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
@@ -106,23 +108,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
         [
@@ -131,23 +130,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
         [
@@ -156,23 +152,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
       ],
@@ -216,7 +209,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2][2].id
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -249,7 +242,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as WidgetEntity,
+    } as unknown as WidgetEntity,
   },
   apiFailureUnEvalTree: {
     // failure: response -> {}
@@ -311,7 +304,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2][2].id
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -344,7 +337,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as WidgetEntity,
+    } as unknown as WidgetEntity,
   },
   apiSuccessUnEvalTree2: {
     // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
@@ -373,23 +366,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
         [
@@ -398,23 +388,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
       ],
@@ -457,7 +444,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -490,7 +477,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as WidgetEntity,
+    } as unknown as WidgetEntity,
   },
   apiSuccessUnEvalTree3: {
     // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
@@ -519,23 +506,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
         [
@@ -544,23 +528,20 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
             id: 1,
             title:
               "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-            body:
-              "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+            body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
           },
           {
             userId: 1,
             id: 2,
             title: "qui est esse",
-            body:
-              "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+            body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
           },
           {
             userId: 1,
             id: 3,
             title:
               "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-            body:
-              "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+            body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
           },
         ],
         [],
@@ -605,7 +586,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2][2].id
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -638,13 +619,13 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       value: "{{ Text1.text }}",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       meta: {},
-    } as unknown) as WidgetEntity,
+    } as unknown as WidgetEntity,
   },
 };
 
 export const nestedArrayAccessorCyclicDependencyConfig = {
   initConfigTree: {
-    Api1: ({
+    Api1: {
       name: "Api1",
       actionId: "6285d928db0f9c6e620d454a",
       pluginId: "5ca385dc81b37f0004b4db85",
@@ -674,8 +655,8 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
         "config.body": ["config.pluginSpecifiedTemplates[0].value"],
       },
       logBlackList: {},
-    } as unknown) as ActionEntityConfig,
-    Text1: ({
+    } as unknown as ActionEntityConfig,
+    Text1: {
       type: "TEXT_WIDGET",
       widgetId: "1p9hcl50i8",
       privateWidgets: {},
@@ -785,10 +766,10 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           type: "TEXT",
         },
       },
-    } as unknown) as WidgetEntityConfig,
+    } as unknown as WidgetEntityConfig,
   },
   apiSuccessConfigTree: {
-    Api1: ({
+    Api1: {
       name: "Api1",
       pluginId: "5ca385dc81b37f0004b4db85",
       actionId: "6285d928db0f9c6e620d454a",
@@ -810,8 +791,8 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
         "config.body": ["config.pluginSpecifiedTemplates[0].value"],
       },
       logBlackList: {},
-    } as unknown) as ActionEntityConfig,
-    Text1: ({
+    } as unknown as ActionEntityConfig,
+    Text1: {
       widgetId: "1p9hcl50i8",
       type: "TEXT_WIDGET",
       dynamicTriggerPathList: [],
@@ -921,10 +902,10 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           type: "TEXT",
         },
       },
-    } as unknown) as WidgetEntityConfig,
+    } as unknown as WidgetEntityConfig,
   },
   apiFailureConfigTree: {
-    Api1: ({
+    Api1: {
       name: "Api1",
       pluginId: "5ca385dc81b37f0004b4db85",
       actionId: "6285d928db0f9c6e620d454a",
@@ -946,8 +927,8 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
         "config.body": ["config.pluginSpecifiedTemplates[0].value"],
       },
       logBlackList: {},
-    } as unknown) as ActionEntityConfig,
-    Text1: ({
+    } as unknown as ActionEntityConfig,
+    Text1: {
       type: "TEXT_WIDGET",
       dynamicTriggerPathList: [],
       dynamicBindingPathList: [
@@ -1057,10 +1038,10 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           type: "TEXT",
         },
       },
-    } as unknown) as WidgetEntityConfig,
+    } as unknown as WidgetEntityConfig,
   },
   apiSuccessConfigTree2: {
-    Api1: ({
+    Api1: {
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       name: "Api1",
       actionId: "6285d928db0f9c6e620d454a",
@@ -1082,8 +1063,8 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
         "config.body": ["config.pluginSpecifiedTemplates[0].value"],
       },
       logBlackList: {},
-    } as unknown) as ActionEntityConfig,
-    Text1: ({
+    } as unknown as ActionEntityConfig,
+    Text1: {
       type: "TEXT_WIDGET",
       dynamicTriggerPathList: [],
       dynamicBindingPathList: [
@@ -1193,10 +1174,10 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
         },
       },
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    } as unknown) as WidgetEntityConfig,
+    } as unknown as WidgetEntityConfig,
   },
   apiSuccessConfigTree3: {
-    Api1: ({
+    Api1: {
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       name: "Api1",
       actionId: "6285d928db0f9c6e620d454a",
@@ -1218,8 +1199,8 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
         "config.body": ["config.pluginSpecifiedTemplates[0].value"],
       },
       logBlackList: {},
-    } as unknown) as ActionEntityConfig,
-    Text1: ({
+    } as unknown as ActionEntityConfig,
+    Text1: {
       widgetId: "1p9hcl50i8",
       type: "TEXT_WIDGET",
       privateWidgets: {},
@@ -1329,6 +1310,6 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           type: "TEXT",
         },
       },
-    } as unknown) as WidgetEntityConfig,
+    } as unknown as WidgetEntityConfig,
   },
 };

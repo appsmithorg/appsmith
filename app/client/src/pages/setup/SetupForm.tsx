@@ -16,15 +16,10 @@ import {
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
 } from "@appsmith/constants/forms";
-import {
-  FormErrors,
-  formValueSelector,
-  getFormSyncErrors,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import type { FormErrors, InjectedFormProps } from "redux-form";
+import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
 

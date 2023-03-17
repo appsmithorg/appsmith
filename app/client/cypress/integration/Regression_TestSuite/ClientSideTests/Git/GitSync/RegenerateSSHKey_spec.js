@@ -1,7 +1,7 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git regenerate SSH key flow", function() {
+describe("Git regenerate SSH key flow", function () {
   let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {
