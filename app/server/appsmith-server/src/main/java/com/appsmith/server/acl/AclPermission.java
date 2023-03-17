@@ -138,8 +138,8 @@ public enum AclPermission {
         return null;
     }
 
-    public static boolean isPermissionForEntity(AclPermission aclPermission, Class<? extends BaseDomain> clazz) {
-        Class<? extends BaseDomain> entityClass = clazz;
+    public static boolean isPermissionForEntity(AclPermission aclPermission, Class clazz) {
+        Class entityClass = clazz;
         if (entityClass.equals(NewAction.class) || entityClass.equals(ActionCollection.class)) {
             entityClass = Action.class;
         } else if (entityClass.equals(NewPage.class)) {
