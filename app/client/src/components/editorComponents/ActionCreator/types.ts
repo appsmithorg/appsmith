@@ -166,3 +166,17 @@ export type SelectedActionBlock = {
   type: "success" | "failure";
   index: number;
 };
+
+export type TActionBlock = {
+  code: string;
+  actionType: typeof AppsmithFunction[keyof typeof AppsmithFunction];
+  success: {
+    params?: string[];
+    blocks: TActionBlock[];
+  };
+  error: {
+    params?: string[];
+    blocks: TActionBlock[];
+  };
+  type?: "success" | "failure" | "then" | "catch";
+};

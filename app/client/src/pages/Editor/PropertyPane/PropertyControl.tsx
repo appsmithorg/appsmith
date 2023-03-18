@@ -642,25 +642,28 @@ const PropertyControl = memo((props: Props) => {
           }),
         );
 
-        const actionBlockFunctions = getActionBlockFunctionNames(
+        const {
+          actionBlockFunctionNames,
+          canTranslate,
+        } = getActionBlockFunctionNames(
           codeFromProperty,
           self.evaluationVersion,
         );
 
-        if (codeFromProperty.trim() && !actionBlockFunctions.length) {
+        if (codeFromProperty.trim() && !canTranslate) {
           isToggleDisabled = true;
-        }
-
-        for (const fn of actionBlockFunctions) {
-          if (
-            ![
-              ...AppsmithFunctionsWithFields,
-              ...actionsArray,
-              ...jsActionsArray,
-            ].includes(fn)
-          ) {
-            isToggleDisabled = true;
-            break;
+        } else {
+          for (const fn of actionBlockFunctionNames) {
+            if (
+              ![
+                ...AppsmithFunctionsWithFields,
+                ...actionsArray,
+                ...jsActionsArray,
+              ].includes(fn)
+            ) {
+              isToggleDisabled = true;
+              break;
+            }
           }
         }
       }
@@ -674,7 +677,7 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-wrapper t--property-control-${className} group`}
+          className={`t--property-control-wrapper t--property-control-${className} group relative`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
@@ -733,10 +736,10 @@ const PropertyControl = memo((props: Props) => {
               </>
             )}
             {config.controlType === "ACTION_SELECTOR" ? (
-              <span className="h-9 w-8">
+              <div className="flex-1 flex h-7 items-center justify-end pb-1">
                 <button
                   className={clsx(
-                    "mr-2 h-9 w-8 add-action flex items-center justify-center",
+                    "add-action flex items-center justify-center text-center h-5 w-5",
                     isDynamic && "disabled",
                   )}
                   disabled={isDynamic}
@@ -764,12 +767,12 @@ const PropertyControl = memo((props: Props) => {
                   }}
                 >
                   <Icon
-                    fillColor="#182026"
+                    fillColor="#575757"
                     name="plus"
                     size="extraExtraLarge"
                   />
                 </button>
-              </span>
+              </div>
             ) : null}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(

@@ -51,6 +51,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
         let argument = node.arguments[argNum];
         // return appropriate values based on the type of node
         switch (argument?.type) {
+            case NodeTypes.Identifier:
             case NodeTypes.ObjectExpression:
                 // this is for objects
                 requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
@@ -76,6 +77,9 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                     const requiredArg = ((node.callee as MemberExpressionNode)?.object as CallExpressionNode)?.arguments[argNum];
                     requiredArgument = (requiredArg as LiteralNode)?.value;
                 }
+                break;
+            default:
+                requiredArgument = argument ? `{{${generate(argument, {comments: true}).trim()}}}` : "";
                 break;
         } 
     }
@@ -611,9 +615,10 @@ export function getActionBlocks(
 export function getActionBlockFunctionNames(
     value: string,
     evaluationVersion: number,
-): Array<string> {
+): { canTranslate: boolean, actionBlockFunctionNames: Array<string> } {
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
+    let canTranslate = true;
     let actionBlockFunctionNames: Array<string> = [];
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -623,21 +628,25 @@ export function getActionBlockFunctionNames(
             onComment: commentArray,
         });
     } catch (error) {
-        return actionBlockFunctionNames;
+        return { canTranslate: false, actionBlockFunctionNames } ;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    astWithComments.body.forEach((node: Node) => {
+    for(const node of astWithComments.body) {
         if (isExpressionStatementNode(node)) {
             const expression = node.expression;
             const rootCallExpression = findRootCallExpression(expression) as CallExpressionNode;
-            if(!rootCallExpression) return;
-            const functionName = generate(rootCallExpression.callee);
-            actionBlockFunctionNames.push(functionName);
+            if(!rootCallExpression) {
+                canTranslate = false;
+            } else {
+                const functionName = generate(rootCallExpression.callee);
+                actionBlockFunctionNames.push(functionName);
+            }
+        } else {
+            canTranslate = false;
         }
-    })
-
-    return actionBlockFunctionNames;
+    }
+    return { canTranslate, actionBlockFunctionNames };
 }
 
 export function getFunctionBodyStatements(
@@ -825,11 +834,22 @@ export function setThenBlockInQuery(
 
         const astWithComments = attachCommentsToAst(ast, commentArray);
 
-        // @ts-ignore
-        const thenNodeInGivenQuery = findNodeAt(astWithComments, null, null, (type, node) => type === NodeTypes.MemberExpression && node.property.name === "then");
+        const rootCallExpression = findRootCallExpression(astWithComments);
+        let thenCallExpressionInGivenQuery = findNodeAt(astWithComments, 0, undefined, function(type, node) {
+            if(isCallExpressionNode(node)) {
+                if(isMemberExpressionNode(node.callee)) {
+                    if(node.callee.object === rootCallExpression) {
+                        if(isIdentifierNode(node.callee.property)) {
+                            return node.callee.property.name === "then";
+                        }
+                    }
+                }
+            }
+            return false;
+        })?.node;
 
-        if (!thenNodeInGivenQuery) {
-            const expression = klona(astWithComments.body[0].expression);
+        if (!thenCallExpressionInGivenQuery) {
+            const expression = rootCallExpression;
 
             const callExpression = {
                 type: NodeTypes.CallExpression,
@@ -852,6 +872,19 @@ export function setThenBlockInQuery(
             astWithComments.body[0].end = callExpression.end;
         }
 
+        thenCallExpressionInGivenQuery = findNodeAt(astWithComments, 0, undefined, function(type, node) {
+            if(isCallExpressionNode(node)) {
+                if(isMemberExpressionNode(node.callee)) {
+                    if(node.callee.object === rootCallExpression) {
+                        if(isIdentifierNode(node.callee.property)) {
+                            return node.callee.property.name === "then";
+                        }
+                    }
+                }
+            }
+            return false;
+        })?.node;
+
         const thenBlockNode = getAST(thenBlock, {
             locations: true,
             ranges: true,
@@ -860,11 +893,11 @@ export function setThenBlockInQuery(
         const thenBlockNodeWithComments = attachCommentsToAst(thenBlockNode, commentArray);
 
         // @ts-ignore
-        const thenCallExpressionNode = findNodeAt(astWithComments, undefined, undefined, (type, node) => type === NodeTypes.CallExpression && node?.callee?.property?.name === "then");
+        // const thenCallExpressionNode = findNodeAt(astWithComments, undefined, undefined, (type, node) => type === NodeTypes.CallExpression && node?.callee?.property?.name === "then");
 
-        if (thenCallExpressionNode) {
+        if (thenCallExpressionInGivenQuery) {
             // @ts-ignore
-            thenCallExpressionNode.node.arguments = [thenBlockNodeWithComments.body[0].expression];
+            thenCallExpressionInGivenQuery.arguments = [thenBlockNodeWithComments.body[0].expression];
         }
 
         requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
@@ -893,31 +926,35 @@ export function setCatchBlockInQuery(
 
         const astWithComments = attachCommentsToAst(ast, commentArray);
 
-        // @ts-ignore
-        const catchNodeInGivenQuery = findNodeAt(astWithComments, null, null, (type, node) => type === NodeTypes.MemberExpression && node.property.name === "catch");
-
-        if (!catchNodeInGivenQuery) {
-            const expression = klona(astWithComments.body[0].expression);
-
-            const callExpression = {
-                type: NodeTypes.CallExpression,
-                start: expression.start,
-                end: expression.end + 7,
-                callee: {
-                    type: NodeTypes.MemberExpression,
-                    object: expression,
+        const rootCallExpression = findRootCallExpression(ast);
+        let catchCallExpressionInGivenQuery = findNodeWithCalleeAndProperty(astWithComments, rootCallExpression, "catch");
+        if(!catchCallExpressionInGivenQuery) {
+            const thenCallExpressionInGivenQuery = findNodeWithCalleeAndProperty(astWithComments, rootCallExpression, "then");
+            catchCallExpressionInGivenQuery = 
+                thenCallExpressionInGivenQuery 
+                && findNodeWithCalleeAndProperty(astWithComments, thenCallExpressionInGivenQuery, "catch");
+            if (!catchCallExpressionInGivenQuery) {
+                const expression = klona(thenCallExpressionInGivenQuery || rootCallExpression);
+                const callExpression = {
+                    type: NodeTypes.CallExpression,
                     start: expression.start,
-                    end: expression.end + 5,
-                    property: {
-                        type: NodeTypes.Identifier,
-                        name: "catch",
-                        start: expression.end + 1,
-                        end: expression.end + 5,
+                    end: expression.end + 8,
+                    callee: {
+                        type: NodeTypes.MemberExpression,
+                        start: expression.start,
+                        end: expression.end + 6,
+                        object: expression,
+                        property: {
+                            type: NodeTypes.Identifier,
+                            name: "catch",
+                            start: expression.end + 2,
+                            end: expression.end + 7,
+                        }
                     }
                 }
+                catchCallExpressionInGivenQuery = callExpression;
+                astWithComments.body[0].expression = catchCallExpressionInGivenQuery;
             }
-            astWithComments.body[0].expression = callExpression;
-            astWithComments.body[0].end = callExpression.end;
         }
 
         const catchBlockNode = getAST(catchBlock, {
@@ -927,12 +964,9 @@ export function setCatchBlockInQuery(
         });
         const catchBlockNodeWithComments = attachCommentsToAst(catchBlockNode, commentArray);
 
-        // @ts-ignore
-        const catchCallExpressionNode = findNodeAt(astWithComments, undefined, undefined, (type, node) => type === NodeTypes.CallExpression && node?.callee?.property?.name === "catch");
-
-        if (catchCallExpressionNode) {
+        if (catchCallExpressionInGivenQuery) {
             // @ts-ignore
-            catchCallExpressionNode.node.arguments = [catchBlockNodeWithComments.body[0].expression];
+            catchCallExpressionInGivenQuery.arguments = [catchBlockNodeWithComments.body[0].expression];
         }
 
         requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`;
@@ -1051,4 +1085,38 @@ function findRootCallExpression(ast: Node) {
     }
 
     return rootCallExpression;
+}
+
+
+function findNodeWithCalleeAndProperty(ast: Node, callee?: Node, property?: string) {
+    if(!ast || !callee || !property) return undefined;
+    return findNodeAt(ast, 0, undefined, function(type, node) {
+        if(isCallExpressionNode(node)) {
+            if(isMemberExpressionNode(node.callee)) {
+                if(node.callee.object === callee) {
+                    if(isIdentifierNode(node.callee.property)) {
+                        return node.callee.property.name === property;
+                    }
+                }
+            }
+        }
+        return false;
+    })?.node;
+}
+
+export function getFunctionParams(code: string) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        code = `let a = ${sanitizedScript.trim()}`;
+        const ast = getAST(code, {
+            locations: true,
+            ranges: true,
+        });
+        //@ts-ignore
+        const functionExpression = ast.body[0].declarations[0].init;
+        const params = functionExpression.params?.map((param: any) => generate(param).trim()) || [];
+        return params;
+    } catch(e) {
+        return [];
+    }
 }

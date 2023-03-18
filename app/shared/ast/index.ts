@@ -48,6 +48,7 @@ import {
   getFunctionNameFromJsObjectExpression,
   getCallExpressions,
   getActionBlockFunctionNames,
+  getFunctionParams,
 } from "./src/actionCreator";
 
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
@@ -98,4 +99,5 @@ export {
   getFunctionNameFromJsObjectExpression,
   getCallExpressions,
   getActionBlockFunctionNames,
+  getFunctionParams,
 };
