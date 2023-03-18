@@ -748,7 +748,6 @@ const migrations: Migration[] = [
 ];
 
 const mockFnObj: Record<number, any> = {};
-let migratedDSL: ContainerWidgetProps<WidgetProps>;
 
 describe("Test all the migrations are running", () => {
   afterAll(() => {
@@ -785,7 +784,7 @@ describe("Test all the migrations are running", () => {
   });
 
   // Runs all the migrations
-  migratedDSL = DSLMigrations.transformDSL(
+  DSLMigrations.transformDSL(
     originalDSLForDSLMigrations as unknown as ContainerWidgetProps<WidgetProps>,
   );
 
