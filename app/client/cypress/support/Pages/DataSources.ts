@@ -647,15 +647,11 @@ export class DataSources {
     });
   }
 
-  RunQuery(
-    params: RunQueryParams = {
-      toValidateResponse: true,
-      expectedStatus: true,
-      waitTimeInterval: 500,
-    },
-  ) {
-    const { toValidateResponse, expectedStatus, waitTimeInterval } = params;
-
+  RunQuery({
+    toValidateResponse = true,
+    expectedStatus = true,
+    waitTimeInterval = 500,
+  }: Partial<RunQueryParams> = {}) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     if (toValidateResponse) {
       this.agHelper.Sleep();
