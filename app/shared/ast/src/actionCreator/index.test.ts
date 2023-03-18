@@ -392,7 +392,7 @@ describe("Test AST functions to find getActionBlockFunctionNames", () => {
       "test case %d",
       (_, input, expected) => {
         const result = getActionBlockFunctionNames(input as string, 2);
-        expect(result).toStrictEqual(expected);
+        expect(result).toStrictEqual({ actionBlockFunctionNames: expected, canTranslate: true });
       },
   );
 });
