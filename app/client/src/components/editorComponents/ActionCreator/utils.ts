@@ -265,7 +265,6 @@ export function codeToAction(
   code: string,
   fieldOptions: TreeDropdownOption[],
   multipleActions = true,
-  level = 0,
 ): TActionBlock {
   const jsCode = getCodeFromMoustache(code);
 
@@ -323,11 +322,11 @@ export function codeToAction(
         params: [...thenCallbackParams, ...successCallbackParams],
         blocks: [
           ...successCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, level < 2, level + 1),
+            ...codeToAction(block, fieldOptions, false),
             type: "success" as const,
           })),
           ...thenCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false, level + 1),
+            ...codeToAction(block, fieldOptions, false),
             type: "then" as const,
           })),
         ],
@@ -336,11 +335,11 @@ export function codeToAction(
         params: [...catchCallbackParams, ...errorCallbackParams],
         blocks: [
           ...errorCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false, level + 1),
+            ...codeToAction(block, fieldOptions, false),
             type: "failure" as const,
           })),
           ...catchCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false, level + 1),
+            ...codeToAction(block, fieldOptions, false),
             type: "catch" as const,
           })),
         ],
