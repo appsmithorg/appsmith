@@ -2,7 +2,7 @@ import clsx from "clsx";
 import TreeStructure from "components/utils/TreeStructure";
 import { Icon, TooltipComponent } from "design-system-old";
 import { klona } from "klona/lite";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import { TActionBlock } from "../../types";
@@ -134,7 +134,10 @@ export default function ActionV2(props: {
       {showCallbacks && areCallbacksApplicable ? (
         <button
           className="flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
-          onClick={() => setCallbacksExpanded((prev) => !prev)}
+          onClick={() => {
+            setCallbacksExpanded((prev) => !prev);
+            setTouched(true);
+          }}
         >
           <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
             Callbacks

@@ -105,6 +105,8 @@ const ActionCreator = React.forwardRef(
           }
         });
         previousBlocks.current = [...newBlocks];
+        updatedIdRef.current = "";
+        childUpdate.current = false;
         return newActions;
       });
     }, [props.value]);

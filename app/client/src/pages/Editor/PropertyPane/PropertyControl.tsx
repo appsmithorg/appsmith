@@ -767,7 +767,7 @@ const PropertyControl = memo((props: Props) => {
                   }}
                 >
                   <Icon
-                    fillColor="#182026"
+                    fillColor="#575757"
                     name="plus"
                     size="extraExtraLarge"
                   />

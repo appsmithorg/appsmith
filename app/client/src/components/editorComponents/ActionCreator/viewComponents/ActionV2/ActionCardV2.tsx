@@ -86,7 +86,7 @@ function ActionCard(props: TActionCardProps) {
             </div>
           )}
         </div>
-        <div className="flex items-center justify-center flex-shrink-0">
+        <div className="flex items-end justify-center flex-shrink-0">
           {actionsCount > 0 ? (
             <span className="flex items-center justify-center rounded-full text-xs min-h-5 min-w-5 max-h-5 max-w-5 bg-gray-100 text-gray-800 p-2">
               +{actionsCount}
