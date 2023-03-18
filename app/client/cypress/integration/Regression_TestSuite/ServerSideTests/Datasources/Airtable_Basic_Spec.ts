@@ -51,7 +51,7 @@ describe("Validate Airtable Ds", () => {
       },
     );
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const hasOnlyAllowedKeys = jsonSpecies.records.every((record: any) => {
@@ -77,7 +77,7 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Page Size",
     });
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       expect(jsonSpecies.records.length).to.eq(11); //making sure only 11 record fields are returned
@@ -90,7 +90,7 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "Page Size",
     });
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       expect(jsonSpecies.records.length).to.eq(6); //making sure only 6 record fields are returned, honouring the PageSize
@@ -103,7 +103,7 @@ describe("Validate Airtable Ds", () => {
         inputFieldName: "Offset",
       });
 
-      _.dataSources.RunQuery();
+      _.dataSources.RunQuery({ waitTimeInterval: 2000 });
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = JSON.parse(resObj.response.body.data.body);
         expect(jsonSpecies.records.length).to.eq(5); //making sure only remaining records are returned
@@ -123,7 +123,7 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "Filter by Formula",
     });
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const allRecordsWithRodentTaxa = jsonSpecies.records.filter(
@@ -156,7 +156,7 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "Sort",
     }); //Sort by default ascending, descneding is thrown error, checking with Felix
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const sorted = jsonSpecies.records.every(
@@ -190,7 +190,7 @@ describe("Validate Airtable Ds", () => {
       },
     ); //Sort by descending
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const sorted = jsonSpecies.records.every(
@@ -228,7 +228,7 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "View",
     });
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const isJSONValid = jsonSpecies.records.every(
@@ -264,7 +264,7 @@ describe("Validate Airtable Ds", () => {
     });
     _.agHelper.Sleep(500); // for the Records field to settle
 
-    _.dataSources.RunQuery();
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       //cy.log("jsonSpecies is"+ jsonSpecies)
@@ -283,7 +283,7 @@ describe("Validate Airtable Ds", () => {
         inputFieldName: "Record ID ",
       });
 
-      _.dataSources.RunQuery();
+      _.dataSources.RunQuery({ waitTimeInterval: 2000 });
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = JSON.parse(resObj.response.body.data.body);
         const hasOnlyInsertedRecord = () => {
@@ -318,7 +318,7 @@ describe("Validate Airtable Ds", () => {
         },
       );
 
-      _.dataSources.RunQuery();
+      _.dataSources.RunQuery({ waitTimeInterval: 2000 });
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = JSON.parse(resObj.response.body.data.body);
         const hasOnlyUpdatedRecord = () => {
@@ -340,7 +340,7 @@ describe("Validate Airtable Ds", () => {
         "Delete A Record",
       );
 
-      _.dataSources.RunQuery();
+      _.dataSources.RunQuery({ waitTimeInterval: 2000 });
       cy.get("@postExecute").then((resObj: any) => {
         jsonSpecies = JSON.parse(resObj.response.body.data.body);
         expect(jsonSpecies.deleted).to.be.true;
