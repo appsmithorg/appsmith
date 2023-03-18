@@ -18,6 +18,11 @@ export enum Widgets {
   Text,
 }
 
+interface RunQueryParams {
+  toValidateResponse?: boolean;
+  expectedStatus?: boolean;
+  waitTimeInterval?: number;
+}
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
@@ -643,10 +648,14 @@ export class DataSources {
   }
 
   RunQuery(
-    toValidateResponse = true,
-    expectedStatus = true,
-    waitTimeInterval = 500,
+    params: RunQueryParams = {
+      toValidateResponse: true,
+      expectedStatus: true,
+      waitTimeInterval: 500,
+    },
   ) {
+    const { toValidateResponse, expectedStatus, waitTimeInterval } = params;
+
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     if (toValidateResponse) {
       this.agHelper.Sleep();

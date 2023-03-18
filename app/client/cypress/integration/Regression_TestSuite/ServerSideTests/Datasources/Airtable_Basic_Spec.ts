@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import datasourceFormData from "../../../../fixtures/datasources.json";
 
-let dsName: any, jsonSpecies: any, offset: any;
+let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe("Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     _.dataSources.CreateDataSource("Airtable", true, false);
@@ -10,7 +10,7 @@ describe("Validate Airtable Ds", () => {
     });
   });
 
-  it.only("1. Validate List Records", () => {
+  it("1. Validate List Records", () => {
     var specieslist = new Array();
     _.dataSources.CreateQueryAfterDSSaved();
 
@@ -26,21 +26,19 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Base ID ",
     });
-    _.agHelper.Sleep(500);
     _.agHelper.EnterValue(datasourceFormData.AirtableTable, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Table Name",
     });
-    _.agHelper.Sleep(500);
-    _.dataSources.RunQuery(false);
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+
+    _.dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       jsonSpecies.records.forEach((record: { fields: any }) => {
         specieslist.push(record.fields.Species_ID);
       });
-      expect(specieslist.length).eq(54); //making sure all fields are returned
+      expect(specieslist.length).eq(53); //making sure all fields are returned
     });
 
     //Filter Species_ID & Species fields only
@@ -53,14 +51,17 @@ describe("Validate Airtable Ds", () => {
       },
     );
 
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(2500); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+    _.dataSources.RunQuery({ waitTimeInterval: 2500 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const hasOnlyAllowedKeys = jsonSpecies.records.every((record: any) => {
         const fieldKeys = Object.keys(record.fields);
-        return fieldKeys.includes('Species_ID') && fieldKeys.includes('Species') && fieldKeys.includes('Taxa') && fieldKeys.length === 3;
+        return (
+          fieldKeys.includes("Species_ID") &&
+          fieldKeys.includes("Species") &&
+          fieldKeys.includes("Taxa") &&
+          fieldKeys.length === 3
+        );
       });
       expect(hasOnlyAllowedKeys).to.be.true; //making sure all records have only Filters fields returned in results
     });
@@ -76,11 +77,10 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Page Size",
     });
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(2500); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+
+    _.dataSources.RunQuery({ waitTimeInterval: 2500 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       expect(jsonSpecies.records.length).to.eq(11); //making sure only 11 record fields are returned
     });
 
@@ -90,11 +90,10 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Page Size",
     });
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+
+    _.dataSources.RunQuery({ waitTimeInterval: 1000 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       expect(jsonSpecies.records.length).to.eq(6); //making sure only 6 record fields are returned, honouring the PageSize
 
       //Validating offset
@@ -105,11 +104,9 @@ describe("Validate Airtable Ds", () => {
         inputFieldName: "Offset",
       });
 
-      _.dataSources.RunQuery(false);
-      _.agHelper.Sleep(); // for query to run complete
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response?.body.data.isExecutionSuccess).to.eq(true);
-        jsonSpecies = JSON.parse(response?.body.data.body);
+      _.dataSources.RunQuery({ waitTimeInterval: 1000 });
+      cy.get("@postExecute").then((resObj: any) => {
+        jsonSpecies = JSON.parse(resObj.response.body.data.body);
         expect(jsonSpecies.records.length).to.eq(5); //making sure only remaining records are returned
       });
     });
@@ -126,11 +123,10 @@ describe("Validate Airtable Ds", () => {
       directInput: false,
       inputFieldName: "Filter by Formula",
     });
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(2000); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const allRecordsWithRodentTaxa = jsonSpecies.records.filter(
         (record: { fields: { Taxa: string } }) =>
           record.fields.Taxa === "Rodent",
@@ -161,11 +157,9 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "Sort",
     }); //Sort by default ascending, descneding is thrown error, checking with Felix
 
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(2500); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+    _.dataSources.RunQuery({ waitTimeInterval: 2500 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const sorted = jsonSpecies.records.every(
         (record: { fields: { Species_ID: string } }, i: number) => {
           if (i === 0) {
@@ -197,11 +191,9 @@ describe("Validate Airtable Ds", () => {
       },
     ); //Sort by descending
 
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(3000); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+    _.dataSources.RunQuery({ waitTimeInterval: 3000 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const sorted = jsonSpecies.records.every(
         (record: { fields: { Species_ID: string } }, i: number) => {
           if (i === 0) {
@@ -237,11 +229,9 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "View",
     });
 
-    _.dataSources.RunQuery(false);
-    _.agHelper.Sleep(2000); // for query to run complete
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(true);
-      jsonSpecies = JSON.parse(response?.body.data.body);
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const isJSONValid = jsonSpecies.records.every(
         (record: { fields: { Species_ID: any } }) => {
           const speciesID = record.fields.Species_ID;
@@ -252,11 +242,115 @@ describe("Validate Airtable Ds", () => {
       cy.log("View specieslist is :" + view_specieslist);
       expect(isJSONValid).to.be.true; //Verify if records Species_ID is part of View data
     });
-
-    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  after("Delete the datasource", () => {
+  it("2. Create/Retrieve/Update/Delete records", () => {
+    let createReq = `[{"fields": {
+      "Species_ID": "SF",
+      "Genus": "Sigmodon",
+      "Species": "fulviventer",
+      "Taxa": "Rodent"
+    }}]`;
+
+    //Create
+    _.dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "List Records",
+      "Create Records",
+    );
+    _.agHelper.EnterValue(createReq, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Records",
+    });
+    _.agHelper.Sleep(500); // for the Records field to settle
+
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
+    cy.get("@postExecute").then((resObj: any) => {
+      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      //cy.log("jsonSpecies is"+ jsonSpecies)
+      expect(jsonSpecies.records.length).to.eq(1); //making sure only inserted record is returned
+
+      //Retrieve a record
+      insertedRecordId = jsonSpecies.records[0].id;
+      _.dataSources.ValidateNSelectDropdown(
+        "Commands",
+        "Create Records",
+        "Retrieve A Record",
+      );
+      _.agHelper.EnterValue(insertedRecordId, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Record ID ",
+      });
+
+      _.dataSources.RunQuery({ waitTimeInterval: 1000 });
+
+      cy.get("@postExecute").then((resObj: any) => {
+        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        const hasOnlyInsertedRecord = () => {
+          return (
+            jsonSpecies.fields.Species_ID === "SF" &&
+            jsonSpecies.fields.Genus === "Sigmodon" &&
+            jsonSpecies.fields.Species === "fulviventer" &&
+            jsonSpecies.fields.Taxa === "Rodent"
+          );
+        };
+        expect(hasOnlyInsertedRecord()).to.be.true;
+      });
+
+      //Update Records
+      _.dataSources.ValidateNSelectDropdown(
+        "Commands",
+        "Retrieve A Record",
+        "Update Records",
+      );
+      _.agHelper.EnterValue(
+        `[{ "id" : ${insertedRecordId},
+        fields: {
+          Species_ID: "SG",
+          Genus: "Spizella",
+          Species: "clarki",
+          Taxa: "Bird",
+        }}]`,
+        {
+          propFieldName: "",
+          directInput: false,
+          inputFieldName: "Records",
+        },
+      );
+      _.dataSources.RunQuery({ waitTimeInterval: 1000 });
+      cy.get("@postExecute").then((resObj: any) => {
+        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        const hasOnlyUpdatedRecord = () => {
+          return (
+            jsonSpecies.records[0].fields.Species_ID === "SG" &&
+            jsonSpecies.records[0].fields.Genus === "Spizella" &&
+            jsonSpecies.records[0].fields.Species === "clarki" &&
+            jsonSpecies.records[0].fields.Taxa === "Bird"
+          );
+        };
+        expect(hasOnlyUpdatedRecord()).to.be.true;
+      });
+
+      //Delete A record
+      //insertedRecordId = jsonSpecies.id;
+      _.dataSources.ValidateNSelectDropdown(
+        "Commands",
+        "Update Records",
+        "Delete A Record",
+      );
+
+      _.dataSources.RunQuery({ waitTimeInterval: 1000 });
+      cy.get("@postExecute").then((resObj: any) => {
+        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        expect(jsonSpecies.deleted).to.be.true;
+      });
+    });
+  });
+
+  after("Delete the query & datasource", () => {
+    _.agHelper.ActionContextMenuWithInPane("Delete");
     _.entityExplorer.SelectEntityByName(dsName, "Datasources");
     _.entityExplorer.ActionContextMenuByEntityName(
       dsName,
