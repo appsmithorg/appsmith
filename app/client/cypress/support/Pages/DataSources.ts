@@ -952,7 +952,7 @@ export class DataSources {
   public FillMongoDatasourceFormWithURI(uri: string) {
     this.ValidateNSelectDropdown("Use Mongo Connection String URI", "", "Yes");
     this.agHelper.UpdateInputValue(
-      this.locator._inputFieldByName("Connection String URI"),
+      this.locator._inputFieldByName("Connection String URI") + "//input",
       uri,
     );
   }
