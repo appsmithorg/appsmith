@@ -1,4 +1,4 @@
-package com.appsmith.server.domains;
+package com.appsmith.server.dtos;
 
 import com.appsmith.server.constants.LicenseType;
 import lombok.Data;

@@ -9,7 +9,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.solutions.LicenseValidator;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +51,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
+
+        Mono<Void> registrationAndLicenseCheckAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
                 .onErrorResume(errorSignal -> {
@@ -63,10 +63,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .doFinally(ignored -> this.printReady());
 
         Mono<?> startupProcess = checkInstanceSchemaVersion()
-                .flatMap(signal -> registrationAndRtsCheckMono)
+                .flatMap(signal -> registrationAndLicenseCheckAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
-                .then(performLicenseCheck());
+                // Add cold publisher as we have dependency on the instance registration
+                .then(Mono.defer(this::performLicenseCheck));
 
         try {
             startupProcess.block();

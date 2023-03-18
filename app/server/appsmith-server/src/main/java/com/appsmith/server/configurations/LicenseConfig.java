@@ -39,7 +39,6 @@ public class LicenseConfig {
     private boolean isAirGapInstance;
 
     @Bean
-    @Primary
     public LicenseValidator licenseValidatorInstance() {
         return this.isAirGapInstance()
             ? new OfflineLicenseValidatorImpl(this, gson)

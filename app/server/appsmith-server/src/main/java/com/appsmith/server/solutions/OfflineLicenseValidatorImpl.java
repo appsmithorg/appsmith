@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
-import com.appsmith.server.domains.OfflineLicenseDataset;
+import com.appsmith.server.dtos.OfflineLicenseDataset;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.google.gson.Gson;
@@ -25,8 +25,6 @@ import java.util.Base64;
 /**
  * Class dedicated to Air-gap license validations
  */
-
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class OfflineLicenseValidatorImpl implements LicenseValidator {
