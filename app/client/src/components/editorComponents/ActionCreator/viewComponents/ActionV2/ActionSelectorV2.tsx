@@ -72,7 +72,10 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
     (e) => {
       const paths = e.composedPath() || [];
       for (const path of paths) {
-        if (path.classList?.contains("CodeMirror-hints")) {
+        if (
+          path.classList?.contains("CodeMirror-hints") ||
+          path.classList?.contains("callback-collapse")
+        ) {
           return;
         }
         if (ref?.current && path === ref.current) {

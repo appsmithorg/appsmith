@@ -133,7 +133,7 @@ export default function ActionV2(props: {
       </ActionSelector>
       {showCallbacks && areCallbacksApplicable ? (
         <button
-          className="flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
+          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
             setTouched(true);
