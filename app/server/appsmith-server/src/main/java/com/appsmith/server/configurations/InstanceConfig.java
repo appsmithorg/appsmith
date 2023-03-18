@@ -52,7 +52,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
 
-        Mono<Void> registrationAndLicenseCheckAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
+        Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
                 .onErrorResume(errorSignal -> {
@@ -63,7 +63,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .doFinally(ignored -> this.printReady());
 
         Mono<?> startupProcess = checkInstanceSchemaVersion()
-                .flatMap(signal -> registrationAndLicenseCheckAndRtsCheckMono)
+                .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 // Add cold publisher as we have dependency on the instance registration
