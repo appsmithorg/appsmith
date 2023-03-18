@@ -31,7 +31,9 @@ export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken
 export NAMESPACE=ee"$PULL_REQUEST_NUMBER"
 export CHARTNAME=ee"$PULL_REQUEST_NUMBER"
 export SECRET=ee"$PULL_REQUEST_NUMBER"
+export DBNAME=ee"$PULL_REQUEST_NUMBER"
 export DOMAINNAME=ee-"$PULL_REQUEST_NUMBER".dp.appsmith.com
+
 
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
@@ -66,4 +68,5 @@ helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set ingress.className="nginx" --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=4Gi \
+  --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
   --version $HELMCHART_VERSION

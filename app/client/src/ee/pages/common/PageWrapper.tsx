@@ -1,9 +1,6 @@
 export * from "ce/pages/common/PageWrapper";
-import {
-  Wrapper,
-  PageBody,
-  PageWrapperProps,
-} from "ce/pages/common/PageWrapper";
+import type { PageWrapperProps } from "ce/pages/common/PageWrapper";
+import { Wrapper, PageBody } from "ce/pages/common/PageWrapper";
 import React from "react";
 import { Helmet } from "react-helmet";
 import { useSelector } from "react-redux";

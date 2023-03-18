@@ -1,4 +1,4 @@
-import { GroupProps } from "../types";
+import type { GroupProps } from "../types";
 
 export const userGroupTableData: GroupProps[] = [
   {

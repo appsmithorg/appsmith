@@ -7,7 +7,7 @@ const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../../locators/Pages.json");
 let currentUrl;
 
-describe("View Permission flow ", function() {
+describe("View Permission flow ", function () {
   let workspaceName;
   let appName;
   let newWorkspaceName;
@@ -101,9 +101,7 @@ describe("View Permission flow ", function() {
             workspaceName,
           );
           // add make public permission as well
-          cy.get(RBAC.roleRow)
-            .first()
-            .click();
+          cy.get(RBAC.roleRow).first().click();
           cy.wait("@fetchRoles").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -160,7 +158,7 @@ describe("View Permission flow ", function() {
       });
     });
   });
-  it("1. View permission : Workspace level (View all apps in same workspace)", function() {
+  it("1. View permission : Workspace level (View all apps in same workspace)", function () {
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -173,9 +171,7 @@ describe("View Permission flow ", function() {
     cy.launchApp(appName);
     cy.get(homePage.backtoHome).click();
     cy.wait(2000);
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(AppName2);
+    cy.get(homePage.searchInput).clear().type(AppName2);
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceName);
     cy.get(homePage.applicationCard).trigger("mouseover");
@@ -183,7 +179,7 @@ describe("View Permission flow ", function() {
     cy.launchApp(appName);
   });
 
-  it("2.Verify user with make Public permission, is able to make app public", function() {
+  it("2.Verify user with make Public permission, is able to make app public", function () {
     cy.get("[data-cy=viewmode-share]").click();
     cy.enablePublicAccess();
     currentUrl = cy.url();
@@ -207,7 +203,7 @@ describe("View Permission flow ", function() {
     });
   });
 
-  it("3.View permission : App level (View that app only)", function() {
+  it("3.View permission : App level (View that app only)", function () {
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
@@ -215,9 +211,7 @@ describe("View Permission flow ", function() {
     cy.get(homePage.searchInput).type(AppName2);
     cy.wait(2000);
     cy.get(homePage.applicationCard).should("not.exist");
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(appName);
+    cy.get(homePage.searchInput).clear().type(appName);
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceName);
     cy.get(homePage.applicationCard).trigger("mouseover");
@@ -227,7 +221,7 @@ describe("View Permission flow ", function() {
     cy.LogOut();
   });
 
-  it("4. View permission : Page level (View page is visible) ", function() {
+  it("4. View permission : Page level (View page is visible) ", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.get(homePage.searchInput).type(appName);
@@ -239,16 +233,14 @@ describe("View Permission flow ", function() {
     cy.get(".t--page-switch-tab").should("not.contain", "page2");
   });
 
-  it("5. View permission : Query level (View query is visible and executes without getting stuck) (Bug: 19253)", function() {
+  it("5. View permission : Query level (View query is visible and executes without getting stuck) (Bug: 19253)", function () {
     cy.SignupFromAPI(testUser4, password);
     cy.LogintoAppTestUser(testUser4, password);
     cy.get(homePage.searchInput).type(appName);
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceName);
     cy.get(homePage.applicationCard).trigger("mouseover");
-    cy.get(homePage.appEditIcon)
-      .should("exist")
-      .click();
+    cy.get(homePage.appEditIcon).should("exist").click();
     cy.wait(3000);
     cy.get(".t--entity-name:contains('page2')").click();
     cy.wait(3000);

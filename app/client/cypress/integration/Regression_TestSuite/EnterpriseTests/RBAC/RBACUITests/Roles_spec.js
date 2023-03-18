@@ -1,7 +1,7 @@
 const RBAC = require("../../../../../locators/RBAClocators.json");
 import homePage from "../../../../../locators/HomePage";
 
-describe("Roles tab Tests", function() {
+describe("Roles tab Tests", function () {
   let workspaceName;
   let newWorkspaceName;
   let appName;
@@ -24,7 +24,7 @@ describe("Roles tab Tests", function() {
       cy.CreateAppForWorkspace(workspaceName, appName);
     });
   });
-  it("Verify Functionality of Roles Tab", function() {
+  it("Verify Functionality of Roles Tab", function () {
     //add the role name
     //check the role is created
     cy.visit("/settings/roles");

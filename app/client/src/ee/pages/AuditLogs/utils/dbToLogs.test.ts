@@ -1,7 +1,7 @@
 import { dbToLogs } from "./dbToLogs";
 import { sampleLogsFromDB } from "./sampleLogs";
 
-describe("audit-logs/utils/dbToLogs", function() {
+describe("audit-logs/utils/dbToLogs", function () {
   it("returns proper object as expected", () => {
     const actual = dbToLogs(sampleLogsFromDB);
     const expected: any[] = [

@@ -59,8 +59,10 @@ public class TenantConfiguration extends TenantConfigurationCE {
             this.brandColors = tenantConfiguration.getBrandColors();
         }
 
-        this.license = tenantConfiguration.getLicense();
-        if (null != this.license && null != this.license.key) {
+        boolean isLicenseExist = null != tenantConfiguration.getLicense() && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());
+        this.license = isLicenseExist ? tenantConfiguration.getLicense() : null;
+
+        if (null != this.license && !StringUtils.isEmpty(this.license.key)) {
             this.license.key = DataTypeStringUtils.maskString(this.license.key);
         }
     }

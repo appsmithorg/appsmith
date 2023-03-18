@@ -1,11 +1,11 @@
 import _ from "lodash";
 
 import { primaryColumnValidation } from "./propertyConfig";
-import { ListWidgetProps } from ".";
+import type { ListWidgetProps } from ".";
 
 describe(".primaryColumnValidation", () => {
   it("validates uniqueness of values with valid input", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -14,7 +14,7 @@ describe(".primaryColumnValidation", () => {
           id: 2,
         },
       ],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const inputValue = [1, 2];
 
@@ -30,7 +30,7 @@ describe(".primaryColumnValidation", () => {
   });
 
   it("invalidates when input keys are not unique", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -39,7 +39,7 @@ describe(".primaryColumnValidation", () => {
           id: 2,
         },
       ],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const inputValue = [1, 2, 3];
 
@@ -61,7 +61,7 @@ describe(".primaryColumnValidation", () => {
   });
 
   it("returns empty with error when JS mode enabled and input value is non-array", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -71,7 +71,7 @@ describe(".primaryColumnValidation", () => {
         },
       ],
       dynamicPropertyPathList: [{ key: "primaryKeys" }],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const inputs = [true, "true", 0, 1, undefined, null];
 
@@ -93,7 +93,7 @@ describe(".primaryColumnValidation", () => {
   });
 
   it("returns empty with error when JS mode disabled and input value is non-array", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -102,7 +102,7 @@ describe(".primaryColumnValidation", () => {
           id: 2,
         },
       ],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const inputs = [true, "true", 0, 1, undefined, null];
 
@@ -124,7 +124,7 @@ describe(".primaryColumnValidation", () => {
   });
 
   it(" returns empty with error when JS mode enabled and input is empty", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -134,7 +134,7 @@ describe(".primaryColumnValidation", () => {
         },
       ],
       dynamicPropertyPathList: [{ key: "primaryKeys" }],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const input: unknown = [];
 
@@ -154,7 +154,7 @@ describe(".primaryColumnValidation", () => {
   });
 
   it(" primary key that doesn't exist", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -164,7 +164,7 @@ describe(".primaryColumnValidation", () => {
         },
       ],
       dynamicPropertyPathList: [{ key: "primaryKeys" }],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const input: unknown = [null, null];
 
@@ -184,7 +184,7 @@ describe(".primaryColumnValidation", () => {
   });
 
   it(" primary key contain null value in array", () => {
-    const props = ({
+    const props = {
       listData: [
         {
           id: 1,
@@ -200,7 +200,7 @@ describe(".primaryColumnValidation", () => {
         },
       ],
       dynamicPropertyPathList: [{ key: "primaryKeys" }],
-    } as unknown) as ListWidgetProps;
+    } as unknown as ListWidgetProps;
 
     const input: unknown = [1, null, undefined, 4];
 

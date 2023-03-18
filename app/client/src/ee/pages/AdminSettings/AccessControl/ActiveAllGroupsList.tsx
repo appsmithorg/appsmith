@@ -15,7 +15,7 @@ import {
   NO_PERMISSION_TO_UNASSIGN,
   DEFAULT_ROLES_PILL,
 } from "@appsmith/constants/messages";
-import { ActiveAllGroupsProps, BaseGroupRoleProps } from "./types";
+import type { ActiveAllGroupsProps, BaseGroupRoleProps } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
 import {
   isPermitted,

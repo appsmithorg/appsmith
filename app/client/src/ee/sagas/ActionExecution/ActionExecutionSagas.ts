@@ -1,12 +1,10 @@
 export * from "ce/sagas/ActionExecution/ActionExecutionSagas";
 
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ActionDescription } from "@appsmith/workers/Evaluation/fns/index";
-import {
-  executeActionTriggers as CE_executeActionTriggers,
-  TriggerMeta,
-} from "ce/sagas/ActionExecution/ActionExecutionSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ActionDescription } from "@appsmith/workers/Evaluation/fns/index";
+import type { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
+import { executeActionTriggers as CE_executeActionTriggers } from "ce/sagas/ActionExecution/ActionExecutionSagas";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { call } from "redux-saga/effects";
 import {
   windowMessageListener,

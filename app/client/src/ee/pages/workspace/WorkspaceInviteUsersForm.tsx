@@ -28,7 +28,7 @@ import styled, { ThemeContext } from "styled-components";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getRolesForField,
   getAllUsers,
@@ -36,10 +36,8 @@ import {
   getGroupSuggestions,
 } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  InviteUsersToWorkspaceFormValues,
-  inviteUsersToWorkspace,
-} from "./helpers";
+import type { InviteUsersToWorkspaceFormValues } from "./helpers";
+import { inviteUsersToWorkspace } from "./helpers";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
   createMessage,
@@ -57,10 +55,10 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { DropdownOption } from "design-system-old";
 import {
   Button,
   Callout,
-  DropdownOption,
   Icon,
   IconSize,
   ScrollIndicator,

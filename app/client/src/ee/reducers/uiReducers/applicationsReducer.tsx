@@ -1,14 +1,12 @@
 export * from "ce/reducers/uiReducers/applicationsReducer";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationsReduxState } from "ce/reducers/uiReducers/applicationsReducer";
 import {
   initialState,
   handlers as CE_handlers,
-  ApplicationsReduxState,
 } from "ce/reducers/uiReducers/applicationsReducer";
-import {
+import type {
   Workspaces,
   WorkspaceUser,
 } from "@appsmith/constants/workspaceConstants";

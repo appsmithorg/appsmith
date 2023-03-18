@@ -15,14 +15,16 @@ import {
   fetchFeatureFlags,
   updateFirstTimeUserOnboardingSage,
 } from "ce/sagas/userSagas";
-import {
+import type {
   ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
   ReduxActionWithPromise,
 } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { takeLatest, all, call, put, select } from "redux-saga/effects";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import {
   callAPI,
   getResponseErrorMessage,
@@ -31,7 +33,7 @@ import {
 import UserApi from "@appsmith/api/UserApi";
 import { reset } from "redux-form";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
-import { User } from "@sentry/react";
+import type { User } from "@sentry/react";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import { logoutUserSuccess, logoutUserError } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";

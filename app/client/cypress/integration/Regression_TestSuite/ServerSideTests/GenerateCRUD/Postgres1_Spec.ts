@@ -80,7 +80,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
-  it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
+  it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown);

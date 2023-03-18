@@ -1,5 +1,5 @@
-import { ButtonProps, IconProps, Text } from "design-system-old";
-import { ReactComponentElement, ReactNode } from "react";
+import type { ButtonProps, IconProps, Text } from "design-system-old";
+import type { ReactComponentElement, ReactNode } from "react";
 
 export type Header = {
   title: string;

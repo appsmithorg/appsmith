@@ -42,9 +42,7 @@ Cypress.Commands.add("validateLicense", () => {
     .its("status")
     .should("equal", 400);
   cy.wait(1000);
-  cy.get(LicenseLocators.licenseFormInput)
-    .clear()
-    .type("VALID LICENSE KEY");
+  cy.get(LicenseLocators.licenseFormInput).clear().type("VALID LICENSE KEY");
   cy.get(LicenseLocators.activeInstanceBtn).click();
   cy.wait(2000);
   cy.request({

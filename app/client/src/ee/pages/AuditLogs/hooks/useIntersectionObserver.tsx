@@ -1,5 +1,6 @@
-import { MutableRefObject, useEffect, useRef, useState } from "react";
-import { AuditLogType } from "../types";
+import type { MutableRefObject } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { AuditLogType } from "../types";
 
 export default function useIntersectionObserver(
   logs: AuditLogType[],

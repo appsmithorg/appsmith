@@ -148,9 +148,12 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         Mono<TenantConfiguration.License> licenseMono = licenseValidator.licenseCheck(tenant);
         return licenseMono
             .map(license -> {
-                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                tenantConfiguration.setLicense(license);
-                tenant.setTenantConfiguration(tenantConfiguration);
+                // To prevent empty License object being saved in DB for license checks with empty license key
+                if (!StringUtils.isNullOrEmpty(license.getKey())) {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    tenantConfiguration.setLicense(license);
+                    tenant.setTenantConfiguration(tenantConfiguration);
+                }
                 return tenant;
             });
     }

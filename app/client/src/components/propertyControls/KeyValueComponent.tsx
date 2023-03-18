@@ -6,8 +6,8 @@ import {
   StyledInputGroup,
   StyledPropertyPaneButton,
 } from "./StyledControls";
-import { DropDownOptionWithKey } from "./OptionControl";
-import { DropdownOption } from "components/constants";
+import type { DropDownOptionWithKey } from "./OptionControl";
+import type { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "design-system-old";
 import { debounce } from "lodash";

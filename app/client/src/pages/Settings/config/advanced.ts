@@ -1,5 +1,5 @@
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,

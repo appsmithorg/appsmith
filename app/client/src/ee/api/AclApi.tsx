@@ -1,8 +1,8 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { uniqueId } from "lodash";
-import {
+import type {
   BaseAclProps,
   UpdateRoleData,
 } from "@appsmith/pages/AdminSettings/AccessControl/types";

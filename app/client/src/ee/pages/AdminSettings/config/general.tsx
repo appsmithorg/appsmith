@@ -1,5 +1,5 @@
 export * from "ce/pages/AdminSettings/config/general";
-import {
+import type {
   Setting,
   AdminConfigType,
 } from "@appsmith/pages/AdminSettings/config/types";

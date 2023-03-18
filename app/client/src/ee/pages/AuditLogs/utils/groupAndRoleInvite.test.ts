@@ -1,11 +1,11 @@
-import { MultilineDescription } from "./description";
+import type { MultilineDescription } from "./description";
 import { getGroupandRoleActionDescription } from "./groupAndRoleInvite";
 
 const getDescriptionFromDescObject = (obj: MultilineDescription) =>
   `${obj.mainDescription.resourceType} ${obj.mainDescription.actionType} ${obj.subDescription}`;
 
 // Same as app/client/src/ee/pages/AuditLogs/utils/invited.test.ts for most part except this uses getGroupandRoleActionDescription
-describe("audit-logs/utils/groupAndRoleInvite.ts", function() {
+describe("audit-logs/utils/groupAndRoleInvite.ts", function () {
   it("returns empty string when no user was invited/removed", () => {
     const users: string[] = [];
     const descObj = getGroupandRoleActionDescription(

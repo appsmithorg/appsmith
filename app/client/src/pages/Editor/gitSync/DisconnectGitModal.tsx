@@ -36,7 +36,7 @@ import {
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {
@@ -57,7 +57,7 @@ const Container = styled.div`
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: column;
-    //height: calc(100% - ${MENU_HEIGHT}px);
+  //height: calc(100% - ${MENU_HEIGHT}px);
 `;
 
 const CloseBtnContainer = styled.div`

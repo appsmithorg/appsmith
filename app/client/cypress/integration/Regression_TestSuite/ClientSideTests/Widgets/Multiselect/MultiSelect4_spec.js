@@ -9,7 +9,7 @@ const defaultValue = `[
         }
       ]`;
 
-describe("MultiSelect Widget Functionality", function() {
+describe("MultiSelect Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

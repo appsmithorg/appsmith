@@ -1,13 +1,13 @@
 export * from "ce/reducers/tenantReducer";
+import type { TenantReduxState } from "ce/reducers/tenantReducer";
 import {
-  TenantReduxState,
   handlers as CE_Handlers,
   initialState as CE_InitialState,
 } from "ce/reducers/tenantReducer";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import {
@@ -65,7 +65,7 @@ export const handlers = {
         ...state.tenantConfiguration?.license,
         ...action.payload.tenantConfiguration?.license,
         showBEBanner:
-          action.payload.tenantConfiguration?.license.type ===
+          action.payload.tenantConfiguration?.license?.type ===
           LICENSE_TYPE.TRIAL
             ? parsed
             : false,

@@ -24,7 +24,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
-import { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
 
 type EntityContextMenuProps = {
   id: string;

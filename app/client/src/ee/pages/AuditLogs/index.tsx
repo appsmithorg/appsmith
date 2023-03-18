@@ -31,14 +31,8 @@ export default function AuditLogsFeatureContainer() {
 
   useEffect(() => {
     const searchParams = urlToSearchFilters(window?.location?.search);
-    const {
-      emails,
-      endDate,
-      events,
-      resourceId,
-      sort,
-      startDate,
-    } = searchParams;
+    const { emails, endDate, events, resourceId, sort, startDate } =
+      searchParams;
     const filters = {
       emails: (emails || []).map(toUserEmail),
       events: (events || []).map(toEvent),

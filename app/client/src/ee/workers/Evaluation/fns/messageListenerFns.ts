@@ -31,7 +31,8 @@ export type TWindowMessageListenerArgs = Parameters<
 export type TWindowMessageListenerDescription = ReturnType<
   typeof windowMessageListenerDescriptor
 >;
-export type TWindowMessageListenerType = TWindowMessageListenerDescription["type"];
+export type TWindowMessageListenerType =
+  TWindowMessageListenerDescription["type"];
 
 export type TUnlistenWindowMessageArgs = Parameters<
   typeof unlistenWindowMessageDescriptor
@@ -39,7 +40,8 @@ export type TUnlistenWindowMessageArgs = Parameters<
 export type TUnlistenWindowMessageDescription = ReturnType<
   typeof unlistenWindowMessageDescriptor
 >;
-export type TUnlistenWindowMessageType = TUnlistenWindowMessageDescription["type"];
+export type TUnlistenWindowMessageType =
+  TUnlistenWindowMessageDescription["type"];
 
 export function windowMessageListener(...args: TWindowMessageListenerArgs) {
   const metaData = ExecutionMetaData.getExecutionMetaData();

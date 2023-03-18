@@ -1,9 +1,9 @@
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   AuditLogsReduxState,
   AuditLogsFiltersReduxState,
 } from "@appsmith/reducers/auditLogsReducer";
-import { AuditLogType } from "@appsmith/pages/AuditLogs/types";
+import type { AuditLogType } from "@appsmith/pages/AuditLogs/types";
 
 export const selectAuditLogsData = (state: AppState): AuditLogsReduxState =>
   state?.auditLogs;

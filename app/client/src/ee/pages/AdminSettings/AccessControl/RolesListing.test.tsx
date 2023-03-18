@@ -3,10 +3,10 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
-import { MenuItemProps } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import { RoleProps } from "./types";
+import type { RoleProps } from "./types";
 import userEvent from "@testing-library/user-event";
 
 let container: any = null;

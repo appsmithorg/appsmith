@@ -5,8 +5,5 @@
  * @returns parent row's id - example output: "1.1"
  */
 export const getParentId = (rowId: string, rowDepth: number) => {
-  return rowId
-    .split(".")
-    .slice(0, rowDepth)
-    .join(".");
+  return rowId.split(".").slice(0, rowDepth).join(".");
 };

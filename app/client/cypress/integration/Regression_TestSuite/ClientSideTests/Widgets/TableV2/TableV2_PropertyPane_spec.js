@@ -1,5 +1,5 @@
-const ObjectsRegistry = require("../../../../../support/Objects/Registry")
-  .ObjectsRegistry;
+const ObjectsRegistry =
+  require("../../../../../support/Objects/Registry").ObjectsRegistry;
 let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -8,14 +8,14 @@ const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDatawithEmptyKeys.json");
 
-describe("Table Widget V2 property pane feature validation", function() {
+describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
   // To be done:
   // Column Data type: Video
-  it("1. Verify default array data", function() {
+  it("1. Verify default array data", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Open Widget side bar
@@ -58,7 +58,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.deleteWidget(widgetsPage.tableWidget);
   });
 
-  it("3. Verify On Row Selected Action", function() {
+  it("3. Verify On Row Selected Action", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
@@ -72,7 +72,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("4. Verify On Search Text Change Action", function() {
+  it("4. Verify On Search Text Change Action", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
@@ -86,7 +86,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("5. Check On Page Change Action", function() {
+  it("5. Check On Page Change Action", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     cy.get(".t--property-control-serversidepagination input").click({
@@ -103,7 +103,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("6. Check open section and column data in property pane", function() {
+  it("6. Check open section and column data in property pane", function () {
     cy.openPropertyPane("tablewidgetv2");
 
     // Validate the columns are visible in the property pane
@@ -131,7 +131,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it("7. Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
+  it("7. Column Detail - Edit column name and validate test for computed value based on column type selected", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(1000);
     cy.makeColumnVisible("email");
@@ -231,28 +231,19 @@ describe("Table Widget V2 property pane feature validation", function() {
     });
   });
 
-  it("8. Test to validate text allignment", function() {
+  it("8. Test to validate text allignment", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(commonlocators.changeColType)
-      .last()
-      .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("URL")
-      .click();
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("URL").click();
     // cy.get(".t--property-control-visible span.bp3-control-indicator").click();
     cy.wait("@updateLayout");
     cy.moveToStyleTab();
     // Verifying Center Alignment
-    cy.get(widgetsPage.centerAlign)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.centerAlign).first().click({ force: true });
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "center", true);
 
     // Verifying Right Alignment
-    cy.get(widgetsPage.rightAlign)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.rightAlign).first().click({ force: true });
     cy.readTableV2dataValidateCSS(
       "1",
       "0",
@@ -262,9 +253,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     );
 
     // Verifying Left Alignment
-    cy.get(widgetsPage.leftAlign)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.leftAlign).first().click({ force: true });
     cy.readTableV2dataValidateCSS(
       "0",
       "0",
@@ -274,7 +263,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     );
   });
 
-  it("9. Test to validate text format", function() {
+  it("9. Test to validate text format", function () {
     // Validate Bold text
     cy.get(widgetsPage.bold).click({ force: true });
     cy.readTableV2dataValidateCSS("1", "0", "font-weight", "700");
@@ -283,23 +272,19 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.readTableV2dataValidateCSS("0", "0", "font-style", "italic");
   });
 
-  it("10. Test to validate vertical allignment", function() {
+  it("10. Test to validate vertical allignment", function () {
     // Validate vertical alignemnt of Cell text to TOP
     cy.get(widgetsPage.verticalTop).click({ force: true });
     cy.readTableV2dataValidateCSS("1", "0", "align-items", "flex-start", true);
     // Validate vertical alignemnt of Cell text to Center
-    cy.get(widgetsPage.verticalCenter)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.verticalCenter).last().click({ force: true });
     cy.readTableV2dataValidateCSS("1", "0", "align-items", "center", true);
     // Validate vertical alignemnt of Cell text to Bottom
-    cy.get(widgetsPage.verticalBottom)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.verticalBottom).last().click({ force: true });
     cy.readTableV2dataValidateCSS("0", "0", "align-items", "flex-end", true);
   });
 
-  it("Test to validate text color and text background", function() {
+  it("Test to validate text color and text background", function () {
     cy.openPropertyPane("tablewidgetv2");
 
     // Changing text color to rgb(126, 34, 206) and validate
@@ -339,7 +324,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.closePropertyPane();
   });
 
-  it("12. Verify default search text", function() {
+  it("12. Verify default search text", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToContentTab();
@@ -352,7 +337,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function() {
+  it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToContentTab();

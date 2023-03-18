@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Column, useTable, useExpanded } from "react-table";
+import type { Column } from "react-table";
+import { useTable, useExpanded } from "react-table";
+import type { TabProp } from "design-system-old";
 import {
   Checkbox,
   Icon,
   IconSize,
   Spinner,
   TabComponent,
-  TabProp,
 } from "design-system-old";
 import { HighlightText } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
@@ -16,7 +17,7 @@ import {
   ApiMethodIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { RoleProps, RoleTreeProps } from "./types";
+import type { RoleProps, RoleTreeProps } from "./types";
 import {
   EmptyDataState,
   EmptySearchResult,
