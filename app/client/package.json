@@ -187,10 +187,7 @@
     "storybook": "yarn workspace @design-system/storybook storybook"
   },
   "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
+    "defaults and supports es6-module"
   ],
   "devDependencies": {
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
