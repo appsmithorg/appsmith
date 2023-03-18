@@ -4,7 +4,9 @@ import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,13 +30,16 @@ public class Condition {
     public static final String PATH_KEY = "path";
     public static final String OPERATOR_KEY = "operator";
 
+    @JsonView(Views.Public.class)
     String path;
 
+    @JsonView(Views.Public.class)
     ConditionalOperator operator;
 
+    @JsonView(Views.Public.class)
     Object value;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     DataType valueDataType;
 
     public Condition(String path, String operator, String value) {
