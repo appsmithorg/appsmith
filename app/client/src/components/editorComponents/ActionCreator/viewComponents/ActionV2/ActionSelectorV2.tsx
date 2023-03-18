@@ -74,7 +74,8 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       for (const path of paths) {
         if (
           path.classList?.contains("CodeMirror-hints") ||
-          path.classList?.contains("callback-collapse")
+          path.classList?.contains("callback-collapse") ||
+          path.classList?.contains("add-action")
         ) {
           return;
         }
