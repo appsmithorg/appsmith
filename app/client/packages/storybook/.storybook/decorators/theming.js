@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import webfontloader from "webfontloader";
 import styled, { createGlobalStyle } from "styled-components";
 
-import { createTokens, createGlobalFontStack } from "@design-system/wds";
+import { createCSSVars, createGlobalFontStack } from "@design-system/wds";
 
 const StyledContainer = styled.div`
-  ${createTokens}
+  ${createCSSVars}
 
   display: flex;
   width: 100%;

@@ -5,14 +5,14 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
 
-describe("Undo/Redo functionality", function() {
+describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("checks undo/redo for new widgets", function() {
+  it("checks undo/redo for new widgets", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("checkboxwidget", { x: 200, y: 200 });
 
@@ -74,7 +74,7 @@ describe("Undo/Redo functionality", function() {
   //   });
   // });
 
-  it("checks undo/redo for toggle control in property pane", function() {
+  it("checks undo/redo for toggle control in property pane", function () {
     cy.openPropertyPane("checkboxwidget");
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
 
@@ -92,7 +92,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(widgetLocators.checkboxWidget + " " + "input").should("be.disabled");
   });
 
-  it("checks undo/redo for input control in property pane", function() {
+  it("checks undo/redo for input control in property pane", function () {
     cy.get(widgetsPage.inputLabelControl).type("1");
     cy.get(widgetsPage.inputLabelControl).contains("Label1");
 
@@ -107,7 +107,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(`${publish.checkboxWidget} label`).should("have.text", "Label1");
   });
 
-  it("checks undo/redo for deletion of widgets", function() {
+  it("checks undo/redo for deletion of widgets", function () {
     cy.deleteWidget(widgetsPage.checkboxWidget);
     cy.get(widgetsPage.checkboxWidget).should("not.exist");
 
@@ -120,7 +120,7 @@ describe("Undo/Redo functionality", function() {
     // cy.get(widgetsPage.checkboxWidget).should("not.exist");
   });
 
-  it("checks if property Pane is open on undo/redo property changes", function() {
+  it("checks if property Pane is open on undo/redo property changes", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
 
     cy.wait(100);
@@ -142,35 +142,25 @@ describe("Undo/Redo functionality", function() {
     cy.deleteWidget(widgetsPage.textWidget);
   });
 
-  it("checks if toast is shown while undo/redo widget deletion or creation only the first time", function() {
+  it("checks if toast is shown while undo/redo widget deletion or creation only the first time", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
     localStorage.removeItem("undoToastShown");
     localStorage.removeItem("redoToastShown");
 
     cy.focused().blur();
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(commonlocators.toastmsg)
-      .eq(0)
-      .contains("is removed");
-    cy.get(commonlocators.toastmsg)
-      .eq(1)
-      .contains("REDO");
-    cy.get(commonlocators.toastBody)
-      .first()
-      .click();
+    cy.get(commonlocators.toastmsg).eq(0).contains("is removed");
+    cy.get(commonlocators.toastmsg).eq(1).contains("REDO");
+    cy.get(commonlocators.toastBody).first().click();
 
     cy.wait(100);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    cy.get(commonlocators.toastmsg)
-      .eq(0)
-      .contains("is added back");
-    cy.get(commonlocators.toastmsg)
-      .eq(1)
-      .contains("UNDO");
+    cy.get(commonlocators.toastmsg).eq(0).contains("is added back");
+    cy.get(commonlocators.toastmsg).eq(1).contains("UNDO");
     cy.deleteWidget(widgetsPage.textWidget);
   });
 
-  it("checks undo/redo for color picker", function() {
+  it("checks undo/redo for color picker", function () {
     cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
     cy.moveToStyleTab();
     cy.selectColor("textcolor");
@@ -180,9 +170,7 @@ describe("Undo/Redo functionality", function() {
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
 
-    cy.get("body")
-      .click({ force: true })
-      .type(`{${modifierKey}}z`);
+    cy.get("body").click({ force: true }).type(`{${modifierKey}}z`);
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")
@@ -196,16 +184,12 @@ describe("Undo/Redo functionality", function() {
       .should("contain", "#7e22ce");
   });
 
-  it("checks undo/redo for option control for radio button", function() {
+  it("checks undo/redo for option control for radio button", function () {
     cy.dragAndDropToCanvas("radiogroupwidget", { x: 200, y: 600 });
 
-    cy.get(widgetsPage.RadioInput)
-      .first()
-      .type("1");
+    cy.get(widgetsPage.RadioInput).first().type("1");
 
-    cy.get(widgetsPage.RadioInput)
-      .first()
-      .blur();
+    cy.get(widgetsPage.RadioInput).first().blur();
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(200);

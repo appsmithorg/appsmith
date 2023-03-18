@@ -1,9 +1,11 @@
 import { PluginType, PaginationType } from "entities/Action";
-import {
+import type {
   DataTree,
-  EvaluationSubstitutionType,
   DataTreeWidget,
   DataTreeAppsmith,
+} from "entities/DataTree/dataTreeFactory";
+import {
+  EvaluationSubstitutionType,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 
@@ -381,8 +383,7 @@ export const asyncTagUnevalTree: DataTree = {
     actionId: "627217a38a368d6f1efcd0d8",
     pluginType: PluginType.JS,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body:
-      "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
+    body: "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
     meta: {
       myFun1: {
         arguments: [],
@@ -419,8 +420,7 @@ export const asyncTagUnevalTree: DataTree = {
     actionId: "627babc60b47255c28138865",
     pluginType: PluginType.JS,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body:
-      "export default {\n\tcallApi: () => {\n\t\treturn Api1.run()\n\t},\n}",
+    body: "export default {\n\tcallApi: () => {\n\t\treturn Api1.run()\n\t},\n}",
     meta: {
       callApi: {
         arguments: [],
@@ -452,7 +452,7 @@ export const asyncTagUnevalTree: DataTree = {
       data: {},
     },
   },
-  MainContainer: ({
+  MainContainer: {
     widgetName: "MainContainer",
     backgroundColor: "none",
     rightColumn: 4896,
@@ -484,8 +484,8 @@ export const asyncTagUnevalTree: DataTree = {
     validationPaths: {},
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     privateWidgets: {},
-  } as unknown) as DataTreeWidget,
-  appsmith: ({
+  } as unknown as DataTreeWidget,
+  appsmith: {
     user: {
       email: "anand@appsmith.com",
       workspaceIds: [
@@ -549,7 +549,7 @@ export const asyncTagUnevalTree: DataTree = {
     },
     mode: "EDIT",
     ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-  } as unknown) as DataTreeAppsmith,
+  } as unknown as DataTreeAppsmith,
 };
 
 export const lintingUnEvalTree = {
@@ -724,8 +724,7 @@ export const lintingUnEvalTree = {
     actionId: "62bf37a0152a750d0c550d7c",
     pluginType: "JS",
     ENTITY_TYPE: "JSACTION",
-    body:
-      'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: async () => {\n\t\t//write code here\n\tawait storeValue("name", "name", false).then(()=>{})\n\t\treturn resetWidget("Button2").then(()=>{})\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t AbsentEntity.run()}\n}',
+    body: 'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: async () => {\n\t\t//write code here\n\tawait storeValue("name", "name", false).then(()=>{})\n\t\treturn resetWidget("Button2").then(()=>{})\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t AbsentEntity.run()}\n}',
     meta: {
       myFun2: {
         arguments: [],

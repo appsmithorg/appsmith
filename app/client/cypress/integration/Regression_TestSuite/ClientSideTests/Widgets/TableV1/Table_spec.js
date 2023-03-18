@@ -4,12 +4,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableWidgetDsl.json");
 
-describe("Table Widget Functionality", function() {
+describe("Table Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality", function() {
+  it("Table Widget Functionality", function () {
     cy.openPropertyPane("tablewidget");
 
     /**
@@ -41,7 +41,7 @@ describe("Table Widget Functionality", function() {
     //   .should("have.text", "{{navigateTo()}}");
   });
 
-  it("Table Widget Functionality To Verify The Data", function() {
+  it("Table Widget Functionality To Verify The Data", function () {
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -49,7 +49,7 @@ describe("Table Widget Functionality", function() {
     });
   });
 
-  it("Table Widget Functionality To Show a Base64 Image", function() {
+  it("Table Widget Functionality To Show a Base64 Image", function () {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("image");
     cy.changeColumnType("Image", false);
@@ -62,7 +62,7 @@ describe("Table Widget Functionality", function() {
     });
   });
 
-  it("Table Widget Functionality To Check if Table is Sortable", function() {
+  it("Table Widget Functionality To Check if Table is Sortable", function () {
     cy.get(commonlocators.editPropBackButton).click();
     cy.openPropertyPane("tablewidget");
     // Confirm if isSortable is true
@@ -79,11 +79,9 @@ describe("Table Widget Functionality", function() {
       expect(tabValue).to.be.equal("Michael Lawson");
     });
     // Sort Username Column
-    cy.contains('[role="columnheader"]', "userName")
-      .first()
-      .click({
-        force: true,
-      });
+    cy.contains('[role="columnheader"]', "userName").first().click({
+      force: true,
+    });
     cy.wait(1000);
     // Confirm order after sort
     cy.readTabledataPublish("1", "3").then((tabData) => {
@@ -116,11 +114,9 @@ describe("Table Widget Functionality", function() {
       expect(tabValue).to.be.equal("Michael Lawson");
     });
     // Confirm Sort is disable on Username Column
-    cy.contains('[role="columnheader"]', "userName")
-      .first()
-      .click({
-        force: true,
-      });
+    cy.contains('[role="columnheader"]', "userName").first().click({
+      force: true,
+    });
     cy.wait(1000);
     // Confirm order after sort
     cy.readTabledataPublish("1", "3").then((tabData) => {

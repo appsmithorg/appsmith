@@ -32,7 +32,7 @@ yarn-error.log*
 .storybook-out/
 cypress/videos
 cypress/screenshots
-/cypress.env.json
+cypress.env.json
 results/
 
 

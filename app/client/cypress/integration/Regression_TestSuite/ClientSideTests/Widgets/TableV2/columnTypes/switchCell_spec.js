@@ -67,9 +67,7 @@ describe("Switch column type funtionality test", () => {
   });
 
   it("3. Check the horizontal, vertical alignment of switch, and the cell background color", () => {
-    cy.get(".t--propertypane")
-      .contains("STYLE")
-      .click({ force: true });
+    cy.get(".t--propertypane").contains("STYLE").click({ force: true });
     // Check horizontal alignment
     cy.get(".t--property-control-horizontalalignment .t--button-group-CENTER")
       .first()
@@ -99,9 +97,7 @@ describe("Switch column type funtionality test", () => {
   });
 
   it("4. Verify disabled(editable off), enabled states and interactions on switch", () => {
-    cy.get(".t--propertypane")
-      .contains("CONTENT")
-      .click({ force: true });
+    cy.get(".t--propertypane").contains("CONTENT").click({ force: true });
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + switchSelector;
 
@@ -140,15 +136,11 @@ describe("Switch column type funtionality test", () => {
   it("5. Verify filter condition", () => {
     cy.get(widgetsJson.tableFilterPaneToggle).click();
     cy.get(publishPage.attributeDropdown).click();
-    cy.get(".t--dropdown-option")
-      .contains("completed")
-      .click();
+    cy.get(".t--dropdown-option").contains("completed").click();
     cy.get(widgetsJson.tableFilterRow)
       .find(publishPage.conditionDropdown)
       .click();
-    cy.get(".t--dropdown-option")
-      .contains("is checked")
-      .click();
+    cy.get(".t--dropdown-option").contains("is checked").click();
     cy.get(publishPage.applyFiltersBtn).click();
 
     // filter and verify checked rows
@@ -160,9 +152,7 @@ describe("Switch column type funtionality test", () => {
     cy.get(widgetsJson.tableFilterRow)
       .find(publishPage.conditionDropdown)
       .click();
-    cy.get(".t--dropdown-option")
-      .contains("is unchecked")
-      .click();
+    cy.get(".t--dropdown-option").contains("is unchecked").click();
     cy.get(publishPage.applyFiltersBtn).click();
 
     cy.getTableV2DataSelector("0", "4").then((selector) => {

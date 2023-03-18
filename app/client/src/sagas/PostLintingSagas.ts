@@ -1,8 +1,8 @@
 import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,

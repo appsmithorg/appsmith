@@ -1,15 +1,10 @@
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
-import { JSONFormWidgetProps } from "../..";
-import { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import type { JSONFormWidgetProps } from "../..";
+import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 

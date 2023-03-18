@@ -11,7 +11,7 @@ import {
 import { Icon } from "design-system-old";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Button, Category, Size } from "design-system-old";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 461px;

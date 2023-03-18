@@ -21,6 +21,6 @@ export const getQueryParamsFromString = (search: string | undefined) => {
   }
 };
 
-export default function() {
+export default function () {
   return getQueryParamsFromString(window.location.search.substring(1));
 }
