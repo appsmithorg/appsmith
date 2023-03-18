@@ -44,23 +44,25 @@ describe("Validate Airtable Ds", () => {
     });
 
     //Filter Species_ID & Species fields only
-    const allowedFields = ["Species_ID", "Species"];
-    _.agHelper.EnterValue("fields%5B%5D=Species_ID&fields%5B%5D=Species", {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Fields",
-    });
+    _.agHelper.EnterValue(
+      "fields%5B%5D=Species_ID&fields%5B%5D=Species&fields%5B%5D=Taxa",
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Fields",
+      },
+    );
 
     _.dataSources.RunQuery(false);
     _.agHelper.Sleep(2500); // for query to run complete
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(true);
       jsonSpecies = JSON.parse(response?.body.data.body);
-      const isValid = jsonSpecies.records.every((record: any) => {
+      const hasOnlyAllowedKeys = jsonSpecies.records.every((record: any) => {
         const fieldKeys = Object.keys(record.fields);
-        return allowedFields.every((field) => fieldKeys.includes(field));
+        return fieldKeys.includes('Species_ID') && fieldKeys.includes('Species') && fieldKeys.includes('Taxa') && fieldKeys.length === 3;
       });
-      expect(isValid).to.be.true; //making sure all records have only allowedFields returned in results
+      expect(hasOnlyAllowedKeys).to.be.true; //making sure all records have only Filters fields returned in results
     });
 
     //Validate Max records
@@ -112,6 +114,30 @@ describe("Validate Airtable Ds", () => {
       });
     });
 
+    //Validate Filter by Formula
+    //let asc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
+    _.agHelper.EnterValue("", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Offset",
+    }); //Removing Offset
+    _.agHelper.EnterValue('NOT({Taxa} = "Rodent")', {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Filter by Formula",
+    });
+    _.dataSources.RunQuery(false);
+    _.agHelper.Sleep(2000); // for query to run complete
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(true);
+      jsonSpecies = JSON.parse(response?.body.data.body);
+      const allRecordsWithRodentTaxa = jsonSpecies.records.filter(
+        (record: { fields: { Taxa: string } }) =>
+          record.fields.Taxa === "Rodent",
+      );
+      expect(allRecordsWithRodentTaxa.length).to.eq(0);
+    });
+
     //Validate Sort - asc
     let asc_specieslist = new Array(); //emptying array, specieslist.length = 0 did not work!
     _.agHelper.EnterValue("", {
@@ -122,8 +148,8 @@ describe("Validate Airtable Ds", () => {
     _.agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Offset",
-    }); //Removing Offset
+      inputFieldName: "Filter by Formula",
+    }); //Removing Filter by Formula
     _.agHelper.EnterValue("10", {
       propFieldName: "",
       directInput: false,
