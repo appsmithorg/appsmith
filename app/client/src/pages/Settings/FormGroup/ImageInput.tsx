@@ -1,14 +1,12 @@
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { Button, Size } from "design-system-old";
 import React, { memo, useRef, useState, useEffect } from "react";
 
-import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 
-import { FormGroup, SettingComponentProps } from "./Common";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
 
 type ImageInputProps = {
   value?: any;
@@ -43,7 +41,7 @@ export const ImageInput = (props: ImageInputProps) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
 
-        reader.onloadend = function() {
+        reader.onloadend = function () {
           setPreview(reader.result);
         };
 

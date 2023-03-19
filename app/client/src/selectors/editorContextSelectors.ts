@@ -1,13 +1,13 @@
-import { AppState } from "@appsmith/reducers";
-import FeatureFlags from "entities/FeatureFlags";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type FeatureFlags from "entities/FeatureFlags";
+import type {
   CodeEditorHistory,
   CursorPosition,
   EvaluatedPopupState,
-  isSubEntities,
   PropertyPanelContext,
   PropertyPanelState,
 } from "reducers/uiReducers/editorContextReducer";
+import { isSubEntities } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 

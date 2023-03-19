@@ -3,7 +3,8 @@ import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { FormGroup, SettingComponentProps } from "./Common";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
 
 const TextWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[12]}px;

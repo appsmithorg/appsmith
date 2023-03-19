@@ -1,24 +1,24 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import { WidgetType, RenderModes, TextSize } from "constants/WidgetConstants";
-import InputComponent, { InputComponentProps } from "../component";
-import {
-  EventType,
-  ExecutionResult,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ValidationTypes,
-  ValidationResponse,
-} from "constants/WidgetValidation";
+import type { IconName } from "@blueprintjs/icons";
+import type { WidgetType, TextSize } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
+import type { InputComponentProps } from "../component";
+import InputComponent from "../component";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { InputType, InputTypes } from "../constants";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { InputType } from "../constants";
+import { InputTypes } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
@@ -29,7 +29,7 @@ import {
   getLocale,
 } from "../component/utilities";
 import { LabelPosition } from "components/constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 
 export function defaultValueValidation(

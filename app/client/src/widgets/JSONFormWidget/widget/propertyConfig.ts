@@ -1,14 +1,14 @@
 import { Alignment } from "@blueprintjs/core";
 
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
-import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
-import { JSONFormWidgetProps } from ".";
+import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import type { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";

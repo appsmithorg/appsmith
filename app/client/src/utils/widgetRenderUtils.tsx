@@ -1,26 +1,34 @@
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
+import type {
   DataTree,
   DataTreeWidget,
-  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
-import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import {
+  WIDGET_DSL_STRUCTURE_PROPS,
+  WIDGET_STATIC_PROPS,
+} from "constants/WidgetConstants";
 import WidgetFactory from "./WidgetFactory";
-import { WidgetProps } from "widgets/BaseWidget";
-import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
   specificChildProps?: string[],
 ) => {
+  /**
+   * WIDGET_DSL_STRUCTURE_PROPS is required for Building the List widget meta widgets
+   *  requiresFlatWidgetChildren and hasMetaWidgets are the keys required.
+   */
+
   const widgetStaticProps = pick(canvasWidget, [
-    ...Object.keys(WIDGET_STATIC_PROPS),
+    ...Object.keys({ ...WIDGET_STATIC_PROPS, ...WIDGET_DSL_STRUCTURE_PROPS }),
     ...(canvasWidget.additionalStaticProps || []),
   ]);
 

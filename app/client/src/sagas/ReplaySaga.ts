@@ -17,11 +17,11 @@ import {
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
+import type {
   ReduxAction,
-  ReduxActionTypes,
   ReplayReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
   expandAccordion,
@@ -50,18 +50,14 @@ import {
   getPluginForm,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import {
-  Action,
-  isAPIAction,
-  isQueryAction,
-  isSaaSAction,
-} from "entities/Action";
+import type { Action } from "entities/Action";
+import { isAPIAction, isQueryAction, isSaaSAction } from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
-import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
+import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { initialize } from "redux-form";
 import {
   API_EDITOR_FORM_NAME,
@@ -69,7 +65,7 @@ import {
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
 } from "@appsmith/constants/forms";
-import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
+import type { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
 import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,

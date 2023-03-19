@@ -4,7 +4,7 @@ import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
 import { BlankState } from "../helpers";
 import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { Log } from "entities/AppsmithConsole";
+import type { Log } from "entities/AppsmithConsole";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;

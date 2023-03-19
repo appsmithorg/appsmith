@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ICON_NAMES, MenuButtonWidgetProps } from "../../../constants";
+import type { MenuButtonWidgetProps } from "../../../constants";
+import { ICON_NAMES } from "../../../constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
 
 export default {

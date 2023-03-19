@@ -1,9 +1,10 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,12 +37,15 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 public class Application extends BaseDomain {
 
     @NotNull
+    @JsonView(Views.Public.class)
     String name;
 
     //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
+    @JsonView(Views.Public.class)
     String organizationId;
 
+    @JsonView(Views.Public.class)
     String workspaceId;
 
     /*
@@ -49,47 +53,66 @@ public class Application extends BaseDomain {
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
+    @JsonView(Views.Public.class)
     Boolean isPublic = false;
 
+    @JsonView(Views.Public.class)
     List<ApplicationPage> pages;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<ApplicationPage> publishedPages;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Transient
     Boolean viewMode = false;
 
     @Transient
+    @JsonView(Views.Public.class)
     boolean appIsExample = false;
 
     @Transient
+    @JsonView(Views.Public.class)
     long unreadCommentThreads;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String clonedFromApplicationId;
 
+    @JsonView(Views.Internal.class)
+    ApplicationDetail unpublishedApplicationDetail;
+
+    @JsonView(Views.Internal.class)
+    ApplicationDetail publishedApplicationDetail;
+
+    @JsonView(Views.Public.class)
     String color;
 
+    @JsonView(Views.Public.class)
     String icon;
 
+    @JsonView(Views.Public.class)
     private String slug;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AppLayout unpublishedAppLayout;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
+    @JsonView(Views.Public.class)
     Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+
+    @JsonView(Views.Public.class)
     Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
+    @JsonView(Views.Public.class)
     GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
     Instant lastDeployedAt; // when this application was last deployed
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
     Integer evaluationVersion;
 
     /**
@@ -99,6 +122,7 @@ public class Application extends BaseDomain {
      * so that they can update their application.
      * Once updated, we should set applicationVersion to latest version as well.
      */
+    @JsonView(Views.Public.class)
     Integer applicationVersion;
 
     /**
@@ -106,22 +130,11 @@ public class Application extends BaseDomain {
      * Other activities e.g. changing policy will not change this property.
      * We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
      */
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
+    @JsonView(Views.Public.class)
     EmbedSetting embedSetting;
-
-    @JsonIgnore
-    NavigationSetting unpublishedNavigationSetting;
-
-    @JsonIgnore
-    NavigationSetting publishedNavigationSetting;
-
-    @JsonIgnore
-    AppPositioning publishedAppPositioning;
-
-    @JsonIgnore
-    AppPositioning unpublishedAppPositioning;
 
     Boolean collapseInvisibleWidgets;
 
@@ -133,6 +146,7 @@ public class Application extends BaseDomain {
      * @return updated time as a string
      */
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
     public String getLastUpdateTime() {
         if(lastEditedAt != null) {
             return ISO_FORMATTER.format(lastEditedAt);
@@ -140,6 +154,7 @@ public class Application extends BaseDomain {
         return null;
     }
 
+    @JsonView(Views.Public.class)
     public String getLastDeployedAt() {
         if(lastDeployedAt != null) {
             return ISO_FORMATTER.format(lastDeployedAt);
@@ -147,33 +162,37 @@ public class Application extends BaseDomain {
         return null;
     }
 
+    @JsonView(Views.Public.class)
     Boolean forkingEnabled;
 
     // Field to convey if the application is updated by the user
+    @JsonView(Views.Public.class)
     Boolean isManualUpdate;
 
     // Field to convey if the application is modified from the DB migration
     @Transient
+    @JsonView(Views.Public.class)
     Boolean isAutoUpdate;
 
     // To convey current schema version for client and server. This will be used to check if we run the migration
     // between 2 commits if the application is connected to git
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Integer clientSchemaVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Integer serverSchemaVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String publishedModeThemeId;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String editModeThemeId;
 
     // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
+    @JsonView(Views.Public.class)
     Boolean exportWithConfiguration;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Deprecated
     String defaultPermissionGroup;
 
@@ -189,10 +208,20 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
-        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
-        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
-        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
-        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
+        this.setUnpublishedApplicationDetail(new ApplicationDetail());
+        this.setPublishedApplicationDetail(new ApplicationDetail());
+        if (application.getUnpublishedApplicationDetail() == null){
+            application.setUnpublishedApplicationDetail(new ApplicationDetail());
+        }
+        if (application.getPublishedApplicationDetail() == null){
+            application.setPublishedApplicationDetail(new ApplicationDetail());
+        }
+        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning().type);
+        this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
+        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null: new AppPositioning(application.getPublishedApplicationDetail().getAppPositioning().type);
+        this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
+        this.getUnpublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
+        this.getPublishedApplicationDetail().setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null: new NavigationSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -242,17 +271,30 @@ public class Application extends BaseDomain {
         }
     }
 
+    public ApplicationDetail getApplicationDetail() {
+        return Boolean.TRUE.equals(viewMode) ? publishedApplicationDetail : unpublishedApplicationDetail;
+    }
+
+    public void setApplicationDetail(ApplicationDetail applicationDetail) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedApplicationDetail = applicationDetail;
+        } else {
+            unpublishedApplicationDetail = applicationDetail;
+        }
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AppLayout implements Serializable {
+        @JsonView(Views.Public.class)
         Type type;
 
         /**
          * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
          * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
          */
-        @JsonIgnore
+        @JsonView(Views.Internal.class)
         @Deprecated(forRemoval = true)
         Integer width = null;
 
@@ -274,21 +316,15 @@ public class Application extends BaseDomain {
      */
     @Data
     public static class EmbedSetting {
+
+        @JsonView(Views.Public.class)
         private String height;
+
+        @JsonView(Views.Public.class)
         private String width;
+
+        @JsonView(Views.Public.class)
         private Boolean showNavigationBar;
-    }
-
-    public NavigationSetting getNavigationSetting() {
-        return Boolean.TRUE.equals(viewMode) ? publishedNavigationSetting : unpublishedNavigationSetting;
-    }
-
-    public void setNavigationSetting(NavigationSetting navigationSetting) {
-        if (Boolean.TRUE.equals(viewMode)) {
-            publishedNavigationSetting = navigationSetting;
-        } else {
-            unpublishedNavigationSetting = navigationSetting;
-        }
     }
 
     /**
@@ -296,28 +332,34 @@ public class Application extends BaseDomain {
      */
     @Data
     public static class NavigationSetting {
+        @JsonView(Views.Public.class)
         private Boolean showNavbar;
+
+        @JsonView(Views.Public.class)
         private String orientation;
+
+        @JsonView(Views.Public.class)
         private String navStyle;
+
+        @JsonView(Views.Public.class)
         private String position;
+
+        @JsonView(Views.Public.class)
         private String itemStyle;
+
+        @JsonView(Views.Public.class)
         private String colorStyle;
+
+        @JsonView(Views.Public.class)
         private String logoAssetId;
+
+        @JsonView(Views.Public.class)
         private String logoConfiguration;
+
+        @JsonView(Views.Public.class)
         private Boolean showSignIn;
     }
 
-    public AppPositioning getAppPositioning() {
-        return Boolean.TRUE.equals(viewMode) ? publishedAppPositioning : unpublishedAppPositioning;
-    }
-
-    public void setAppPositioning(AppPositioning appPositioning) {
-        if (Boolean.TRUE.equals(viewMode)) {
-            publishedAppPositioning = appPositioning;
-        } else {
-            unpublishedAppPositioning = appPositioning;
-        }
-    }
 
     /**
      * AppPositioning captures widget positioning Mode of the application
@@ -325,6 +367,7 @@ public class Application extends BaseDomain {
     @Data
     @NoArgsConstructor
     public static class AppPositioning {
+        @JsonView(Views.Public.class)
         Type type;
 
         public AppPositioning(Type type) {

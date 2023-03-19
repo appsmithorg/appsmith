@@ -1,8 +1,9 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, get, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
-import { Def } from "tern";
+import type { Def } from "tern";
 import {
   isAction,
   isAppsmithEntity,
@@ -10,11 +11,11 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
+import type { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 
 export type ExtraDef = Record<string, Def | string>;
 
-import { Variable } from "entities/JSCollection";
+import type { Variable } from "entities/JSCollection";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
