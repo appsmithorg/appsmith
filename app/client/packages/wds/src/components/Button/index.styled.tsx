@@ -188,10 +188,8 @@ export const StyledButton = styled.button<ButtonProps>`
   &:is([data-disabled]),
   &:is(:disabled) {
     pointer-events: none;
-    background: var(--wds-v2-color-bg-disabled);
-    color: var(--wds-v2-color-text-disabled);
+    opacity: 0.5;
     box-shadow: none;
     background-image: none;
-    border-color: transparent;
   }
 `;

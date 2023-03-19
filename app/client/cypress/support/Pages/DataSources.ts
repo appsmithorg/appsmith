@@ -8,6 +8,7 @@ const DataSourceKVP = {
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
   MsSql: "Microsoft SQL Server",
+  Airtable: "Airtable",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -17,6 +18,11 @@ export enum Widgets {
   Text,
 }
 
+interface RunQueryParams {
+  toValidateResponse?: boolean;
+  expectedStatus?: boolean;
+  waitTimeInterval?: number;
+}
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
@@ -408,6 +414,19 @@ export class DataSources {
     );
   }
 
+  public FillAirtableDSForm() {
+    this.ValidateNSelectDropdown(
+      "Authentication Type",
+      "Please select an option.",
+      "Bearer Token",
+    );
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Bearer Token"),
+      Cypress.env("AIRTABLE_BEARER"),
+    );
+    this.agHelper.Sleep();
+  }
+
   public FillFirestoreDSForm() {
     cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
       datasourceFormData["database-url"],
@@ -628,14 +647,14 @@ export class DataSources {
     });
   }
 
-  RunQuery(
+  RunQuery({
     toValidateResponse = true,
     expectedStatus = true,
     waitTimeInterval = 500,
-  ) {
+  }: Partial<RunQueryParams> = {}) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     if (toValidateResponse) {
-      this.agHelper.Sleep(1000);
+      this.agHelper.Sleep();
       this.agHelper.ValidateNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
@@ -717,7 +736,13 @@ export class DataSources {
   }
 
   public CreateDataSource(
-    dsType: "Postgres" | "Mongo" | "MySql" | "UnAuthenticatedGraphQL" | "MsSql",
+    dsType:
+      | "Postgres"
+      | "Mongo"
+      | "MySql"
+      | "UnAuthenticatedGraphQL"
+      | "MsSql"
+      | "Airtable",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -737,6 +762,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
           this.FillMsSqlDSForm();
+        else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -930,7 +956,7 @@ export class DataSources {
 
   public FillMongoDatasourceFormWithURI(uri: string) {
     this.ValidateNSelectDropdown("Use Mongo Connection String URI", "", "Yes");
-    this.agHelper.TypeText(
+    this.agHelper.UpdateInputValue(
       this.locator._inputFieldByName("Connection String URI") + "//input",
       uri,
     );
