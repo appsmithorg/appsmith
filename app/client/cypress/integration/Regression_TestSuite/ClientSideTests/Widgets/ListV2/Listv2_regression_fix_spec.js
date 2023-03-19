@@ -21,7 +21,7 @@ describe("List widget v2 Regression", () => {
         cy.wrap($el).click({ force: true });
         cy.wrap($el)
           .parent()
-          .should("have.css", "outline", "rgb(59, 130, 246) solid 0.8px");
+          .should("have.css", "outline", "rgb(59, 130, 246) solid 1px");
       },
     );
     cy.get(publishPage.backToEditor).click({ force: true });
