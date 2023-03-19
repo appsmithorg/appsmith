@@ -44,7 +44,7 @@ const EditPen = styled.img`
   width: 14px;
   position: absolute;
   right: 7px;
-  : hover {
+  :hover {
     cursor: pointer;
   }
 `;
@@ -125,13 +125,8 @@ class EntityNameComponent extends React.Component<
 
   render() {
     const { focused } = this.state;
-    const {
-      isValid,
-      onChange,
-      placeholder,
-      validationMessage,
-      value,
-    } = this.props;
+    const { isValid, onChange, placeholder, validationMessage, value } =
+      this.props;
 
     return (
       <ErrorTooltip isOpen={!isValid} message={validationMessage || ""}>

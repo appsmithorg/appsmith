@@ -4,14 +4,14 @@ import {
   lintingUnEvalTree,
   unEvalTree,
 } from "./mockData/mockUnEvalTree";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import { parseJSActions } from "workers/Evaluation/JSObject";
-import { WidgetConfiguration } from "widgets/constants";
+import type { WidgetConfiguration } from "widgets/constants";
 
 const widgetConfigMap: Record<
   string,
@@ -138,18 +138,13 @@ describe("DataTreeEvaluator", () => {
 
   describe("test updateDependencyMap", () => {
     beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree((unEvalTree as unknown) as DataTree);
+      dataTreeEvaluator.setupFirstTree(unEvalTree as unknown as DataTree);
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
 
     it("initial dependencyMap computation", () => {
-      const {
-        evalOrder,
-        nonDynamicFieldValidationOrder,
-        unEvalUpdates,
-      } = dataTreeEvaluator.setupUpdateTree(
-        (unEvalTree as unknown) as DataTree,
-      );
+      const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+        dataTreeEvaluator.setupUpdateTree(unEvalTree as unknown as DataTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
@@ -212,7 +207,7 @@ describe("DataTreeEvaluator", () => {
   describe("parseJsActions", () => {
     const postMessageMock = jest.fn();
     beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(({} as unknown) as DataTree);
+      dataTreeEvaluator.setupFirstTree({} as unknown as DataTree);
       dataTreeEvaluator.evalAndValidateFirstTree();
       self.postMessage = postMessageMock;
     });
@@ -259,9 +254,9 @@ describe("DataTreeEvaluator", () => {
           expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([
             "Api1.data[2]",
           ]);
-          expect(
-            dataTreeEvaluator.dependencyMap["Api1.data[2]"],
-          ).toStrictEqual(["Api1.data[2].id"]);
+          expect(dataTreeEvaluator.dependencyMap["Api1.data[2]"]).toStrictEqual(
+            ["Api1.data[2].id"],
+          );
           expect(dataTreeEvaluator.dependencyMap["Text1.text"]).toStrictEqual([
             "Api1.data[2].id",
           ]);
@@ -360,9 +355,9 @@ describe("DataTreeEvaluator", () => {
           expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([
             "Api1.data[2]",
           ]);
-          expect(
-            dataTreeEvaluator.dependencyMap["Api1.data[2]"],
-          ).toStrictEqual(["Api1.data[2][2]"]);
+          expect(dataTreeEvaluator.dependencyMap["Api1.data[2]"]).toStrictEqual(
+            ["Api1.data[2][2]"],
+          );
           expect(
             dataTreeEvaluator.dependencyMap["Api1.data[2][2]"],
           ).toStrictEqual(["Api1.data[2][2].id"]);
@@ -493,7 +488,7 @@ describe("DataTreeEvaluator", () => {
   describe("triggerfield dependency map", () => {
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree(
-        (lintingUnEvalTree as unknown) as DataTree,
+        lintingUnEvalTree as unknown as DataTree,
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
@@ -505,7 +500,7 @@ describe("DataTreeEvaluator", () => {
     });
 
     it("Correctly updates triggerFieldDependencyMap", () => {
-      const newUnEvalTree = ({ ...lintingUnEvalTree } as unknown) as DataTree;
+      const newUnEvalTree = { ...lintingUnEvalTree } as unknown as DataTree;
       // delete Api2
       delete newUnEvalTree["Api2"];
       const {

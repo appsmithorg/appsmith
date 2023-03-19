@@ -1,4 +1,4 @@
-import {
+import type {
   UnEvalTree,
   UnEvalTreeAction,
 } from "entities/DataTree/dataTreeFactory";
@@ -59,8 +59,7 @@ const unevalTreeFromMainThread = {
     storeTest2: {
       data: {},
     },
-    body:
-      "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
+    body: "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
     ENTITY_TYPE: "JSACTION",
     __config__: {
       meta: {
@@ -355,7 +354,7 @@ const unevalTreeFromMainThread = {
 describe("7. Test util methods", () => {
   it("1. createUnEvalTree method", () => {
     const unEvalTreeForEval = createUnEvalTreeForEval(
-      (unevalTreeFromMainThread as unknown) as UnEvalTree,
+      unevalTreeFromMainThread as unknown as UnEvalTree,
     );
     // Action config
     expect(unEvalTreeForEval).toHaveProperty(
@@ -408,7 +407,7 @@ describe("7. Test util methods", () => {
 
   it("2. createNewEntity method", () => {
     const actionForEval = createNewEntity(
-      (unevalTreeFromMainThread.Api2 as unknown) as UnEvalTreeAction,
+      unevalTreeFromMainThread.Api2 as unknown as UnEvalTreeAction,
     );
     // Action config
     expect(actionForEval).toHaveProperty(
@@ -418,7 +417,7 @@ describe("7. Test util methods", () => {
     expect(actionForEval).not.toHaveProperty("__config__");
 
     const widgetForEval = createNewEntity(
-      (unevalTreeFromMainThread.Button2 as unknown) as UnEvalTreeAction,
+      unevalTreeFromMainThread.Button2 as unknown as UnEvalTreeAction,
     );
     // widget config
     expect(widgetForEval).toHaveProperty(
@@ -430,7 +429,7 @@ describe("7. Test util methods", () => {
 
   it("3. makeDataTreeEntityConfigAsProperty method", () => {
     const unEvalTreeForEval = createUnEvalTreeForEval(
-      (unevalTreeFromMainThread as unknown) as UnEvalTree,
+      unevalTreeFromMainThread as unknown as UnEvalTree,
     );
     const dataTree = makeEntityConfigsAsObjProperties(unEvalTreeForEval);
 

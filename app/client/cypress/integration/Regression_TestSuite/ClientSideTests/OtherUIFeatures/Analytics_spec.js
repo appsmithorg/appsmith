@@ -2,8 +2,8 @@ import User from "../../../../fixtures/user.json";
 
 let appId;
 
-describe("Checks for analytics initialization", function() {
-  it("Should check analytics is not initialised when enableTelemtry is false", function() {
+describe("Checks for analytics initialization", function () {
+  it("Should check analytics is not initialised when enableTelemtry is false", function () {
     cy.visit("/applications");
     cy.reload();
     cy.wait(3000);
@@ -33,7 +33,7 @@ describe("Checks for analytics initialization", function() {
     });
   });
 
-  it("Should check smartlook is not initialised when enableTelemtry is false", function() {
+  it("Should check smartlook is not initialised when enableTelemtry is false", function () {
     cy.visit("/applications");
     cy.reload();
     cy.wait(3000);
@@ -57,7 +57,7 @@ describe("Checks for analytics initialization", function() {
     });
   });
 
-  it("Should check Sentry is not initialised when enableTelemtry is false", function() {
+  it("Should check Sentry is not initialised when enableTelemtry is false", function () {
     cy.visit("/applications");
     cy.reload();
     cy.wait(3000);

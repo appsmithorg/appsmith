@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
   getViewModePageList,
@@ -17,8 +17,9 @@ import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import { Theme } from "constants/DefaultTheme";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import type { Theme } from "constants/DefaultTheme";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -75,12 +76,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
-  const {
-    currentApplicationDetails,
-    currentUser,
-    currentWorkspaceId,
-    pages,
-  } = props;
+  const { currentApplicationDetails, currentUser, currentWorkspaceId, pages } =
+    props;
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");

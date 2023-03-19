@@ -1,11 +1,11 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/listWidgetLintDsl.json");
 
-describe("Linting warning validation with list widget", function() {
+describe("Linting warning validation with list widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Linting Error validation on mouseover and errorlog tab", function() {
+  it("Linting Error validation on mouseover and errorlog tab", function () {
     cy.openPropertyPane("listwidget");
     /**
      * @param{Text} Random Text
@@ -19,12 +19,8 @@ describe("Linting warning validation with list widget", function() {
       .wait(500);
 
     //lint mark validation
-    cy.get(commonlocators.lintError)
-      .first()
-      .should("be.visible");
-    cy.get(commonlocators.lintError)
-      .last()
-      .should("be.visible");
+    cy.get(commonlocators.lintError).first().should("be.visible");
+    cy.get(commonlocators.lintError).last().should("be.visible");
 
     cy.get(commonlocators.lintError)
       .first()
@@ -44,13 +40,9 @@ describe("Linting warning validation with list widget", function() {
       .should("be.visible")
       .contains("'DATA' is not defined.");
 
-    cy.get(commonlocators.debugger)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
 
-    cy.get(commonlocators.errorTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
 
     cy.get(commonlocators.debugErrorMsg).should("have.length", 6);
   });

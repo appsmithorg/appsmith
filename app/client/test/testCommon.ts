@@ -6,19 +6,19 @@ import { initEditor } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
 import { APP_MODE } from "entities/App";
 import { useDispatch } from "react-redux";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
-import { AppState } from "@appsmith/reducers";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { AppState } from "@appsmith/reducers";
+import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import { DSLWidget } from "widgets/constants";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import type { DSLWidget } from "widgets/constants";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();

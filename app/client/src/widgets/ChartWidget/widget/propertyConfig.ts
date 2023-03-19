@@ -1,7 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { ChartWidgetProps } from "widgets/ChartWidget/widget";
+import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import { isLabelOrientationApplicableFor } from "../component";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 
