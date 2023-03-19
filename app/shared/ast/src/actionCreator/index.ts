@@ -1137,13 +1137,13 @@ export function getQueryParam(code: string) {
         if(!args || args.length === 0) return `{{{}}}`;
 
         const firstArg = args[0] || {};
-        if(isObjectExpression(firstArg)) {
-            return `{{${generate(firstArg).trim()}}}`;
+        if(firstArg.type && !isTypeOfFunction(firstArg.type)) {
+            return getTextArgumentAtPosition(code, 0, 2);
         }
 
         const thirdArg = args[2] || {};
-        if(isObjectExpression(thirdArg)) {
-            return `{{${generate(thirdArg).trim()}}}`;
+        if(thirdArg.type && !isTypeOfFunction(thirdArg.type)) {
+            return getTextArgumentAtPosition(code, 2, 2);
         }
         return `{{{}}}`;
     } catch(e) {
