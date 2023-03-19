@@ -251,5 +251,19 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
     cy.wait(200);
 
     verifyDefaultItem();
+
+    // Select another container on the Same Page and reset the list widget
+
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector} `)
+      .last()
+      .click({ force: true });
+
+    cy.wait(500);
+
+    cy.get(`${widgetSelector("ResetWidget")} button`).click({ force: true });
+
+    cy.wait(500);
+
+    verifyDefaultItem();
   });
 });

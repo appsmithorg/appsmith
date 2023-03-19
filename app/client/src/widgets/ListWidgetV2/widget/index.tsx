@@ -645,9 +645,7 @@ class ListWidget extends BaseWidget<
 
     const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
 
-    if (this.props.pageNo !== pageNo) {
-      this.onPageChange(pageNo);
-    }
+    this.onPageChange(pageNo);
   };
 
   shouldUpdateSelectedItemAndView = () => {
