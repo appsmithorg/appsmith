@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/alignmentWithDynamicHeightDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Dynamic Height Width validation", function() {
+describe("Dynamic Height Width validation", function () {
   function validateCssProperties(property) {
     cy.get("button:contains('Small')").click({ force: true });
     cy.wait(3000);
@@ -128,7 +128,7 @@ describe("Dynamic Height Width validation", function() {
           });
       });
   }
-  it("Validate change with auto height width for text widgets", function() {
+  it("Validate change with auto height width for text widgets", function () {
     cy.addDsl(dsl);
     cy.wait(30000); //for dsl to settled
     validateCssProperties("height");

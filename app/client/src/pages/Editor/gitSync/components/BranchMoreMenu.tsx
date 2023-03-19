@@ -11,8 +11,8 @@ import {
   DELETE_BRANCH_WARNING_DEFAULT,
 } from "@appsmith/constants/messages";
 import DangerMenuItem from "./DangerMenuItem";
-import { Dispatch } from "redux";
-import { GitApplicationMetadata } from "api/ApplicationApi";
+import type { Dispatch } from "redux";
+import type { GitApplicationMetadata } from "api/ApplicationApi";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 interface Props {
