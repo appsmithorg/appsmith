@@ -22,7 +22,7 @@ export default function ActionV2(props: {
   onChange: (actionBlock: TActionBlock) => void;
   className?: string;
   id: string;
-  supportCallback?: boolean;
+  level: number;
   variant?: string;
 }) {
   const { id } = props;
@@ -91,8 +91,16 @@ export default function ActionV2(props: {
     errorBlocks.filter(({ actionType }) => actionType !== AppsmithFunction.none)
       .length;
 
-  const areCallbacksApplicable =
-    chainableFns.includes(actionBlock.actionType) && props.supportCallback;
+  const callbacksCount =
+    successBlocks.filter(({ type }) => type === "success").length +
+    errorBlocks.filter(({ type }) => type === "failure").length;
+
+  let areCallbacksApplicable =
+    chainableFns.includes(actionBlock.actionType) && props.level < 2;
+
+  if (props.level === 1) {
+    areCallbacksApplicable = callbacksCount > 0;
+  }
 
   const showCallbacks = selectedBlockId === id || touched;
 
@@ -120,6 +128,7 @@ export default function ActionV2(props: {
       <ActionSelector
         action={actionBlock}
         id={id}
+        level={props.level}
         onChange={props.onChange}
         open={isOpen}
       >
@@ -196,9 +205,10 @@ export default function ActionV2(props: {
                     {callbacks.map((cActionBlock, index) => (
                       <ActionV2
                         actionBlock={cActionBlock}
-                        className={`mt-0`}
+                        className={`${index === 0 ? "mt-0" : "mt-1"}`}
                         id={`${id}_${blockType}_${index}`}
                         key={`${id}_${blockType}_${index}`}
+                        level={props.level + 1}
                         onChange={(
                           childActionBlock: TActionBlock,
                           del?: boolean,

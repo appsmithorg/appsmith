@@ -267,6 +267,7 @@ export function codeToAction(
   code: string,
   fieldOptions: TreeDropdownOption[],
   multipleActions = true,
+  level = 0,
 ): TActionBlock {
   const jsCode = getCodeFromMoustache(code);
 
@@ -324,11 +325,11 @@ export function codeToAction(
         params: [...thenCallbackParams, ...successCallbackParams],
         blocks: [
           ...successCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, level < 2, level + 1),
             type: "success" as const,
           })),
           ...thenCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, level < 2, level + 1),
             type: "then" as const,
           })),
         ],
@@ -337,11 +338,11 @@ export function codeToAction(
         params: [...catchCallbackParams, ...errorCallbackParams],
         blocks: [
           ...errorCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, level < 2, level + 1),
             type: "failure" as const,
           })),
           ...catchCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, level < 2, level + 1),
             type: "catch" as const,
           })),
         ],
@@ -376,6 +377,7 @@ export const chainableFns = [
 export function actionToCode(
   action: TActionBlock,
   multipleActions = true,
+  level = 0,
 ): string {
   const {
     actionType,
@@ -396,7 +398,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "success",
       )
-      .map((callback) => actionToCode(callback, false));
+      .map((callback) => actionToCode(callback, level < 2, level + 1));
     const successCallbackCode = successCallbackCodes.join("");
 
     const thenCallbackCodes = successBlocks
@@ -404,7 +406,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "then",
       )
-      .map((callback) => actionToCode(callback, false));
+      .map((callback) => actionToCode(callback, level < 2, level + 1));
     const thenCallbackCode = thenCallbackCodes.join("");
 
     const errorCallbackCodes = errorBlocks
@@ -412,7 +414,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "failure",
       )
-      .map((callback) => actionToCode(callback, false));
+      .map((callback) => actionToCode(callback, level < 2, level + 1));
     const errorCallbackCode = errorCallbackCodes.join("");
 
     const catchCallbackCodes = errorBlocks
@@ -420,7 +422,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "catch",
       )
-      .map((callback) => actionToCode(callback, false));
+      .map((callback) => actionToCode(callback, level < 2, level + 1));
     const catchCallbackCode = catchCallbackCodes.join("");
 
     // Set callback function field only if there is a callback code

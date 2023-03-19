@@ -21,12 +21,6 @@ function ActionCard(props: TActionCardProps) {
     error: { blocks: errorBlocks },
     success: { blocks: successBlocks },
   } = actionBlock;
-  const { selectedBlockId } = React.useContext(ActionCreatorContext);
-  const nextId = props.id
-    .split("_")
-    .slice(0, -1)
-    .concat((parseInt(props.id.split("_").pop() || "0") + 1).toString());
-  const isNextCardSelected = nextId.join("_") === selectedBlockId;
   const selected = props.selected;
   const variant: string = props.variant || "mainBlock";
   const actionsCount =
@@ -35,6 +29,7 @@ function ActionCard(props: TActionCardProps) {
     ).length +
     errorBlocks.filter(({ actionType }) => actionType !== AppsmithFunction.none)
       .length;
+  const firstInBlock = props.id.split("_").pop() === "0";
 
   const { action, actionTypeLabel, Icon: MainActionIcon } = getActionInfo(
     code,
@@ -54,8 +49,8 @@ function ActionCard(props: TActionCardProps) {
     case "callbackBlock":
       className = clsx(
         className,
-        "border-[1px] border-t-0 border-gray-200",
-        isNextCardSelected && "border-b-gray-500",
+        "border-[1px] border-gray-200",
+        firstInBlock && "border-t-0",
       );
       break;
 
@@ -74,7 +69,7 @@ function ActionCard(props: TActionCardProps) {
     >
       <div className="flex flex-row justify-between w-full">
         <div className="flex flex-col items-center gap-1 overflow-hidden">
-          <div className="flex flex-row gap-1 w-full flex-start">
+          <div className="flex flex-row gap-1 w-full flex-start items-center">
             <MainActionIcon />
             <div className="text-xs text-gray-600">{actionTypeLabel}</div>
           </div>

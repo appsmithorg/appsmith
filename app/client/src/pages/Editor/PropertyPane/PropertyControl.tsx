@@ -55,14 +55,7 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
-import { getActionBlockFunctionNames } from "@shared/ast";
-import { getCodeFromMoustache } from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { AppsmithFunctionsWithFields } from "../../../components/editorComponents/ActionCreator/constants";
-import {
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-} from "../../../selectors/entitiesSelector";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -77,9 +70,6 @@ const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
   const controlRef = useRef<HTMLDivElement | null>(null);
-
-  const actions = useSelector(getActionsForCurrentPage);
-  const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
@@ -620,48 +610,6 @@ const PropertyControl = memo((props: Props) => {
         propertyStylesheetValue === propertyValue
       ) {
         isToggleDisabled = false;
-      }
-
-      if (config.controlType === "ACTION_SELECTOR") {
-        const codeFromProperty = getCodeFromMoustache(propertyValue);
-
-        const actionsArray: string[] = [];
-        const jsActionsArray: string[] = [];
-
-        actions.forEach((action) => {
-          actionsArray.push(action.config.name + ".run");
-          actionsArray.push(action.config.name + ".clear");
-        });
-        jsActions.forEach((jsAction) =>
-          jsAction.config.actions.forEach((action) => {
-            jsActionsArray.push(jsAction.config.name + "." + action.name);
-          }),
-        );
-
-        const {
-          actionBlockFunctionNames,
-          canTranslate,
-        } = getActionBlockFunctionNames(
-          codeFromProperty,
-          self.evaluationVersion,
-        );
-
-        if (codeFromProperty.trim() && !canTranslate) {
-          isToggleDisabled = true;
-        } else {
-          for (const fn of actionBlockFunctionNames) {
-            if (
-              ![
-                ...AppsmithFunctionsWithFields,
-                ...actionsArray,
-                ...jsActionsArray,
-              ].includes(fn)
-            ) {
-              isToggleDisabled = true;
-              break;
-            }
-          }
-        }
       }
     }
 

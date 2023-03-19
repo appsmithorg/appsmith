@@ -636,9 +636,14 @@ export function getActionBlockFunctionNames(
     for(const node of astWithComments.body) {
         if (isExpressionStatementNode(node)) {
             const expression = node.expression;
+            if(!isCallExpressionNode(expression)) {
+                canTranslate = false;
+                break;
+            }
             const rootCallExpression = findRootCallExpression(expression) as CallExpressionNode;
             if(!rootCallExpression) {
                 canTranslate = false;
+                break;
             } else {
                 const functionName = generate(rootCallExpression.callee);
                 actionBlockFunctionNames.push(functionName);

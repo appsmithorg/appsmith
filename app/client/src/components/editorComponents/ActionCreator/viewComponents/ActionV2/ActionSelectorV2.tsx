@@ -20,13 +20,21 @@ export default function ActionSelector(props: {
   children: React.ReactNode;
   open: boolean;
   id: string;
+  level: number;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
 }) {
   const action = props.action;
-  const isNested = props.id?.split("_").length > 1;
-  const popoverClassName = isNested
-    ? "w-[280px] !translate-x-[-32px]"
-    : "w-[280px] !translate-x-[-17px]";
+  let popoverClassName = "";
+  switch (props.level) {
+    case 0:
+      popoverClassName = "w-[280px] !translate-x-[-17px]";
+      break;
+    case 1:
+      popoverClassName = "w-[280px] !translate-x-[-32px]";
+      break;
+    case 2:
+      popoverClassName = "w-[280px] !translate-x-[-47px]";
+  }
 
   return (
     <Popover2

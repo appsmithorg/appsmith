@@ -38,8 +38,8 @@ export default function RootAction(props: TRootActionProps) {
       actionBlock={action}
       className="mt-2"
       id={id}
+      level={0}
       onChange={handleChange}
-      supportCallback
     />
   );
 }

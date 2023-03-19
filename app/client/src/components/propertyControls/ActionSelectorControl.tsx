@@ -8,6 +8,11 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import { getCodeFromMoustache } from "components/editorComponents/ActionCreator/utils";
+import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import { getActionBlockFunctionNames } from "@shared/ast";
+import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import store from "store";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -64,6 +69,44 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    const state = store.getState();
+    const actions = getActions(state);
+    const jsActions = getJSCollections(state);
+    const codeFromProperty = getCodeFromMoustache(value);
+
+    const actionsArray: string[] = [];
+    const jsActionsArray: string[] = [];
+
+    actions.forEach((action) => {
+      actionsArray.push(action.config.name + ".run");
+      actionsArray.push(action.config.name + ".clear");
+    });
+
+    jsActions.forEach((jsAction) =>
+      jsAction.config.actions.forEach((action) => {
+        jsActionsArray.push(jsAction.config.name + "." + action.name);
+      }),
+    );
+
+    const {
+      actionBlockFunctionNames,
+      canTranslate,
+    } = getActionBlockFunctionNames(codeFromProperty, self.evaluationVersion);
+
+    if (codeFromProperty.trim() && !canTranslate) {
+      return false;
+    }
+    for (const fn of actionBlockFunctionNames) {
+      if (
+        ![
+          ...AppsmithFunctionsWithFields,
+          ...actionsArray,
+          ...jsActionsArray,
+        ].includes(fn)
+      ) {
+        return false;
+      }
+    }
     return true;
   }
 }

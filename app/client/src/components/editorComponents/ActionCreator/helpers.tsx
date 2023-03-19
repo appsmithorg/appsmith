@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  getFuncExpressionAtPosition,
-  getFunction,
-  getFunctionNameFromJsObjectExpression,
-} from "@shared/ast";
+import { getFunctionNameFromJsObjectExpression } from "@shared/ast";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
@@ -46,7 +42,6 @@ import {
   SelectorField,
   SwitchType,
 } from "./types";
-import { getCodeFromMoustache } from "./utils";
 
 const actionList: {
   label: string;
@@ -65,7 +60,6 @@ export function getFieldFromValue(
   activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTreeForActionCreator,
-  isChainedAction = false,
 ): SelectorField[] {
   const fields: SelectorField[] = [];
 
@@ -95,10 +89,6 @@ export function getFieldFromValue(
         fields,
         getParentValue as (changeValue: string) => string,
         value,
-        activeTabNavigateTo,
-        activeTabApiAndQueryCallback,
-        dataTree as DataTreeForActionCreator,
-        isChainedAction,
       );
     }
 
@@ -127,47 +117,12 @@ function getActionEntityFields(
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
-  activeTabNavigateTo: SwitchType,
-  activeTabApiAndQueryCallback: SwitchType,
-  dataTree: DataTreeForActionCreator,
-  isChainedAction = false,
 ) {
-  // requiredValue is value minus the surrounding {{ }}
-  // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = getCodeFromMoustache(value);
-  const successFunction = getFuncExpressionAtPosition(
-    requiredValue,
-    0,
-    self.evaluationVersion,
-  );
-  const successValue = getFunction(successFunction, self.evaluationVersion);
-
-  const errorFunction = getFuncExpressionAtPosition(
-    requiredValue,
-    1,
-    self.evaluationVersion,
-  );
-  const errorValue = getFunction(errorFunction, self.evaluationVersion);
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
     value,
   });
-  if (isChainedAction) {
-    fields.push({
-      field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
-      getParentValue,
-      value,
-    });
-    fields.push({
-      field: FieldType.CALLBACK_FUNCTION_API_AND_QUERY,
-      getParentValue,
-      value:
-        activeTabApiAndQueryCallback.id === "onSuccess"
-          ? successValue
-          : errorValue,
-    });
-  }
   fields.push({
     field: FieldType.PARAMS_FIELD,
     getParentValue,
