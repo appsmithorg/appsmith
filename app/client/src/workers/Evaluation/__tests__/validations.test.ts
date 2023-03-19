@@ -1187,7 +1187,6 @@ describe("Validate Validators", () => {
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
-      console.log(result);
       expect(result).toStrictEqual(expected[index]);
     });
   });
