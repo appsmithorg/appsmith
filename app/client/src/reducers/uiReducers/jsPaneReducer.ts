@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -29,7 +29,7 @@ const initialState: JsPaneReduxState = {
   selectedResponseTab: "",
 };
 
-const jsPaneReducer = createReducer(initialState, {
+const jsPaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_INIT]: (state: JsPaneReduxState) => ({
     ...state,
     isFetching: true,

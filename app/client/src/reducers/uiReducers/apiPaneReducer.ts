@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -37,7 +37,7 @@ export interface ApiPaneReduxState {
   selectedRightPaneTab?: number;
 }
 
-const apiPaneReducer = createReducer(initialState, {
+const apiPaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state: ApiPaneReduxState) => ({
     ...state,
     isFetching: true,

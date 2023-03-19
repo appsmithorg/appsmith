@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -96,7 +96,7 @@ const setUpdatingDatasourceEntity = (
   return state;
 };
 
-const explorerReducer = createReducer(initialState, {
+const explorerReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: setEntityUpdateSuccess,

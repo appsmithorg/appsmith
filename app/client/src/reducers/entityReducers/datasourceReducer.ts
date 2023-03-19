@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -47,7 +47,7 @@ const initialState: DatasourceDataState = {
   gsheetToken: "",
 };
 
-const datasourceReducer = createReducer(initialState, {
+const datasourceReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT]: (
     state: DatasourceDataState,
   ) => {

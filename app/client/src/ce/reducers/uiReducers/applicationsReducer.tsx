@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ApplicationPayload,
@@ -527,7 +527,7 @@ export const handlers = {
   },
 };
 
-const applicationsReducer = createReducer(initialState, handlers);
+const applicationsReducer = createImmerReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 

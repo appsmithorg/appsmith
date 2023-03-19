@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export const initialState: SettingsReduxState = {
   isLoading: false,
@@ -89,4 +89,4 @@ export const handlers = {
   }),
 };
 
-export default createReducer(initialState, handlers);
+export default createImmerReducer(initialState, handlers);

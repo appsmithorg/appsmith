@@ -1,6 +1,6 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: GuidedTourState = {
   guidedTour: false,
@@ -32,7 +32,7 @@ export interface GuidedTourState {
   forceShowContent: number;
 }
 
-const guidedTourReducer = createReducer(initialState, {
+const guidedTourReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.ENABLE_GUIDED_TOUR]: (
     state: GuidedTourState,
     action: ReduxAction<boolean>,

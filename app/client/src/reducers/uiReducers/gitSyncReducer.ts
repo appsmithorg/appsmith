@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -36,7 +36,7 @@ const initialState: GitSyncReducerState = {
   },
 };
 
-const gitSyncReducer = createReducer(initialState, {
+const gitSyncReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN]: (
     state: GitSyncReducerState,
     action: ReduxAction<{

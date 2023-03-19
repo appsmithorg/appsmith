@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type {
@@ -32,7 +32,7 @@ const initialState: GlobalSearchReduxState = {
   },
 };
 
-const globalSearchReducer = createReducer(initialState, {
+const globalSearchReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_GLOBAL_SEARCH_QUERY]: (
     state: GlobalSearchReduxState,
     action: ReduxAction<string>,

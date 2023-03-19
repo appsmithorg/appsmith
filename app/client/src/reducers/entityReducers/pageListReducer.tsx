@@ -14,7 +14,7 @@ import type {
 import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
 import { sortBy } from "lodash";
 import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -25,7 +25,7 @@ const initialState: PageListReduxState = {
   loading: {},
 };
 
-export const pageListReducer = createReducer(initialState, {
+export const pageListReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
     action: ReduxAction<{ id: string }>,

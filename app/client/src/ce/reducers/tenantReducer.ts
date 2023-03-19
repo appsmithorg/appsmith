@@ -9,7 +9,7 @@ import {
   APPSMITH_BRAND_PRIMARY_COLOR,
   createBrandColorsFromPrimaryColor,
 } from "utils/BrandingUtils";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export interface TenantReduxState<T> {
   userPermissions: string[];
@@ -66,4 +66,4 @@ export const handlers = {
   }),
 };
 
-export default createReducer(initialState, handlers);
+export default createImmerReducer(initialState, handlers);

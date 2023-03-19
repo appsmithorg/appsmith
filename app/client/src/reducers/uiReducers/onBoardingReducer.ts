@@ -1,6 +1,6 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: OnboardingState = {
   // Signposting
@@ -21,7 +21,7 @@ export interface OnboardingState {
   showFirstTimeUserOnboardingModal: boolean;
 }
 
-const onboardingReducer = createReducer(initialState, {
+const onboardingReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION]: (
     state: OnboardingState,
     action: ReduxAction<boolean>,

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
@@ -29,7 +29,7 @@ export interface DatasourcePaneReduxState {
   defaultKeyValueArrayConfig: Array<string>;
 }
 
-const datasourcePaneReducer = createReducer(initialState, {
+const datasourcePaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (
     state: DatasourcePaneReduxState,
     action: ReduxAction<{ id: string; draft: Partial<Datasource> }>,

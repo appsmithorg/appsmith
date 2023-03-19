@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export type SegmentState = "INIT_SUCCESS" | "INIT_UNCERTAIN";
 
@@ -34,4 +34,4 @@ export const handlers = {
   }),
 };
 
-export default createReducer(initialState, handlers);
+export default createImmerReducer(initialState, handlers);

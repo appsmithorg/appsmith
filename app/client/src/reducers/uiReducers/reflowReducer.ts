@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReflowReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReflowedSpaceMap } from "reflow/reflowTypes";
@@ -8,7 +8,7 @@ const initialState: widgetReflow = {
   reflowingWidgets: {},
 };
 
-export const widgetReflowReducer = createReducer(initialState, {
+export const widgetReflowReducer = createImmerReducer(initialState, {
   [ReflowReduxActionTypes.STOP_REFLOW]: () => {
     return {
       isReflowing: false,

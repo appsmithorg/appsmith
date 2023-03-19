@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type {
@@ -23,7 +23,7 @@ export type TriggerActionLoadingPayload = {
 
 const initialState: TriggerValuesEvaluationState = {};
 
-const triggers = createReducer(initialState, {
+const triggers = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_TRIGGER_VALUES]: (
     state: FormEvaluationState,
     action: ReduxAction<FormEvaluationState>,

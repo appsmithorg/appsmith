@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -24,7 +24,7 @@ const initialState: TemplatesReduxState = {
   showTemplatesModal: false,
 };
 
-const templateReducer = createReducer(initialState, {
+const templateReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.GET_ALL_TEMPLATES_INIT]: (state: TemplatesReduxState) => {
     return {
       ...state,
