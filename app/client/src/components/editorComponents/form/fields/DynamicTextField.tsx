@@ -23,7 +23,6 @@ class DynamicTextField extends React.Component<
       showLightningMenu?: boolean;
       height?: string;
       disabled?: boolean;
-      lineCommentString?: string;
       evaluatedPopUpLabel?: string;
     }
 > {
@@ -33,7 +32,6 @@ class DynamicTextField extends React.Component<
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
-      lineCommentString: this.props.lineCommentString,
     };
 
     return (
