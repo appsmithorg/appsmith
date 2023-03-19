@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
 import { change, Field, formValueSelector } from "redux-form";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
@@ -55,6 +54,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -492,7 +492,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     return (
       <DatasourceContainer data-replay-id={btoa(props.input.name || "")}>
-        <CodeEditor
+        <LazyCodeEditor
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"

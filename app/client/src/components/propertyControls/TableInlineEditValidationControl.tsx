@@ -3,7 +3,6 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
@@ -18,6 +17,7 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -58,7 +58,7 @@ export function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

@@ -8459,6 +8459,7 @@ __metadata:
     "@welldone-software/why-did-you-render": ^4.2.5
     acorn-walk: ^8.2.0
     algoliasearch: ^4.2.0
+    assert-never: ^1.2.1
     astring: ^1.7.5
     axios: ^0.27.2
     babel-plugin-module-resolver: ^4.1.0
@@ -8940,6 +8941,13 @@ __metadata:
   dependencies:
     safer-buffer: ~2.1.0
   checksum: aa5d6f77b1e0597df53824c68cfe82d1d89ce41cb3520148611f025fbb3101b2d25dd6a40ad34e4fac10f6b19ed5e8628cd4b7d212261e80e83f02b39ee5663c
+  languageName: node
+  linkType: hard
+
+"assert-never@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "assert-never@npm:1.2.1"
+  checksum: ea4f1756d90f55254c4dc7a20d6c5d5bc169160562aefe3d8756b598c10e695daf568f21b6d6b12245d7f3782d3ff83ef6a01ab75d487adfc6909470a813bf8c
   languageName: node
   linkType: hard
 

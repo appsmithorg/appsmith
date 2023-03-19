@@ -17,7 +17,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
-import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -54,7 +54,7 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
