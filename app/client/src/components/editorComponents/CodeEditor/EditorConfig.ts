@@ -1,8 +1,8 @@
-import CodeMirror from "codemirror";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EntityNavigationData } from "selectors/navigationSelectors";
+import type CodeMirror from "codemirror";
+import type { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
 
 export enum EditorModes {
   TEXT = "text/plain",

@@ -1,5 +1,7 @@
-import React, { JSXElementConstructor } from "react";
-import { IconProps, IconWrapper } from "constants/IconConstants";
+import type { JSXElementConstructor } from "react";
+import React from "react";
+import type { IconProps } from "constants/IconConstants";
+import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as DeleteIcon } from "assets/icons/control/delete.svg";
 import { ReactComponent as MoveIcon } from "assets/icons/control/move.svg";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit.svg";

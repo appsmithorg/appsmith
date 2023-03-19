@@ -1,4 +1,5 @@
-import reducer, { MetaWidgetsReduxState } from "./metaWidgetsReducer";
+import type { MetaWidgetsReduxState } from "./metaWidgetsReducer";
+import reducer from "./metaWidgetsReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { metaWidgetState } from "utils/metaWidgetState";
 import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
@@ -273,8 +274,7 @@ const modifiedState: MetaWidgetsReduxState = {
     ],
 
     gap: 0,
-    data:
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
+    data: "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
     currentIndex: 0,
     referencedWidgetId: "e3bqqc9oid",
     isMetaWidget: true,

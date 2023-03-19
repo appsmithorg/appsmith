@@ -12,9 +12,7 @@ describe("Application crashes when saving datasource", () => {
       "POST",
     );
     apiPage.SelectPaneTab("Authentication");
-    cy.get(apiPage._saveAsDS)
-      .last()
-      .click({ force: true });
+    cy.get(apiPage._saveAsDS).last().click({ force: true });
     cy.get(".t--close-editor").click({ force: true });
     cy.get(datasource._datasourceModalSave).click();
     // ensures app does not crash and datasource is saved.

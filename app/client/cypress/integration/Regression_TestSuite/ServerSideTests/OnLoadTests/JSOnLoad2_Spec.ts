@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName: any, jsName: any;
 
-describe("JSObjects OnLoad Actions tests", function() {
+describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewWorkspace("JSOnLoadTest");
@@ -264,7 +264,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     asyncFunctions: string[],
   ) {
     cy.get(_.jsEditor._funcDropdown).click();
-    cy.get(_.jsEditor._funcDropdownOptions).then(function($ele) {
+    cy.get(_.jsEditor._funcDropdownOptions).then(function ($ele) {
       expect($ele.eq(0).text()).to.be.oneOf(syncFunctions);
       expect($ele.eq(1).text()).to.be.oneOf(asyncFunctions);
       expect($ele.eq(2).text()).to.be.oneOf(asyncFunctions);

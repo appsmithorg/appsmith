@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import Template from "./Template";
-import { Template as TemplateInterface } from "api/TemplatesApi";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import RequestTemplate from "./Template/RequestTemplate";
 
 const breakpointColumnsObject = {
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   }
 
   .grid_column {
-    padding: 11px
+    padding: 11px;
     // padding-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;

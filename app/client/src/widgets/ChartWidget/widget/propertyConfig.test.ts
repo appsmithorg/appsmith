@@ -2,7 +2,7 @@
 import { isString, get } from "lodash";
 
 import { styleConfig, contentConfig } from "./propertyConfig";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
 const config = [...contentConfig, ...styleConfig];
 
@@ -98,9 +98,9 @@ describe("Validate Chart Widget's property config", () => {
     const allowedChartsTypes = ["LINE_CHART", "AREA_CHART", "COLUMN_CHART"];
 
     const axisSection = config.find((c) => c.sectionName === "Axis");
-    const labelOrientationProperty = ((axisSection?.children as unknown) as PropertyPaneControlConfig[]).find(
-      (p) => p.propertyName === "labelOrientation",
-    );
+    const labelOrientationProperty = (
+      axisSection?.children as unknown as PropertyPaneControlConfig[]
+    ).find((p) => p.propertyName === "labelOrientation");
 
     allowedChartsTypes.forEach((chartType) => {
       const result = labelOrientationProperty?.hidden?.({ chartType }, "");

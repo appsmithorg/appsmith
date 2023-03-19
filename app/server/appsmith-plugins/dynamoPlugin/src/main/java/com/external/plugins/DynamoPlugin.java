@@ -244,9 +244,9 @@ public class DynamoPlugin extends BasePlugin {
                             result.setBody(transformedResponse);
                         } catch (InvocationTargetException | IllegalAccessException |
                                  NoSuchMethodException | ClassNotFoundException e) {
-                            final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
-                            log.warn(message, e);
-                            throw new AppsmithPluginException(DynamoPluginError.QUERY_EXECUTION_FAILED, DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage());
+                            final String errorMessage = (e.getCause() == null ? e : e.getCause()).getMessage();
+                            log.warn("Error executing the DynamoDB Action: {}", errorMessage, e);
+                            throw new AppsmithPluginException(DynamoPluginError.QUERY_EXECUTION_FAILED, DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, errorMessage);
                         }
 
                         result.setIsExecutionSuccess(true);

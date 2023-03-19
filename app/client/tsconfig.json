@@ -25,7 +25,8 @@
     ],
     "sourceMap": true,
     "baseUrl": "./src",
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "importsNotUsedAsValues": "error",
   },
   "include": [
     "./src/**/*",

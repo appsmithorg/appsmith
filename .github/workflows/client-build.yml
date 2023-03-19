@@ -9,6 +9,10 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
 
   pull_request:
     branches: [release, master]
@@ -117,7 +121,7 @@ jobs:
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0
+        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
@@ -126,6 +130,8 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+          else
+            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \

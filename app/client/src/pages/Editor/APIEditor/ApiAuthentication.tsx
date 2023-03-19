@@ -1,12 +1,12 @@
 import React from "react";
-import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
+import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
 import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
 import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
 import {
@@ -138,8 +138,7 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   };
 };
 
-const ApiAuthenticationConnectedComponent = connect(mapStateToProps)(
-  ApiAuthentication,
-);
+const ApiAuthenticationConnectedComponent =
+  connect(mapStateToProps)(ApiAuthentication);
 
 export default ApiAuthenticationConnectedComponent;
