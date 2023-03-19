@@ -13,7 +13,7 @@ describe("Test Field Group Config", () => {
       index: 1,
       input: AppsmithFunction.integration,
       expectedLabel: "Execute a query",
-      expectedFields: [],
+      expectedFields: [FieldType.PARAMS_FIELD],
     },
     {
       index: 2,

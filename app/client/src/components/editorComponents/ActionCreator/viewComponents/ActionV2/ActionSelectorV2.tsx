@@ -52,7 +52,7 @@ type TActionSelectorFormProps = {
 
 function ActionSelectorForm(props: TActionSelectorFormProps) {
   const integrationOptions = useApisQueriesAndJsActionOptions(() => {
-    return;
+    return selectBlock("-1");
   });
   const widgetOptionTree: TreeDropdownOption[] = useSelector(
     getWidgetOptionsTree,
@@ -65,7 +65,9 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const { selectBlock, selectedBlockId } = React.useContext(
     ActionCreatorContext,
   );
-  const isChainedAction = Boolean(selectedBlockId?.split("_").length);
+  const isChainedAction = Boolean(
+    Number(selectedBlockId?.split("_").length) > 1,
+  );
 
   const ref = useRef<HTMLDivElement>(null);
   const handleOutsideClick = useCallback(

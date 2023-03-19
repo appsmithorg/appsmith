@@ -49,6 +49,8 @@ import {
   getCallExpressions,
   getActionBlockFunctionNames,
   getFunctionParams,
+  getQueryParam,
+  setQueryParam,
 } from "./src/actionCreator";
 
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
@@ -100,4 +102,6 @@ export {
   getCallExpressions,
   getActionBlockFunctionNames,
   getFunctionParams,
+  getQueryParam,
+  setQueryParam,
 };

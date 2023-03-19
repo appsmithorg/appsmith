@@ -19,6 +19,8 @@ import {
   callBackFieldSetter,
   callBackFieldGetter,
   objectSetter,
+  paramGetter,
+  paramSetter,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -102,6 +104,19 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (value: any, currentValue: string) => {
       return objectSetter(value, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.PARAMS_FIELD]: {
+    label: () => "Params",
+    defaultText: "",
+    exampleText: "Api1.run({ a: 1 })",
+    options: () => null,
+    getter: (value: any) => {
+      return paramGetter(value);
+    },
+    setter: (value: any, currentValue: string) => {
+      return paramSetter(value, currentValue);
     },
     view: ViewTypes.TEXT_VIEW,
   },

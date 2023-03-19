@@ -168,6 +168,11 @@ function getActionEntityFields(
           : errorValue,
     });
   }
+  fields.push({
+    field: FieldType.PARAMS_FIELD,
+    getParentValue,
+    value,
+  });
 
   return fields;
 }

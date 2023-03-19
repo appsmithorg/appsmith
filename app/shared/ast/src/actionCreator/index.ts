@@ -10,7 +10,8 @@ import {
     CallExpressionNode,
     BinaryExpressionNode,
     BlockStatementNode,
-    IdentifierNode, isIdentifierNode, isExpressionStatementNode,
+    IdentifierNode, isIdentifierNode, isExpressionStatementNode, isTypeOfFunction,
+    isObjectExpression,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {findNodeAt, simple} from "acorn-walk";
@@ -1118,5 +1119,66 @@ export function getFunctionParams(code: string) {
         return params;
     } catch(e) {
         return [];
+    }
+}
+
+export function getQueryParam(code: string) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        const ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+        });
+        
+        const rootCallExpression = findRootCallExpression(ast);
+        if(!rootCallExpression) return `{{ {} }}`;
+        
+        const args = rootCallExpression.arguments;
+        if(!args || args.length === 0) return `{{{}}}`;
+
+        const firstArg = args[0] || {};
+        if(isObjectExpression(firstArg)) {
+            return `{{${generate(firstArg).trim()}}}`;
+        }
+
+        const thirdArg = args[2] || {};
+        if(isObjectExpression(thirdArg)) {
+            return `{{${generate(thirdArg).trim()}}}`;
+        }
+        return `{{{}}}`;
+    } catch(e) {
+        return `{{{}}}`;
+    }
+}
+
+export function setQueryParam(code: string, value: string) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        const ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+        });
+        
+        const rootCallExpression = findRootCallExpression(ast);
+        if(!rootCallExpression) return code; 
+
+        const firstArg = rootCallExpression.arguments[0] || {};
+        if(isObjectExpression(firstArg)) {
+            return setObjectAtPosition(code, value, 0, 2);
+        } else if(firstArg.type === undefined) {
+            return setObjectAtPosition(code, value, 0, 2);
+        } else if(isTypeOfFunction(firstArg.type)) {
+            const secondArg = rootCallExpression.arguments[1] || {};
+            if(secondArg.type === undefined) {
+                setCallbackFunctionField(code, "() => {}", 1, 2);
+            }
+            const thirdArg = rootCallExpression.arguments[2] || {};
+            if(isObjectExpression(thirdArg) || thirdArg.type === undefined) {
+                return setObjectAtPosition(code, value, 2, 2);
+            }
+        }
+        return code;
+    } catch(e) {
+        return code;
     }
 }

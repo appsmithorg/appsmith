@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { JSToggleButton, Icon } from "design-system-old";
+import { JSToggleButton } from "design-system-old";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -55,12 +55,8 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
-import { getActionBlocks, getActionBlockFunctionNames } from "@shared/ast";
-import {
-  getCodeFromMoustache,
-  isEmptyBlock,
-} from "components/editorComponents/ActionCreator/utils";
-import clsx from "clsx";
+import { getActionBlockFunctionNames } from "@shared/ast";
+import { getCodeFromMoustache } from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { AppsmithFunctionsWithFields } from "../../../components/editorComponents/ActionCreator/constants";
 import {
@@ -735,45 +731,6 @@ const PropertyControl = memo((props: Props) => {
                 </button>
               </>
             )}
-            {config.controlType === "ACTION_SELECTOR" ? (
-              <div className="flex-1 flex h-7 items-center justify-end pb-1">
-                <button
-                  className={clsx(
-                    "add-action flex items-center justify-center text-center h-5 w-5",
-                    isDynamic && "disabled",
-                  )}
-                  disabled={isDynamic}
-                  onClick={() => {
-                    const valueWithoutMustache = getCodeFromMoustache(
-                      propertyValue,
-                    );
-
-                    // If there is already an empty action configured, do not add another one
-                    const actionBlocks = getActionBlocks(
-                      valueWithoutMustache,
-                      self.evaluationVersion,
-                    );
-
-                    if (
-                      actionBlocks.length > 0 &&
-                      isEmptyBlock(actionBlocks[actionBlocks.length - 1])
-                    )
-                      return;
-
-                    onPropertyChange(
-                      propertyName,
-                      `{{${valueWithoutMustache + ";"}}}`,
-                    );
-                  }}
-                >
-                  <Icon
-                    fillColor="#575757"
-                    name="plus"
-                    size="extraExtraLarge"
-                  />
-                </button>
-              </div>
-            ) : null}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(
             config,

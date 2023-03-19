@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getActionBlocks } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
-import { getCodeFromMoustache } from "./utils";
+import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import RootAction from "./viewComponents/ActionV2/RootActionV2";
+import { Icon } from "design-system-old";
+import clsx from "clsx";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -100,8 +102,7 @@ const ActionCreator = React.forwardRef(
                 return;
               }
             }
-            newActionBlockId.current = uuidv4();
-            newActions[newActionBlockId.current] = block;
+            newActions[uuidv4()] = block;
           }
         });
         previousBlocks.current = [...newBlocks];
@@ -110,10 +111,6 @@ const ActionCreator = React.forwardRef(
         return newActions;
       });
     }, [props.value]);
-
-    const newActionBlockId = useRef<string>("");
-    const focusBlockId = newActionBlockId.current;
-    newActionBlockId.current = "";
 
     const save = useCallback(
       (newActions) => {
@@ -154,22 +151,59 @@ const ActionCreator = React.forwardRef(
       undefined,
     );
 
+    const id = useRef<string>("");
+
+    useEffect(() => {
+      if (!id.current) return;
+      const children = ref.current?.children || [];
+      const lastChildElement = children[children.length - 1];
+      lastChildElement?.scrollIntoView({ block: "nearest" });
+      selectBlock(id.current);
+      id.current = "";
+    }, [actions]);
+
+    const addBlock = useCallback(() => {
+      const hasAnEmptyBlock = Object.entries(actions).find(([, action]) =>
+        isEmptyBlock(action),
+      );
+      if (hasAnEmptyBlock) {
+        selectBlock(hasAnEmptyBlock[0]);
+        return;
+      }
+      const newActions = { ...actions };
+      id.current = uuidv4();
+      newActions[id.current] = "";
+      setActions(newActions);
+    }, [actions, save]);
+
     return (
-      <ActionCreatorContext.Provider
-        value={{ label: props.action, selectedBlockId, selectBlock }}
-      >
-        <div className="flex flex-col gap-[2px]" ref={ref}>
-          {Object.entries(actions).map(([id, value]) => (
-            <RootAction
-              code={value}
-              id={id}
-              key={id}
-              onChange={handleActionChange(id)}
-              shouldFocus={id === focusBlockId}
-            />
-          ))}
-        </div>
-      </ActionCreatorContext.Provider>
+      <div className="relative pt-1">
+        <button
+          className={clsx(
+            "add-action flex items-center justify-center text-center h-5 w-5",
+            false && "disabled",
+            "absolute right-0 top-[-22px]",
+          )}
+          disabled={false}
+          onClick={addBlock}
+        >
+          <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
+        </button>
+        <ActionCreatorContext.Provider
+          value={{ label: props.action, selectedBlockId, selectBlock }}
+        >
+          <div className="flex flex-col gap-[2px]" ref={ref}>
+            {Object.entries(actions).map(([id, value]) => (
+              <RootAction
+                code={value}
+                id={id}
+                key={id}
+                onChange={handleActionChange(id)}
+              />
+            ))}
+          </div>
+        </ActionCreatorContext.Provider>
+      </div>
     );
   },
 );

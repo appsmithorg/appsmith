@@ -32,7 +32,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   },
   [AppsmithFunction.integration]: {
     label: createMessage(EXECUTE_A_QUERY),
-    fields: [],
+    fields: [FieldType.PARAMS_FIELD],
     children: [{ label: "", value: "" }],
     defaultParams: "",
     icon: "execute-query",

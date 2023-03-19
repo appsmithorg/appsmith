@@ -170,6 +170,7 @@ export function Field(props: FieldProps) {
         value: value || "",
       });
       break;
+    case FieldType.PARAMS_FIELD:
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options as TreeDropdownOption[],

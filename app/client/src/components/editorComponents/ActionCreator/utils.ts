@@ -15,6 +15,8 @@ import {
   setThenBlockInQuery,
   setCatchBlockInQuery,
   getFunctionParams,
+  setQueryParam,
+  getQueryParam,
 } from "@shared/ast";
 import { TreeDropdownOption } from "design-system-old";
 import { TActionBlock } from "./types";
@@ -475,4 +477,15 @@ export function isEmptyBlock(block: string) {
 export function getCodeFromMoustache(value = "") {
   const code = value.replace(/^{{|}}$/g, "");
   return code;
+}
+
+export function paramSetter(changeValue: string, currentValue: string) {
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
+  return setQueryParam(requiredValue, changeValueWithoutBraces);
+}
+
+export function paramGetter(code: string) {
+  const requiredValue = getCodeFromMoustache(code);
+  return getQueryParam(requiredValue);
 }
