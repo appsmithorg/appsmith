@@ -94,6 +94,16 @@ export const apiSuccessResponseInterceptor = (
 
 // Handle different api failure scenarios
 export const apiFailureResponseInterceptor = (error: any) => {
+  // this can be extended to other errors we want to catch.
+  // in this case it is 413.
+  if (error && error?.response && error?.response.status === 413) {
+    return Promise.reject({
+      ...error,
+      clientDefinedError: true,
+      message: createMessage(() => "413 error"),
+    });
+  }
+
   // Return error when there is no internet
   if (!window.navigator.onLine) {
     return Promise.reject({

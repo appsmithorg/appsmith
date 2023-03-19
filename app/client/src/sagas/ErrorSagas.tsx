@@ -128,6 +128,24 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
+type ClientDefinedErrorMetadata = {
+  clientDefinedError: boolean;
+  statusCode: string;
+};
+
+export function extractClientDefinedErrorMetadata(
+  err: any,
+): ClientDefinedErrorMetadata | undefined {
+  if (err?.clientDefinedError && err?.response) {
+    return {
+      clientDefinedError: err?.clientDefinedError,
+      statusCode: err?.response?.status,
+    };
+  } else {
+    return undefined;
+  }
+}
+
 type ErrorPayloadType = {
   code?: number | string;
   message?: string;
