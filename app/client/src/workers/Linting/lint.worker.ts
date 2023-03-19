@@ -64,7 +64,10 @@ function eventRequestHandler({
 }): LintTreeResponse | unknown {
   switch (method) {
     case LINT_WORKER_ACTIONS.LINT_TREE: {
-      const lintTreeResponse: LintTreeResponse = { errors: {} };
+      const lintTreeResponse: LintTreeResponse = {
+        errors: {},
+        updatedJSEntities: [],
+      };
       try {
         const {
           asyncJSFunctionsInSyncFields,
@@ -73,14 +76,17 @@ function eventRequestHandler({
           pathsToLint,
           unevalTree: unEvalTree,
         } = requestData as LintTreeRequest;
-        const lintErrors = getlintErrorsFromTree({
-          pathsToLint,
-          unEvalTree,
-          jsPropertiesState,
-          cloudHosting,
-          asyncJSFunctionsInSyncFields,
-        });
+        const { errors: lintErrors, updatedJSEntities } = getlintErrorsFromTree(
+          {
+            pathsToLint,
+            unEvalTree,
+            jsPropertiesState,
+            cloudHosting,
+            asyncJSFunctionsInSyncFields,
+          },
+        );
         lintTreeResponse.errors = lintErrors;
+        lintTreeResponse.updatedJSEntities = updatedJSEntities;
       } catch (e) {}
       return lintTreeResponse;
     }

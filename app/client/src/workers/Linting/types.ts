@@ -4,12 +4,12 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { WorkerRequest } from "@appsmith/workers/common/types";
-import type { TJSPropertiesState } from "workers/common/DataTreeEvaluator";
 import type {
   createEvaluationContext,
   EvaluationScriptType,
 } from "workers/Evaluation/evaluate";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
@@ -18,6 +18,7 @@ export enum LINT_WORKER_ACTIONS {
 
 export interface LintTreeResponse {
   errors: LintErrorsStore;
+  updatedJSEntities: string[];
 }
 
 export interface LintTreeRequest {
@@ -70,4 +71,9 @@ export interface getlintErrorsFromTreeProps {
   jsPropertiesState: TJSPropertiesState;
   cloudHosting: boolean;
   asyncJSFunctionsInSyncFields: DependencyMap;
+}
+
+export interface getlintErrorsFromTreeResponse {
+  errors: LintErrorsStore;
+  updatedJSEntities: string[];
 }

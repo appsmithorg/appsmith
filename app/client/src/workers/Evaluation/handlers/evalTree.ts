@@ -1,7 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty } from "lodash";
+import { isEmpty, union } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -24,6 +24,7 @@ import type {
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import { asyncJsFunctionInDataFields } from "../JSObject/asyncJsFunctionInDataField";
+import { jsPropertiesState } from "../JSObject/jsPropertiesState";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -70,7 +71,10 @@ export default function (request: EvalWorkerSyncRequest) {
       const setupFirstTreeResponse =
         dataTreeEvaluator.setupFirstTree(unevalTree);
       evalOrder = setupFirstTreeResponse.evalOrder;
-      lintOrder = setupFirstTreeResponse.lintOrder;
+      lintOrder = union(
+        setupFirstTreeResponse.lintOrder,
+        jsPropertiesState.getUpdatedJSProperties(),
+      );
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
       initiateLinting({
@@ -82,7 +86,7 @@ export default function (request: EvalWorkerSyncRequest) {
           },
         ),
         requiresLinting,
-        jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
+        jsPropertiesState: jsPropertiesState.getMap(),
         asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
       });
 
@@ -114,7 +118,10 @@ export default function (request: EvalWorkerSyncRequest) {
         dataTreeEvaluator.setupFirstTree(unevalTree);
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
-      lintOrder = setupFirstTreeResponse.lintOrder;
+      lintOrder = union(
+        setupFirstTreeResponse.lintOrder,
+        jsPropertiesState.getUpdatedJSProperties(),
+      );
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
       initiateLinting({
@@ -126,7 +133,7 @@ export default function (request: EvalWorkerSyncRequest) {
           },
         ),
         requiresLinting,
-        jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
+        jsPropertiesState: jsPropertiesState.getMap(),
         asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
       });
 
@@ -148,7 +155,10 @@ export default function (request: EvalWorkerSyncRequest) {
       const setupUpdateTreeResponse =
         dataTreeEvaluator.setupUpdateTree(unevalTree);
       evalOrder = setupUpdateTreeResponse.evalOrder;
-      lintOrder = setupUpdateTreeResponse.lintOrder;
+      lintOrder = union(
+        setupUpdateTreeResponse.lintOrder,
+        jsPropertiesState.getUpdatedJSProperties(),
+      );
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
       pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
@@ -162,7 +172,7 @@ export default function (request: EvalWorkerSyncRequest) {
           },
         ),
         requiresLinting,
-        jsPropertiesState: dataTreeEvaluator.JSPropertiesState,
+        jsPropertiesState: jsPropertiesState.getMap(),
         asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
       });
 

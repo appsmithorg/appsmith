@@ -1,14 +1,16 @@
-import {
-  getEntityNameAndPropertyPath,
-  isJSObject,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import { get, set } from "lodash";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { get, isEmpty, set } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import type { getlintErrorsFromTreeProps } from "./types";
+import type { LintError } from "utils/DynamicBindingUtils";
+import type {
+  getlintErrorsFromTreeProps,
+  getlintErrorsFromTreeResponse,
+} from "./types";
 import {
   getEvaluationContext,
   lintBindingPath,
-  lintJSObject,
+  lintJSObjectBody,
+  lintJSObjectProperty,
   lintTriggerPath,
   sortLintingPathsByType,
 } from "./utils";
@@ -19,24 +21,15 @@ export function getlintErrorsFromTree({
   jsPropertiesState,
   pathsToLint,
   unEvalTree,
-}: getlintErrorsFromTreeProps): LintErrorsStore {
+}: getlintErrorsFromTreeProps): getlintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
+  const updatedJSEntities = new Set<string>();
 
   const evalContextWithoutFunctions = getEvaluationContext(
     unEvalTree,
     cloudHosting,
     { withFunctions: false },
   );
-
-  // clear all lint errors in paths
-  pathsToLint.forEach((fullPropertyPath) => {
-    const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
-    const entity = unEvalTree[entityName];
-    const lintPath = isJSObject(entity)
-      ? `["${entityName}.body"]`
-      : `["${fullPropertyPath}"]`;
-    set(lintTreeErrors, lintPath, []);
-  });
 
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
     pathsToLint,
@@ -87,20 +80,45 @@ export function getlintErrorsFromTree({
 
     // Lint jsobject paths
     jsObjectPaths.forEach((jsObjectPath) => {
-      const { entityName } = getEntityNameAndPropertyPath(jsObjectPath);
-      const jsObjectState = get(jsPropertiesState, entityName);
-      const lintErrors = lintJSObject(
-        entityName,
-        jsObjectState,
-        {
-          dataWithFunctions: evalContextWithFunctions,
-          dataWithoutFunctions: evalContextWithoutFunctions,
-        },
-        asyncJSFunctionsInSyncFields,
-      );
-      set(lintTreeErrors, `["${entityName}.body"]`, lintErrors);
+      const { entityName: jsObjectName } =
+        getEntityNameAndPropertyPath(jsObjectPath);
+      const jsObjectState = get(jsPropertiesState, jsObjectName);
+      const jsObjectBodyPath = `["${jsObjectName}.body"]`;
+      updatedJSEntities.add(jsObjectName);
+      // An empty state shows that there is a parse error in the jsObject or the object is empty, so we lint the entire body
+      // instead of an individual property
+      if (isEmpty(jsObjectState)) {
+        const jsObjectBodyLintErrors = lintJSObjectBody(
+          jsObjectName,
+          evalContextWithFunctions,
+        );
+        set(lintTreeErrors, jsObjectBodyPath, jsObjectBodyLintErrors);
+      } else if (jsObjectPath !== "body") {
+        const propertyLintErrors = lintJSObjectProperty(
+          jsObjectPath,
+          jsObjectState,
+          {
+            dataWithFunctions: evalContextWithFunctions,
+            dataWithoutFunctions: evalContextWithoutFunctions,
+          },
+          asyncJSFunctionsInSyncFields,
+        );
+        const currentLintErrorsInBody = get(
+          lintTreeErrors,
+          jsObjectBodyPath,
+          [] as LintError[],
+        );
+        const updatedLintErrors = [
+          ...currentLintErrorsInBody,
+          ...propertyLintErrors,
+        ];
+        set(lintTreeErrors, jsObjectBodyPath, updatedLintErrors);
+      }
     });
   }
 
-  return lintTreeErrors;
+  return {
+    errors: lintTreeErrors,
+    updatedJSEntities: Array.from(updatedJSEntities),
+  };
 }

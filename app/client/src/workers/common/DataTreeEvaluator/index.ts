@@ -101,7 +101,6 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import type { JSPropertyPosition } from "@shared/ast";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJsFunctionInDataField";
@@ -110,20 +109,6 @@ type SortedDependencies = Array<string>;
 export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
-export interface TBasePropertyState {
-  value: string;
-  position: JSPropertyPosition;
-}
-export interface TJSFunctionPropertyState extends TBasePropertyState {
-  isMarkedAsync: boolean;
-}
-
-export type TJSpropertyState = TBasePropertyState | TJSFunctionPropertyState;
-
-export type TJSPropertiesState = Record<
-  string,
-  Record<string, TJSpropertyState>
->;
 
 export default class DataTreeEvaluator {
   /**
@@ -145,7 +130,6 @@ export default class DataTreeEvaluator {
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
-  JSPropertiesState: TJSPropertiesState = {};
   logs: unknown[] = [];
   console = userLogs;
   allActionValidationConfig?: {

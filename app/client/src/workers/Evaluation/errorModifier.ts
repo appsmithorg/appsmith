@@ -2,6 +2,7 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
+import { klona } from "klona/full";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.";
@@ -41,15 +42,16 @@ class ErrorModifier {
   }
   modifyAsyncInvocationErrors(errors: EvaluationError[], asyncFunc: string) {
     return errors.map((error) => {
-      if (isAsyncFunctionCalledInSyncFieldError(error)) {
-        error.errorMessage.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
-        error.kind = {
+      const newError = Object.assign({}, error);
+      if (isAsyncFunctionCalledInSyncFieldError(newError)) {
+        newError.errorMessage.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
+        newError.kind = {
           category:
             PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
           rootcause: asyncFunc,
         };
       }
-      return error;
+      return newError;
     });
   }
 }
@@ -104,8 +106,24 @@ const ACTION_CALLED_IN_SYNC_FIELD_REGEX =
   /Found a reference to .+? during evaluation\. Sync fields cannot execute framework actions\. Please remove any direct\/indirect references to .+? and try again\./gm;
 
 function isAsyncFunctionCalledInSyncFieldError(error: EvaluationError) {
+  const isPromiseInSyncFields =
+    error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE;
+  const isAsyncFunctionInSyncFields = ACTION_CALLED_IN_SYNC_FIELD_REGEX.test(
+    error.errorMessage.message,
+  );
+  const isAsyncFunctionInvocationDefault =
+    error.errorMessage.message === FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
+  console.log(
+    {
+      isPromiseInSyncFields,
+      isAsyncFunctionInSyncFields,
+      errorMessage: error.errorMessage.message,
+    },
+    "$$$",
+  );
   return (
-    error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE ||
-    ACTION_CALLED_IN_SYNC_FIELD_REGEX.test(error.errorMessage.message)
+    isPromiseInSyncFields ||
+    isAsyncFunctionInSyncFields ||
+    isAsyncFunctionInvocationDefault
   );
 }
