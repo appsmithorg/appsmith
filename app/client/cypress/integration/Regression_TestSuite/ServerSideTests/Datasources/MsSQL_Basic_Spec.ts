@@ -4,7 +4,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 let dsName: any, query: string;
 
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
-  before("Create a new MySQL DS", () => {
+  before("Create a new MySQL DS & adding data into it", () => {
     _.dataSources.CreateDataSource("MsSql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -71,7 +71,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     //_.agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
   });
 
-  it("1. Validate Show all existing tables, Describe table & verify query responses", () => {
+  it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {
     runQueryNValidate(
       "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';",
       ["TABLE_CATALOG", "TABLE_SCHEMA", "TABLE_NAME", "TABLE_TYPE"],

@@ -93,7 +93,8 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     agHelper.Sleep();
     agHelper.AssertElementAbsence(
       locator._specificToast("Google Re-Captcha token generation failed!"),
-    20000);
+      20000,
+    );
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .should("not.be.empty");
