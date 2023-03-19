@@ -11,7 +11,7 @@ import get from "lodash/get";
 import merge from "lodash/merge";
 import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
 import { DEFAULT_DATASOURCE } from "entities/Datasource";
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import type {
   EditorTheme,
   HintHelper,
@@ -55,6 +55,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -352,6 +353,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                   from: { ch: 0, line: 0 },
                   to: editor.getCursor(),
                 };
+
+                const CodeMirror = getCodeMirrorNamespaceFromEditor(editor);
                 CodeMirror.on(
                   hints,
                   "pick",
