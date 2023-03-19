@@ -296,12 +296,17 @@ export default function evaluateSync(
         throw new FoundPromiseInSyncEvalError();
       }
     } catch (error) {
+      const { errorCategory, errorMessage } = errorModifier.run(error as Error);
       errors.push({
-        errorMessage: errorModifier.run(error as Error),
+        errorMessage,
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
+        kind: errorCategory && {
+          category: errorCategory,
+          rootcause: "",
+        },
       });
     } finally {
       for (const entityName in evalContext) {

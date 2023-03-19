@@ -2,7 +2,6 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
-import { klona } from "klona/full";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.";
@@ -18,10 +17,23 @@ class ErrorModifier {
     this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
   }
 
-  run(error: Error) {
+  run(error: Error): {
+    errorMessage: ReturnType<typeof getErrorMessage>;
+    errorCategory?: PropertyEvaluationErrorCategory;
+  } {
     const errorMessage = getErrorMessage(error);
+    if (
+      error instanceof FoundPromiseInSyncEvalError ||
+      error instanceof ActionCalledInSyncFieldError
+    ) {
+      return {
+        errorMessage,
+        errorCategory:
+          PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
+      };
+    }
 
-    if (!this.errorNamesToScan.includes(error.name)) return errorMessage;
+    if (!this.errorNamesToScan.includes(error.name)) return { errorMessage };
 
     for (const asyncFunctionFullPath of Object.keys(
       this.asyncFunctionsNameMap,
@@ -29,29 +41,35 @@ class ErrorModifier {
       const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
       if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
         return {
-          name: "ValidationError",
-          message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-            "{{actionName}}",
-            asyncFunctionFullPath + "()",
-          ),
+          errorMessage: {
+            name: "ValidationError",
+            message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+              "{{actionName}}",
+              asyncFunctionFullPath + "()",
+            ),
+          },
+          errorCategory:
+            PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
         };
       }
     }
 
-    return errorMessage;
+    return { errorMessage };
   }
-  modifyAsyncInvocationErrors(errors: EvaluationError[], asyncFunc: string) {
+  setAsyncInvocationErrorsRootcause(
+    errors: EvaluationError[],
+    asyncFunc: string,
+  ) {
     return errors.map((error) => {
-      const newError = Object.assign({}, error);
-      if (isAsyncFunctionCalledInSyncFieldError(newError)) {
-        newError.errorMessage.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
-        newError.kind = {
+      if (isAsyncFunctionCalledInSyncFieldError(error)) {
+        error.errorMessage.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
+        error.kind = {
           category:
             PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
           rootcause: asyncFunc,
         };
       }
-      return newError;
+      return error;
     });
   }
 }
@@ -102,28 +120,9 @@ export const getErrorMessageWithType = (error: Error) => {
   return error.name ? `${error.name}: ${error.message}` : error.message;
 };
 
-const ACTION_CALLED_IN_SYNC_FIELD_REGEX =
-  /Found a reference to .+? during evaluation\. Sync fields cannot execute framework actions\. Please remove any direct\/indirect references to .+? and try again\./gm;
-
 function isAsyncFunctionCalledInSyncFieldError(error: EvaluationError) {
-  const isPromiseInSyncFields =
-    error.errorMessage.message === FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE;
-  const isAsyncFunctionInSyncFields = ACTION_CALLED_IN_SYNC_FIELD_REGEX.test(
-    error.errorMessage.message,
-  );
-  const isAsyncFunctionInvocationDefault =
-    error.errorMessage.message === FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
-  console.log(
-    {
-      isPromiseInSyncFields,
-      isAsyncFunctionInSyncFields,
-      errorMessage: error.errorMessage.message,
-    },
-    "$$$",
-  );
   return (
-    isPromiseInSyncFields ||
-    isAsyncFunctionInSyncFields ||
-    isAsyncFunctionInvocationDefault
+    error.kind?.category ===
+    PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD
   );
 }

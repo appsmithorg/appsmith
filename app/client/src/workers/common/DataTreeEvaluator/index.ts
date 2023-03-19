@@ -93,7 +93,10 @@ import {
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference, isDataField } from "./utils";
+import {
+  addRootcauseToAsyncInvocationErrors,
+  getFixedTimeDifference,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -103,7 +106,6 @@ import {
 import { errorModifier } from "workers/Evaluation/errorModifier";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJsFunctionInDataField";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -1004,24 +1006,13 @@ export default class DataTreeEvaluator {
             contextData,
             callBackData,
           );
-          let pathErrors = evalErrors;
           if (fullPropertyPath && evalErrors.length) {
-            //modify
-            if (isDataField(fullPropertyPath, data)) {
-              const asyncFunctionBindingInPath =
-                asyncJsFunctionInDataFields.getAsyncFunctionBindingInDataField(
-                  fullPropertyPath,
-                );
-              if (asyncFunctionBindingInPath) {
-                pathErrors = errorModifier.modifyAsyncInvocationErrors(
-                  evalErrors,
-                  asyncFunctionBindingInPath,
-                );
-              }
-            }
-
             addErrorToEntityProperty({
-              errors: pathErrors,
+              errors: addRootcauseToAsyncInvocationErrors(
+                fullPropertyPath,
+                data,
+                evalErrors,
+              ),
               evalProps: this.evalProps,
               fullPropertyPath,
               dataTree: data,

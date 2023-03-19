@@ -1182,10 +1182,11 @@ class CodeEditor extends Component<Props, State> {
 
   getAsyncFuncErrorRootCauseUrl(errors: EvaluationError[]) {
     const asyncInvocationError = errors.find(
-      (error) =>
-        error.kind &&
-        error.kind.category ===
-          PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
+      ({ kind }) =>
+        kind &&
+        kind.category ===
+          PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD &&
+        kind.rootcause,
     );
     if (!asyncInvocationError) return undefined;
     const asyncInvocationErrorRootcause = asyncInvocationError.kind?.rootcause;
