@@ -20,7 +20,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,

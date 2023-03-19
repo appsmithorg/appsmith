@@ -10,7 +10,7 @@ import equal from "fast-deep-equal/es6";
 import type { LoDashStatic } from "lodash";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";

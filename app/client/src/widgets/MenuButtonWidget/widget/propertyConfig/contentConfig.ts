@@ -1,7 +1,7 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import type { MenuButtonWidgetProps } from "../../constants";

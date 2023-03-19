@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";

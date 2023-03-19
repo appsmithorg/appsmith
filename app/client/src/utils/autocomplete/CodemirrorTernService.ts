@@ -23,6 +23,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
+import { AutocompleteDataType } from "./AutocompleteDataType";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
@@ -64,16 +65,6 @@ type TernDoc = {
   name: string;
   changed: { to: number; from: number } | null;
 };
-
-export enum AutocompleteDataType {
-  OBJECT = "OBJECT",
-  NUMBER = "NUMBER",
-  ARRAY = "ARRAY",
-  FUNCTION = "FUNCTION",
-  BOOLEAN = "BOOLEAN",
-  STRING = "STRING",
-  UNKNOWN = "UNKNOWN",
-}
 
 type ArgHints = {
   start: CodeMirror.Position;

@@ -15,7 +15,7 @@ import {
 import { Size, Category } from "design-system-old";
 import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 
