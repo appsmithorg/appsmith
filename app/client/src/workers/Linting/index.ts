@@ -3,7 +3,7 @@ import {
   isATriggerPath,
   isJSAction,
 } from "ce/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
 import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
@@ -13,6 +13,7 @@ import { lintBindingPath, lintTriggerPath, pathRequiresLinting } from "./utils";
 export function getlintErrorsFromTree(
   pathsToLint: string[],
   unEvalTree: DataTree,
+  configTree: ConfigTree,
   cloudHosting: boolean,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
@@ -48,6 +49,7 @@ export function getlintErrorsFromTree(
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(fullPropertyPath);
     const entity = unEvalTree[entityName];
+    const entityConfig = configTree[entityName];
     const unEvalPropertyValue = get(
       unEvalTree,
       fullPropertyPath,
@@ -56,8 +58,11 @@ export function getlintErrorsFromTree(
     set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
 
     // We are only interested in paths that require linting
-    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
-    if (isATriggerPath(entity, propertyPath))
+    if (
+      !pathRequiresLinting(unEvalTree, entity, fullPropertyPath, entityConfig)
+    )
+      return;
+    if (isATriggerPath(entityConfig, propertyPath))
       return triggerPaths.add(fullPropertyPath);
     if (isJSAction(entity))
       return bindingPathsRequiringFunctions.add(`${entityName}.body`);

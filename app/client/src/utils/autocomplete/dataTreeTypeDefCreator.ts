@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, get, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
@@ -15,6 +15,7 @@ import type { DataTreeDefEntityInformation } from "utils/autocomplete/Codemirror
 
 export type ExtraDef = Record<string, Def | string>;
 
+import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
 
 // Def names are encoded with information about the entity
@@ -27,6 +28,7 @@ export const dataTreeTypeDefCreator = (
   dataTree: DataTree,
   isJSEditorEnabled: boolean,
   jsData: Record<string, unknown> = {},
+  configTree: ConfigTree,
 ): { def: Def; entityInfo: Map<string, DataTreeDefEntityInformation> } => {
   // When there is a complex data type, we store it in extra def and refer to it in the def
   const extraDefsToDefine: Def = {};
@@ -66,13 +68,14 @@ export const dataTreeTypeDefCreator = (
         subType: ENTITY_TYPE.APPSMITH,
       });
     } else if (isJSAction(entity) && isJSEditorEnabled) {
-      const metaObj = entity.meta;
+      const entityConfig = configTree[entityName] as JSActionEntityConfig;
+      const metaObj = entityConfig.meta;
       const jsPropertiesDef: Def = {};
 
       for (const funcName in metaObj) {
         const funcTypeDef = generateJSFunctionTypeDef(
           jsData,
-          `${entity.name}.${funcName}`,
+          `${entityName}.${funcName}`,
           extraDefsToDefine,
         );
         jsPropertiesDef[funcName] = funcTypeDef;
@@ -80,8 +83,8 @@ export const dataTreeTypeDefCreator = (
         jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
       }
 
-      for (let i = 0; i < entity.variables.length; i++) {
-        const varKey = entity.variables[i];
+      for (let i = 0; i < entityConfig?.variables?.length; i++) {
+        const varKey = entityConfig?.variables[i];
         const varValue = entity[varKey];
         jsPropertiesDef[varKey] = generateTypeDef(varValue, extraDefsToDefine);
       }
