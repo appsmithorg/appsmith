@@ -40,7 +40,7 @@ export const commonConversionFlows = (
         text: createMessage(REFRESH_THE_APP),
         onClick: () => {
           onCancel();
-          location.reload();
+          dispatch({ type: ReduxActionTypes.REFRESH_THE_APP });
         },
       },
     },

@@ -12,6 +12,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
+import type { Application } from "ce/reducers/uiReducers/applicationsReducer";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -66,7 +67,7 @@ export function* fetchSnapshotSaga() {
 
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
-  let response: ApiResponse | undefined;
+  let response: ApiResponse<Application> | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
@@ -78,6 +79,20 @@ function* restoreApplicationFromSnapshotSaga() {
       false,
       getLogToSentryFromResponse(response),
     );
+
+    // update the pages list temporarily with incomplete data.
+    if (response?.data.pages) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+        payload: {
+          pages: response.data.pages.map((page) => ({
+            pageId: page.id,
+            isDefault: page.isDefault,
+          })),
+          applicationId,
+        },
+      });
+    }
 
     if (isValidResponse) {
       //update conversion form state to success

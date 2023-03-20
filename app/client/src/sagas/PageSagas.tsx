@@ -74,7 +74,12 @@ import history from "utils/history";
 import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
-import { getAllPageIds, getEditorConfigs, getWidgets } from "./selectors";
+import {
+  getAllPageIds,
+  getDefaultPageId,
+  getEditorConfigs,
+  getWidgets,
+} from "./selectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
@@ -131,6 +136,8 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { PageDefaultMeta } from "api/ApplicationApi";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -207,6 +214,33 @@ export function* fetchPageListSaga(
         error,
       },
     });
+  }
+}
+
+//Method to load the default page if current page is not found
+export function* refreshTheApp() {
+  try {
+    const currentPageId: string = yield select(getCurrentPageId);
+    const defaultPageId: string = yield select(getDefaultPageId);
+    const pagesList: PageDefaultMeta[] = yield select(getPageList);
+    const gitBranch: string = yield select(getCurrentGitBranch);
+
+    const isCurrentPageIdInList =
+      pagesList.filter((page) => page.id === currentPageId).length > 0;
+
+    if (isCurrentPageIdInList) {
+      location.reload();
+    } else {
+      location.assign(
+        builderURL({
+          pageId: defaultPageId,
+          branch: gitBranch,
+        }),
+      );
+    }
+  } catch (error) {
+    log.error(error);
+    location.reload();
   }
 }
 
@@ -1242,5 +1276,6 @@ export default function* pageSagas() {
       deleteCanvasCardsStateSaga,
     ),
     takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
+    takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
   ]);
 }
