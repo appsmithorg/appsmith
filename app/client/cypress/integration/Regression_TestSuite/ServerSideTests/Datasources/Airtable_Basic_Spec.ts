@@ -156,7 +156,7 @@ describe("Validate Airtable Ds", () => {
       inputFieldName: "Sort",
     }); //Sort by default ascending, descneding is thrown error, checking with Felix
 
-    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
+    _.dataSources.RunQuery({ waitTimeInterval: 3500 });
     cy.get("@postExecute").then((resObj: any) => {
       jsonSpecies = JSON.parse(resObj.response.body.data.body);
       const sorted = jsonSpecies.records.every(
