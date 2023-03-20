@@ -4,14 +4,15 @@ import {
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 import {
   API_STATUS_CODES,
   ERROR_CODES,
   SERVER_ERROR_CODES,
 } from "@appsmith/constants/ApiConstants";
 import log from "loglevel";
-import { ActionExecutionResponse } from "api/ActionAPI";
+import type { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";

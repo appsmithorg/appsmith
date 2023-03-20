@@ -51,10 +51,7 @@ describe("Category Slider spec", () => {
     ee.SelectEntityByName("CategorySlider1", "Widgets");
 
     // Change the slider value
-    agHelper
-      .GetElement(locator._sliderThumb)
-      .focus()
-      .type("{rightArrow}");
+    agHelper.GetElement(locator._sliderThumb).focus().type("{rightArrow}");
 
     // Assert the Text widget has value 20
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {

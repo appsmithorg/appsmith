@@ -1,9 +1,9 @@
 import React from "react";
 import { Dropdown, FormGroup as StyledFormGroup } from "design-system-old";
-import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
-import { OptionType } from "./constants";
+import type { OptionType } from "./constants";
 
 export const FormHeaderWrapper = styled.div`
   position: relative;

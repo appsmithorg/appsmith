@@ -4,14 +4,15 @@ import {
   GOOGLE_SIGNUP_SETUP_DOC,
   SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { AuthMethodType, AuthPage } from "./AuthPage";
+import type { AuthMethodType } from "./AuthPage";
+import { AuthPage } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
@@ -23,11 +24,8 @@ import {
   REDIRECT_URL_FORM,
 } from "@appsmith/constants/forms";
 
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-} = getAppsmithConfigs();
+const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
+  getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -94,8 +92,9 @@ const GoogleAuth: AdminConfigType = {
       formName: JS_ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
-      helpText:
+      tooltip:
         "This URL will be used while configuring the Google OAuth Client ID's authorized JavaScript origins",
+      helpText: "Paste this URL in your Google developer console.",
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_REDIRECT_URL",
@@ -106,8 +105,9 @@ const GoogleAuth: AdminConfigType = {
       formName: REDIRECT_URL_FORM,
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/google",
-      helpText:
+      tooltip:
         "This URL will be used while configuring the Google OAuth Client ID's authorized Redirect URIs",
+      helpText: "Paste this URL in your Google developer console.",
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",

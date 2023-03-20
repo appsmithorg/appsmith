@@ -65,9 +65,7 @@ describe("List v2 - Data Identifier property", () => {
       .click({ force: true });
     cy.wait(250);
 
-    cy.get(".t--dropdown-option")
-      .first()
-      .click({ force: true });
+    cy.get(".t--dropdown-option").first().click({ force: true });
 
     cy.wait(1000);
 
@@ -115,16 +113,11 @@ describe("List v2 - Data Identifier property", () => {
       .click({ force: true });
     cy.wait(250);
 
-    cy.get(".t--dropdown-option")
-      .first()
-      .click({ force: true });
+    cy.get(".t--dropdown-option").first().click({ force: true });
 
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
 
-    cy.get(".rc-pagination")
-      .find("a")
-      .contains("2")
-      .click({ force: true });
+    cy.get(".rc-pagination").find("a").contains("2").click({ force: true });
 
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
   });
@@ -139,26 +132,19 @@ describe("List v2 - Data Identifier property", () => {
       .click({ force: true });
     cy.wait(250);
 
-    cy.get(".t--dropdown-option")
-      .last()
-      .click({ force: true });
+    cy.get(".t--dropdown-option").last().click({ force: true });
 
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
 
     // click on debugger icon
-    cy.get(commonlocators.debugger)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
     cy.get(".debugger-list").contains(
       "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
     );
   });
 
   it("8. pagination should work for non unique data identifier", () => {
-    cy.get(".rc-pagination")
-      .find("a")
-      .contains("2")
-      .click({ force: true });
+    cy.get(".rc-pagination").find("a").contains("2").click({ force: true });
 
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
   });
@@ -179,11 +165,9 @@ describe("List v2 - Data Identifier property", () => {
       .first()
       .should("have.text", `0`);
 
-    cy.get(commonlocators.listPaginateNextButton)
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(commonlocators.listPaginateNextButton).first().click({
+      force: true,
+    });
     cy.wait(1000);
 
     cy.get(`${widgetSelector("Text2")} ${commonlocators.bodyTextStyle}`)
@@ -200,21 +184,17 @@ describe("List v2 - Data Identifier property", () => {
       .first()
       .should("have.text", `0`);
 
-    cy.get(commonlocators.listPaginateNextButton)
-      .eq(1)
-      .click({
-        force: true,
-      });
+    cy.get(commonlocators.listPaginateNextButton).eq(1).click({
+      force: true,
+    });
 
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", `1`);
 
-    cy.get(commonlocators.listPaginateNextButton)
-      .eq(1)
-      .click({
-        force: true,
-      });
+    cy.get(commonlocators.listPaginateNextButton).eq(1).click({
+      force: true,
+    });
 
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()

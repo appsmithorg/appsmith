@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const commonlocators = require("../../../../locators/commonlocators.json");
 let HomePage = ObjectsRegistry.HomePage;
 
-describe("Export application as a JSON file", function() {
+describe("Export application as a JSON file", function () {
   let workspaceId;
   let appid;
   let newWorkspaceName;
@@ -15,19 +15,15 @@ describe("Export application as a JSON file", function() {
     cy.wait(5000);
   });
 
-  it("Check if exporting app flow works as expected", function() {
+  it("Check if exporting app flow works as expected", function () {
     cy.get(commonlocators.homeIcon).click({ force: true });
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.toastMessage).should("contain", "Successfully exported");
     // fetching the exported app file manually to be verified.
@@ -44,7 +40,7 @@ describe("Export application as a JSON file", function() {
     cy.LogOut();
   });
 
-  it("User with admin access,should be able to export the app", function() {
+  it("User with admin access,should be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
@@ -77,27 +73,19 @@ describe("Export application as a JSON file", function() {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
 
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
-      cy.get(homePage.appMoreIcon)
-        .first()
-        .click({ force: true });
+      cy.get(homePage.applicationCard).first().trigger("mouseover");
+      cy.get(homePage.appMoreIcon).first().click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("be.visible");
       cy.get("body").click(50, 40);
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
-      cy.get(homePage.appEditIcon)
-        .first()
-        .click({ force: true });
+      cy.get(homePage.applicationCard).first().trigger("mouseover");
+      cy.get(homePage.appEditIcon).first().click({ force: true });
       cy.get(homePage.applicationName).click({ force: true });
       cy.contains("Export Application").should("be.visible");
     });
     cy.LogOut();
   });
 
-  it("User with developer access,should not be able to export the app", function() {
+  it("User with developer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
@@ -130,27 +118,19 @@ describe("Export application as a JSON file", function() {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
 
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
-      cy.get(homePage.appMoreIcon)
-        .first()
-        .click({ force: true });
+      cy.get(homePage.applicationCard).first().trigger("mouseover");
+      cy.get(homePage.appMoreIcon).first().click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("not.exist");
       cy.get("body").click(50, 40);
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
-      cy.get(homePage.appEditIcon)
-        .first()
-        .click({ force: true });
+      cy.get(homePage.applicationCard).first().trigger("mouseover");
+      cy.get(homePage.appEditIcon).first().click({ force: true });
       cy.get(homePage.applicationName).click({ force: true });
       cy.contains("Export Application").should("not.exist");
     });
     cy.LogOut();
   });
 
-  it("User with viewer access,should not be able to export the app", function() {
+  it("User with viewer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
@@ -183,9 +163,7 @@ describe("Export application as a JSON file", function() {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
 
-      cy.get(homePage.applicationCard)
-        .first()
-        .trigger("mouseover");
+      cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePage.appEditIcon).should("not.exist");
     });
     cy.LogOut();

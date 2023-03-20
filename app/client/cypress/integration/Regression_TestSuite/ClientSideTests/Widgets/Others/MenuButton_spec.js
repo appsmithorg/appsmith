@@ -15,11 +15,9 @@ describe("Menu Button Widget Functionality", () => {
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
-    cy.get(".bp3-icon-add")
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(".bp3-icon-add").first().click({
+      force: true,
+    });
     // Assert if the icon exists
     cy.get(`${formWidgetsPage.menuButtonWidget} .bp3-icon-add`).should("exist");
     // Change its icon alignment to right
@@ -39,11 +37,9 @@ describe("Menu Button Widget Functionality", () => {
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
-    cy.get(".bp3-icon-airplane")
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(".bp3-icon-airplane").first().click({
+      force: true,
+    });
     // Assert if the icon changes
     // Assert if the icon still exists on the right side of the text
     cy.get(`${formWidgetsPage.menuButtonWidget} .bp3-icon-airplane`)
@@ -52,15 +48,13 @@ describe("Menu Button Widget Functionality", () => {
       .should("have.text", "Open Menu");
   });
 
-  it("2. MenuButton widget functionality on undo after delete", function() {
+  it("2. MenuButton widget functionality on undo after delete", function () {
     cy.openPropertyPane("menubuttonwidget");
     cy.moveToContentTab();
     // Delete Second Menu Item
-    cy.get(".t--property-control-menuitems .t--delete-column-btn")
-      .eq(1)
-      .click({
-        force: true,
-      });
+    cy.get(".t--property-control-menuitems .t--delete-column-btn").eq(1).click({
+      force: true,
+    });
 
     // Click on the menu button
     cy.get(`${formWidgetsPage.menuButtonWidget} button`).click({
@@ -69,35 +63,23 @@ describe("Menu Button Widget Functionality", () => {
     cy.wait(500);
 
     // Check first menu item
-    cy.get(".bp3-menu-item")
-      .eq(0)
-      .contains("First Menu Item");
+    cy.get(".bp3-menu-item").eq(0).contains("First Menu Item");
     // Check second menu item
-    cy.get(".bp3-menu-item")
-      .eq(1)
-      .contains("Third Menu Item");
+    cy.get(".bp3-menu-item").eq(1).contains("Third Menu Item");
 
     // Undo
     cy.get("body").type(`{${modifierKey}}+z`);
     // Check first menu item
-    cy.get(".bp3-menu-item")
-      .eq(0)
-      .contains("First Menu Item");
+    cy.get(".bp3-menu-item").eq(0).contains("First Menu Item");
     // Check second menu item
-    cy.get(".bp3-menu-item")
-      .eq(1)
-      .contains("Second Menu Item");
+    cy.get(".bp3-menu-item").eq(1).contains("Second Menu Item");
     // Check third menu item
-    cy.get(".bp3-menu-item")
-      .eq(2)
-      .contains("Third Menu Item");
+    cy.get(".bp3-menu-item").eq(2).contains("Third Menu Item");
 
     // Navigate to property pane of Second Menu Item
-    cy.get(".t--property-control-menuitems .t--edit-column-btn")
-      .eq(1)
-      .click({
-        force: true,
-      });
+    cy.get(".t--property-control-menuitems .t--edit-column-btn").eq(1).click({
+      force: true,
+    });
     cy.wait(1000);
     // Check the title
     cy.get(".t--property-pane-title").contains("Second Menu Item");
@@ -105,7 +87,7 @@ describe("Menu Button Widget Functionality", () => {
     cy.get(".t--property-pane-back-btn").click();
   });
 
-  it("3. MenuButton widget functionality to add dynamic menu items", function() {
+  it("3. MenuButton widget functionality to add dynamic menu items", function () {
     cy.openPropertyPane("menubuttonwidget");
     cy.moveToContentTab();
 
@@ -142,20 +124,14 @@ describe("Menu Button Widget Functionality", () => {
       force: true,
     });
     cy.wait(500);
-    cy.get(".bp3-menu-item")
-      .eq(0)
-      .contains("Michael");
-    cy.get(".bp3-menu-item")
-      .eq(1)
-      .contains("Lindsay");
-    cy.get(".bp3-menu-item")
-      .eq(2)
-      .contains("Brock");
+    cy.get(".bp3-menu-item").eq(0).contains("Michael");
+    cy.get(".bp3-menu-item").eq(1).contains("Lindsay");
+    cy.get(".bp3-menu-item").eq(2).contains("Brock");
 
     cy.closePropertyPane();
   });
 
-  it("4. Disable one dynamic item using {{currentItem}} binding", function() {
+  it("4. Disable one dynamic item using {{currentItem}} binding", function () {
     cy.openPropertyPane("menubuttonwidget");
     cy.moveToContentTab();
 
@@ -177,14 +153,12 @@ describe("Menu Button Widget Functionality", () => {
       force: true,
     });
     cy.wait(500);
-    cy.get(".bp3-menu-item")
-      .eq(1)
-      .should("have.class", "bp3-disabled");
+    cy.get(".bp3-menu-item").eq(1).should("have.class", "bp3-disabled");
 
     cy.closePropertyPane();
   });
 
-  it("5. Apply background color to dynamic items using {{currentItem}} binding", function() {
+  it("5. Apply background color to dynamic items using {{currentItem}} binding", function () {
     cy.openPropertyPane("menubuttonwidget");
     cy.moveToContentTab();
 

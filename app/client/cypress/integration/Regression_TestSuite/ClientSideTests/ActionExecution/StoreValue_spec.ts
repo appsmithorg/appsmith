@@ -15,7 +15,7 @@ describe("storeValue Action test", () => {
     ee.NavigateToSwitcher("explorer");
   });
 
-  it("1. Bug 14653: Running consecutive storeValue actions and await", function() {
+  it("1. Bug 14653: Running consecutive storeValue actions and await", function () {
     const jsObjectBody = `export default {
       storeTest: () => {
         let values =
@@ -66,7 +66,7 @@ describe("storeValue Action test", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key", function() {
+  it("2. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key", function () {
     const DEFAULT_STUDENT_OBJECT = {
       details: { isTopper: true, name: "Abhah", grade: 1 },
     };
@@ -148,7 +148,7 @@ describe("storeValue Action test", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key - object keys", function() {
+  it("3. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key - object keys", function () {
     const TEST_OBJECT = { a: 1, two: {} };
 
     const JS_OBJECT_BODY = `export default {

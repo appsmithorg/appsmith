@@ -1,8 +1,8 @@
-import {
+import type {
   DataTree,
-  DataTreeAppsmith,
-  ENTITY_TYPE,
+  AppsmithEntity,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
@@ -42,6 +42,7 @@ export const getEntitiesForNavigation = createSelector(
   getDataTree,
   (actions, plugins, jsActions, widgets, pageId, dataTree: DataTree) => {
     const navigationData: EntityNavigationData = {};
+    if (!dataTree) return navigationData;
 
     actions.forEach((action) => {
       const plugin = plugins.find(
@@ -92,7 +93,7 @@ export const getEntitiesForNavigation = createSelector(
       });
     });
     navigationData["appsmith"] = getAppsmithNavData(
-      dataTree.appsmith as DataTreeAppsmith,
+      dataTree.appsmith as AppsmithEntity,
     );
     return navigationData;
   },

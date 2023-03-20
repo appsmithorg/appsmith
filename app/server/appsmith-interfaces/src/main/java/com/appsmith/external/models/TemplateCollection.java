@@ -1,6 +1,8 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,41 +30,47 @@ public class TemplateCollection implements Persistable<String> {
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
+    @JsonView(Views.Public.class)
     private String id;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Indexed
     @CreatedDate
     protected Instant createdAt;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @LastModifiedDate
     protected Instant updatedAt;
 
     @CreatedBy
+    @JsonView(Views.Public.class)
     protected String createdBy;
 
     @LastModifiedBy
+    @JsonView(Views.Public.class)
     protected String modifiedBy;
 
+    @JsonView(Views.Public.class)
     protected Boolean deleted = false;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Version
     protected Long documentVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Override
     public boolean isNew() {
         return this.getId() == null;
     }
 
     // TemplateCollection fields below :
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<String> apiTemplateIds;
 
     @Transient
+    @JsonView(Views.Public.class)
     List<ApiTemplate> apiTemplateList;
 }

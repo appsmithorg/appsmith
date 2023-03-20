@@ -106,11 +106,18 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # delete-artifact
-      - name: delete failed-spec-ci artifact
+      - name: delete existing combined_failed_spec_ci artifact
         uses: geekyeggo/delete-artifact@v2
         with:
-          name: failed-spec-ci
+          name: combined_failed_spec_ci
           failOnError: false
+
+      # In case for any ci job failure, create combined failed spec
+      - name: "combine all specs for CI"
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/combined_failed_spec_ci
+          cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
@@ -120,6 +127,13 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+
+      # delete-artifact
+      - name: delete existing failed-spec-ci artifact
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: failed-spec-ci
+          failOnError: false
 
       - name: Return status for ui-matrix
         run: |

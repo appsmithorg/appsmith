@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import formControls from "../../../../locators/FormControl.json";
 
-describe("Ensures evaluated popup is viewable when dynamic bindings are present and draggable", function() {
+describe("Ensures evaluated popup is viewable when dynamic bindings are present and draggable", function () {
   it("shows evaluated pop up is visible and draggable", () => {
     _.dataSources.CreateDataSource("Mongo", true, true);
     _.dataSources.CreateQueryAfterDSSaved();
