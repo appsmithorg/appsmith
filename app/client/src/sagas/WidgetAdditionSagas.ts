@@ -42,6 +42,8 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import { getCanvasWidth } from "selectors/editorSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -74,6 +76,10 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+    type,
+  );
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -103,11 +109,9 @@ function* getChildWidgetProps(
   }
 
   const isAutoLayout = isStack(widgets, parent);
-  if (
-    isAutoLayout &&
-    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
-  )
-    columns = 64;
+  const isFillWidget =
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+  if (isAutoLayout && isFillWidget) columns = 64;
 
   const widgetProps = {
     ...restDefaultConfig,
@@ -119,6 +123,17 @@ function* getChildWidgetProps(
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
   };
+
+  const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+    widgetProps,
+    mainCanvasWidth,
+  );
+
+  // If the width of new widget is less than min width, set the width to min width
+  if (minWidth && columns * parentColumnSpace < minWidth) {
+    columns = minWidth / parentColumnSpace;
+  }
+
   const widget = generateWidgetProps(
     parent,
     type,
@@ -130,6 +145,11 @@ function* getChildWidgetProps(
     widgetProps,
     restDefaultConfig.version,
   );
+
+  // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
+  if (!isFillWidget && !disableResizeHandles?.horizontal) {
+    widget.widthInPercentage = (columns * parentColumnSpace) / mainCanvasWidth;
+  }
 
   widget.widgetId = newWidgetId;
   /**

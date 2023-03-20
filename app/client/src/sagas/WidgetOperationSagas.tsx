@@ -190,7 +190,15 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       getCurrentAppPositioningType,
     );
     const mainCanvasWidth: number = yield select(getCanvasWidth);
-    widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
+    widget = {
+      ...widget,
+      leftColumn,
+      rightColumn,
+      topRow,
+      bottomRow,
+      widthInPercentage:
+        ((rightColumn - leftColumn) * snapColumnSpace) / mainCanvasWidth,
+    };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
