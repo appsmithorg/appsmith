@@ -12,6 +12,7 @@ describe("Table widget v2", function () {
 
     cy.moveToStyleTab();
     cy.get(".t--button-group-SHORT").click();
+    cy.wait(500); //for table to-align to Short click
     cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "7");
 
     cy.get(".t--button-group-DEFAULT").click({ force: true });
