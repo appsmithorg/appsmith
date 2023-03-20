@@ -10,25 +10,19 @@ const checkFormModalValues = (value) => {
   cy.get(`${fieldPrefix}-step label`).contains("Step");
   cy.get(`${fieldPrefix}-step input`).then((input) => {
     cy.wrap(input).should("have.value", value.step);
-    cy.wrap(input)
-      .invoke("attr", "type")
-      .should("contain", "text");
+    cy.wrap(input).invoke("attr", "type").should("contain", "text");
   });
 
   cy.get(`${fieldPrefix}-task label`).contains("Task");
   cy.get(`${fieldPrefix}-task input`).then((input) => {
     cy.wrap(input).should("have.value", value.task);
-    cy.wrap(input)
-      .invoke("attr", "type")
-      .should("contain", "text");
+    cy.wrap(input).invoke("attr", "type").should("contain", "text");
   });
 
   cy.get(`${fieldPrefix}-status label`).contains("Status");
   cy.get(`${fieldPrefix}-status input`).then((input) => {
     cy.wrap(input).should("have.value", value.status);
-    cy.wrap(input)
-      .invoke("attr", "type")
-      .should("contain", "text");
+    cy.wrap(input).invoke("attr", "type").should("contain", "text");
   });
 
   // Close the modal

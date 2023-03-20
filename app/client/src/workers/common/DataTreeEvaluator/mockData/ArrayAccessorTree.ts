@@ -1,15 +1,17 @@
 import { PluginType, PaginationType } from "entities/Action";
-import {
+import type {
   DataTree,
-  EvaluationSubstitutionType,
   DataTreeAction,
   DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
+import {
+  EvaluationSubstitutionType,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {
-    Api1: ({
+    Api1: {
       run: {},
       clear: {},
       actionId: "6285d928db0f9c6e620d454a",
@@ -69,8 +71,8 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       },
       logBlackList: {},
       datasourceUrl: "https://jsonplaceholder.typicode.com",
-    } as unknown) as DataTreeAction,
-    Text1: ({
+    } as unknown as DataTreeAction,
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -209,7 +211,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       privateWidgets: {},
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown as DataTreeWidget,
   },
   apiSuccessUnEvalTree: {
     // success: response -> [{...}, {...}, {...}]
@@ -241,22 +243,19 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
           id: 1,
           title:
             "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-          body:
-            "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+          body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
         },
         {
           userId: 1,
           id: 2,
           title: "qui est esse",
-          body:
-            "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+          body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
         },
         {
           userId: 1,
           id: 3,
           title: "ea molestias quasi exercitationem repellat qui ipsa sit aut",
-          body:
-            "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+          body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
         },
       ],
       responseMeta: {
@@ -314,7 +313,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2].id
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -453,7 +452,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       privateWidgets: {},
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown as DataTreeWidget,
   },
   apiFailureUnEvalTree: {
     // failure: response -> {}
@@ -534,7 +533,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2].id
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -673,7 +672,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       privateWidgets: {},
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown as DataTreeWidget,
   },
   apiSuccessUnEvalTree2: {
     // success: response -> [{...}, {...}]
@@ -705,16 +704,14 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
           id: 1,
           title:
             "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-          body:
-            "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+          body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
         },
         {
           userId: 1,
           id: 2,
           title:
             "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-          body:
-            "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+          body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
         },
       ],
       responseMeta: {
@@ -772,7 +769,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
     // Text1.text binding Api1.data[2].id
-    Text1: ({
+    Text1: {
       widgetName: "Text1",
       displayName: "Text",
       iconSVG: "/static/media/icon.97c59b52.svg",
@@ -911,6 +908,6 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       privateWidgets: {},
       meta: {},
-    } as unknown) as DataTreeWidget,
+    } as unknown as DataTreeWidget,
   },
 };

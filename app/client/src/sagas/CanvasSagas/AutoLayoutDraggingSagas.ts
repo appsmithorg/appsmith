@@ -1,19 +1,18 @@
-import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
+import type { WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
+import type { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-} from "utils/autoLayout/constants";
+import type { FlexLayerAlignment } from "utils/autoLayout/constants";
+import { LayoutDirection } from "utils/autoLayout/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import log from "loglevel";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
@@ -26,7 +25,10 @@ import {
   updateRelationships,
 } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { HighlightInfo, FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type {
+  HighlightInfo,
+  FlexLayer,
+} from "utils/autoLayout/autoLayoutTypes";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -92,12 +94,8 @@ function* autoLayoutReorderSaga(
 ) {
   const start = performance.now();
 
-  const {
-    direction,
-    dropPayload,
-    movedWidgets,
-    parentId,
-  } = actionPayload.payload;
+  const { direction, dropPayload, movedWidgets, parentId } =
+    actionPayload.payload;
 
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
 

@@ -1,6 +1,7 @@
 import React from "react";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { DropdownOption } from "components/constants";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { DropdownOption } from "components/constants";
 import { KeyValueComponent } from "./KeyValueComponent";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 

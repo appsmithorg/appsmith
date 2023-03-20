@@ -1,17 +1,17 @@
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { Workspace } from "@appsmith/constants/workspaceConstants";
-import { ApplicationVersion } from "actions/applicationActions";
-import {
+import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { ApplicationVersion } from "actions/applicationActions";
+import type {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
-import {
+import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -764,7 +764,8 @@ export const ReduxActionTypes = {
   FILE_PICKER_CALLBACK_ACTION: "FILE_PICKER_CALLBACK_ACTION",
 };
 
-export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
+export type ReduxActionType =
+  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
   GIT_DISCARD_CHANGES_ERROR: "GIT_DISCARD_CHANGES_ERROR",
@@ -966,7 +967,8 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
 
-export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
+export type ReduxActionErrorType =
+  (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;

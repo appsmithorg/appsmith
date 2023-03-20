@@ -1,11 +1,11 @@
 const dsl = require("../../../../fixtures/TextTabledsl.json");
 
-describe("Property pane connections error state", function() {
+describe("Property pane connections error state", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check if the connection shows an error state when a connection has an error", function() {
+  it("Check if the connection shows an error state when a connection has an error", function () {
     cy.openPropertyPane("tablewidget");
 
     cy.testJsontext("tabledata", "{{error}}");

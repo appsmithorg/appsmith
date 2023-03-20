@@ -6,7 +6,7 @@ import {
   // getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import { RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Table } from "design-system-old";
 import {
@@ -32,7 +32,7 @@ import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
-import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   MEMBERS_TAB_TITLE,
@@ -270,10 +270,8 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchWorkspace(workspaceId));
   }, [dispatch, workspaceId]);
 
-  const [
-    showMemberDeletionConfirmation,
-    setShowMemberDeletionConfirmation,
-  ] = useState(false);
+  const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
+    useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>

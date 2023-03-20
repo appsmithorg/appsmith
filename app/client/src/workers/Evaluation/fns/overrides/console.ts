@@ -1,16 +1,15 @@
 import { uuid4 } from "@sentry/utils";
-import {
-  ENTITY_TYPE,
+import type {
   LogObject,
   Methods,
-  Severity,
   SourceEntity,
 } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
-import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import TriggerEmitter from "../utils/TriggerEmitter";
-import { EventEmitter } from "events";
+import type { EventEmitter } from "events";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 
 class UserLog {

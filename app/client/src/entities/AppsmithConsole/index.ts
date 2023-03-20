@@ -1,8 +1,8 @@
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import LOG_TYPE from "./logtype";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { PluginType } from "entities/Action";
-import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type LOG_TYPE from "./logtype";
+import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import type { PluginType } from "entities/Action";
+import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

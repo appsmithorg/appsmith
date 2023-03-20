@@ -1,24 +1,20 @@
 import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
 import { isString } from "lodash";
-import {
-  Log,
-  LOG_CATEGORY,
-  Message,
-  Severity,
-  SourceEntity,
-} from "entities/AppsmithConsole";
-import React, { useState, PropsWithChildren } from "react";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import type { PropsWithChildren } from "react";
+import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
+import type { IconName } from "design-system-old";
 import {
   AppIcon,
   Classes,
   getTypographyByKey,
   Icon,
-  IconName,
   IconSize,
   Text,
   TextType,
@@ -30,7 +26,8 @@ import {
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
+import moment from "moment";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -303,7 +300,9 @@ function LogItem(props: LogItemProps) {
           size={IconSize.XL}
         />
         <span className={`debugger-time ${props.severity}`}>
-          {props.timestamp}
+          {props.severity === Severity.ERROR
+            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
+            : props.timestamp}
         </span>
 
         <Icon

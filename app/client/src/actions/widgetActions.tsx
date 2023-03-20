@@ -1,15 +1,16 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { BatchAction } from "actions/batchActions";
+import { batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,

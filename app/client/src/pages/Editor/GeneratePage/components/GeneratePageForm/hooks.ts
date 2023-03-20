@@ -1,13 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { DropdownOptions } from "../constants";
-import { Datasource } from "entities/Datasource";
-import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import type { DropdownOptions } from "../constants";
+import type { Datasource } from "entities/Datasource";
+import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
-import {
-  executeDatasourceQuery,
-  executeDatasourceQuerySuccessPayload,
-} from "actions/datasourceActions";
-import { DropdownOption } from "design-system-old";
+import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
+import { executeDatasourceQuery } from "actions/datasourceActions";
+import type { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
 
 export const FAKE_DATASOURCE_OPTION = {
@@ -114,12 +112,10 @@ export const useSpreadSheets = ({
 
   // const [spreadsheetsList, setSpreadsheets] = useState<DropdownOption[]>([]);
 
-  const [isFetchingSpreadsheets, setIsFetchingSpreadsheets] = useState<boolean>(
-    false,
-  );
-  const [failedFetchingSpreadsheets, setFailedFetchingSpreadsheets] = useState<
-    boolean
-  >(false);
+  const [isFetchingSpreadsheets, setIsFetchingSpreadsheets] =
+    useState<boolean>(false);
+  const [failedFetchingSpreadsheets, setFailedFetchingSpreadsheets] =
+    useState<boolean>(false);
 
   // TODO :- Create loading state and set Loading state false on success or error
   const onFetchAllSpreadsheetFailure = useCallback(() => {
@@ -237,12 +233,10 @@ export const useSheetsList = (): UseSheetListReturn => {
 
   const [sheetsList, setSheetsList] = useState<DropdownOption[]>([]);
 
-  const [isFetchingSheetsList, setIsFetchingSheetsList] = useState<boolean>(
-    false,
-  );
-  const [failedFetchingSheetsList, setFailedFetchingSheetsList] = useState<
-    boolean
-  >(false);
+  const [isFetchingSheetsList, setIsFetchingSheetsList] =
+    useState<boolean>(false);
+  const [failedFetchingSheetsList, setFailedFetchingSheetsList] =
+    useState<boolean>(false);
 
   const onFetchAllSheetFailure = useCallback(() => {
     setIsFetchingSheetsList(false);
@@ -343,13 +337,10 @@ export const useSheetColumnHeaders = () => {
     [],
   );
 
-  const [isFetchingColumnHeaderList, setIsFetchingColumnHeaderList] = useState<
-    boolean
-  >(false);
-  const [
-    errorFetchingColumnHeaderList,
-    setErrorFetchingColumnHeaderList,
-  ] = useState<string>("");
+  const [isFetchingColumnHeaderList, setIsFetchingColumnHeaderList] =
+    useState<boolean>(false);
+  const [errorFetchingColumnHeaderList, setErrorFetchingColumnHeaderList] =
+    useState<string>("");
 
   const onFetchColumnHeadersFailure = useCallback(
     (error: string) => {
@@ -440,12 +431,10 @@ export const useS3BucketList = () => {
   const dispatch = useDispatch();
 
   const [bucketList, setBucketList] = useState<Array<string>>([]);
-  const [isFetchingBucketList, setIsFetchingBucketList] = useState<boolean>(
-    false,
-  );
-  const [failedFetchingBucketList, setFailedFetchingBucketList] = useState<
-    boolean
-  >(false);
+  const [isFetchingBucketList, setIsFetchingBucketList] =
+    useState<boolean>(false);
+  const [failedFetchingBucketList, setFailedFetchingBucketList] =
+    useState<boolean>(false);
   const onFetchBucketSuccess = useCallback(
     (
       payload: executeDatasourceQuerySuccessPayload<{
