@@ -6,6 +6,8 @@ let cheight;
 let theight;
 let cwidth;
 let twidth;
+let testHeight;
+let mtestHeight;
 
 describe("Validating Mobile Views", function() {
 
@@ -20,6 +22,11 @@ describe("Validating Mobile Views", function() {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
+    cy.get("@getPage").then((httpResponse) => {
+      const data = httpResponse.response.body.data;
+      testHeight = data.layouts[0].dsl.bottomRow;
+      expect(testHeight).to.equal(380);
+    });
     cy.get(".t--entity-name:contains('Container1')").click({force: true});
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
@@ -49,6 +56,7 @@ describe("Validating Mobile Views", function() {
                     twidth=newwidth;
                   });
                 });
+              
             //expect(height).to.equal(newheight);
           });
       });
@@ -64,7 +72,15 @@ describe("Validating Mobile Views", function() {
               } else {
                 cy.viewport(phone)
               }
-            cy.wait(15000);
+            //cy.wait(5000)  
+            cy.reload();
+            cy.wait(5000)  
+            cy.get("@viewPage").then((httpResponse) => {
+              const data = httpResponse.response.body.data;
+              mtestHeight = data.layouts[0].dsl.bottomRow;
+              expect(testHeight).to.not.equal(mtestHeight);
+            })
+            cy.wait(5000)  
             cy.get(".t--widget-containerwidget")
             .invoke("css", "height")
             .then((height) => {
