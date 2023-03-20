@@ -32,16 +32,14 @@ import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import { BannerMessage, IconSize, TextType, Text } from "design-system-old";
+import { BannerMessage, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
-  DISCARD_SNAPSHOT_CTA,
   SNAPSHOT_BANNER_MESSAGE,
   SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
 } from "@appsmith/constants/messages";
-import SnapShotButton from "../CanvasLayoutConversion/SnapShotButton";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -111,22 +109,6 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
-  const bannerMessageCTA = (
-    <>
-      <SnapShotButton />
-      <div>
-        <Text
-          className="m-0 py-1 px-2 hover:bg-orange-200 cursor-pointer"
-          onClick={() => dispatch({ type: ReduxActionTypes.DELETE_SNAPSHOT })}
-          type={TextType.H5}
-          weight={600}
-        >
-          {createMessage(DISCARD_SNAPSHOT_CTA)}
-        </Text>
-      </div>
-    </>
-  );
-
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
@@ -151,7 +133,7 @@ function WidgetsEditor() {
                   <div className="absolute top-0 z-1 w-full">
                     <BannerMessage
                       backgroundColor={Colors.WARNING_ORANGE}
-                      ctaChildren={bannerMessageCTA}
+                      ctaChildren={<SnapShotBannerCTA />}
                       fontWeight="400"
                       icon="warning-line"
                       iconColor={Colors.WARNING_SOLID}

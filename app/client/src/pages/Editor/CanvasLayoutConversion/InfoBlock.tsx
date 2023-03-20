@@ -10,11 +10,12 @@ export type InfoBlockProps = {
 
 export const InfoBlock = (props: InfoBlockProps) => {
   return (
-    <div className="flex flex-row gap-2 py-2">
+    <div className="flex flex-row gap-2 pt-2">
       <Icon
+        clickable={false}
         fillColor={Colors.PRIMARY_ORANGE}
         name={props.icon}
-        size={IconSize.XXXXL}
+        size={IconSize.XXXL}
         withWrapper
         wrapperColor={Colors.PRIMARY_ORANGE_OPAQUE}
       />
@@ -22,7 +23,9 @@ export const InfoBlock = (props: InfoBlockProps) => {
         <Text className="pb-1" type={TextType.H4}>
           {props.header}
         </Text>
-        <Text type={TextType.P1}>{props.info}</Text>
+        <Text color={Colors.GRAY_500} type={TextType.P1} weight="400">
+          {props.info}
+        </Text>
       </div>
     </div>
   );

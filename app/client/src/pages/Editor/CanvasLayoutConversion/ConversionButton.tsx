@@ -44,8 +44,8 @@ export function ConversionButton() {
 
   const header = () => {
     return (
-      <div className="flex items-center gap-4">
-        <Text type={TextType.H1}>{createMessage(titleText)}</Text>,
+      <div className="flex items-center gap-3">
+        <Text type={TextType.H1}>{createMessage(titleText)}</Text>
         <BetaCard />
       </div>
     );

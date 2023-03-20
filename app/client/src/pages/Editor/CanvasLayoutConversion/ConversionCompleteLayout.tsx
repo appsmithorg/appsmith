@@ -1,8 +1,9 @@
 import React from "react";
 
 import { Colors } from "constants/Colors";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Icon, Text, TextType } from "design-system-old";
 import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
+import styled from "styled-components";
 
 const AlertIcons = {
   [AlertType.SUCCESS]: "success-line",
@@ -17,13 +18,20 @@ export type ConversionCompleteLayoutProps = {
   errorText?: string;
 };
 
+const StyledHugeIcon = styled(Icon)`
+  svg {
+    width: 30px;
+    height: 30px;
+  }
+`;
+
 export const ConversionCompleteLayout = (
   props: ConversionCompleteLayoutProps,
 ) => {
   return (
-    <div className="flex flex-col items-center pt-3">
-      <Icon name={AlertIcons[props.alertType]} size={IconSize.XXXXL} />
-      <Text className="py-1" type={TextType.H4}>
+    <div className="flex flex-col items-center justify-center h-39">
+      <StyledHugeIcon clickable={false} name={AlertIcons[props.alertType]} />
+      <Text className="pt-4 pb-1" type={TextType.H4}>
         {props.headerText}
       </Text>
       {props.errorText && (

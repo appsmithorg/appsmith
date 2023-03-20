@@ -1477,6 +1477,7 @@ export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "USE SNAPSHOT";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding A Snapshot";
 export const SAVE_SNAPSHOT = () => "We Save a Snapshot of Your App";
 export const SAVE_SNAPSHOT_TEXT = () =>
   "We will create a snapshot of your whole app before the conversion, so that you can go back if auto layout is just not right for you";
@@ -1486,6 +1487,8 @@ export const RESTORING_SNAPSHOT = () => "Removing changes made";
 export const REFRESH_THE_APP = () => "REFRESH THE APP";
 export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
 export const CONVERSION_SUCCESS_HEADER = () => "All done";
+export const DISCARD_SNAPSHOT_TEXT = () =>
+  "You are about to discard this snapshot:";
 export const CONVERSION_SUCCESS_TEXT = () =>
   "Check all your pages and start using your new layout";
 export const CONVERSION_WARNING_HEADER = () =>
@@ -1525,6 +1528,7 @@ export const SNAPSHOT_TIME_FROM_MESSAGE = (
 export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
   timeTillExpiration: string,
 ) => `Snapshot expires in ${timeTillExpiration}`;
+export const DISCARD = () => "DISCARD";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

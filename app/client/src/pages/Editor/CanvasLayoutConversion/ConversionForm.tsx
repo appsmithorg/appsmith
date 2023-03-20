@@ -101,7 +101,7 @@ export function ConversionForm<T>(
           ))}
 
         {spinner && (
-          <div className="flex flex-col items-center py-12">
+          <div className="flex flex-col items-center py-11">
             <Spinner size={IconSize.XXXXL} />
             <Text className="pt-4" type={TextType.P0}>
               {spinner}
@@ -112,7 +112,7 @@ export function ConversionForm<T>(
           <ConversionCompleteLayout {...conversionComplete} />
         )}
         {collapsibleMessage && (
-          <Collapsible className="pt-5" title={collapsibleMessage.title}>
+          <Collapsible className="px-2" title={collapsibleMessage.title}>
             <Text color={Colors.GRAY_900} type={TextType.P1}>
               {collapsibleMessage.messageHeader}
             </Text>
@@ -125,7 +125,7 @@ export function ConversionForm<T>(
         )}
         {selectDropDown && (
           <>
-            <div className="pt-4 pb-1">
+            <div className="pt-6 pb-1">
               <Text type={TextType.P1}>{selectDropDown.labelText}</Text>
             </div>
             <Dropdown
@@ -140,8 +140,10 @@ export function ConversionForm<T>(
         {snapShotDetails && (
           <>
             {snapShotDetails.labelText && (
-              <div className="pt-6 pb-1">
-                <Text type={TextType.P0}>{snapShotDetails.labelText}</Text>
+              <div className="pt-6 pb-2">
+                <Text type={TextType.P0} weight={400}>
+                  {snapShotDetails.labelText}
+                </Text>
               </div>
             )}
             <div
@@ -150,9 +152,10 @@ export function ConversionForm<T>(
             >
               <Icon
                 className="mx-3"
+                clickable={false}
                 fillColor={Colors.GRAY_600}
                 name={snapShotDetails.icon}
-                size={IconSize.XXXXL}
+                size={IconSize.XXXL}
                 withWrapper
                 wrapperColor={Colors.GRAY_600_OPAQUE}
               />

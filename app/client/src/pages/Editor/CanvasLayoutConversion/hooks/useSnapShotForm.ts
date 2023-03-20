@@ -2,12 +2,14 @@ import {
   BACK,
   CANCEL_DIALOG,
   createMessage,
+  DISCARD,
+  DISCARD_SNAPSHOT_TEXT,
   RESTORING_SNAPSHOT,
   SNAPSHOT_LABEL,
   SNAPSHOT_TIME_FROM_MESSAGE,
   USE_SNAPSHOT,
   USE_SNAPSHOT_TEXT,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
@@ -70,6 +72,26 @@ export const snapShotFlow = (
             },
           }
         : undefined,
+    },
+    [CONVERSION_STATES.DISCARD_SNAPSHOT]: {
+      snapShotDetails: readableSnapShotDetails && {
+        labelText: createMessage(DISCARD_SNAPSHOT_TEXT),
+        icon: "history-line",
+        text: createMessage(
+          SNAPSHOT_TIME_FROM_MESSAGE,
+          readableSnapShotDetails.timeSince,
+          readableSnapShotDetails.readableDate,
+        ),
+      },
+      primaryButton: {
+        text: createMessage(DISCARD),
+        onClick: () => {
+          onCancel();
+          dispatch({
+            type: ReduxActionTypes.DELETE_SNAPSHOT,
+          });
+        },
+      },
     },
     [CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER]: {
       cancelButtonText: createMessage(CANCEL_DIALOG),
