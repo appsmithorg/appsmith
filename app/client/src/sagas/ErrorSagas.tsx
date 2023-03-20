@@ -32,6 +32,7 @@ import store from "store";
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
+import type { PluginErrorDetails } from "api/ActionAPI";
 
 /**
  * making with error message with action name
@@ -131,6 +132,8 @@ export function getResponseErrorMessage(response: ApiResponse) {
 type ClientDefinedErrorMetadata = {
   clientDefinedError: boolean;
   statusCode: string;
+  message: string;
+  pluginErrorDetails: PluginErrorDetails;
 };
 
 export function extractClientDefinedErrorMetadata(
@@ -139,7 +142,9 @@ export function extractClientDefinedErrorMetadata(
   if (err?.clientDefinedError && err?.response) {
     return {
       clientDefinedError: err?.clientDefinedError,
-      statusCode: err?.response?.status,
+      statusCode: err?.statusCode,
+      message: err?.message,
+      pluginErrorDetails: err?.pluginErrorDetails,
     };
   } else {
     return undefined;

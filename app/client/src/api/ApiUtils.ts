@@ -1,6 +1,7 @@
 import {
   createMessage,
   ERROR_0,
+  ERROR_413,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
@@ -101,7 +102,16 @@ export const apiFailureResponseInterceptor = (error: any) => {
     return Promise.reject({
       ...error,
       clientDefinedError: true,
-      message: createMessage(() => "413 error"),
+      statusCode: "AE-APP-4013",
+      message: createMessage(ERROR_413, 100),
+      pluginErrorDetails: {
+        appsmithErrorCode: "AE-APP-4013",
+        appsmithErrorMessage: createMessage(ERROR_413, 100),
+        downstreamErrorCode: "413 CONTENT_TOO_LARGE",
+        downstreamErrorMessage: "",
+        errorType: "INTERNAL_ERROR",
+        title: "API execution error",
+      },
     });
   }
 

@@ -608,6 +608,11 @@ function* runActionSaga(
         "statusCode",
         `${clientDefinedErrorMetadata?.statusCode || ""}`,
       );
+      set(
+        payload,
+        "pluginErrorDetails",
+        clientDefinedErrorMetadata?.pluginErrorDetails,
+      );
       set(error, "clientDefinedError", true);
     }
   }
@@ -633,7 +638,7 @@ function* runActionSaga(
   const clientDefinedError = error.clientDefinedError
     ? {
         name: "PluginExecutionError",
-        message: "An unexpected error occurred",
+        message: error?.message,
         clientDefinedError: true,
       }
     : undefined;
@@ -684,8 +689,8 @@ function* runActionSaga(
             pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
-          state: payload.request,
-          pluginErrorDetails: payload.pluginErrorDetails,
+          state: payload?.request,
+          pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
     ]);
