@@ -335,6 +335,8 @@ export default function MemberSettings(props: PageProps) {
       allUsers.map((user) => ({
         ...user,
         isCurrentUser: user.username === currentUser?.username,
+        permissionGroupId: user.roles[0].id,
+        permissionGroupName: user.roles[0].name,
       })),
     [allUsers, currentUser],
   );
@@ -389,10 +391,11 @@ export default function MemberSettings(props: PageProps) {
       Header: "Resource",
       accessor: "resource",
       Cell: function ResourceCell(cellProps: any) {
-        const isSubRow = cellProps.cell.row.id.split(".").length > 1;
         return (
-          <RowWrapper isSubRow={isSubRow}>
-            <div className="resource-name">Workspace</div>
+          <RowWrapper>
+            <div className="resource-name">
+              {cellProps.cell.row.original.roles[0].entityType}
+            </div>
           </RowWrapper>
         );
       },
@@ -506,7 +509,8 @@ export default function MemberSettings(props: PageProps) {
             {filteredData.map((member, index) => {
               const role =
                 roles.find(
-                  (role: any) => role.value === member.permissionGroupName,
+                  (role: any) =>
+                    role.value === member.permissionGroupName.split(" - ")[0],
                 ) || roles[0];
               const isOwner = member.username === currentUser?.username;
               return (
