@@ -219,7 +219,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
-      if (widgetProps.bottomRow !== widgetProps.topRow) {
+      // This flag (isMetaWidget) is used to prevent the Auto height saga from updating
+      // the List widget Child Widgets. Auto height is disabled in the List widget and
+      // this flag serves as a way to avoid any unintended changes to the child widget's height.
+      if (
+        widgetProps.bottomRow !== widgetProps.topRow &&
+        !widgetProps.isMetaWidget
+      ) {
         dispatch({
           type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
           payload: {
