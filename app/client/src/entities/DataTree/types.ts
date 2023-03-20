@@ -60,7 +60,6 @@ export interface MetaArgs {
 }
 
 export interface JSActionEntityConfig {
-  meta: Record<string, MetaArgs>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;

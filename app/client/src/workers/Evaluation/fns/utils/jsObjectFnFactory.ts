@@ -3,11 +3,9 @@ import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObjec
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "./Messenger";
-import {
-  getEntityNameAndPropertyPath,
-  isJSObject,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+
 declare global {
   interface Window {
     structuredClone: (

@@ -35,6 +35,7 @@ export const generateDataTreeJSAction = (
   dependencyMap["body"] = [];
   const actions = js.config.actions;
   const actionsData: Record<string, any> = {};
+
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
@@ -43,6 +44,7 @@ export const generateDataTreeJSAction = (
         isAsync: action.actionConfiguration.isAsync,
         confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
+
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
@@ -56,8 +58,8 @@ export const generateDataTreeJSAction = (
     ...actionsData,
     body: removeThisReference,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+    meta: meta,
     __config__: {
-      meta: meta,
       name: js.config.name,
       actionId: js.config.id,
       pluginType: js.config.pluginType,
