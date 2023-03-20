@@ -107,6 +107,15 @@ describe("Reset widget meta action", () => {
               },
             },
           },
+          evaluatedWidgetConfig: {
+            widgetId: inputWidget.widgetId,
+            propertyOverrideDependency: {
+              selectedValues: {
+                DEFAULT: "defaultSelectedValues",
+                META: "meta.selectedValues",
+              },
+            },
+          },
         },
       }),
     ).toEqual({
