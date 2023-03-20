@@ -25,8 +25,8 @@ const jsObjectBody2 = `export default {
 	},
 }`;
 
-describe("Confirm before executing a js function should always show a confirmation modal before executing", function() {
-  it("1. Bug-17500: `Confirm before executing` setting does not work when a JS function is trigged on a button click", function() {
+describe("Confirm before executing a js function should always show a confirmation modal before executing", function () {
+  it("1. Bug-17500: `Confirm before executing` setting does not work when a JS function is trigged on a button click", function () {
     _.jsEditor.CreateJSObject(jsObjectBody1, {
       paste: true,
       completeReplace: true,
@@ -54,7 +54,7 @@ describe("Confirm before executing a js function should always show a confirmati
     _.agHelper.ValidateToastMessage("JSObject1.myFun2 was cancelled");
   });
 
-  it("2. Bug-13646: Function execution does not wait for user confirmation when a nested function", function() {
+  it("2. Bug-13646: Function execution does not wait for user confirmation when a nested function", function () {
     _.jsEditor.CreateJSObject(jsObjectBody2, {
       paste: true,
       completeReplace: true,
@@ -84,7 +84,7 @@ describe("Confirm before executing a js function should always show a confirmati
     _.agHelper.ValidateToastMessage("JSObject2.myFun1 was cancelled", 1);
   });
 
-  it("3. Bug-13646: Function execution does not wait for user confirmation when in a nested function and is run on page load", function() {
+  it("3. Bug-13646: Function execution does not wait for user confirmation when in a nested function and is run on page load", function () {
     _.entityExplorer.SelectEntityByName("JSObject2", "Queries/JS");
     _.jsEditor.EnableDisableAsyncFuncSettings("myFun2", true, false);
 

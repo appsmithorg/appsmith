@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let dsName: any, jsName: any;
 
-describe("JSObjects OnLoad Actions tests", function() {
+describe("JSObjects OnLoad Actions tests", function () {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });
@@ -21,7 +21,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     });
   });
 
-  it("1. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function() {
+  it("1. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function () {
     _.jsEditor.CreateJSObject(
       `export default {
       getEmployee: async () => {
@@ -70,7 +70,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function() {
+  it("2. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function () {
     _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
@@ -82,7 +82,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     _.jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
-  it("3. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function() {
+  it("3. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function () {
     _.deployMode.DeployApp(); //Adding this check since GetEmployee failure toast is always coming & making product flaky
     //_.agHelper.WaitUntilAllToastsDisappear();
     _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
@@ -115,7 +115,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   //Skipping due to - "_.tableData":"ERROR: invalid input syntax for type smallint: "{}""
-  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function() {
+  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function () {
     _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
     _.jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     //_.jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help
@@ -136,7 +136,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     _.deployMode.NavigateBacktoEditor();
   });
 
-  it("5. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
+  it("5. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function () {
     _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
     _.jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
     _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"), false);
@@ -150,7 +150,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // _.agHelper.ClickButton("Yes");
   });
 
-  it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function() {
+  it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function () {
     // _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"), false);
     // _.agHelper.WaitUntilAllToastsDisappear();    //incase toast appears, GetEmployee failure toast is appearing
     // _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
