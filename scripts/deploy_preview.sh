@@ -45,15 +45,14 @@ kubectl config set-context --current --namespace=default
 echo "Getting the pods"
 kubectl get pods
 
-echo "Delete previously created namespace"
-kubectl delete ns $NAMESPACE || echo "true"
-
-echo "Use kubernetes secret to Pull Image"
-kubectl create ns $NAMESPACE
-kubectl create secret docker-registry $SECRET \
-  --docker-server=https://index.docker.io/v1/ \
-  --docker-username=$DOCKER_HUB_USERNAME \
-  --docker-password=$DOCKER_HUB_ACCESS_TOKEN -n $NAMESPACE
+echo "Create namespace and secret to Pull Image"
+if kubectl create ns "$NAMESPACE";
+then
+   kubectl create secret docker-registry "$SECRET" \
+   --docker-server=https://index.docker.io/v1/ \
+   --docker-username="$DOCKER_HUB_USERNAME" \
+   --docker-password="$DOCKER_HUB_ACCESS_TOKEN" \ -n "$NAMESPACE"
+fi
 
 echo "Add appsmith-ce to helm repo"
 AWS_REGION=ap-south-1 helm repo add $HELMCHART $HELMCHART_URL
