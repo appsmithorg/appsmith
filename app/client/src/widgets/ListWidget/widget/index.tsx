@@ -1,48 +1,47 @@
-import React from "react";
-import log from "loglevel";
+import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
+import { Positioning } from "utils/autoLayout/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import type { PrivateWidgets } from "entities/DataTree/types";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona/lite";
 import {
   compact,
   get,
-  set,
-  xor,
-  isNumber,
-  range,
-  toString,
   isBoolean,
-  omit,
   isEmpty,
+  isNumber,
+  omit,
+  range,
+  set,
+  toString,
+  xor,
 } from "lodash";
+import log from "loglevel";
 import memoizeOne from "memoize-one";
+import React from "react";
 import shallowEqual from "shallowequal";
-import WidgetFactory from "utils/WidgetFactory";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import {
-  RenderModes,
-  WidgetType,
-  GridDefaults,
-} from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
+import ListPagination, {
+  ServerSideListPagination,
+} from "../component/ListPagination";
+import derivedProperties from "./parseDerivedProperties";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import ListPagination, {
-  ServerSideListPagination,
-} from "../component/ListPagination";
-import { ValidationTypes } from "constants/WidgetValidation";
-import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget } from "widgets/constants";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/types";
-import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
-import { Stylesheet } from "entities/AppTheming";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -118,7 +117,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         if (widgetType) {
           childrenEntityDefinitions[widgetType] = Object.keys(
             omit(
-              get(entityDefinitions, `${widgetType}`) as Record<
+              (get(entityDefinitions, `${widgetType}`) as unknown) as Record<
                 string,
                 unknown
               >,
@@ -168,9 +167,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
           childrenDefaultPropertiesMap = {
             ...childrenDefaultPropertiesMap,
-            [`${key}.${defaultPropertyKey}`]: defaultProperties[
-              defaultPropertyKey
-            ],
+            [`${key}.${defaultPropertyKey}`]:
+              defaultProperties[defaultPropertyKey],
           };
         });
       });
@@ -370,6 +368,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.bottomRow = shouldPaginate
       ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
+    const positioning: Positioning =
+      this.props.positioning || childWidgetData.positioning;
+    childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -407,11 +409,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
-    const {
-      dynamicBindingPathList,
-      dynamicTriggerPathList,
-      template,
-    } = this.props;
+    const { dynamicBindingPathList, dynamicTriggerPathList, template } =
+      this.props;
     const { widgetName = "" } = widget;
     // Update properties if they're dynamic
     // `template` property should have an array of values
@@ -660,10 +659,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "children[0]",
         );
         // Set properties of the container's canvas child widget
-        const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
-          listItemContainerCanvas,
-          listItemIndex,
-        );
+        const updatedListItemContainerCanvas =
+          this.updateNonTemplateWidgetProperties(
+            listItemContainerCanvas,
+            listItemIndex,
+          );
         // Set the item container's canvas child widget
         set(
           updatedListItemContainer,
@@ -861,10 +861,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
-    const templateBottomRow = get(
+    const templateBottomRow = (get(
       this.props.childWidgets,
       "0.children.0.bottomRow",
-    );
+    ) as unknown) as number;
     const templateHeight =
       templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 

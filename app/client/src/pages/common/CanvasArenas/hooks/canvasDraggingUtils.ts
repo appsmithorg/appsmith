@@ -1,11 +1,13 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import {
-  HORIZONTAL_RESIZE_MIN_LIMIT,
+import type {
   MovementLimitMap,
-  ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
+} from "reflow/reflowTypes";
+import {
+  HORIZONTAL_RESIZE_MIN_LIMIT,
+  ReflowDirection,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
 import {
@@ -13,7 +15,7 @@ import {
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas
@@ -142,7 +144,7 @@ export function modifyDrawingRectangles(
  * @returns movement direction
  */
 export function getMoveDirection(
-  prevPosition: OccupiedSpace,
+  prevPosition: OccupiedSpace | null,
   currentPosition: OccupiedSpace,
   currentDirection: ReflowDirection,
 ) {
@@ -190,16 +192,10 @@ export const modifyBlockDimension = (
   snapRowSpace: number,
   parentBottomRow: number,
   canExtend: boolean,
+  modifyBlock: boolean,
 ) => {
-  const {
-    columnWidth,
-    fixedHeight,
-    height,
-    left,
-    rowHeight,
-    top,
-    width,
-  } = draggingBlock;
+  const { columnWidth, fixedHeight, height, left, rowHeight, top, width } =
+    draggingBlock;
 
   //get left and top of widget on canvas grid
   const [leftColumn, topRow] = getDropZoneOffsets(
@@ -214,43 +210,44 @@ export const modifyBlockDimension = (
       y: 0,
     },
   );
-
   let leftOffset = 0,
     rightOffset = 0,
     topOffset = 0,
     bottomOffset = 0;
+  if (!modifyBlock) {
+    // calculate offsets based on collisions and limits
+    if (leftColumn < 0) {
+      leftOffset =
+        leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
+          ? leftColumn
+          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+    } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
+      rightOffset =
+        GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
+      rightOffset =
+        columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
+          ? rightOffset
+          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+    }
 
-  // calculate offsets based on collisions and limits
-  if (leftColumn < 0) {
-    leftOffset =
-      leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
-        ? leftColumn
-        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
-  } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
-    rightOffset = GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
-    rightOffset =
-      columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
-        ? rightOffset
-        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
-  }
+    if (topRow < 0 && fixedHeight === undefined) {
+      topOffset =
+        topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
+          ? topRow
+          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    }
 
-  if (topRow < 0 && fixedHeight === undefined) {
-    topOffset =
-      topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
-        ? topRow
-        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
-  }
-
-  if (
-    topRow + rowHeight > parentBottomRow &&
-    !canExtend &&
-    fixedHeight === undefined
-  ) {
-    bottomOffset = parentBottomRow - topRow - rowHeight;
-    bottomOffset =
-      rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
-        ? bottomOffset
-        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    if (
+      topRow + rowHeight > parentBottomRow &&
+      !canExtend &&
+      fixedHeight === undefined
+    ) {
+      bottomOffset = parentBottomRow - topRow - rowHeight;
+      bottomOffset =
+        rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
+          ? bottomOffset
+          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    }
   }
 
   return {

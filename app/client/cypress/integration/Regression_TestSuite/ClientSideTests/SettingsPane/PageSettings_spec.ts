@@ -26,7 +26,7 @@ describe("Page Settings", () => {
   });
 
   it("3. Check SetAsHome page setting", () => {
-    _.ee.AddNewPage();
+    _.entityExplorer.AddNewPage();
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.ToggleHomePage();

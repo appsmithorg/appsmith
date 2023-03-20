@@ -1,6 +1,6 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 
 export type FetchCurrentTenantConfigResponse = ApiResponse<{
   userPermissions: string[];
@@ -11,9 +11,7 @@ export type FetchCurrentTenantConfigResponse = ApiResponse<{
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
-  static fetchCurrentTenantConfig(): AxiosPromise<
-    FetchCurrentTenantConfigResponse
-  > {
+  static fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
     return Api.get(TenantApi.tenantsUrl + "/current");
   }
 }

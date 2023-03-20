@@ -1,30 +1,32 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import FilePickerComponent from "../component";
 import Uppy from "@uppy/core";
-import GoogleDrive from "@uppy/google-drive";
-import Webcam from "@uppy/webcam";
-import Url from "@uppy/url";
-import OneDrive from "@uppy/onedrive";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
-import shallowequal from "shallowequal";
-import _, { findIndex } from "lodash";
-import FileDataTypes from "../constants";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import log from "loglevel";
-import { createGlobalStyle } from "styled-components";
-import UpIcon from "assets/icons/ads/up-arrow.svg";
+import GoogleDrive from "@uppy/google-drive";
+import OneDrive from "@uppy/onedrive";
+import Url from "@uppy/url";
+import type { UppyFile } from "@uppy/utils";
+import Webcam from "@uppy/webcam";
 import CloseIcon from "assets/icons/ads/cross.svg";
+import UpIcon from "assets/icons/ads/up-arrow.svg";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
-import Papa from "papaparse";
+import type { WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
-import { UppyFile } from "@uppy/utils";
-import { Stylesheet } from "entities/AppTheming";
+import _, { findIndex } from "lodash";
+import log from "loglevel";
+import Papa from "papaparse";
+import React from "react";
+import shallowequal from "shallowequal";
+import { createGlobalStyle } from "styled-components";
+import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import FilePickerComponent from "../component";
+import FileDataTypes from "../constants";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -424,6 +426,8 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
+
       {
         sectionName: "Events",
         children: [

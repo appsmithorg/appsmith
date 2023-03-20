@@ -1,13 +1,11 @@
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import {
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import DOM_APIS from "./domApis";
@@ -31,34 +29,34 @@ export const ScriptTemplate = "<<string>>";
 
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
-  function closedFunction () {
-    const result = ${ScriptTemplate}
-    return result;
+  function $$closedFn () {
+    const $$result = ${ScriptTemplate}
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
-  function callback (script) {
-    const userFunction = script;
-    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
-    return result;
+  function $$closedFn (script) {
+    const $$userFunction = script;
+    const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return $$result
   }
-  callback(${ScriptTemplate})
+  $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  async function callback (script) {
-    const userFunction = script;
-    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
-    return result;
+  async function $$closedFn (script) {
+    const $$userFunction = script;
+    const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return await $$result;
   }
-  callback(${ScriptTemplate})
+  $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
-  async function closedFunction () {
-    const result = await ${ScriptTemplate};
-    return result;
+  async function $$closedFn () {
+    const $$result = ${ScriptTemplate};
+    return await $$result
   }
-  closedFunction.call(THIS_CONTEXT);
+  $$closedFn.call(THIS_CONTEXT)
   `,
 };
 
@@ -239,7 +237,7 @@ export default function evaluateSync(
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
-  return (function() {
+  return (function () {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
@@ -314,7 +312,7 @@ export async function evaluateAsync(
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
-  return (async function() {
+  return (async function () {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;

@@ -7,13 +7,13 @@ import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import {
+import type {
   FieldComponentBaseProps,
   BaseFieldComponentProps,
   FieldEventProps,
   ComponentDefaultValuesFnProps,
-  ActionUpdateDependency,
 } from "../constants";
+import { ActionUpdateDependency } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dateFormatOptions } from "widgets/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";

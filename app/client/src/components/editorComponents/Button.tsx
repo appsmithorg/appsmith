@@ -1,19 +1,20 @@
 import React from "react";
-import {
-  Intent,
-  BlueprintButtonIntentsCSS,
-  Skin,
-} from "constants/DefaultTheme";
+import type { Intent, Skin } from "constants/DefaultTheme";
+import { BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
 import styled, { css } from "styled-components";
-import {
-  AnchorButton as BlueprintAnchorButton,
-  Button as BlueprintButton,
+import type {
   Intent as BlueprintIntent,
   IconName,
   MaybeElement,
   IButtonProps,
+  IAnchorButtonProps,
 } from "@blueprintjs/core";
-import { Direction, Directions } from "utils/helpers";
+import {
+  AnchorButton as BlueprintAnchorButton,
+  Button as BlueprintButton,
+} from "@blueprintjs/core";
+import type { Direction } from "utils/helpers";
+import { Directions } from "utils/helpers";
 import { omit } from "lodash";
 
 const outline = css`
@@ -71,7 +72,7 @@ const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
   ${buttonStyles}
 `;
 const StyledAnchorButton = styled(
-  (props: IButtonProps & Partial<ButtonProps>) => (
+  (props: IAnchorButtonProps & Partial<ButtonProps>) => (
     <BlueprintAnchorButton
       {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
     />

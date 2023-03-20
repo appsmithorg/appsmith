@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ORIGINAL_INDEX_KEY,

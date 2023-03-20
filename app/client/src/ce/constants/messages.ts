@@ -985,11 +985,13 @@ export const WELCOME_FORM_FULL_NAME = () => "Full Name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
-export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
-export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () => "- Select a role -";
-export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_ROLE_DROPDOWN = () =>
+  "Tell us about your primary skillset";
+export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
+  "- Select a skillset -";
+export const WELCOME_FORM_ROLE = () => "Skillset";
 export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
-export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_USE_CASE = () => "Tell us about your use case";
 export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
@@ -1108,7 +1110,7 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
-  "Tell us more about what you do at work?";
+  "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
@@ -1118,11 +1120,8 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
-  `The ${widgetName}widget you are currently using is now deprecated.`;
-export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
-  replacingWidgetName: string,
-) =>
-  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
+  `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
+
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
@@ -1142,6 +1141,8 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query / JS Object";
+export const LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP = () =>
+  "Count of all the records in the source data for the list. This helps us calculate the number of pages to be shown";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1375,6 +1376,10 @@ export const MEMBERS_TAB_TITLE = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cloudHosting?: boolean,
 ) => `Users (${length})`;
+export const SEARCH_USERS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Search for users`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";

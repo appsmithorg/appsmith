@@ -9,7 +9,7 @@ const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Entity explorer tests related to widgets and validation", function() {
+describe("Entity explorer tests related to widgets and validation", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -18,30 +18,30 @@ describe("Entity explorer tests related to widgets and validation", function() {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("Add a widget to default page and verify the properties", function() {
+  it("Add a widget to default page and verify the properties", function () {
     cy.addDsl(dsl);
     cy.OpenBindings("Text1");
-    cy.get(explorer.property)
-      .last()
-      .click({ force: true });
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(explorer.property).last().click({ force: true });
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
       expect($lis.eq(1)).to.contain("{{Text1.text}}");
     });
   });
 
-  it("Create another page and add another widget and verify properties", function() {
+  it("Create another page and add another widget and verify properties", function () {
     cy.Createpage(pageid);
     cy.addDsl(tdsl);
     cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidget,
+      widgetsPage.widgetNameSpan,
+    );
     cy.GlobalSearchEntity("Table1");
     cy.OpenBindings("Table1");
-    cy.get(explorer.property)
-      .last()
-      .click({ force: true });
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(explorer.property).last().click({ force: true });
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(13);
       expect($lis.eq(0)).to.contain("{{Table1.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1.selectedRows}}");
@@ -59,18 +59,14 @@ describe("Entity explorer tests related to widgets and validation", function() {
     });
   });
 
-  it("Toggle between widgets in different pages using search functionality", function() {
+  it("Toggle between widgets in different pages using search functionality", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(".t--entity-name")
-      .contains("Page1")
-      .click({ force: true });
+    cy.get(".t--entity-name").contains("Page1").click({ force: true });
     cy.wait(2000);
     cy.SearchEntityandOpen("Text1");
     cy.OpenBindings("Text1");
-    cy.get(explorer.property)
-      .last()
-      .click({ force: true });
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(explorer.property).last().click({ force: true });
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
       expect($lis.eq(1)).to.contain("{{Text1.text}}");

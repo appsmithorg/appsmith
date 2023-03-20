@@ -1,5 +1,7 @@
-import React, { JSXElementConstructor } from "react";
-import { IconProps, IconWrapper } from "constants/IconConstants";
+import type { JSXElementConstructor } from "react";
+import React from "react";
+import type { IconProps } from "constants/IconConstants";
+import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as DeleteIcon } from "assets/icons/control/delete.svg";
 import { ReactComponent as MoveIcon } from "assets/icons/control/move.svg";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit.svg";
@@ -70,89 +72,109 @@ import CloseIcon from "remixicon-react/CloseLineIcon";
 /* eslint-disable react/display-name */
 
 export const ControlIcons: {
-  [id: string]: JSXElementConstructor<IconProps>;
+  [id: string]: JSXElementConstructor<
+    IconProps & React.HTMLAttributes<HTMLDivElement>
+  >;
 } = {
-  DELETE_CONTROL: (props: IconProps) => (
+  DELETE_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <DeleteIcon />
     </IconWrapper>
   ),
-  MOVE_CONTROL: (props: IconProps) => (
+  MOVE_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <MoveIcon />
     </IconWrapper>
   ),
-  EDIT_CONTROL: (props: IconProps) => (
+  EDIT_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <EditIcon />
     </IconWrapper>
   ),
-  VIEW_CONTROL: (props: IconProps) => (
+  VIEW_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <ViewIcon />
     </IconWrapper>
   ),
-  MORE_VERTICAL_CONTROL: (props: IconProps) => (
+  MORE_VERTICAL_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <MoreVerticalIcon />
     </IconWrapper>
   ),
-  MORE_HORIZONTAL_CONTROL: (props: IconProps) => (
+  MORE_HORIZONTAL_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <OverflowMenuIcon />
     </IconWrapper>
   ),
-  JS_TOGGLE: (props: IconProps) => (
+  JS_TOGGLE: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <JsToggleIcon />
     </IconWrapper>
   ),
-  INCREASE_CONTROL: (props: IconProps) => (
+  INCREASE_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <IncreaseIcon />
     </IconWrapper>
   ),
-  DECREASE_CONTROL: (props: IconProps) => (
+  DECREASE_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <DecreaseIcon />
     </IconWrapper>
   ),
-  DRAGGABLE_CONTROL: (props: IconProps) => (
+  DRAGGABLE_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <DraggableIcon />
     </IconWrapper>
   ),
-  CLOSE_CONTROL: (props: IconProps) => (
+  CLOSE_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <CloseIcon />
     </IconWrapper>
   ),
-  CLOSE_CIRCLE_CONTROL: (props: IconProps) => (
+  CLOSE_CIRCLE_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <CloseCircleIcon />
     </IconWrapper>
   ),
-  ADD_CIRCLE_CONTROL: (props: IconProps) => (
+  ADD_CIRCLE_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <AddCircleIcon />
     </IconWrapper>
   ),
-  PICK_MY_LOCATION_SELECTED_CONTROL: (props: IconProps) => (
+  PICK_MY_LOCATION_SELECTED_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <PickMyLocationSelectedIcon />
     </IconWrapper>
   ),
-  SETTINGS_CONTROL: (props: IconProps) => (
+  SETTINGS_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <SettingsIcon />
     </IconWrapper>
   ),
-  HELP_CONTROL: (props: IconProps) => (
+  HELP_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <HelpIcon />
     </IconWrapper>
   ),
-  PLAY_VIDEO: (props: IconProps) => (
+  PLAY_VIDEO: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <img
         alt="Datasource"
@@ -161,247 +183,285 @@ export const ControlIcons: {
       />
     </IconWrapper>
   ),
-  REMOVE_CONTROL: (props: IconProps) => (
+  REMOVE_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <RemoveIcon />
     </IconWrapper>
   ),
-  DRAG_CONTROL: (props: IconProps) => (
+  DRAG_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <DragIcon />
     </IconWrapper>
   ),
-  COLLAPSE_CONTROL: (props: IconProps) => (
+  COLLAPSE_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <CollapseIcon />
     </IconWrapper>
   ),
-  SORT_CONTROL: (props: IconProps) => (
+  SORT_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <SortIcon />
     </IconWrapper>
   ),
-  EDIT_WHITE: (props: IconProps) => (
+  EDIT_WHITE: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <EditWhiteIcon />
     </IconWrapper>
   ),
-  LAUNCH_CONTROL: (props: IconProps) => (
+  LAUNCH_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <LaunchIcon />
     </IconWrapper>
   ),
-  BACK_CONTROL: (props: IconProps) => (
+  BACK_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <BackIcon />
     </IconWrapper>
   ),
-  SHOW_COLUMN: (props: IconProps) => (
+  SHOW_COLUMN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <EyeIcon />
     </IconWrapper>
   ),
-  HIDE_COLUMN: (props: IconProps) => (
+  HIDE_COLUMN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <EyeOffIcon />
     </IconWrapper>
   ),
-  DELETE_COLUMN: (props: IconProps) => (
+  DELETE_COLUMN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <DeleteColumnIcon />
     </IconWrapper>
   ),
-  BOLD_FONT: (props: IconProps) => (
+  BOLD_FONT: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <BoldFontIcon />
     </IconWrapper>
   ),
-  UNDERLINE: (props: IconProps) => (
+  UNDERLINE: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <UnderlineIcon />
     </IconWrapper>
   ),
-  ITALICS_FONT: (props: IconProps) => (
+  ITALICS_FONT: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <ItalicsFontIcon />
     </IconWrapper>
   ),
-  LEFT_ALIGN: (props: IconProps) => (
+  LEFT_ALIGN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <LeftAlignIcon />
     </IconWrapper>
   ),
-  CENTER_ALIGN: (props: IconProps) => (
+  CENTER_ALIGN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <CenterAlignIcon />
     </IconWrapper>
   ),
-  RIGHT_ALIGN: (props: IconProps) => (
+  RIGHT_ALIGN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <RightAlignIcon />
     </IconWrapper>
   ),
-  VERTICAL_RIGHT: (props: IconProps) => (
+  VERTICAL_RIGHT: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <VerticalAlignRight />
     </IconWrapper>
   ),
-  VERTICAL_LEFT: (props: IconProps) => (
+  VERTICAL_LEFT: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <VerticalAlignLeft />
     </IconWrapper>
   ),
-  VERTICAL_TOP: (props: IconProps) => (
+  VERTICAL_TOP: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <VerticalAlignTop />
     </IconWrapper>
   ),
-  VERTICAL_CENTER: (props: IconProps) => (
+  VERTICAL_CENTER: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <VerticalAlignCenter />
     </IconWrapper>
   ),
-  VERTICAL_BOTTOM: (props: IconProps) => (
+  VERTICAL_BOTTOM: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <VerticalAlignBottom />
     </IconWrapper>
   ),
-  COPY_CONTROL: (props: IconProps) => (
+  COPY_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <CopyIcon />
     </IconWrapper>
   ),
-  COPY2_CONTROL: (props: IconProps) => (
+  COPY2_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <Copy2Icon />
     </IconWrapper>
   ),
-  CUT_CONTROL: (props: IconProps) => (
+  CUT_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <CutIcon />
     </IconWrapper>
   ),
-  GROUP_CONTROL: (props: IconProps) => (
+  GROUP_CONTROL: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <GroupIcon />
     </IconWrapper>
   ),
-  HEADING_ONE: (props: IconProps) => (
+  HEADING_ONE: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <HeadingOneIcon />
     </IconWrapper>
   ),
-  HEADING_TWO: (props: IconProps) => (
+  HEADING_TWO: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <HeadingTwoIcon />
     </IconWrapper>
   ),
-  HEADING_THREE: (props: IconProps) => (
+  HEADING_THREE: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <HeadingThreeIcon />
     </IconWrapper>
   ),
-  PARAGRAPH: (props: IconProps) => (
+  PARAGRAPH: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <ParagraphIcon />
     </IconWrapper>
   ),
-  PARAGRAPH_TWO: (props: IconProps) => (
+  PARAGRAPH_TWO: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <ParagraphTwoIcon />
     </IconWrapper>
   ),
-  BULLETS: (props: IconProps) => (
+  BULLETS: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <BulletsIcon />
     </IconWrapper>
   ),
-  DIVIDER_CAP_RIGHT: (props: IconProps) => (
+  DIVIDER_CAP_RIGHT: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <DividerCapRightIcon />
     </IconWrapper>
   ),
-  DIVIDER_CAP_LEFT: (props: IconProps) => (
+  DIVIDER_CAP_LEFT: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <DividerCapLeftIcon />
     </IconWrapper>
   ),
-  DIVIDER_CAP_ALL: (props: IconProps) => (
+  DIVIDER_CAP_ALL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <DividerCapAllIcon />
     </IconWrapper>
   ),
-  BIND_DATA_CONTROL: (props: IconProps) => (
+  BIND_DATA_CONTROL: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <TrendingFlat />
     </IconWrapper>
   ),
-  ICON_ALIGN_LEFT: (props: IconProps) => (
+  ICON_ALIGN_LEFT: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <AlignLeftIcon />
     </IconWrapper>
   ),
-  ICON_ALIGN_RIGHT: (props: IconProps) => (
+  ICON_ALIGN_RIGHT: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <AlignRightIcon />
     </IconWrapper>
   ),
-  BORDER_RADIUS_SHARP: (props: IconProps) => (
+  BORDER_RADIUS_SHARP: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BorderRadiusSharpIcon />
     </IconWrapper>
   ),
-  BORDER_RADIUS_ROUNDED: (props: IconProps) => (
+  BORDER_RADIUS_ROUNDED: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BorderRadiusRoundedIcon />
     </IconWrapper>
   ),
-  BORDER_RADIUS_CIRCLE: (props: IconProps) => (
+  BORDER_RADIUS_CIRCLE: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BorderRadiusCircleIcon />
     </IconWrapper>
   ),
-  BOX_SHADOW_NONE: (props: IconProps) => (
+  BOX_SHADOW_NONE: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BoxShadowNoneIcon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT1: (props: IconProps) => (
+  BOX_SHADOW_VARIANT1: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BoxShadowVariant1Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT2: (props: IconProps) => (
+  BOX_SHADOW_VARIANT2: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BoxShadowVariant2Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT3: (props: IconProps) => (
+  BOX_SHADOW_VARIANT3: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BoxShadowVariant3Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT4: (props: IconProps) => (
+  BOX_SHADOW_VARIANT4: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BoxShadowVariant4Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT5: (props: IconProps) => (
+  BOX_SHADOW_VARIANT5: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <BoxShadowVariant5Icon />
     </IconWrapper>
   ),
-  INCREASE_CONTROL_V2: (props: IconProps) => (
+  INCREASE_CONTROL_V2: (
+    props: IconProps & React.HTMLAttributes<HTMLDivElement>,
+  ) => (
     <IconWrapper {...props}>
       <IncreaseV2Icon />
     </IconWrapper>
   ),
-  QUESTION: (props: IconProps) => (
+  QUESTION: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <QuestionIcon />
     </IconWrapper>
   ),
-  PIN: (props: IconProps) => (
+  PIN: (props: IconProps & React.HTMLAttributes<HTMLDivElement>) => (
     <IconWrapper {...props}>
       <PinIcon />
     </IconWrapper>

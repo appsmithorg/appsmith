@@ -8,4 +8,6 @@ COPY package.json dist ./
 
 EXPOSE 8091
 
+WORKDIR /app/rts
+
 CMD ["node", "--require", "source-map-support/register", "server.js"]

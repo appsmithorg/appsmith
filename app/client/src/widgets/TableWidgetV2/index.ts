@@ -1,10 +1,12 @@
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, set } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { StickyType } from "./component/Constants";
 import { InlineEditingSaveOptions } from "./constants";
@@ -19,6 +21,8 @@ export const CONFIG = {
   needsMeta: true,
   needsHeightForContent: true,
   defaults: {
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,
     canFreezeColumn: true,
     columnUpdatedAt: Date.now(),

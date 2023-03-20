@@ -83,9 +83,7 @@ jobs:
         with:
           node-version: "16.14.0"
           cache: "yarn"
-          cache-dependency-path: "app/rts/yarn.lock"
-
-      
+          cache-dependency-path: "app/yarn.lock"
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
@@ -107,7 +105,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests

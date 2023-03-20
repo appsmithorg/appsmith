@@ -1,5 +1,5 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -17,15 +17,14 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import {
-  setSelectedWidgets,
-  WidgetSelectionRequestPayload,
-} from "actions/widgetSelectionActions";
+import type { WidgetSelectionRequestPayload } from "actions/widgetSelectionActions";
+import { setSelectedWidgets } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppState } from "@appsmith/reducers";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { AppState } from "@appsmith/reducers";
 import { closeAllModals, showModal } from "actions/widgetActions";
-import history, { NavigationMethod } from "utils/history";
+import type { NavigationMethod } from "utils/history";
+import history from "utils/history";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
@@ -37,6 +36,7 @@ import {
   getCanvasWidgets,
   getParentModalId,
 } from "selectors/entitiesSelector";
+import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   assertParentId,
   isInvalidSelectionRequest,
@@ -45,16 +45,17 @@ import {
   SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
-  SetSelectionResult,
   setWidgetAncestry,
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { flashElementsById, quickScrollToWidget } from "utils/helpers";
+import { quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
 
+// The following is computed to be used in the entity explorer
+// Every time a widget is selected, we need to expand widget entities
+// in the entity explorer so that the selected widget is visible
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {
@@ -196,11 +197,10 @@ function* appendSelectedWidgetToUrlSaga(
   pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (guidedTourEnabled || isSnipingMode || viewMode) return;
+  if (isSnipingMode || viewMode) return;
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
@@ -274,13 +274,7 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   }
   const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
-    setTimeout(() => {
-      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-      // we skip scrolling altogether during guided tour as we don't have
-      // too many widgets during the same
-      flashElementsById(widgetId);
-      quickScrollToWidget(widgetId, allWidgets);
-    }, 0);
+    quickScrollToWidget(widgetId, allWidgets);
   }
 }
 

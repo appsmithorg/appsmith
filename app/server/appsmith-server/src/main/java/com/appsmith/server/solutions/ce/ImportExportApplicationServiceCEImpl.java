@@ -23,7 +23,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -731,7 +730,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
         Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
-                    final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
+                    final String pluginReference = StringUtils.isEmpty(plugin.getPluginName()) ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
@@ -761,7 +760,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Check if the destination org have all the required plugins installed
                     for (Datasource datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
-                            log.error("Unable to find the plugin ", datasource.getPluginId());
+                            log.error("Unable to find the plugin {}, available plugins are: {}", datasource.getPluginId(), pluginMap.keySet());
                             return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
                         }
                     }
@@ -844,6 +843,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // The isPublic flag has a default value as false and this would be confusing to user
                                                     // when it is reset to false during importing where the application already is present in DB
                                                     importedApplication.setIsPublic(null);
+                                                    importedApplication.setPolicies(null);
                                                     copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // We are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
@@ -851,7 +851,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // the changes from remote
                                                     // We are using the save instead of update as we are using @Encrypted
                                                     // for GitAuth
-                                                    return applicationService.findById(existingApplication.getGitApplicationMetadata().getDefaultApplicationId())
+                                                    Mono<Application> parentApplicationMono;
+                                                    if (existingApplication.getGitApplicationMetadata() != null) {
+                                                        parentApplicationMono = applicationService.findById(
+                                                                existingApplication.getGitApplicationMetadata().getDefaultApplicationId()
+                                                        );
+                                                    } else {
+                                                        parentApplicationMono = Mono.just(existingApplication);
+                                                    }
+
+                                                    return parentApplicationMono
                                                             .flatMap(application1 -> {
                                                                 // Set the policies from the defaultApplication
                                                                 existingApplication.setPolicies(application1.getPolicies());
@@ -1205,7 +1214,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("Error while importing the application ", throwable.getMessage());
+                    log.error("Error while importing the application, reason: {}", throwable.getMessage());
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
                 })
                 .as(transactionalOperator::transactional);

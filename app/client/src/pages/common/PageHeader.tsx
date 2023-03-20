@@ -4,8 +4,9 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { AppState } from "@appsmith/reducers";
-import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
+import type { AppState } from "@appsmith/reducers";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   AUTH_LOGIN_URL,
   APPLICATIONS_URL,
@@ -26,6 +27,7 @@ import { Indices } from "constants/Layers";
 import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -177,7 +179,10 @@ export function PageHeader(props: PageHeaderProps) {
                 matchTemplatesPath(location.pathname) ||
                 matchTemplatesIdPath(location.pathname)
               }
-              onClick={() => history.push(TEMPLATES_PATH)}
+              onClick={() => {
+                AnalyticsUtil.logEvent("TEMPLATES_TAB_CLICK");
+                history.push(TEMPLATES_PATH);
+              }}
             >
               <div>Templates</div>
             </TabName>

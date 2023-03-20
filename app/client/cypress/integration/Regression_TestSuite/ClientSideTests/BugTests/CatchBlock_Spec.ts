@@ -4,7 +4,7 @@ const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
   JSEditor: jsEditor,
-  EntityExplorer : ee
+  EntityExplorer: ee,
 } = ObjectsRegistry;
 
 describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {

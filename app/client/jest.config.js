@@ -28,8 +28,9 @@ module.exports = {
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
-    "design-system-old": "<rootDir>/node_modules/design-system-old/build",
-    "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
+    "design-system-old": "<rootDir>/../node_modules/design-system-old/build",
+    "^proxy-memoize$":
+      "<rootDir>/../node_modules/proxy-memoize/dist/wrapper.cjs",
   },
   globals: {
     "ts-jest": {

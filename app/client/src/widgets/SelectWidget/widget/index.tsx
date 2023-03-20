@@ -1,30 +1,24 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import SelectComponent from "../component";
-import { DropdownOption } from "../constants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import type { LoDashStatic } from "lodash";
-import {
-  findIndex,
-  isArray,
-  isNil,
-  isNumber,
-  isString,
-} from "lodash";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
+import type { LoDashStatic } from "lodash";
+import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
+import React from "react";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import SelectComponent from "../component";
+import type { DropdownOption } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import { Stylesheet } from "entities/AppTheming";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -380,6 +374,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -492,21 +487,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Colors",
-        children: [
-          {
-            propertyName: "accentColor",
-            label: "Accent Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            invisible: true,
           },
         ],
       },

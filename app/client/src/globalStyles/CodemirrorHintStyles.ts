@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getTypographyByKey } from "design-system-old";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
@@ -270,6 +270,8 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     margin-bottom: 5px;
     font-family: ${(props) => props.theme.fonts.text};
     color: #4B4848;
+    background-position: 0 2.8px;
+    padding-left: 20px;
   }
   .CodeMirror-lint-mark-warning{
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAB1JREFUGFdjZICC/3sY/jO6MDAygvgwDpiGcWAqASvpC745SEL8AAAAAElFTkSuQmCC");

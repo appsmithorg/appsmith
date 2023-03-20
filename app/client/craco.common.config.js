@@ -1,4 +1,6 @@
 const CracoAlias = require("craco-alias");
+const CracoBabelLoader = require("craco-babel-loader");
+const path = require("path");
 
 module.exports = {
   devServer: {
@@ -62,12 +64,32 @@ module.exports = {
       },
     },
     {
+      plugin: CracoBabelLoader,
+      options: {
+        includes: [path.resolve("packages")],
+      },
+    },
+    {
       plugin: "prismjs",
       options: {
         languages: ["javascript"],
         plugins: [],
         theme: "twilight",
         css: false,
+      },
+    },
+    {
+      plugin: {
+        // Prioritize the local src directory over node_modules.
+        // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
+        // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          webpackConfig.resolve.modules = [
+            path.resolve(__dirname, "src"),
+            ...webpackConfig.resolve.modules,
+          ];
+          return webpackConfig;
+        },
       },
     },
   ],

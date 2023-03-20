@@ -1,9 +1,5 @@
-import { klona } from "klona/lite";
-import {
-  ColumnProperties,
-  StickyType,
-  TableStyles,
-} from "../component/Constants";
+import type { ColumnProperties, TableStyles } from "../component/Constants";
+import { StickyType } from "../component/Constants";
 import { ColumnTypes } from "../constants";
 import {
   escapeString,
@@ -12,6 +8,7 @@ import {
   getArrayPropertyValue,
   getColumnType,
   getDerivedColumns,
+  getHeaderClassNameOnDragDirection,
   getOriginalRowIndex,
   getSelectRowIndex,
   getSelectRowIndices,
@@ -154,8 +151,8 @@ describe("getOriginalRowIndex", () => {
     const newTableData = undefined;
     const selectedRowIndex = 1;
     const result = getOriginalRowIndex(
-      (oldTableData as any) as Array<Record<string, unknown>>,
-      (newTableData as any) as Array<Record<string, unknown>>,
+      oldTableData as any as Array<Record<string, unknown>>,
+      newTableData as any as Array<Record<string, unknown>>,
       selectedRowIndex,
       "step",
     );
@@ -955,9 +952,7 @@ describe("getAllTableColumnKeys - ", () => {
 
   it("should test with undefined", () => {
     expect(
-      getAllTableColumnKeys(
-        (undefined as any) as Array<Record<string, unknown>>,
-      ),
+      getAllTableColumnKeys(undefined as any as Array<Record<string, unknown>>),
     ).toEqual([]);
   });
 });
@@ -965,14 +960,14 @@ describe("getAllTableColumnKeys - ", () => {
 describe("getTableStyles - ", () => {
   it("should test with valid values", () => {
     expect(
-      (getTableStyles({
+      getTableStyles({
         textColor: "#fff",
         textSize: "HEADING1",
         fontStyle: "12",
         cellBackground: "#f00",
         verticalAlignment: "TOP",
         horizontalAlignment: "CENTER",
-      }) as any) as TableStyles,
+      }) as any as TableStyles,
     ).toEqual({
       textColor: "#fff",
       textSize: "HEADING1",
@@ -1003,7 +998,7 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
-        (primaryColumns as any) as Record<string, ColumnProperties>,
+        primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({});
   });
@@ -1026,7 +1021,7 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
-        (primaryColumns as any) as Record<string, ColumnProperties>,
+        primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({
       column1: {
@@ -1054,7 +1049,7 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
-        (primaryColumns as any) as Record<string, ColumnProperties>,
+        primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({
       column1: {
@@ -1074,19 +1069,19 @@ describe("getDerivedColumns - ", () => {
 
   it("should check with undefined", () => {
     expect(
-      getDerivedColumns((undefined as any) as Record<string, ColumnProperties>),
+      getDerivedColumns(undefined as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 
   it("should check with simple string", () => {
     expect(
-      getDerivedColumns(("test" as any) as Record<string, ColumnProperties>),
+      getDerivedColumns("test" as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 
   it("should check with number", () => {
     expect(
-      getDerivedColumns((1 as any) as Record<string, ColumnProperties>),
+      getDerivedColumns(1 as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 });
@@ -2542,5 +2537,19 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.step.sticky = "";
 
     expect(newColumnOrder).toEqual(["status", "task", "step", "action"]);
+  });
+});
+
+describe("getHeaderClassNameOnDragDirection", () => {
+  test("Should return left highlight class when dragging from right to left", () => {
+    expect(getHeaderClassNameOnDragDirection(3, 2)).toEqual(
+      "th header-reorder highlight-left",
+    );
+  });
+
+  test("Should return right highlight class when dragging from left to right", () => {
+    expect(getHeaderClassNameOnDragDirection(1, 2)).toEqual(
+      "th header-reorder highlight-right",
+    );
   });
 });

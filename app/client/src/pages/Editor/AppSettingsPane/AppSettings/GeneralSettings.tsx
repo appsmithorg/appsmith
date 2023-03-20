@@ -1,18 +1,13 @@
 import { updateApplication } from "actions/applicationActions";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import type { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
-import {
-  AppIconName,
-  TextInput,
-  IconSelector,
-  Text,
-  TextType,
-} from "design-system-old";
+import type { AppIconName } from "design-system-old";
+import { TextInput, IconSelector, Text, TextType } from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";

@@ -1,27 +1,24 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import ReplayEntity from "entities/Replay";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
-import {
-  DependencyMap,
-  EvalError,
-  EvalErrorTypes,
-} from "utils/DynamicBindingUtils";
-import { JSUpdate } from "utils/JSPaneUtils";
+import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import {
   createUnEvalTreeForEval,
   makeEntityConfigsAsObjProperties,
 } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
-  DataTreeDiff,
   getSafeToRenderDataTree,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import {
+import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
@@ -31,7 +28,7 @@ export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
-export default function(request: EvalWorkerSyncRequest) {
+export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
   let lintOrder: string[] = [];
@@ -70,9 +67,8 @@ export default function(request: EvalWorkerSyncRequest) {
         widgetTypeConfigMap,
         allActionValidationConfig,
       );
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-        unevalTree,
-      );
+      const setupFirstTreeResponse =
+        dataTreeEvaluator.setupFirstTree(unevalTree);
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
@@ -109,9 +105,8 @@ export default function(request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-        unevalTree,
-      );
+      const setupFirstTreeResponse =
+        dataTreeEvaluator.setupFirstTree(unevalTree);
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
@@ -140,9 +135,8 @@ export default function(request: EvalWorkerSyncRequest) {
       if (shouldReplay) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
-      const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
-        unevalTree,
-      );
+      const setupUpdateTreeResponse =
+        dataTreeEvaluator.setupUpdateTree(unevalTree);
       evalOrder = setupUpdateTreeResponse.evalOrder;
       lintOrder = setupUpdateTreeResponse.lintOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;

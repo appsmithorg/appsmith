@@ -13,12 +13,12 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { get, set, isNil, has, uniq } from "lodash";
-import { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
-import { ApiResponse } from "api/ApiResponses";
-import { DSLWidget } from "widgets/constants";
+import type { ApiResponse } from "api/ApiResponses";
+import type { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
@@ -31,10 +31,10 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { checkContainerScrollable } from "widgets/WidgetUtils";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 
 export const snapToGrid = (
@@ -73,10 +73,10 @@ export const Directions: { [id: string]: string } = {
   RIGHT_BOTTOM: "RIGHT_BOTTOM",
 };
 
-export type Direction = typeof Directions[keyof typeof Directions];
+export type Direction = (typeof Directions)[keyof typeof Directions];
 const SCROLL_THRESHOLD = 20;
 
-export const getScrollByPixels = function(
+export const getScrollByPixels = function (
   elem: {
     top: number;
     height: number;
@@ -230,8 +230,7 @@ export const quickScrollToWidget = (
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   if (!widgetId || widgetId === "") return;
-
-  setTimeout(() => {
+  window.requestIdleCallback(() => {
     const el = document.getElementById(widgetId);
     const canvas = document.getElementById("canvas-viewport");
 
@@ -245,7 +244,7 @@ export const quickScrollToWidget = (
         });
       }
     }
-  }, 200);
+  });
 };
 
 // Checks if the element in a container is visible or not.
@@ -276,11 +275,13 @@ function getWidgetElementToScroll(
   const parentId = widget.parentId || "";
   const containerId = getContainerIdForCanvas(parentId);
   if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-    return document.getElementById(widgetId);
+    if (widget.type !== "MODAL_WIDGET") {
+      return document.getElementById(widgetId);
+    }
   }
-  const containerWidget = canvasWidgets[containerId] as ContainerWidgetProps<
-    WidgetProps
-  >;
+  const containerWidget = canvasWidgets[
+    containerId
+  ] as ContainerWidgetProps<WidgetProps>;
   if (checkContainerScrollable(containerWidget)) {
     return document.getElementById(widgetId);
   } else {
@@ -291,7 +292,8 @@ function getWidgetElementToScroll(
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
   // while allowing all utf-8 characters
-  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
+  const removeSpecialCharsRegex =
+    /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
     .split(removeSpecialCharsRegex)
@@ -619,7 +621,10 @@ export const getCanCreateApplications = (currentWorkspace: Workspace) => {
 
 export const getIsSafeRedirectURL = (redirectURL: string) => {
   try {
-    return new URL(redirectURL).origin === window.location.origin;
+    return (
+      new URL(redirectURL, window.location.origin).origin ===
+      window.location.origin
+    );
   } catch (e) {
     return false;
   }

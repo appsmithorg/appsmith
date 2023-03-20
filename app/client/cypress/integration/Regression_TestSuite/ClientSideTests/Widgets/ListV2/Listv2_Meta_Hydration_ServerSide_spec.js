@@ -108,9 +108,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(queryLocators.queryNameField).type("Query1");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();
@@ -176,7 +174,17 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(200);
+
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget button`,
+        )
+        .should("have.length", 3),
+    );
 
     //   SecondPage
     //   First Row
@@ -202,7 +210,34 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in FirstPage
     //   First Row
-    cy.wait(10000);
+    cy.wait(300);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget button`,
+        )
+        .should("have.length", 3),
+    );
+
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `${widgetSelector(
+              "List1",
+            )} ${containerWidgetSelector} .t--widget-selectwidget button span.bp3-button-text`,
+          )
+          .first()
+          .invoke("text")
+          .then(($selectedValue) => {
+            expect($selectedValue).to.eq("Green");
+          }),
+      {
+        timeout: 10000,
+      },
+    );
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
@@ -222,10 +257,37 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
+    cy.wait(300);
 
     //Validate values in SecondPage
     //   First Row
-    cy.wait(10000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget button`,
+        )
+        .should("have.length", 3),
+    );
+
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `${widgetSelector(
+              "List1",
+            )} ${containerWidgetSelector} .t--widget-selectwidget button span.bp3-button-text`,
+          )
+          .first()
+          .invoke("text")
+          .then(($selectedValue) => {
+            expect($selectedValue).to.eq("Blue");
+          }),
+      {
+        timeout: 10000,
+      },
+    );
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);
@@ -268,7 +330,17 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(200);
+
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget button`,
+        )
+        .should("have.length", 3),
+    );
 
     //   SecondPage
     //   First Row
@@ -293,7 +365,34 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in FirstPage
     //   First Row
-    cy.wait(10000);
+    cy.wait(300);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget button`,
+        )
+        .should("have.length", 3),
+    );
+
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `${widgetSelector(
+              "List1",
+            )} ${containerWidgetSelector} .t--widget-selectwidget button span.bp3-button-text`,
+          )
+          .first()
+          .invoke("text")
+          .then(($selectedValue) => {
+            expect($selectedValue).to.eq("Green");
+          }),
+      {
+        timeout: 10000,
+      },
+    );
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Green", 0);
     verifyValueOfWidget("inputwidgetv2", "First", 0);
@@ -316,7 +415,34 @@ describe("List widget v2 - meta hydration tests", () => {
 
     //Validate values in SecondPage
     //   First Row
-    cy.wait(10000);
+    cy.wait(300);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget button`,
+        )
+        .should("have.length", 3),
+    );
+
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `${widgetSelector(
+              "List1",
+            )} ${containerWidgetSelector} .t--widget-selectwidget button span.bp3-button-text`,
+          )
+          .first()
+          .invoke("text")
+          .then(($selectedValue) => {
+            expect($selectedValue).to.eq("Blue");
+          }),
+      {
+        timeout: 10000,
+      },
+    );
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();
     verifyValueOfWidget("selectwidget", "Blue", 0);
     verifyValueOfWidget("inputwidgetv2", "Fourth", 0);

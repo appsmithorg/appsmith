@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Check for product updates button and modal", function() {
-  it("Check if we should show the product updates button and it opens the updates modal", function() {
+describe("Check for product updates button and modal", function () {
+  it("Check if we should show the product updates button and it opens the updates modal", function () {
     cy.get(commonlocators.homeIcon).click({ force: true });
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);

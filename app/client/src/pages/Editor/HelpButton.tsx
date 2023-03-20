@@ -18,7 +18,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
 import { BottomBarCTAStyles } from "./BottomBar/styles";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
