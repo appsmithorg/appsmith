@@ -96,7 +96,7 @@ import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -116,7 +116,6 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
-import { Plugin } from "../api/PluginApi";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,

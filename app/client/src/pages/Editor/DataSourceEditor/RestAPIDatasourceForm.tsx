@@ -58,7 +58,7 @@ import DatasourceAuth, {
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPlugin } from "../../../selectors/entitiesSelector";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
