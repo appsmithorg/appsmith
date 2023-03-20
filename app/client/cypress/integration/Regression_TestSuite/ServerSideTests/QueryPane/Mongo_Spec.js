@@ -7,7 +7,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-describe("Create a query with a mongo datasource, run, save and then delete the query", function () {
+describe("Validate Mongo query commands", function () {
   // afterEach(function() {
   //   if (this.currentTest.state === "failed") {
   //     Cypress.runner.stop();
@@ -111,7 +111,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       inputFieldName: "Limit",
     }); //Limit field
 
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body[0].description).to.contains(
         "The ideal apartment to visit the magnificent city of Porto and the northern region of Portugal, with family or with a couple of friends",
@@ -125,7 +125,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       directInput: false,
       inputFieldName: "Skip",
     });
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body[0].description).to.contains(
         "My place is close to the beach, family-friendly activities, great views, and a short drive to art and culture, and restaurants and dining",
@@ -154,7 +154,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       directInput: false,
       inputFieldName: "Query",
     });
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.n).to.be.above(
         0,
@@ -186,7 +186,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       directInput: false,
       inputFieldName: "Key",
     });
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.values[0]).to.eq(
         "Aparthotel",
@@ -214,7 +214,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       inputFieldName: "Array of Pipelines",
     });
 
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ request, response }) => {
       // cy.log(request.method + ": is req.method")
       //expect(request.method).to.equal('POST')
@@ -499,7 +499,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //   "{$set:{ 'Frõ': 'InActive'}}",
     //   formControls.mongoUpdateManyUpdate,
     // );
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.nModified).to.eq(1);
     });
@@ -537,7 +537,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       formControls.mongoDeleteLimitDropdown,
       "Single Document",
     );
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
 
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.n).to.eq(1);
@@ -557,7 +557,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Single Document",
       "All Matching Documents",
     );
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.n).to.eq(2);
     });
@@ -568,7 +568,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       "Delete Document(s)",
       "Find Document(s)",
     );
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.body.length).to.eq(0); //checking that body is empty array
     });
@@ -581,7 +581,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     );
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
     cy.wait(1000); //Waiting a bit before runing the command
-    _.dataSources.RunQuery(true, true, 2000);
+    _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");
