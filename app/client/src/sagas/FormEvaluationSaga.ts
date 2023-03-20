@@ -1,41 +1,33 @@
-import {
-  call,
-  take,
-  select,
-  put,
-  actionChannel,
-  ActionPattern,
-} from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ActionPattern } from "redux-saga/effects";
+import { call, take, select, put, actionChannel } from "redux-saga/effects";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
-import {
+import type {
   ConditionalOutput,
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
-import { Action, ActionConfig } from "entities/Action";
-import { FormConfigType } from "components/formControls/BaseControl";
+import type { Action, ActionConfig } from "entities/Action";
+import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { getAction } from "selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { klona } from "klona/lite";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
-import { Action as ReduxActionType } from "redux";
+import type { Action as ReduxActionType } from "redux";
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -166,10 +158,8 @@ function* fetchDynamicValueSaga(
   configProperty: string,
 ) {
   try {
-    const {
-      config,
-      evaluatedConfig,
-    } = value.fetchDynamicValues as DynamicValues;
+    const { config, evaluatedConfig } =
+      value.fetchDynamicValues as DynamicValues;
     const { params } = evaluatedConfig;
 
     dynamicFetchedValues.hasStarted = true;
@@ -204,9 +194,8 @@ function* fetchDynamicValueSaga(
         const dynamicBindingValue = getDynamicBindings(value as string)
           ?.jsSnippets[0];
         // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
-        const dataTreeActionConfigPath = getDataTreeActionConfigPath(
-          dynamicBindingValue,
-        );
+        const dataTreeActionConfigPath =
+          getDataTreeActionConfigPath(dynamicBindingValue);
         // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
         const evaluatedValue = get(
           evalAction?.__evaluation__?.evaluatedValues,
@@ -272,9 +261,8 @@ function* fetchDynamicValueSaga(
 }
 
 function* formEvaluationChangeListenerSaga() {
-  const formEvalChannel: ActionPattern<ReduxActionType<
-    FormEvalActionPayload
-  >> = yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
+  const formEvalChannel: ActionPattern<ReduxActionType<FormEvalActionPayload>> =
+    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
   while (true) {
     const action: ReduxAction<FormEvalActionPayload> = yield take(
       formEvalChannel,

@@ -1,13 +1,14 @@
 import { isEqual } from "lodash";
 import { WorkerErrorTypes } from "@appsmith/workers/common/types";
 import { JSLibraries, resetJSLibraries } from "workers/common/JSLibrary";
-import {
+import type {
   LintWorkerRequest,
   LintTreeResponse,
-  LINT_WORKER_ACTIONS,
   LintTreeRequest,
 } from "./types";
-import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
+import { LINT_WORKER_ACTIONS } from "./types";
+import type { TMessage } from "utils/MessageUtil";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 import { getlintErrorsFromTree } from ".";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
@@ -65,11 +66,8 @@ function eventRequestHandler({
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
-        const {
-          cloudHosting,
-          pathsToLint,
-          unevalTree,
-        } = requestData as LintTreeRequest;
+        const { cloudHosting, pathsToLint, unevalTree } =
+          requestData as LintTreeRequest;
         const lintErrors = getlintErrorsFromTree(
           pathsToLint,
           unevalTree,

@@ -3,8 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Google Sheets datasource test cases", function() {
-  it("1. Create Google Sheets datasource", function() {
+describe("Google Sheets datasource test cases", function () {
+  it("1. Create Google Sheets datasource", function () {
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
     }).as("featureFlags");
@@ -21,7 +21,7 @@ describe("Google Sheets datasource test cases", function() {
 
   function VerifyFunctionDropdown(scopeOptions: string[]) {
     agHelper.GetNClick(dataSources._gsScopeDropdown);
-    cy.get(dataSources._gsScopeOptions).then(function($ele) {
+    cy.get(dataSources._gsScopeOptions).then(function ($ele) {
       expect($ele.eq(0).text()).to.be.oneOf(scopeOptions);
       expect($ele.eq(1).text()).to.be.oneOf(scopeOptions);
       expect($ele.eq(2).text()).to.be.oneOf(scopeOptions);

@@ -11,6 +11,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -18,6 +19,8 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -120,11 +124,18 @@ public class WorkspaceServiceTest {
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
 
+    @Autowired
+    private PluginService pluginService;
+
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+
     Workspace workspace;
 
     private static String origin = "http://appsmith-local.test";
 
     @BeforeEach
+    @WithUserDetails(value = "api_user")
     public void setup() {
         workspace = new Workspace();
         workspace.setName("Test Name");
@@ -951,7 +962,8 @@ public class WorkspaceServiceTest {
 
         Flux<PermissionGroup> permissionGroupFlux = workspaceMono
                 .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
-
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
         Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .single();
@@ -966,10 +978,14 @@ public class WorkspaceServiceTest {
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceMono
-                .flatMap(workspace1 -> {
+                .zipWith(pluginService.findByPackageName("postgres-plugin"))
+                .flatMap(tuple2 -> {
+                    Workspace org = tuple2.getT1();
+                    Plugin plugin = tuple2.getT2();
                     Datasource datasource = new Datasource();
                     datasource.setName("test datasource");
-                    datasource.setWorkspaceId(workspace1.getId());
+                    datasource.setWorkspaceId(org.getId());
+                    datasource.setPluginId(plugin.getId());
                     return datasourceService.create(datasource);
                 });
 

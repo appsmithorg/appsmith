@@ -1,10 +1,10 @@
 const dsl = require("../../../../fixtures/debuggerDependencyDsl.json");
 
-describe("Inspect Entity", function() {
+describe("Inspect Entity", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Check whether depedencies and references are shown correctly", function() {
+  it("Check whether depedencies and references are shown correctly", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", "{{Button1.text}}");
 

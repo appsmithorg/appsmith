@@ -5,7 +5,7 @@ const {
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe("Admin settings page", function() {
+describe("Admin settings page", function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -119,9 +119,7 @@ describe("Admin settings page", function() {
     };
     assertVisibilityAndDisabledState();
     cy.get(adminsSettings.instanceName).should("be.visible");
-    cy.get(adminsSettings.instanceName)
-      .clear()
-      .type("AppsmithInstance");
+    cy.get(adminsSettings.instanceName).clear().type("AppsmithInstance");
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
     cy.get(adminsSettings.resetButton).should("be.visible");
@@ -137,9 +135,7 @@ describe("Admin settings page", function() {
     let instanceName;
     cy.generateUUID().then((uuid) => {
       instanceName = uuid;
-      cy.get(adminsSettings.instanceName)
-        .clear()
-        .type(uuid);
+      cy.get(adminsSettings.instanceName).clear().type(uuid);
     });
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
@@ -165,9 +161,7 @@ describe("Admin settings page", function() {
     let instanceName;
     cy.generateUUID().then((uuid) => {
       instanceName = uuid;
-      cy.get(adminsSettings.instanceName)
-        .clear()
-        .type(uuid);
+      cy.get(adminsSettings.instanceName).clear().type(uuid);
     });
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
@@ -178,9 +172,7 @@ describe("Admin settings page", function() {
     let fromAddress;
     cy.generateUUID().then((uuid) => {
       fromAddress = uuid;
-      cy.get(adminsSettings.fromAddress)
-        .clear()
-        .type(`${uuid}@appsmith.com`);
+      cy.get(adminsSettings.fromAddress).clear().type(`${uuid}@appsmith.com`);
     });
     cy.intercept("POST", "/api/v1/admin/restart", {
       body: { responseMeta: { status: 200, success: true }, data: true },

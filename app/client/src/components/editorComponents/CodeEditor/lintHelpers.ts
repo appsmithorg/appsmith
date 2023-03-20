@@ -1,13 +1,14 @@
 import { last, isNumber, isEmpty } from "lodash";
-import { Annotation, Position } from "codemirror";
-import { isDynamicValue, LintError } from "utils/DynamicBindingUtils";
+import type { Annotation, Position } from "codemirror";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
 import {
   CODE_EDITOR_START_POSITION,
   LintTooltipDirection,
   VALID_JS_OBJECT_BINDING_POSITION,
 } from "./constants";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
@@ -142,14 +143,8 @@ export const getLintAnnotations = (
   }
 
   lintErrors.forEach((error) => {
-    const {
-      ch,
-      errorMessage,
-      line,
-      originalBinding,
-      severity,
-      variables,
-    } = error;
+    const { ch, errorMessage, line, originalBinding, severity, variables } =
+      error;
 
     if (!originalBinding) {
       return annotations;

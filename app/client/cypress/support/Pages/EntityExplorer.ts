@@ -192,9 +192,7 @@ export class EntityExplorer {
   }
 
   public CreateNewDsQuery(dsName: string) {
-    cy.get(this.locator._createNew)
-      .last()
-      .click({ force: true });
+    cy.get(this.locator._createNew).last().click({ force: true });
     cy.xpath(this._visibleTextSpan(dsName)).click({ force: true });
   }
 

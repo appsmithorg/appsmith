@@ -1,34 +1,33 @@
+import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  DependencyMap,
   EVAL_ERROR_PATH,
-  EvaluationError,
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { Diff } from "deep-diff";
-import {
+import type { Diff } from "deep-diff";
+import type {
   DataTree,
   DataTreeAction,
   DataTreeAppsmith,
   DataTreeEntity,
   DataTreeWidget,
-  ENTITY_TYPE,
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 import _, { difference, find, get, has, set } from "lodash";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-import { PrivateWidgets } from "entities/DataTree/types";
-import { EvalProps } from "workers/common/DataTreeEvaluator";
+import type { PrivateWidgets } from "entities/DataTree/types";
+import type { EvalProps } from "workers/common/DataTreeEvaluator";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -74,9 +73,7 @@ function isInt(val: string | number): boolean {
 }
 
 // Removes the entity name from the property path
-export function getEntityNameAndPropertyPath(
-  fullPath: string,
-): {
+export function getEntityNameAndPropertyPath(fullPath: string): {
   entityName: string;
   propertyPath: string;
 } {
@@ -154,9 +151,8 @@ export const translateDiffEventToDataTreeDiffEvent = (
   };
 
   //we do not need evaluate these paths because these are internal paths
-  const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
-    propertyPath,
-  );
+  const isUninterestingPathForUpdateTree =
+    isUninterestingChangeForDependencyUpdate(propertyPath);
   if (!!isUninterestingPathForUpdateTree) {
     return result;
   }
@@ -570,12 +566,10 @@ export const addErrorToEntityProperty = ({
   fullPropertyPath: string;
   evalProps: EvalProps;
 }) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
-  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
-    entityName
-  ];
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
+  const isPrivateEntityPath =
+    getAllPrivateWidgetsInDataTree(dataTree)[entityName];
   const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
@@ -593,16 +587,13 @@ export const resetValidationErrorsForEntityProperty = ({
   fullPropertyPath: string;
   evalProps: EvalProps;
 }) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
   if (propertyPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
-    const existingErrorsExceptValidation = (_.get(
-      evalProps,
-      errorPath,
-      [],
-    ) as EvaluationError[]).filter(
+    const existingErrorsExceptValidation = (
+      _.get(evalProps, errorPath, []) as EvaluationError[]
+    ).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
     _.set(evalProps, errorPath, existingErrorsExceptValidation);
@@ -624,10 +615,7 @@ export const isTrueObject = (
  * @returns datatype of the received value as string
  */
 export const findDatatype = (value: unknown) => {
-  return Object.prototype.toString
-    .call(value)
-    .slice(8, -1)
-    .toLowerCase();
+  return Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
 };
 
 export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
@@ -728,9 +716,8 @@ const getDataTreeWithoutSuppressedAutoComplete = (
 
 export const getDataTreeForAutocomplete = (dataTree: DataTree): DataTree => {
   const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
-  const treeWithoutSuppressedAutoComplete = getDataTreeWithoutSuppressedAutoComplete(
-    treeWithoutPrivateWidgets,
-  );
+  const treeWithoutSuppressedAutoComplete =
+    getDataTreeWithoutSuppressedAutoComplete(treeWithoutPrivateWidgets);
 
   return treeWithoutSuppressedAutoComplete;
 };

@@ -1,7 +1,8 @@
-import React, { ReactElement } from "react";
+import type { ReactElement } from "react";
+import React from "react";
+import type { OptionProps } from "design-system-old";
 import {
   IconWrapper,
-  OptionProps,
   Radio,
   Text,
   TextType,
@@ -10,12 +11,10 @@ import {
   IconSize,
 } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
-import { FormGroup, SettingComponentProps } from "./Common";
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import { FieldError } from "design-system-old";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
@@ -200,8 +199,9 @@ export default function RadioField({ setting }: RadioGroupProps) {
 
   return (
     <FormGroup
-      className={`t--admin-settings-radio t--admin-settings-${setting.name ||
-        setting.id}`}
+      className={`t--admin-settings-radio t--admin-settings-${
+        setting.name || setting.id
+      }`}
       setting={setting}
     >
       <Field

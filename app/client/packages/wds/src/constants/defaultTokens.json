@@ -1,0 +1,13 @@
+{
+  "seedColor": "#1a7f37",
+  "rootUnit": 4,
+  "isDarkMode": false,
+  "borderRadius": 4,
+  "boxShadow": {
+    "x": 0,
+    "y": 0,
+    "blur": 0,
+    "spread": 0,
+    "color": "rgba(0, 0, 0, 0.2)"
+  }
+}
