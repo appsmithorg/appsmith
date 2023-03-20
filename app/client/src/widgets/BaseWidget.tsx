@@ -665,7 +665,11 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
         if (!this.props.detachFromLayout) {
-          if (!this.props.resizeDisabled) content = this.makeResizable(content);
+          if (
+            !this.props.resizeDisabled &&
+            this.props.type !== "SKELETON_WIDGET"
+          )
+            content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
