@@ -85,6 +85,7 @@ export type Setting = ControlType & {
   needsUpgrade?: boolean;
   upgradeLogEventName?: EventName;
   upgradeIntercomMessage?: string;
+  tooltip?: string;
 };
 
 export interface Category {
