@@ -6,7 +6,7 @@ describe("Error logged when adding a suggested table widget", function () {
     cy.fixture("datasources").then((datasourceFormData: any) => {
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "Api1");
       _.apiPage.RunAPI();
-      _.dataSources.AddSuggesstedWidget(Widgets.Table)
+      _.dataSources.AddSuggesstedWidget(Widgets.Table);
       _.debuggerHelper.AssertErrorCount(0);
     });
   });
