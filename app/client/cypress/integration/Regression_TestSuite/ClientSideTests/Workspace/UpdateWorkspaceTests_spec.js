@@ -1,4 +1,5 @@
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Update Workspace", function () {
   let workspaceId;
@@ -38,12 +39,12 @@ describe("Update Workspace", function () {
   });
 
   it("2. Open the workspace general settings and update workspace email. The update should reflect in the workspace.", function () {
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.renameWorkspace(newWorkspaceName, workspaceId);
-      cy.get(homePage.workspaceSettingOption).click({ force: true });
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      newWorkspaceName = "SettingsUpdate" + uid;
+      _.homePage.CreateNewWorkspace(newWorkspaceName);
     });
+    cy.get(homePage.workspaceSettingOption).click({ force: true });
     cy.get(homePage.workspaceEmailInput).clear();
     cy.get(homePage.workspaceEmailInput).type(Cypress.env("TESTUSERNAME2"));
     cy.wait("@updateWorkspace").should(
