@@ -321,6 +321,36 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     }
   };
 
+  getToggleColumnEditablityUpdates = (
+    column: ColumnProperties,
+    propertyName: string,
+    checked: boolean,
+  ): {
+    propertyName: string;
+    propertyValue: string;
+  }[] => {
+    const updates: {
+      propertyName: string;
+      propertyValue: any;
+    }[] = [];
+    updates.push({
+      propertyName: `${propertyName}.${column.id}.isEditable`,
+      propertyValue: checked,
+    });
+
+    /*
+     * Check whether isCellEditable property of the column has dynamic value
+     * if not, toggle isCellEditable value as well. We're doing this to smooth
+     * the user experience.
+     */
+    if (!isDynamicValue(toString(column.isCellEditable))) {
+      updates.push({
+        propertyName: `${propertyName}.${column.id}.isCellEditable`,
+        propertyValue: checked,
+      });
+    }
+    return updates;
+  };
   toggleCheckbox = (index: number, checked: boolean) => {
     const columns: ColumnsType = this.props.propertyValue || {};
     const originalColumn = getOriginalColumn(
@@ -330,22 +360,13 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     );
 
     if (originalColumn) {
-      this.updateProperty(
-        `${this.props.propertyName}.${originalColumn.id}.isEditable`,
-        checked,
-      );
-
-      /*
-       * Check whether isCellEditable property of the column has dynamic value
-       * if not, toggle isCellEditable value as well. We're doing this to smooth
-       * the user experience.
-       */
-      if (!isDynamicValue(toString(originalColumn.isCellEditable))) {
-        this.updateProperty(
-          `${this.props.propertyName}.${originalColumn.id}.isCellEditable`,
+      this.batchUpdatePropertiesWithAssociatedUpdates(
+        this.getToggleColumnEditablityUpdates(
+          originalColumn,
+          this.props.propertyName,
           checked,
-        );
-      }
+        ),
+      );
     }
   };
 
@@ -423,27 +444,20 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   toggleAllColumnsEditability = () => {
     const isEditable = this.isAllColumnsEditable();
     const columns: ColumnsType = this.props.propertyValue || {};
-
-    Object.values(columns).forEach((column) => {
-      if (isColumnTypeEditable(column.columnType) && !column.isDerived) {
-        this.updateProperty(
-          `${this.props.propertyName}.${column.id}.isEditable`,
+    //consolidate all column editability updates
+    const allUpdates = Object.values(columns)
+      .filter(
+        (column) =>
+          isColumnTypeEditable(column.columnType) && !column.isDerived,
+      )
+      .flatMap((column) =>
+        this.getToggleColumnEditablityUpdates(
+          column,
+          this.props.propertyName,
           !isEditable,
-        );
-
-        /*
-         * Check whether isCellEditable property of the column has dynamic value.
-         * if not, toggle isCellEditable value as well. We're doing this to smooth
-         * the user experience.
-         */
-        if (!isDynamicValue(toString(column.isCellEditable))) {
-          this.updateProperty(
-            `${this.props.propertyName}.${column.id}.isCellEditable`,
-            !isEditable,
-          );
-        }
-      }
-    });
+        ),
+      );
+    this.batchUpdatePropertiesWithAssociatedUpdates(allUpdates);
 
     if (isEditable) {
       const columnOrder = this.props.widgetProperties.columnOrder || [];
