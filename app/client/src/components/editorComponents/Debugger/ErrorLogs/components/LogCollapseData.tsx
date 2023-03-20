@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import React from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";
@@ -12,7 +13,7 @@ const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
       : " 4px"};
-  padding-left: 83px;
+  padding-left: 87px;
 `;
 
 type StyledCollapseProps = PropsWithChildren<{

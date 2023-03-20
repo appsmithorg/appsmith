@@ -1,8 +1,8 @@
-import React from "react";
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Dispatch } from "react";
-import { EventName } from "utils/AnalyticsUtil";
-import { RadioProps } from "pages/Settings/FormGroup/Radio";
+import type React from "react";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { Dispatch } from "react";
+import type { EventName } from "utils/AnalyticsUtil";
+import type { RadioProps } from "pages/Settings/FormGroup/Radio";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -85,6 +85,7 @@ export type Setting = ControlType & {
   needsUpgrade?: boolean;
   upgradeLogEventName?: EventName;
   upgradeIntercomMessage?: string;
+  tooltip?: string;
 };
 
 export interface Category {

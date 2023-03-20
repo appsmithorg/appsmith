@@ -1,5 +1,5 @@
+import type { AppState } from "@appsmith/reducers";
 import { all } from "@redux-saga/core/effects";
-import { AppState } from "@appsmith/reducers";
 import lodash from "lodash";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
@@ -29,7 +29,7 @@ import GlobalHotKeys from "./GlobalHotKeys";
 import * as uiSelectors from "selectors/ui";
 
 const renderNestedComponent = () => {
-  const initialState = (store.getState() as unknown) as Partial<AppState>;
+  const initialState = store.getState() as unknown as Partial<AppState>;
   const canvasId = "canvas-id";
   const containerId = "container-id";
 
@@ -117,7 +117,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
-    const mockGenerator = function*() {
+    const mockGenerator = function* () {
       yield all([]);
     };
     const debounceMocked = jest.spyOn(lodash, "debounce");
@@ -344,112 +344,114 @@ describe("Drag and Drop widgets into Main container", () => {
     expect(finalPositions.top).toEqual(initPositions.top);
   });
 
-  it("When widgets are colliding with other widgets move them back to previous position", () => {
-    const children: any = buildChildren([
-      {
-        type: "TABS_WIDGET",
-        topRow: 5,
-        bottomRow: 15,
-        leftColumn: 5,
-        rightColumn: 15,
-      },
-      {
-        type: "TABLE_WIDGET",
-        topRow: 15,
-        bottomRow: 25,
-        leftColumn: 5,
-        rightColumn: 15,
-      },
-    ]);
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
-    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
-    mockGetIsFetchingPage.mockImplementation(() => false);
+  // ToDO(Ashok): Check with Rahul if this test case is still relevant post reflow.
 
-    const component = render(
-      <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
-      >
-        <MockApplication>
-          <GlobalHotKeys>
-            <UpdatedEditor dsl={dsl} />
-          </GlobalHotKeys>
-        </MockApplication>
-      </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
-    );
-    const propPane = component.queryByTestId("t--propertypane");
-    expect(propPane).toBeNull();
-    const canvasWidgets = component.queryAllByTestId("test-widget");
-    expect(canvasWidgets.length).toBe(2);
-    const tabsWidget: any = component.container.querySelector(
-      ".t--draggable-tabswidget",
-    );
-    const tab: any = component.container.querySelector(".t--widget-tabswidget");
-    const initPositions = {
-      left: tab.style.left,
-      top: tab.style.top,
-    };
+  // it("When widgets are colliding with other widgets move them back to previous position", () => {
+  //   const children: any = buildChildren([
+  //     {
+  //       type: "TABS_WIDGET",
+  //       topRow: 5,
+  //       bottomRow: 15,
+  //       leftColumn: 5,
+  //       rightColumn: 15,
+  //     },
+  //     {
+  //       type: "TABLE_WIDGET",
+  //       topRow: 15,
+  //       bottomRow: 25,
+  //       leftColumn: 5,
+  //       rightColumn: 15,
+  //     },
+  //   ]);
+  //   const dsl: any = widgetCanvasFactory.build({
+  //     children,
+  //   });
+  //   spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+  //   mockGetIsFetchingPage.mockImplementation(() => false);
 
-    act(() => {
-      fireEvent.mouseOver(tabsWidget);
-    });
+  //   const component = render(
+  //     <MemoryRouter
+  //       initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+  //     >
+  //       <MockApplication>
+  //         <GlobalHotKeys>
+  //           <UpdatedEditor dsl={dsl} />
+  //         </GlobalHotKeys>
+  //       </MockApplication>
+  //     </MemoryRouter>,
+  //     { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+  //   );
+  //   const propPane = component.queryByTestId("t--propertypane");
+  //   expect(propPane).toBeNull();
+  //   const canvasWidgets = component.queryAllByTestId("test-widget");
+  //   expect(canvasWidgets.length).toBe(2);
+  //   const tabsWidget: any = component.container.querySelector(
+  //     ".t--draggable-tabswidget",
+  //   );
+  //   const tab: any = component.container.querySelector(".t--widget-tabswidget");
+  //   const initPositions = {
+  //     left: tab.style.left,
+  //     top: tab.style.top,
+  //   };
 
-    act(() => {
-      fireEvent.dragStart(tabsWidget);
-    });
+  //   act(() => {
+  //     fireEvent.mouseOver(tabsWidget);
+  //   });
 
-    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
-    act(() => {
-      fireEvent(
-        mainCanvas,
-        syntheticTestMouseEvent(
-          new MouseEvent("mousemove", {
-            bubbles: true,
-            cancelable: true,
-          }),
-          {
-            offsetX: 0,
-            offsetY: 0,
-          },
-        ),
-      );
-    });
-    act(() => {
-      fireEvent(
-        mainCanvas,
-        syntheticTestMouseEvent(
-          new MouseEvent("mousemove", {
-            bubbles: true,
-            cancelable: true,
-          }),
-          {
-            offsetX: 0,
-            offsetY: 50,
-          },
-        ),
-      );
-      fireEvent(
-        mainCanvas,
-        syntheticTestMouseEvent(
-          new MouseEvent("mouseup", {
-            bubbles: true,
-            cancelable: true,
-          }),
-        ),
-      );
-    });
-    const movedTab: any = component.container.querySelector(
-      ".t--widget-tabswidget",
-    );
-    const finalPositions = {
-      left: movedTab.style.left,
-      top: movedTab.style.top,
-    };
-    expect(finalPositions.left).toEqual(initPositions.left);
-    expect(finalPositions.top).toEqual(initPositions.top);
-  });
+  //   act(() => {
+  //     fireEvent.dragStart(tabsWidget);
+  //   });
+
+  //   const mainCanvas: any = component.queryByTestId("div-dragarena-0");
+  //   act(() => {
+  //     fireEvent(
+  //       mainCanvas,
+  //       syntheticTestMouseEvent(
+  //         new MouseEvent("mousemove", {
+  //           bubbles: true,
+  //           cancelable: true,
+  //         }),
+  //         {
+  //           offsetX: 0,
+  //           offsetY: 0,
+  //         },
+  //       ),
+  //     );
+  //   });
+  //   act(() => {
+  //     fireEvent(
+  //       mainCanvas,
+  //       syntheticTestMouseEvent(
+  //         new MouseEvent("mousemove", {
+  //           bubbles: true,
+  //           cancelable: true,
+  //         }),
+  //         {
+  //           offsetX: 0,
+  //           offsetY: 50,
+  //         },
+  //       ),
+  //     );
+  //     fireEvent(
+  //       mainCanvas,
+  //       syntheticTestMouseEvent(
+  //         new MouseEvent("mouseup", {
+  //           bubbles: true,
+  //           cancelable: true,
+  //         }),
+  //       ),
+  //     );
+  //   });
+  //   const movedTab: any = component.container.querySelector(
+  //     ".t--widget-tabswidget",
+  //   );
+  //   const finalPositions = {
+  //     left: movedTab.style.left,
+  //     top: movedTab.style.top,
+  //   };
+  //   expect(finalPositions.left).toEqual(initPositions.left);
+  //   expect(finalPositions.top).toEqual(initPositions.top);
+  // });
 
   it("When widgets are out of bottom most bounds of parent canvas, canvas has to expand", () => {
     const children: any = buildChildren([
@@ -511,9 +513,8 @@ describe("Drag and Drop widgets into Main container", () => {
     });
 
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
-    const dropTarget: any = component.container.getElementsByClassName(
-      "t--drop-target",
-    )[0];
+    const dropTarget: any =
+      component.container.getElementsByClassName("t--drop-target")[0];
     let initialLength = dropTarget.style.height;
     act(() => {
       fireEvent(
@@ -546,9 +547,8 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    let updatedDropTarget: any = component.container.getElementsByClassName(
-      "t--drop-target",
-    )[0];
+    let updatedDropTarget: any =
+      component.container.getElementsByClassName("t--drop-target")[0];
     let updatedLength = updatedDropTarget.style.height;
 
     expect(initialLength).not.toEqual(updatedLength);
@@ -569,9 +569,8 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    updatedDropTarget = component.container.getElementsByClassName(
-      "t--drop-target",
-    )[0];
+    updatedDropTarget =
+      component.container.getElementsByClassName("t--drop-target")[0];
     updatedLength = updatedDropTarget.style.height;
     expect(getAbsolutePixels(initialLength) + amountMovedY).toEqual(
       getAbsolutePixels(updatedLength),
@@ -605,9 +604,8 @@ describe("Drag and Drop widgets into Main container", () => {
     const canvasWidgets = component.queryAllByTestId("test-widget");
     // empty canvas
     expect(canvasWidgets.length).toBe(0);
-    const allAddEntityButtons: any = component.container.querySelectorAll(
-      ".t--entity-add-btn",
-    );
+    const allAddEntityButtons: any =
+      component.container.querySelectorAll(".t--entity-add-btn");
     const widgetAddButton = allAddEntityButtons[1];
     act(() => {
       fireEvent.click(widgetAddButton);
@@ -667,7 +665,7 @@ describe("Drag and Drop widgets into Main container", () => {
   });
 
   it("Disallow drag if widget not focused", () => {
-    const initialState = (store.getState() as unknown) as Partial<AppState>;
+    const initialState = store.getState() as unknown as Partial<AppState>;
     const containerId = generateReactKey();
     const canvasId = generateReactKey();
 
@@ -790,7 +788,7 @@ describe("Drag in a nested container", () => {
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
-    const mockGenerator = function*() {
+    const mockGenerator = function* () {
       yield all([]);
     };
     const debounceMocked = jest.spyOn(lodash, "debounce");

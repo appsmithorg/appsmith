@@ -3,12 +3,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableTextPaginationDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Create an API and Execute the API and bind with Table", function() {
+  it("1. Create an API and Execute the API and bind with Table", function () {
     // Create and execute an API and bind with table
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
@@ -16,7 +16,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Clear Table data and enter Apil data into table data
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check Widget properties
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
@@ -31,7 +31,10 @@ describe("Test Create Api and Bind to Table widget", function() {
       localStorage.setItem("tableDataPage1", tableData);
     });
     // Verify 1st index data
-    cy.ValidateTableData("1");
+    cy.readTabledata("0", "4").then((tabData) => {
+      const tableData = tabData;
+      expect(tableData).to.equal("1");
+    });
     // add new column
     cy.addColumn("CustomColumn");
     //Test:Table widget toggle test for background color
@@ -40,9 +43,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Click on cell background JS button
-    cy.get(widgetsPage.toggleJsBcgColor)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.toggleJsBcgColor).first().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Change the cell background color to green
@@ -51,17 +52,17 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.wait("@updateLayout");
     // verify the cell background color
-    cy.readTabledataValidateCSS("1", "0", "background-color", "rgb(0, 128, 0)");
+    cy.readTabledataValidateCSS("1", "4", "background-color", "rgb(0, 128, 0)");
   });
 
-  it("Edit column name and validate test for computed value based on column type selected", function() {
+  it("2. Edit column name and validate test for computed value based on column type selected", function () {
     // opoen customColumn1 property pane
     cy.editColumn("customColumn1");
     // Enter Apil 1st user email data into customColumn1
-    cy.readTabledataPublish("1", "9").then((tabData) => {
+    cy.readTabledataPublish("1", "7").then((tabData) => {
       const tabValue = tabData;
-      cy.updateComputedValue("{{Api1.data.users[0].email}}");
-      cy.readTabledataPublish("1", "9").then((tabData) => {
+      cy.updateComputedValue("{{Api1.data[0].email}}");
+      cy.readTabledataPublish("1", "7").then((tabData) => {
         expect(tabData).not.to.be.equal(tabValue);
         cy.log("computed value of plain text " + tabData);
       });

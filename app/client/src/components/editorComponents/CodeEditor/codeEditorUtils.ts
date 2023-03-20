@@ -1,6 +1,6 @@
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
+import type {
   DataTreeAction,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";

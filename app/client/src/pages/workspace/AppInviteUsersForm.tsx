@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
 import { PopoverPosition } from "@blueprintjs/core";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Case, Icon, IconSize, TooltipComponent } from "design-system-old";
@@ -65,7 +65,23 @@ function AppInviteUsersForm(props: any) {
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(appViewEndPoint);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(appViewEndPoint);
+    } else {
+      // text area method for http urls where navigator.clipboard doesn't work
+      const textArea = document.createElement("textarea");
+      textArea.value = appViewEndPoint;
+      // make the textarea out of viewport
+      textArea.style.position = "absolute";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      new Promise((res, rej) => {
+        // here the magic happens
+        document.execCommand("copy") ? res(appViewEndPoint) : rej();
+        textArea.remove();
+      });
+    }
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);

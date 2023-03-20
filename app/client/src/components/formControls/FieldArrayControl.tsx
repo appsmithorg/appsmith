@@ -3,7 +3,7 @@ import FormControl from "pages/Editor/FormControl";
 import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
-import { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
 
 const CenteredIcon = styled(Icon)`
   margin-top: 26px;

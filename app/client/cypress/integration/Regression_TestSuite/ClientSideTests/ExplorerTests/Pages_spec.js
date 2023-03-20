@@ -4,17 +4,17 @@ const locators = {
   errorPageTitle: ".t--error-page-title",
 };
 
-describe("Pages", function() {
+describe("Pages", function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 
-  it("1. Clone page", function() {
+  it("1. Clone page", function () {
     //cy.NavigateToAPI_Panel();
     _.apiPage.CreateApi(apiName);
-    _.ee.SelectEntityByName("Page1", "Pages");
-    _.ee.ClonePage("Page1");
-    _.ee.SelectEntityByName("Page1 Copy", "Pages");
-    _.ee.SelectEntityByName(apiName, "Queries/JS"); //Verify api also cloned along with PageClone
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.ClonePage("Page1");
+    _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
+    _.entityExplorer.SelectEntityByName(apiName, "Queries/JS"); //Verify api also cloned along with PageClone
   });
 
   it("2. Creates a page with long name and checks if it shows tooltip on hover", () => {

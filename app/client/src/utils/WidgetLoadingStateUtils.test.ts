@@ -1,10 +1,10 @@
 import { PluginType } from "entities/Action";
-import {
+import type {
   DataTreeAction,
   DataTreeJSAction,
   DataTreeWidget,
-  ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,
   getEntityDependantPaths,

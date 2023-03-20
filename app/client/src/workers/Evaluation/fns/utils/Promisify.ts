@@ -12,7 +12,7 @@ import { WorkerMessenger } from "./Messenger";
 export function promisify<P extends ReadonlyArray<unknown>>(
   fnDescriptor: (...params: P) => { type: string; payload: any },
 ) {
-  return async function(...args: P) {
+  return async function (...args: P) {
     const actionDescription = fnDescriptor(...args);
     const metaData = ExecutionMetaData.getExecutionMetaData();
     const response = await WorkerMessenger.request({

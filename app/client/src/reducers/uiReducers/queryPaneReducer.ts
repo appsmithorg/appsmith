@@ -1,12 +1,12 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { omit } from "lodash";
-import { Action } from "entities/Action";
-import { ActionResponse } from "api/ActionAPI";
+import type { Action } from "entities/Action";
+import type { ActionResponse } from "api/ActionAPI";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: QueryPaneReduxState = {

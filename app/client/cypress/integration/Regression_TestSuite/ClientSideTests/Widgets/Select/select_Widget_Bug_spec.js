@@ -4,17 +4,17 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/formSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
-describe("Select Widget Functionality", function() {
+describe("Select Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Select Widget name update", function() {
+  it("Select Widget name update", function () {
     cy.openPropertyPane("selectwidget");
     cy.widgetText(
       "Select1",
       widgetsPage.selectwidget,
-      commonlocators.selectInner,
+      widgetsPage.widgetNameSpan,
     );
   });
 
@@ -199,7 +199,7 @@ describe("Select Widget Functionality", function() {
     cy.get(commonlocators.singleSelectWidgetMenuItem).contains("RANDOM5");
   });
 
-  it("Disable the widget and check in publish mode", function() {
+  it("Disable the widget and check in publish mode", function () {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
     cy.get(".bp3-disabled").should("be.visible");
@@ -208,7 +208,7 @@ describe("Select Widget Functionality", function() {
     cy.goToEditFromPublish();
   });
 
-  it("enable the widget and check in publish mode", function() {
+  it("enable the widget and check in publish mode", function () {
     cy.openPropertyPane("selectwidget");
     cy.get(".bp3-disabled").should("be.visible");
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
@@ -271,8 +271,6 @@ describe("Select Widget Functionality", function() {
     cy.get(commonlocators.singleSelectWidgetMenuItem).click({
       force: true,
     });
-    cy.get(commonlocators.TextInside)
-      .first()
-      .should("have.text", "number");
+    cy.get(commonlocators.TextInside).first().should("have.text", "number");
   });
 });

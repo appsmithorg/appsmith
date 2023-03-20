@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import type { SetProgress } from "design-system-old";
 import {
   Button,
   FilePickerV2,
   FileType,
-  SetProgress,
   Size,
   Toaster,
   Variant,
