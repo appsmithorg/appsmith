@@ -1,6 +1,6 @@
-import type { DefaultDimensionMap } from "components/editorComponents/ResizableComponent";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Colors } from "constants/Colors";
+import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import type { ReactNode } from "react";
 import React from "react";
 import { animated } from "react-spring";

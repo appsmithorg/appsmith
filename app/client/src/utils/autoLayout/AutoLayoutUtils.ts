@@ -6,6 +6,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
   CONTAINER_GRID_PADDING,
+  DefaultDimensionMap,
 } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
@@ -351,19 +352,22 @@ export function getViewportClassName(viewportWidth: number) {
 }
 
 export function getFillWidgetLengthForLayer(
-  layer: any,
+  allFillWidgetsChildren: any,
   allWidgets: any,
+  dimensionMap = DefaultDimensionMap,
 ): number | undefined {
   let fillLength = GridDefaults.DEFAULT_GRID_COLUMNS;
   let hugLength = 0,
     fillCount = 0;
-  for (const child of layer.children) {
+  const { leftColumn: leftColumnMap, rightColumn: rightColumnMap } =
+    dimensionMap;
+  for (const child of allFillWidgetsChildren) {
     const childWidget = allWidgets[child.id];
     if (!childWidget) {
       continue;
     }
     if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill) {
-      hugLength += childWidget.rightColumn - childWidget.leftColumn;
+      hugLength += childWidget[rightColumnMap] - childWidget[leftColumnMap];
     } else {
       fillCount += 1;
     }

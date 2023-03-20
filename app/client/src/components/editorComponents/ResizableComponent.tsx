@@ -3,7 +3,7 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import { DefaultDimensionMap, GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
@@ -57,12 +57,6 @@ import {
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
-};
-export const DefaultDimensionMap = {
-  leftColumn: "leftColumn",
-  rightColumn: "rightColumn",
-  topRow: "topRow",
-  bottomRow: "bottomRow",
 };
 
 export const ResizableComponent = memo(function ResizableComponent(
