@@ -831,4 +831,3 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(assetService::remove);
     }
 }
-
