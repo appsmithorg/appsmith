@@ -445,7 +445,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
                                     accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
                                 }
-                                if (authenticationResponse.getProjectID() != null) {
+                                if (authenticationResponse.getProjectID() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
                                     projectID = authenticationResponse.getProjectID();
                                 }
                                 return Mono.zip(Mono.just(datasource), Mono.just(accessToken), Mono.just(projectID));

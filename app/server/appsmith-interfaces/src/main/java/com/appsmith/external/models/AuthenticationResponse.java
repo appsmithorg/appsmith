@@ -31,6 +31,5 @@ public class AuthenticationResponse implements AppsmithDomain {
     Object tokenResponse;
 
     // This field is not returned as response by authorisation server, but is provided by cloud-services server
-    @Transient
     String projectID;
 }
