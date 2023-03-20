@@ -33,6 +33,7 @@ import {
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
+import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
@@ -41,6 +42,7 @@ import {
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import ConfigTreeActions from "utils/configTree";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -84,6 +86,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
     const isMobile = useSelector(getIsMobile);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
+
+    const configTree = ConfigTreeActions.getConfigTree();
+    const evaluatedWidgetConfig = configTree[
+      canvasWidget?.widgetName
+    ] as WidgetEntityConfig;
 
     const dispatch = useDispatch();
 
@@ -136,7 +143,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         }
 
         return evaluatedWidget
-          ? createCanvasWidget(widget, evaluatedWidget)
+          ? createCanvasWidget(widget, evaluatedWidget, evaluatedWidgetConfig)
           : createLoadingWidget(widget);
       })();
 
