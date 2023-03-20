@@ -84,7 +84,7 @@
     "mammoth": "^1.5.1",
     "marked": "^4.0.18",
     "memoize-one": "^5.2.1",
-    "micro-memoize": "^4.0.10",
+    "micro-memoize": "^4.0.14",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
     "nanoid": "^2.0.4",

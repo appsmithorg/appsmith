@@ -8533,7 +8533,7 @@ __metadata:
     mammoth: ^1.5.1
     marked: ^4.0.18
     memoize-one: ^5.2.1
-    micro-memoize: ^4.0.10
+    micro-memoize: ^4.0.14
     mocha: ^9.0.2
     mocha-junit-reporter: ^2.0.0
     mochawesome: ^7.1.2
@@ -19676,10 +19676,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"micro-memoize@npm:^4.0.10":
-  version: 4.0.10
-  resolution: "micro-memoize@npm:4.0.10"
-  checksum: a04fcb199f47e61218b4921e1cd8b2cd4c26fccdb189278a61a1bac90886b377c2da2f5d2d76941b8a8cd798fbff630037a6ddd32541cafcf5962ebf11f8f8d1
+"micro-memoize@npm:^4.0.14":
+  version: 4.0.14
+  resolution: "micro-memoize@npm:4.0.14"
+  checksum: 9a1c236c3e626b9a0cf323cd7ede18f972fd4474f1bcdea8e1340d9a49a1fee629f60d35baa2df8ba0d880230886d92587525d4b9c9dc14100cc39545506e1b9
   languageName: node
   linkType: hard
 
