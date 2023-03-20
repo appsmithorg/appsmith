@@ -386,7 +386,6 @@ export const chainableFns = [
 export function actionToCode(
   action: TActionBlock,
   multipleActions = true,
-  level = 0,
 ): string {
   const {
     actionType,
