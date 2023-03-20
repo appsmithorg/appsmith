@@ -1,5 +1,4 @@
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
-import { DefaultDimensionMap } from "components/editorComponents/ResizableComponent";
 import {
   isHandleResizeAllowed,
   isResizingDisabled,
@@ -26,10 +25,10 @@ import {
 } from "resizable/common";
 import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import { getWidgets } from "sagas/selectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   getCanvasWidth,
   getContainerOccupiedSpacesSelectorWhileResizing,
+  getDimensionMap,
 } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import {
@@ -119,15 +118,7 @@ export function ReflowResizable(props: ResizableProps) {
     reflectPosition: true,
   });
   const allWidgets = useSelector(getWidgets);
-  const isMobile = useSelector(getIsMobile);
-  const dimensionMap = isMobile
-    ? {
-        leftColumn: "mobileLeftColumn",
-        rightColumn: "mobileRightColumn",
-        topRow: "mobileTopRow",
-        bottomRow: "mobileBottomRow",
-      }
-    : DefaultDimensionMap;
+  const dimensionMap = useSelector(getDimensionMap);
   const {
     bottomRow: bottomRowMap,
     leftColumn: leftColumnMap,
@@ -154,29 +145,43 @@ export function ReflowResizable(props: ResizableProps) {
     })();
     return { computedAlignment, layer };
   }, [props, allWidgets, leftColumnMap]);
-  const hasFillChild =
-    !!layer &&
-    layer?.children?.length &&
-    layer.children.some((each: any) => {
-      const widget = allWidgets[each.id];
-      return widget && widget?.responsiveBehavior === ResponsiveBehavior.Fill;
-    });
+  const widget = allWidgets[props.widgetId];
+  const fillWidgetsFilter = (each: any) => {
+    const currentWidget = allWidgets[each.id];
+    return (
+      currentWidget &&
+      currentWidget?.responsiveBehavior === ResponsiveBehavior.Fill &&
+      !(
+        currentWidget[topRowMap] >= widget[bottomRowMap] ||
+        currentWidget[bottomRowMap] <= widget[topRowMap]
+      )
+    );
+  };
+  const allFillWidgets =
+    !!layer && layer?.children?.length
+      ? layer.children.filter(fillWidgetsFilter)
+      : [];
+  const hasFillChild = allFillWidgets.length > 0;
   const widgetAlignment = hasFillChild
     ? computedAlignment
-    : allWidgets[props.widgetId]?.alignment || FlexLayerAlignment.Start;
+    : widget?.alignment || FlexLayerAlignment.Start;
   const triggerAutoLayoutBasedReflow = (resizedPositions: OccupiedSpace) => {
     let canHorizontalMove = false;
     const widgets = {
       ...allWidgets,
       [props.widgetId]: {
-        ...allWidgets[props.widgetId],
+        ...widget,
         leftColumn: resizedPositions.left,
         rightColumn: resizedPositions.right,
         topRow: resizedPositions.top,
         bottomRow: resizedPositions.bottom,
       },
     };
-    const fillWidgetsLength = getFillWidgetLengthForLayer(layer, widgets);
+    const fillWidgetsLength = getFillWidgetLengthForLayer(
+      allFillWidgets,
+      widgets,
+      dimensionMap,
+    );
     if (fillWidgetsLength) {
       let correctedMovementMap: ReflowedSpaceMap = {};
       for (const child of layer.children) {
@@ -236,7 +241,11 @@ export function ReflowResizable(props: ResizableProps) {
           ({ canHorizontalMove, canVerticalMove } =
             movementLimitMap[resizedPositions.id]);
         }
-        if (!isMobile && hasFillChild) {
+        if (
+          hasFillChild &&
+          (resizedPositions.left !== widget[leftColumnMap] ||
+            resizedPositions.right !== widget[rightColumnMap])
+        ) {
           canHorizontalMove = triggerAutoLayoutBasedReflow(resizedPositions);
         }
 
@@ -292,7 +301,6 @@ export function ReflowResizable(props: ResizableProps) {
   }, [props.componentHeight, props.componentWidth, isResizing]);
 
   const handles = [];
-  const widget = allWidgets[props.widgetId];
   const { minHeight: widgetMinHeight, minWidth: widgetMinWidth } =
     getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
   const resizedPositions = {

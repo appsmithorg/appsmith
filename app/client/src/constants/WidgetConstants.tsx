@@ -85,6 +85,13 @@ export const GridDefaults = {
 
 export const CANVAS_MIN_HEIGHT = 380;
 
+export const DefaultDimensionMap = {
+  leftColumn: "leftColumn",
+  rightColumn: "rightColumn",
+  topRow: "topRow",
+  bottomRow: "bottomRow",
+};
+
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
 

@@ -58,12 +58,6 @@ import {
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
 };
-export const DefaultDimensionMap = {
-  leftColumn: "leftColumn",
-  rightColumn: "rightColumn",
-  topRow: "topRow",
-  bottomRow: "bottomRow",
-};
 
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,

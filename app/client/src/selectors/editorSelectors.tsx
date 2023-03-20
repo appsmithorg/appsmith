@@ -20,6 +20,7 @@ import type {
 } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
+  DefaultDimensionMap,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
@@ -467,10 +468,28 @@ const getOccupiedSpacesForContainer = (
   });
 };
 
+export const getDimensionMap = (state: AppState) => {
+  return state.ui.mainCanvas?.isMobile
+    ? {
+        leftColumn: "mobileLeftColumn",
+        rightColumn: "mobileRightColumn",
+        topRow: "mobileTopRow",
+        bottomRow: "mobileBottomRow",
+      }
+    : DefaultDimensionMap;
+};
+
 const getWidgetSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
+  dimensionMap: typeof DefaultDimensionMap,
 ): WidgetSpace[] => {
+  const {
+    bottomRow: bottomRowMap,
+    leftColumn: leftColumnMap,
+    rightColumn: rightColumnMap,
+    topRow: topRowMap,
+  } = dimensionMap;
   return widgets.map((widget) => {
     const hasAutoHeight = isAutoHeightEnabledForWidget(widget);
     const fixedHeight = hasAutoHeight
@@ -479,10 +498,10 @@ const getWidgetSpacesForContainer = (
     const occupiedSpace: WidgetSpace = {
       id: widget.widgetId,
       parentId: containerWidgetId,
-      left: widget.leftColumn,
-      top: widget.topRow,
-      bottom: widget.bottomRow,
-      right: widget.rightColumn,
+      left: widget[leftColumnMap],
+      top: widget[topRowMap],
+      bottom: widget[bottomRowMap],
+      right: widget[rightColumnMap],
       type: widget.type,
       isDropTarget: checkIsDropTarget(widget.type),
       fixedHeight,
@@ -501,6 +520,7 @@ const getWidgetSpacesForContainer = (
 const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
+  dimensionMap = DefaultDimensionMap,
 ): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
   const occupiedSpaces: {
     [containerWidgetId: string]: WidgetSpace[];
@@ -527,6 +547,7 @@ const generateOccupiedSpacesMap = (
       occupiedSpaces[containerWidgetId] = getWidgetSpacesForContainer(
         containerWidgetId,
         childWidgets.map((widgetId) => widgets[widgetId]),
+        dimensionMap,
       );
     });
   }
@@ -660,6 +681,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
 export const getOccupiedSpacesWhileMoving = createSelector(
   getWidgets,
   getIsDraggingOrResizing,
+  getDimensionMap,
   generateOccupiedSpacesMap,
 );
 
@@ -717,6 +739,7 @@ const generateWidgetSpacesForContainer = (
   widgets: CanvasWidgetsReduxState,
   fetchNow: boolean,
   containerId: string | undefined,
+  dimensionMap: typeof DefaultDimensionMap,
 ): WidgetSpace[] | undefined => {
   if (containerId === null || containerId === undefined || !fetchNow)
     return undefined;
@@ -736,6 +759,7 @@ const generateWidgetSpacesForContainer = (
   const occupiedSpaces = getWidgetSpacesForContainer(
     containerId,
     childWidgets.map((widgetId) => widgets[widgetId]),
+    dimensionMap,
   );
   return occupiedSpaces;
 };
@@ -761,9 +785,21 @@ export function getContainerOccupiedSpacesSelectorWhileResizing(
 export function getContainerWidgetSpacesSelector(
   containerId: string | undefined,
 ) {
-  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState) => {
-    return generateWidgetSpacesForContainer(widgets, true, containerId);
-  });
+  return createSelector(
+    getWidgets,
+    getDimensionMap,
+    (
+      widgets: CanvasWidgetsReduxState,
+      dimensionMap: typeof DefaultDimensionMap,
+    ) => {
+      return generateWidgetSpacesForContainer(
+        widgets,
+        true,
+        containerId,
+        dimensionMap,
+      );
+    },
+  );
 }
 
 // same as getOccupiedSpaces but gets only the container specific occupied Spaces
@@ -773,11 +809,17 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
   return createSelector(
     getWidgets,
     getIsDraggingOrResizing,
-    (widgets: CanvasWidgetsReduxState, isDraggingOrResizing: boolean) => {
+    getDimensionMap,
+    (
+      widgets: CanvasWidgetsReduxState,
+      isDraggingOrResizing: boolean,
+      dimensionMap,
+    ) => {
       return generateWidgetSpacesForContainer(
         widgets,
         isDraggingOrResizing,
         containerId,
+        dimensionMap,
       );
     },
   );
