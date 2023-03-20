@@ -104,7 +104,7 @@ describe("MySQL Datatype tests", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.SelectEntityByName("selectRecords");
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({toValidateResponse:false});
     cy.wait("@postExecute").then((intercept) => {
       expect(
         typeof intercept.response?.body.data.body[5].varchar_column,

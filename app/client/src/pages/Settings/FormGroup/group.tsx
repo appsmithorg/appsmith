@@ -232,7 +232,9 @@ export default function Group({
                       form={setting.formName}
                       helpText={setting.helpText}
                       title={setting.label}
-                      tooltip={createMessage(REDIRECT_URL_TOOLTIP)}
+                      tooltip={
+                        setting.tooltip || createMessage(REDIRECT_URL_TOOLTIP)
+                      }
                       value={setting.value}
                     />
                   </div>

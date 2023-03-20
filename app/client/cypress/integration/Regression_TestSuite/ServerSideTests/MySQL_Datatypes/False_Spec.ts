@@ -36,7 +36,7 @@ describe("MySQL Datatype tests", function () {
             ? `INSERT INTO ${inputData.tableName} (${inputData.inputFieldName[i]}) VALUES ({{"${value}"}})`
             : `INSERT INTO ${inputData.tableName} (${inputData.inputFieldName[i]}) VALUES ({{${value}}})`;
         _.dataSources.EnterQuery(query);
-        _.dataSources.RunQuery(true, false);
+        _.dataSources.RunQuery({ expectedStatus: false });
       });
     });
     _.agHelper.Sleep(2000);
@@ -45,6 +45,7 @@ describe("MySQL Datatype tests", function () {
     //This is a special case.
     //Added due to server side checks, which was handled in Datatype handling.
     //Long Integer as query param
+
     query = `SELECT * FROM ${inputData.tableName} LIMIT {{2147483648}}`;
     _.dataSources.EnterQuery(query);
     _.dataSources.RunQuery();
