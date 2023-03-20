@@ -72,15 +72,34 @@ module.exports = {
         css: false,
       },
     },
+    // Prioritize the local src directory over node_modules.
+    // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
+    // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
     {
       plugin: {
-        // Prioritize the local src directory over node_modules.
-        // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
-        // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
         overrideWebpackConfig: ({ webpackConfig }) => {
           webpackConfig.resolve.modules = [
             path.resolve(__dirname, "src"),
             ...webpackConfig.resolve.modules,
+          ];
+          return webpackConfig;
+        },
+      },
+    },
+    // Use the `exnext` field to resolve package contents when it’s available.
+    // `esnext` is a (mostly extinct) package.json field that (when available) points to the
+    // files transpiled for the modern browsers: https://2ality.com/2017/04/transpiling-dependencies-babel.html#proposal%3A-pkg.esnext
+    // The reason we configure this field is (primarily) to use the modern version of Blueprint;
+    // in the transpiled version, the `HotkeysTarget` decorator throws an `class cannot be invoked without 'new'` error.
+    {
+      plugin: {
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          // Per https://webpack.js.org/configuration/resolve/#resolvemainfields
+          const defaultMainFields = ["browser", "module", "main"];
+
+          webpackConfig.resolve.mainFields = [
+            "esnext",
+            ...(webpackConfig.resolve.mainFields ?? defaultMainFields),
           ];
           return webpackConfig;
         },
