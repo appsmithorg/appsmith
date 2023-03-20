@@ -298,23 +298,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
-      # Build release Docker image and push to Docker Hub
-      - name: Push RTS release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
-
-      # Build master Docker image and push to Docker Hub
-      - name: Push RTS master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
