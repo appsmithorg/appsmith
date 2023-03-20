@@ -131,8 +131,14 @@ export function alterLayoutForMobile(
       widget.mobileLeftColumn = widget.leftColumn;
       widget.mobileRightColumn = widget.rightColumn;
     }
-    widget.mobileTopRow = widget.topRow;
-    widget.mobileBottomRow = widget.bottomRow;
+    if (
+      widget.mobileTopRow === undefined ||
+      widget.mobileBottomRow === undefined ||
+      widget.mobileTopRow + widget.mobileBottomRow === 0
+    ) {
+      widget.mobileTopRow = widget.topRow;
+      widget.mobileBottomRow = widget.bottomRow;
+    }
     widgets = alterLayoutForMobile(
       widgets,
       child,
