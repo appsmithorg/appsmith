@@ -162,7 +162,7 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            <details><summary>The following are new failures, please fix them before merging the PR</summary> ${{ env.new_failed_spec_env }}</details> 
+            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
 
       # Update check run called "ci-test-result"
       - name: Mark ci-test-result job as complete

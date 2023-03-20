@@ -16,16 +16,11 @@ describe("Checkbox Group Widget Functionality", function () {
     let query2 = `SELECT * FROM public."country" LIMIT 2;`;
 
     // add Query 1 with limit 10
-
-    _.entityExplorer.CreateNewDsQuery(dsName);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.dataSources.EnterQuery(query1); //Query1
+    _.dataSources.CreateQueryFromOverlay(dsName, query1); //Query1
     _.dataSources.RunQuery();
 
     // add Query 2 with limit 2
-    _.entityExplorer.CreateNewDsQuery(dsName);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.dataSources.EnterQuery(query2);
+    _.dataSources.CreateQueryFromOverlay(dsName, query2); //Query2
     _.dataSources.RunQuery();
 
     // add checkbox group widget

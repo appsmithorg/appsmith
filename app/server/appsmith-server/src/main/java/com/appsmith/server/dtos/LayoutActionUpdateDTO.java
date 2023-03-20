@@ -1,6 +1,8 @@
 package com.appsmith.server.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,10 +13,18 @@ import lombok.Setter;
  * consume this structure to update the actions in its local storage (instead of fetching all the page actions afresh).
  */
 public class LayoutActionUpdateDTO {
+    @JsonView(Views.Public.class)
     String id;
+
+    @JsonView(Views.Public.class)
     String name;
+
+    @JsonView(Views.Public.class)
     String collectionId;
+
+    @JsonView(Views.Public.class)
     Boolean executeOnLoad;
-    @JsonIgnore
+    
+    @JsonView(Views.Internal.class)
     String defaultActionId;
 }

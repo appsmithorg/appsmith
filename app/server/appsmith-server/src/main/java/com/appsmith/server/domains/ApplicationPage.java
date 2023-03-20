@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.minidev.json.annotate.JsonIgnore;
 import org.springframework.data.annotation.Transient;
+
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @Getter
 @Setter
@@ -15,21 +17,25 @@ import org.springframework.data.annotation.Transient;
 @EqualsAndHashCode
 public class ApplicationPage {
 
+    @JsonView(Views.Public.class)
     String id;
 
+    @JsonView(Views.Public.class)
     Boolean isDefault;
 
     @Transient
+    @JsonView(Views.Public.class)
     String slug;
 
     @Transient
+    @JsonView(Views.Public.class)
     String customSlug;
 
     // This field will represent the root pageId in git system where we are connecting resources among the branches
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String defaultPageId;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);
     }
