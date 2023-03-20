@@ -6,7 +6,7 @@ import { Button, Category, Size, Text, TextType } from "design-system-old";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { ConversionForm } from "./ConversionForm";
 import { useConversionForm } from "./hooks/useConversionForm";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import {
   CONVERT_TO_AUTO_BUTTON,
@@ -17,9 +17,10 @@ import {
 } from "@appsmith/constants/messages";
 import BetaCard from "components/editorComponents/BetaCard";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import store from "store";
 
 export function ConversionButton() {
-  const isAutoLayout = useSelector(getIsAutoLayout);
+  const isAutoLayout = getIsAutoLayout(store.getState());
   const dispatch = useDispatch();
 
   //Text base on if it is an Auto layout
