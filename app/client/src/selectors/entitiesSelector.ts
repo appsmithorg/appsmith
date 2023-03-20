@@ -18,7 +18,10 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "reducers/entityReducers/jsActionsReducer";
 import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
@@ -387,6 +390,38 @@ export const getJSCollectionsForCurrentPage = createSelector(
     return actions.filter((a) => a.config.pageId === pageId);
   },
 );
+
+export const getJSCollectionFromName = createSelector(
+  [
+    getJSCollectionsForCurrentPage,
+    (_state: AppState, JSObjectName: string) => JSObjectName,
+  ],
+  (jsCollections, JSObjectName) => {
+    let currentJSCollection = null;
+    for (const jsCollection of jsCollections) {
+      if (JSObjectName === jsCollection.config.name) {
+        currentJSCollection = jsCollection;
+        break;
+      }
+    }
+    return currentJSCollection;
+  },
+);
+
+export const getJSActionFromJSCollection = (
+  JSCollection: JSCollectionData,
+  functionName: string,
+) => {
+  const actions = JSCollection.config.actions;
+  let currentAction = null;
+  for (const jsAction of actions) {
+    if (functionName === jsAction.name) {
+      currentAction = jsAction;
+      break;
+    }
+  }
+  return currentAction;
+};
 
 export const getPlugin = (state: AppState, pluginId: string) => {
   return state.entities.plugins.list.find((plugin) => plugin.id === pluginId);
