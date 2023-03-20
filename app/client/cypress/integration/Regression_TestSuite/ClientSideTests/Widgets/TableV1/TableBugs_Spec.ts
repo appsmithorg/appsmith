@@ -7,9 +7,9 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Verify various Table property bugs", function() {
+describe("Verify various Table property bugs", function () {
   before(() => {
-    cy.fixture("example").then(function(data: any) {
+    cy.fixture("example").then(function (data: any) {
       dataSet = data;
     });
     cy.fixture("tablev1NewDsl").then((val: any) => {
@@ -17,7 +17,7 @@ describe("Verify various Table property bugs", function() {
     });
   });
 
-  it("1. Adding Data to Table Widget", function() {
+  it("1. Adding Data to Table Widget", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Table Data",
@@ -27,7 +27,7 @@ describe("Verify various Table property bugs", function() {
     agHelper.PressEscape();
   });
 
-  it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function() {
+  it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     table.ChangeColumnType("image", "URL");
     propPane.UpdatePropertyFieldValue(
@@ -69,7 +69,7 @@ describe("Verify various Table property bugs", function() {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function() {
+  it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("image"));
 
@@ -110,7 +110,7 @@ describe("Verify various Table property bugs", function() {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function() {
+  it("4. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("image"));
 

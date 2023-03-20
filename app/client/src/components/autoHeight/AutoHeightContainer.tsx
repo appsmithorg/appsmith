@@ -1,11 +1,12 @@
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import type { PropsWithChildren } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   GridDefaults,
   WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 const StyledAutoHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};

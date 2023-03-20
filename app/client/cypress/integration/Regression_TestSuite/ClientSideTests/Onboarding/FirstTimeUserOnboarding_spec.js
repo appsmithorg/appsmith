@@ -1,14 +1,14 @@
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 const _ = require("lodash");
 
-describe("FirstTimeUserOnboarding", function() {
+describe("FirstTimeUserOnboarding", function () {
   beforeEach(() => {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
     });
   });
 
-  it("1. onboarding flow - should check page entity selection in explorer", function() {
+  it("1. onboarding flow - should check page entity selection in explorer", function () {
     cy.get(OnboardingLocator.introModal).should("be.visible");
     cy.get(OnboardingLocator.introModalBuild).click();
     cy.get(OnboardingLocator.introModal).should("not.exist");
@@ -18,7 +18,7 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
   });
 
-  it("2. onboarding flow - should check the checklist page actions", function() {
+  it("2. onboarding flow - should check the checklist page actions", function () {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.statusbar).click();
@@ -30,9 +30,7 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.checklistDatasourceBtn).should("not.be.disabled");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
-    cy.get(OnboardingLocator.datasourceMock)
-      .first()
-      .click();
+    cy.get(OnboardingLocator.datasourceMock).first().click();
     cy.wait(1000);
     cy.get(OnboardingLocator.statusbar).click();
     cy.get(OnboardingLocator.checklistStatus).should("contain", "1 of 5");
@@ -80,7 +78,7 @@ describe("FirstTimeUserOnboarding", function() {
     });
   });
 
-  it("3. onboarding flow - should check the tasks page actions", function() {
+  it("3. onboarding flow - should check the tasks page actions", function () {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
@@ -89,9 +87,7 @@ describe("FirstTimeUserOnboarding", function() {
     );
     cy.get(OnboardingLocator.taskDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
-    cy.get(OnboardingLocator.datasourceMock)
-      .first()
-      .click();
+    cy.get(OnboardingLocator.datasourceMock).first().click();
     cy.wait(1000);
     cy.get(OnboardingLocator.datasourceBackBtn).click();
     cy.get(OnboardingLocator.taskDatasourceBtn).should("not.exist");
@@ -102,9 +98,7 @@ describe("FirstTimeUserOnboarding", function() {
     );
     cy.get(OnboardingLocator.taskActionBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
-    cy.get(OnboardingLocator.createQuery)
-      .first()
-      .click();
+    cy.get(OnboardingLocator.createQuery).first().click();
     cy.wait(1000);
     cy.get(OnboardingLocator.statusbar).click();
     cy.get(OnboardingLocator.checklistBack).click();
@@ -122,7 +116,7 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.taskWidgetBtn).should("not.exist");
   });
 
-  it("4. onboarding flow - should check the tasks page datasource action alternate widget action", function() {
+  it("4. onboarding flow - should check the tasks page datasource action alternate widget action", function () {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
@@ -133,15 +127,13 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.textWidgetName).should("be.visible");
   });
 
-  it("5. onboarding flow - should check the tasks page query action alternate widget action", function() {
+  it("5. onboarding flow - should check the tasks page query action alternate widget action", function () {
     cy.get(OnboardingLocator.introModalBuild).click();
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
     cy.get(OnboardingLocator.taskDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
-    cy.get(OnboardingLocator.datasourceMock)
-      .first()
-      .click();
+    cy.get(OnboardingLocator.datasourceMock).first().click();
     cy.wait(1000);
     cy.get(OnboardingLocator.datasourceBackBtn).click();
 
@@ -153,16 +145,14 @@ describe("FirstTimeUserOnboarding", function() {
     cy.get(OnboardingLocator.textWidgetName).should("be.visible");
   });
 
-  it("6. onboarding flow - should check directly opening widget pane", function() {
+  it("6. onboarding flow - should check directly opening widget pane", function () {
     cy.get(OnboardingLocator.introModalBuild).click();
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
     cy.get(OnboardingLocator.widgetPaneTrigger).click();
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-    cy.get(OnboardingLocator.textWidgetName)
-      .should("be.visible")
-      .wait(800);
+    cy.get(OnboardingLocator.textWidgetName).should("be.visible").wait(800);
     cy.reload();
     cy.wait("@getPage").should(
       "have.nested.property",

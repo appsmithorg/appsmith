@@ -1,12 +1,15 @@
-import {
+import type {
   ReduxAction,
-  ReduxActionErrorTypes,
   ReduxActionType,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
-import {
+import type { WidgetResize } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -24,16 +27,18 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import { convertToString } from "utils/AppsmithUtils";
-import {
-  batchUpdateWidgetProperty,
+import type {
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
-  updateMultipleWidgetPropertiesAction,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
-  DynamicPath,
+  batchUpdateWidgetProperty,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import {
   getEntityDynamicBindingPathList,
   getWidgetDynamicPropertyPathList,
   getWidgetDynamicTriggerPathList,
@@ -42,7 +47,7 @@ import {
   isPathADynamicBinding,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
@@ -65,7 +70,7 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
 import { Toaster, Variant } from "design-system-old";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
@@ -81,9 +86,12 @@ import {
   ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 
+import type {
+  CopiedWidgetGroup,
+  NewPastePositionVariables,
+} from "./WidgetOperationUtils";
 import {
   changeIdsOfPastePositions,
-  CopiedWidgetGroup,
   createSelectedWidgetsAsCopiedWidgets,
   createWidgetCopy,
   doesTriggerPathsContainPropertyPath,
@@ -112,30 +120,25 @@ import {
   isDropTarget,
   isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
-  NewPastePositionVariables,
   purgeOrphanedDynamicPaths,
   WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import { widgetReflow } from "reducers/uiReducers/reflowReducer";
+import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import {
-  GridProps,
-  PrevReflowState,
-  ReflowDirection,
-  SpaceMap,
-} from "reflow/reflowTypes";
-import { WidgetSpace } from "constants/CanvasEditorConstants";
+import type { GridProps, PrevReflowState, SpaceMap } from "reflow/reflowTypes";
+import { ReflowDirection } from "reflow/reflowTypes";
+import type { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
@@ -147,7 +150,7 @@ import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import { MetaState } from "reducers/entityReducers/metaReducer";
+import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
 
@@ -405,10 +408,7 @@ export function removeDynamicBindingProperties(
 
   if (_.startsWith(propertyPath, "primaryColumns")) {
     // primaryColumns.customColumn1.isVisible -> customColumn1.isVisible
-    const tableProperty = propertyPath
-      .split(".")
-      .splice(1)
-      .join(".");
+    const tableProperty = propertyPath.split(".").splice(1).join(".");
     const tablePropertyPathsToRemove = [
       propertyPath, // primaryColumns.customColumn1.isVisible
       `derivedColumns.${tableProperty}`, // derivedColumns.customColumn1.isVisible
@@ -498,19 +498,16 @@ export function getPropertiesToUpdate(
   const propertyUpdates: Record<string, unknown> = {
     ...updates,
   };
-  const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-    widget,
-  );
-  const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-    widget,
-  );
+  const currentDynamicTriggerPathList: DynamicPath[] =
+    getWidgetDynamicTriggerPathList(widget);
+  const currentDynamicBindingPathList: DynamicPath[] =
+    getEntityDynamicBindingPathList(widget);
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
   const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-  const {
-    triggerPaths: triggerPathsFromPropertyConfig = {},
-  } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
+  const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
+    getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = getValueFromTree(updates, propertyPath);
@@ -714,15 +711,12 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
   try {
-    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-      widget,
-    );
-    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-      widget,
-    );
-    let dynamicPropertyPathList: DynamicPath[] = getWidgetDynamicPropertyPathList(
-      widget,
-    );
+    let dynamicTriggerPathList: DynamicPath[] =
+      getWidgetDynamicTriggerPathList(widget);
+    let dynamicBindingPathList: DynamicPath[] =
+      getEntityDynamicBindingPathList(widget);
+    let dynamicPropertyPathList: DynamicPath[] =
+      getWidgetDynamicPropertyPathList(widget);
 
     paths.forEach((propertyPath) => {
       dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
@@ -802,9 +796,8 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   );
 
   for (const childIndex in childrenList) {
-    const { evaluatedWidget: childWidget, id: childId } = childrenList[
-      childIndex
-    ];
+    const { evaluatedWidget: childWidget, id: childId } =
+      childrenList[childIndex];
     yield put(resetWidgetMetaProperty(childId, childWidget));
   }
 }
@@ -993,7 +986,7 @@ export function calculateNewWidgetPosition(
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @returns
  */
-const getNewPositions = function*(
+const getNewPositions = function* (
   copiedWidgetGroups: CopiedWidgetGroup[],
   mouseLocation: { x: number; y: number },
   copiedTotalWidth: number,
@@ -1002,14 +995,12 @@ const getNewPositions = function*(
 ) {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const {
-    isListWidgetPastingOnItself,
-    selectedWidgets,
-  } = getVerifiedSelectedWidgets(
-    selectedWidgetIDs,
-    copiedWidgetGroups,
-    canvasWidgets,
-  );
+  const { isListWidgetPastingOnItself, selectedWidgets } =
+    getVerifiedSelectedWidgets(
+      selectedWidgetIDs,
+      copiedWidgetGroups,
+      canvasWidgets,
+    );
 
   //if the copied widget is a modal widget, then it has to paste on the main container
   if (
@@ -1200,9 +1191,8 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
 ) {
-  let { canvasDOM, canvasId, containerWidget } = getDefaultCanvas(
-    canvasWidgets,
-  );
+  let { canvasDOM, canvasId, containerWidget } =
+    getDefaultCanvas(canvasWidgets);
 
   //if the selected widget is a layout widget then change the pasting canvas.
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
@@ -1324,7 +1314,8 @@ function* pasteWidgetSaga(
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
-  const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
+  const selectedWidget: FlattenedWidgetProps<undefined> =
+    yield getSelectedWidgetWhenPasting();
 
   const isMobile: boolean = yield select(getIsMobile);
 
@@ -1362,15 +1353,12 @@ function* pasteWidgetSaga(
       //hence if there are any widgets in that path then we reflow those widgets
       // If there are already widgets inside the selection box even before grouping
       //then we will have to move it down to the bottom most row
-      ({
-        copiedWidgetGroups,
-        gridProps,
-        reflowedMovementMap,
-      } = yield groupWidgetsIntoContainer(
-        copiedWidgetGroups,
-        pastingIntoWidgetId,
-        isThereACollision,
-      ));
+      ({ copiedWidgetGroups, gridProps, reflowedMovementMap } =
+        yield groupWidgetsIntoContainer(
+          copiedWidgetGroups,
+          pastingIntoWidgetId,
+          isThereACollision,
+        ));
     }
 
     if (
@@ -1395,19 +1383,15 @@ function* pasteWidgetSaga(
     if (!shouldGroup) {
       // new pasting positions, the variables are undefined if the positions cannot be calculated,
       // then it pastes the regular way at the bottom of the canvas
-      ({
-        canvasId,
-        gridProps,
-        newPastingPositionMap,
-        reflowedMovementMap,
-      } = yield call(
-        getNewPositions,
-        copiedWidgetGroups,
-        action.payload.mouseLocation,
-        copiedTotalWidth,
-        topMostWidget.topRow,
-        leftMostWidget.leftColumn,
-      ));
+      ({ canvasId, gridProps, newPastingPositionMap, reflowedMovementMap } =
+        yield call(
+          getNewPositions,
+          copiedWidgetGroups,
+          action.payload.mouseLocation,
+          copiedTotalWidth,
+          topMostWidget.topRow,
+          leftMostWidget.leftColumn,
+        ));
 
       if (canvasId) pastingIntoWidgetId = canvasId;
     }
@@ -1434,7 +1418,7 @@ function* pasteWidgetSaga(
 
     yield all(
       copiedWidgetGroups.map((copiedWidgets) =>
-        call(function*() {
+        call(function* () {
           // Don't try to paste if there is no copied widget
           if (!copiedWidgets) return;
 
@@ -1603,12 +1587,8 @@ function* pasteWidgetSaga(
                 widget.type === "MODAL_WIDGET"
                   ? MAIN_CONTAINER_WIDGET_ID
                   : pastingIntoWidgetId;
-              const {
-                bottomRow,
-                leftColumn,
-                rightColumn,
-                topRow,
-              } = newWidgetPosition;
+              const { bottomRow, leftColumn, rightColumn, topRow } =
+                newWidgetPosition;
               widget.leftColumn = leftColumn;
               widget.topRow = topRow;
               widget.bottomRow = bottomRow;
@@ -1623,9 +1603,8 @@ function* pasteWidgetSaga(
                 // Add the new child to existing children after it's original siblings position.
 
                 const originalWidgetId: string = widgetList[i].widgetId;
-                const originalWidgetIndex: number = widgetChildren.indexOf(
-                  originalWidgetId,
-                );
+                const originalWidgetIndex: number =
+                  widgetChildren.indexOf(originalWidgetId);
                 parentChildren = [
                   ...widgetChildren.slice(0, originalWidgetIndex + 1),
                   ...parentChildren,
@@ -1859,16 +1838,12 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       ...widgetConfig,
     };
 
-    const {
-      bottomRow,
-      leftColumn,
-      rightColumn,
-      topRow,
-    } = yield calculateNewWidgetPosition(
-      newWidget as WidgetProps,
-      MAIN_CONTAINER_WIDGET_ID,
-      widgets,
-    );
+    const { bottomRow, leftColumn, rightColumn, topRow } =
+      yield calculateNewWidgetPosition(
+        newWidget as WidgetProps,
+        MAIN_CONTAINER_WIDGET_ID,
+        widgets,
+      );
 
     newWidget = {
       ...newWidget,

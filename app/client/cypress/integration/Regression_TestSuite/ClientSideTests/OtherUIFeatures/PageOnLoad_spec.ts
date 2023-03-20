@@ -5,11 +5,11 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
-describe("Check debugger logs state when there are onPageLoad actions", function() {
+describe("Check debugger logs state when there are onPageLoad actions", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Check debugger logs state when there are onPageLoad actions", function() {
+  it("Check debugger logs state when there are onPageLoad actions", function () {
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", "{{TestApi.data.users}}");
     cy.NavigateToAPI_Panel();

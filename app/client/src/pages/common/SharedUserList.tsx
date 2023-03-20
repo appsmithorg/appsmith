@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
 import { ScrollIndicator } from "design-system-old";
-import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";

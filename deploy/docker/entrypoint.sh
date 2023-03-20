@@ -189,7 +189,7 @@ init_replica_set() {
     else
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                             *\033[0m"
-      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` role.      *\033[0m"
+      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has 'readWrite' role.      *\033[0m"
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       exit 1
     fi

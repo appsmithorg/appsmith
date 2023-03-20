@@ -4992,7 +4992,7 @@ public class DatabaseChangelog1 {
         /* set key formData.smartSubstitution */
         setSmartSubstitutionFieldForEachAction(firestoreActions, mongoTemplate);
     }
-
+    
     private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
                                                         MongoTemplate mongoTemplate) {
         firestoreActions.stream()

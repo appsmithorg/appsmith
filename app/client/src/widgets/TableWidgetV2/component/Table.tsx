@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
+import type { Row as ReactTableRowType } from "react-table";
 import {
   useTable,
   usePagination,
   useBlockLayout,
   useResizeColumns,
   useRowSelect,
-  Row as ReactTableRowType,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import {
@@ -16,19 +16,21 @@ import {
 } from "./TableStyledWrappers";
 import TableHeader from "./header";
 import { Classes } from "@blueprintjs/core";
-import {
+import type {
   ReactTableColumnProps,
   ReactTableFilter,
-  TABLE_SIZES,
   CompactMode,
-  CompactModeTypes,
   AddNewRowActions,
   StickyType,
+} from "./Constants";
+import {
+  TABLE_SIZES,
+  CompactModeTypes,
   TABLE_SCROLLBAR_HEIGHT,
 } from "./Constants";
 import { Colors } from "constants/Colors";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { EditableCell, TableVariant } from "../constants";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { EditableCell, TableVariant } from "../constants";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -166,8 +168,9 @@ export function Table(props: TableProps) {
       if (columnWidthMap[i] < 60) {
         columnWidthMap[i] = 60;
       } else if (columnWidthMap[i] === undefined) {
-        const columnCounts = props.columns.filter((column) => !column.isHidden)
-          .length;
+        const columnCounts = props.columns.filter(
+          (column) => !column.isHidden,
+        ).length;
         columnWidthMap[i] = props.width / columnCounts;
       }
     }
@@ -232,7 +235,7 @@ export function Table(props: TableProps) {
     // We are updating column size since the drag is complete when we are changing value of isResizing from true to false
     if (isResizingColumn.current) {
       //update isResizingColumn in next event loop so that dragEnd event does not trigger click event.
-      setTimeout(function() {
+      setTimeout(function () {
         isResizingColumn.current = false;
         handleResizeColumn(state.columnResizing.columnWidths);
       }, 0);

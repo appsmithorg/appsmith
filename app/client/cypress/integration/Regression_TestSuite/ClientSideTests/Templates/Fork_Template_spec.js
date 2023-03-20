@@ -27,9 +27,7 @@ describe("Fork a template to an workspace", () => {
   it("2. Update query param on opening fork modal in template detailed view", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
-    cy.get(templateLocators.templateCard)
-      .first()
-      .click();
+    cy.get(templateLocators.templateCard).first().click();
     AggregateHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.get(templateLocators.templateViewForkButton).click();
     cy.location().should((location) => {

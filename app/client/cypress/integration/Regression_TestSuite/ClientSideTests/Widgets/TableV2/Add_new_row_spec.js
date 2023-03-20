@@ -154,13 +154,8 @@ describe("Table widget Add new row feature's", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       ["Button", "Menu Button", "Icon Button"].forEach((columnType) => {
-        cy.get(commonlocators.changeColType)
-          .last()
-          .click();
-        cy.get(".t--dropdown-option")
-          .children()
-          .contains(columnType)
-          .click();
+        cy.get(commonlocators.changeColType).last().click();
+        cy.get(".t--dropdown-option").children().contains(columnType).click();
         cy.wait("@updateLayout");
         cy.get(`[data-colindex=0][data-rowindex=0] button`).should("not.exist");
       });
@@ -242,13 +237,8 @@ describe("Table widget Add new row feature's", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
 
-      cy.get(commonlocators.changeColType)
-        .last()
-        .click();
-      cy.get(".t--dropdown-option")
-        .children()
-        .contains("Number")
-        .click();
+      cy.get(commonlocators.changeColType).last().click();
+      cy.get(".t--dropdown-option").children().contains("Number").click();
       cy.wait("@updateLayout");
 
       propPane.UpdatePropertyFieldValue("Min", "5");
