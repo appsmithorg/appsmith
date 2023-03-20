@@ -294,23 +294,3 @@ jobs:
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
-
-      - name: Build and push RTS image
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
-
-      # Only build & tag with latest if the tag doesn't contain beta
-      - name: Build and push RTS image latest
-        if: needs.prelude.outputs.is_beta == 'false'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
