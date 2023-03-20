@@ -8,6 +8,8 @@ const pages = require("../../../../locators/Pages.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
+let agHelper = ObjectsRegistry.AggregateHelper;
+
 const pageid = "MyPage";
 let datasourceName;
 
@@ -96,10 +98,11 @@ describe("Entity explorer tests related to query and datasource", function () {
       expect($lis.eq(3)).to.contain("{{Query1.run()}}");
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
+    cy.get(".t--entity-property-close").click(); //closing Bindings overlay
     ee.ActionContextMenuByEntityName("Query1", "Edit Name");
     cy.EditApiNameFromExplorer("MyQuery");
     ee.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
-    cy.get(".t--entity-name").contains("MyQuery").click();
+    ee.SelectEntityByName("MyQuery");
     cy.wait(2000);
     cy.runQuery();
 
