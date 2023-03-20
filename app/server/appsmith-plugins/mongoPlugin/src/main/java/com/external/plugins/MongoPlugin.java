@@ -790,7 +790,7 @@ public class MongoPlugin extends BasePlugin {
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add(MongoPluginErrorMessages.DS_MISSING_DEFAULT_DATABASE_NAME_ERROR_MSG);
+                        invalids.add(MongoPluginErrorMessages.DS_INVALID_USER_DATABASE_NAME);
                     }
 
                 }
@@ -821,6 +821,11 @@ public class MongoPlugin extends BasePlugin {
                 defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
             } else defaultDatabaseName = null;
 
+            final String databaseName;
+            if (datasourceConfiguration.getConnection() != null) {
+                databaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
+            } else databaseName = null;
+
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
                         final Publisher<String> result = mongoClient.listDatabaseNames();
@@ -828,9 +833,19 @@ public class MongoPlugin extends BasePlugin {
                         return documentMono.doFinally(ignored -> mongoClient.close()).then(documentMono);
                     })
                     .flatMap(names -> {
-                        if (defaultDatabaseName == null || defaultDatabaseName.isBlank()) {
+
+                        final Optional<String> userDB = names.stream()
+                                .filter(name -> name.equals(databaseName))
+                                .findFirst();
+
+                        if(defaultDatabaseName == null || defaultDatabaseName.isBlank()){
+                            if(userDB.isEmpty()) {
+                                return Mono.just(new DatasourceTestResult(
+                                        MongoPluginErrorMessages.DS_INVALID_USER_DATABASE_NAME));
+                            }
                             return Mono.just(new DatasourceTestResult());
                         }
+
                         final Optional<String> defaultDB = names.stream()
                                 .filter(name -> name.equals(defaultDatabaseName))
                                 .findFirst();
