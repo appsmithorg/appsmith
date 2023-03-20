@@ -98,7 +98,7 @@ function AddPageContextMenu({
       },
     ];
 
-    if (isAutoLayout) {
+    if (!isAutoLayout) {
       items.push({
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: Database2LineIcon,
