@@ -17,6 +17,8 @@ import {
   getFunctionParams,
   setQueryParam,
   getQueryParam,
+  checkIfCatchBlockExists,
+  checkIfThenBlockExists,
 } from "@shared/ast";
 import type { TreeDropdownOption } from "design-system-old";
 import type { TActionBlock } from "./types";
@@ -269,7 +271,6 @@ export function codeToAction(
   code: string,
   fieldOptions: TreeDropdownOption[],
   multipleActions = true,
-  level = 0,
 ): TActionBlock {
   const jsCode = getCodeFromMoustache(code);
 
@@ -327,12 +328,15 @@ export function codeToAction(
         params: [...thenCallbackParams, ...successCallbackParams],
         blocks: [
           ...successCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, level < 2, level + 1),
+            ...codeToAction(block, fieldOptions, false),
             type: "success" as const,
           })),
           ...thenCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, level < 2, level + 1),
-            type: "then" as const,
+            ...codeToAction(block, fieldOptions, false),
+            type:
+              successCallbackBlocks.length + errorCallbackBlocks.length > 0
+                ? ("success" as const)
+                : ("then" as const),
           })),
         ],
       },
@@ -340,12 +344,15 @@ export function codeToAction(
         params: [...catchCallbackParams, ...errorCallbackParams],
         blocks: [
           ...errorCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, level < 2, level + 1),
+            ...codeToAction(block, fieldOptions, false),
             type: "failure" as const,
           })),
           ...catchCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, level < 2, level + 1),
-            type: "catch" as const,
+            ...codeToAction(block, fieldOptions, false),
+            type:
+              successCallbackBlocks.length + errorCallbackBlocks.length > 0
+                ? ("failure" as const)
+                : ("catch" as const),
           })),
         ],
       },
@@ -395,12 +402,31 @@ export function actionToCode(
   }
 
   if (chainableFns.includes(actionType as any) && multipleActions) {
+    const existingSuccessCallback = getFuncExpressionAtPosition(code, 0, 2);
+    const existingErrorCallback = getFuncExpressionAtPosition(code, 1, 2);
+    const thenBlockExists = checkIfCatchBlockExists(code);
+    const catchBlockExists = checkIfThenBlockExists(code);
+    if (actionType === AppsmithFunction.integration) {
+      if (existingSuccessCallback || existingErrorCallback) {
+        successBlocks.forEach((block) => {
+          if (block.type === "then") {
+            block.type = "success";
+          }
+        });
+        errorBlocks.forEach((block) => {
+          if (block.type === "catch") {
+            block.type = "failure";
+          }
+        });
+      }
+    }
+
     const successCallbackCodes = successBlocks
       .filter(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "success",
       )
-      .map((callback) => actionToCode(callback, level < 2, level + 1));
+      .map((callback) => actionToCode(callback, false));
     const successCallbackCode = successCallbackCodes.join("");
 
     const thenCallbackCodes = successBlocks
@@ -408,7 +434,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "then",
       )
-      .map((callback) => actionToCode(callback, level < 2, level + 1));
+      .map((callback) => actionToCode(callback, false));
     const thenCallbackCode = thenCallbackCodes.join("");
 
     const errorCallbackCodes = errorBlocks
@@ -416,7 +442,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "failure",
       )
-      .map((callback) => actionToCode(callback, level < 2, level + 1));
+      .map((callback) => actionToCode(callback, false));
     const errorCallbackCode = errorCallbackCodes.join("");
 
     const catchCallbackCodes = errorBlocks
@@ -424,48 +450,56 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "catch",
       )
-      .map((callback) => actionToCode(callback, level < 2, level + 1));
+      .map((callback) => actionToCode(callback, false));
     const catchCallbackCode = catchCallbackCodes.join("");
 
     // Set callback function field only if there is a callback code
-    const withSuccessCallback = successCallbackCode
-      ? setCallbackFunctionField(
-          code,
-          `(${
-            successParams ? successParams.join(",") : ""
-          }) => { ${successCallbackCode} }`,
-          0,
-          self.evaluationVersion,
-        )
-      : code;
+    const withSuccessCallback =
+      existingSuccessCallback || existingErrorCallback
+        ? setCallbackFunctionField(
+            code,
+            `(${
+              successParams ? successParams.join(",") : ""
+            }) => { ${successCallbackCode} }`,
+            0,
+            self.evaluationVersion,
+          )
+        : code;
 
-    const withThenCallback = setThenBlockInQuery(
-      withSuccessCallback,
-      `(${
-        successParams ? successParams.join(",") : ""
-      }) => { ${thenCallbackCode} }`,
-      self.evaluationVersion,
-    );
+    const withThenCallback =
+      thenBlockExists || thenCallbackCode
+        ? setThenBlockInQuery(
+            withSuccessCallback,
+            `(${
+              successParams ? successParams.join(",") : ""
+            }) => { ${thenCallbackCode} }`,
+            self.evaluationVersion,
+          )
+        : withSuccessCallback;
 
     // Set callback function field only if there is a callback code
-    const withErrorCallback = errorCallbackCode
-      ? setCallbackFunctionField(
-          withThenCallback,
-          `(${
-            errorParams ? errorParams.join(",") : ""
-          }) => { ${errorCallbackCode} }`,
-          1,
-          self.evaluationVersion,
-        )
-      : withThenCallback;
+    const withErrorCallback =
+      existingSuccessCallback || existingErrorCallback
+        ? setCallbackFunctionField(
+            withThenCallback,
+            `(${
+              errorParams ? errorParams.join(",") : ""
+            }) => { ${errorCallbackCode} }`,
+            1,
+            self.evaluationVersion,
+          )
+        : withThenCallback;
 
-    const withCatchCallback = setCatchBlockInQuery(
-      withErrorCallback,
-      `(${
-        errorParams ? errorParams.join(",") : ""
-      }) => { ${catchCallbackCode} }`,
-      self.evaluationVersion,
-    );
+    const withCatchCallback =
+      catchBlockExists || catchCallbackCode
+        ? setCatchBlockInQuery(
+            withErrorCallback,
+            `(${
+              errorParams ? errorParams.join(",") : ""
+            }) => { ${catchCallbackCode} }`,
+            self.evaluationVersion,
+          )
+        : withErrorCallback;
 
     return withCatchCallback;
   }

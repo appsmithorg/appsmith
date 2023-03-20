@@ -75,6 +75,8 @@ export type Field = {
   value?: string;
   label?: string;
   index?: number;
+  getter?: (value: string, argNum: number) => string;
+  setter?: (value: string, changeValue: string, argNum: number) => string;
 };
 
 export type SelectorField = {

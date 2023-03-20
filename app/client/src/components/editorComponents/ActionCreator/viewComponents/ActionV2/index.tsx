@@ -63,7 +63,10 @@ export default function ActionV2(props: {
       return;
     }
     const newActionBlock = klona(actionBlock);
-    newActionBlock.success.blocks.push({ ...EMPTY_ACTION_BLOCK, type: "then" });
+    newActionBlock.success.blocks.push({
+      ...EMPTY_ACTION_BLOCK,
+      type: lastAction?.type || "then",
+    });
     setActionBlock(newActionBlock);
     selectBlock(`${id}_success_${blocks.length}`);
   }, [actionBlock]);
@@ -78,7 +81,10 @@ export default function ActionV2(props: {
       return;
     }
     const newActionBlock = klona(actionBlock);
-    newActionBlock.error.blocks.push({ ...EMPTY_ACTION_BLOCK, type: "catch" });
+    newActionBlock.error.blocks.push({
+      ...EMPTY_ACTION_BLOCK,
+      type: lastAction?.type || "catch",
+    });
     setActionBlock(newActionBlock);
     selectBlock(`${id}_failure_${blocks.length}`);
   }, [actionBlock]);
@@ -134,6 +140,7 @@ export default function ActionV2(props: {
         <ActionCard
           actionBlock={actionBlock}
           id={id}
+          level={props.level}
           onSelect={handleCardSelection}
           selected={isOpen}
           variant={props.variant}
@@ -204,7 +211,7 @@ export default function ActionV2(props: {
                     {callbacks.map((cActionBlock, index) => (
                       <ActionV2
                         actionBlock={cActionBlock}
-                        className={`${index === 0 ? "mt-0" : "mt-1"}`}
+                        className="mt-0"
                         id={`${id}_${blockType}_${index}`}
                         key={`${id}_${blockType}_${index}`}
                         level={props.level + 1}
@@ -224,7 +231,9 @@ export default function ActionV2(props: {
                               AppsmithFunction.none;
                             blocks.splice(index, 1);
                           } else {
-                            blocks[index] = childActionBlock;
+                            blocks[index].code = childActionBlock.code;
+                            blocks[index].actionType =
+                              childActionBlock.actionType;
                           }
                           if (isDummyBlockDelete) {
                             setActionBlock(newActionBlock);

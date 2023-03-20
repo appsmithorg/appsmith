@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import type { TActionBlock } from "../../types";
 import { getActionInfo } from "../ActionBlockTree/utils";
@@ -10,6 +11,7 @@ type TActionCardProps = {
   actionBlock: TActionBlock;
   variant?: string;
   id: string;
+  level: number;
 };
 
 function ActionCard(props: TActionCardProps) {
@@ -28,7 +30,12 @@ function ActionCard(props: TActionCardProps) {
     ).length +
     errorBlocks.filter(({ actionType }) => actionType !== AppsmithFunction.none)
       .length;
-  const firstInBlock = props.id.split("_").pop() === "0";
+  const { selectedBlockId } = React.useContext(ActionCreatorContext);
+  const nextId = props.id
+    .split("_")
+    .slice(0, -1)
+    .concat((parseInt(props.id.split("_").pop() || "0") + 1).toString());
+  const isNextCardSelected = nextId.join("_") === selectedBlockId;
 
   const {
     action,
@@ -50,7 +57,8 @@ function ActionCard(props: TActionCardProps) {
       className = clsx(
         className,
         "border-[1px] border-gray-200",
-        firstInBlock && "border-t-0",
+        "border-t-0",
+        isNextCardSelected && "border-b-gray-500",
       );
       break;
 

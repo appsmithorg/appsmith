@@ -1,5 +1,8 @@
 import React from "react";
-import { getFunctionNameFromJsObjectExpression } from "@shared/ast";
+import {
+  getFunctionNameFromJsObjectExpression,
+  getFuncExpressionAtPosition,
+} from "@shared/ast";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
@@ -43,6 +46,7 @@ import type {
   SelectorField,
   SwitchType,
 } from "./types";
+import { getCodeFromMoustache } from "./utils";
 
 const actionList: {
   label: string;
@@ -61,6 +65,7 @@ export function getFieldFromValue(
   activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTreeForActionCreator,
+  isChainedAction = false,
 ): SelectorField[] {
   const fields: SelectorField[] = [];
 
@@ -90,6 +95,10 @@ export function getFieldFromValue(
         fields,
         getParentValue as (changeValue: string) => string,
         value,
+        activeTabNavigateTo,
+        activeTabApiAndQueryCallback,
+        dataTree as DataTreeForActionCreator,
+        isChainedAction,
       );
     }
 
@@ -118,16 +127,44 @@ function getActionEntityFields(
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
+  activeTabNavigateTo: SwitchType,
+  activeTabApiAndQueryCallback: SwitchType,
+  dataTree: DataTreeForActionCreator,
+  isChainedAction = false,
 ) {
+  const requiredValue = getCodeFromMoustache(value);
+  const successFunction = getFuncExpressionAtPosition(
+    requiredValue,
+    0,
+    self.evaluationVersion,
+  );
+  const errorFunction = getFuncExpressionAtPosition(
+    requiredValue,
+    1,
+    self.evaluationVersion,
+  );
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
     value,
   });
+  if (isChainedAction) {
+    fields.push({
+      field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
+      getParentValue,
+      value,
+    });
+    fields.push({
+      field: FieldType.CALLBACK_FUNCTION_API_AND_QUERY,
+      getParentValue,
+      value,
+    });
+  }
   fields.push({
     field: FieldType.PARAMS_FIELD,
     getParentValue,
     value,
+    argNum: successFunction || errorFunction ? 2 : 0,
   });
 
   return fields;

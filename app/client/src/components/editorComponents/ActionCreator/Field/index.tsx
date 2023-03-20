@@ -48,7 +48,7 @@ export function Field(props: FieldProps) {
   let viewElement: JSX.Element | null = null;
   const view = fieldConfig.view && views[fieldConfig.view];
   const label = FIELD_CONFIG[fieldType].label(props);
-  const getterFunction = fieldConfig.getter;
+  const getterFunction = field.getter || fieldConfig.getter;
   const value = props.value;
   const defaultText = FIELD_CONFIG[fieldType].defaultText;
   const options = FIELD_CONFIG[fieldType].options(props);
@@ -224,10 +224,11 @@ export function Field(props: FieldProps) {
             val,
             props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
           ),
-        set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
-          const finalValueToSet = fieldConfig.setter(
-            value,
+        set: (value: string, isUpdatedViaKeyboard = false) => {
+          const setter = field.setter || fieldConfig.setter;
+          const finalValueToSet = setter(
             props.value,
+            value,
             props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
           );
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);

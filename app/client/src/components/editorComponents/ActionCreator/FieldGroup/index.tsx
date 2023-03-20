@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { getDataTreeForActionCreator } from "sagas/selectors";
 
 function FieldGroup(props: FieldGroupProps) {
+  const { isChainedAction = false, ...otherProps } = props;
   const dataTree = useSelector(getDataTreeForActionCreator);
 
   const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
@@ -53,6 +54,7 @@ function FieldGroup(props: FieldGroupProps) {
     activeTabNavigateTo,
     undefined,
     dataTree,
+    isChainedAction,
   );
 
   if (fields.length === 0) return null;
@@ -61,7 +63,7 @@ function FieldGroup(props: FieldGroupProps) {
   return (
     <>
       {Field({
-        ...props,
+        ...otherProps,
         field: fields[0],
         activeNavigateToTab: activeTabNavigateTo,
         activeTabApiAndQueryCallback: activeTabApiAndQueryCallback,
@@ -104,7 +106,7 @@ function FieldGroup(props: FieldGroupProps) {
               <li key={field.field + index}>
                 {Field({
                   field: field,
-                  ...props,
+                  ...otherProps,
                   activeNavigateToTab: activeTabNavigateTo,
                   activeTabApiAndQueryCallback: activeTabApiAndQueryCallback,
                   apiAndQueryCallbackTabSwitches:

@@ -1187,3 +1187,43 @@ export function setQueryParam(code: string, value: string) {
         return code;
     }
 }
+
+export function checkIfThenBlockExists(code: string) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        const ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+        });
+        const rootCallExpression = findRootCallExpression(ast);
+        if(!rootCallExpression) return code; 
+        let thenBlock = findNodeWithCalleeAndProperty(ast, rootCallExpression, "then");
+        if(thenBlock) return true;
+        let catchBlock = findNodeWithCalleeAndProperty(ast, rootCallExpression, "catch");
+        thenBlock = findNodeWithCalleeAndProperty(ast, catchBlock, "then");
+        if(thenBlock) return true;
+        return false;
+    } catch(e) {
+        return false;
+    }
+}
+
+export function checkIfCatchBlockExists(code: string) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        const ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+        });
+        const rootCallExpression = findRootCallExpression(ast);
+        if(!rootCallExpression) return code; 
+        let catchBlock = findNodeWithCalleeAndProperty(ast, rootCallExpression, "catch");
+        if(catchBlock) return true;
+        let thenBlock = findNodeWithCalleeAndProperty(ast, rootCallExpression, "then");
+        catchBlock = findNodeWithCalleeAndProperty(ast, thenBlock, "catch");
+        if(catchBlock) return true;
+        return false;
+    } catch(e) {
+        return false;
+    }
+}
