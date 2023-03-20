@@ -44,6 +44,7 @@ import {
   shouldLint,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
+import ConfigTreeActions from "utils/configTree";
 import {
   evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
@@ -91,8 +92,7 @@ import {
 } from "selectors/entitiesSelector";
 import type {
   DataTree,
-  UnEvalTree,
-  UnEvalTreeWidget,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { AppTheme } from "entities/AppTheming";
@@ -140,18 +140,21 @@ export function* evaluateTreeSaga(
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
+  const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   const isEditMode = appMode === APP_MODE.EDIT;
-  log.debug({ unevalTree });
+  const toPrintConfigTree = unEvalAndConfigTree.configTree;
+  log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree,
+    unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,
     theme,
@@ -178,6 +181,7 @@ export function* evaluateTreeSaga(
     logs,
     unEvalUpdates,
     isCreateFirstTree = false,
+    configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
   } = workerResponse;
@@ -195,11 +199,13 @@ export function* evaluateTreeSaga(
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
-
   yield put(setEvaluatedTree(updates));
+  ConfigTreeActions.setConfigTree(configTree);
+
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+
   // if evalMetaUpdates are present only then dispatch updateMetaState
   if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
@@ -207,6 +213,7 @@ export function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
+
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
@@ -216,6 +223,7 @@ export function* evaluateTreeSaga(
     errors,
     updatedDataTree,
     evaluationOrder,
+    configTree,
     pathsToClearErrorsFor,
   );
 
@@ -228,11 +236,13 @@ export function* evaluateTreeSaga(
       updatedDataTree,
       evaluationOrder,
       isCreateFirstTree,
+      configTree,
     );
 
     yield fork(
       updateTernDefinitions,
       updatedDataTree,
+      configTree,
       unEvalUpdates,
       isCreateFirstTree,
       jsData,
@@ -270,7 +280,10 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
-  const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
+    getUnevaluatedDataTree,
+  );
+  // const unEvalTree = unEvalAndConfigTree.unEvalTree;
   log.debug({ execute: dynamicTrigger });
   const response: unknown = yield call(
     evalWorker.request,
@@ -463,9 +476,11 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
-  const entity = unevalTree[props.widgetName] as UnEvalTreeWidget;
-  const validation = entity?.__config__.validationPaths[property];
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
+  const configTree = unEvalAndConfigTree.configTree;
+  const entityConfig = configTree[props.widgetName] as WidgetEntityConfig;
+  const validation = entityConfig?.validationPaths[property];
   const response: unknown = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,

@@ -66,11 +66,12 @@ function eventRequestHandler({
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
       try {
-        const { cloudHosting, pathsToLint, unevalTree } =
+        const { cloudHosting, configTree, pathsToLint, unevalTree } =
           requestData as LintTreeRequest;
         const lintErrors = getlintErrorsFromTree(
           pathsToLint,
           unevalTree,
+          configTree,
           cloudHosting,
         );
         lintTreeResponse.errors = lintErrors;
