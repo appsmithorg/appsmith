@@ -24,7 +24,6 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getSnapColumns } from "utils/WidgetPropsUtils";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   getWidgetHeight,
@@ -38,6 +37,7 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
 import type { UIElementSize } from "./ResizableUtils";

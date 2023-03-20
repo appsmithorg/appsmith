@@ -76,9 +76,8 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
-  const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
-    type,
-  );
+  const { disableResizeHandles } =
+    WidgetFactory.getWidgetAutoLayoutConfig(type);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   if (!widgetName) {
