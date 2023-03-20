@@ -110,7 +110,7 @@ jobs:
 
       - name: Run type import check
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run importTypeCheck:ci
+        run: yarn run check-types
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'

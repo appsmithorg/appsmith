@@ -29,8 +29,8 @@
     "install": "node cypress/apply-patches.js",
     "storybook": "yarn workspace @design-system/storybook storybook",
     "lint:ci": "eslint --ext .ts,.tsx ./src && eslint --ext .js ./cypress",
-    "prettier:ci": "prettier --check ./src",
-    "importTypeCheck:ci": "yarn tsc --noEmit --project tsconfig.json"
+    "prettier:ci": "prettier --check ./src && prettier --check ./cypress",
+    "check-types": "yarn tsc --noEmit"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
