@@ -207,6 +207,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileRightColumn,
       mobileTopRow,
       mobileBottomRow,
+      widthInPercentage:
+        ((rightColumn - leftColumn) * snapColumnSpace) / mainCanvasWidth,
     };
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
