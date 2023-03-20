@@ -574,6 +574,35 @@ class CodeEditor extends Component<Props, State> {
   );
 
   handleMouseOver = (event: MouseEvent) => {
+    if (event.target instanceof Element) {
+      const tokenElement = event.target;
+      const tokenElementPosition = tokenElement.getBoundingClientRect();
+      // if (tokenElement.classList.contains("cm-property")) {
+      const pos = this.editor.coordsChar(
+        {
+          left: tokenElementPosition.left,
+          top: tokenElementPosition.top,
+        },
+        "window",
+      );
+      // const token = this.editor.getTokenAt(
+      //   {
+      //     line: pos.line,
+      //     ch: pos.ch + 1, // offset need to make this work
+      //   },
+      //   true,
+      // );
+      const lineTokens = this.editor.getLineTokens(pos.line);
+      for (let i = lineTokens.length - 1; i >= 0; i--) {
+        const currToken = lineTokens[i];
+        if (pos.ch === currToken.start) {
+          console.log("on hover", currToken);
+        }
+      }
+      console.log("on hover", lineTokens);
+      console.log("----------------- on hover");
+      // }
+    }
     if (
       event.target instanceof Element &&
       event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
