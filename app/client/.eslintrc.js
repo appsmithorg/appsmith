@@ -65,8 +65,6 @@ const eslintConfig = {
             // Allow type imports as they don’t lead to bundling the dependency
             allowTypeImports: true,
           },
-        ],
-        paths: [
           {
             name: "lottie-web",
             message:
