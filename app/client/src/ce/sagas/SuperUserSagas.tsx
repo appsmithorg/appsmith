@@ -1,4 +1,3 @@
-import React from "react";
 import type { SendTestEmailPayload } from "@appsmith/api/UserApi";
 import UserApi from "@appsmith/api/UserApi";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
