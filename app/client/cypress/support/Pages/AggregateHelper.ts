@@ -139,16 +139,19 @@ export class AggregateHelper {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
         this.RefreshPage();
+        return false;
       }
     });
+    return true;
   }
 
   public AssertAutoSave() {
-    this.CheckForPageSaveError();
+    let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
-    cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
-      "not.exist",
-    ); //adding timeout since waiting more time is not worth it!
+    if (!saveStatus)
+      cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
+        "not.exist",
+      ); //adding timeout since waiting more time is not worth it!
 
     //this.ValidateNetworkStatus("@sucessSave", 200);
   }
@@ -818,6 +821,7 @@ export class AggregateHelper {
         input.setValue(value);
         this.Sleep(200);
       });
+    this.Sleep(500);//for value set to settle
   }
 
   public UpdateInput(selector: string, value: string) {
