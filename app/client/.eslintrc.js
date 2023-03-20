@@ -66,6 +66,15 @@ const eslintConfig = {
             allowTypeImports: true,
           },
         ],
+        paths: [
+          {
+            name: "lottie-web",
+            message:
+              "Reason: Please don’t import lottie directly as it’s very large. Instead, use the utils/lazyLottie wrapper.",
+            // Allow type imports as they don’t lead to bundling the dependency
+            allowTypeImports: true,
+          },
+        ],
       },
     ],
     // Annoyingly, the `no-restricted-imports` rule doesn’t allow to restrict imports of
