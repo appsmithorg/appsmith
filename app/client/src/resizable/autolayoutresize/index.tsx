@@ -510,6 +510,7 @@ export function ReflowResizable(props: ResizableProps) {
         );
       },
       component: props.handles.bottomRight,
+      handleDirection: ReflowDirection.BOTTOMRIGHT,
       affectsWidth: true,
     });
   }
@@ -568,9 +569,11 @@ export function ReflowResizable(props: ResizableProps) {
         );
       },
       component: props.handles.bottomLeft,
+      handleDirection: ReflowDirection.BOTTOMLEFT,
       affectsWidth: true,
     });
   }
+
   const onResizeStop = () => {
     togglePointerEvents(true);
     dispatch(stopReflowAction());
@@ -629,7 +632,8 @@ export function ReflowResizable(props: ResizableProps) {
           !(
             props.responsiveBehavior === ResponsiveBehavior.Fill &&
             handle?.affectsWidth
-          )
+          ) &&
+          !disableResizing
         }
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}

@@ -147,7 +147,9 @@ export function isResizingDisabled(
 
   if (
     (direction === ReflowDirection.TOP ||
-      direction === ReflowDirection.BOTTOM) &&
+      direction === ReflowDirection.BOTTOM ||
+      direction === ReflowDirection.BOTTOMLEFT ||
+      direction === ReflowDirection.BOTTOMRIGHT) &&
     vertical
   )
     return true;
