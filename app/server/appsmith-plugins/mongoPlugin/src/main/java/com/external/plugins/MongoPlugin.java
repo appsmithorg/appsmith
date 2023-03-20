@@ -822,7 +822,7 @@ public class MongoPlugin extends BasePlugin {
             } else defaultDatabaseName = null;
 
             final String databaseName;
-            if (datasourceConfiguration.getConnection() != null) {
+            if (datasourceConfiguration.getConnection() != null && datasourceConfiguration.getAuthentication() != null) {
                 databaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
             } else databaseName = null;
 
