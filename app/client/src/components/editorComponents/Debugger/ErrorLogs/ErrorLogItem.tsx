@@ -1,19 +1,14 @@
 import React, { useState } from "react";
 import { get } from "lodash";
-import {
-  Log,
-  LOG_CATEGORY,
-  Message,
-  Severity,
-  SourceEntity,
-} from "entities/AppsmithConsole";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
+import type { IconName } from "design-system-old";
 import {
   AppIcon,
   Classes,
   getTypographyByKey,
   Icon,
-  IconName,
   IconSize,
   Text,
   TextType,
@@ -25,7 +20,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
 import ContextualMenu from "../ContextualMenu";

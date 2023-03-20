@@ -1,14 +1,12 @@
-import React from "react";
+import type React from "react";
 import _, { get, some } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { WidgetProps } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import {
-  ContainerWidget,
-  ContainerWidgetProps,
-} from "widgets/ContainerWidget/widget";
-import { ContainerComponentProps } from "widgets/ContainerWidget/component";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps } from "../../BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { ContainerWidget } from "widgets/ContainerWidget/widget";
+import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Positioning } from "utils/autoLayout/constants";
 
 class FormWidget extends ContainerWidget {

@@ -1,4 +1,4 @@
-import { TreeNode } from "./constants";
+import type { TreeNode } from "./constants";
 
 /**
  * Gets the nearest above box for the current box. Including the aboves which have changes so far.

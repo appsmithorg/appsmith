@@ -1,13 +1,13 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DependencyMap } from "utils/DynamicBindingUtils";
-import { Diff } from "deep-diff";
-import { QueryActionConfig } from "entities/Action";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { Diff } from "deep-diff";
+import type { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages

@@ -391,8 +391,9 @@ function CircularProgress(props: ProgressComponentProps) {
       variant={variant}
       viewBox={
         variant === ProgressVariant.INDETERMINATE
-          ? `${INDETERMINATE_SIZE / 2} ${INDETERMINATE_SIZE /
-              2} ${INDETERMINATE_SIZE} ${INDETERMINATE_SIZE}`
+          ? `${INDETERMINATE_SIZE / 2} ${
+              INDETERMINATE_SIZE / 2
+            } ${INDETERMINATE_SIZE} ${INDETERMINATE_SIZE}`
           : `0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`
       }
     >

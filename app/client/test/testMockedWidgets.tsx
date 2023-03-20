@@ -9,7 +9,13 @@ import { useMockDsl } from "./testCommon";
 
 export function MockCanvas() {
   const canvasWidgetsStructure = useSelector(getCanvasWidgetsStructure);
-  return <Canvas widgetsStructure={canvasWidgetsStructure} pageId="" canvasWidth={0} />;
+  return (
+    <Canvas
+      widgetsStructure={canvasWidgetsStructure}
+      pageId=""
+      canvasWidth={0}
+    />
+  );
 }
 
 export function UpdateAppViewer({ dsl }: any) {
