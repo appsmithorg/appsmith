@@ -2,11 +2,12 @@ import { setPageOrder } from "actions/pageActions";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
-import { ControlIcons, DraggableList } from "design-system-old";
+import { DraggableList } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Icon } from "design-system";
 
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 const PageIcon = MenuIcons.PAGE_ICON;
@@ -16,7 +17,6 @@ function PageListHeader(props: {
   selectedPage?: string;
   onPageSelect: (pageId: string) => void;
 }) {
-  const DragIcon = ControlIcons.DRAG_CONTROL;
   const dragContainerRef = useRef(null);
 
   return (
@@ -38,12 +38,7 @@ function PageListHeader(props: {
         onClick={(e) => e.stopPropagation()}
         ref={dragContainerRef}
       >
-        <DragIcon
-          color={Colors.GRAY_400}
-          cursor="move"
-          height={20}
-          width={20}
-        />
+        <Icon name="drag-control" size="md" />
       </div>
       {props.page.isDefault ? (
         <DefaultPageIcon color={Colors.GRAY_800} height={17} width={18} />

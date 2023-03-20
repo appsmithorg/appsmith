@@ -11,12 +11,10 @@ import {
   PopoverInteractionKind,
 } from "@blueprintjs/core";
 import type { ControlIconName } from "icons/ControlIcons";
-import { ControlIcons } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
 import type { Intent } from "constants/DefaultTheme";
-import type { IconProps } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
 import type { DropdownOption } from "components/constants";
+import { Icon } from "design-system";
 
 export type ContextDropdownOption = DropdownOption & {
   onSelect: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -81,13 +79,18 @@ function DropdownItem(option: ContextDropdownOption) {
 export function ContextDropdown(props: ContextDropdownProps) {
   let trigger: ReactNode;
   if (props.toggle.type === "icon" && props.toggle.icon) {
-    const TriggerElement = ControlIcons[props.toggle.icon];
-    const TriggerElementProps: IconProps = {
-      width: props.toggle.iconSize,
-      height: props.toggle.iconSize,
-      color: props.toggle.color || Colors.SLATE_GRAY,
-    };
-    trigger = <TriggerElement {...TriggerElementProps} />;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const TriggerElement = (
+      // TODO (tanvi): Change the type of the underlying icon prop
+      <Icon
+        name={props?.toggle?.icon ? props.toggle.icon : "things"}
+        size="md"
+      />
+    );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    trigger = <TriggerElement />;
   }
   if (props.toggle.type === "button" && props.toggle.text)
     trigger = <Button text={props.toggle.text} />;

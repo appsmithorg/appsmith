@@ -17,12 +17,10 @@ import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const CloseIcon = ControlIcons.CLOSE_CONTROL;
+import { Button } from "design-system";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
@@ -220,12 +218,13 @@ export function EntityProperties() {
       <div className="h-auto overflow-y-auto overflow-x-hidden relative">
         <div className="sticky top-0 text-sm px-3 bg-white z-5 pt-4 pb-1 font-medium flex flex-row items-center justify-between w-[100%]">
           BINDINGS
-          <CloseIcon
+          <Button
             className="t--entity-property-close"
-            color="black"
-            height={18}
+            isIconButton
+            kind="tertiary"
             onClick={closeContainer}
-            width={18}
+            size="sm"
+            startIcon="close-control"
           />
         </div>
         {entityProperties.map((entityProperty: any) => (

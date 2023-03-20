@@ -9,7 +9,6 @@ import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstant
 import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
-import { ControlIcons } from "icons/ControlIcons";
 import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
@@ -84,11 +83,6 @@ export const jsFunctionIcon = (
     keepColors
     width={ENTITY_ICON_SIZE}
   />
-);
-
-const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
-export const settingsIcon = (
-  <SettingsIcon color={Colors.CODE_GRAY} height={16} width={16} />
 );
 
 const QueryMainIcon = MenuIcons.QUERY_MAIN;

@@ -5,16 +5,14 @@ import _ from "lodash";
 import {
   StyledDragIcon,
   StyledOptionControlInputGroup,
-  StyledEditIcon,
   StyledDeleteIcon,
-  StyledVisibleIcon,
-  StyledHiddenIcon,
   StyledCheckbox,
   StyledActionContainer,
   StyledPinIcon,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
 import { CheckboxType } from "design-system-old";
+import { Button } from "design-system";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -122,24 +120,28 @@ export function DraggableListCard(props: RenderComponentProps) {
 
   const renderVisibilityIcon = () => {
     return visibility ? (
-      <StyledVisibleIcon
+      <Button
         className="t--show-column-btn"
-        height={20}
+        isIconButton
+        kind="tertiary"
         onClick={() => {
           setVisibility(!visibility);
           toggleVisibility && toggleVisibility(index);
         }}
-        width={20}
+        size="sm"
+        startIcon="show-column"
       />
     ) : (
-      <StyledHiddenIcon
+      <Button
         className="t--show-column-btn"
-        height={20}
+        isIconButton
+        kind="tertiary"
         onClick={() => {
           setVisibility(!visibility);
           toggleVisibility && toggleVisibility(index);
         }}
-        width={20}
+        size="sm"
+        startIcon="hide-column"
       />
     );
   };
@@ -148,9 +150,9 @@ export function DraggableListCard(props: RenderComponentProps) {
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (
-        <StyledPinIcon height={20} width={20} />
+        <StyledPinIcon name="pin" size="lg" />
       ) : (
-        <StyledDragIcon height={20} width={20} />
+        <StyledDragIcon name="drag-control" size="md" />
       )}
 
       <StyledOptionControlInputGroup
@@ -173,13 +175,15 @@ export function DraggableListCard(props: RenderComponentProps) {
         width="100%"
       />
       <StyledActionContainer>
-        <StyledEditIcon
+        <Button
           className="t--edit-column-btn"
-          height={20}
+          isIconButton
+          kind="tertiary"
           onClick={() => {
             onEdit && onEdit(index);
           }}
-          width={20}
+          size="sm"
+          startIcon="settings-control"
         />
         {showDelete && (
           <StyledDeleteIcon

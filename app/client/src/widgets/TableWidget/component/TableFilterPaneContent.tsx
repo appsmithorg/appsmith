@@ -15,20 +15,7 @@ import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
-import { ControlIcons } from "icons/ControlIcons";
-import { Button as AdsButton } from "design-system";
-
-const StyledPlusCircleIcon = styled(ControlIcons.ADD_CIRCLE_CONTROL)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  svg {
-    circle {
-      fill: none !important;
-      stroke: ${Colors.GREEN};
-    }
-  }
-`;
+import { Button as AdsButton, Icon } from "design-system";
 
 const TableFilterOuterWrapper = styled.div`
   display: flex;
@@ -237,11 +224,11 @@ function TableFilterPaneContent(props: TableFilterProps) {
           <ButtonWrapper>
             <Button
               className="t--add-filter-btn"
-              icon={<StyledPlusCircleIcon height={16} width={16} />}
+              icon={<Icon name="add-circle-control" size="md" />}
               intent="primary"
               onClick={addFilter}
               size="small"
-              text="Add Filter"
+              text="ADD FILTER"
             />
             <ButtonActionsWrapper>
               <Button

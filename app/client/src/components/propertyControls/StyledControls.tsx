@@ -6,13 +6,13 @@ import type { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import type { TextInputProps } from "design-system-old";
 import { Button, Dropdown, InputWrapper, TextInput } from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 import { Checkbox } from "design-system-old";
+import { Icon } from "design-system";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -277,7 +277,7 @@ export const FieldWrapper = styled.div`
   width: 100%;
 `;
 
-export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
+export const StyledDragIcon = styled(Icon)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
@@ -285,17 +285,12 @@ export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
   z-index: 1;
   left: 4px;
   && svg {
-    width: 16px;
-    height: 16px;
     position: relative;
     top: 2px;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
   }
 `;
 
-export const StyledPinIcon = styled(ControlIcons.PIN)`
+export const StyledPinIcon = styled(Icon)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
@@ -303,13 +298,8 @@ export const StyledPinIcon = styled(ControlIcons.PIN)`
   z-index: 1;
   left: 4px;
   && svg {
-    width: 16px;
-    height: 16px;
     position: relative;
     top: 2px;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
   }
 `;
 
@@ -352,45 +342,6 @@ const CommonIconStyles = css`
   cursor: pointer;
   display: flex;
   align-items: center;
-`;
-
-export const StyledEditIcon = styled(ControlIcons.SETTINGS_CONTROL)`
-  ${CommonIconStyles}
-
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
-export const StyledVisibleIcon = styled(ControlIcons.SHOW_COLUMN)`
-  ${CommonIconStyles}
-
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
-export const StyledHiddenIcon = styled(ControlIcons.HIDE_COLUMN)`
-  ${CommonIconStyles}
-
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
 `;
 
 export const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`

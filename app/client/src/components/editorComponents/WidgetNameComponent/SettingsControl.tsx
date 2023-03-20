@@ -1,6 +1,5 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { ControlIcons } from "icons/ControlIcons";
 import type { CSSProperties } from "react";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -56,9 +55,6 @@ type SettingsControlProps = {
   errorCount: number;
 };
 
-const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
-const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
-
 const getStyles = (
   activity: Activities,
   errorCount: number,
@@ -98,7 +94,8 @@ const getStyles = (
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const settingsIcon = (
-    <SettingsIcon
+    // TODO (tanvi): What color does black pearl translate to?
+    <Icon
       color={
         !!props.errorCount
           ? Colors.WHITE
@@ -106,8 +103,8 @@ export function SettingsControl(props: SettingsControlProps) {
           ? Colors.BLACK_PEARL
           : Colors.WHITE
       }
-      height={14}
-      width={12}
+      name="settings-control"
+      size="md"
     />
   );
   const errorIcon = <StyledErrorIcon name="warning" size="sm" />;
@@ -134,9 +131,7 @@ export function SettingsControl(props: SettingsControlProps) {
             <span className="t--widget-error-count">{props.errorCount}</span>
           </>
         )}
-        {isSnipingMode && (
-          <BindDataIcon color={Colors.WHITE} height={16} width={12} />
-        )}
+        {isSnipingMode && <Icon name="bind-data-control" size="md" />}
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>

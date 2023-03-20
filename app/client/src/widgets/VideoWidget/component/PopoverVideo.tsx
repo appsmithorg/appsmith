@@ -4,22 +4,14 @@ import {
   PopoverInteractionKind,
   PopoverPosition,
 } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import type { VideoComponentProps } from "./";
 import VideoComponent from "./";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
+import { Icon } from "design-system";
 
-const PlayIcon = styled(ControlIcons.PLAY_VIDEO)`
+const PlayIcon = styled(Icon)`
   position: relative;
   cursor: pointer;
-  &:hover {
-    svg {
-      path {
-        fill: ${Colors.POMEGRANATE};
-      }
-    }
-  }
 `;
 
 const PlayerWrapper = styled.div`
@@ -53,7 +45,7 @@ function PopoverVideo(props: VideoComponentProps) {
         position={PopoverPosition.AUTO}
         usePortal
       >
-        <PlayIcon className="play-icon" />
+        <PlayIcon className="play-icon" name="play-video" />
         <PlayerWrapper>
           <VideoComponent
             backgroundColor={props.backgroundColor}
