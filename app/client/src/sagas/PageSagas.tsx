@@ -14,6 +14,7 @@ import type {
   CreatePageActionPayload,
   FetchPageListPayload,
 } from "actions/pageActions";
+import { createPage } from "actions/pageActions";
 import {
   clonePageSuccess,
   deletePageSuccess,
@@ -87,6 +88,8 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
+  getMainCanvasProps,
   getPageById,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -138,6 +141,7 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { PageDefaultMeta } from "api/ApplicationApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -246,14 +250,20 @@ export function* refreshTheApp() {
 
 export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
+  isAutoLayout?: boolean,
+  mainCanvasWidth?: number,
 ): UpdateCanvasPayload => {
-  const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-    extractCurrentDSL(pageResponse).dsl,
-  );
+  const extractedDSL = extractCurrentDSL(
+    pageResponse,
+    isAutoLayout,
+    mainCanvasWidth,
+  ).dsl;
+  const normalizedResponse = CanvasWidgetsNormalizer.normalize(extractedDSL);
   return {
     pageWidgetId: normalizedResponse.result,
     currentPageName: pageResponse.data.name,
     currentPageId: pageResponse.data.id,
+    dsl: extractedDSL,
     widgets: normalizedResponse.entities.canvasWidgets,
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
@@ -272,6 +282,10 @@ export function* handleFetchedPage({
   pageId: string;
   isFirstLoad?: boolean;
 }) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  const mainCanvasProps: MainCanvasReduxState = yield select(
+    getMainCanvasProps,
+  );
   const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
@@ -284,7 +298,11 @@ export function* handleFetchedPage({
     // Set url params
     yield call(setDataUrl);
     // Get Canvas payload
-    const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+    const canvasWidgetsPayload = getCanvasWidgetsPayload(
+      fetchPageResponse,
+      isAutoLayout,
+      mainCanvasProps.width,
+    );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // set current page
@@ -301,10 +319,10 @@ export function* handleFetchedPage({
 
     // Sets last updated time
     yield put(setLastUpdatedTime(lastUpdatedTime));
-    const extractedDSL = extractCurrentDSL(fetchPageResponse).dsl;
+
     yield put({
       type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-      payload: extractedDSL,
+      payload: canvasWidgetsPayload.dsl,
     });
 
     // Since new page has new layout, we need to generate a data structure
@@ -460,6 +478,9 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         layoutId: string;
       }
     | undefined = yield select(getEditorConfigs) as any;
+
+  if (!editorConfigs) return;
+
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const savePageRequest: SavePageRequest = getLayoutSavePayload(
     widgets,
@@ -655,11 +676,48 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   }
 }
 
+export function* createNewPageFromEntity(
+  createPageAction: ReduxAction<CreatePageActionPayload>,
+) {
+  try {
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+    // Default layout is extracted by adding dynamically computed properties like min-height.
+    const defaultPageLayouts = [
+      {
+        dsl: extractCurrentDSL(undefined, isAutoLayout, mainCanvasProps?.width)
+          .dsl,
+        layoutOnLoadActions: [],
+      },
+    ];
+
+    const { applicationId, blockNavigation, name } =
+      createPageAction?.payload || {};
+
+    yield put(
+      createPage(applicationId, name, defaultPageLayouts, blockNavigation),
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
 export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
     const guidedTourEnabled: boolean = yield select(inGuidedTour);
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+
     // Prevent user from creating a new page during the guided tour
     if (guidedTourEnabled) {
       yield put(toggleShowDeviationDialog(true));
@@ -685,7 +743,8 @@ export function* createPageSaga(
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL(response).dsl,
+          dsl: extractCurrentDSL(response, isAutoLayout, mainCanvasProps?.width)
+            .dsl,
           layoutId: response.data.layouts[0].id,
         },
       });
@@ -1009,6 +1068,7 @@ export function* updateCanvasWithDSL(
     currentPageId: pageId,
     currentLayoutId: layoutId,
     currentApplicationId: applicationId,
+    dsl: data.dsl,
     pageActions: data.layoutOnLoadActions,
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
@@ -1033,12 +1093,20 @@ export function* setDataUrl() {
 
 export function* fetchPageDSLSaga(pageId: string) {
   try {
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
-      const { dsl, layoutId } = extractCurrentDSL(fetchPageResponse);
+      const { dsl, layoutId } = extractCurrentDSL(
+        fetchPageResponse,
+        isAutoLayout,
+        mainCanvasProps?.width,
+      );
       return {
         pageId,
         dsl,
@@ -1255,6 +1323,10 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
+    takeLeading(
+      ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
+      createNewPageFromEntity,
+    ),
     takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),

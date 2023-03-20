@@ -24,7 +24,7 @@ import {
   getWidgetMinMaxDimensionsInPixel,
   getWidgetWidth,
 } from "./flexWidgetUtils";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
@@ -537,4 +537,8 @@ export function getNewFlexLayers(
   }
 
   return newFlexLayers;
+}
+
+export function checkIsDSLAutoLayout(dsl: DSLWidget): boolean {
+  return dsl.useAutoLayout && dsl.positioning === Positioning.Vertical;
 }

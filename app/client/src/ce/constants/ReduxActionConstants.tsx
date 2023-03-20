@@ -15,6 +15,7 @@ import type {
   AppPositioningTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -283,6 +284,7 @@ export const ReduxActionTypes = {
   CHANGE_APPVIEW_ACCESS_INIT: "CHANGE_APPVIEW_ACCESS_INIT",
   CHANGE_APPVIEW_ACCESS_SUCCESS: "CHANGE_APPVIEW_ACCESS_SUCCESS",
   CREATE_PAGE_INIT: "CREATE_PAGE_INIT",
+  CREATE_NEW_PAGE_FROM_ENTITIES: "CREATE_NEW_PAGE_FROM_ENTITIES",
   CREATE_PAGE_SUCCESS: "CREATE_PAGE_SUCCESS",
   FETCH_PAGE_LIST_INIT: "FETCH_PAGE_LIST_INIT",
   FETCH_PAGE_LIST_SUCCESS: "FETCH_PAGE_LIST_SUCCESS",
@@ -1035,6 +1037,7 @@ export interface UpdateCanvasPayload {
   currentPageId: string;
   currentPageName: string;
   currentApplicationId: string;
+  dsl: Partial<DSLWidget>;
   pageActions: PageAction[][];
   updatedWidgetIds?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];

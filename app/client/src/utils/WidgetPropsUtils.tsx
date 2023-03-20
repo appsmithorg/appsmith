@@ -21,6 +21,8 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
+import convertDSLtoAutoAndUpdatePositions from "./DSLConversions/fixedToAutoLayout";
+import { checkIsDSLAutoLayout } from "./autoLayout/AutoLayoutUtils";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -32,13 +34,33 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
+  isAutoLayout?: boolean,
+  mainCanvasWidth?: number,
 ): { dsl: DSLWidget; layoutId: string | undefined } => {
   const newPage = !fetchPageResponse;
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
+
+  const transformedDSL = transformDSL(
+    currentDSL as ContainerWidgetProps<WidgetProps>,
+    newPage,
+  );
+
+  if (!isAutoLayout || checkIsDSLAutoLayout(transformedDSL)) {
+    return {
+      dsl: transformedDSL,
+      layoutId: fetchPageResponse?.data.layouts[0].id,
+    };
+  }
+
+  const convertedDSL = convertDSLtoAutoAndUpdatePositions(
+    transformedDSL,
+    mainCanvasWidth,
+  );
+
   return {
-    dsl: transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage),
+    dsl: convertedDSL,
     layoutId: fetchPageResponse?.data.layouts[0].id,
   };
 };

@@ -33,7 +33,6 @@ import {
 import HotKeys from "../Files/SubmenuHotkeys";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getIsAutoLayout } from "selectors/editorSelectors";
 
 const MenuItem = styled.div<{ active: boolean }>`
   display: flex;
@@ -72,7 +71,6 @@ function AddPageContextMenu({
   openMenu,
 }: SubMenuProps) {
   const [show, setShow] = useState(openMenu);
-  const isAutoLayout = useSelector(getIsAutoLayout);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
   const [activeItemIdx, setActiveItemIdx] = useState(0);
@@ -96,26 +94,23 @@ function AddPageContextMenu({
         "data-cy": "add-page",
         key: "CREATE_PAGE",
       },
-    ];
-
-    if (!isAutoLayout) {
-      items.push({
+      {
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: Database2LineIcon,
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
         "data-cy": "generate-page",
         key: "GENERATE_PAGE",
-      });
+      },
+    ];
 
-      if (featureFlags.TEMPLATES_PHASE_2) {
-        items.push({
-          title: createMessage(ADD_PAGE_FROM_TEMPLATE),
-          icon: Layout2LineIcon,
-          onClick: () => dispatch(showTemplatesModal(true)),
-          "data-cy": "add-page-from-template",
-          key: "ADD_PAGE_FROM_TEMPLATE",
-        });
-      }
+    if (featureFlags.TEMPLATES_PHASE_2) {
+      items.push({
+        title: createMessage(ADD_PAGE_FROM_TEMPLATE),
+        icon: Layout2LineIcon,
+        onClick: () => dispatch(showTemplatesModal(true)),
+        "data-cy": "add-page-from-template",
+        key: "ADD_PAGE_FROM_TEMPLATE",
+      });
     }
 
     return items;

@@ -185,6 +185,24 @@ export const createPage = (
   };
 };
 
+export const createNewPageFromEntities = (
+  applicationId: string,
+  pageName: string,
+  blockNavigation?: boolean,
+) => {
+  AnalyticsUtil.logEvent("CREATE_PAGE", {
+    pageName,
+  });
+  return {
+    type: ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
+    payload: {
+      applicationId,
+      name: pageName,
+      blockNavigation,
+    },
+  };
+};
+
 /**
  * action to clone page
  *

@@ -25,7 +25,10 @@ const nonFlexLayerWidgets = ["MODAL_WIDGET"];
  * @param dsl DSL to be Converted
  * @returns dsl in an AutoLayout dsl format
  */
-export default function convertDSLtoAutoAndUpdatePositions(dsl: DSLWidget) {
+export default function convertDSLtoAutoAndUpdatePositions(
+  dsl: DSLWidget,
+  canvasWidth = layoutConfigurations.DESKTOP.maxWidth,
+) {
   const autoDSL = convertDSLtoAuto(dsl);
 
   if (!autoDSL || !autoDSL.children) return autoDSL;
@@ -36,7 +39,7 @@ export default function convertDSLtoAutoAndUpdatePositions(dsl: DSLWidget) {
   const alteredNormalizedAutoDSL = alterLayoutForDesktop(
     normalizedAutoDSL,
     MAIN_CONTAINER_WIDGET_ID,
-    layoutConfigurations.DESKTOP.maxWidth,
+    canvasWidth,
   );
 
   const alteredAutoDSL: DSLWidget = CanvasWidgetsNormalizer.denormalize(
