@@ -21,13 +21,10 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import { AppState } from "@appsmith/reducers";
-import {
-  AuthType,
-  Datasource,
-  AuthenticationStatus,
-} from "entities/Datasource";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { AppState } from "@appsmith/reducers";
+import type { Datasource } from "entities/Datasource";
+import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
@@ -40,7 +37,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
-import { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import {

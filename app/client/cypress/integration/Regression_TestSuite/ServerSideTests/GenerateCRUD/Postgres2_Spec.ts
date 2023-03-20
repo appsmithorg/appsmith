@@ -622,9 +622,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
   });
 
-  it("18. Verify application does not break when user runs the query with wrong table name", function() {
+  it("18. Verify application does not break when user runs the query with wrong table name", function () {
     ee.SelectEntityByName("DropVessels", "Queries/JS");
-    dataSources.RunQuery(false);
+    dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);
       expect(
@@ -658,7 +658,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1,"v1", 4000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
     table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {

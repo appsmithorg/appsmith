@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import { Server, Def } from "tern";
+import type { Server, Def } from "tern";
 import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
@@ -8,7 +8,8 @@ import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
 import browser from "constants/defs/browser.json";
-import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
+import type { Hint } from "codemirror";
+import CodeMirror, { Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
   isDynamicValue,
@@ -17,7 +18,7 @@ import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
@@ -283,8 +284,9 @@ class CodeMirrorTernService {
           element.innerHTML = data.displayText;
         };
 
-        const trimmedFocusedValueLength = lineValue.substring(0, end.ch).trim()
-          .length;
+        const trimmedFocusedValueLength = lineValue
+          .substring(0, end.ch)
+          .trim().length;
 
         /**
          * end.ch counts tab space as 1 instead of 2 space chars in string
@@ -563,7 +565,7 @@ class CodeMirrorTernService {
           },
         ],
       },
-      function(error: Error) {
+      function (error: Error) {
         if (error) window.console.error(error);
         else doc.changed = null;
       },
@@ -580,9 +582,11 @@ class CodeMirrorTernService {
     return doc.doc.getValue();
   }
 
-  getFocusedDocValueAndPos(
-    doc: TernDoc,
-  ): { value: string; end: { line: number; ch: number }; extraChars: number } {
+  getFocusedDocValueAndPos(doc: TernDoc): {
+    value: string;
+    end: { line: number; ch: number };
+    extraChars: number;
+  } {
     const cursor = doc.doc.getCursor("end");
     const value = this.docValue(doc);
     const lineValue = this.lineValue(doc);
@@ -778,10 +782,10 @@ class CodeMirrorTernService {
     };
     let mouseOnTip = false;
     let old = false;
-    CodeMirror.on(tip, "mousemove", function() {
+    CodeMirror.on(tip, "mousemove", function () {
       mouseOnTip = true;
     });
-    CodeMirror.on(tip, "mouseout", function(e: MouseEvent) {
+    CodeMirror.on(tip, "mouseout", function (e: MouseEvent) {
       const related = e.relatedTarget;
       // @ts-expect-error: Types are not available
       if (!related || !CodeMirror.contains(tip, related)) {
@@ -801,7 +805,7 @@ class CodeMirrorTernService {
     cm.on("blur", f);
     cm.on("scroll", f);
     cm.on("setDoc", f);
-    return function() {
+    return function () {
       cm.off("cursorActivity", f);
       cm.off("blur", f);
       cm.off("scroll", f);

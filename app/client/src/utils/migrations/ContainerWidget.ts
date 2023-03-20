@@ -1,5 +1,5 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import WidgetFactory from "utils/WidgetFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;

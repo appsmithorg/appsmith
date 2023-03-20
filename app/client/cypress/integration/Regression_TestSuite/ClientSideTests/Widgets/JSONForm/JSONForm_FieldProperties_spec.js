@@ -47,9 +47,7 @@ describe("Text Field Property Control", () => {
 
   it("4. throws max character error when exceeds maxChar limit for input text", () => {
     cy.testJsontext("defaultvalue", "").wait(200);
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("abcdefghi");
+    cy.get(`${fieldPrefix}-name input`).clear().type("abcdefghi");
     cy.testJsontext("maxchars", 5).wait(200);
     cy.get(`${fieldPrefix}-name input`).click();
     cy.get(".bp3-popover-content").should(($x) => {
@@ -68,9 +66,7 @@ describe("Text Field Property Control", () => {
 
   it("6. sets valid property with custom error message", () => {
     cy.testJsontext("valid", "false");
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("abcd");
+    cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
 
     cy.testJsontext("errormessage", "Custom error message");
@@ -102,14 +98,10 @@ describe("Text Field Property Control", () => {
 
   it("9. throws error when REGEX does not match the input value", () => {
     cy.testJsontext("regex", "^\\d+$");
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("abcd");
+    cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
 
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("1234");
+    cy.get(`${fieldPrefix}-name input`).clear().type("1234");
     cy.get(".bp3-popover-content").should("not.exist");
   });
 

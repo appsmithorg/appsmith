@@ -1,13 +1,13 @@
-import {
+import type {
   ReduxAction,
-  ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
-import { CreateDatasourceConfig } from "api/DatasourcesApi";
-import { Datasource } from "entities/Datasource";
-import { PluginType } from "entities/Action";
-import { executeDatasourceQueryRequest } from "api/DatasourcesApi";
-import { ResponseMeta } from "api/ApiResponses";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { Datasource } from "entities/Datasource";
+import type { PluginType } from "entities/Action";
+import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
+import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export const createDatasourceFromForm = (

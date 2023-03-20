@@ -5,7 +5,7 @@ import { TOASTS, UPDATES, WIDGETS, findFieldInfo } from "./replayUtils";
 describe("check canvas diff from replayUtils for type of update", () => {
   const canvasReplay = new ReplayCanvas({
     widgets: {
-      "0": {},
+      0: {},
       abcde: {
         widgetName: "abcde",
       },

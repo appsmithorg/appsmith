@@ -1,14 +1,15 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
@@ -79,9 +80,7 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<
-  ComputeTablePropertyControlProps
-> {
+class ComputeTablePropertyControl extends BaseControl<ComputeTablePropertyControlProps> {
   render() {
     const {
       dataTreePath,

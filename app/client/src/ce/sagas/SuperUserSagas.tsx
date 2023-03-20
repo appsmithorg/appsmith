@@ -1,19 +1,20 @@
 import React from "react";
-import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
+import type { SendTestEmailPayload } from "@appsmith/api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import { Toaster, Variant } from "design-system-old";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,

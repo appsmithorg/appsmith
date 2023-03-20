@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { MockDatasource } from "entities/Datasource";
+import type { MockDatasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getQueryParams } from "utils/URLUtils";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const MockDataSourceWrapper = styled.div`
