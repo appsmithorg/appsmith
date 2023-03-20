@@ -392,7 +392,6 @@ class CodeEditor extends Component<Props, State> {
           editor.setSize("100%", "100%");
         }
 
-        // console.log("handle change - did mount");
         CodeEditor.updateMarkings(
           editor,
           this.props.marking,
@@ -514,11 +513,6 @@ class CodeEditor extends Component<Props, State> {
         this.props.entitiesForNavigation !== prevProps.entitiesForNavigation ||
         this.props.marking !== prevProps.marking
       ) {
-        // console.log(
-        //   "handle change - did update",
-        //   this.props.entitiesForNavigation !== prevProps.entitiesForNavigation,
-        //   this.props.marking !== prevProps.marking,
-        // );
         CodeEditor.updateMarkings(
           this.editor,
           this.props.marking,
