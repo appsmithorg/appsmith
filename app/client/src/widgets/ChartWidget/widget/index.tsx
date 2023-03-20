@@ -1,27 +1,29 @@
 import React, { lazy, Suspense } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import {
+import type {
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
   ChartSelectedDataPoint,
 } from "../constants";
 
-import { WidgetType } from "constants/WidgetConstants";
-import { ChartComponentProps } from "../component";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 
 const ChartComponent = lazy(() =>
-  retryPromise(() =>
-    import(
-      /* webpackPrefetch: true, webpackChunkName: "charts" */ "../component"
-    ),
+  retryPromise(
+    () =>
+      import(
+        /* webpackPrefetch: true, webpackChunkName: "charts" */ "../component"
+      ),
   ),
 );
 

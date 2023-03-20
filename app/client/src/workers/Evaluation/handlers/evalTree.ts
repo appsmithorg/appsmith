@@ -1,26 +1,20 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import ReplayEntity from "entities/Replay";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
-import {
-  DependencyMap,
-  EvalError,
-  EvalErrorTypes,
-} from "utils/DynamicBindingUtils";
-import { JSUpdate } from "utils/JSPaneUtils";
+import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { initiateLinting } from "workers/Linting/utils";
-import {
-  createUnEvalTreeForEval,
-  makeEntityConfigsAsObjProperties,
-} from "@appsmith/workers/Evaluation/dataTreeUtils";
+import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
-  DataTreeDiff,
   getSafeToRenderDataTree,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
+import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
@@ -30,7 +24,7 @@ export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
-export default function(request: EvalWorkerSyncRequest) {
+export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
   let lintOrder: string[] = [];
@@ -43,6 +37,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let logs: any[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
+  let configTree: ConfigTree = {};
   let staleMetaIds: string[] = [];
   let pathsToClearErrorsFor: any[] = [];
 
@@ -58,8 +53,8 @@ export default function(request: EvalWorkerSyncRequest) {
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
-  const unevalTree = createUnEvalTreeForEval(__unevalTree__);
-
+  const unevalTree = __unevalTree__.unEvalTree;
+  configTree = __unevalTree__.configTree as ConfigTree;
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -69,8 +64,10 @@ export default function(request: EvalWorkerSyncRequest) {
         widgetTypeConfigMap,
         allActionValidationConfig,
       );
+
       const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
         unevalTree,
+        configTree,
       );
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
@@ -82,6 +79,7 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        dataTreeEvaluator.oldConfigTree,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -110,6 +108,7 @@ export default function(request: EvalWorkerSyncRequest) {
       }
       const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
         unevalTree,
+        configTree,
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -122,6 +121,7 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        dataTreeEvaluator.oldConfigTree,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -141,7 +141,9 @@ export default function(request: EvalWorkerSyncRequest) {
       }
       const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
         unevalTree,
+        configTree,
       );
+
       evalOrder = setupUpdateTreeResponse.evalOrder;
       lintOrder = setupUpdateTreeResponse.lintOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
@@ -154,19 +156,22 @@ export default function(request: EvalWorkerSyncRequest) {
           sanitizeDataTree: false,
         }),
         requiresLinting,
+        dataTreeEvaluator.oldConfigTree,
       );
-
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
+
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        configTree,
         unEvalUpdates,
         Object.keys(metaWidgets),
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
@@ -202,6 +207,7 @@ export default function(request: EvalWorkerSyncRequest) {
         evalProps: dataTreeEvaluator?.evalProps,
       }),
       widgetTypeConfigMap,
+      configTree,
     );
     unEvalUpdates = [];
   }
@@ -216,6 +222,7 @@ export default function(request: EvalWorkerSyncRequest) {
     logs,
     unEvalUpdates,
     isCreateFirstTree,
+    configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
   };

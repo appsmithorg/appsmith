@@ -1,12 +1,10 @@
 import { get, isEmpty } from "lodash";
 
-import { PanelConfig } from "constants/PropertyControlConstants";
-import { FieldType, SchemaItem } from "widgets/JSONFormWidget/constants";
-import {
-  getSchemaItem,
-  HiddenFnParams,
-  isFieldTypeArrayOrObject,
-} from "./helper";
+import type { PanelConfig } from "constants/PropertyControlConstants";
+import type { SchemaItem } from "widgets/JSONFormWidget/constants";
+import { FieldType } from "widgets/JSONFormWidget/constants";
+import type { HiddenFnParams } from "./helper";
+import { getSchemaItem, isFieldTypeArrayOrObject } from "./helper";
 import {
   ARRAY_PROPERTIES,
   CHECKBOX_PROPERTIES,
@@ -19,7 +17,7 @@ import {
   SELECT_PROPERTIES,
   SWITCH_PROPERTIES,
 } from "./properties";
-import { JSONFormWidgetProps } from "..";
+import type { JSONFormWidgetProps } from "..";
 
 function generatePanelPropertyConfig(
   nestingLevel: number,

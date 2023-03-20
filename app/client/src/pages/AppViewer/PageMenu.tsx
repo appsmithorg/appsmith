@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -94,7 +94,8 @@ export function PageMenu(props: AppViewerHeaderProps) {
       {/* MAIN CONTAINER */}
       <div
         className={classNames({
-          "fixed flex flex-col w-7/12 bg-white transform transition-all duration-400": true,
+          "fixed flex flex-col w-7/12 bg-white transform transition-all duration-400":
+            true,
           "-left-full": !isOpen,
           "left-0": isOpen,
         })}

@@ -1,32 +1,26 @@
-import React, { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
-import {
-  BaseFieldProps,
-  change,
-  Field,
-  formValueSelector,
-  WrappedFieldInputProps,
-} from "redux-form";
-import CodeEditor, {
-  EditorProps,
-} from "components/editorComponents/CodeEditor";
+import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
+import { change, Field, formValueSelector } from "redux-form";
+import type { EditorProps } from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";
 import merge from "lodash/merge";
-import {
-  DEFAULT_DATASOURCE,
-  EmbeddedRestDatasource,
-  Datasource,
-} from "entities/Datasource";
+import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
+import { DEFAULT_DATASOURCE } from "entities/Datasource";
 import CodeMirror from "codemirror";
+import type {
+  EditorTheme,
+  HintHelper,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
-  EditorTheme,
   TabBehaviour,
   EditorSize,
-  HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   bindingMarker,
@@ -46,9 +40,10 @@ import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { KeyValuePair } from "entities/Action";
+import type { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
@@ -419,8 +414,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       (event.currentTarget as HTMLElement).getBoundingClientRect()?.width
     ) {
       this.setState({
-        highlightedElementWidth: (event.currentTarget as HTMLElement).getBoundingClientRect()
-          ?.width,
+        highlightedElementWidth: (
+          event.currentTarget as HTMLElement
+        ).getBoundingClientRect()?.width,
       });
     }
     // add class to trigger custom tooltip to show when mouse enters the component

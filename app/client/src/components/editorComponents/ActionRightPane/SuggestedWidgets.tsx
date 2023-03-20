@@ -15,7 +15,7 @@ import {
   SUGGESTED_WIDGETS,
   SUGGESTED_WIDGET_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { SuggestedWidget } from "api/ActionAPI";
+import type { SuggestedWidget } from "api/ActionAPI";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";

@@ -1,16 +1,13 @@
-import React, {
-  useRef,
-  RefObject,
-  useCallback,
-  PropsWithChildren,
-} from "react";
+import type { RefObject, PropsWithChildren } from "react";
+import React, { useRef, useCallback } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
-import { ActionResponse } from "api/ActionAPI";
+import type { AppState } from "@appsmith/reducers";
+import type { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
-import { APIEditorRouteParams } from "constants/routes";
+import type { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
@@ -27,7 +24,7 @@ import {
   ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import { EditorTheme } from "./CodeEditor/EditorConfig";
+import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
@@ -50,10 +47,8 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
-import {
-  setActionResponseDisplayFormat,
-  UpdateActionPropertyActionPayload,
-} from "actions/pluginActionActions";
+import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
 import {
