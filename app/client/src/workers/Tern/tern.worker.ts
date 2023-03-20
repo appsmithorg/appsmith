@@ -1,5 +1,7 @@
-import tern, { Server, Def } from "tern";
-import { CallbackFn, TernWorkerAction } from "utils/autocomplete/types";
+import type { Server, Def } from "tern";
+import tern from "tern";
+import type { CallbackFn } from "utils/autocomplete/types";
+import { TernWorkerAction } from "utils/autocomplete/types";
 import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
