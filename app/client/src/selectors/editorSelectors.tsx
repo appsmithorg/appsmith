@@ -849,14 +849,16 @@ export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
   getCurrentPageId,
-  (canvasWidgets, inPreviewMode, pageId) => {
+  getIsAutoLayout,
+  (canvasWidgets, inPreviewMode, pageId, isAutoLayout) => {
     const state = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
     );
     if (
       !state[pageId] ||
       Object.keys(canvasWidgets).length > 1 ||
-      inPreviewMode
+      inPreviewMode ||
+      isAutoLayout
     )
       return false;
 
