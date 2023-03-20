@@ -1372,7 +1372,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   ),
   entitiesForNavigation: getEntitiesForNavigation(
     state,
-    props.isJSObject ? props.dataTreePath?.split(".")[0] : undefined,
+    props.dataTreePath?.split(".")[0],
   ),
 });
 

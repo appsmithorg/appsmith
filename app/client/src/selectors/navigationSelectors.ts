@@ -19,6 +19,7 @@ import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
 import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
 import { getAppsmithNavData } from "utils/NavigationSelector/AppsmithNavData";
+import { isJSObject } from "ce/workers/Evaluation/evaluationUtils";
 
 export type NavigationData = {
   name: string;
@@ -36,11 +37,11 @@ export type EntityNavigationData = Record<string, NavigationData>;
 export const getEntitiesForNavigation = createSelector(
   getActionsForCurrentPage,
   getPlugins,
-  getJSCollections, // don't use getJSCollectionsForCurrentPage (returns a new object everytime)
+  getJSCollections,
   getWidgets,
   getCurrentPageId,
   getDataTree,
-  (_: any, jsObjectName: string | undefined) => jsObjectName,
+  (_: any, entityName: string | undefined) => entityName,
   (
     actions,
     plugins,
@@ -48,7 +49,7 @@ export const getEntitiesForNavigation = createSelector(
     widgets,
     pageId,
     dataTree: DataTree,
-    jsObjectName: string | undefined,
+    entityName: string | undefined,
   ) => {
     // data tree retriggers this
     jsActions = jsActions.filter((a) => a.config.pageId === pageId);
@@ -110,10 +111,14 @@ export const getEntitiesForNavigation = createSelector(
     navigationData["appsmith"] = getAppsmithNavData(
       dataTree.appsmith as DataTreeAppsmith,
     );
-    if (jsObjectName && jsObjectName in navigationData) {
+    if (
+      entityName &&
+      isJSObject(dataTree[entityName]) &&
+      entityName in navigationData
+    ) {
       return {
         ...navigationData,
-        this: navigationData[jsObjectName],
+        this: navigationData[entityName],
       };
     }
     return navigationData;
