@@ -10,7 +10,6 @@ import {
   PopoverPosition,
   PopoverInteractionKind,
 } from "@blueprintjs/core";
-import type { ControlIconName } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
 import type { Intent } from "constants/DefaultTheme";
 import type { DropdownOption } from "components/constants";
@@ -38,7 +37,7 @@ type ContextDropdownProps = {
   className: string;
   toggle: {
     type: "icon" | "button";
-    icon?: ControlIconName;
+    icon: string;
     iconSize?: number;
     text?: string;
     placeholder?: string;
@@ -79,18 +78,7 @@ function DropdownItem(option: ContextDropdownOption) {
 export function ContextDropdown(props: ContextDropdownProps) {
   let trigger: ReactNode;
   if (props.toggle.type === "icon" && props.toggle.icon) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const TriggerElement = (
-      // TODO (tanvi): Change the type of the underlying icon prop
-      <Icon
-        name={props?.toggle?.icon ? props.toggle.icon : "things"}
-        size="md"
-      />
-    );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    trigger = <TriggerElement />;
+    trigger = <Icon name={props.toggle.icon} size="md" />;
   }
   if (props.toggle.type === "button" && props.toggle.text)
     trigger = <Button text={props.toggle.text} />;
