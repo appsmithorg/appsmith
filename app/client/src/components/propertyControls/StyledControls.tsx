@@ -8,7 +8,7 @@ import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import type { TextInputProps } from "design-system-old";
-import { Button, Dropdown, InputWrapper, TextInput } from "design-system-old";
+import { Dropdown, InputWrapper, TextInput } from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 import { Checkbox } from "design-system-old";

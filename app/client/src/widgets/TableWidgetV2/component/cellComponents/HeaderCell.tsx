@@ -97,8 +97,6 @@ function Title(props: TitleProps) {
   );
 }
 
-const ICON_SIZE = 16;
-
 type HeaderProps = {
   canFreezeColumn?: boolean;
   columnName: string;
