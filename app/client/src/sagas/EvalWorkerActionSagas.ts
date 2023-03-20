@@ -109,7 +109,7 @@ export function* confirmBeforeExecutingJsFunction(message: any) {
     modalType: ModalType.RUN_ACTION,
   };
 
-  const confirmed: unknown = yield call(
+  const confirmed: boolean = yield call(
     requestModalConfirmationSaga,
     modalPayload,
   );

@@ -158,12 +158,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(
-    EVAL_CONTEXT,
-    resolvedFunctions,
-    isTriggerBased,
-    dataTree,
-  );
+  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
 
   return EVAL_CONTEXT;
 };
@@ -172,7 +167,6 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
-  dataTree: DataTree,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
@@ -188,8 +182,9 @@ export const assignJSFunctionsToContext = (
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
+
       jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName, dataTree)
+        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName, jsObject)
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;

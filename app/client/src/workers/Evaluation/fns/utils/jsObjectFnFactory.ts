@@ -7,7 +7,7 @@ import {
   getEntityNameAndPropertyPath,
   isJSObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 declare global {
   interface Window {
     structuredClone: (
@@ -31,24 +31,16 @@ function saveExecutionData(name: string, data: unknown) {
 export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   name: string,
-  dataTree: DataTree,
+  entity: DataTreeJSAction,
   postProcessors: Array<(name: string, res: unknown) => void> = [
     saveExecutionData,
     postJSFunctionExecutionLog,
   ],
 ) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(name);
-  const entity = dataTree[entityName];
-
-  if (!isJSObject(entity)) {
-    return;
-  }
-
   const entityMeta = entity.meta;
-
-  const isAsync = entityMeta[propertyPath].isAsync;
-  const confirmBeforeExecute = entityMeta[propertyPath].confirmBeforeExecute;
   const actionId = entity.actionId;
+  const { confirmBeforeExecute, isAsync } = entityMeta[propertyPath];
 
   if (isAsync) {
     return async (...args: P) => {

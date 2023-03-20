@@ -27,12 +27,7 @@ class FunctionDeterminer {
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(
-      evalContext,
-      resolvedFunctions,
-      false,
-      newDataTree,
-    );
+    assignJSFunctionsToContext(evalContext, resolvedFunctions, false);
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
