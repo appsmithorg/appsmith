@@ -22,7 +22,7 @@ export enum EvaluationSubstitutionType {
 }
 
 // Action entity types
-export interface ActionEntityEvalTree {
+export interface ActionEntity {
   actionId: string;
   isLoading: boolean;
   data: ActionResponse["body"];
@@ -71,9 +71,11 @@ export interface JSActionEntityConfig {
   actionId: string;
 }
 
-export interface JSActionEvalTree {
+export interface JSActionEntity {
   [propName: string]: any;
   body: string;
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  actionId: string;
 }
 
 // Widget entity Types

@@ -1,6 +1,5 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerASyncRequest } from "../types";
-import { createUnEvalTreeForEval } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 export default async function (request: EvalWorkerASyncRequest) {
@@ -11,7 +10,7 @@ export default async function (request: EvalWorkerASyncRequest) {
     eventType,
     globalContext,
     triggerMeta,
-    unEvalTree: __unEvalTree__,
+    unEvalTree,
   } = data;
 
   if (!dataTreeEvaluator) {
@@ -19,12 +18,15 @@ export default async function (request: EvalWorkerASyncRequest) {
   }
 
   ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
-  const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
   const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-    dataTreeEvaluator.setupUpdateTree(unEvalTree);
+    dataTreeEvaluator.setupUpdateTree(
+      unEvalTree.unEvalTree,
+      unEvalTree.configTree,
+    );
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
+    unEvalTree.configTree,
     unEvalUpdates,
   );
   const evalTree = dataTreeEvaluator.evalTree;

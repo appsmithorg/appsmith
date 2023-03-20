@@ -17,7 +17,6 @@
 <a href="https://github.com/appsmithorg/appsmith/releases">
 <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/appsmithorg/appsmith?color=00FF0&style=for-the-badge">
 </a>
-
 <a href="https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=badge">
 <img src="https://img.shields.io/docker/pulls/appsmith/appsmith-server?color=4591df&style=for-the-badge">
 </a>
@@ -443,3 +442,4 @@ Lets build great software together.
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=841c3402-679b-456d-b528-537480a57269" />
