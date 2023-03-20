@@ -1,6 +1,7 @@
+export default {};
 // import TreeStructure from "components/utils/TreeStructure";
 // import { Icon } from "design-system-old";
-import React from "react";
+// import React from "react";
 // import { TActionBlock } from "../../types";
 
 // export function ActionCallback({ action }: { action: TActionBlock }) {

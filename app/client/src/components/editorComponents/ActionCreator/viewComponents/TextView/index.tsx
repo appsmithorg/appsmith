@@ -1,4 +1,4 @@
-import { TextViewProps } from "../../types";
+import type { TextViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,

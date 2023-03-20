@@ -5,16 +5,16 @@ import {
   DEFAULT_LABELS,
   DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
-import { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
 import { getFunctionName } from "@shared/ast";
-import {
+import type {
   FieldProps,
   KeyValueViewProps,
   SelectorViewProps,
   TabViewProps,
   TextViewProps,
 } from "../types";
-import { DropdownOption } from "../../../constants";
+import type { DropdownOption } from "../../../constants";
 import React from "react";
 import { SelectorView } from "../viewComponents/SelectorView";
 import { KeyValueView } from "../viewComponents/KeyValueView";

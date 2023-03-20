@@ -1,24 +1,28 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeFactory";
 
-import { Position } from "codemirror";
+import type { Position } from "codemirror";
+import type { LintError } from "utils/DynamicBindingUtils";
 import {
   isDynamicValue,
   isPathADynamicBinding,
-  LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { JSHINT as jshint, LintError as JSHintError } from "jshint";
+import type { LintError as JSHintError } from "jshint";
+import { JSHINT as jshint } from "jshint";
 import { get, isEmpty, isNumber, keys, last } from "lodash";
+import type { MemberExpressionData } from "@shared/ast";
 import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
-  MemberExpressionData,
 } from "@shared/ast";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
+import type { createEvaluationContext } from "workers/Evaluation/evaluate";
 import {
-  createEvaluationContext,
   EvaluationScripts,
   EvaluationScriptType,
   getScriptToEval,
@@ -150,10 +154,10 @@ export function pathRequiresLinting(
   fullPropertyPath: string,
 ): boolean {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-  const unEvalPropertyValue = (get(
+  const unEvalPropertyValue = get(
     dataTree,
     fullPropertyPath,
-  ) as unknown) as string;
+  ) as unknown as string;
 
   if (isATriggerPath(entity, propertyPath)) {
     return isDynamicValue(unEvalPropertyValue);
@@ -369,11 +373,12 @@ function getInvalidPropertyErrorsFromScript(
 ): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
   try {
-    invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
-      script,
-      data,
-      self.evaluationVersion,
-    );
+    invalidTopLevelMemberExpressions =
+      extractInvalidTopLevelMemberExpressionsFromCode(
+        script,
+        data,
+        self.evaluationVersion,
+      );
   } catch (e) {}
 
   const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(

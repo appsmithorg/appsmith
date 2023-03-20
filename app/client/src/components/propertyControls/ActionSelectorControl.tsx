@@ -1,9 +1,10 @@
 import React from "react";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 import ActionCreator from "components/editorComponents/ActionCreator";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -88,10 +89,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       }),
     );
 
-    const {
-      actionBlockFunctionNames,
-      canTranslate,
-    } = getActionBlockFunctionNames(codeFromProperty, self.evaluationVersion);
+    const { actionBlockFunctionNames, canTranslate } =
+      getActionBlockFunctionNames(codeFromProperty, self.evaluationVersion);
 
     if (codeFromProperty.trim() && !canTranslate) {
       return false;

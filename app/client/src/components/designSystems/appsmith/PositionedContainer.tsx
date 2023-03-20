@@ -1,10 +1,11 @@
-import React, { CSSProperties, ReactNode, Ref, useMemo } from "react";
-import { BaseStyle } from "widgets/BaseWidget";
+import type { CSSProperties, ReactNode, Ref } from "react";
+import React, { useMemo } from "react";
+import type { BaseStyle } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   CSSUnits,
   PositionTypes,
-  WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";

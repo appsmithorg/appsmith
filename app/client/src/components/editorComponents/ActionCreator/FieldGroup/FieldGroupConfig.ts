@@ -21,7 +21,7 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "@appsmith/constants/messages";
-import { FieldGroupConfig } from "../types";
+import type { FieldGroupConfig } from "../types";
 
 export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.none]: {

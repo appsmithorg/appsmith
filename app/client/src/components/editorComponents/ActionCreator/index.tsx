@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getActionBlocks } from "@shared/ast";
-import { ActionCreatorProps } from "./types";
+import type { ActionCreatorProps } from "./types";
 import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import RootAction from "./viewComponents/ActionV2/RootActionV2";
@@ -116,9 +116,7 @@ const ActionCreator = React.forwardRef(
       (newActions) => {
         props.onValueChange(
           Object.values(newActions).length > 0
-            ? `{{${Object.values(newActions)
-                .filter(Boolean)
-                .join("\n")}}}`
+            ? `{{${Object.values(newActions).filter(Boolean).join("\n")}}}`
             : "",
           false,
         );

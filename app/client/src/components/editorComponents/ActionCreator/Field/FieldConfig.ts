@@ -8,7 +8,11 @@ import {
   ViewTypes,
 } from "../constants";
 import { ALERT_STYLE_OPTIONS } from "ce/constants/messages";
-import { ActionType, AppsmithFunctionConfigType, FieldProps } from "../types";
+import type {
+  ActionType,
+  AppsmithFunctionConfigType,
+  FieldProps,
+} from "../types";
 import {
   enumTypeGetter,
   enumTypeSetter,
@@ -24,7 +28,7 @@ import {
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
-import { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName } from "@shared/ast";
 

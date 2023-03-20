@@ -1,9 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ColumnTypes,
-  ICON_NAMES,
-  TableWidgetProps,
-} from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, ICON_NAMES } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
   hideByMenuItemsSource,

@@ -3,7 +3,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
 import { get } from "lodash";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

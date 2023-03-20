@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { REQUEST_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/URLUtils";
 import {

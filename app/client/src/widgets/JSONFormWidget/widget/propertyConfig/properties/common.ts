@@ -1,25 +1,23 @@
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import type { SchemaItem } from "widgets/JSONFormWidget/constants";
 import {
   ARRAY_ITEM_KEY,
   FIELD_EXPECTING_OPTIONS,
   FIELD_SUPPORTING_FOCUS_EVENTS,
   FieldType,
-  SchemaItem,
 } from "widgets/JSONFormWidget/constants";
-import { JSONFormWidgetProps } from "../..";
+import type { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
+import type { HiddenFnParams } from "../helper";
 import {
   fieldTypeUpdateHook,
   getAutocompleteProperties,
   getSchemaItem,
   getStylesheetValue,
-  HiddenFnParams,
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "../helper";

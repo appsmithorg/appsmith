@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "design-system-old";
 import { AppsmithFunction, FieldType } from "../../constants";
-import { ActionTree } from "../../types";
+import type { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
 import { getFunctionName, getFunctionArguments } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
@@ -9,7 +9,7 @@ import { getCodeFromMoustache } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 function getIconForAction(
   actionType: ActionTree["actionType"],
@@ -120,9 +120,8 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       return FIELD_CONFIG[FieldType.COPY_TEXT_FIELD].getter(code) || "Add text";
 
     case AppsmithFunction.download:
-      const fileName = FIELD_CONFIG[FieldType.DOWNLOAD_FILE_NAME_FIELD].getter(
-        code,
-      );
+      const fileName =
+        FIELD_CONFIG[FieldType.DOWNLOAD_FILE_NAME_FIELD].getter(code);
       return fileName ? fileName : "Add data to download";
 
     case AppsmithFunction.jsFunction:

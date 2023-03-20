@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router";
-import { AppState } from "@appsmith/reducers";
-import {
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
+import type { AppState } from "@appsmith/reducers";
+import type {
   AppViewerRouteParams,
   BuilderRouteParams,
-  GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getIsInitialized,
   getAppViewHeaderHeight,

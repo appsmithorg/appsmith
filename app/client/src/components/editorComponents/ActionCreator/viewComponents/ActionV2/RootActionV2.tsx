@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ActionV2 from ".";
 import { useApisQueriesAndJsActionOptions } from "../../helpers";
-import { TActionBlock } from "../../types";
+import type { TActionBlock } from "../../types";
 import { actionToCode, codeToAction } from "../../utils";
 
 type TRootActionProps = {

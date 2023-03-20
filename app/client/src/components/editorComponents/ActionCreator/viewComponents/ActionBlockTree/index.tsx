@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React, { useCallback, useState } from "react";
 import clsx from "clsx";
-import { ActionTree, SelectedActionBlock } from "../../types";
+import type { ActionTree, SelectedActionBlock } from "../../types";
 import { getActionInfo } from "./utils";
 import { ActionBlock } from "../ActionBlock";
 import { Icon, TooltipComponent } from "design-system-old";
@@ -44,10 +44,11 @@ export const ActionBlockTree: React.FC<Props> = ({
   const [callbacksExpanded, setCallbacksExpanded] = useState(true);
   const [actionExpanded, setActionExpanded] = useState(false);
   const { actionType, code, errorBlocks, successBlocks } = actionTree;
-  const { action, actionTypeLabel, Icon: MainActionIcon } = getActionInfo(
-    code,
-    actionType,
-  );
+  const {
+    action,
+    actionTypeLabel,
+    Icon: MainActionIcon,
+  } = getActionInfo(code, actionType);
 
   const callBacksLength =
     successBlocks.filter(

@@ -1,9 +1,10 @@
-import { SelectorViewProps } from "../../types";
+import type { SelectorViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { Setter, TreeDropdown } from "design-system-old";
+import type { Setter } from "design-system-old";
+import { TreeDropdown } from "design-system-old";
 import { PopoverPosition } from "@blueprintjs/core";
 import React from "react";
 

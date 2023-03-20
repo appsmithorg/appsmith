@@ -1,10 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import {
-  HiddenFnParams,
-  getSchemaItem,
-  getAutocompleteProperties,
-} from "../helper";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { dateFormatOptions } from "widgets/constants";
 

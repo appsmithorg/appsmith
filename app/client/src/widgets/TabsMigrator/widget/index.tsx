@@ -1,10 +1,11 @@
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import {
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
 import { selectedTabValidation } from "widgets/TabsWidget/widget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { migrateTabsData } from "utils/DSLMigrations";
 import { cloneDeep, get } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
+import { TreeDropdown, TextInput } from "design-system-old";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { FieldType } from "../../constants";
@@ -10,7 +11,7 @@ import {
   isEmptyBlock,
 } from "../../utils";
 import { getActionInfo } from "../ActionBlockTree/utils";
-import { SelectorViewProps } from "../../types";
+import type { SelectorViewProps } from "../../types";
 
 function filterChildren(
   options: TreeDropdownOption[],

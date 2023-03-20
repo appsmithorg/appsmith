@@ -6,7 +6,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer;
 
-describe("Modal Widget Functionality", function() {
+describe("Modal Widget Functionality", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -47,9 +47,7 @@ describe("Modal Widget Functionality", function() {
     cy.SearchEntityandOpen("Modal1");
     cy.wait(200);
     cy.get("body").type(`{${modifierKey}}c`);
-    cy.get(commonlocators.toastBody)
-      .first()
-      .contains("Copied");
+    cy.get(commonlocators.toastBody).first().contains("Copied");
 
     cy.wait(1000); //make sure evaluated value disappears
     cy.get(widgets.modalCloseButton).click({ force: true });
@@ -71,9 +69,7 @@ describe("Modal Widget Functionality", function() {
     cy.get(".t--modal-widget").should("exist");
 
     //select text widget inside the modal
-    cy.get(".t--modal-widget")
-      .find(".t--widget-textwidget")
-      .click();
+    cy.get(".t--modal-widget").find(".t--widget-textwidget").click();
     cy.get(".t--modal-widget")
       .find(".t--widget-textwidget div[data-testid='t--selected']")
       .should("have.length", 1);
@@ -97,9 +93,7 @@ describe("Modal Widget Functionality", function() {
     cy.get(widgets.modalCloseButton).click({ force: true });
     cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
     cy.get("#switcher--explorer").click();
-    cy.get(".t--entity-name")
-      .contains("Widgets")
-      .click();
+    cy.get(".t--entity-name").contains("Widgets").click();
 
     //select all widgets and copy
     cy.get(`#div-selection-0`).click({

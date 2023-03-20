@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import { FormIcons } from "icons/FormIcons";
@@ -34,9 +35,7 @@ const Wrapper = styled.div`
   margin-bottom: 8px;
 `;
 
-class ColumnActionSelectorControl extends BaseControl<
-  ColumnActionSelectorControlProps
-> {
+class ColumnActionSelectorControl extends BaseControl<ColumnActionSelectorControlProps> {
   render() {
     return (
       <>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FieldGroupProps, SwitchType } from "../types";
+import type { FieldGroupProps, SwitchType } from "../types";
 import { Field } from "../Field";
 import { getCodeFromMoustache, isValueValidURL } from "../utils";
 import { getFieldFromValue } from "../helpers";
@@ -44,10 +44,8 @@ function FieldGroup(props: FieldGroupProps) {
   const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
     NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
   );
-  const [
-    activeTabApiAndQueryCallback,
-    setActiveTabApiAndQueryCallback,
-  ] = useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
+  const [activeTabApiAndQueryCallback, setActiveTabApiAndQueryCallback] =
+    useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
 
   const fields = getFieldFromValue(
     getCodeFromMoustache(props.value),
@@ -109,7 +107,8 @@ function FieldGroup(props: FieldGroupProps) {
                   ...props,
                   activeNavigateToTab: activeTabNavigateTo,
                   activeTabApiAndQueryCallback: activeTabApiAndQueryCallback,
-                  apiAndQueryCallbackTabSwitches: apiAndQueryCallbackTabSwitches,
+                  apiAndQueryCallbackTabSwitches:
+                    apiAndQueryCallbackTabSwitches,
                   navigateToSwitches: NAVIGATE_TO_TAB_SWITCHER,
                 })}
               </li>

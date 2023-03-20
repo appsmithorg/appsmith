@@ -5,7 +5,7 @@ import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
-import { TActionBlock } from "../../types";
+import type { TActionBlock } from "../../types";
 import { chainableFns } from "../../utils";
 import ActionCard from "./ActionCardV2";
 import ActionSelector from "./ActionSelectorV2";
@@ -32,9 +32,8 @@ export default function ActionV2(props: {
   const { blocks: errorBlocks } = error;
   const [isOpen, open] = React.useState(false);
 
-  const { selectBlock, selectedBlockId } = React.useContext(
-    ActionCreatorContext,
-  );
+  const { selectBlock, selectedBlockId } =
+    React.useContext(ActionCreatorContext);
 
   useEffect(() => {
     setActionBlock(props.actionBlock);

@@ -1,8 +1,7 @@
 import clsx from "clsx";
 import React from "react";
-import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
-import { TActionBlock } from "../../types";
+import type { TActionBlock } from "../../types";
 import { getActionInfo } from "../ActionBlockTree/utils";
 
 type TActionCardProps = {
@@ -31,10 +30,11 @@ function ActionCard(props: TActionCardProps) {
       .length;
   const firstInBlock = props.id.split("_").pop() === "0";
 
-  const { action, actionTypeLabel, Icon: MainActionIcon } = getActionInfo(
-    code,
-    actionType,
-  );
+  const {
+    action,
+    actionTypeLabel,
+    Icon: MainActionIcon,
+  } = getActionInfo(code, actionType);
 
   let className = "flex flex-col gap-1 w-full p-2";
 

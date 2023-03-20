@@ -1,6 +1,7 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "../component";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
@@ -9,7 +10,7 @@ import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";

@@ -1,4 +1,4 @@
-import { TabViewProps } from "../../types";
+import type { TabViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,

@@ -3,11 +3,12 @@ import { getFunctionNameFromJsObjectExpression } from "@shared/ast";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
-import { AppState } from "ce/reducers";
+import type { AppState } from "ce/reducers";
 import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE, TreeDropdownOption, Icon } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
+import { ENTITY_TYPE, Icon } from "design-system-old";
 import { PluginType } from "entities/Action";
-import { JSAction, Variable } from "entities/JSCollection";
+import type { JSAction, Variable } from "entities/JSCollection";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
@@ -16,8 +17,8 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
@@ -36,7 +37,7 @@ import {
   NEW_MODAL_LABEL,
 } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
-import {
+import type {
   DataTreeForActionCreator,
   GenericFunction,
   SelectorField,
@@ -373,15 +374,15 @@ export function getJSOptions(
 
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject = ({
+        const jsObject = {
           label: jsAction.config.name,
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
           icon: JsFileIconV2,
-        } as unknown) as TreeDropdownOption;
+        } as unknown as TreeDropdownOption;
 
-        ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
+        (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
 
         if (jsObject) {
           //don't remove this will be used soon
@@ -419,7 +420,7 @@ export function getJSOptions(
             };
 
             (jsObject.children as TreeDropdownOption[]).push(
-              (jsFunction as unknown) as TreeDropdownOption,
+              jsFunction as unknown as TreeDropdownOption,
             );
           });
         }

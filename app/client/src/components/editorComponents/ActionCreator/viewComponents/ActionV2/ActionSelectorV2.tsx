@@ -1,10 +1,11 @@
 import { Popover2 } from "@blueprintjs/popover2";
-import { Icon, TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
+import { Icon } from "design-system-old";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import FieldGroup from "../../FieldGroup";
@@ -12,7 +13,7 @@ import {
   useApisQueriesAndJsActionOptions,
   useModalDropdownList,
 } from "../../helpers";
-import { TActionBlock } from "../../types";
+import type { TActionBlock } from "../../types";
 import { getCodeFromMoustache, getSelectedFieldFromValue } from "../../utils";
 
 export default function ActionSelector(props: {
@@ -62,17 +63,15 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const integrationOptions = useApisQueriesAndJsActionOptions(() => {
     return selectBlock("-1");
   });
-  const widgetOptionTree: TreeDropdownOption[] = useSelector(
-    getWidgetOptionsTree,
-  );
+  const widgetOptionTree: TreeDropdownOption[] =
+    useSelector(getWidgetOptionsTree);
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageListAsOptions);
   const { action, additionalAutoComplete, onChange } = props;
   const { code } = action;
   const isCallbackBlockSelected = true;
-  const { selectBlock, selectedBlockId } = React.useContext(
-    ActionCreatorContext,
-  );
+  const { selectBlock, selectedBlockId } =
+    React.useContext(ActionCreatorContext);
   const isChainedAction = Boolean(
     Number(selectedBlockId?.split("_").length) > 1,
   );

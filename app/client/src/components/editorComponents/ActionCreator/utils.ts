@@ -18,8 +18,8 @@ import {
   setQueryParam,
   getQueryParam,
 } from "@shared/ast";
-import { TreeDropdownOption } from "design-system-old";
-import { TActionBlock } from "./types";
+import type { TreeDropdownOption } from "design-system-old";
+import type { TActionBlock } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
@@ -181,12 +181,14 @@ export const callBackFieldSetter = (
   const requiredValue = getCodeFromMoustache(currentValue);
   const requiredChangeValue = getCodeFromMoustache(changeValue) || "() => {}";
   try {
-    return `{{${setCallbackFunctionField(
-      requiredValue,
-      requiredChangeValue,
-      argNum,
-      self.evaluationVersion,
-    ) || currentValue}}}`;
+    return `{{${
+      setCallbackFunctionField(
+        requiredValue,
+        requiredChangeValue,
+        argNum,
+        self.evaluationVersion,
+      ) || currentValue
+    }}}`;
   } catch (e) {
     // showError();
     // throw e;

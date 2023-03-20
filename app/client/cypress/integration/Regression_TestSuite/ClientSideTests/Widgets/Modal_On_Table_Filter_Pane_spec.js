@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/modalOnTableFilterPaneDsl.json");
 const widgets = require("../../../../locators/Widgets.json");
 
-describe("Modal Widget Functionality", function() {
+describe("Modal Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

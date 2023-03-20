@@ -9,10 +9,8 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 // import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 // import { IconName } from "design-system-old";
-import {
-  AppPositioningTypeConfig,
-  AppPositioningTypes,
-} from "reducers/entityReducers/pageListReducer";
+import type { AppPositioningTypeConfig } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentAppPositioningType,
   // isAutoLayoutEnabled,

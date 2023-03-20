@@ -2,7 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { TextView } from "./index";
-import { TextViewProps } from "../../types";
+import type { TextViewProps } from "../../types";
 
 describe("Text view component", () => {
   const props: TextViewProps = {
