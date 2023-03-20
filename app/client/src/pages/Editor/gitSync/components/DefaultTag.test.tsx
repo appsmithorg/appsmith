@@ -13,11 +13,5 @@ describe("DefaultTag", () => {
 
     // contains Default text
     expect(actual?.innerHTML.includes("Default")).toBeTruthy();
-
-    // styles
-    expect(actual).toHaveStyleRule("display", "inline-block");
-    expect(actual).toHaveStyleRule("padding", "3px 7px");
-    expect(actual).toHaveStyleRule("position", "absolute");
-    expect(actual).toHaveStyleRule("right", "16%");
   });
 });

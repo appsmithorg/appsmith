@@ -8,6 +8,7 @@ const StyledButton = styled(Button)`
   right: 16%;
 `;
 
+// TODO (tanvi): This should not be a button!!! This should be a tag. We have a tag. Use that.
 export default function DefaultTag() {
   return (
     <StyledButton
