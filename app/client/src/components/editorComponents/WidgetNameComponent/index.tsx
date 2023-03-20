@@ -75,6 +75,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
   const appPositioningType = useSelector(getCurrentAppPositioningType);
   const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
   // Dispatch hook handy to set a widget as focused/selected
@@ -147,6 +150,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isResizingOrDragging = !!isResizing || !!isDragging;
   const shouldShowWidgetName = () => {
     return (
+      !isAutoCanvasResizing &&
       !isResizingOrDragging &&
       !isPreviewMode &&
       !isMultiSelectedWidget &&

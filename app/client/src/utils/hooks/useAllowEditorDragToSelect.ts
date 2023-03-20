@@ -2,6 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import {
   snipingModeSelector,
   previewModeSelector,
+  getIsAutoLayout,
 } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 
@@ -10,6 +11,8 @@ export const useAllowEditorDragToSelect = () => {
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
@@ -38,6 +41,7 @@ export const useAllowEditorDragToSelect = () => {
   const isPreviewMode = useSelector(previewModeSelector);
 
   return (
+    !isAutoLayout &&
     !isAutoCanvasResizing &&
     !isResizingOrDragging &&
     !isDraggingDisabled &&

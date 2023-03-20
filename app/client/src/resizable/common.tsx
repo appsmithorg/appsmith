@@ -1,3 +1,4 @@
+import type { DefaultDimensionMap } from "components/editorComponents/ResizableComponent";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Colors } from "constants/Colors";
 import type { ReactNode } from "react";
@@ -190,6 +191,7 @@ export type ResizableProps = {
   onStop: (
     size: { width: number; height: number },
     position: { x: number; y: number },
+    dimensionMap?: typeof DefaultDimensionMap,
   ) => void;
   snapGrid: { x: number; y: number };
   enableVerticalResize: boolean;

@@ -1,4 +1,4 @@
-import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
+import type { WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ReflowDirection } from "reflow/reflowTypes";
@@ -19,6 +19,25 @@ export type WidgetPosition = {
 
 export type WidgetExtendedPosition = WidgetPosition & {
   paddingOffset: number;
+};
+
+const computeAutoLayoutRowCols = (
+  delta: UIElementSize,
+  position: XYCord,
+  props: WidgetPosition,
+) => {
+  return {
+    leftColumn: Math.round(
+      props.leftColumn + position.x / props.parentColumnSpace,
+    ),
+    topRow: Math.round(props.topRow + position.y / props.parentRowSpace),
+    rightColumn: Math.round(
+      props.rightColumn + delta.width / props.parentColumnSpace,
+    ),
+    bottomRow: Math.round(
+      props.bottomRow + delta.height / props.parentRowSpace,
+    ),
+  };
 };
 
 export const computeRowCols = (
@@ -54,7 +73,7 @@ export const computeBoundedRowCols = (rowCols: WidgetRowCols) => {
 
 export const hasRowColsChanged = (
   newRowCols: WidgetRowCols,
-  props: WidgetProps,
+  props: WidgetPosition,
 ) => {
   return (
     props.leftColumn !== newRowCols.leftColumn ||
@@ -67,13 +86,29 @@ export const hasRowColsChanged = (
 export const computeFinalRowCols = (
   delta: UIElementSize,
   position: XYCord,
-  props: WidgetProps,
+  widgetPositionProps: WidgetPosition,
 ): WidgetRowCols | false => {
   const newRowCols = computeBoundedRowCols(
-    computeRowCols(delta, position, props),
+    computeRowCols(delta, position, widgetPositionProps),
   );
 
-  return hasRowColsChanged(newRowCols, props) ? newRowCols : false;
+  return hasRowColsChanged(newRowCols, widgetPositionProps)
+    ? newRowCols
+    : false;
+};
+
+export const computeFinalAutoLayoutRowCols = (
+  delta: UIElementSize,
+  position: XYCord,
+  widgetPositionProps: WidgetPosition,
+): WidgetRowCols | false => {
+  const newRowCols = computeBoundedRowCols(
+    computeAutoLayoutRowCols(delta, position, widgetPositionProps),
+  );
+
+  return hasRowColsChanged(newRowCols, widgetPositionProps)
+    ? newRowCols
+    : false;
 };
 
 /**
@@ -112,7 +147,9 @@ export function isResizingDisabled(
 
   if (
     (direction === ReflowDirection.TOP ||
-      direction === ReflowDirection.BOTTOM) &&
+      direction === ReflowDirection.BOTTOM ||
+      direction === ReflowDirection.BOTTOMLEFT ||
+      direction === ReflowDirection.BOTTOMRIGHT) &&
     vertical
   )
     return true;
