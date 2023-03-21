@@ -59,8 +59,9 @@ function BranchButton() {
         position="top-left"
       >
         <ButtonContainer
-          className="t--branch-button t--branch-button-currentBranch"
-          data-testid={"t--branch-button-container"}
+          className="t--branch-button "
+          data-testid={"t--branch-button-currentBranch"}
+          kind="secondary"
           ref={labelTarget}
           startIcon="git-branch"
         >
