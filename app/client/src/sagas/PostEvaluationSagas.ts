@@ -381,7 +381,7 @@ export function* logSuccessfulBindings(
             (successfulBindingPaths[evaluatedPath] &&
               successfulBindingPaths[evaluatedPath] !== unevalValue)
           ) {
-            AnalyticsUtil.logEvent("WIDGET_BINDING_SUCCESS", {
+            AnalyticsUtil.logEvent("ENTITY_BINDING_SUCCESS", {
               unevalValue,
               entityType,
               propertyPath,

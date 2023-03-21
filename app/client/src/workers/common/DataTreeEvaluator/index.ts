@@ -465,7 +465,7 @@ export default class DataTreeEvaluator {
       ),
     );
 
-    /** We need to know if a new widget was added so that we do not fire WIDGET_BINDING_SUCCESS event */
+    /** We need to know if a new widget was added so that we do not fire ENTITY_BINDING_SUCCESS event */
     for (let i = 0; i < translatedDiffs.length; i++) {
       const diffEvent = translatedDiffs[i];
       if (diffEvent.event === DataTreeDiffEvent.NEW) {
