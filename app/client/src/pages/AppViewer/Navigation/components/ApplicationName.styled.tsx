@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import {
   APPLICATION_TITLE_MAX_WIDTH,
+  APPLICATION_TITLE_MAX_WIDTH_MOBILE,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -19,7 +20,12 @@ export const StyledApplicationName = styled.div<{
   font-size: ${THEMEING_TEXT_SIZES.base};
 
   ${({ forSidebar, isMobile, navStyle }) => {
-    if (navStyle === NAVIGATION_SETTINGS.NAV_STYLE.STACKED && !isMobile) {
+    if (isMobile) {
+      return `max-width: ${APPLICATION_TITLE_MAX_WIDTH_MOBILE}px;`;
+    } else if (
+      navStyle === NAVIGATION_SETTINGS.NAV_STYLE.STACKED &&
+      !isMobile
+    ) {
       return `max-width: 500px;`;
     } else if (forSidebar) {
       return `max-width: ${APPLICATION_TITLE_MAX_WIDTH - 40}px;`;

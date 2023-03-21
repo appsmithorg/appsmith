@@ -34,6 +34,8 @@ const StyledAppIcon = styled(AppsIcon)<
 `;
 
 export const StyledLink = styled(Link)<BackToHomeButtonProps>`
+  min-width: max-content;
+
   &:hover {
     svg {
       background-color: ${({ navColorStyle, primaryColor }) =>
@@ -83,6 +85,10 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
           forSidebar={forSidebar}
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
+        />
+        <img
+          className="h-6"
+          src="https://global.canon/en/corporate/logo/img/logo_01.png"
         />
       </StyledLink>
     </TooltipComponent>
