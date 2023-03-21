@@ -11,7 +11,7 @@ services:
       - "8080:8080"
     depends_on:
       mongo:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
