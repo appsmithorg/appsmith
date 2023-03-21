@@ -77,7 +77,6 @@ export default function LogCollapseData(props: any) {
           <MessageInfo>
             <LogAdditionalInfo
               text={props.pluginErrorDetails.appsmithErrorCode}
-              width="90px"
             />
             <span>{props.pluginErrorDetails.appsmithErrorMessage}</span>
           </MessageInfo>
@@ -91,7 +90,6 @@ export default function LogCollapseData(props: any) {
                       ? props.pluginErrorDetails.downstreamErrorCode
                       : "DownstreamError"
                   }
-                  width="90px"
                 />
                 <span data-cy="t--debugger-downStreamErrorMsg">
                   {props.pluginErrorDetails.downstreamErrorMessage}
