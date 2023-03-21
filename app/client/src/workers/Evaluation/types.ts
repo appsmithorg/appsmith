@@ -1,9 +1,13 @@
+import type {
+  ConfigTree,
+  DataTree,
+  unEvalAndConfigTree,
+} from "entities/DataTree/dataTreeFactory";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { AppTheme } from "entities/AppTheming";
-import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import type {
   EVAL_WORKER_ASYNC_ACTION,
@@ -23,7 +27,7 @@ export type EvalWorkerASyncRequest = WorkerRequest<
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeRequestData {
-  unevalTree: UnEvalTree;
+  unevalTree: unEvalAndConfigTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
   widgets: CanvasWidgetsReduxState;
   theme: AppTheme;
@@ -46,6 +50,7 @@ export interface EvalTreeResponseData {
   logs: unknown[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
+  configTree: ConfigTree;
   staleMetaIds: string[];
   pathsToClearErrorsFor: any[];
 }
