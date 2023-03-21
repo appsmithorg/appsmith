@@ -570,6 +570,7 @@ abstract class BaseWidget<
         isMobile={this.props.isMobile || false}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
+        renderMode={this.props.renderMode}
         responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         widgetId={this.props.widgetId}

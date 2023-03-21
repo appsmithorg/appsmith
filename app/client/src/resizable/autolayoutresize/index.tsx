@@ -705,12 +705,8 @@ export function ReflowResizable(props: ResizableProps) {
           (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         transform: `translate3d(${
-          (newDimensions.reflectPosition ? newDimensions.x : 0) -
-          RESIZE_BORDER_BUFFER / 2
-        }px,${
-          (newDimensions.reflectPosition ? newDimensions.y : 0) -
-          RESIZE_BORDER_BUFFER / 2
-        }px,0)`,
+          newDimensions.reflectPosition ? newDimensions.x : 0
+        }px,${newDimensions.reflectPosition ? newDimensions.y : 0}px,0)`,
       }}
     >
       {(_props) => (
