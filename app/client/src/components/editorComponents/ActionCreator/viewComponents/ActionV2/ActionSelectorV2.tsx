@@ -66,7 +66,9 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   });
   const widgetOptionTree: TreeDropdownOption[] =
     useSelector(getWidgetOptionsTree);
-  const modalDropdownList = useModalDropdownList();
+  const modalDropdownList = useModalDropdownList(() => {
+    return selectBlock("-1");
+  });
   const pageDropdownOptions = useSelector(getPageListAsOptions);
   const { action, additionalAutoComplete, onChange } = props;
   const { code } = action;

@@ -332,7 +332,7 @@ function getFieldsForSelectedAction(
   }
 }
 
-export function useModalDropdownList() {
+export function useModalDropdownList(handleClose: () => void) {
   const dispatch = useDispatch();
   const nextModalName = useSelector(getNextModalName);
 
@@ -350,6 +350,7 @@ export function useModalDropdownList() {
             value: `${modalName}`,
           });
           dispatch(createModalAction(modalName));
+          handleClose();
         }
       },
     },
