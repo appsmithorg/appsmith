@@ -463,11 +463,8 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
          */
         const firstCallExpressionNode = findRootCallExpression(astWithComments);
 
-        // const firstCallExpressionNode = klona(nodeToTraverse);        
-
-        // @ts-ignore
         const argumentNode = firstCallExpressionNode?.arguments[argNum];
-        if (argumentNode) {
+        if (argumentNode && isTypeOfFunction(argumentNode.type)) {
             requiredArgument = `${generate(argumentNode, {comments: true})}`;
         } else {
             requiredArgument = "";
@@ -1169,8 +1166,8 @@ export function setQueryParam(code: string, value: string, position: number) {
 
         if(position === 0) {
             rootCallExpression.arguments = [];
-            code = generate(rootCallExpression);
-            return setObjectAtPosition(code, value, 2, 2); 
+            code = generate(ast);
+            return setObjectAtPosition(code, value, position, 2); 
         } else {
             const firstArg = rootCallExpression.arguments[0] || {};
             const secondArg = rootCallExpression.arguments[1] || {};
@@ -1180,7 +1177,6 @@ export function setQueryParam(code: string, value: string, position: number) {
             if(secondArg && !isTypeOfFunction(secondArg.type)) {
                 code = setCallbackFunctionField(code, "() => {}", 1, 2);
             }
-            const thirdArg = rootCallExpression.arguments[2] || {};
             return setObjectAtPosition(code, value, 2, 2);
         }
     } catch(e) {
