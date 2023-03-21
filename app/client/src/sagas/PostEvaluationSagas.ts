@@ -326,7 +326,6 @@ export function* logSuccessfulBindings(
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
-  if (isNewWidgetAdded) return;
 
   const successfulBindingPaths: any = !successfulBindingsMap
     ? {}
@@ -355,6 +354,14 @@ export function* logSuccessfulBindings(
         if (successfulBindingPaths[evaluatedPath]) {
           delete successfulBindingPaths[evaluatedPath];
         }
+        return;
+      }
+
+      /** All the paths that are added when a new widget is added needs to be added to the map so that
+       * we don't log them again unless they are changed by the user.
+       */
+      if (isNewWidgetAdded) {
+        successfulBindingPaths[evaluatedPath] = unevalValue;
         return;
       }
 
