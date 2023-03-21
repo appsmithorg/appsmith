@@ -4,15 +4,20 @@ import {
 } from "actions/autoLayoutActions";
 import type { ApiResponse } from "api/ApiResponses";
 import ApplicationApi from "api/ApplicationApi";
+import type { PageDefaultMeta } from "api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getAppPositioningType,
+  getCurrentApplicationId,
+} from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
-import type { Application } from "ce/reducers/uiReducers/applicationsReducer";
+import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -67,12 +72,16 @@ export function* fetchSnapshotSaga() {
 
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
-  let response: ApiResponse<Application> | undefined;
+  let response: ApiResponse<any> | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
       applicationId,
     });
+
+    const currentAppPositioningType: AppPositioningTypes = yield select(
+      getAppPositioningType,
+    );
 
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -81,11 +90,11 @@ function* restoreApplicationFromSnapshotSaga() {
     );
 
     // update the pages list temporarily with incomplete data.
-    if (response?.data.pages) {
+    if (response?.data?.pages) {
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
         payload: {
-          pages: response.data.pages.map((page) => ({
+          pages: response.data.pages.map((page: PageDefaultMeta) => ({
             pageId: page.id,
             isDefault: page.isDefault,
           })),
@@ -93,6 +102,14 @@ function* restoreApplicationFromSnapshotSaga() {
         },
       });
     }
+
+    //update layout positioning type from
+    yield call(
+      updateApplicationLayoutType,
+      currentAppPositioningType === AppPositioningTypes.FIXED
+        ? AppPositioningTypes.AUTO
+        : AppPositioningTypes.FIXED,
+    );
 
     if (isValidResponse) {
       //update conversion form state to success

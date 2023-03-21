@@ -242,7 +242,7 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-const getAppPositioningType = (state: AppState) => {
+export const getAppPositioningType = (state: AppState) => {
   if (
     state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
       ?.type
