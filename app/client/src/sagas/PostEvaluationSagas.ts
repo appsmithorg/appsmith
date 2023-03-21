@@ -48,6 +48,7 @@ import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "entities/DataTree/types";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -327,7 +328,7 @@ export function* logSuccessfulBindings(
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
 
-  const successfulBindingPaths: any = !successfulBindingsMap
+  const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
     ? {}
     : { ...successfulBindingsMap.get() };
 

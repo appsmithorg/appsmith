@@ -1,11 +1,12 @@
+export type SuccessfulBindings = Record<string, string>;
 export default class SuccessfulBindingMap {
-  successfulBindings: Record<string, unknown>;
+  successfulBindings: SuccessfulBindings;
 
-  constructor(successfulBindings: Record<string, unknown>) {
+  constructor(successfulBindings: SuccessfulBindings) {
     this.successfulBindings = successfulBindings;
   }
 
-  set(successfulBindings: Record<string, unknown>) {
+  set(successfulBindings: SuccessfulBindings) {
     this.successfulBindings = successfulBindings;
   }
 
