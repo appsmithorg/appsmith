@@ -1,8 +1,8 @@
-import type { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import type { Patch } from "./JSVariableUpdates";
 import JSVariableUpdates, { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { isObject } from "lodash";
+import type { JSActionEntity } from "entities/DataTree/types";
 
 function addPatch(patch: Patch) {
   JSVariableUpdates.add(patch);
@@ -73,14 +73,14 @@ export function jsObjectProxyHandler(path: string) {
   };
 }
 
-type ProxiedJSObject = DataTreeJSAction & {
+type ProxiedJSObject = JSActionEntity & {
   $isProxy: boolean;
-  $targetValue: DataTreeJSAction;
+  $targetValue: JSActionEntity;
 };
 
 class JSProxy {
   static create(
-    jsObject: DataTreeJSAction,
+    jsObject: JSActionEntity,
     jsObjectName: string,
     varState: Record<string, unknown> = {},
   ): ProxiedJSObject {
