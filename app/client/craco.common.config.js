@@ -14,9 +14,15 @@ module.exports = {
       },
     },
   },
+  babel: {
+    plugins: ["babel-plugin-lodash"],
+  },
   webpack: {
     configure: {
       resolve: {
+        alias: {
+          "lodash-es": "lodash",
+        },
         fallback: {
           assert: false,
           stream: false,

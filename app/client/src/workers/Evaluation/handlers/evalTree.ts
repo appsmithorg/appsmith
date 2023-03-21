@@ -7,7 +7,7 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { initiateLinting } from "workers/Linting/utils";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import {
   createUnEvalTreeForEval,
   makeEntityConfigsAsObjProperties,
@@ -17,6 +17,7 @@ import {
   CrashingError,
   getSafeToRenderDataTree,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -221,4 +222,19 @@ export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
   return true;
+}
+
+function initiateLinting(
+  lintOrder: string[],
+  unevalTree: DataTree,
+  requiresLinting: boolean,
+) {
+  if (!requiresLinting) return;
+  WorkerMessenger.ping({
+    data: {
+      lintOrder,
+      unevalTree,
+    },
+    method: MAIN_THREAD_ACTION.LINT_TREE,
+  });
 }
