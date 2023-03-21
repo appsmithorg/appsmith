@@ -1,4 +1,8 @@
-export type SuccessfulBindings = Record<string, string>;
+import type { UnEvalTreeEntity } from "entities/DataTree/dataTreeFactory";
+
+export type SuccessfulBindings = {
+  [entityName: string]: UnEvalTreeEntity;
+};
 export default class SuccessfulBindingMap {
   successfulBindings: SuccessfulBindings;
 
