@@ -3,9 +3,9 @@ import {
   isATriggerPath,
   isJSAction,
 } from "ce/workers/Evaluation/evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
-import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { getActionTriggerFunctionNames } from "workers/Evaluation/fns";
 import { lintBindingPath, lintTriggerPath, pathRequiresLinting } from "./utils";
@@ -13,6 +13,7 @@ import { lintBindingPath, lintTriggerPath, pathRequiresLinting } from "./utils";
 export function getlintErrorsFromTree(
   pathsToLint: string[],
   unEvalTree: DataTree,
+  configTree: ConfigTree,
   cloudHosting: boolean,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
@@ -45,20 +46,23 @@ export function getlintErrorsFromTree(
   const bindingPathsRequiringFunctions = new Set<string>();
 
   pathsToLint.forEach((fullPropertyPath) => {
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      fullPropertyPath,
-    );
+    const { entityName, propertyPath } =
+      getEntityNameAndPropertyPath(fullPropertyPath);
     const entity = unEvalTree[entityName];
-    const unEvalPropertyValue = (get(
+    const entityConfig = configTree[entityName];
+    const unEvalPropertyValue = get(
       unEvalTree,
       fullPropertyPath,
-    ) as unknown) as string;
+    ) as unknown as string;
     // remove all lint errors from path
     set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
 
     // We are only interested in paths that require linting
-    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
-    if (isATriggerPath(entity, propertyPath))
+    if (
+      !pathRequiresLinting(unEvalTree, entity, fullPropertyPath, entityConfig)
+    )
+      return;
+    if (isATriggerPath(entityConfig, propertyPath))
       return triggerPaths.add(fullPropertyPath);
     if (isJSAction(entity))
       return bindingPathsRequiringFunctions.add(`${entityName}.body`);
@@ -80,10 +84,10 @@ export function getlintErrorsFromTree(
       bindingPathsRequiringFunctions.forEach((fullPropertyPath) => {
         const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
         const entity = unEvalTree[entityName];
-        const unEvalPropertyValue = (get(
+        const unEvalPropertyValue = get(
           unEvalTree,
           fullPropertyPath,
-        ) as unknown) as string;
+        ) as unknown as string;
         // remove all lint errors from path
         set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
         const lintErrors = lintBindingPath({
@@ -101,10 +105,10 @@ export function getlintErrorsFromTree(
       triggerPaths.forEach((triggerPath) => {
         const { entityName } = getEntityNameAndPropertyPath(triggerPath);
         const entity = unEvalTree[entityName];
-        const unEvalPropertyValue = (get(
+        const unEvalPropertyValue = get(
           unEvalTree,
           triggerPath,
-        ) as unknown) as string;
+        ) as unknown as string;
         // remove all lint errors from path
         set(lintTreeErrors, `["${triggerPath}"]`, []);
         const lintErrors = lintTriggerPath({

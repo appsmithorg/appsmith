@@ -89,20 +89,16 @@ jobs:
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: martijnhols/actions-cache/restore@v3
+        uses: actions/download-artifact@v3
         with:
-          path: |
-            ~/combined_failed_spec_ci
-          key: ${{ github.run_id }}-"ci-test-result"
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+          name: combined_failed_spec_ci
 
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec_ci)
+          failed_spec_env=$(cat combined_failed_spec_ci)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -144,7 +140,7 @@ jobs:
           submodules: 'recursive'
           path: cicontainerlocal/oldstack
 
-      - name: Run docker image
+      - name: Run Appsmith & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -163,6 +159,16 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
             cicontainer
+            
+      - name: Setup MSSQL docker container
+        working-directory : app/client/cypress
+        run : |
+          docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
+       # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
+       # docker restart mssqldb
+       # sudo ufw allow 1433/tcp
+       # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
+       # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -199,6 +205,7 @@ jobs:
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -252,6 +259,7 @@ jobs:
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -309,6 +317,7 @@ jobs:
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -370,7 +379,6 @@ jobs:
         if: always()
         run: |
           mkdir -p  ~/failed_spec_ci
-          rm -rf ~/failed_spec_ci/*
           echo  "empty" >> ~/failed_spec_ci/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
@@ -378,7 +386,7 @@ jobs:
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          find screenshots -type f -iname "*\(attempt 2\).png" | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact

@@ -4,12 +4,12 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSource = ObjectsRegistry.DataSources;
 let datasourceName;
 
-describe("Postgres datasource test cases", function() {
+describe("Postgres datasource test cases", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create, test, save then delete a postgres datasource", function() {
+  it("1. Create, test, save then delete a postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.fillPostgresDatasourceForm();
@@ -22,7 +22,7 @@ describe("Postgres datasource test cases", function() {
     });
   });
 
-  it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function() {
+  it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.fillPostgresDatasourceForm(true);
@@ -34,10 +34,8 @@ describe("Postgres datasource test cases", function() {
     });
   });
 
-  it("3. Create a new query from the datasource editor", function() {
-    cy.get(datasource.createQuery)
-      .last()
-      .click();
+  it("3. Create a new query from the datasource editor", function () {
+    cy.get(datasource.createQuery).last().click();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",

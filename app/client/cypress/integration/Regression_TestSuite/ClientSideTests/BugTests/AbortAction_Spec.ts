@@ -8,8 +8,8 @@ import {
 const largeResponseApiUrl = "https://api.publicapis.org/entries";
 //"https://jsonplaceholder.typicode.com/photos";//Commenting since this is faster sometimes & case is failing
 
-describe("Abort Action Execution", function() {
-  it("1. Bug #14006, #16093 - Cancel Request button should abort API action execution", function() {
+describe("Abort Action Execution", function () {
+  it("1. Bug #14006, #16093 - Cancel Request button should abort API action execution", function () {
     _.apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
     _.apiPage.RunAPI(false, 0);
     _.agHelper.GetNClick(_.locators._cancelActionExecution, 0, true);
@@ -23,7 +23,7 @@ describe("Abort Action Execution", function() {
   // Queries were resolving quicker than we could cancel them
   // Commenting this out till we can find a query that resolves slow enough for us to cancel its execution.
 
-  it("2. Bug #14006, #16093 Cancel Request button should abort Query action execution", function() {
+  it("2. Bug #14006, #16093 Cancel Request button should abort Query action execution", function () {
     _.dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       _.dataSources.CreateQueryAfterDSSaved(
@@ -31,7 +31,10 @@ describe("Abort Action Execution", function() {
         "AbortQuery",
       );
       _.dataSources.SetQueryTimeout(0);
-      _.dataSources.RunQuery(false, false, 0);
+      _.dataSources.RunQuery({
+        toValidateResponse: false,
+        waitTimeInterval: 0,
+      });
       _.agHelper.GetNClick(_.locators._cancelActionExecution, 0, true);
       _.agHelper.AssertContains(
         createMessage(ACTION_EXECUTION_CANCELLED, "AbortQuery"),

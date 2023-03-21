@@ -3,8 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("JS Execution of Higher-order-functions", function() {
-  it("Completes execution properly", function() {
+describe("JS Execution of Higher-order-functions", function () {
+  it("Completes execution properly", function () {
     const JSObjectWithHigherOrderFunction = `export default{
         myFun1: ()=>{
             return (name)=>name

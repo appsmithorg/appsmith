@@ -9,7 +9,7 @@ const defaultValue = `
         }
       `;
 
-describe("Select Widget Functionality", function() {
+describe("Select Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { find, noop } from "lodash";
-import { DropdownOption } from "components/constants";
+import type { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
 import { StyledMenu } from "design-system-old";
+import type { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
   PopoverPosition,
-  IPopoverSharedProps,
   Popover,
   Classes,
-  Position,
   MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";

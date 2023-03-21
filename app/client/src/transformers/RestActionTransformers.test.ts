@@ -2,7 +2,8 @@ import {
   extractApiUrlPath,
   transformRestAction,
 } from "transformers/RestActionTransformer";
-import { PluginType, ApiAction } from "entities/Action";
+import type { ApiAction } from "entities/Action";
+import { PluginType } from "entities/Action";
 import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,

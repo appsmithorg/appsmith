@@ -1,19 +1,17 @@
 import { setLintingErrors } from "actions/lintingActions";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import { TJSLibrary } from "workers/common/JSLibrary";
-import {
+import type { TJSLibrary } from "workers/common/JSLibrary";
+import type {
   LintTreeRequest,
   LintTreeResponse,
   LintTreeSagaRequestData,
-  LINT_WORKER_ACTIONS,
 } from "workers/Linting/types";
+import { LINT_WORKER_ACTIONS } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
@@ -38,7 +36,7 @@ function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
 }
 
 export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const { pathsToLint, unevalTree } = action.payload;
+  const { configTree, pathsToLint, unevalTree } = action.payload;
   // only perform lint operations in edit mode
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
@@ -46,6 +44,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   const lintTreeRequestData: LintTreeRequest = {
     pathsToLint,
     unevalTree,
+    configTree,
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
   };
 

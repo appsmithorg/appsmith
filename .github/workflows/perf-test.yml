@@ -119,6 +119,7 @@ jobs:
           name: cicontainer
 
       - name: Load Docker image from tar file
+        working-directory: "."
         run: |
           gunzip cicontainer.tar.gz
           docker load -i cicontainer.tar

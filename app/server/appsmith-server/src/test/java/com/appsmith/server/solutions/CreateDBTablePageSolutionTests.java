@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -18,7 +19,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -258,7 +258,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_DATASOURCE.getMessage(FieldName.DATASOURCE, invalidDatasource.getId())))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID)))
                 .verify();
 
     }

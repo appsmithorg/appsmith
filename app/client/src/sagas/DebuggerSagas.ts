@@ -1,21 +1,18 @@
+import type { LogDebuggerErrorAnalyticsPayload } from "actions/debuggerActions";
 import {
   addErrorLogs,
   debuggerLog,
   debuggerLogInit,
   deleteErrorLog,
-  LogDebuggerErrorAnalyticsPayload,
 } from "actions/debuggerActions";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
-  ENTITY_TYPE,
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type {
   Log,
   LogActionPayload,
   LogObject,
-  LOG_CATEGORY,
 } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import {
   all,
   call,
@@ -32,11 +29,13 @@ import {
   getPlugin,
   getJSCollection,
 } from "selectors/entitiesSelector";
-import { Action, PluginType } from "entities/Action";
-import { JSCollection } from "entities/JSCollection";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
+import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import {
+  getConfigTree,
   getDataTree,
   getEvaluationInverseDependencyMap,
 } from "selectors/dataTreeSelectors";
@@ -52,12 +51,12 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
-import { DependencyMap } from "utils/DynamicBindingUtils";
-import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -233,7 +232,7 @@ function* logDependentEntityProperties(payload: Log[]) {
 }
 
 function* onTriggerPropertyUpdates(payload: Log[]) {
-  const dataTree: DataTree = yield select(getDataTree);
+  const configTree: ConfigTree = yield select(getConfigTree);
   const validLogs = payload.filter(
     (log) => log.source && log.source.propertyPath,
   );
@@ -244,7 +243,7 @@ function* onTriggerPropertyUpdates(payload: Log[]) {
   for (const log of validLogs) {
     const { source } = log;
     if (!source || !source.propertyPath) continue;
-    const widget = dataTree[source.name];
+    const widget = configTree[source.name];
     // If property is not a trigger property we ignore
     if (!isWidget(widget) || !(source.propertyPath in widget.triggerPaths))
       return false;
@@ -253,9 +252,9 @@ function* onTriggerPropertyUpdates(payload: Log[]) {
       errorsPathsToDeleteFromConsole.add(`${source.id}-${source.propertyPath}`);
     }
   }
-  const errorIdsToDelete = Array.from(
-    errorsPathsToDeleteFromConsole,
-  ).map((path) => ({ id: path }));
+  const errorIdsToDelete = Array.from(errorsPathsToDeleteFromConsole).map(
+    (path) => ({ id: path }),
+  );
   AppsmithConsole.deleteErrors(errorIdsToDelete);
 }
 
@@ -589,6 +588,10 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
+      const appsmithErrorCode = get(
+        error,
+        "pluginErrorDetails.appsmithErrorCode",
+      );
       yield all(
         errorMessages.map((errorMessage) => {
           return put({
@@ -599,6 +602,8 @@ function* deleteDebuggerErrorLogsSaga(
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
+              appsmithErrorCode,
+              tat: Date.now() - new Date(parseInt(error.timestamp)).getTime(),
             },
           });
         }),
