@@ -528,7 +528,7 @@ describe("Test addDataTreeToContext method", () => {
       EVAL_CONTEXT: evalContext,
       dataTree: dataTree as unknown as DataTree,
       isTriggerBased: true,
-      enableJSObjectFactory: true,
+      enableJSFnPostProcessors: true,
     });
     addPlatformFunctionsToEvalContext(evalContext);
   });

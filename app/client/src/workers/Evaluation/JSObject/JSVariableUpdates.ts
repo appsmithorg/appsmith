@@ -1,8 +1,7 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { updateEvalTreeValueFromContext } from ".";
-import { triggerEvalWithChanges } from "../evalTreeWithChanges";
+import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 export enum PatchType {
@@ -24,7 +23,10 @@ class JSVariableUpdates {
     if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateTrackingDisabled)
       return;
     this.patches.push(patch);
-    // For every update on variable, we register a task to check for update and
+    /**
+     *  For every update on variable, we register a task to check for update updates and apply
+     *  them to eval tree.
+     */
     registerJSVarUpdateTask();
   }
 
@@ -41,24 +43,26 @@ export default JSVariableUpdates;
 
 export function getUpdatedPaths(patches: Patch[]) {
   // store exact path to diff
-  const updatedVariablesSet = new Set<string[]>();
+  const updatedVariables = [];
   for (const patch of patches) {
     const pathArray = patch.path.split(".");
     const [jsObjectName, varName] = pathArray;
-    const dataTree = (dataTreeEvaluator?.evalTree || {}) as DataTree;
 
+    if (!dataTreeEvaluator) continue;
+
+    const dataTree = dataTreeEvaluator?.getEvalTree();
     const jsObject = dataTree[jsObjectName];
-    if (isJSAction(jsObject)) {
-      const variables = jsObject.variables;
-      if (variables.includes(varName)) {
-        updatedVariablesSet.add(pathArray);
-      }
+    if (!isJSAction(jsObject)) continue;
+
+    const variables = jsObject.variables;
+    if (variables.includes(varName)) {
+      updatedVariables.push(pathArray);
     }
   }
-  return [...updatedVariablesSet];
+  return updatedVariables;
 }
 
-let registeredTask = false;
+let jsVarUpdateTaskRegistered = false;
 
 // executes when worker is idle
 function applyJSVariableUpdatesToEvalTree() {
@@ -68,18 +72,17 @@ function applyJSVariableUpdatesToEvalTree() {
   updateEvalTreeValueFromContext(modifiedVariablesList);
 
   if (modifiedVariablesList.length > 0) {
-    // trigger evaluation
-    triggerEvalWithChanges(modifiedVariablesList);
+    evalTreeWithChanges(modifiedVariablesList);
   }
   JSVariableUpdates.clear();
-  registeredTask = false;
+  jsVarUpdateTaskRegistered = false;
 }
 
 export function registerJSVarUpdateTask(
   task = applyJSVariableUpdatesToEvalTree,
 ) {
-  if (!registeredTask) {
-    registeredTask = true;
+  if (!jsVarUpdateTaskRegistered) {
+    jsVarUpdateTaskRegistered = true;
     queueMicrotask(task);
   }
 }

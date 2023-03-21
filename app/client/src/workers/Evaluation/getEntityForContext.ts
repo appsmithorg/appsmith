@@ -9,13 +9,13 @@ import JSProxy from "./JSObject/JSVariableProxy";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 
 function getJSFunctionsForEntity({
-  enableJSObjectFactory,
+  enableJSFnPostProcessors,
   jsObject,
   jsObjectName,
 }: {
   jsObjectName: string;
   jsObject: DataTreeJSAction;
-  enableJSObjectFactory: boolean;
+  enableJSFnPostProcessors: boolean;
 }) {
   const jsObjectFunction: Record<string, any> = {};
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
@@ -23,11 +23,8 @@ function getJSFunctionsForEntity({
   for (const fnName of Object.keys(resolvedObject || {})) {
     const fn = resolvedObject[fnName];
     if (typeof fn !== "function") continue;
-    // Investigate promisify of JSObject function confirmation
-    // Task: https://github.com/appsmithorg/appsmith/issues/13289
-    // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
     const data = jsObject[fnName]?.data;
-    jsObjectFunction[fnName] = enableJSObjectFactory
+    jsObjectFunction[fnName] = enableJSFnPostProcessors
       ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
       : fn;
     if (!!data) {
@@ -40,7 +37,7 @@ function getJSFunctionsForEntity({
 export function getEntityForEvalContext(
   entity: DataTreeEntity,
   entityName: string,
-  enableJSObjectFactory: boolean,
+  enableJSFnPostProcessors: boolean,
 ) {
   if (entity && "ENTITY_TYPE" in entity) {
     switch (entity.ENTITY_TYPE) {
@@ -54,7 +51,7 @@ export function getEntityForEvalContext(
         const fns = getJSFunctionsForEntity({
           jsObjectName,
           jsObject,
-          enableJSObjectFactory,
+          enableJSFnPostProcessors,
         });
 
         if (!jsObjectForEval) {

@@ -7,8 +7,8 @@ import type {
 export default class ExecutionMetaData {
   private static triggerMeta?: TriggerMeta;
   private static eventType?: EventType;
-  private static jsVarUpdateDisabled?: boolean;
-  private static jsVarUpdateTrackingDisabled?: boolean;
+  private static jsVarUpdateDisabled = false;
+  private static jsVarUpdateTrackingDisabled = false;
 
   static setExecutionMetaData(metaData: {
     triggerMeta?: TriggerMeta;

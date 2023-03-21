@@ -22,7 +22,7 @@ class FunctionDeterminer {
       dataTree,
       EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
-      enableJSObjectFactory: false,
+      enableJSFnPostProcessors: false,
     });
 
     // Set it to self so that the eval function can have access to it
@@ -39,12 +39,6 @@ class FunctionDeterminer {
     ExecutionMetaData.setExecutionMetaData({
       jsVarUpdateTrackingDisabled: false,
     });
-    for (const entityName in this.evalContext) {
-      if (this.evalContext.hasOwnProperty(entityName)) {
-        // @ts-expect-error: Types are not available
-        delete self[entityName];
-      }
-    }
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {

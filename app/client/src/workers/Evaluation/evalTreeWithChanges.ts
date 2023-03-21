@@ -10,7 +10,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 
-export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
+export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   let evalOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
@@ -26,7 +26,7 @@ export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
-      dataTreeEvaluator?.setupUpdateTreeWithDifferences(updatedValuePaths);
+      dataTreeEvaluator.setupUpdateTreeWithDifferences(updatedValuePaths);
 
     evalOrder = setupUpdateTreeResponse.evalOrder;
     unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
@@ -64,7 +64,7 @@ export function triggerEvalWithChanges(updatedValuePaths: string[][]) {
 
   const data: UpdateDataTreeMessageData = {
     workerResponse: evalTreeResponse,
-    unevalTree: dataTreeEvaluator?.oldUnEvalTree as UnEvalTree,
+    unevalTree: dataTreeEvaluator?.getOldUnevalTree() as UnEvalTree,
   };
 
   sendMessage.call(self, {

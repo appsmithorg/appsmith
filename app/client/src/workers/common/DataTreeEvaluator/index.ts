@@ -184,6 +184,10 @@ export default class DataTreeEvaluator {
     this.unParsedEvalTree = unParsedEvalTree;
   }
 
+  getOldUnevalTree() {
+    return this.oldUnEvalTree;
+  }
+
   /**
    * Method to create all data required for linting and
    * evaluation of the first tree

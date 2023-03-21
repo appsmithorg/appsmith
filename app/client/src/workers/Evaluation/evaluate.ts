@@ -121,7 +121,7 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
-  enableJSObjectFactory?: boolean;
+  enableJSFnPostProcessors?: boolean;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -133,7 +133,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
     context,
     dataTree,
-    enableJSObjectFactory = true,
+    enableJSFnPostProcessors = true,
     evalArguments,
     isTriggerBased,
     skipEntityFunctions,
@@ -154,7 +154,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     skipEntityFunctions: !!skipEntityFunctions,
     isTriggerBased,
-    enableJSObjectFactory,
+    enableJSFnPostProcessors,
   });
 
   return EVAL_CONTEXT;
@@ -220,7 +220,7 @@ export default function evaluateSync(
       context,
       evalArguments,
       isTriggerBased: isJSCollection,
-      enableJSObjectFactory: false,
+      enableJSFnPostProcessors: false,
     });
 
     const { script } = getUserScriptToEvaluate(

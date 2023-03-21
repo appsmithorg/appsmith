@@ -23,7 +23,7 @@ import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import { klona } from "klona/full";
-import { getOriginalValueFromProxy, removeProxyObject } from "./removeProxy";
+import { removeProxyObject } from "./removeProxy";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
 /**
@@ -291,37 +291,6 @@ export function getJSEntities(dataTree: DataTree) {
   return jsCollections;
 }
 
-export function updateJSCollectionStateFromContext() {
-  ExecutionMetaData.setExecutionMetaData({ jsVarUpdateTrackingDisabled: true });
-  const newVarState = {};
-  const currentEvalContext = self;
-
-  const unEvalJSCollection = JSObjectCollection.getUnEvalState();
-  const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
-  const jsObjectNames = Object.keys(unEvalJSCollection || {});
-  for (const jsObjectName of jsObjectNames) {
-    const jsObjectEntity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
-    if (isJSObject(jsObjectEntity)) {
-      const variables = jsObjectEntity.variables;
-      for (const variableName of variables) {
-        const variableValue = get(currentEvalContext, [
-          jsObjectName,
-          variableName,
-        ]);
-        set(
-          newVarState,
-          [jsObjectName, variableName],
-          getOriginalValueFromProxy(variableValue),
-        );
-      }
-    }
-  }
-  JSObjectCollection.setVariableState(newVarState);
-  ExecutionMetaData.setExecutionMetaData({
-    jsVarUpdateTrackingDisabled: false,
-  });
-}
-
 export function updateEvalTreeWithJSCollectionState(
   evalTree: DataTree,
   oldUnEvalTree: DataTree,
@@ -347,13 +316,13 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
   ExecutionMetaData.setExecutionMetaData({ jsVarUpdateTrackingDisabled: true });
   const currentEvalContext = self;
 
-  const evalTree = dataTreeEvaluator?.evalTree;
+  const evalTree = dataTreeEvaluator?.getEvalTree();
 
   if (!evalTree) return;
 
   for (const fullPathArray of paths) {
     const [jsObjectName, variableName] = fullPathArray;
-    const entity = evalTree[jsObjectName] as DataTreeJSAction;
+    const entity = evalTree[jsObjectName];
     if (jsObjectName && variableName && isJSObject(entity)) {
       const variableValue = get(currentEvalContext, [
         jsObjectName,

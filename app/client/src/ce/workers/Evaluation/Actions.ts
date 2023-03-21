@@ -37,11 +37,11 @@ export const addDataTreeToContext = (args: {
   dataTree: Readonly<DataTree>;
   skipEntityFunctions?: boolean;
   isTriggerBased: boolean;
-  enableJSObjectFactory?: boolean;
+  enableJSFnPostProcessors?: boolean;
 }) => {
   const {
     dataTree,
-    enableJSObjectFactory = false,
+    enableJSFnPostProcessors = false,
     EVAL_CONTEXT,
     isTriggerBased,
     skipEntityFunctions = false,
@@ -53,7 +53,7 @@ export const addDataTreeToContext = (args: {
     EVAL_CONTEXT[entityName] = getEntityForEvalContext(
       entity,
       entityName,
-      enableJSObjectFactory,
+      enableJSFnPostProcessors,
     );
 
     if (skipEntityFunctions || !isTriggerBased) continue;

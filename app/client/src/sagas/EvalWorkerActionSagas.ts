@@ -145,11 +145,10 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
       const { unevalTree, workerResponse } = data as UpdateDataTreeMessageData;
-      yield call(
-        updateDataTreeHandler,
-        workerResponse as EvalTreeResponseData,
-        { unevalTree },
-      );
+      yield call(updateDataTreeHandler, {
+        evalTreeResponse: workerResponse as EvalTreeResponseData,
+        unevalTree,
+      });
     }
   }
 

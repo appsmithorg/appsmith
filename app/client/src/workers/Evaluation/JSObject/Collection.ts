@@ -42,7 +42,7 @@ export default class JSObjectCollection {
   static setVariableValue(variableValue: unknown, fullPropertyPath: string) {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(fullPropertyPath);
-    const newVarState = { ...(this.variableState[entityName] || {}) };
+    const newVarState = { ...this.variableState[entityName] };
     newVarState[propertyPath] = variableValue;
     this.variableState[entityName] = newVarState;
   }

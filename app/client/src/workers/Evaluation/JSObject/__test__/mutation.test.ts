@@ -8,7 +8,7 @@ import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 jest.mock("../../evalTreeWithChanges.ts", () => {
   return {
-    triggerEvalWithChanges: () => ({}),
+    evalTreeWithChanges: () => ({}),
   };
 });
 

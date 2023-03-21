@@ -2,10 +2,14 @@ import type { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import type { Patch } from "./JSVariableUpdates";
 import JSVariableUpdates, { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import { isObject } from "lodash";
 
 function addPatch(patch: Patch) {
   JSVariableUpdates.add(patch);
 }
+
+const DEFAULT_SET_RETURN_VALUE = true;
+const DEFAULT_DELETE_RETURN_VALUE = true;
 
 export function jsObjectProxyHandler(path: string) {
   return {
@@ -18,26 +22,30 @@ export function jsObjectProxyHandler(path: string) {
       if (prop === "$targetValue") return target;
 
       if (value instanceof Function) {
-        // No modification required for jsObject's function property.
-        // Hence, return the value as it is.
+        /**
+         * When path = JSObject's name and value to be returned is a function, then value is
+         * JSObject's function property. No modification is required for jsObject's function property. Hence, return the value as it is.
+         *
+         * */
+
         if (!path.includes(".")) return value;
 
         if (!target.hasOwnProperty(value)) {
-          const newValue = value.bind(target);
+          // HACK: Assuming a prototype method call would mutate the property.
+          const fn = value.bind(target);
           return function (...args: any[]) {
-            // HACK: Assuming a prototype method call would mutate the property.
             addPatch({
               path,
               method: PatchType.PROTOTYPE_METHOD_CALL,
               value,
             });
-            return newValue(...(args || []));
+            return fn(...(args || []));
           };
         }
         return value;
       }
 
-      if (typeof value === "object" && value !== null && !value.$isProxy) {
+      if (isObject(value) && value !== null && !(value as any).$isProxy) {
         return new Proxy(value, jsObjectProxyHandler(`${path}.${prop}`));
       }
 
@@ -45,7 +53,7 @@ export function jsObjectProxyHandler(path: string) {
     },
     set: function (target: any, prop: string, value: unknown, rec: any) {
       if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
-        return true;
+        return DEFAULT_SET_RETURN_VALUE;
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.SET,
@@ -55,7 +63,7 @@ export function jsObjectProxyHandler(path: string) {
     },
     deleteProperty: function (target: any, prop: string) {
       if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
-        return true;
+        return DEFAULT_DELETE_RETURN_VALUE;
       addPatch({
         path: `${path}.${prop}`,
         method: PatchType.DELETE,
@@ -78,12 +86,10 @@ class JSProxy {
   ): ProxiedJSObject {
     let proxiedJSObject = jsObject as ProxiedJSObject;
 
-    if (typeof jsObject === "object") {
-      proxiedJSObject = new Proxy(
-        Object.assign({}, varState),
-        jsObjectProxyHandler(jsObjectName),
-      );
-    }
+    proxiedJSObject = new Proxy(
+      Object.assign({}, varState),
+      jsObjectProxyHandler(jsObjectName),
+    );
 
     return proxiedJSObject;
   }

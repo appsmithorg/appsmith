@@ -119,12 +119,13 @@ export const evalWorker = new GracefulWorkerService(
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 export function* updateDataTreeHandler(
-  data: EvalTreeResponseData,
-  extraData: {
+  data: {
+    evalTreeResponse: EvalTreeResponseData;
     unevalTree: UnEvalTree;
-    postEvalActions?: Array<AnyReduxAction>;
   },
+  postEvalActions?: Array<AnyReduxAction>,
 ) {
+  const { evalTreeResponse, unevalTree } = data;
   const {
     dataTree,
     dependencies,
@@ -137,9 +138,8 @@ export function* updateDataTreeHandler(
     isCreateFirstTree = false,
     staleMetaIds,
     pathsToClearErrorsFor,
-  } = data;
+  } = evalTreeResponse;
 
-  const { postEvalActions, unevalTree } = extraData;
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   PerformanceTracker.stopAsyncTracking(
@@ -257,10 +257,11 @@ export function* evaluateTreeSaga(
     evalTreeRequestData,
   );
 
-  yield updateDataTreeHandler(workerResponse, {
-    unevalTree,
+  yield call(
+    updateDataTreeHandler,
+    { evalTreeResponse: workerResponse, unevalTree },
     postEvalActions,
-  });
+  );
 }
 
 export function* evaluateActionBindings(
