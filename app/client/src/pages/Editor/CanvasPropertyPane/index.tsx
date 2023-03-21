@@ -1,21 +1,28 @@
 import * as Sentry from "@sentry/react";
 
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { PopoverPosition } from "@blueprintjs/core";
 import { Button, Category, Size, TooltipComponent } from "design-system-old";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { AppPositionTypeControl } from "../AppPositionTypeControl";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
+import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
+import { isAutoLayoutEnabled } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
+const Title = styled.p`
+  color: ${Colors.GRAY_800};
+`;
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
 
   const openAppSettingsPane = () => {
     dispatch(openAppSettingsPaneAction());
   };
+  const isAutoLayoutFeatureEnabled = useSelector(isAutoLayoutEnabled);
 
   return (
     <div className="relative ">
@@ -23,8 +30,10 @@ export function CanvasPropertyPane() {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <AppPositionTypeControl />
-          <ConversionButton />
+          <Title className="text-sm">Canvas Size</Title>
+          <MainContainerLayoutControl />
+          {isAutoLayoutFeatureEnabled && <ConversionButton />}
+
           <TooltipComponent
             content={
               <>
