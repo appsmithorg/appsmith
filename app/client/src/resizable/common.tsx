@@ -1,11 +1,13 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Colors } from "constants/Colors";
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import { animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
-import { GridProps, ReflowDirection } from "reflow/reflowTypes";
-import styled, { StyledComponent } from "styled-components";
-import {
+import type { GridProps, ReflowDirection } from "reflow/reflowTypes";
+import styled from "styled-components";
+import type { StyledComponent } from "styled-components";
+import type {
   LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
@@ -177,9 +179,7 @@ export type ResizableProps = {
   componentHeight: number;
   children: ReactNode;
   updateBottomRow: (bottomRow: number) => void;
-  getResizedPositions: (
-    resizedPositions: OccupiedSpace,
-  ) => {
+  getResizedPositions: (resizedPositions: OccupiedSpace) => {
     canResizeHorizontally: boolean;
     canResizeVertically: boolean;
   };

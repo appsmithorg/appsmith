@@ -1,3 +1,4 @@
+import { GridDefaults } from "constants/WidgetConstants";
 import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
