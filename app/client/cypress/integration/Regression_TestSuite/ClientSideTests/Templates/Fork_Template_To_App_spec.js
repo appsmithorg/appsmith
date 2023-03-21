@@ -78,6 +78,7 @@ describe("Fork a template to the current app", () => {
     //   "response.body.responseMeta.status",
     //   200,
     // );
+    //
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath("//div[text()='Applicant Tracker-test']").click();
@@ -102,5 +103,4 @@ describe("Fork a template to the current app", () => {
       "template added successfully",
     );
   });
-  
 });
