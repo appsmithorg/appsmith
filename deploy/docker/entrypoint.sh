@@ -3,6 +3,14 @@
 set -e
 set -o xtrace
 
+if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
+  curl \
+    --user "$APPSMITH_SEGMENT_CE_KEY:" \
+    --header 'Content-Type: application/json' \
+    --data '{"userId":"'"$(curl -sS https://api64.ipify.org || echo unknown)"'","event":"Installation Started"}' \
+    https://api.segment.io/v1/track
+fi
+
 stacks_path=/appsmith-stacks
 
 function get_maximum_heap() {
