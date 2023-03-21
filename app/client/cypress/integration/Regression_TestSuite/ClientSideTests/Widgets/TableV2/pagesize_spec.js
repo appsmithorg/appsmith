@@ -12,6 +12,10 @@ describe("Table widget v2", function () {
 
     cy.moveToStyleTab();
     cy.wait(1000); //for style tab to settle
+
+    cy.get(".t--button-group-DEFAULT").click({ force: true });
+    cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "5");
+
     cy.get(".t--button-group-SHORT").should("be.visible");
     cy.get(".t--button-group-SHORT")
       .invoke("attr", "aria-selected")
@@ -23,9 +27,6 @@ describe("Table widget v2", function () {
           cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "7");
         }
       });
-
-    cy.get(".t--button-group-DEFAULT").click({ force: true });
-    cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "5");
 
     cy.get(".t--button-group-TALL").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "4");
