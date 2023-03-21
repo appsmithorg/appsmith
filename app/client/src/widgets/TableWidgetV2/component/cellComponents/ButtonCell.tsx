@@ -1,9 +1,10 @@
 import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
+import type { BaseCellComponentProps } from "../Constants";
+import { TABLE_SIZES } from "../Constants";
 import { Button } from "./Button";
-import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
 
 const StyledButton = styled(Button)<{ compactMode: string }>`

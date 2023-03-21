@@ -1,37 +1,40 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
-import { stopReflowAction } from "actions/reflowActions";
-import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import equal from "fast-deep-equal/es6";
-import { isEmpty } from "lodash";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
-import { useContext, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import type { AppState } from "@appsmith/reducers";
+import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
 import {
-  WidgetOperationParams,
   getDropZoneOffsets,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
-import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
-import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
-import { snapToGrid } from "utils/helpers";
+import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
+import { isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
+import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { snapToGrid } from "utils/helpers";
+import { stopReflowAction } from "actions/reflowActions";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
+import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { useContext, useEffect, useRef } from "react";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -286,8 +289,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
   ) => {
-    const reflowedBlocks: WidgetDraggingBlock[] = reflowedPositionsUpdatesWidgets.map(
-      (each) => {
+    const reflowedBlocks: WidgetDraggingBlock[] =
+      reflowedPositionsUpdatesWidgets.map((each) => {
         const widget = allWidgets[each.id];
         return {
           left: each.left * snapColumnSpace,
@@ -301,8 +304,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           detachFromLayout: widget.detachFromLayout,
           type: widget.type,
         };
-      },
-    );
+      });
     const reflowedIds = reflowedPositionsUpdatesWidgets.map((each) => each.id);
     const allUpdatedBlocks = [...drawingBlocks, ...reflowedBlocks];
     const cannotDrop = allUpdatedBlocks.some((each) => {

@@ -1,5 +1,5 @@
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "@appsmith/reducers";
 import {
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,

@@ -441,18 +441,24 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 String accessToken = "";
+                                String projectID = "";
                                 if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
                                     accessToken = (String) tokenResponse.get(ACCESS_TOKEN_KEY);
+                                    if (authenticationResponse.getProjectID() != null) {
+                                        projectID = authenticationResponse.getProjectID();
+                                    }
                                 }
-                                return Mono.zip(Mono.just(datasource), Mono.just(accessToken));
+                                return Mono.zip(Mono.just(datasource), Mono.just(accessToken), Mono.just(projectID));
                             });
                 })
                 .flatMap(tuple -> {
                     Datasource datasource = tuple.getT1();
                     String accessToken = tuple.getT2();
+                    String projectID = tuple.getT3();
                     OAuthResponseDTO response = new OAuthResponseDTO();
                     response.setDatasource(datasource);
                     response.setToken(accessToken);
+                    response.setProjectID(projectID);
                     return datasourceService.update(datasource.getId(), datasource).thenReturn(response);
                 })
                 .onErrorMap(ConnectException.class,

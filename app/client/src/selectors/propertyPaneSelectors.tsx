@@ -1,15 +1,13 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { find, get, pick, set } from "lodash";
 import { createSelector } from "reselect";
-
-import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
-import {
+import type {
   DataTree,
   DataTreeEntity,
-  DataTreeWidget,
+  WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
@@ -21,10 +19,11 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { WidgetProps } from "widgets/BaseWidget";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getCurrentAppPositioningType } from "./editorSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -82,12 +81,11 @@ export const getWidgetPropsForPropertyPane = createSelector(
     if (!widget) return undefined;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
-    }) as DataTreeWidget;
+    }) as WidgetEntity;
     const widgetProperties = {
       ...widget,
       appPositioningType,
     };
-
     if (evaluatedWidget) {
       widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
     }
@@ -168,7 +166,7 @@ const getAndSetPath = (from: any, to: any, path: string) => {
 };
 
 const populateEvaluatedWidgetProperties = (
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: WidgetEntity,
   propertyPath: string,
   evaluatedDependencies: string[] = [],
 ) => {
@@ -200,13 +198,10 @@ const populateEvaluatedWidgetProperties = (
 const getCurrentEvaluatedWidget = createSelector(
   getCurrentWidgetProperties,
   getDataTree,
-  (
-    widget: WidgetProps | undefined,
-    evaluatedTree: DataTree,
-  ): DataTreeWidget => {
-    return (widget?.widgetName
-      ? evaluatedTree[widget.widgetName]
-      : {}) as DataTreeWidget;
+  (widget: WidgetProps | undefined, evaluatedTree: DataTree): WidgetEntity => {
+    return (
+      widget?.widgetName ? evaluatedTree[widget.widgetName] : {}
+    ) as WidgetEntity;
   },
 );
 
@@ -221,7 +216,7 @@ export const getWidgetPropsForPropertyName = (
     getGoogleMapsApiKey,
     (
       widget: WidgetProps | undefined,
-      evaluatedWidget: DataTreeWidget,
+      evaluatedWidget: WidgetEntity,
       googleMapsApiKey?: string,
     ): WidgetProperties => {
       const widgetProperties = populateWidgetProperties(

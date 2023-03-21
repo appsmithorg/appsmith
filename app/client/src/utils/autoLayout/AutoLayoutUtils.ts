@@ -1,10 +1,10 @@
-import { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -16,7 +16,7 @@ import {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { AlignmentColumnInfo } from "./autoLayoutTypes";
+import type { AlignmentColumnInfo } from "./autoLayoutTypes";
 import { getWidgetWidth } from "./flexWidgetUtils";
 
 export function updateFlexLayersOnDelete(

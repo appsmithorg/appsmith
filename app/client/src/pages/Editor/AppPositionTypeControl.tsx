@@ -7,12 +7,8 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/app-icons/monitor-alt.svg";
 import { ReactComponent as MultiDeviceIcon } from "assets/icons/ads/app-icons/monitor-smartphone-alt.svg";
 import { Colors } from "constants/Colors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { IconName, TooltipComponent } from "design-system-old";
-import {
-  AppPositioningTypeConfig,
-  AppPositioningTypes,
-} from "reducers/entityReducers/pageListReducer";
+import type { AppPositioningTypeConfig } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationId,
   getCurrentAppPositioningType,
@@ -21,6 +17,9 @@ import {
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { updateApplication } from "actions/applicationActions";
+import type { IconName } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 interface ApplicationPositionTypeConfigOption {
   name: string;
   type: AppPositioningTypes;
@@ -155,7 +154,8 @@ export function AppPositionTypeControl() {
                   >
                     <button
                       className={classNames({
-                        "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                        "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200":
+                          true,
                         "bg-white border-gray-300": selectedIndex === index,
                         "bg-gray-100 hover:bg-gray-200":
                           selectedIndex !== index,

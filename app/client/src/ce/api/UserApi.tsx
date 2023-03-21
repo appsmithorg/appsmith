@@ -1,6 +1,6 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 
 export interface LoginUserRequest {
   email: string;
@@ -154,9 +154,7 @@ export class UserApi extends Api {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: {
-    file: File;
-  }): AxiosPromise<{
+  static uploadPhoto(request: { file: File }): AxiosPromise<{
     id: string;
     new: boolean;
     profilePhotoAssetId: string;

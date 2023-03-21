@@ -235,4 +235,4 @@ export const Colors = {
   HIGHLIGHT_OUTLINE: "rgba(255, 255, 255, 0.5)",
 };
 
-export type Color = typeof Colors[keyof typeof Colors];
+export type Color = (typeof Colors)[keyof typeof Colors];

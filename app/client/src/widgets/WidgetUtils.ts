@@ -3,18 +3,17 @@
 
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import {
   ButtonBorderRadiusTypes,
-  ButtonPlacement,
   ButtonPlacementTypes,
   ButtonStyleTypes,
-  ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { Theme } from "constants/DefaultTheme";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { Theme } from "constants/DefaultTheme";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -27,13 +26,13 @@ import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
-import { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
-import { ContainerWidgetProps } from "./ContainerWidget/widget";
-import { SchemaItem } from "./JSONFormWidget/constants";
+import type { ContainerWidgetProps } from "./ContainerWidget/widget";
+import type { SchemaItem } from "./JSONFormWidget/constants";
 
 const punycode = require("punycode/");
 
@@ -106,9 +105,7 @@ export const generateReactKey = ({
 };
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
-  const brightness = tinycolor(backgroundColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(backgroundColor).greyscale().getBrightness();
   const percentageBrightness = (brightness / 255) * 100;
 
   if (!backgroundColor)
@@ -172,9 +169,7 @@ export const calulateHoverColor = (
 ) => {
   // For transparent backgrounds
   if (hasTransparentBackground) {
-    return tinycolor(backgroundColor)
-      .setAlpha(0.1)
-      .toRgbString();
+    return tinycolor(backgroundColor).setAlpha(0.1).toRgbString();
   }
 
   // For non-transparent backgrounds, using the HSL color modal
@@ -288,9 +283,7 @@ export const darkenColor = (color = "#fff", amount = 10) => {
 
   return tinyColor.isValid()
     ? tinyColor.darken(amount).toString()
-    : tinycolor("#fff")
-        .darken(amount)
-        .toString();
+    : tinycolor("#fff").darken(amount).toString();
 };
 
 export const getRgbaColor = (color: string, opacity: number) => {
@@ -306,9 +299,7 @@ export const getRgbaColor = (color: string, opacity: number) => {
  * @returns
  */
 export const isDark = (color: string) => {
-  const brightness = tinycolor(color)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(color).greyscale().getBrightness();
   const percentageBrightness = (brightness / 255) * 100;
   const isDark = percentageBrightness < 70;
 
@@ -882,7 +873,4 @@ export const scrollCSS = css`
 `;
 
 export const widgetTypeClassname = (widgetType: string): string =>
-  `t--widget-${widgetType
-    .split("_")
-    .join("")
-    .toLowerCase()}`;
+  `t--widget-${widgetType.split("_").join("").toLowerCase()}`;

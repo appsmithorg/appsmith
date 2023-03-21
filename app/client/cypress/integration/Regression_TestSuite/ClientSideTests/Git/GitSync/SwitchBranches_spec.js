@@ -12,7 +12,7 @@ let parentBranchKey = "ParentBranch",
   branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync:", function() {
+describe("Git sync:", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -28,7 +28,7 @@ describe("Git sync:", function() {
     cy.wait(3000);
   });
 
-  it("1. create branch input", function() {
+  it("1. create branch input", function () {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.get(gitSyncLocators.branchButton).click();
 
@@ -56,7 +56,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeBranchList).click();
   });
 
-  it("2. creates a new branch and create branch specific resources", function() {
+  it("2. creates a new branch and create branch specific resources", function () {
     cy.get(commonLocators.canvas).click({ force: true });
     //cy.createGitBranch(parentBranchKey);
     _.gitSync.CreateGitBranch(parentBranchKey, true);
@@ -121,7 +121,7 @@ describe("Git sync:", function() {
   });
 
   // rename entities
-  it("3. makes branch specific resource updates", function() {
+  it("3. makes branch specific resource updates", function () {
     cy.switchGitBranch(childBranchKey);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -235,7 +235,7 @@ describe("Git sync:", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it("6. error faced when user switches branch with new page", function() {
+  it("6. error faced when user switches branch with new page", function () {
     cy.goToEditFromPublish(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
       _.gitSync.CreateGitBranch(childBranchKey, true);
@@ -245,9 +245,7 @@ describe("Git sync:", function() {
       cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
       cy.wait(400);
-      cy.get(gitSyncLocators.branchListItem)
-        .contains("master")
-        .click();
+      cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
       cy.contains("Page not found");
     });
@@ -255,7 +253,7 @@ describe("Git sync:", function() {
     cy.reload();
   });
 
-  it("7. branch list search", function() {
+  it("7. branch list search", function () {
     cy.get(".bp3-spinner").should("not.exist");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;

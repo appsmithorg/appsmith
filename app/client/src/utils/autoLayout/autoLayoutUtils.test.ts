@@ -1,5 +1,5 @@
-import { FlexLayer, LayerChild } from "./autoLayoutTypes";
-import {
+import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -155,7 +155,7 @@ describe("test AutoLayoutUtils methods", () => {
   });
 
   it("should test getFlexLayersForSelectedWidgets", () => {
-    const parentCanvas = ({
+    const parentCanvas = {
       flexLayers: [
         {
           children: [
@@ -194,7 +194,7 @@ describe("test AutoLayoutUtils methods", () => {
           ],
         },
       ],
-    } as any) as FlattenedWidgetProps;
+    } as any as FlattenedWidgetProps;
 
     const selectedWidgets = ["2", "3", "6"];
 

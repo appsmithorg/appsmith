@@ -1,7 +1,6 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
-import { Layers } from "constants/Layers";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -26,6 +25,7 @@ import { theme } from "constants/DefaultTheme";
 import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
+import { Layers } from "constants/Layers";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];

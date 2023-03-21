@@ -8,7 +8,7 @@ import {
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
-import { ReactTableColumnProps } from "./Constants";
+import type { ReactTableColumnProps } from "./Constants";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableAction from "./TableAction";
 import styled from "styled-components";

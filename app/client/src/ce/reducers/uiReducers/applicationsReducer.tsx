@@ -1,27 +1,29 @@
+import { createReducer } from "utils/ReducerUtils";
+import type {
+  ReduxAction,
+  ApplicationPayload,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type {
+  Workspaces,
+  WorkspaceUser,
+} from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
 } from "@appsmith/constants/messages";
-import {
-  ApplicationPayload,
-  ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
-  Workspaces,
-  WorkspaceUser,
-} from "@appsmith/constants/workspaceConstants";
-import { ConnectToGitResponse } from "actions/gitSyncActions";
-import {
+import type {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
 } from "api/ApplicationApi";
-import { AppIconName } from "design-system-old";
-import { CreateApplicationFormValues } from "pages/Applications/helpers";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { createReducer } from "utils/ReducerUtils";
+import type { CreateApplicationFormValues } from "pages/Applications/helpers";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type { ConnectToGitResponse } from "actions/gitSyncActions";
+import type { AppIconName } from "design-system-old";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
