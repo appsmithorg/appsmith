@@ -16,8 +16,4 @@ export default class CanvasWidgetNormalizer extends BaseController {
   async normalize(dsl: Partial<any>, res: any): Promise<any> {
     return super.sendResponse(res, normalize(dsl, widgetSchema));
   }
-
-  async denormalize(pageWidgetId: string, entities: any): Promise<any> {
-    return denormalize(pageWidgetId, widgetSchema, entities);
-  }
 }
