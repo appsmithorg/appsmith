@@ -295,8 +295,12 @@ export const ResizableComponent = memo(function ResizableComponent(
     const handlesToOmit = get(props, "disabledResizeHandles", []);
     return omit(allHandles, handlesToOmit);
   }, [props]);
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
 
   const isEnabled =
+    !isAutoCanvasResizing &&
     !isDragging &&
     isWidgetFocused &&
     !props.resizeDisabled &&
@@ -340,9 +344,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     isAutoHeightEnabledForWidget(props, true) ||
     !isAutoHeightEnabledForWidget(props) ||
     !props.isCanvas;
-  const isAutoCanvasResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
+
   const allowResize: boolean = !isMultiSelected || !props.isFlexChild;
 
   const isHovered = isFocused && !isSelected;
