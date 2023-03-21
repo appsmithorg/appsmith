@@ -630,6 +630,23 @@ export function getActionBlockFunctionNames(
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
+    simple(astWithComments, {
+        ConditionalExpression(node) {
+            //@ts-ignore
+            if(isCallExpressionNode(node.consequent) || isCallExpressionNode(node.alternate)) {
+                canTranslate = false;
+            }
+        },
+        LogicalExpression(node) {
+            //@ts-ignore
+            if(isCallExpressionNode(node.left) || isCallExpressionNode(node.right)) {
+                canTranslate = false;
+            }
+        }
+    });
+
+    if(!canTranslate) return { canTranslate, actionBlockFunctionNames };
+
     for(const node of astWithComments.body) {
         if (isExpressionStatementNode(node)) {
             const expression = node.expression;
