@@ -9,7 +9,10 @@ import { Button, Category, Size, TooltipComponent } from "design-system-old";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import { isAutoLayoutEnabled } from "selectors/editorSelectors";
+import {
+  getIsAutoLayout,
+  isAutoLayoutEnabled,
+} from "selectors/editorSelectors";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
@@ -23,15 +26,20 @@ export function CanvasPropertyPane() {
     dispatch(openAppSettingsPaneAction());
   };
   const isAutoLayoutFeatureEnabled = useSelector(isAutoLayoutEnabled);
-
+  const isAutoLayout = useSelector(getIsAutoLayout);
   return (
     <div className="relative ">
       <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <Title className="text-sm">Canvas Size</Title>
-          <MainContainerLayoutControl />
+          {!isAutoLayout && (
+            <>
+              <Title className="text-sm">Canvas Size</Title>
+              <MainContainerLayoutControl />
+            </>
+          )}
+
           {isAutoLayoutFeatureEnabled && <ConversionButton />}
 
           <TooltipComponent
