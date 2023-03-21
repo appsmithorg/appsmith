@@ -6,6 +6,7 @@ import {
 
 describe("Table widget v2", function () {
   it("1. should test that pageSize is computed properly for all the row sizes", function () {
+    _.entityExplorer.AddNewPage();
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 300, 100);
     _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.pageSize}}");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 500, 300);
