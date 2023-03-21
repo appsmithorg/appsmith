@@ -204,5 +204,7 @@ describe("JSObject testing", () => {
     label = agHelper.GetText(getWidgetSelector(WIDGET.TEXT), "text", 0);
     // Assert the Text widget has value 2
     expect(label).to.eq("2");
+
+    //
   });
 });
