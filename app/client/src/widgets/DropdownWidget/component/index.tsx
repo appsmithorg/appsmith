@@ -1,23 +1,20 @@
-import React, { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
-import {
-  MenuItem,
-  Button,
-  ControlGroup,
-  Classes,
-  Alignment,
-} from "@blueprintjs/core";
-import { DropdownOption } from "../constants";
-import { Select, IItemRendererProps } from "@blueprintjs/select";
+import type { ComponentProps } from "widgets/BaseComponent";
+import type { Alignment } from "@blueprintjs/core";
+import { MenuItem, Button, ControlGroup, Classes } from "@blueprintjs/core";
+import type { DropdownOption } from "../constants";
+import type { IItemRendererProps } from "@blueprintjs/select";
+import { Select } from "@blueprintjs/select";
 import _ from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { TextSize } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import { LabelPosition } from "components/constants";
+import type { LabelPosition } from "components/constants";
 import { Icon } from "design-system-old";
 import LabelWithTooltip, {
   labelLayoutStyles,

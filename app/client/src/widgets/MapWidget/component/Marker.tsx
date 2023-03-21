@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { DEFAULT_MARKER_COLOR, MARKER_ICON } from "../constants";
 
 type MarkerProps = google.maps.MarkerOptions & {
@@ -11,7 +12,8 @@ type MarkerProps = google.maps.MarkerOptions & {
 };
 
 const Marker: React.FC<MarkerProps> = (options) => {
-  const { color, map, markerClusterer, onClick, onDragEnd, position } = options;
+  const { color, map, markerClusterer, onClick, onDragEnd, position, title } =
+    options;
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   const icon = {
@@ -26,6 +28,7 @@ const Marker: React.FC<MarkerProps> = (options) => {
         position,
         icon,
         map,
+        title,
       });
 
       googleMapMarker.addListener("click", () => {
@@ -64,6 +67,13 @@ const Marker: React.FC<MarkerProps> = (options) => {
 
     marker.setPosition(position);
   }, [marker, position]);
+
+  // track title
+  useEffect(() => {
+    if (!marker) return;
+
+    marker.setTitle(title);
+  }, [marker, title]);
 
   // track on onclick
   useEffect(() => {

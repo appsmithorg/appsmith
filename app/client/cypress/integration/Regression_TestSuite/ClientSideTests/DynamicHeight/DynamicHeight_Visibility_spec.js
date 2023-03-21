@@ -1,11 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/invisibleWidgetdsl.json");
 
-describe("Dynamic Height Width validation for Visibility", function() {
+describe("Dynamic Height Width validation for Visibility", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Validating visbility/invisiblity of widget with dynamic height feature", function() {
+  it("Validating visbility/invisiblity of widget with dynamic height feature", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
     cy.openPropertyPane("containerwidget");

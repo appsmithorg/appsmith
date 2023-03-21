@@ -1,24 +1,12 @@
 import express from "express";
-import AstController from "@controllers/Ast/AstController";
-import { Validator } from "@middlewares/Validator";
-import AstRules from "@rules/ast";
+import CanvasWidgetNormalizer from "@controllers/gitWidgetDSLNormalizer/CanvasWidgetNormalizer";
 
 const router = express.Router();
-const astController = new AstController();
-const validator = new Validator();
+const canvasWidgetNormalizer = new CanvasWidgetNormalizer();
 
 router.post(
     "/dsl/normalize",
-    AstRules.getScriptValidator(),
-    validator.validateRequest,
-    astController.getIdentifierDataFromScript
-);
-
-router.post(
-    "/dsl/denormalize",
-    AstRules.getMultipleScriptValidator(),
-    validator.validateRequest,
-    astController.getIdentifierDataFromMultipleScripts
+    canvasWidgetNormalizer.normalize
 );
 
 export default router;

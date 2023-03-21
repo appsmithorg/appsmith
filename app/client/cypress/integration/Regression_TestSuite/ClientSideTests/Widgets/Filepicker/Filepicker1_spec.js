@@ -1,11 +1,9 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("FilePicker Widget Functionality", function() {
+describe("FilePicker Widget Functionality", function () {
   before(() => {
     cy.visit("/applications");
-    cy.get(".t--new-button")
-      .first()
-      .click();
+    cy.get(".t--new-button").first().click();
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("filepickerwidgetv2", { x: 200, y: 600 });
   });

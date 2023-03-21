@@ -4,8 +4,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Guided Tour", function() {
-  it("1. Guided tour should work when started from the editor", function() {
+describe("Guided Tour", function () {
+  it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);
     });
@@ -14,7 +14,7 @@ describe("Guided Tour", function() {
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
-  it("2. Guided Tour", function() {
+  it("2. Guided Tour", function () {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
@@ -34,7 +34,7 @@ describe("Guided Tour", function() {
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
     // Step 3: Add binding to the tableData property
-    cy.testJsontext("tabledata", "{{getCustomers.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table Data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
@@ -45,14 +45,20 @@ describe("Guided Tour", function() {
       if ($body.find(guidedTourLocators.hintButton).length > 0) {
         cy.get(guidedTourLocators.hintButton).click();
         cy.wait(1000); //for NameInput to open
-        cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+        _.propPane.UpdatePropertyFieldValue(
+          "Default Value",
+          "{{CustomersTable.selectedRow.name}}",
+        );
       } else {
         cy.wait(1000);
         cy.get(guidedTourLocators.inputfields)
           .first()
           .clear({ force: true })
           .click({ force: true }); //Name input
-        cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
+        _.propPane.UpdatePropertyFieldValue(
+          "Default Value",
+          "{{CustomersTable.selectedRow.name}}",
+        );
       }
     });
     cy.get(guidedTourLocators.successButton).click();
@@ -61,19 +67,21 @@ describe("Guided Tour", function() {
       .eq(1)
       .clear({ force: true })
       .click({ force: true }); //Email input
-    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.email}}");
-    cy.get(".t--entity-name")
-      .contains("CountryInput")
-      .click({ force: true });
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
+      "{{CustomersTable.selectedRow.email}}",
+    );
+    cy.get(".t--entity-name").contains("CountryInput").click({ force: true });
     cy.wait(1000);
     cy.get(guidedTourLocators.inputfields)
       .eq(2)
       .clear({ force: true })
       .click({ force: true }); //Country input
-    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.country}}");
-    cy.get(".t--entity-name")
-      .contains("DisplayImage")
-      .click({ force: true });
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Value",
+      "{{CustomersTable.selectedRow.country}}",
+    );
+    cy.get(".t--entity-name").contains("DisplayImage").click({ force: true });
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
@@ -90,10 +98,12 @@ describe("Guided Tour", function() {
     )
       .eq(0)
       .click({ force: true })
+      .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("Execute a query")
-      .click({ force: true })
+      .click()
+      .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("getCustomers")
@@ -102,9 +112,7 @@ describe("Guided Tour", function() {
     // Step 9: Deploy
     cy.PublishtheApp();
     cy.get(guidedTourLocators.rating).should("be.visible");
-    cy.get(guidedTourLocators.rating)
-      .eq(4)
-      .click();
+    cy.get(guidedTourLocators.rating).eq(4).click();
     cy.get(guidedTourLocators.startBuilding).should("be.visible");
     cy.get(guidedTourLocators.startBuilding).click();
   });

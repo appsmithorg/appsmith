@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { isNil } from "lodash";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -96,9 +96,7 @@ function Connected({
             config={currentFormConfig[0]}
             datasource={datasource}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     </Wrapper>
   );

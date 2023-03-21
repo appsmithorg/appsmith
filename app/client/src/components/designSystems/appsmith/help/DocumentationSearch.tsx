@@ -1,4 +1,5 @@
-import React, { SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
+import React from "react";
 import algoliasearch from "algoliasearch/lite";
 import {
   InstantSearch,
@@ -15,7 +16,7 @@ import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
@@ -23,19 +24,15 @@ import {
 import { Icon } from "@blueprintjs/core";
 import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
   APPSMITH_DISPLAY_VERSION,
 } from "@appsmith/constants/messages";
 
-const {
-  algolia,
-  appVersion,
-  cloudHosting,
-  intercomAppID,
-} = getAppsmithConfigs();
+const { algolia, appVersion, cloudHosting, intercomAppID } =
+  getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;

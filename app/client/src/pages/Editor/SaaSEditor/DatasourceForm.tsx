@@ -3,30 +3,26 @@ import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import { Category } from "design-system-old";
-import { Datasource } from "entities/Datasource";
-import {
-  getFormValues,
-  InjectedFormProps,
-  isDirty,
-  reduxForm,
-} from "redux-form";
-import { RouteComponentProps } from "react-router";
+import type { Datasource } from "entities/Datasource";
+import type { InjectedFormProps } from "redux-form";
+import { getFormValues, isDirty, reduxForm } from "redux-form";
+import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getDatasource,
   getPluginImages,
   getDatasourceFormButtonConfig,
   getPlugin,
 } from "selectors/entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
 import {
   ActionWrapper,
   EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
-  JSONtoFormProps,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -41,7 +37,7 @@ import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import { PluginPackageName } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";

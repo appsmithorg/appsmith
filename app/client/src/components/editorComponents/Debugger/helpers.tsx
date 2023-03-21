@@ -1,4 +1,5 @@
-import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import type { Log } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
@@ -7,7 +8,8 @@ import {
   OPEN_THE_DEBUGGER,
   PRESS,
 } from "@appsmith/constants/messages";
-import { DependencyMap, isChildPropertyPath } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
   matchBuilderPath,
   matchApiPath,
@@ -145,9 +147,8 @@ export function getDependenciesFromInverseDependencies(
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
     (dependencies as any).map((dependency: any) => {
-      const { entityName: entityDependency } = getEntityNameAndPropertyPath(
-        dependency,
-      );
+      const { entityName: entityDependency } =
+        getEntityNameAndPropertyPath(dependency);
 
       /**
        * Remove appsmith from the entity dropdown, under the property pane.

@@ -44,7 +44,7 @@ Cypress.on("fail", (error) => {
 
 Cypress.env("MESSAGES", MESSAGES);
 
-before(function() {
+before(function () {
   //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
@@ -84,7 +84,7 @@ before(function() {
   });
 });
 
-before(function() {
+before(function () {
   //console.warn = () => {};
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
@@ -101,12 +101,12 @@ before(function() {
     localStorage.setItem("AppName", id);
   });
 
-  cy.fixture("example").then(function(data) {
+  cy.fixture("example").then(function (data) {
     this.data = data;
   });
 });
 
-beforeEach(function() {
+beforeEach(function () {
   //cy.window().then((win) => (win.onbeforeunload = undefined));
   if (!navigator.userAgent.includes("Cypress")) {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
@@ -121,7 +121,7 @@ beforeEach(function() {
   });
 });
 
-after(function() {
+after(function () {
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//
