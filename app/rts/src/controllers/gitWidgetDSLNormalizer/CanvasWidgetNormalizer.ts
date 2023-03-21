@@ -1,5 +1,6 @@
 import { normalize, schema, denormalize } from "normalizr";
 import BaseController from "@controllers/BaseController";
+import { Response, Request } from "express";
 
 export const widgetSchema = new schema.Entity(
   "canvasWidgets",
@@ -13,7 +14,8 @@ export default class CanvasWidgetNormalizer extends BaseController {
     super();
   }
 
-  async normalize(dsl: Partial<any>, res: any): Promise<any> {
+  async normalize(req: Request, res: Response) {
+    const dsl = req.body;
     return super.sendResponse(res, normalize(dsl, widgetSchema));
   }
 }
