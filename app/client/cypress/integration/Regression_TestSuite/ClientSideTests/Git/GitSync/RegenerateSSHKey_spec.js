@@ -5,6 +5,12 @@ describe("Git regenerate SSH key flow", function () {
   let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("ssh_" + uid);
+      _.homePage.CreateAppInWorkspace("ssh_" + uid);
+    });
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
