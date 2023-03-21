@@ -32,7 +32,7 @@ export const stringToJS = (string: string): string => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
-        return `'${segment}'`;
+        return `'${segment.replace(/\n/g, "\\n").replace(/'/g, "\\'")}'`;
       }
     })
     .join(" + ");

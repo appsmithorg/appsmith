@@ -59,12 +59,16 @@ const actionList: {
   label: string;
   value: string;
   children?: TreeDropdownOption[];
-}[] = Object.entries(FIELD_GROUP_CONFIG).map((action) => ({
-  label: action[1].label,
-  value: action[0],
-  children: action[1].children,
-  icon: <Icon name={action[1].icon} />,
-}));
+}[] = Object.entries(FIELD_GROUP_CONFIG)
+  .filter((action) => {
+    return action[0] !== AppsmithFunction.none;
+  })
+  .map((action) => ({
+    label: action[1].label,
+    value: action[0],
+    children: action[1].children,
+    icon: <Icon name={action[1].icon} />,
+  }));
 
 export function getFieldFromValue(
   value: string,
