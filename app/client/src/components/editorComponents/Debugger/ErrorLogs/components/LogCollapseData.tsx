@@ -12,7 +12,7 @@ const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   padding-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
-      : " 4px"};
+      : " 8px"};
   padding-left: 87px;
 `;
 
@@ -34,11 +34,11 @@ const MessageWrapper = styled.div`
   cpadding-bottom: 4px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 `;
 
 const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
+  padding-top: ${(props) => props.theme.spaces[3]}px;
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
