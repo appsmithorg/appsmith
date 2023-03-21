@@ -1,11 +1,11 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   CodeEditorContext,
   CursorPosition,
-  CursorPositionOrigin,
   EvaluatedPopupState,
   PropertyPanelContext,
 } from "reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 
 export const setFocusableInputField = (path: string | undefined) => {
   return {

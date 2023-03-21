@@ -1,10 +1,10 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   Datasource,
   DatasourceStructure,
   MockDatasource,

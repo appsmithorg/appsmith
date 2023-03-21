@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   Button,
   Category,

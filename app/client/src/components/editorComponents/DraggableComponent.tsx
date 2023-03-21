@@ -1,9 +1,10 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { CSSProperties, useMemo, useRef } from "react";
+import type { CSSProperties } from "react";
+import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,
@@ -46,7 +47,7 @@ const WidgetBoundaries = styled.div`
 `;
 
 /**
- * can drag helper function for react-dnd hook
+ * can drag helper function to know if drag and drop should apply
  *
  * @param isResizingOrDragging
  * @param isDraggingDisabled

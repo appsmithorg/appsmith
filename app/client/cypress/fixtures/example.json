@@ -116,7 +116,7 @@
   "RichTextEditorName": "RichtextEditor",
   "HtmlText": "This is the initial<b>content </b> <h1> This is a Heading</h1> <p> This is a paragraph.</p>",
   "RichTexteditorBody": "Here is the text area to edit html",
-  "userApi": "http://mock-api.appsmith.com",
+  "userApi": "http://host.docker.internal:5001/v1",
   "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
   "defaultdata": "TestData",
   "label": "one",
@@ -183,8 +183,8 @@
     "Test2",
     "Test3"
   ],
-  "paginationUrl": "https://mock-api.appsmith.com/",
-  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
+  "paginationUrl": "http://host.docker.internal:5001/v1/",
+  "paginationParam": "mock-api?records=20&page={{Table1.pageNo}}&size={{Table1.pageSize}}",
   "TableInputUpdate": [
     {
       "id": 2381224,

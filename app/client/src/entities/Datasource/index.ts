@@ -1,5 +1,5 @@
-import { APIResponseError } from "api/ApiResponses";
-import { ActionConfig, Property } from "entities/Action";
+import type { APIResponseError } from "api/ApiResponses";
+import type { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
 
 export enum AuthType {

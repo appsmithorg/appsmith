@@ -6,11 +6,11 @@ const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Multiple rejection of confirmation for onPageLoad function execution", function() {
+describe("Multiple rejection of confirmation for onPageLoad function execution", function () {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
   });
-  it("Works properly", function() {
+  it("Works properly", function () {
     const FUNCTIONS_SETTINGS_DEFAULT_DATA = [
       {
         name: "myFun1",
@@ -29,9 +29,10 @@ describe("Multiple rejection of confirmation for onPageLoad function execution",
       },
     ];
 
-    const numOfOnLoadAndConfirmExecutionActions = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
-      (setting) => setting.confirmBeforeExecute && setting.onPageLoad,
-    ).length;
+    const numOfOnLoadAndConfirmExecutionActions =
+      FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
+        (setting) => setting.confirmBeforeExecute && setting.onPageLoad,
+      ).length;
 
     jsEditor.CreateJSObject(
       `export default {

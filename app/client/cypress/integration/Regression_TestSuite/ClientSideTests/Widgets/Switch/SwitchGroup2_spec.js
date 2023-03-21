@@ -7,7 +7,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer;
 
-describe("Switch Group Widget Functionality", function() {
+describe("Switch Group Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -16,7 +16,7 @@ describe("Switch Group Widget Functionality", function() {
     cy.goToEditFromPublish();
   });
 */
-  it("1. Widget name changes", function() {
+  it("1. Widget name changes", function () {
     /**
      * @param{Text} Random Text
      * @param{RadioWidget}Mouseover
@@ -26,7 +26,7 @@ describe("Switch Group Widget Functionality", function() {
     agHelper.RenameWidget("SwitchGroup1", "SwitchGroupTest");
   });
 
-  it("2. Property: options", function() {
+  it("2. Property: options", function () {
     // Add a new option
     ee.SelectEntityByName("SwitchGroupTest");
 
@@ -56,7 +56,7 @@ describe("Switch Group Widget Functionality", function() {
       .contains("Yellow");
   });
 
-  it("3. Property: defaultSelectedValues", function() {
+  it("3. Property: defaultSelectedValues", function () {
     // Add a new option
     const valueToAdd = `[
       "BLUE", "GREEN"
@@ -70,7 +70,7 @@ describe("Switch Group Widget Functionality", function() {
       .contains("Green");
   });
 
-  it("4. Property: isVisible === FALSE", function() {
+  it("4. Property: isVisible === FALSE", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     /*
     cy.PublishtheApp();
@@ -78,7 +78,7 @@ describe("Switch Group Widget Functionality", function() {
     */
   });
 
-  it("5. Property: isVisible === TRUE", function() {
+  it("5. Property: isVisible === TRUE", function () {
     cy.togglebar(commonlocators.visibleCheckbox);
     /*
     cy.PublishtheApp();
@@ -88,7 +88,7 @@ describe("Switch Group Widget Functionality", function() {
       */
   });
 
-  it("6. Property: onSelectionChange", function() {
+  it("6. Property: onSelectionChange", function () {
     // create an alert modal and verify its name
     cy.createModal(this.data.ModalName);
     /*
@@ -104,7 +104,7 @@ describe("Switch Group Widget Functionality", function() {
     */
   });
 
-  it("7. Check isDirty meta property", function() {
+  it("7. Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -120,9 +120,7 @@ describe("Switch Group Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "false");
     cy.wait(200); // Switch group takes time to reflect default value changes
     // Interact with UI
-    cy.get(formWidgetsPage.labelSwitchGroup)
-      .first()
-      .click();
+    cy.get(formWidgetsPage.labelSwitchGroup).first().click();
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultSelectedValues

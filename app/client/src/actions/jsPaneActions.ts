@@ -1,10 +1,11 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { JSCollection, JSAction } from "entities/JSCollection";
-import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
-import { EventLocation } from "utils/AnalyticsUtil";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { JSCollection, JSAction } from "entities/JSCollection";
+import type {
+  RefactorAction,
+  SetFunctionPropertyPayload,
+} from "api/JSActionAPI";
+import type { EventLocation } from "utils/AnalyticsUtil";
 
 export const createNewJSCollection = (
   pageId: string,
