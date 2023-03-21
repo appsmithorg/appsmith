@@ -382,6 +382,7 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+// Note: getJSCollectionsForCurrentPage (returns a new object everytime)
 export const getJSCollectionsForCurrentPage = createSelector(
   getCurrentPageId,
   getJSCollections,
