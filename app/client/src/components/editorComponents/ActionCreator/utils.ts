@@ -380,7 +380,6 @@ export const chainableFns = [
   AppsmithFunction.resetWidget,
   AppsmithFunction.showModal,
   AppsmithFunction.download,
-  AppsmithFunction.getGeolocation,
 ];
 
 export function actionToCode(
