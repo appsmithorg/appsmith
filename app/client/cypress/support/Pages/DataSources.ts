@@ -654,6 +654,10 @@ export class DataSources {
   }: Partial<RunQueryParams> = {}) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     if (toValidateResponse) {
+      this.agHelper.AssertElementAbsence(
+        this.locator._cancelActionExecution,
+        10000,
+      ); //For the run to give response
       this.agHelper.Sleep();
       this.agHelper.ValidateNetworkExecutionSuccess(
         "@postExecute",

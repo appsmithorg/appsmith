@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from ".";
 
 describe("updateJSCollectionInUnEvalTree", function () {
@@ -36,56 +36,62 @@ describe("updateJSCollectionInUnEvalTree", function () {
       },
     };
     const JSObject1Prototype = {
-      meta: {
-        myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-        myFun2: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-      },
-      name: "JSObject1",
       actionId: "64013546b956c26882acc587",
       pluginType: "JS",
       ENTITY_TYPE: "JSACTION",
-      bindingPaths: {
-        body: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-      },
-      reactivePaths: {
-        body: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
+    };
+    const JSObject1PrototypeConfig = {
+      JSObject1: {
+        meta: {
+          myFun1: {
+            arguments: [],
+            isAsync: false,
+            confirmBeforeExecute: false,
+          },
+          myFun2: {
+            arguments: [],
+            isAsync: false,
+            confirmBeforeExecute: false,
+          },
         },
-        {
-          key: "myVar1",
+        name: "JSObject1",
+        pluginType: "JS",
+        ENTITY_TYPE: "JSACTION",
+        bindingPaths: {
+          body: "SMART_SUBSTITUTE",
+          myVar1: "SMART_SUBSTITUTE",
+          myVar2: "SMART_SUBSTITUTE",
+          myFun1: "SMART_SUBSTITUTE",
+          myFun2: "SMART_SUBSTITUTE",
         },
-        {
-          key: "myVar2",
+        reactivePaths: {
+          body: "SMART_SUBSTITUTE",
+          myVar1: "SMART_SUBSTITUTE",
+          myVar2: "SMART_SUBSTITUTE",
+          myFun1: "SMART_SUBSTITUTE",
+          myFun2: "SMART_SUBSTITUTE",
         },
-        {
-          key: "myFun1",
+        dynamicBindingPathList: [
+          {
+            key: "body",
+          },
+          {
+            key: "myVar1",
+          },
+          {
+            key: "myVar2",
+          },
+          {
+            key: "myFun1",
+          },
+          {
+            key: "myFun2",
+          },
+        ],
+        variables: ["myVar1", "myVar2"],
+        dependencyMap: {
+          body: ["myFun1", "myFun2"],
         },
-        {
-          key: "myFun2",
-        },
-      ],
-      variables: ["myVar1", "myVar2"],
-      dependencyMap: {
-        body: ["myFun1", "myFun2"],
       },
     };
     const JSObject1 = {
@@ -106,60 +112,13 @@ describe("updateJSCollectionInUnEvalTree", function () {
     const actualResult = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
+      JSObject1PrototypeConfig as unknown as ConfigTree,
     );
 
     const expectedJSObjectPrototype = {
-      meta: {
-        myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-        myFun2: {
-          arguments: [],
-          isAsync: true,
-          confirmBeforeExecute: false,
-        },
-      },
-      name: "JSObject1",
       actionId: "64013546b956c26882acc587",
       pluginType: "JS",
       ENTITY_TYPE: "JSACTION",
-      bindingPaths: {
-        body: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-      },
-      reactivePaths: {
-        body: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
-        },
-        {
-          key: "myVar1",
-        },
-        {
-          key: "myVar2",
-        },
-        {
-          key: "myFun1",
-        },
-        {
-          key: "myFun2",
-        },
-      ],
-      variables: ["myVar1", "myVar2"],
-      dependencyMap: {
-        body: ["myFun1", "myFun2"],
-      },
     };
     const expectedJSObject = {
       myVar1: "[]",

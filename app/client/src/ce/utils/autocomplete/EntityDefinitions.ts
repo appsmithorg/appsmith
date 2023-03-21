@@ -1,13 +1,11 @@
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type {
-  DataTreeAction,
-  DataTreeAppsmith,
-} from "entities/DataTree/dataTreeFactory";
+import type { AppsmithEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { Def } from "tern";
+import type { ActionEntity } from "entities/DataTree/types";
 
 const isVisible = {
   "!type": "bool",
@@ -15,7 +13,7 @@ const isVisible = {
 };
 
 export const entityDefinitions = {
-  APPSMITH: (entity: DataTreeAppsmith, extraDefsToDefine: ExtraDef) => {
+  APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {
     const generatedTypeDef = generateTypeDef(
       _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
       extraDefsToDefine,
@@ -41,7 +39,7 @@ export const entityDefinitions = {
     }
     return generatedTypeDef;
   },
-  ACTION: (entity: DataTreeAction, extraDefsToDefine: ExtraDef) => {
+  ACTION: (entity: ActionEntity, extraDefsToDefine: ExtraDef) => {
     const dataDef = generateTypeDef(entity.data, extraDefsToDefine);
 
     let data: Def = {
