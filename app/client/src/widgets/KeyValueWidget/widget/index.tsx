@@ -1,7 +1,9 @@
 import * as React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { KeyValueComponent, KeyValueComponentProps } from "../component";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { KeyValueComponentProps } from "../component";
+import { KeyValueComponent } from "../component";
 
 export type KeyValueWidgetProps = WidgetProps & KeyValueComponentProps;
 
