@@ -38,7 +38,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        super.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR
       );
@@ -65,7 +65,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        super.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR
       );
@@ -74,9 +74,14 @@ export default class AstController extends BaseController {
 
   async entityRefactorController(req: Request, res: Response) {
     try {
-      // By default the application eval version is set to be 2
-      const { script, oldName, newName, isJSObject, evalVersion = 2 }: entityRefactorType =
-        req.body;
+      // By default, the application eval version is set to be 2
+      const {
+        script,
+        oldName,
+        newName,
+        isJSObject,
+        evalVersion = 2,
+      }: entityRefactorType = req.body;
       const data = await AstService.entityRefactor(
         script,
         oldName,
@@ -88,7 +93,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        super.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR
       );

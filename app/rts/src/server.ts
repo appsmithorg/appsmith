@@ -9,6 +9,7 @@ import { initializeSockets } from "./sockets";
 // routes
 import ast_routes from "./routes/ast_routes";
 import health_check_routes from "./routes/health_check_routes";
+import git_routes from "./routes/git_routes";
 
 const RTS_BASE_PATH = "/rts";
 export const RTS_BASE_API_PATH = "/rts-api/v1";
@@ -17,7 +18,6 @@ export const RTS_BASE_API_PATH = "/rts-api/v1";
 const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
   "debug") as LogLevelDesc;
 log.setLevel(logLevel);
-
 
 const API_BASE_URL = process.env.APPSMITH_API_BASE_URL;
 if (API_BASE_URL == null || API_BASE_URL === "") {
@@ -48,13 +48,15 @@ app.get("/", (_, res) => {
 
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
-app.use(`${RTS_BASE_API_PATH}/git`, health_check_routes);
+app.use(`${RTS_BASE_API_PATH}/git`, git_routes);
 
 server.headersTimeout = 61000;
 server.keepAliveTimeout = 60000;
 // Run the server
 server.listen(APPSMITH_RTS_PORT, () => {
-  log.info(`RTS version ${buildVersion} running at http://localhost:${APPSMITH_RTS_PORT}`);
+  log.info(
+    `RTS version ${buildVersion} running at http://localhost:${APPSMITH_RTS_PORT}`
+  );
 });
 
 export default server;
