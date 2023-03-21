@@ -1,8 +1,10 @@
 import {
+  APPSMITH_HTTP_ERROR_413,
   createMessage,
   ERROR_0,
   ERROR_413,
   ERROR_500,
+  GENERIC_API_EXECUTION_ERROR,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -107,10 +109,10 @@ export const apiFailureResponseInterceptor = (error: any) => {
       pluginErrorDetails: {
         appsmithErrorCode: "AE-APP-4013",
         appsmithErrorMessage: createMessage(ERROR_413, 100),
-        downstreamErrorCode: "413 CONTENT_TOO_LARGE",
+        downstreamErrorCode: createMessage(APPSMITH_HTTP_ERROR_413),
         downstreamErrorMessage: "",
-        errorType: "INTERNAL_ERROR",
-        title: "API execution error",
+        errorType: "INTERNAL_ERROR", // this value is from the server, hence cannot construct enum type.
+        title: createMessage(GENERIC_API_EXECUTION_ERROR),
       },
     });
   }
