@@ -164,7 +164,7 @@ function getActionEntityFields(
     field: FieldType.PARAMS_FIELD,
     getParentValue,
     value,
-    argNum: successFunction || errorFunction ? 2 : 0,
+    position: successFunction || errorFunction ? 2 : 0,
   });
 
   return fields;

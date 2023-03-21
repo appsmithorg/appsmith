@@ -516,13 +516,19 @@ export function getCodeFromMoustache(value = "") {
   return code;
 }
 
-export function paramSetter(changeValue: string, currentValue: string) {
+export function paramSetter(
+  changeValue: string,
+  currentValue: string,
+  argNum?: number,
+) {
+  argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(currentValue);
   const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
-  return setQueryParam(requiredValue, changeValueWithoutBraces);
+  return setQueryParam(requiredValue, changeValueWithoutBraces, argNum);
 }
 
-export function paramGetter(code: string) {
+export function paramGetter(code: string, argNum?: number) {
+  argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(code);
-  return getQueryParam(requiredValue);
+  return getQueryParam(requiredValue, argNum);
 }

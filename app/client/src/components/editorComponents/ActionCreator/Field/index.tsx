@@ -48,7 +48,7 @@ export function Field(props: FieldProps) {
   let viewElement: JSX.Element | null = null;
   const view = fieldConfig.view && views[fieldConfig.view];
   const label = FIELD_CONFIG[fieldType].label(props);
-  const getterFunction = field.getter || fieldConfig.getter;
+  const getterFunction = fieldConfig.getter;
   const value = props.value;
   const defaultText = FIELD_CONFIG[fieldType].defaultText;
   const options = FIELD_CONFIG[fieldType].options(props);
@@ -171,6 +171,22 @@ export function Field(props: FieldProps) {
       });
       break;
     case FieldType.PARAMS_FIELD:
+      viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
+        options: options as TreeDropdownOption[],
+        label: label,
+        get: (value: string) => getterFunction(value, props.field.position),
+        set: (value: string | DropdownOption) => {
+          const finalValueToSet = fieldConfig.setter(
+            value,
+            props.value,
+            props.field.position,
+          );
+          props.onValueChange(finalValueToSet, false);
+        },
+        value: value,
+        defaultText: defaultText,
+      });
+      break;
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options as TreeDropdownOption[],
@@ -225,10 +241,9 @@ export function Field(props: FieldProps) {
             props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
           ),
         set: (value: string, isUpdatedViaKeyboard = false) => {
-          const setter = field.setter || fieldConfig.setter;
-          const finalValueToSet = setter(
-            props.value,
+          const finalValueToSet = fieldConfig.setter(
             value,
+            props.value,
             props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
           );
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);

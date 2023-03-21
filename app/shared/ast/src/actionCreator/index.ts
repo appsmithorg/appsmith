@@ -1127,7 +1127,7 @@ export function getFunctionParams(code: string) {
     }
 }
 
-export function getQueryParam(code: string) {
+export function getQueryParam(code: string, number: number) {
     try {
         const sanitizedScript = sanitizeScript(code, 2);
         const ast = getAST(sanitizedScript, {
@@ -1156,7 +1156,7 @@ export function getQueryParam(code: string) {
     }
 }
 
-export function setQueryParam(code: string, value: string) {
+export function setQueryParam(code: string, value: string, position: number) {
     try {
         const sanitizedScript = sanitizeScript(code, 2);
         const ast = getAST(sanitizedScript, {
@@ -1167,22 +1167,22 @@ export function setQueryParam(code: string, value: string) {
         const rootCallExpression = findRootCallExpression(ast);
         if(!rootCallExpression) return code; 
 
-        const firstArg = rootCallExpression.arguments[0] || {};
-        if(isObjectExpression(firstArg)) {
-            return setObjectAtPosition(code, value, 0, 2);
-        } else if(firstArg.type === undefined) {
-            return setObjectAtPosition(code, value, 0, 2);
-        } else if(isTypeOfFunction(firstArg.type)) {
+        if(position === 0) {
+            rootCallExpression.arguments = [];
+            code = generate(rootCallExpression);
+            return setObjectAtPosition(code, value, 2, 2); 
+        } else {
+            const firstArg = rootCallExpression.arguments[0] || {};
             const secondArg = rootCallExpression.arguments[1] || {};
-            if(secondArg.type === undefined) {
-                setCallbackFunctionField(code, "() => {}", 1, 2);
+            if(firstArg && !isTypeOfFunction(firstArg.type)) {
+                code = setCallbackFunctionField(code, "() => {}", 0, 2);
+            }
+            if(secondArg && !isTypeOfFunction(secondArg.type)) {
+                code = setCallbackFunctionField(code, "() => {}", 1, 2);
             }
             const thirdArg = rootCallExpression.arguments[2] || {};
-            if(isObjectExpression(thirdArg) || thirdArg.type === undefined) {
-                return setObjectAtPosition(code, value, 2, 2);
-            }
+            return setObjectAtPosition(code, value, 2, 2);
         }
-        return code;
     } catch(e) {
         return code;
     }

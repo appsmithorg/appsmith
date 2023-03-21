@@ -23,7 +23,6 @@ import {
   callBackFieldSetter,
   callBackFieldGetter,
   objectSetter,
-  paramGetter,
   paramSetter,
 } from "../utils";
 import store from "store";
@@ -113,14 +112,14 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.PARAMS_FIELD]: {
     label: () => "Params",
-    defaultText: "",
+    defaultText: "{{\n{}\n}}",
     exampleText: "Api1.run({ a: 1 })",
     options: () => null,
-    getter: (value: any) => {
-      return paramGetter(value);
+    getter: (value: any, idx?: number) => {
+      return textGetter(value, idx || 0);
     },
-    setter: (value: any, currentValue: string) => {
-      return paramSetter(value, currentValue);
+    setter: (value: any, currentValue: string, idx?: number) => {
+      return paramSetter(value, currentValue, idx);
     },
     view: ViewTypes.TEXT_VIEW,
   },
