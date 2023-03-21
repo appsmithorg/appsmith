@@ -98,6 +98,7 @@ export function alterLayoutForMobile(
   parentId: string,
   canvasWidth: number,
   mainCanvasWidth: number,
+  firstTimeDSLUpdate = false,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -148,9 +149,21 @@ export function alterLayoutForMobile(
       mainCanvasWidth,
     );
     widgets[child] = widget;
-    widgets = updateWidgetPositions(widgets, child, true, mainCanvasWidth);
+    widgets = updateWidgetPositions(
+      widgets,
+      child,
+      true,
+      mainCanvasWidth,
+      firstTimeDSLUpdate,
+    );
   }
-  widgets = updateWidgetPositions(widgets, parentId, true, mainCanvasWidth);
+  widgets = updateWidgetPositions(
+    widgets,
+    parentId,
+    true,
+    mainCanvasWidth,
+    firstTimeDSLUpdate,
+  );
   return widgets;
 }
 
@@ -158,6 +171,7 @@ export function alterLayoutForDesktop(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   mainCanvasWidth: number,
+  firstTimeDSLUpdate = false,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -166,9 +180,20 @@ export function alterLayoutForDesktop(
   if (!isStack(allWidgets, parent)) return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateWidgetPositions(widgets, parentId, false, mainCanvasWidth);
+  widgets = updateWidgetPositions(
+    widgets,
+    parentId,
+    false,
+    mainCanvasWidth,
+    firstTimeDSLUpdate,
+  );
   for (const child of children) {
-    widgets = alterLayoutForDesktop(widgets, child, mainCanvasWidth);
+    widgets = alterLayoutForDesktop(
+      widgets,
+      child,
+      mainCanvasWidth,
+      firstTimeDSLUpdate,
+    );
   }
   return widgets;
 }

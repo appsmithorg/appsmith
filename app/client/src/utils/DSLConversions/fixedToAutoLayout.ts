@@ -1,4 +1,3 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   GridDefaults,
   layoutConfigurations,
@@ -15,6 +14,7 @@ import {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import WidgetFactory from "utils/WidgetFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
 const unHandledWidgets = ["LIST_WIDGET", "FORM_WIDGET", "MODAL_WIDGET"];
@@ -40,6 +40,7 @@ export default function convertDSLtoAutoAndUpdatePositions(
     normalizedAutoDSL,
     MAIN_CONTAINER_WIDGET_ID,
     canvasWidth,
+    true,
   );
 
   const alteredAutoDSL: DSLWidget = CanvasWidgetsNormalizer.denormalize(
@@ -199,32 +200,12 @@ function getNextLayer(currWidgets: DSLWidget[]): {
 
   //Recursively call convertDSLtoAuto to convert Children Widgets
   for (const widget of widgetsInLayer) {
-    let currWidget =
+    const currWidget =
       unHandledWidgets.indexOf(widget.type) < 0
         ? convertDSLtoAuto(widget)
         : { ...widget, positioning: Positioning.Fixed };
-    const widgetConfig = WidgetFactory.widgetConfigMap.get(currWidget.type);
-    //get Responsive Behaviour
-    const responsiveBehavior =
-      (widgetConfig?.responsiveBehavior as ResponsiveBehavior) ||
-      ResponsiveBehavior.Hug;
 
-    if (widgetConfig?.dynamicHeight && widgetConfig.isCanvas) {
-      currWidget.dynamicHeight = widgetConfig.dynamicHeight;
-    }
-
-    //Add widget specific property Defaults, for autoLayout widget
-    const { disabledPropsDefaults } =
-      WidgetFactory.getWidgetAutoLayoutConfig(currWidget.type) || {};
-    if (disabledPropsDefaults) {
-      currWidget = {
-        ...currWidget,
-        ...disabledPropsDefaults,
-      };
-    }
-
-    //get minWidth of the type
-    currWidget.minWidth = widgetConfig?.minWidth || FILL_WIDGET_MIN_WIDTH;
+    const propUpdates = getPropertyUpdatesBasedOnConfig(currWidget);
 
     //Get Alignment of the Widget
     alignment = alignmentMap[currWidget.widgetId] || FlexLayerAlignment.Start;
@@ -236,7 +217,7 @@ function getNextLayer(currWidgets: DSLWidget[]): {
 
     modifiedWidgetsInLayer.push({
       ...currWidget,
-      responsiveBehavior,
+      ...propUpdates,
       alignment,
       flexVerticalAlignment,
     });
@@ -720,4 +701,41 @@ function areWidgetsOverlapping(r1: DSLWidget, r2: DSLWidget) {
     r2.topRow >= r1.bottomRow ||
     r2.bottomRow <= r1.topRow
   );
+}
+
+/**
+ * Methods to get all the property updates required based on teh config
+ * @param widget
+ * @returns
+ */
+function getPropertyUpdatesBasedOnConfig(widget: DSLWidget) {
+  const widgetConfig = WidgetFactory.widgetConfigMap.get(widget.type);
+
+  let propertyUpdates: Partial<WidgetProps> = {};
+
+  //get Responsive Behaviour
+  propertyUpdates.responsiveBehavior =
+    (widgetConfig?.responsiveBehavior as ResponsiveBehavior) ||
+    ResponsiveBehavior.Hug;
+
+  if (widgetConfig?.dynamicHeight && widgetConfig.isCanvas) {
+    propertyUpdates.dynamicHeight = widgetConfig.dynamicHeight;
+  }
+
+  //Add widget specific property Defaults, for autoLayout widget
+  const { disabledPropsDefaults } =
+    WidgetFactory.getWidgetAutoLayoutConfig(widget.type) || {};
+  if (disabledPropsDefaults) {
+    propertyUpdates = {
+      ...propertyUpdates,
+      ...disabledPropsDefaults,
+    };
+  }
+
+  //get minWidth of the type
+  if (widgetConfig?.minWidth) {
+    propertyUpdates.minWidth = widgetConfig.minWidth;
+  }
+
+  return propertyUpdates;
 }

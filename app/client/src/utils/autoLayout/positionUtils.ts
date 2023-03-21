@@ -43,6 +43,7 @@ export function updateWidgetPositions(
   parentId: string,
   isMobile = false,
   mainCanvasWidth: number,
+  firstTimeDSLUpdate = false,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
@@ -78,6 +79,7 @@ export function updateWidgetPositions(
           isMobile,
           mainCanvasWidth,
           columnSpace,
+          firstTimeDSLUpdate,
         );
         widgets = payload.widgets;
         height += payload.height;
@@ -117,6 +119,7 @@ export function updateWidgetPositions(
           parent.parentId,
           isMobile,
           mainCanvasWidth,
+          firstTimeDSLUpdate,
         );
     }
     return widgets;
@@ -133,6 +136,7 @@ function calculateWidgetPositions(
   isMobile = false,
   mainCanvasWidth: number,
   columnSpace: number,
+  firstTimeDSLUpdate: boolean,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   /**
    * Get information break down on each alignment within the layer.
@@ -145,6 +149,7 @@ function calculateWidgetPositions(
     isMobile,
     mainCanvasWidth,
     columnSpace,
+    firstTimeDSLUpdate,
   );
   /**
    * Check if this layer is wrapped by css flex.
@@ -287,6 +292,7 @@ export function extractAlignmentInfo(
   isMobile: boolean,
   mainCanvasWidth: number,
   columnSpace: number,
+  firstTimeDSLUpdate: boolean,
 ): { info: AlignmentInfo[]; fillWidgetLength: number } {
   const startChildren: AlignmentChildren[] = [],
     centerChildren: AlignmentChildren[] = [],
@@ -314,14 +320,14 @@ export function extractAlignmentInfo(
 
     // For hug widgets with horizontal resizing enabled,
     // make sure the width is not getting greater than user defined width
-    if (
-      !isFillWidget &&
-      !disableResizeHandles?.horizontal &&
-      widget.widthInPercentage
-    ) {
-      const userDefinedWidth = widget.widthInPercentage * mainCanvasWidth;
-      if (columns * columnSpace > userDefinedWidth) {
-        columns = (widget.widthInPercentage * mainCanvasWidth) / columnSpace;
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (widget.widthInPercentage) {
+        const userDefinedWidth = widget.widthInPercentage * mainCanvasWidth;
+        if (columns * columnSpace > userDefinedWidth) {
+          columns = (widget.widthInPercentage * mainCanvasWidth) / columnSpace;
+        }
+      } else if (firstTimeDSLUpdate) {
+        widget.widthInPercentage = (columns * columnSpace) / mainCanvasWidth;
       }
     }
 
@@ -679,6 +685,7 @@ export function updatePositionsOfParentAndSiblings(
   layerIndex: number,
   isMobile: boolean,
   mainCanvasWidth: number,
+  firstTimeDSLUpdate = false,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -712,6 +719,7 @@ export function updatePositionsOfParentAndSiblings(
       widgetId,
       isMobile,
       mainCanvasWidth,
+      firstTimeDSLUpdate,
     );
   }
 

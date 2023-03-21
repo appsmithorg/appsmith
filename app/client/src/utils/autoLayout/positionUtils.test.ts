@@ -77,29 +77,31 @@ describe("test PositionUtils methods", () => {
           { id: "3", align: FlexLayerAlignment.End },
         ],
       };
-      expect(extractAlignmentInfo(widgets, layer, false, 64, 1)).toEqual({
-        info: [
-          {
-            alignment: FlexLayerAlignment.Start,
-            columns: 40,
-            children: [
-              { widget: widgets["1"], columns: 16, rows: 4 },
-              { widget: widgets["2"], columns: 24, rows: 7 },
-            ],
-          },
-          {
-            alignment: FlexLayerAlignment.Center,
-            columns: 0,
-            children: [],
-          },
-          {
-            alignment: FlexLayerAlignment.End,
-            columns: 16,
-            children: [{ widget: widgets["3"], columns: 16, rows: 7 }],
-          },
-        ],
-        fillWidgetLength: 64,
-      });
+      expect(extractAlignmentInfo(widgets, layer, false, 64, 1, false)).toEqual(
+        {
+          info: [
+            {
+              alignment: FlexLayerAlignment.Start,
+              columns: 40,
+              children: [
+                { widget: widgets["1"], columns: 16, rows: 4 },
+                { widget: widgets["2"], columns: 24, rows: 7 },
+              ],
+            },
+            {
+              alignment: FlexLayerAlignment.Center,
+              columns: 0,
+              children: [],
+            },
+            {
+              alignment: FlexLayerAlignment.End,
+              columns: 16,
+              children: [{ widget: widgets["3"], columns: 16, rows: 7 }],
+            },
+          ],
+          fillWidgetLength: 64,
+        },
+      );
     });
     it("should calculate columns for fill widgets", () => {
       const widgets = {
@@ -160,7 +162,8 @@ describe("test PositionUtils methods", () => {
         ],
       };
       expect(
-        extractAlignmentInfo(widgets, layer, false, 64, 1).fillWidgetLength,
+        extractAlignmentInfo(widgets, layer, false, 64, 1, false)
+          .fillWidgetLength,
       ).toEqual(24);
     });
   });

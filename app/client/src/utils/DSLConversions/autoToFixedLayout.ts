@@ -30,6 +30,7 @@ const deletedResponsiveProperties = [
   "responsiveBehavior",
   "alignment",
   "flexVerticalAlignment",
+  "widthInPercentage",
 ];
 
 /**
