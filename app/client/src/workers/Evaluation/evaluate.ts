@@ -172,7 +172,7 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
-  configTree?: ConfigTree,
+  configTree: ConfigTree,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
