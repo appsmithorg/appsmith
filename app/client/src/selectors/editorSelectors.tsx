@@ -891,3 +891,6 @@ export const showCanvasTopSectionSelector = createSelector(
 
 export const getGsheetToken = (state: AppState) =>
   state.entities.datasources.gsheetToken;
+
+export const getGsheetProjectID = (state: AppState) =>
+  state.entities.datasources.gsheetProjectID;

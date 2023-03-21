@@ -479,6 +479,7 @@ function* getOAuthAccessTokenSaga(
           type: ReduxActionTypes.SET_GSHEET_TOKEN,
           payload: {
             gsheetToken: response.data.token,
+            gsheetProjectID: response.data.projectID,
           },
         });
       } else {
@@ -1171,6 +1172,7 @@ function* filePickerActionCallbackSaga(
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
       payload: {
         gsheetToken: "",
+        gsheetProjectID: "",
       },
     });
 
