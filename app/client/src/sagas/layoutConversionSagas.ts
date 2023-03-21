@@ -27,12 +27,16 @@ import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   try {
-    yield call(createSnapshotSaga);
+    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
+
+    if (getShouldSaveSnapShot(pageWidgetsList)) {
+      yield call(createSnapshotSaga);
+    }
+
     //Set conversion form to indicated conversion loading state
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
     );
-    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
     const pageLayouts = [];
 
@@ -85,11 +89,15 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
  */
 function* convertFromFixedToAutoSaga() {
   try {
-    yield call(createSnapshotSaga);
+    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
+
+    if (getShouldSaveSnapShot(pageWidgetsList)) {
+      yield call(createSnapshotSaga);
+    }
+
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
     );
-    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
     const pageLayouts = [];
 
@@ -179,4 +187,15 @@ export default function* layoutConversionSagas() {
       logLayoutConversionErrorSaga,
     ),
   ]);
+}
+
+//Function returns boolean, SnapShot should not be saved for a single empty canvas
+function getShouldSaveSnapShot(pageWidgetsList: PageWidgetsReduxState) {
+  const pageList = Object.values(pageWidgetsList);
+
+  if (pageList.length !== 1) return true;
+
+  const { dsl: pageDSL } = pageList[0];
+
+  return Object.keys(pageDSL).length !== 1;
 }
