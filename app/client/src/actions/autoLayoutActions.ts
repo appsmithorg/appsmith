@@ -67,6 +67,19 @@ export function updateWidgetDimensionAction(
   };
 }
 
+export const setConversionStart = (conversionState: CONVERSION_STATES) => {
+  return {
+    type: ReduxActionTypes.START_CONVERSION_FLOW,
+    payload: conversionState,
+  };
+};
+
+export const setConversionStop = () => {
+  return {
+    type: ReduxActionTypes.STOP_CONVERSION_FLOW,
+  };
+};
+
 export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
   return {
     type: ReduxActionTypes.SET_AUTO_CANVAS_RESIZING,

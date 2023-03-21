@@ -16,8 +16,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import BetaCard from "components/editorComponents/BetaCard";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
+import {
+  setConversionStart,
+  setConversionStop,
+} from "actions/autoLayoutActions";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 
 export function ConversionButton() {
   const isAutoLayout = getIsAutoLayout(store.getState());
@@ -33,13 +37,9 @@ export function ConversionButton() {
 
   const onOpenOrClose = useCallback((isOpen: boolean) => {
     if (isOpen) {
-      dispatch({
-        type: ReduxActionTypes.START_CONVERSION_FLOW,
-      });
+      dispatch(setConversionStart(CONVERSION_STATES.START));
     } else {
-      dispatch({
-        type: ReduxActionTypes.STOP_CONVERSION_FLOW,
-      });
+      dispatch(setConversionStop());
     }
   }, []);
 

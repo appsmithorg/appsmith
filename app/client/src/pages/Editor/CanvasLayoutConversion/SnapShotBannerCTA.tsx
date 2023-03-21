@@ -13,7 +13,10 @@ import {
 } from "@appsmith/constants/messages";
 import { Text, TextType } from "design-system-old";
 import { useSnapShotForm } from "./hooks/useSnapShotForm";
-import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
+import {
+  setConversionStart,
+  setConversionStop,
+} from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useDispatch } from "react-redux";
 
@@ -25,7 +28,9 @@ export function SnapShotBannerCTA() {
     conversionState: CONVERSION_STATES,
   ) => {
     if (isOpen) {
-      dispatch(setLayoutConversionStateAction(conversionState));
+      dispatch(setConversionStart(conversionState));
+    } else {
+      dispatch(setConversionStop());
     }
   };
 

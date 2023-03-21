@@ -44,8 +44,9 @@ const layoutConversionReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.START_CONVERSION_FLOW]: (
     state: layoutConversionReduxState,
+    action: ReduxAction<CONVERSION_STATES>,
   ) => {
-    state.conversionState = CONVERSION_STATES.START;
+    state.conversionState = action.payload;
     state.conversionError = undefined;
     state.isConverting = true;
   },
