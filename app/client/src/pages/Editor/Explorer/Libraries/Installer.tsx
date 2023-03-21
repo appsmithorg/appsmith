@@ -36,7 +36,6 @@ import {
   selectQueuedLibraries,
   selectStatusForURL,
 } from "selectors/entitiesSelector";
-import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { AppState } from "@appsmith/reducers";
@@ -48,6 +47,11 @@ import {
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importRemixIcon } from "design-system-old";
+
+const SaveSuccessIcon = importRemixIcon(() =>
+  import("remixicon-react/CheckboxCircleFillIcon"),
+);
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();

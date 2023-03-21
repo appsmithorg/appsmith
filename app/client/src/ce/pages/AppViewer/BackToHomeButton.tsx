@@ -1,9 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import AppsIcon from "remixicon-react/AppsLineIcon";
 
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { importRemixIcon } from "design-system-old";
+
+const AppsIcon = importRemixIcon(() => import("remixicon-react/AppsLineIcon"));
 
 function BackToHomeButton() {
   const selectedTheme = useSelector(getSelectedAppTheme);

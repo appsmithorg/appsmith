@@ -14,7 +14,6 @@ import {
   TextType,
   Variant,
 } from "design-system-old";
-import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Position } from "@blueprintjs/core";
@@ -34,6 +33,11 @@ import getNotificationBanner from "./getNotificationBanner";
 import { getConfirmMenuItem } from "./getConfirmMenuItem";
 import { getMenuItems } from "./getMenuItems";
 import type { SSHKeyType } from "actions/gitSyncActions";
+import { importRemixIcon } from "design-system-old";
+
+const Key2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Key2LineIcon"),
+);
 
 type KeysProps = {
   copyToClipboard: () => void;

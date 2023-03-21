@@ -1,6 +1,7 @@
 const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
   devServer: {
@@ -48,6 +49,16 @@ module.exports = {
             warning.details.includes("source-map-loader")
           );
         },
+      ],
+      plugins: [
+        // Replace BlueprintJS’s icon component with our own implementation
+        // that code-splits icons away
+        new webpack.NormalModuleReplacementPlugin(
+          /@blueprintjs\/core\/lib\/\w+\/components\/icon\/icon\.\w+/,
+          require.resolve(
+            "./src/components/designSystems/blueprintjs/icon/index.js",
+          ),
+        ),
       ],
     },
   },

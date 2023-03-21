@@ -28,8 +28,6 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import PrimaryCTA from "./PrimaryCTA";
 import Button from "./AppViewerButton";
-import MenuIcon from "remixicon-react/MenuFillIcon";
-import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
 import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
@@ -41,6 +39,12 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { importRemixIcon } from "design-system-old";
+
+const MenuIcon = importRemixIcon(() => import("remixicon-react/MenuFillIcon"));
+const CloseIcon = importRemixIcon(() =>
+  import("remixicon-react/CloseFillIcon"),
+);
 
 const { cloudHosting } = getAppsmithConfigs();
 

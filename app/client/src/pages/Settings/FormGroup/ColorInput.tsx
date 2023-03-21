@@ -6,13 +6,17 @@ import tinycolor from "tinycolor2";
 import styled from "styled-components";
 import { TooltipComponent } from "design-system-old";
 import { InputGroup, Classes } from "@blueprintjs/core";
-import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
 import type { brandColorsKeys } from "../config/branding/BrandingPage";
+import { importRemixIcon } from "design-system-old";
+
+const QuestionIcon = importRemixIcon(
+  () => import("remixicon-react/QuestionFillIcon"),
+);
 
 export const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
