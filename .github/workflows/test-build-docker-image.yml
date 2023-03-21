@@ -81,6 +81,13 @@ jobs:
     steps:
       - run: echo "All ci-test matrices completed"
 
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
       # Download failed_spec_ci list for all CI container jobs
       - uses: actions/download-artifact@v3
         if: needs.ci-test.result
@@ -88,6 +95,14 @@ jobs:
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
+
+      # delete-artifact
+      - name: delete existing combined_failed_spec_ci artifact
+        if: needs.ci-test.result != 'success'
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: combined_failed_spec_ci
+          failOnError: false
 
       # delete-artifact
       - name: delete existing failed-spec-ci artifact
