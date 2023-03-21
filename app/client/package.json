@@ -127,7 +127,7 @@
     "rc-select": "^14.1.9",
     "rc-tree-select": "^5.4.0",
     "re-reselect": "^3.4.0",
-    "react": "^17.0.2",
+    "react": "^18.2.0",
     "react-append-to-body": "^2.0.26",
     "react-beautiful-dnd": "^12.2.0",
     "react-custom-scrollbars": "^4.2.1",
@@ -136,7 +136,7 @@
     "react-dnd-html5-backend": "^9.3.4",
     "react-dnd-touch-backend": "^9.4.0",
     "react-documents": "^1.0.4",
-    "react-dom": "^17.0.2",
+    "react-dom": "^18.2.0",
     "react-full-screen": "^1.1.0",
     "react-fusioncharts": "^3.1.2",
     "react-google-recaptcha": "^2.1.0",
@@ -194,7 +194,6 @@
     "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
   },
-
   "browserslist": [
     ">0.2%",
     "not dead",
@@ -231,7 +230,7 @@
     "@types/react": "^17.0.2",
     "@types/react-beautiful-dnd": "^11.0.4",
     "@types/react-custom-scrollbars": "^4.0.7",
-    "@types/react-dom": "^17.0.2",
+    "@types/react-dom": "^18.0.11",
     "@types/react-google-recaptcha": "^2.1.1",
     "@types/react-helmet": "^5.0.14",
     "@types/react-instantsearch-dom": "^6.3.0",
