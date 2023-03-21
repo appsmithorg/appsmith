@@ -1,5 +1,5 @@
-import { ButtonProps, IconProps, Text } from "design-system-old";
-import { ReactComponentElement, ReactNode } from "react";
+import type { ButtonProps, IconProps, Text } from "design-system-old";
+import type { ReactComponentElement, ReactNode } from "react";
 
 export type Header = {
   title: string;
@@ -27,4 +27,10 @@ export type CTAButtonProps = CTAButtonType & ButtonProps;
 export enum LICENSE_ORIGIN {
   SELF_SERVE = "SELF_SERVE",
   ENTERPRISE = "ENTERPRISE",
+}
+
+export enum LICENSE_TYPE {
+  TRIAL = "TRIAL",
+  PAID = "PAID",
+  PAYMENT_FAILED = "IN_GRACE_PERIOD",
 }

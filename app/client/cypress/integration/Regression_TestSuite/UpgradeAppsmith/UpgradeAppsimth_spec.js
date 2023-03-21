@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
 const testdata = require("../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { CURRENT_REPO, REPO } from "../../../fixtures/REPO";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
-describe.skip("Upgrade appsmith version", () => {
+describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
@@ -33,7 +34,7 @@ describe.skip("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade only on CE and skip for BE
-    if (Cypress.env("Edition") === 0) {
+    if (CURRENT_REPO === REPO.CE) {
       cy.forceVisit(testdata.APPURL);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true);
       agHelper.Sleep(1000);
@@ -61,9 +62,7 @@ describe.skip("Upgrade appsmith version", () => {
         "have.value",
       );
 
-      cy.get(".t--jsonformfield-label input")
-        .clear()
-        .type("DevelopmentUpdate");
+      cy.get(".t--jsonformfield-label input").clear().type("DevelopmentUpdate");
       agHelper.GetNClick(".t--jsonform-footer button", 1, true);
       agHelper.Sleep(2000);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
@@ -76,9 +75,7 @@ describe.skip("Upgrade appsmith version", () => {
 
       //Resetting the data
       agHelper.GetNClick(".tbody>div", 1, true, 1000);
-      cy.get(".t--jsonformfield-label input")
-        .clear()
-        .type("Development");
+      cy.get(".t--jsonformfield-label input").clear().type("Development");
       agHelper.GetNClick(".t--jsonform-footer button", 1, true);
       agHelper.Sleep(2000);
       agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);

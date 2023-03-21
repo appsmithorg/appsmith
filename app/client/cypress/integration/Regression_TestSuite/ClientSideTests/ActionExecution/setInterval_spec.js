@@ -3,28 +3,26 @@ const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 
-describe("Test Create Api and Bind to Button widget", function() {
-  before(() => {
+describe("Test Create Api and Bind to Button widget", function () {
+  let dataSet;
+  before("Test_Add users api and execute api", () => {
     cy.addDsl(dsl);
+
+    cy.fixture("example").then(function (data) {
+      dataSet = data;
+      cy.createAndFillApi(dataSet.userApi, "/users");
+      cy.RunAPI();
+    });
   });
 
-  it("Test_Add users api and execute api", function() {
-    cy.createAndFillApi(this.data.userApi, "/users");
-    cy.RunAPI();
-  });
-
-  it("selects set interval function", () => {
+  it("1. Selects set interval function, Fill setInterval action creator and test code generated ", () => {
     cy.SearchEntityandOpen("Button1");
-    cy.get(widgetsPage.buttonOnClick)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.buttonOnClick).last().click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Set interval")
       .click();
-  });
 
-  it("Fill setInterval action creator and test code generated", () => {
     cy.get(widgetsPage.toggleOnClick)
       .invoke("attr", "class")
       .then((classes) => {
@@ -60,12 +58,10 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.get(widgetsPage.toggleOnClick).click();
   });
 
-  it("works in the published version", () => {
+  it("2. Works in the published version", () => {
     cy.PublishtheApp();
     cy.wait(3000);
-    cy.get("span:contains('Submit')")
-      .closest("div")
-      .click();
+    cy.get("span:contains('Submit')").closest("div").click();
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -81,18 +77,13 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("selects clear interval function", () => {
+  it("3. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
     cy.SearchEntityandOpen("Button1");
-    cy.get(widgetsPage.buttonOnClick)
-      .last()
-      .click({ force: true });
+    cy.get(widgetsPage.buttonOnClick).last().click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Clear interval")
       .click();
-  });
-
-  it("Fill clearInterval action creator and test code generated", () => {
     cy.get("label")
       .contains("Id")
       .parent()

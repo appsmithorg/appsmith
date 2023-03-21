@@ -3,9 +3,11 @@ import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import _ from "lodash";
 import { connect, useDispatch } from "react-redux";
-import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "@appsmith/reducers";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import type { RouteComponentProps } from "react-router";
+import { useParams, withRouter } from "react-router";
+import type { AppState } from "@appsmith/reducers";
+import type { InjectedFormProps } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
 import {
   getSettings,
   getSettingsSavingState,
@@ -15,10 +17,8 @@ import { DisconnectService } from "pages/Settings/DisconnectService";
 import RestartBanner from "pages/Settings/RestartBanner";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
-import {
-  SettingTypes,
-  Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,

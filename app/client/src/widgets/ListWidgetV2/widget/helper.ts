@@ -1,5 +1,5 @@
-import { WidgetBaseProps } from "widgets/BaseWidget";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { WidgetBaseProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const extractTillNestedListWidget = (

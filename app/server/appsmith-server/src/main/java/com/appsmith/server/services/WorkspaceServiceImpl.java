@@ -74,7 +74,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     }
 
     @Override
-    protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
+    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
 
         if (!isDefaultWorkspace) {
             return tenantService.getDefaultTenant(CREATE_WORKSPACES)

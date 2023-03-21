@@ -5,8 +5,8 @@ import {
   GithubAuthCallout,
   GoogleAuthCallout,
 } from "ce/pages/AdminSettings/config/authentication";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubCategories,
   SettingTypes,
@@ -14,7 +14,8 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import { Saml } from "@appsmith/pages/AdminSettings/SAML";
 import Oidc from "@appsmith/pages/AdminSettings/OIDC";
-import { AuthMethodType, AuthPage } from "./AuthPage";
+import type { AuthMethodType } from "./AuthPage";
+import { AuthPage } from "./AuthPage";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import React from "react";

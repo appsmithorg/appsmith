@@ -1,12 +1,15 @@
+import type { WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import * as React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType, RenderModes } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import ImageComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { Stylesheet } from "entities/AppTheming";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -153,6 +156,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

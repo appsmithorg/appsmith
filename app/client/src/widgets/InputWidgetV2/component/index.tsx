@@ -1,8 +1,7 @@
 import React from "react";
-import BaseInputComponent, {
-  BaseInputComponentProps,
-} from "widgets/BaseInputWidget/component";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
+import BaseInputComponent from "widgets/BaseInputWidget/component";
+import type { InputTypes } from "widgets/BaseInputWidget/constants";
 
 const getInputHTMLType = (inputType: InputTypes) => {
   switch (inputType) {

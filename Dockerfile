@@ -23,17 +23,20 @@ RUN apt-get update \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove --yes git python3-pip
 
-# Install MongoDB v5.0.14, Redis, NodeJS - Service Layer
+# Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
-  && curl --silent --show-error --location https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get install --no-install-recommends --yes mongodb-org=5.0.14 nodejs redis build-essential \
+  && curl --silent --show-error --location https://deb.nodesource.com/setup_16.x | bash - \
+  && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
+  && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \ 
+  && apt update \
+  && apt-get install --no-install-recommends --yes mongodb-org=5.0.14 nodejs redis build-essential postgresql-13 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/20.0.3/keycloak-20.0.3.tar.gz \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/21.0.1/keycloak-21.0.1.tar.gz \
   && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1
 
 # Clean up cache file - Service layer
@@ -69,9 +72,11 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/rts/package.json ./app/rts/dist rts/
 
-# Nginx & MongoDB config template - Configuration layer
+# Nginx, MongoDB and PostgreSQL data config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
+  ./deploy/docker/templates/mockdb_postgres.sql \
+  ./deploy/docker/templates/users_postgres.sql \
   templates/
 
 # Add bootstrapfile

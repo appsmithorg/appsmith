@@ -1,10 +1,12 @@
-import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import React from "react";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import IframeComponent from "../component";
-import { IframeWidgetProps } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { IframeWidgetProps } from "../constants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -67,6 +69,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

@@ -1,32 +1,26 @@
-import React, {
-  ReactNode,
-  RefObject,
-  useRef,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import type { ReactNode, RefObject } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { Overlay, Classes } from "@blueprintjs/core";
+import { Classes, Overlay } from "@blueprintjs/core";
 import { get, omit } from "lodash";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import type { AppState } from "@appsmith/reducers";
+import { closeTableFilterPane } from "actions/widgetActions";
+import type { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
+  BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-  BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
+import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
 import Resizable from "resizable/resize";
-import { getCanvasClassName } from "utils/generators";
-import { AppState } from "@appsmith/reducers";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { closeTableFilterPane } from "actions/widgetActions";
-import { Colors } from "constants/Colors";
+import { getCanvasClassName } from "utils/generators";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { scrollCSS } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
@@ -143,14 +137,12 @@ export type ModalComponentProps = {
 
 /* eslint-disable react/display-name */
 export default function ModalComponent(props: ModalComponentProps) {
-  const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
-    null,
-  );
+  const modalContentRef: RefObject<HTMLDivElement> =
+    useRef<HTMLDivElement>(null);
   const { enableResize = false } = props;
-  const resizeRef = React.useRef<HTMLDivElement>(null);
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-
+  const resizeRef = React.useRef<HTMLDivElement>(null);
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -160,7 +152,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
-
+  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -169,8 +161,8 @@ export default function ModalComponent(props: ModalComponentProps) {
       right: RightHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(allHandles, disabledResizeHandles);
+  }, [disabledResizeHandles]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -248,6 +240,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         resizeDualSides
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
+        widgetId={props.widgetId}
       >
         {props.settingsComponent}
         <Wrapper

@@ -28,7 +28,7 @@ import styled, { ThemeContext } from "styled-components";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getRolesForField,
   getAllUsers,
@@ -36,10 +36,8 @@ import {
   getGroupSuggestions,
 } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  InviteUsersToWorkspaceFormValues,
-  inviteUsersToWorkspace,
-} from "./helpers";
+import type { InviteUsersToWorkspaceFormValues } from "./helpers";
+import { inviteUsersToWorkspace } from "./helpers";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
   createMessage,
@@ -57,10 +55,10 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { DropdownOption } from "design-system-old";
 import {
   Button,
   Callout,
-  DropdownOption,
   Icon,
   IconSize,
   ScrollIndicator,
@@ -72,7 +70,6 @@ import {
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import UserApi from "@appsmith/api/UserApi";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -80,6 +77,7 @@ import store from "store";
 import TagListField from "../../utils/TagInput";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
@@ -366,13 +364,15 @@ function WorkspaceInviteUsersForm(props: any) {
           AnalyticsUtil.logEvent("INVITE_USER", {
             ...(isEEFeature
               ? {
-                  groups: groupsData,
+                  groups: groupsData.map((grp: any) => grp.id),
                   numberOfGroupsInvited: groupsArray.length,
                 }
               : {}),
-            users: usersStr,
+            ...(cloudHosting ? { users: usersStr } : {}),
             numberOfUsersInvited: usersArray.length,
-            role: values.role,
+            role: isMultiSelectDropdown
+              ? selectedOption.map((group: any) => group.id).join(",")
+              : [selectedOption[0].id],
           });
           if (onSubmitHandler) {
             return onSubmitHandler({
@@ -482,6 +482,7 @@ function WorkspaceInviteUsersForm(props: any) {
                     initials: string;
                     userGroupId: string;
                     userId: string;
+                    photoId?: string;
                   }) => {
                     return (
                       <Fragment
@@ -505,7 +506,11 @@ function WorkspaceInviteUsersForm(props: any) {
                             ) : (
                               <>
                                 <ProfileImage
-                                  source={`/api/${UserApi.photoURL}/${user.username}`}
+                                  source={
+                                    user.photoId
+                                      ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                      : undefined
+                                  }
                                   userName={user.name || user.username}
                                 />
                                 <UserName>

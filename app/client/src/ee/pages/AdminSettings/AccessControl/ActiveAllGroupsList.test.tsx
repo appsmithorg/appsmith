@@ -5,7 +5,7 @@ import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import { createMessage, ACTIVE_ENTITIES } from "@appsmith/constants/messages";
-import { ActiveAllGroupsProps, BaseAclProps } from "./types";
+import type { ActiveAllGroupsProps, BaseAclProps } from "./types";
 
 let container: any = null;
 

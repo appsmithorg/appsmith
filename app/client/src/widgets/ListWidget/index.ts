@@ -1,13 +1,14 @@
+import { Positioning } from "utils/autoLayout/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -29,6 +30,9 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
+    positioning: Positioning.Fixed,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
@@ -53,9 +57,8 @@ export const CONFIG = {
 
           if (!parentProps.widgetId) return [];
 
-          const { jsSnippets, stringSegments } = getDynamicBindings(
-            propertyValue,
-          );
+          const { jsSnippets, stringSegments } =
+            getDynamicBindings(propertyValue);
 
           const js = combineDynamicBindings(jsSnippets, stringSegments);
 
@@ -133,6 +136,7 @@ export const CONFIG = {
                     disablePropertyPane: true,
                     openParentPropertyPane: true,
                     children: [],
+                    positioning: Positioning.Fixed,
                     blueprint: {
                       view: [
                         {
@@ -262,9 +266,8 @@ export const CONFIG = {
                   let value = childWidget[key];
 
                   if (isString(value) && value.indexOf("currentItem") > -1) {
-                    const { jsSnippets, stringSegments } = getDynamicBindings(
-                      value,
-                    );
+                    const { jsSnippets, stringSegments } =
+                      getDynamicBindings(value);
 
                     const js = combineDynamicBindings(
                       jsSnippets,

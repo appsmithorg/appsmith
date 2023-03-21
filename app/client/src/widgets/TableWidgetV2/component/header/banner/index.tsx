@@ -1,5 +1,6 @@
 import React from "react";
-import { AddNewRowBanner, AddNewRowBannerType } from "./AddNewRowBanner";
+import type { AddNewRowBannerType } from "./AddNewRowBanner";
+import { AddNewRowBanner } from "./AddNewRowBanner";
 
 export interface BannerPropType extends AddNewRowBannerType {
   isAddRowInProgress: boolean;

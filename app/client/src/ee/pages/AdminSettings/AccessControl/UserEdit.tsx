@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { Position, Spinner } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
+import type { MenuItemProps, TabProp } from "design-system-old";
 import {
   Icon,
   IconSize,
   MenuItem,
-  MenuItemProps,
   Menu,
   SearchVariant,
   TabComponent,
-  TabProp,
   Toaster,
   Variant,
 } from "design-system-old";
@@ -30,8 +29,7 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import { LoaderContainer } from "pages/Settings/components";
-import {
+import type {
   BaseAclProps,
   GroupsForUser,
   PermissionsForUser,
@@ -45,6 +43,7 @@ import {
   updateRolesInUser,
 } from "@appsmith/actions/aclActions";
 import { getAclIsEditing } from "@appsmith/selectors/aclSelectors";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const Header = styled.div`
   display: flex;
@@ -126,15 +125,13 @@ export function UserEdit(props: UserEditProps) {
   const [addedAllUserGroups, setAddedAllUserGroups] = useState<BaseAclProps[]>(
     [],
   );
-  const [
-    removedActivePermissionGroups,
-    setRemovedActivePermissionGroups,
-  ] = useState<BaseAclProps[]>([]);
+  const [removedActivePermissionGroups, setRemovedActivePermissionGroups] =
+    useState<BaseAclProps[]>([]);
   const [addedAllPermGroups, setAddedAllPermGroups] = useState<BaseAclProps[]>(
     [],
   );
   const dispatch = useDispatch();
-  const { isLoading, searchPlaceholder, selectedUser } = props;
+  const { searchPlaceholder, selectedUser } = props;
 
   const isEditing = useSelector(getAclIsEditing);
 
@@ -397,11 +394,7 @@ export function UserEdit(props: UserEditProps) {
     },
   ];
 
-  return isLoading ? (
-    <LoaderContainer>
-      <Spinner />
-    </LoaderContainer>
-  ) : (
+  return (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <Header>
@@ -409,7 +402,11 @@ export function UserEdit(props: UserEditProps) {
           <ProfileImage
             className="user-icons"
             size={64}
-            source={`/api/v1/users/photo/${selectedUser.username}`}
+            source={
+              selectedUser.photoId
+                ? `/api/${USER_PHOTO_ASSET_URL}/${selectedUser.photoId}`
+                : undefined
+            }
             userName={selectedUser.username}
           />
           <Username>

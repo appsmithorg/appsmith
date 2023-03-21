@@ -1,9 +1,9 @@
 import { invited } from "./invited";
 
-describe("audit-logs/utils/invited", function() {
+describe("audit-logs/utils/invited", function () {
   it("returns empty string when length is negative", () => {
     const input = { length: -1 };
-    const actual = invited((input as unknown) as Array<string>);
+    const actual = invited(input as unknown as Array<string>);
     const expected = `(No one was invited.)`;
     expect(actual).toEqual(expected);
   });

@@ -15,6 +15,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.CustomJSLib;
@@ -2244,10 +2245,11 @@ public class ApplicationServiceCETest {
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
-        testApplication.setNavigationSetting(appNavigationSetting);
+        testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
@@ -2279,8 +2281,8 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
-                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
-                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
+                    assertThat(application.getPublishedApplicationDetail().getAppPositioning()).isEqualTo(application.getUnpublishedApplicationDetail().getAppPositioning());
+                    assertThat(application.getPublishedApplicationDetail().getNavigationSetting()).isEqualTo(application.getUnpublishedApplicationDetail().getNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -2304,10 +2306,11 @@ public class ApplicationServiceCETest {
         String appName = "Publish Application With Archived Page";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
-        testApplication.setNavigationSetting(appNavigationSetting);
+        testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
         Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2408,11 +2411,11 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        gitConnectedApp.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        gitConnectedApp.getUnpublishedApplicationDetail().setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
-        gitConnectedApp.setNavigationSetting(appNavigationSetting);
+        gitConnectedApp.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
 
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
@@ -2443,8 +2446,8 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getDefaultResources()).isNotNull();
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
-                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
-                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
+                    assertThat(application.getPublishedApplicationDetail().getAppPositioning()).isEqualTo(application.getUnpublishedApplicationDetail().getAppPositioning());
+                    assertThat(application.getPublishedApplicationDetail().getNavigationSetting()).isEqualTo(application.getUnpublishedApplicationDetail().getNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -2572,6 +2575,7 @@ public class ApplicationServiceCETest {
                 .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
 
+        PageDTO finalPage = page;
         StepVerifier
                 .create(Mono.zip(applicationMono, applicationPagesMono))
                 .assertNext(tuple -> {
@@ -2585,7 +2589,9 @@ public class ApplicationServiceCETest {
                     assertThat(application.getPublishedPages()).hasSize(2);
 
                     assertThat(pages).hasSize(2);
-                    NewPage newPage = pages.get(1);
+                    Optional<NewPage> optionalNewPage = pages.stream().filter(thisPage -> finalPage.getId().equals(thisPage.getId())).findFirst();
+                    assertThat(optionalNewPage.isPresent()).isTrue();
+                    NewPage newPage = optionalNewPage.get();
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo("Page2");
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getIcon()).isEqualTo("flight");
@@ -3626,10 +3632,10 @@ public class ApplicationServiceCETest {
         Mono<Tuple2<Application, Asset>> loadLogoImageMono = applicationService.findById(createdApplicationId)
                 .flatMap(fetchedApplication -> {
                     Mono<Application> fetchedApplicationMono = Mono.just(fetchedApplication);
-                    if (StringUtils.isEmpty(fetchedApplication.getUnpublishedNavigationSetting().getLogoAssetId())) {
+                    if (StringUtils.isEmpty(fetchedApplication.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId())) {
                         return fetchedApplicationMono.zipWith(Mono.just(new Asset()));
                     } else {
-                        return fetchedApplicationMono.zipWith(assetRepository.findById(fetchedApplication.getUnpublishedNavigationSetting().getLogoAssetId()));
+                        return fetchedApplicationMono.zipWith(assetRepository.findById(fetchedApplication.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()));
                     }
                 });
 
@@ -3640,7 +3646,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(saveAndGetMono)
                 .assertNext(tuple -> {
                     final Application application1 = tuple.getT1();
-                    assertThat(application1.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(application1.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
@@ -3649,7 +3655,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(deleteAndGetMono)
                 .assertNext(objects -> {
-                    assertThat(objects.getT1().getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(objects.getT1().getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNull();
                     assertThat(objects.getT2().getId()).isNull();
                 })
                 // Should be empty since the profile photo has been deleted.

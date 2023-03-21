@@ -15,7 +15,7 @@ import {
   NO_PERMISSION_TO_UNASSIGN,
   DEFAULT_ROLES_PILL,
 } from "@appsmith/constants/messages";
-import { ActiveAllGroupsProps, BaseGroupRoleProps } from "./types";
+import type { ActiveAllGroupsProps, BaseGroupRoleProps } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
 import {
   isPermitted,
@@ -58,9 +58,6 @@ const EachGroup = styled.div`
   cursor: pointer;
 
   &:hover {
-    .action-button {
-      visibility: visible;
-    }
     .remixicon-icon {
       visibility: visible;
     }
@@ -77,10 +74,6 @@ const EachGroup = styled.div`
     .remixicon-icon {
       visibility: visible;
     }
-
-    .action-button {
-      display: none;
-    }
   }
 
   &.removed {
@@ -88,10 +81,6 @@ const EachGroup = styled.div`
 
     .remixicon-icon {
       visibility: visible;
-    }
-
-    .action-button {
-      display: none;
     }
   }
 

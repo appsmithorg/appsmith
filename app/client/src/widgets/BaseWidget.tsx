@@ -3,61 +3,68 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
-import {
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
+import AutoHeightOverlayContainer from "components/autoHeightOverlay";
+import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
+import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
+import DraggableComponent from "components/editorComponents/DraggableComponent";
+import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import ResizableComponent from "components/editorComponents/ResizableComponent";
+import SnipeableComponent from "components/editorComponents/SnipeableComponent";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type {
   CSSUnit,
-  GridDefaults,
   PositionType,
   RenderMode,
-  RenderModes,
   WidgetType,
+} from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import React, { Component, Context, ReactNode, RefObject } from "react";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { Stylesheet } from "entities/AppTheming";
 import { get, memoize } from "lodash";
-import DraggableComponent from "components/editorComponents/DraggableComponent";
-import SnipeableComponent from "components/editorComponents/SnipeableComponent";
-import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
-import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import type { Context, ReactNode, RefObject } from "react";
+import React, { Component } from "react";
+import type {
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
-import {
-  EditorContext,
-  EditorContextType,
-} from "components/editorComponents/EditorContextProvider";
-import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import {
+import type { CSSProperties } from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import AppsmithConsole from "utils/AppsmithConsole";
+import type {
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
+import type {
   DataTreeEvaluationProps,
-  EVAL_ERROR_PATH,
   EvaluationError,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
+import Skeleton from "./Skeleton";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import { CanvasWidgetStructure } from "./constants";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import Skeleton from "./Skeleton";
-import { Stylesheet } from "entities/AppTheming";
-import { CSSProperties } from "styled-components";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import AutoHeightOverlayContainer from "components/autoHeightOverlay";
-import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
-import { FlattenedWidgetProps } from "./constants";
-import {
-  ModifyMetaWidgetPayload,
-  UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 
 /***
  * BaseWidget
@@ -77,7 +84,7 @@ const REFERENCE_KEY = "$$refs$$";
 abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState,
-  TCache = unknown
+  TCache = unknown,
 > extends Component<T, K> {
   static contextType = EditorContext;
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
@@ -333,6 +340,12 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
+      this.props.mobileLeftColumn,
+      this.props.mobileRightColumn,
+      this.props.mobileTopRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.isFlexChild,
     );
   };
 
@@ -343,13 +356,38 @@ abstract class BaseWidget<
     bottomRow: number,
     parentColumnSpace: number,
     parentRowSpace: number,
+    mobileLeftColumn?: number,
+    mobileRightColumn?: number,
+    mobileTopRow?: number,
+    mobileBottomRow?: number,
+    isMobile?: boolean,
+    isFlexChild?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
+    let left = leftColumn;
+    let right = rightColumn;
+    let top = topRow;
+    let bottom = bottomRow;
+    if (isFlexChild && isMobile) {
+      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
+        left = mobileLeftColumn;
+      }
+      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
+        right = mobileRightColumn;
+      }
+      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
+        top = mobileTopRow;
+      }
+      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
+        bottom = mobileBottomRow;
+      }
+    }
+
     return {
-      componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
-      componentHeight: (bottomRow - topRow) * parentRowSpace,
+      componentWidth: (right - left) * parentColumnSpace,
+      componentHeight: (bottom - top) * parentRowSpace,
     };
   }
 
@@ -514,6 +552,30 @@ abstract class BaseWidget<
     );
   }
 
+  makeFlex(content: ReactNode) {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    return (
+      <FlexComponent
+        componentHeight={componentHeight}
+        componentWidth={componentWidth}
+        direction={this.props.direction}
+        flexVerticalAlignment={
+          this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
+        }
+        focused={this.props.focused}
+        isMobile={this.props.isMobile}
+        parentColumnSpace={this.props.parentColumnSpace}
+        parentId={this.props.parentId}
+        responsiveBehavior={this.props.responsiveBehavior}
+        selected={this.props.selected}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+        widgetType={this.props.type}
+      >
+        {content}
+      </FlexComponent>
+    );
+  }
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -558,6 +620,7 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
+
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
@@ -567,7 +630,11 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          content = this.makePositioned(content);
+          if (this.props.isFlexChild) {
+            content = this.makeFlex(content);
+          } else {
+            content = this.makePositioned(content);
+          }
           if (isAutoHeightEnabledForWidget(this.props, true)) {
             content = this.addAutoHeightOverlay(content);
           }
@@ -579,7 +646,8 @@ abstract class BaseWidget<
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
-          if (!this.props.detachFromLayout) {
+          if (this.props.isFlexChild) content = this.makeFlex(content);
+          else if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
           return content;
@@ -619,6 +687,8 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     disablePropertyPane: false,
+    isFlexChild: false,
+    isMobile: false,
   };
 }
 
@@ -638,7 +708,7 @@ export type WidgetState = Record<string, unknown>;
 
 export interface WidgetBuilder<
   T extends CanvasWidgetStructure,
-  S extends WidgetState
+  S extends WidgetState,
 > {
   buildWidget(widgetProps: T): JSX.Element;
 }
@@ -651,7 +721,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
-  childWidgets?: DataTreeWidget[];
+  childWidgets?: WidgetEntity[];
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
   referencedWidgetId?: string;
@@ -675,6 +745,10 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  mobileLeftColumn?: number;
+  mobileRightColumn?: number;
+  mobileTopRow?: number;
+  mobileBottomRow?: number;
   height?: number;
 };
 
@@ -688,6 +762,13 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
+  isFlexChild?: boolean;
+  direction?: LayoutDirection;
+  responsiveBehavior?: ResponsiveBehavior;
+  minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
+  isMobile?: boolean;
+  flexVerticalAlignment?: FlexVerticalAlignment;
+  appPositioningType?: AppPositioningTypes;
 }
 
 export const WIDGET_DISPLAY_PROPS = {
@@ -740,6 +821,7 @@ export const WidgetOperations = {
   ADD_CHILDREN: "ADD_CHILDREN",
 };
 
-export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
+export type WidgetOperation =
+  (typeof WidgetOperations)[keyof typeof WidgetOperations];
 
 export default BaseWidget;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalContext } from "workers/Evaluation/evaluate";
-import { EvaluationVersion } from "api/ApplicationApi";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvalContext } from "workers/Evaluation/evaluate";
+import type { EvaluationVersion } from "api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import { set } from "lodash";
 import {
@@ -50,7 +50,7 @@ export const addDataTreeToContext = (args: {
     if (skipEntityFunctions || !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
-      const func = entityFn.fn(entity);
+      const func = entityFn.fn(entity, entityName);
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       set(entityFunctionCollection, fullPath, func);
     }

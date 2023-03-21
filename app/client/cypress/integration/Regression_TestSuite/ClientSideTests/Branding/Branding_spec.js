@@ -1,4 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 const locators = {
   AdminSettingsEntryLink: ".admin-settings-menu-option",
@@ -43,7 +44,7 @@ describe("Branding", () => {
     }
   });
 
-  it("super user can access branding page", () => {
+  it("1. Super user can access branding page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -55,12 +56,9 @@ describe("Branding", () => {
     cy.wait(2000);
   });
 
-  it("should test that changing logo,favicon and color changes the preview", () => {
+  it("2. Should test that changing logo,favicon and color changes the preview", () => {
     // branding color
-    cy.get(locators.AdminSettingsColorInput)
-      .focus()
-      .clear()
-      .type("red");
+    cy.get(locators.AdminSettingsColorInput).focus().clear().type("red");
 
     cy.get(".t--branding-bg").should(
       "have.css",
@@ -107,8 +105,10 @@ describe("Branding", () => {
     );
   });
 
-  it("checks if the form can be submitted", () => {
-    if (Cypress.env("Edition") === 0) {
+  it("3. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
+    if (CURRENT_REPO === REPO.CE) {
+      const tenantConfig = localStorage.getItem("tenantConfig");
+      expect(tenantConfig).to.be.null;
       cy.get(locators.submitButton).should("be.disabled");
     }
 
@@ -159,9 +159,7 @@ describe("Branding", () => {
       cy.get(locators.appsmithLogo).click();
 
       // check logo
-      cy.get(locators.appsmithLogoImg)
-        .invoke("attr", "src")
-        .should("eq", logo);
+      cy.get(locators.appsmithLogoImg).invoke("attr", "src").should("eq", logo);
 
       // check favicon
       cy.get(locators.BrandingFaviconHead)
@@ -187,9 +185,7 @@ describe("Branding", () => {
   it("checks branding colors on login page", () => {
     if (Cypress.env("Edition") === 1) {
       // logout user
-      cy.window()
-        .its("store")
-        .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
       cy.wait("@postLogout");
 
       cy.wait(2000);

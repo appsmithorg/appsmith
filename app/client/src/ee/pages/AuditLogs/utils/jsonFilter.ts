@@ -1,5 +1,5 @@
-import { AuditLogType } from "../types";
-import { DropdownOption } from "design-system-old";
+import type { AuditLogType } from "../types";
+import type { DropdownOption } from "design-system-old";
 
 export const DATE_FILTER_OPTIONS: DropdownOption[] = [
   { label: "Select", value: "0", id: "no-value" },
@@ -25,14 +25,12 @@ export enum JSON_FILTER_KEYS_ENUM {
   "resource.id" = "resource.id",
 }
 
-export const JSON_FILTER_KEYS_MAP: Record<
-  keyof AuditLogType | string,
-  string
-> = {
-  "user.email": JSON_FILTER_KEYS_ENUM.email,
-  event: JSON_FILTER_KEYS_ENUM.event,
-  "resource.id": JSON_FILTER_KEYS_ENUM["resource.id"],
-};
+export const JSON_FILTER_KEYS_MAP: Record<keyof AuditLogType | string, string> =
+  {
+    "user.email": JSON_FILTER_KEYS_ENUM.email,
+    event: JSON_FILTER_KEYS_ENUM.event,
+    "resource.id": JSON_FILTER_KEYS_ENUM["resource.id"],
+  };
 
 /**
  * getJsonFilterData takes a log and returns {key, value} pair.

@@ -6,7 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 let guid;
 let dataSourceName: string;
-describe("Datasource form related tests", function() {
+describe("Datasource form related tests", function () {
   it("1. Bug - 17238 Verify datasource structure refresh on save - invalid datasource", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -19,7 +19,7 @@ describe("Datasource form related tests", function() {
       dataSources.FillPostgresDSForm(false, "docker", "wrongPassword");
       dataSources.VerifySchema(
         dataSourceName,
-        "Exception occurred while creating connection pool.",
+        "An exception occurred while creating connection pool.",
       );
       agHelper.GetNClick(dataSources._editButton);
       dataSources.UpdatePassword("docker");

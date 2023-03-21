@@ -1,15 +1,11 @@
-import React, {
-  useEffect,
-  useRef,
-  RefObject,
-  useCallback,
-  useState,
-} from "react";
+import type { RefObject } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
-import { JSEditorRouteParams } from "constants/routes";
+import type { AppState } from "@appsmith/reducers";
+import type { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -22,12 +18,12 @@ import {
   JS_ACTION_EXECUTION_ERROR,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
-import { EditorTheme } from "./CodeEditor/EditorConfig";
+import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { JSCollection, JSAction } from "entities/JSCollection";
+import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import {
   Button,
@@ -40,8 +36,8 @@ import {
   Variant,
 } from "design-system-old";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { EvaluationError } from "utils/DynamicBindingUtils";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DebugButton } from "./Debugger/DebugCTA";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";

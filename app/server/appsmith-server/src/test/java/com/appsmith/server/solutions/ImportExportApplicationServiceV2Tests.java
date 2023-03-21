@@ -18,6 +18,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
@@ -3687,7 +3688,8 @@ public class ImportExportApplicationServiceV2Tests {
         application.setName("exportNavigationSettingsApplicationTest");
         Application.NavigationSetting navSetting = new Application.NavigationSetting();
         navSetting.setOrientation("top");
-        application.setUnpublishedNavigationSetting(navSetting);
+        application.setUnpublishedApplicationDetail(new ApplicationDetail());
+        application.getUnpublishedApplicationDetail().setNavigationSetting(navSetting);
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         Mono<ApplicationJson> resultMono =
@@ -3698,8 +3700,8 @@ public class ImportExportApplicationServiceV2Tests {
                 .assertNext(applicationJson -> {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
-                    assertThat(exportedApplication.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(exportedApplication.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(exportedApplication.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(exportedApplication.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
                 })
                 .verifyComplete();
     }
@@ -3731,5 +3733,73 @@ public class ImportExportApplicationServiceV2Tests {
                     assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_existingApplication_ApplicationReplacedWithImportedOne() {
+        String randomUUID = UUID.randomUUID().toString();
+        Mono<ApplicationJson> applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+
+        // Create the initial application
+        Application application = new Application();
+        application.setName("Application_" + randomUUID);
+        application.setWorkspaceId(workspaceId);
+
+        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication = applicationPageService.createApplication(application).flatMap(createdApp -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setApplicationId(application.getId());
+                    pageDTO.setName("Home Page");
+                    return applicationPageService.createPage(pageDTO).thenReturn(createdApp);
+                })
+                .zipWith(applicationJson)
+                .flatMap(objects -> {
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, objects.getT2(), objects.getT1().getId(), null)
+                            .zipWith(Mono.just(objects.getT1()));
+                }).flatMap(objects -> {
+                    Application newApp = objects.getT1();
+                    Application oldApp = objects.getT2();
+                    // after import, application id should not change
+                    assert Objects.equals(newApp.getId(), oldApp.getId());
+
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(newApp.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(newApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(newApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    return Mono.zip(Mono.just(newApp), pageList, actionList, actionCollectionList);
+                });
+
+        StepVerifier
+                .create(importedApplication)
+                .assertNext(tuple -> {
+                    List<NewPage> pageList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
+                    List<ActionCollection> actionCollectionList = tuple.getT4();
+
+                    assertThat(pageList.size()).isEqualTo(2);
+                    assertThat(actionList.size()).isEqualTo(3);
+
+                    List<String> pageNames = pageList.stream()
+                            .map(p -> p.getUnpublishedPage().getName())
+                            .collect(Collectors.toList());
+
+                    List<String> actionNames = actionList.stream()
+                            .map(p -> p.getUnpublishedAction().getName())
+                            .collect(Collectors.toList());
+
+                    List<String> actionCollectionNames = actionCollectionList.stream()
+                            .map(p -> p.getUnpublishedCollection().getName())
+                            .collect(Collectors.toList());
+
+                    // Verify the pages after importing the application
+                    assertThat(pageNames).contains("Page1", "Page2");
+
+                    // Verify the actions after importing the application
+                    assertThat(actionNames).contains("api_wo_auth", "get_users", "run");
+
+                    // Verify the actionCollections after importing the application
+                    assertThat(actionCollectionNames).contains("JSObject1", "JSObject2");
+                })
+                .verifyComplete();
+
     }
 }

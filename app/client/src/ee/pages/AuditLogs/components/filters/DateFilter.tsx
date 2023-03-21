@@ -11,7 +11,7 @@ import { useGoToTop } from "../../hooks/useGoToTop";
 import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment/moment";
-import { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
+import type { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
 import {
   AUDIT_LOGS_FILTER_HEIGHT,
   AUDIT_LOGS_FILTER_WIDTH,
@@ -62,9 +62,7 @@ export default function DateFilter() {
         data-testid="t--audit-logs-date-filter"
         formatDate={(date) => moment(date).format("DD/M/YY")}
         height={AUDIT_LOGS_FILTER_HEIGHT}
-        maxDate={moment()
-          .endOf("day")
-          .toDate()}
+        maxDate={moment().endOf("day").toDate()}
         onChange={handleSelection}
         parseDate={(date) => moment(date, "DD/M/YY").toDate()}
         value={selected}

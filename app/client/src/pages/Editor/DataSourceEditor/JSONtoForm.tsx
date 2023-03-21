@@ -3,15 +3,15 @@ import styled from "styled-components";
 import _ from "lodash";
 import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
-import { ControlProps } from "components/formControls/BaseControl";
-import { Datasource } from "entities/Datasource";
+import type { ControlProps } from "components/formControls/BaseControl";
+import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
 import { Button } from "design-system-old";
-import FeatureFlags from "entities/FeatureFlags";
+import type FeatureFlags from "entities/FeatureFlags";
 
 export const PluginImageWrapper = styled.div`
   height: 34px;
@@ -109,7 +109,7 @@ export interface JSONtoFormProps {
 export class JSONtoForm<
   P = unknown,
   S = unknown,
-  SS = any
+  SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   requiredFields: Record<string, any> = {};
   configDetails: Record<string, any> = {};
@@ -236,13 +236,17 @@ export class JSONtoForm<
   };
 
   renderMainSection = (section: any, index: number) => {
-    if (isHidden(this.props.formData, section.hidden)) return null;
+    // hides features/configs that are hidden behind feature flag
+    // TODO: remove hidden config property as well as this param,
+    // when feature flag is removed
+    if (isHidden(this.props.formData, section.hidden, this.props?.featureFlags))
+      return null;
     return (
       <Collapsible
-        defaultIsOpen={index === 0}
+        defaultIsOpen={index === 0 || section?.isDefaultOpen}
         key={section.sectionName}
-        showSection={index !== 0}
-        showTopBorder={index !== 0}
+        showSection={index !== 0 && !section?.isDefaultOpen}
+        showTopBorder={index !== 0 && !section?.isDefaultOpen}
         title={section.sectionName}
       >
         {this.renderEachConfig(section)}
@@ -297,7 +301,17 @@ export class JSONtoForm<
       <div key={section.sectionName}>
         {_.map(section.children, (propertyControlOrSection: ControlProps) => {
           // If the section is hidden, skip rendering
-          if (isHidden(this.props.formData, section.hidden)) return null;
+          // hides features/configs that are hidden behind feature flag
+          // TODO: remove hidden config property as well as this param,
+          // when feature flag is removed
+          if (
+            isHidden(
+              this.props.formData,
+              section.hidden,
+              this.props?.featureFlags,
+            )
+          )
+            return null;
           if ("children" in propertyControlOrSection) {
             const { children } = propertyControlOrSection as any;
             if (isKVArray(children)) {

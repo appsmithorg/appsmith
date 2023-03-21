@@ -4,11 +4,11 @@ const commonlocators = require("../../../../../../locators/commonlocators.json")
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe(" File Picker Widget", function() {
+describe(" File Picker Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("a. should test allowed values", function() {
+  it("a. should test allowed values", function () {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {
       x: 150,
       y: 50,
@@ -46,7 +46,7 @@ describe(" File Picker Widget", function() {
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     ).should("not.exist");
   });
-  it("b. Select Widgets isValid and onFilesSelected", function() {
+  it("b. Select Widgets isValid and onFilesSelected", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 550,
@@ -78,9 +78,7 @@ describe(" File Picker Widget", function() {
 
     // Upload a new file
     cy.get(widgetsPage.filepickerwidgetv2).click();
-    cy.get(commonlocators.filePickerInput)
-      .first()
-      .attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerInput).first().attachFile("testFile.mov");
     cy.get(commonlocators.filePickerUploadButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -95,9 +93,7 @@ describe(" File Picker Widget", function() {
 
     // Upload a new file
     cy.get(widgetsPage.filepickerwidgetv2).click();
-    cy.get(commonlocators.filePickerInput)
-      .first()
-      .attachFile("testFile2.mov");
+    cy.get(commonlocators.filePickerInput).first().attachFile("testFile2.mov");
     cy.get(commonlocators.filePickerUploadButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -116,7 +112,7 @@ describe(" File Picker Widget", function() {
     cy.get(".t--widget-textwidget").should("contain", "true_true_testFile.mov");
   });
 
-  it("c. File Widget Max No of Files", function() {
+  it("c. File Widget Max No of Files", function () {
     cy.openPropertyPane("filepickerwidgetv2");
 
     cy.get(widgetsPage.filepickerwidgetv2).click();

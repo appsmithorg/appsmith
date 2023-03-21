@@ -1,4 +1,4 @@
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
 

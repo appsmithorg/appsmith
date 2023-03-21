@@ -34,7 +34,7 @@ export function BEBanner() {
   };
 
   return (
-    <BannerWrapper>
+    <BannerWrapper data-testid="t--welcome-banner">
       <BannerContentWrapper>
         <img
           alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}

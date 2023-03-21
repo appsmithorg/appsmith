@@ -71,7 +71,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -131,7 +131,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
@@ -157,7 +157,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -232,7 +232,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -264,7 +264,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -315,7 +315,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -360,7 +360,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -405,7 +405,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 
@@ -460,7 +460,7 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultWorkspaceId(createdWorkspace.getId())
+                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .collectList()
                 .block();
 

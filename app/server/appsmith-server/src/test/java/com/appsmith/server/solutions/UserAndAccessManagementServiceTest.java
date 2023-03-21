@@ -30,10 +30,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
@@ -325,6 +328,47 @@ public class UserAndAccessManagementServiceTest {
         StepVerifier.create(permissionGroupService.findById(permissionGroupId))
                 .assertNext(permissionGroup -> {
                     assertThat(permissionGroup.getAssignedToGroupIds()).contains(createdUserGroup.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteUserTest_multipleUsers() {
+        UserGroup ug = new UserGroup();
+        ug.setName("inviteUserTest_multipleUsers User Group");
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(ug).block();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("inviteUserTest_multipleUsers Workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
+
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(permissionGroupId);
+        String randomUuid = UUID.randomUUID().toString();
+        List<String> usernames = IntStream.range(0, 20).mapToObj(index -> randomUuid + index).toList();
+        inviteUsersDTO.setUsernames(usernames);
+
+        // Now invite the user group to the permission group
+        List<User> invitedUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, "origin").block();
+        Set<String> userIds = userRepository.findAllByEmails(new HashSet<>(usernames)).map(User::getId).collect(Collectors.toSet()).block();
+
+        assertThat(invitedUsers).isNotNull();
+        assertThat(invitedUsers.size()).isEqualTo(usernames.size());
+        assertThat(new HashSet<>(inviteUsersDTO.getUsernames())).isEqualTo(new HashSet<>(usernames));
+
+        // fetch the permission group after inviting and assert
+        StepVerifier.create(permissionGroupService.findById(permissionGroupId))
+                .assertNext(permissionGroup -> {
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(userIds);
+                })
+                .verifyComplete();
+
+        StepVerifier.create(userUtils.getDefaultUserPermissionGroup())
+                .assertNext(defaultRoleForAllUsers -> {
+                    assertThat(defaultRoleForAllUsers.getAssignedToUserIds()).containsAll(userIds);
                 })
                 .verifyComplete();
     }

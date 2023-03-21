@@ -1,55 +1,23 @@
-const pages = require("../../../../locators/Pages.json");
-const explorerLocators = require("../../../../locators/explorerlocators.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };
 
-describe("Pages", function() {
+describe("Pages", function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 
-  it("Clone page", function() {
-    cy.wait(20000);
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI(apiName);
-
-    cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
-
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
-    // to check if apis are cloned
-    cy.get(".t--entity-name:contains(Page1)")
-      .its("length")
-      .should("be.gt", 1);
-
-    cy.get(".t--entity-name:contains(Page1 Copy)").click({ force: true });
-
-    cy.get(".t--entity-name:contains(Page1 Copy)")
-      .its("length")
-      .should("eq", 1);
-
-    cy.get(explorerLocators.addQuery)
-      .last()
-      .click();
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 1);
+  it("1. Clone page", function () {
+    //cy.NavigateToAPI_Panel();
+    _.apiPage.CreateApi(apiName);
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.ClonePage("Page1");
+    _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
+    _.entityExplorer.SelectEntityByName(apiName, "Queries/JS"); //Verify api also cloned along with PageClone
   });
 
-  it("Creates a page with long name and checks if it shows tooltip on hover", () => {
+  it("2. Creates a page with long name and checks if it shows tooltip on hover", () => {
     cy.get("body").click(0, 0);
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
@@ -61,7 +29,7 @@ describe("Pages", function() {
     });
   });
 
-  it("Checks if 404 is showing correct route", () => {
+  it("3. Checks if 404 is showing correct route", () => {
     cy.visit("/route-that-does-not-exist");
     cy.get(locators.errorPageTitle).should(($x) => {
       expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());

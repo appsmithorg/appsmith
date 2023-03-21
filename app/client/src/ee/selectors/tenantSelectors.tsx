@@ -1,6 +1,8 @@
 export * from "ce/selectors/tenantSelectors";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
-import { AppState } from "@appsmith/reducers";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import type { AppState } from "@appsmith/reducers";
+import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
 
@@ -41,31 +43,15 @@ export const getExpiry = (state: AppState) => {
 
 export const getRemainingDays = createSelector(getExpiry, (expiry) => {
   const timeStamp = expiry * 1000;
-  const totalHours = Math.floor(
-    (new Date(timeStamp).getTime() - Date.now()) / (1000 * 60 * 60),
-  );
-  if (totalHours <= 720 && totalHours > 708) {
-    return {
-      days: 30,
-      suffix: "days",
-    };
-  }
-  if (totalHours <= 12) {
-    return {
-      days: totalHours,
-      suffix: totalHours > 1 ? "hours" : "hour",
-    };
-  }
-  const days = Math.floor((totalHours - 12) / 24) + 1;
-  return {
-    days,
-    suffix: days > 1 ? "days" : "day",
-  };
+  return getRemainingDaysFromTimestamp(timeStamp);
 });
 
-export const isTrialLicense = (state: AppState) => {
-  return state.tenant?.tenantConfiguration?.license?.type === "TRIAL";
-};
+export const isTrialLicense = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.type === LICENSE_TYPE.TRIAL;
+
+export const isLicensePaymentFailed = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.status ===
+  LICENSE_TYPE.PAYMENT_FAILED;
 
 export const isBEBannerVisible = (state: AppState) => {
   const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
@@ -73,9 +59,10 @@ export const isBEBannerVisible = (state: AppState) => {
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {
-  const trialLicense = isTrialLicense(state);
+  const isTrialLicenseOrFailed =
+    isTrialLicense(state) || isLicensePaymentFailed(state);
   const isBEBanner = isBEBannerVisible(state);
-  return !isBEBanner && trialLicense;
+  return !isBEBanner && isTrialLicenseOrFailed;
 };
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import type { MenuItemProps, TabProp } from "design-system-old";
 import {
   Button,
   HighlightText,
@@ -6,10 +7,8 @@ import {
   IconSize,
   Menu,
   MenuItem,
-  MenuItemProps,
   TabComponent,
   Table,
-  TabProp,
 } from "design-system-old";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -20,13 +19,13 @@ import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory, useParams } from "react-router";
-import {
+import type {
   BaseAclProps,
   GroupEditProps,
   Permissions,
   UsersInGroup,
 } from "./types";
-import { Position, Spinner } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
 import {
   ACL_INVITE_MODAL_MESSAGE,
   ACL_INVITE_MODAL_TITLE,
@@ -45,7 +44,6 @@ import {
   ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import { LoaderContainer } from "pages/Settings/components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addUsersInGroup,
@@ -64,6 +62,7 @@ import {
   getGroupPermissions,
 } from "@appsmith/selectors/aclSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const ListUsers = styled.div`
   margin-top: 4px;
@@ -140,7 +139,7 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, selected } = props;
+  const { selected } = props;
   const { isNew = false } = selected;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -323,12 +322,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         originAddUsers === "top-bar"
           ? createMessage(EVENT_GROUP_INVITE_USER_TOP_BAR)
           : createMessage(EVENT_GROUP_INVITE_USER_EMPTY_STATE),
-      groups: [
-        {
-          id: groupId,
-          name: values?.options?.label || selected.name,
-        },
-      ],
+      groups: [groupId],
       roles: [],
       numberOfUsersInvited: usernames.length,
     });
@@ -347,7 +341,11 @@ export function GroupAddEdit(props: GroupEditProps) {
             <ProfileImage
               className="user-icons"
               size={20}
-              source={`/api/v1/users/photo/${user.username}`}
+              source={
+                user.photoId
+                  ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                  : undefined
+              }
               userName={user.username}
             />
             <HighlightText highlight={searchValue} text={user.username} />
@@ -490,11 +488,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     },
   ].filter(Boolean);
 
-  return isLoading ? (
-    <LoaderContainer>
-      <Spinner />
-    </LoaderContainer>
-  ) : (
+  return (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <PageHeader

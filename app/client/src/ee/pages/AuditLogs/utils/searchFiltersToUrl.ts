@@ -1,4 +1,4 @@
-import { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
+import type { AuditLogsFiltersReduxState } from "@appsmith/reducers/auditLogsReducer";
 
 /**
  * searchFiltersToUrl takes audit logs searchFilters and creates search param string for an URL.

@@ -6,7 +6,7 @@ import {
   StyledCollapseContainer as CollapseContainer,
   StyledCollapsibleLogContainer as Container,
 } from "../styled-components/container";
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { ON_COPY_CONTENT } from "@appsmith/constants/messages";
 

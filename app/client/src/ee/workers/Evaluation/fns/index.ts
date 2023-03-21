@@ -1,15 +1,19 @@
 export * from "ce/workers/Evaluation/fns/index";
-import {
-  getPlatformFunctions as CE_getPlatformFunctions,
+import type {
   ActionTriggerKeys as CE_ActionTriggerKeys,
-  getActionTriggerFunctionNames as CE_getActionTriggerFunctionNames,
   ActionDescription as CE_ActionDescription,
 } from "ce/workers/Evaluation/fns/index";
 import {
+  getPlatformFunctions as CE_getPlatformFunctions,
+  getActionTriggerFunctionNames as CE_getActionTriggerFunctionNames,
+} from "ce/workers/Evaluation/fns/index";
+import type {
   TUnlistenWindowMessageDescription,
   TUnlistenWindowMessageType,
   TWindowMessageListenerDescription,
   TWindowMessageListenerType,
+} from "./messageListenerFns";
+import {
   unlistenWindowMessage,
   windowMessageListener,
 } from "./messageListenerFns";

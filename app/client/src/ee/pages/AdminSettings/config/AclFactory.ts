@@ -1,8 +1,8 @@
-import {
+import type {
   AdminConfigType,
   Category,
-  SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 
 export class AclFactory {
   static categories: Category[] = [];

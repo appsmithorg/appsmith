@@ -1,15 +1,13 @@
 import { difference } from "lodash";
 import { klona } from "klona";
 
-import MetaWidgetGenerator, {
-  ConstructorProps,
-  GeneratorOptions,
-} from "./MetaWidgetGenerator";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
+import MetaWidgetGenerator from "./MetaWidgetGenerator";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
-import { LevelData } from "./widget";
+import type { LevelData } from "./widget";
 
 type Validator = {
   widgetType: string;
@@ -727,7 +725,7 @@ describe("#generate", () => {
           },
           List6: {
             entityDefinition:
-              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
+              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
             rowIndex: 0,
             metaWidgetId: "fs2d2lqjgd",
             metaWidgetName: "List6",
@@ -927,7 +925,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
     expect(count).toEqual(18);

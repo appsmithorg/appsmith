@@ -6,7 +6,7 @@ import {
   // getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import { RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Table } from "design-system-old";
 import {
@@ -16,6 +16,7 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
+import type { TableDropdownOption } from "design-system-old";
 import {
   Classes as AppClass,
   Dropdown,
@@ -23,7 +24,6 @@ import {
   Icon,
   IconSize,
   TableDropdown,
-  TableDropdownOption,
   Text,
   TextType,
 } from "design-system-old";
@@ -32,9 +32,9 @@ import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
-import { USER_PHOTO_URL } from "constants/userConstants";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
-import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   MEMBERS_TAB_TITLE,
@@ -238,10 +238,8 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchWorkspace(workspaceId));
   }, [dispatch, workspaceId]);
 
-  const [
-    showMemberDeletionConfirmation,
-    setShowMemberDeletionConfirmation,
-  ] = useState(false);
+  const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
+    useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>
@@ -342,7 +340,11 @@ export default function MemberSettings(props: PageProps) {
               <ProfileImage
                 className="user-icons"
                 size={20}
-                source={`/api/v1/users/photo/${member.username}`}
+                source={
+                  member.photoId
+                    ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
+                    : undefined
+                }
                 userName={member.username}
               />
               <HighlightText highlight={searchValue} text={member.username} />
@@ -465,7 +467,11 @@ export default function MemberSettings(props: PageProps) {
                     <ProfileImage
                       className="avatar"
                       size={71}
-                      source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                      source={
+                        member.photoId
+                          ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
+                          : undefined
+                      }
                       userName={member.username}
                     />
                     <HighlightText

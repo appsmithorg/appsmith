@@ -1,29 +1,32 @@
+import type { AppState } from "@appsmith/reducers";
 import { find, get, pick, set } from "lodash";
-import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 
-import { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "./entitiesSelector";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import {
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type {
   DataTree,
   DataTreeEntity,
-  DataTreeWidget,
+  WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
-import {
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getWidgets } from "sagas/selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { Positioning } from "utils/autoLayout/constants";
 import {
   EVALUATION_PATH,
   isPathDynamicProperty,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getWidgets } from "sagas/selectors";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getCanvasWidgets } from "./entitiesSelector";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,17 +74,27 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
+  getWidgets,
   getDataTree,
   (
     widget: WidgetProps | undefined,
+    widgets,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
+    const appPositioningType =
+      widgets && widgets[MAIN_CONTAINER_WIDGET_ID]
+        ? widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
+          ? AppPositioningTypes.AUTO
+          : AppPositioningTypes.FIXED
+        : AppPositioningTypes.FIXED;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
-    }) as DataTreeWidget;
-    const widgetProperties = { ...widget };
-
+    }) as WidgetEntity;
+    const widgetProperties = {
+      ...widget,
+      appPositioningType,
+    };
     if (evaluatedWidget) {
       widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
     }
@@ -162,7 +175,7 @@ const getAndSetPath = (from: any, to: any, path: string) => {
 };
 
 const populateEvaluatedWidgetProperties = (
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: WidgetEntity,
   propertyPath: string,
   evaluatedDependencies: string[] = [],
 ) => {
@@ -194,13 +207,10 @@ const populateEvaluatedWidgetProperties = (
 const getCurrentEvaluatedWidget = createSelector(
   getCurrentWidgetProperties,
   getDataTree,
-  (
-    widget: WidgetProps | undefined,
-    evaluatedTree: DataTree,
-  ): DataTreeWidget => {
-    return (widget?.widgetName
-      ? evaluatedTree[widget.widgetName]
-      : {}) as DataTreeWidget;
+  (widget: WidgetProps | undefined, evaluatedTree: DataTree): WidgetEntity => {
+    return (
+      widget?.widgetName ? evaluatedTree[widget.widgetName] : {}
+    ) as WidgetEntity;
   },
 );
 
@@ -215,7 +225,7 @@ export const getWidgetPropsForPropertyName = (
     getGoogleMapsApiKey,
     (
       widget: WidgetProps | undefined,
-      evaluatedWidget: DataTreeWidget,
+      evaluatedWidget: WidgetEntity,
       googleMapsApiKey?: string,
     ): WidgetProperties => {
       const widgetProperties = populateWidgetProperties(
@@ -257,7 +267,7 @@ export const getIsPropertyPaneVisible = createSelector(
     const el = document.getElementsByClassName(
       generateClassName(pane.widgetId),
     )[0];
-    const isWidgetSelected = pane.widgetId
+    const isWidgetSelected: boolean = pane.widgetId
       ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
       : false;
     const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);

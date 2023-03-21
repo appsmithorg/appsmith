@@ -1,6 +1,6 @@
 export * from "ce/utils/adminSettingsHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import {
   ADMIN_SETTINGS_CATEGORY_ACL_PATH,
   ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH,

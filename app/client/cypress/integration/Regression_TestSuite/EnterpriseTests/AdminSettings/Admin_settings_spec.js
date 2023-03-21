@@ -1,7 +1,8 @@
 const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import adminsSettings from "../../../../locators/AdminsSettings";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
-describe("Admin settings page", function() {
+describe("Admin settings page", function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -23,7 +24,7 @@ describe("Admin settings page", function() {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    if (Cypress.env("Edition") === 0) {
+    if (CURRENT_REPO === REPO.CE) {
       cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
         .should("be.visible")
         .should("contain", "UPGRADE");
@@ -35,17 +36,6 @@ describe("Admin settings page", function() {
       cy.get(EnterpriseAdminSettingsLocators.samlButton).should("be.visible");
       cy.get(EnterpriseAdminSettingsLocators.samlButton).click();
       cy.url().should("contain", "/settings/authentication/saml-auth");
-    }
-  });
-
-  it("should test that Appsmith Watermark setting shows upgrade button", () => {
-    cy.visit("/settings/general");
-
-    if (Cypress.env("Edition") === 0) {
-      // checking if the setting contains a word 'Upgrade
-      cy.get(
-        EnterpriseAdminSettingsLocators.hideAppsmithWatermarkSetting,
-      ).contains("UPGRADE");
     }
   });
 });

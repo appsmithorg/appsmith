@@ -44,7 +44,8 @@ export const NO_PERMISSION_TO_UNASSIGN = () =>
   `You do not have permission to unassign this role.`;
 export const DEFAULT_ROLES_PILL = () => `D`;
 export const DEFAULT_ROLES_TOGGLE_TEXT = () => `Default Roles`;
-export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the users ability to interact with various
+export const BOTTOM_BAR_SAVE_MESSAGE =
+  () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
 export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
@@ -162,6 +163,9 @@ export const TRIAL = () => `Trial`;
 export const PORTAL = () => `Portal`;
 export const LICENSE_KEY = () => `License Key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
+export const PAYMENT_FAILED = () => `Your last payment has failed.`;
+export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
+  `your payment methods to continue using Appsmith, else all your instances will shut down in ${count} ${suffix}.`;
 
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";

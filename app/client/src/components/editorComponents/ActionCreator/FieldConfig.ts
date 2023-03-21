@@ -7,7 +7,11 @@ import {
   ViewTypes,
 } from "./constants";
 import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
-import { ActionType, AppsmithFunctionConfigType, FieldProps } from "./types";
+import type {
+  ActionType,
+  AppsmithFunctionConfigType,
+  FieldProps,
+} from "./types";
 import {
   enumTypeGetter,
   enumTypeSetter,
@@ -19,7 +23,7 @@ import {
 import store from "../../../store";
 import { getPageList } from "../../../selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "./regex";
-import { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {

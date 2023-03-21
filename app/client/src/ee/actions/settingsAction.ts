@@ -1,5 +1,5 @@
 export * from "ce/actions/settingsAction";
-import { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
+import type { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const fetchSamlMetadata = (payload: FetchSamlMetadataPayload) => ({

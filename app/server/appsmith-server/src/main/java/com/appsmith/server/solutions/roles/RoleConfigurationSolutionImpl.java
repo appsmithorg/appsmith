@@ -63,6 +63,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
 import static com.appsmith.server.constants.FieldName.GAC_TAB;
+import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
@@ -314,8 +315,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         });
 
         Map<String, Object> roleUpdateProperties = getRoleUpdateMetadata(updateRoleConfigDTO);
+        Map<String, Object> analyticsProperties = Map.of(GAC_TAB, updateRoleConfigDTO.getTabName(), EVENT_DATA, roleUpdateProperties);
         Mono<PermissionGroup> sendPermissionGroupUpdatedEventMono = permissionGroupMono
-                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, roleUpdateProperties));
+                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, analyticsProperties));
 
         return permissionGroupMono
                 .thenMany(updateEntityPoliciesFlux)
@@ -514,18 +516,22 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
                     Mono<Theme> editModeThemeMono = themeRepository.findById(editModeThemeId);
                     Mono<Theme> publishedModeThemeMono = themeRepository.findById(publishedModeThemeId);
+                    Mono<List<Theme>> persistedThemeListMono = themeRepository.getPersistedThemesForApplication(applicationId, Optional.empty())
+                            .collectList();
 
-                    return Mono.zip(editModeThemeMono, publishedModeThemeMono)
+                    return Mono.zip(editModeThemeMono, publishedModeThemeMono, persistedThemeListMono)
                             .flatMap(tuple -> {
                                 Theme editModeTheme = tuple.getT1();
                                 Theme publishedModeTheme = tuple.getT2();
+                                List<Theme> persistedThemeList = tuple.getT3();
 
                                 Mono<Long> editModeThemeUpdateMono = Mono.empty();
                                 Mono<Long> publishedModeThemeUpdateMono = Mono.empty();
+                                Mono<Long> persistedListThemesUpdateMono = Mono.empty();
 
-                                if (editModeTheme.isSystemTheme() && publishedModeTheme.isSystemTheme()) {
-                                    // Do nothing. These are system themes. We don't want to give system themes permissions
-                                    // since they are already accessible to everyone.
+                                if (editModeTheme.isSystemTheme() && publishedModeTheme.isSystemTheme() && persistedThemeList.isEmpty()) {
+                                    // Do nothing. These are system themes and persisted themes list for application is empty.
+                                    // We don't want to give system themes permissions since they are already accessible to everyone.
                                     return Mono.empty();
                                 }
 
@@ -553,7 +559,17 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                     publishedModeThemeUpdateMono = Mono.just(1L);
                                 }
 
-                                return Mono.when(editModeThemeUpdateMono, publishedModeThemeUpdateMono)
+                                if (! persistedThemeList.isEmpty()) {
+                                    persistedThemeList.forEach(persistedTheme -> {
+                                        sideEffectsClassMap.put(persistedTheme.getId(), Theme.class);
+                                        sideEffectsAddedMap.merge(persistedTheme.getId(), themeAdded, ListUtils::union);
+                                        sideEffectsRemovedMap.merge(persistedTheme.getId(), themeRemoved, ListUtils::union);
+                                    });
+                                    persistedListThemesUpdateMono = Mono.just(1L);
+                                }
+
+
+                                return Mono.when(editModeThemeUpdateMono, publishedModeThemeUpdateMono, persistedListThemesUpdateMono)
                                         .thenReturn(1L);
                             })
                             .map(obj -> obj);
@@ -743,7 +759,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         List<String> includeFields = new ArrayList<>(
                 List.of(
                         fieldName(QPermissionGroup.permissionGroup.id),
-                        fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType)
                 )
         );
         return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);

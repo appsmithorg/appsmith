@@ -1,7 +1,7 @@
 import { initialAuditLogsFilterState } from "../../../reducers/auditLogsReducer";
 import { payloadToQueryParams } from "./payloadToQueryParams";
 
-describe("audit-logs/utils/payloadToQueryParams", function() {
+describe("audit-logs/utils/payloadToQueryParams", function () {
   it("returns empty object as expected", () => {
     const payload = { ...initialAuditLogsFilterState, cursor: "" };
     const actual = payloadToQueryParams(payload);

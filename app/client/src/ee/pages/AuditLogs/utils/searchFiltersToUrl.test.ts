@@ -1,8 +1,6 @@
 import { searchFiltersToUrl } from "./searchFiltersToUrl";
-import {
-  AuditLogsFiltersReduxState,
-  DATE_SORT_ORDER,
-} from "../../../reducers/auditLogsReducer";
+import type { AuditLogsFiltersReduxState } from "../../../reducers/auditLogsReducer";
+import { DATE_SORT_ORDER } from "../../../reducers/auditLogsReducer";
 
 describe("audit-logs/utils/searchFiltersToUrl", () => {
   it("returns empty url", () => {

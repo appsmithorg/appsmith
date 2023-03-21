@@ -6,6 +6,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -152,6 +153,7 @@ public class GitFileUtils {
 
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
+        Map<String, String> resourceMapBody = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -187,14 +189,32 @@ public class GitFileUtils {
                             newAction.getUnpublishedAction().getValidName() + NAME_SEPARATOR + newAction.getUnpublishedAction().getPageId()
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
+                    String body = newAction.getUnpublishedAction().getActionConfiguration().getBody() != null ? newAction.getUnpublishedAction().getActionConfiguration().getBody() : "";
+
+                    // This is a special case where we are handling REMOTE type plugins based actions such as Twilio
+                    // The user configured values are stored in a attribute called formData which is a map unlike the body
+                    if (newAction.getPluginType().toString().equals("REMOTE") && newAction.getUnpublishedAction().getActionConfiguration().getFormData() != null) {
+                        body = new Gson().toJson(newAction.getUnpublishedAction().getActionConfiguration().getFormData(), Map.class);
+                        newAction.getUnpublishedAction().getActionConfiguration().setFormData(null);
+                    }
+                    // This is a special case where we are handling JS actions as we don't want to commit the body of JS actions
+                    if (newAction.getPluginType().equals(PluginType.JS)) {
+                        newAction.getUnpublishedAction().getActionConfiguration().setBody(null);
+                        newAction.getUnpublishedAction().setJsonPathKeys(null);
+                    } else {
+                        // For the regular actions we save the body field to git repo
+                        resourceMapBody.put(prefix, body);
+                    }
                     resourceMap.put(prefix, newAction);
                 });
         applicationReference.setActions(new HashMap<>(resourceMap));
+        applicationReference.setActionBody(new HashMap<>(resourceMapBody));
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
-        Map<String, String> resourceMapBody = new HashMap<>();
+        Map<String, String> resourceMapActionCollectionBody = new HashMap<>();
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -210,13 +230,14 @@ public class GitFileUtils {
 
                     String body = actionCollection.getUnpublishedCollection().getBody() != null ? actionCollection.getUnpublishedCollection().getBody() : "";
                     actionCollection.getUnpublishedCollection().setBody(null);
-                    resourceMapBody.put(prefix, body);
+                    resourceMapActionCollectionBody.put(prefix, body);
                     resourceMap.put(prefix, actionCollection);
                 });
         applicationReference.setActionCollections(new HashMap<>(resourceMap));
-        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapBody));
+        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapActionCollectionBody));
         applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
+        resourceMapActionCollectionBody.clear();
 
         // Send datasources
         applicationJson
@@ -390,10 +411,24 @@ public class GitFileUtils {
         if (CollectionUtils.isNullOrEmpty(applicationReference.getActions())) {
             applicationJson.setActionList(new ArrayList<>());
         } else {
+            Map<String, String> actionBody = applicationReference.getActionBody();
             List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
             actions.forEach(newAction -> {
+                // With the file version v4 we have split the actions and metadata separately into two files
+                // So we need to set the body to the unpublished action
+                String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
+                if (actionBody != null && (actionBody.containsKey(keyName))) {
+                    // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
+                    // deserialized separately unlike the body which is stored as string in the db.
+                    if (newAction.getPluginType().toString().equals("REMOTE")) {
+                        Map<String, Object> formData = new Gson().fromJson(actionBody.get(keyName), Map.class);
+                        newAction.getUnpublishedAction().getActionConfiguration().setFormData(formData);
+                    } else {
+                        newAction.getUnpublishedAction().getActionConfiguration().setBody(actionBody.get(keyName));
+                    }
+                }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionDTO will be same, so we create a deep copy for the published version for action from
                 // unpublishedActionDTO

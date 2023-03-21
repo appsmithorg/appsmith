@@ -12,7 +12,7 @@ import {
   checkIfSectionIsEnabled,
   updateEvaluatedSectionConfig,
 } from "./utils";
-import { HiddenType } from "./BaseControl";
+import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 
@@ -289,11 +289,13 @@ describe("caculateIsHidden test", () => {
       path: "name",
       comparison: "EQUALS",
       value: "Name",
+      flagValue: "APP_TEMPLATE",
     };
     const hiddenFalsy: HiddenType = {
       path: "name",
       comparison: "EQUALS",
       value: "Different Name",
+      flagValue: "APP_TEMPLATE",
     };
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();

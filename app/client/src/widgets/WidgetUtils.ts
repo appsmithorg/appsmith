@@ -1,8 +1,19 @@
 // import React, { JSXElementConstructor } from "react";
 // import { IconProps, IconWrapper } from "constants/IconConstants";
 
-import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
+import { Alignment, Classes } from "@blueprintjs/core";
+import { Classes as DTClasses } from "@blueprintjs/datetime";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonPlacement, ButtonVariant } from "components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonPlacementTypes,
+  ButtonStyleTypes,
+  ButtonVariantTypes,
+} from "components/constants";
+import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { Theme } from "constants/DefaultTheme";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -11,31 +22,17 @@ import {
   WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
-import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
-import { Theme } from "constants/DefaultTheme";
-import {
-  ButtonStyleTypes,
-  ButtonVariant,
-  ButtonVariantTypes,
-  ButtonPlacement,
-  ButtonPlacementTypes,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
-import tinycolor from "tinycolor2";
 import { createGlobalStyle, css } from "styled-components";
-import { Classes } from "@blueprintjs/core";
-import { Classes as DTClasses } from "@blueprintjs/datetime";
-import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { SchemaItem } from "./JSONFormWidget/constants";
-import { find, isEmpty } from "lodash";
-import { rgbaMigrationConstantV56 } from "./constants";
-import { DynamicPath } from "utils/DynamicBindingUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
-import { isArray } from "lodash";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import tinycolor from "tinycolor2";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { rgbaMigrationConstantV56 } from "./constants";
+import type { ContainerWidgetProps } from "./ContainerWidget/widget";
+import type { SchemaItem } from "./JSONFormWidget/constants";
 
 const punycode = require("punycode/");
 
@@ -108,9 +105,7 @@ export const generateReactKey = ({
 };
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
-  const brightness = tinycolor(backgroundColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(backgroundColor).greyscale().getBrightness();
   const percentageBrightness = (brightness / 255) * 100;
 
   if (!backgroundColor)
@@ -174,9 +169,7 @@ export const calulateHoverColor = (
 ) => {
   // For transparent backgrounds
   if (hasTransparentBackground) {
-    return tinycolor(backgroundColor)
-      .setAlpha(0.1)
-      .toRgbString();
+    return tinycolor(backgroundColor).setAlpha(0.1).toRgbString();
   }
 
   // For non-transparent backgrounds, using the HSL color modal
@@ -290,9 +283,7 @@ export const darkenColor = (color = "#fff", amount = 10) => {
 
   return tinyColor.isValid()
     ? tinyColor.darken(amount).toString()
-    : tinycolor("#fff")
-        .darken(amount)
-        .toString();
+    : tinycolor("#fff").darken(amount).toString();
 };
 
 export const getRgbaColor = (color: string, opacity: number) => {
@@ -308,9 +299,7 @@ export const getRgbaColor = (color: string, opacity: number) => {
  * @returns
  */
 export const isDark = (color: string) => {
-  const brightness = tinycolor(color)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(color).greyscale().getBrightness();
   const percentageBrightness = (brightness / 255) * 100;
   const isDark = percentageBrightness < 70;
 
@@ -745,6 +734,7 @@ export const isAutoHeightEnabledForWidget = (
   props: WidgetProps,
   shouldCheckIfEnabledWithLimits = false,
 ) => {
+  if (props.isFlexChild) return false;
   if (shouldCheckIfEnabledWithLimits) {
     return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
   }
@@ -881,3 +871,6 @@ export const scrollCSS = css`
     background: transparent !important;
   }
 `;
+
+export const widgetTypeClassname = (widgetType: string): string =>
+  `t--widget-${widgetType.split("_").join("").toLowerCase()}`;

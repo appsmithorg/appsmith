@@ -1,16 +1,19 @@
+import type { WidgetType } from "constants/WidgetConstants";
+import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { DEFAULT_CENTER, WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import MapComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import styled from "styled-components";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
-import { MarkerProps } from "../constants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { Stylesheet } from "entities/AppTheming";
+import styled from "styled-components";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { MarkerProps } from "../constants";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -241,6 +244,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

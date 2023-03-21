@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Column, useTable, useExpanded } from "react-table";
+import type { Column } from "react-table";
+import { useTable, useExpanded } from "react-table";
+import type { TabProp } from "design-system-old";
 import {
   Checkbox,
   Icon,
   IconSize,
   Spinner,
   TabComponent,
-  TabProp,
 } from "design-system-old";
 import { HighlightText } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
@@ -16,7 +17,7 @@ import {
   ApiMethodIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { RoleProps, RoleTreeProps } from "./types";
+import type { RoleProps, RoleTreeProps } from "./types";
 import {
   EmptyDataState,
   EmptySearchResult,
@@ -288,7 +289,11 @@ function Table({
 
   const getRowVisibility = (row: any): string => {
     let shouldHide = true;
-    if (JSON.stringify(filteredData).indexOf(row.original.id) > -1) {
+    const filteredDataStr = JSON.stringify(filteredData);
+    if (
+      filteredDataStr.includes(row.original.id) &&
+      filteredDataStr.includes(row.original.name)
+    ) {
       shouldHide = false;
     }
     return shouldHide ? "hidden" : "shown";
@@ -422,7 +427,10 @@ export function getSearchData(data: any, searchValue: string) {
     if (item.subRows && !nameIncludesSearchValue) {
       item.subRows = getSearchData(item.subRows, searchValue);
     }
-    return item.subRows?.length > 0 || nameIncludesSearchValue;
+    return (
+      nameIncludesSearchValue ||
+      (!nameIncludesSearchValue && item.subRows?.length > 0)
+    );
   });
 }
 

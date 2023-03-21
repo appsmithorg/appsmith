@@ -1,5 +1,6 @@
 import React from "react";
-import { Dropdown, DropdownOption } from "design-system-old";
+import type { DropdownOption } from "design-system-old";
+import { Dropdown } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAuditLogsData,

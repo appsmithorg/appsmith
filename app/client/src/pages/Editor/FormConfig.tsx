@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { ControlProps } from "components/formControls/BaseControl";
-import {
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import type { ControlProps } from "components/formControls/BaseControl";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   FormLabel,
@@ -15,12 +13,12 @@ import {
   FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
-import { FormControlProps } from "./FormControl";
+import type { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,

@@ -3,30 +3,26 @@ import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import { Category } from "design-system-old";
-import { Datasource } from "entities/Datasource";
-import {
-  getFormValues,
-  InjectedFormProps,
-  isDirty,
-  reduxForm,
-} from "redux-form";
-import { RouteComponentProps } from "react-router";
+import type { Datasource } from "entities/Datasource";
+import type { InjectedFormProps } from "redux-form";
+import { getFormValues, isDirty, reduxForm } from "redux-form";
+import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getDatasource,
   getPluginImages,
   getDatasourceFormButtonConfig,
   getPlugin,
 } from "selectors/entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
 import {
   ActionWrapper,
   EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
-  JSONtoFormProps,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -34,13 +30,14 @@ import Connected from "../DataSourceEditor/Connected";
 
 import {
   getCurrentApplicationId,
+  getGsheetToken,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import { PluginPackageName } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
@@ -65,7 +62,6 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -89,7 +85,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
-  FeatureFlags?: FeatureFlags;
+  gsheetToken?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -261,8 +257,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      featureFlags,
       formData,
+      gsheetToken,
       hiddenHeader,
       pageId,
       plugin,
@@ -354,8 +350,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 ? _.map(sections, this.renderMainSection)
                 : null}
               {""}
-              {featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
-                "Load UI for Limiting GSheet Access"}
             </>
           )}
           {viewMode && (
@@ -381,6 +375,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
@@ -441,7 +436,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
-  const featureFlags: FeatureFlags = selectFeatureFlags(state);
+  const gsheetToken = getGsheetToken(state);
 
   return {
     datasource,
@@ -470,7 +465,8 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
-    featureFlags,
+    featureFlags: selectFeatureFlags(state),
+    gsheetToken,
   };
 };
 

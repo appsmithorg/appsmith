@@ -15,7 +15,7 @@ import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getRolesForField,
   getAllUsers,
@@ -23,10 +23,8 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  InviteUsersToWorkspaceFormValues,
-  inviteUsersToWorkspace,
-} from "@appsmith/pages/workspace/helpers";
+import type { InviteUsersToWorkspaceFormValues } from "@appsmith/pages/workspace/helpers";
+import { inviteUsersToWorkspace } from "@appsmith/pages/workspace/helpers";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
   createMessage,
@@ -44,26 +42,25 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { DropdownOption, TextProps } from "design-system-old";
 import {
   Button,
   Classes,
   Callout,
-  DropdownOption,
   Size,
   Text,
   TextType,
-  TextProps,
   Variant,
 } from "design-system-old";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
@@ -458,8 +455,10 @@ function WorkspaceInviteUsersForm(props: any) {
             .filter((user: any) => isEmail(user))
             .join(",");
           AnalyticsUtil.logEvent("INVITE_USER", {
-            users: usersAsStringsArray,
-            role: values.role,
+            ...(cloudHosting ? { users: usersAsStringsArray } : {}),
+            role: isMultiSelectDropdown
+              ? selectedOption.map((group: any) => group.id).join(",")
+              : [selectedOption[0].id],
             numberOfUsersInvited: usersAsStringsArray.length,
           });
           return inviteUsersToWorkspace(
@@ -546,13 +545,18 @@ function WorkspaceInviteUsersForm(props: any) {
                     permissionGroupId: string;
                     permissionGroupName: string;
                     initials: string;
+                    photoId?: string;
                   }) => {
                     return (
                       <Fragment key={user.username}>
                         <User>
                           <UserInfo>
                             <ProfileImage
-                              source={`/api/${UserApi.photoURL}/${user.username}`}
+                              source={
+                                user.photoId
+                                  ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                  : undefined
+                              }
                               userName={user.name || user.username}
                             />
                             <UserName>

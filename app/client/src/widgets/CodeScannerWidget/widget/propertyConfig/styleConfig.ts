@@ -1,10 +1,8 @@
-import { ValidationTypes } from "constants/WidgetValidation";
 import { ButtonPlacementTypes } from "components/constants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
+import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 import { updateStyles } from "../propertyUtils";
-import {
-  CodeScannerWidgetProps,
-  ScannerLayout,
-} from "widgets/CodeScannerWidget/constants";
 
 export default [
   {

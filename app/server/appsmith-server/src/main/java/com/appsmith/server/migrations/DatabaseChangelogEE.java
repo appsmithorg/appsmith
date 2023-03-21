@@ -46,6 +46,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -182,11 +183,13 @@ public class DatabaseChangelogEE {
 
         // Find al the administrator permission groups and give make public to the default workspace
         Query adminPermissionGroupQuery = new Query().addCriteria(where("name").regex("^Administrator - .*"));
-        adminPermissionGroupQuery.fields().include("_id", "defaultWorkspaceId");
+        adminPermissionGroupQuery.fields().include("_id", "defaultWorkspaceId", "defaultDomainId", "defaultDomainType");
         List<PermissionGroup> permissionGroups = mongoTemplate.find(adminPermissionGroupQuery, PermissionGroup.class);
 
         permissionGroups.forEach(permissionGroup -> {
-            String defaultWorkspaceId = permissionGroup.getDefaultWorkspaceId();
+            String defaultWorkspaceId = Objects.nonNull(permissionGroup.getDefaultDomainType())
+                    ? permissionGroup.getDefaultDomainId()
+                    : permissionGroup.getDefaultWorkspaceId();
             if (defaultWorkspaceId != null) {
 
                 Policy makePublicPolicy = Policy.builder()

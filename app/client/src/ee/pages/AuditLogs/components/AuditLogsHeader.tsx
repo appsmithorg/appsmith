@@ -4,14 +4,8 @@ import {
   StyledAuditLogsHeading as Heading,
 } from "../styled-components/header";
 import { refreshAuditLogsInit } from "@appsmith/actions/auditLogsAction";
-import {
-  Button,
-  Menu,
-  Icon,
-  IconSize,
-  MenuItem,
-  MenuItemProps,
-} from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { Button, Menu, Icon, IconSize, MenuItem } from "design-system-old";
 import { Position } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 import {

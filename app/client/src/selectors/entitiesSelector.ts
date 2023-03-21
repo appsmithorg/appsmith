@@ -1,41 +1,45 @@
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
-import {
+import type {
   Datasource,
   MockDatasource,
   DatasourceStructure,
-  isEmbeddedRestDatasource,
 } from "entities/Datasource";
-import { Action, PluginType } from "entities/Action";
+import { isEmbeddedRestDatasource } from "entities/Datasource";
+import type { Action } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { AppStoreState } from "reducers/entityReducers/appReducer";
-import {
+import type { AppStoreState } from "reducers/entityReducers/appReducer";
+import type {
   JSCollectionData,
   JSCollectionDataState,
 } from "reducers/entityReducers/jsActionsReducer";
-import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import { JSAction, JSCollection } from "entities/JSCollection";
+import type {
+  DefaultPlugin,
+  GenerateCRUDEnabledPluginMap,
+} from "api/PluginApi";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
-import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  EvaluationError,
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -237,8 +241,16 @@ export const getPluginDependencyConfig = (state: AppState) =>
 export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
   state.entities.plugins.settingConfigs[pluginId];
 
-export const getDBPlugins = createSelector(getPlugins, (plugins) =>
-  plugins.filter((plugin) => plugin.type === PluginType.DB),
+export const getDBPlugins = createSelector(
+  getPlugins,
+  selectFeatureFlags,
+  (plugins, featureFlags) =>
+    plugins.filter((plugin) =>
+      featureFlags.ORACLE_PLUGIN
+        ? plugin.type === PluginType.DB
+        : plugin.type === PluginType.DB &&
+          plugin.packageName !== PluginPackageName.ORACLE,
+    ),
 );
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
@@ -370,6 +382,7 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+// Note: getJSCollectionsForCurrentPage (returns a new object everytime)
 export const getJSCollectionsForCurrentPage = createSelector(
   getCurrentPageId,
   getJSCollections,
