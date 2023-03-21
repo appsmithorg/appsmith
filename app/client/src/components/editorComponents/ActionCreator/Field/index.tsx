@@ -235,17 +235,13 @@ export function Field(props: FieldProps) {
         label: label,
         toolTip: toolTip,
         exampleText: exampleText,
-        get: (val) =>
-          getterFunction(
-            val,
-            props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
-          ),
+        get: (val) => {
+          const getter = field.getter || fieldConfig.getter;
+          return getter(val);
+        },
         set: (value: string, isUpdatedViaKeyboard = false) => {
-          const finalValueToSet = fieldConfig.setter(
-            value,
-            props.value,
-            props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
-          );
+          const setter = field.setter || fieldConfig.setter;
+          const finalValueToSet = setter(value, props.value);
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: value,

@@ -10,8 +10,7 @@ import {
     CallExpressionNode,
     BinaryExpressionNode,
     BlockStatementNode,
-    IdentifierNode, isIdentifierNode, isExpressionStatementNode, isTypeOfFunction,
-    isObjectExpression,
+    isIdentifierNode, isExpressionStatementNode, isTypeOfFunction, 
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {findNodeAt, simple} from "acorn-walk";
@@ -453,7 +452,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
         const firstCallExpressionNode = findRootCallExpression(astWithComments);
 
         const argumentNode = firstCallExpressionNode?.arguments[argNum];
-        if (argumentNode && isTypeOfFunction(argumentNode.type)) {
+        if (argumentNode && (isTypeOfFunction(argumentNode.type) || isCallExpressionNode(argumentNode))) {
             requiredArgument = `${generate(argumentNode, {comments: true})}`;
         } else {
             requiredArgument = "";
@@ -832,6 +831,7 @@ export function setThenBlockInQuery(
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let requiredQuery: string = "";
+    thenBlock = thenBlock || "() => {}";
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         
@@ -925,6 +925,7 @@ export function setCatchBlockInQuery(
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let requiredQuery: string = "";
+    catchBlock = catchBlock || "() => {}";
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
