@@ -212,84 +212,87 @@ describe("Boolean & Enum Datatype tests", function () {
     });
   });
 
-  after("Verify Deletion of the datasource after all created queries are Deleted", () => {
-    //Drop table:
+  after(
+    "Verify Deletion of the datasource after all created queries are Deleted",
+    () => {
+      //Drop table:
 
-    _.deployMode.NavigateBacktoEditor();
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.SelectEntityByName("dropTable");
-    _.dataSources.RunQuery();
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0"); //Success response for dropped _.table!
-    });
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ExpandCollapseEntity(dsName);
-    _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-    _.agHelper.AssertElementAbsence(
-      _.entityExplorer._entityNameInExplorer("public.boolenumtypes"),
-    );
-    _.entityExplorer.ExpandCollapseEntity(dsName, false);
-    _.entityExplorer.ExpandCollapseEntity("Datasources", false);
+      _.deployMode.NavigateBacktoEditor();
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.entityExplorer.SelectEntityByName("dropTable");
+      _.dataSources.RunQuery();
+      _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0"); //Success response for dropped _.table!
+      });
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      _.entityExplorer.ExpandCollapseEntity("Datasources");
+      _.entityExplorer.ExpandCollapseEntity(dsName);
+      _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+      _.agHelper.AssertElementAbsence(
+        _.entityExplorer._entityNameInExplorer("public.boolenumtypes"),
+      );
+      _.entityExplorer.ExpandCollapseEntity(dsName, false);
+      _.entityExplorer.ExpandCollapseEntity("Datasources", false);
 
-    //Delete queries
-    _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "createEnum",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "createTable",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "deleteRecord",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "dropTable",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "dropEnum",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "getEnum",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "insertRecord",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "updateRecord",
-      "Delete",
-      "Are you sure?",
-    );
+      //Delete queries
+      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "createEnum",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "createTable",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "deleteAllRecords",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "deleteRecord",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "dropTable",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "dropEnum",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "getEnum",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "insertRecord",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "selectRecords",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "updateRecord",
+        "Delete",
+        "Are you sure?",
+      );
 
-    //Delete ds
-    _.deployMode.DeployApp();
-    _.deployMode.NavigateBacktoEditor();
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
-  });
+      //Delete ds
+      _.deployMode.DeployApp();
+      _.deployMode.NavigateBacktoEditor();
+      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    },
+  );
 });

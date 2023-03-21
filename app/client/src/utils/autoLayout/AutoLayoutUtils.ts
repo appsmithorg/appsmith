@@ -8,7 +8,10 @@ import {
   CONTAINER_GRID_PADDING,
   DefaultDimensionMap,
 } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
@@ -25,7 +28,7 @@ import {
   getWidgetMinMaxDimensionsInPixel,
   getWidgetWidth,
 } from "./flexWidgetUtils";
-import type { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,

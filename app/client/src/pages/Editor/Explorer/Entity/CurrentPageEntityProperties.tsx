@@ -4,16 +4,14 @@ import EntityProperty from "./EntityProperty";
 import { isFunction } from "lodash";
 import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type {
-  DataTreeAction,
-  DataTree,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import type { ActionEntity } from "entities/DataTree/types";
 import * as Sentry from "@sentry/react";
 
 export const CurrentPageEntityProperties = memo(
@@ -41,7 +39,7 @@ export const CurrentPageEntityProperties = memo(
     let entityProperties: Array<EntityPropertyProps> = [];
     switch (props.entityType) {
       case ENTITY_TYPE.ACTION:
-        config = (entityDefinitions.ACTION as any)(entity as DataTreeAction);
+        config = (entityDefinitions.ACTION as any)(entity as ActionEntity);
         if (config) {
           entityProperties = Object.keys(config)
             .filter((k) => k.indexOf("!") === -1)

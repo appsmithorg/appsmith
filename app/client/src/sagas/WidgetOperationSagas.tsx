@@ -7,6 +7,14 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { resetWidgetMetaProperty } from "actions/metaActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
+import log from "loglevel";
 import type { WidgetResize } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type {
@@ -70,23 +78,17 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
+import { validateProperty } from "./EvaluationsSaga";
 import { Toaster, Variant } from "design-system-old";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { validateProperty } from "./EvaluationsSaga";
-
-import type {
-  CopiedWidgetGroup,
-  NewPastePositionVariables,
-} from "./WidgetOperationUtils";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getSelectedWidgets } from "selectors/ui";
+import { getReflow } from "selectors/widgetReflowSelectors";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -95,8 +97,12 @@ import {
   isStack,
   pasteWidgetInFlexLayers,
 } from "../utils/autoLayout/AutoLayoutUtils";
+import type {
+  CopiedWidgetGroup,
+  NewPastePositionVariables,
+} from "./WidgetOperationUtils";
+import { WIDGET_PASTE_PADDING } from "./WidgetOperationUtils";
 import {
-  WIDGET_PASTE_PADDING,
   changeIdsOfPastePositions,
   createSelectedWidgetsAsCopiedWidgets,
   createWidgetCopy,
@@ -129,11 +135,14 @@ import {
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTree,
+  ConfigTree,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
-import { getReflow } from "selectors/widgetReflowSelectors";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import {
@@ -158,14 +167,8 @@ import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import log from "loglevel";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { resetWidgetMetaProperty } from "actions/metaActions";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -813,6 +816,7 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
+  const configTree: ConfigTree = yield select(getConfigTree);
   const widgetsMeta: MetaState = yield select(getWidgetsMeta);
   const childrenList = getWidgetDescendantToReset(
     canvasWidgets,
@@ -824,7 +828,15 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   for (const childIndex in childrenList) {
     const { evaluatedWidget: childWidget, id: childId } =
       childrenList[childIndex];
-    yield put(resetWidgetMetaProperty(childId, childWidget));
+    const evaluatedWidgetConfig =
+      childWidget && configTree[childWidget?.widgetName];
+    yield put(
+      resetWidgetMetaProperty(
+        childId,
+        childWidget,
+        evaluatedWidgetConfig as WidgetEntityConfig,
+      ),
+    );
   }
 }
 

@@ -27,13 +27,20 @@ import {
 import { APP_MODE } from "entities/App";
 import type {
   DataTree,
-  DataTreeWidget,
+  ConfigTree,
+  WidgetEntity,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  getDataTree,
+  getLoadingEntities,
+  getConfigTree,
+} from "selectors/dataTreeSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+
 import {
   getActions,
   getCanvasWidgets,
@@ -374,6 +381,7 @@ export const computeMainContainerWidget = (
 export const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  configTree: ConfigTree,
   mainCanvasProps: MainCanvasReduxState,
 ) => {
   const canvasWidget = computeMainContainerWidget(
@@ -384,25 +392,35 @@ export const getMainContainer = (
   //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
-  }) as DataTreeWidget;
-  return createCanvasWidget(canvasWidget, evaluatedWidget);
+  }) as WidgetEntity;
+  const evaluatedWidgetConfig = find(configTree, {
+    widgetId: MAIN_CONTAINER_WIDGET_ID,
+  }) as WidgetEntityConfig;
+  return createCanvasWidget(
+    canvasWidget,
+    evaluatedWidget,
+    evaluatedWidgetConfig,
+  );
 };
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
+  getConfigTree,
   getLoadingEntities,
   getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
+    configTree,
     loadingEntities,
     mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, DataTreeWidget> = {
+    const widgets: Record<string, WidgetEntity> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        configTree,
         mainCanvasProps,
       ),
     };
@@ -412,11 +430,15 @@ export const getCanvasWidgetDsl = createSelector(
         const canvasWidget = canvasWidgets[widgetKey];
         const evaluatedWidget = find(evaluatedDataTree, {
           widgetId: widgetKey,
-        }) as DataTreeWidget;
+        }) as WidgetEntity;
+        const evaluatedWidgetConfig = find(configTree, {
+          widgetId: widgetKey,
+        });
         if (evaluatedWidget) {
           widgets[widgetKey] = createCanvasWidget(
             canvasWidget,
             evaluatedWidget,
+            evaluatedWidgetConfig,
           );
         } else {
           widgets[widgetKey] = createLoadingWidget(canvasWidget);
@@ -438,6 +460,7 @@ export const getChildWidgets = createSelector(
     getMetaWidgets,
     getDataTree,
     getLoadingEntities,
+    getConfigTree,
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
@@ -908,3 +931,6 @@ export const showCanvasTopSectionSelector = createSelector(
 
 export const getGsheetToken = (state: AppState) =>
   state.entities.datasources.gsheetToken;
+
+export const getGsheetProjectID = (state: AppState) =>
+  state.entities.datasources.gsheetProjectID;

@@ -32,7 +32,6 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { get, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
@@ -46,11 +45,11 @@ import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
+  FlexVerticalAlignment,
   LayoutDirection,
-  ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 import type {
   DataTreeEvaluationProps,
   EvaluationError,
@@ -68,6 +67,7 @@ import {
 } from "./WidgetUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import WidgetFactory from "utils/WidgetFactory";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 
 /***
  * BaseWidget
@@ -766,7 +766,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
-  childWidgets?: DataTreeWidget[];
+  childWidgets?: WidgetEntity[];
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
   referencedWidgetId?: string;

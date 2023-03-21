@@ -1,4 +1,3 @@
-import { useContext, useEffect, useRef } from "react";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -35,6 +34,7 @@ import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCa
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { useContext, useEffect, useRef } from "react";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;

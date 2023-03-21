@@ -16,41 +16,16 @@ describe("Git discard changes:", function () {
 
   it("1. Create an app with Query1 and JSObject1, connect it to git", () => {
     // Create new postgres datasource
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.fillPostgresDatasourceForm();
 
-    cy.testSaveDatasource();
-
-    // go back to active ds list
-    _.dataSources.NavigateToActiveTab();
-
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-
-      cy.get(datasource.datasourceCard)
-        .contains(datasourceName)
-        .scrollIntoView()
-        .should("be.visible")
-        .closest(datasource.datasourceCard)
-        .within(() => {
-          cy.get(datasource.createQuery).click();
-        });
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
+      _.dataSources.CreateQueryAfterDSSaved(
+        "SELECT * FROM users ORDER BY id LIMIT 10;",
+        query1,
+      );
+      _.dataSources.RunQuery();
     });
-    // Create new postgres query
-    cy.get(queryLocators.queryNameField).type(`${query1}`);
-    cy.get(queryLocators.switch).last().click({ force: true });
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
-    cy.WaitAutoSave();
-    cy.runQuery();
 
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.wait(1000);
