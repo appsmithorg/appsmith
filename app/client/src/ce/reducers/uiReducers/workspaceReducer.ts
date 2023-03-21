@@ -83,8 +83,7 @@ export const handlers = {
   ) => {
     draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
       if (user.username === action.payload.username) {
-        user.roles[0].id = action.payload.roles[0].id;
-        user.roles[0].name = action.payload.roles[0].name;
+        user.roles = action.payload.roles;
         user.isChangingRole = false;
       }
     });
