@@ -68,7 +68,7 @@ public class UserData extends BaseDomain {
 
     // JWT tokens
     @JsonView(Views.Internal.class)
-    String accessToken;
+    AppsmithOidcAccessToken oidcAccessToken;
 
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;

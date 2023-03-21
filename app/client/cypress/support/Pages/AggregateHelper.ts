@@ -821,7 +821,7 @@ export class AggregateHelper {
         input.setValue(value);
         this.Sleep(200);
       });
-    this.Sleep(500);//for value set to settle
+    this.Sleep(500); //for value set to settle
   }
 
   public UpdateInput(selector: string, value: string) {
