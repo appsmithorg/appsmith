@@ -22,10 +22,9 @@ import {
   TabBehaviour,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  bindingMarker,
-  entityMarker,
-} from "components/editorComponents/CodeEditor/markHelpers";
+import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
+
+import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
