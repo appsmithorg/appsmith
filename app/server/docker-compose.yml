@@ -10,26 +10,43 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mongo
-      - redis
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - appsmith
     volumes:
       - ./container-volumes/git-storage:/data/git-storage
 
   mongo:
-    image: mongo:4.4.6
+    image: mongo:6
     environment:
       - MONGO_INITDB_DATABASE=appsmith
     volumes:
       - ./container-volumes/mongo:/data/db
     networks:
       - appsmith
+    command: "--replSet rs0"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+
+  mongo-initiate:
+    image: mongo:6
+    restart: "on-failure"
+    depends_on:
+      mongo:
+        condition: service_started
+    networks:
+      - appsmith
+    entrypoint: [ "bash", "-c", "mongosh --host mongo:27017 --eval 'rs.initiate()'" ]
 
   redis:
     image: redis
     networks:
       - appsmith
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
 
 networks:
   appsmith:
