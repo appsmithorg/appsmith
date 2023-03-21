@@ -1,8 +1,6 @@
 import React from "react";
 
 import styled from "styled-components";
-import { ReactComponent as CloudyIcon } from "assets/icons/ads/cloudy-line.svg";
-import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -19,6 +17,12 @@ import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { viewerURL } from "RouteBuilder";
+import { importSvg } from "design-system-old";
+
+const CloudyIcon = importSvg(() => import("assets/icons/ads/cloudy-line.svg"));
+const RightArrow = importSvg(
+  () => import("assets/icons/ads/arrow-right-line.svg"),
+);
 
 const Container = styled.div`
   display: flex;

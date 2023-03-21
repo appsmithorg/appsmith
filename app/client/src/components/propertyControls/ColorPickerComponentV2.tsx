@@ -12,7 +12,6 @@ import {
   PopoverInteractionKind,
   Classes,
 } from "@blueprintjs/core";
-import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
@@ -27,7 +26,13 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
+import { importSvg } from "design-system-old";
+
 const FocusTrap = require("focus-trap-react");
+
+const ColorPickerIcon = importSvg(
+  () => import("assets/icons/control/color-picker.svg"),
+);
 
 const MAX_COLS = 10;
 
