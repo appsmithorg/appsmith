@@ -86,10 +86,6 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
         />
-        <img
-          className="h-6"
-          src="https://global.canon/en/corporate/logo/img/logo_01.png"
-        />
       </StyledLink>
     </TooltipComponent>
   );
