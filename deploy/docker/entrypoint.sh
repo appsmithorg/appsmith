@@ -3,6 +3,22 @@
 set -e
 set -o xtrace
 
+if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
+  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  curl \
+    --user "$APPSMITH_SEGMENT_CE_KEY:" \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "userId":"'"$ip"'",
+      "event":"Instance Start",
+      "properties": {
+        "ip": "'"$ip"'"
+      }
+    }' \
+    https://api.segment.io/v1/track \
+    || true
+fi
+
 stacks_path=/appsmith-stacks
 
 function get_maximum_heap() {
@@ -414,7 +430,7 @@ init_postgres() {
         echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-      
+
       mkdir -p $POSTGRES_DB_PATH
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -428,18 +444,18 @@ init_postgres() {
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
-      
+
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
   else
-    runEmbeddedPostgres=0 
+    runEmbeddedPostgres=0
   fi
-  
+
 }
 
 seed_embedded_postgres(){
-    # Create mockdb database 
+    # Create mockdb database
     psql -U postgres -c "CREATE DATABASE mockdb;"
     # Create mockdb superuser
     su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
@@ -457,7 +473,7 @@ seed_embedded_postgres(){
 safe_init_postgres(){
 runEmbeddedPostgres=1
 # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
-init_postgres || runEmbeddedPostgres=0 
+init_postgres || runEmbeddedPostgres=0
 }
 
 # Main Section
