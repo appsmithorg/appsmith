@@ -31,10 +31,17 @@ const StyledAppIcon = styled(AppsIcon)<
   border-radius: ${({ borderRadius }) => borderRadius};
   transition: all 0.3s ease-in-out;
   margin-top: ${({ forSidebar }) => (forSidebar ? " -3px" : "-2px")};
+  width: 100%;
 `;
 
 export const StyledLink = styled(Link)<BackToHomeButtonProps>`
   min-width: max-content;
+
+  img {
+    width: 100%;
+    max-width: 4rem;
+    max-height: 1.5rem;
+  }
 
   &:hover {
     svg {
