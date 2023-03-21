@@ -16,7 +16,7 @@ let repoName;
 let generatedKey;
 let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
-describe("Git sync modal: connect tab", function () {
+describe("Git sync modal: connect tab", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -31,7 +31,7 @@ describe("Git sync modal: connect tab", function () {
     });
   });
 
-  it("1. validates repo URL", function () {
+  it("1. validates repo URL", function() {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
     cy.get(homePage.connectToGitBtn).click({ force: true });
@@ -90,9 +90,11 @@ describe("Git sync modal: connect tab", function () {
     cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
-  it("2. validates copy key and validates repo url input after key generation", function () {
+  it("2. validates copy key and validates repo url input after key generation", function() {
     cy.window().then((win) => {
-      cy.stub(win, "prompt").returns(win.prompt).as("copyToClipboardPrompt");
+      cy.stub(win, "prompt")
+        .returns(win.prompt)
+        .as("copyToClipboardPrompt");
     });
 
     cy.get(gitSyncLocators.copySshKey).click();
@@ -113,7 +115,7 @@ describe("Git sync modal: connect tab", function () {
     cy.get(gitSyncLocators.connectSubmitBtn).should("not.be.disabled");
   });
 
-  it("3. validates git user config", function () {
+  it("3. validates git user config", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
 
     // name empty invalid
@@ -181,7 +183,7 @@ describe("Git sync modal: connect tab", function () {
       });
   });
 
-  it("4. validates submit errors", function () {
+  it("4. validates submit errors", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
     cy.get(gitSyncLocators.gitConfigNameInput)
       .scrollIntoView()
@@ -191,7 +193,7 @@ describe("Git sync modal: connect tab", function () {
     );
     cy.wait(200);
     cy.get(gitSyncLocators.gitConnectionContainer)
-      .scrollTo("top")
+      .scrollTo("top", { ensureScrollable: false })
       .should("be.visible");
     cy.get(gitSyncLocators.gitRepoInput)
       .click({ force: true })
@@ -207,7 +209,9 @@ describe("Git sync modal: connect tab", function () {
           force: true,
         },
       );
-    cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
+    cy.get(gitSyncLocators.connectSubmitBtn)
+      .scrollIntoView()
+      .click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
@@ -252,7 +256,9 @@ describe("Git sync modal: connect tab", function () {
       },
     });
 
-    cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
+    cy.get(gitSyncLocators.connectSubmitBtn)
+      .scrollIntoView()
+      .click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
