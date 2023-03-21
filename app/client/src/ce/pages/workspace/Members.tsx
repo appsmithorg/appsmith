@@ -335,8 +335,8 @@ export default function MemberSettings(props: PageProps) {
       allUsers.map((user) => ({
         ...user,
         isCurrentUser: user.username === currentUser?.username,
-        permissionGroupId: user.roles[0].id,
-        permissionGroupName: user.roles[0].name,
+        permissionGroupId: user.roles?.[0]?.id || "",
+        permissionGroupName: user.roles?.[0]?.name || "",
       })),
     [allUsers, currentUser],
   );
@@ -394,7 +394,8 @@ export default function MemberSettings(props: PageProps) {
         return (
           <RowWrapper>
             <div className="resource-name">
-              {cellProps.cell.row.original.roles[0].entityType}
+              {cellProps.cell.row.original.roles?.[0]?.entityType ||
+                "Workspace"}
             </div>
           </RowWrapper>
         );

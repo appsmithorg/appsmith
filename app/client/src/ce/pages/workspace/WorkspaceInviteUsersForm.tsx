@@ -570,7 +570,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
-                              {user.roles[0].name?.split(" - ")[0]}
+                              {user.roles?.[0]?.name?.split(" - ")[0] || ""}
                             </Text>
                           </UserRole>
                         </User>
