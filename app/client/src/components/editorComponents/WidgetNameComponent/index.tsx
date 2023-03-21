@@ -181,7 +181,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
   const positionOffset: [number, number] = isAutoLayout
-    ? [-RESIZE_BORDER_BUFFER, -RESIZE_BORDER_BUFFER]
+    ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
     : [0, -RESIZE_BORDER_BUFFER];
   return showWidgetName ? (
     <PositionStyle

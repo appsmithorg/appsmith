@@ -1,22 +1,22 @@
-import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 import { computeRowCols } from "components/editorComponents/ResizableUtils";
+import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 import {
   GridDefaults,
   WIDGET_PADDING,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
+import { Spring } from "react-spring";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { Spring } from "react-spring";
 import type { MovementLimitMap, ReflowedSpace } from "reflow/reflowTypes";
-import { ReflowDirection } from "reflow/reflowTypes";
+import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import {
   RESIZE_BORDER_BUFFER,
   ResizableHandle,
   ResizeWrapper,
 } from "resizable/common";
-import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import { getWidgetByID } from "sagas/selectors";
+import { ReflowDirection } from "reflow/reflowTypes";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import PerformanceTracker, {

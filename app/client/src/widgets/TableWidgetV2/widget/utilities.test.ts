@@ -1,4 +1,3 @@
-import { klona } from "klona/lite";
 import type { ColumnProperties, TableStyles } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import { ColumnTypes } from "../constants";
