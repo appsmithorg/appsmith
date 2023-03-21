@@ -10,7 +10,6 @@ import {
   isPathADynamicBinding,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { LintError as JSHintError } from "jshint";
 import { JSHINT as jshint } from "jshint";
 import { get, isEmpty, isNumber, keys, last } from "lodash";
@@ -38,7 +37,6 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
-import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import {
   asyncActionInSyncFieldLintMessage,
   CustomLintErrorCode,
@@ -414,21 +412,6 @@ function getInvalidPropertyErrorsFromScript(
     },
   );
   return invalidPropertyErrors;
-}
-
-export function initiateLinting(
-  lintOrder: string[],
-  unevalTree: DataTree,
-  requiresLinting: boolean,
-) {
-  if (!requiresLinting) return;
-  WorkerMessenger.ping({
-    data: {
-      lintOrder,
-      unevalTree,
-    },
-    method: MAIN_THREAD_ACTION.LINT_TREE,
-  });
 }
 
 export function getRefinedW117Error(

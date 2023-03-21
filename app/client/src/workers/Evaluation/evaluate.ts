@@ -8,7 +8,7 @@ import type { EventType } from "constants/AppsmithActionConstants/ActionConstant
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
-import { DOM_APIS } from "./SetupDOM";
+import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";

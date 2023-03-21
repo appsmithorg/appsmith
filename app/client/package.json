@@ -247,6 +247,7 @@
     "@types/zipcelx": "^1.5.0",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
+    "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-module-resolver": "^4.1.0",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
