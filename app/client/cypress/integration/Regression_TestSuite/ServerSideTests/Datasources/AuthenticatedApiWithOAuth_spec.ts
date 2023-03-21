@@ -1,8 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 //import * as _ from "@ObjectsCore";
 
-describe("Authentiacted Api with OAuth 2.O authorization code test cases", function () {
-  it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function () {
+describe("Authentiacted Api with OAuth 2.O authorization code test cases", function() {
+  it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function() {
     // Create OAuth client
     cy.fixture("datasources").then((datasourceFormData: any) => {
       _.dataSources.CreateOAuthClient("authorization_code");
@@ -13,6 +13,7 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
           cy.get("@OAuthClientSecret").then((clientSecret: any) => {
             _.dataSources.CreateOAuthDatasource(
               "TED_OAuth" + uid,
+              datasourceFormData["OAuth_ApiUrl"],
               "AuthCode",
               clientId,
               clientSecret,
