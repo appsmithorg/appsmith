@@ -6,10 +6,7 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import type {
-  DataTree,
-  DataTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getMetaWidgets,
@@ -24,6 +21,7 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import { get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
+import ConfigTreeActions from "utils/configTree";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -84,9 +82,13 @@ export const getIsWidgetLoading = createSelector(
 export const getDataTree = (state: AppState): DataTree =>
   state.evaluations.tree;
 
+export const getConfigTree = (): any => {
+  return ConfigTreeActions.getConfigTree();
+};
+
 export const getWidgetEvalValues = createSelector(
   [getDataTree, (_state: AppState, widgetName: string) => widgetName],
-  (tree: DataTree, widgetName: string) => tree[widgetName] as DataTreeWidget,
+  (tree: DataTree, widgetName: string) => tree[widgetName] as WidgetEntity,
 );
 
 // For autocomplete. Use actions cached responses if
