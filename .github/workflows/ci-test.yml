@@ -390,7 +390,7 @@ jobs:
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: failed-spec-ci
