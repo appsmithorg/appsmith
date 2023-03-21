@@ -367,7 +367,7 @@ export function codeToAction(
   };
 }
 
-export const chainableFns = [
+export const chainableFns: TActionBlock["actionType"][] = [
   AppsmithFunction.integration,
   AppsmithFunction.navigateTo,
   AppsmithFunction.showAlert,
