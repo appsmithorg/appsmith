@@ -1,18 +1,16 @@
 import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
-import type {
-  DataTree,
-  DataTreeAction,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
+import type { ActionEntity } from "entities/DataTree/types";
 
 export const getActionChildrenNavData = (
   action: ActionData,
   dataTree: DataTree,
 ) => {
-  const dataTreeAction = dataTree[action.config.name] as DataTreeAction;
+  const dataTreeAction = dataTree[action.config.name] as ActionEntity;
   if (dataTreeAction) {
     const definitions = entityDefinitions.ACTION(dataTreeAction, {});
     const peekData: Record<string, unknown> = {};
