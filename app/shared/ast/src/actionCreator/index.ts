@@ -1014,15 +1014,15 @@ export function getFunctionArguments(value: string, evaluationVersion: number): 
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            for (let argument of (node as CallExpressionNode).arguments) {
-                argumentsArray.push(generate(argument));
-            }
-        }
-    });
+    const rootCallExpression = findRootCallExpression(astWithComments);
 
-    return [...argumentsArray].join(", ");
+    const args = rootCallExpression.arguments || [];
+
+    for (let argument of args) {
+        argumentsArray.push(generate(argument));
+    }
+
+    return argumentsArray.join(", ");
 }
 
 export function getFunctionNameFromJsObjectExpression(value: string, evaluationVersion: number): string {
@@ -1041,11 +1041,15 @@ export function getFunctionNameFromJsObjectExpression(value: string, evaluationV
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    simple(astWithComments, {
-        CallExpression(node) {
-            functionName = `${(((node as CallExpressionNode).callee as MemberExpressionNode).property as IdentifierNode).name}`;
-        }
-    });
+    const rootCallExpression = findRootCallExpression(astWithComments);
+
+    if(rootCallExpression && isCallExpressionNode(rootCallExpression)) {
+        if(isMemberExpressionNode(rootCallExpression.callee)) {
+            if(isIdentifierNode(rootCallExpression.callee.property)) {
+                functionName = rootCallExpression.callee.property.name;
+            }
+        }        
+    }
 
     return functionName;
 }
