@@ -164,9 +164,9 @@ function getActionEntityFields(
       const { catch: catchBlock, then: thenBlock } =
         getThenCatchBlocksFromQuery(value, 2);
       if (activeTabApiAndQueryCallback.id === "onSuccess") {
-        return `{{${thenBlock}}}`;
+        return `{{${thenBlock ?? ""}}}`;
       } else {
-        return `{{${catchBlock}}}`;
+        return `{{${catchBlock ?? ""}}}`;
       }
     }
   }
