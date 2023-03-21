@@ -57,7 +57,7 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import {
+import type {
   ClientCredentials,
   AuthorizationCode,
 } from "entities/Datasource/RestAPIForm";
