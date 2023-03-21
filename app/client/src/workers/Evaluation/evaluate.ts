@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
@@ -122,6 +122,7 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
+  configTree?: ConfigTree;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -131,6 +132,7 @@ export interface createEvaluationContextArgs {
  */
 export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
+    configTree,
     context,
     dataTree,
     evalArguments,
@@ -156,7 +158,12 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
+  assignJSFunctionsToContext(
+    EVAL_CONTEXT,
+    resolvedFunctions,
+    isTriggerBased,
+    configTree,
+  );
 
   return EVAL_CONTEXT;
 };
@@ -165,6 +172,7 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
+  configTree?: ConfigTree,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
@@ -182,7 +190,7 @@ export const assignJSFunctionsToContext = (
       const data = jsObject[fnName]?.data;
 
       jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName, jsObject)
+        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName, configTree)
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
@@ -238,6 +246,7 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  configTree?: ConfigTree,
 ): EvalResult {
   return (function () {
     resetWorkerGlobalScope();
@@ -253,6 +262,7 @@ export default function evaluateSync(
       context,
       evalArguments,
       isTriggerBased: isJSCollection,
+      configTree,
     });
 
     evalContext["$isDataField"] = true;
@@ -310,6 +320,7 @@ export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
@@ -320,6 +331,7 @@ export async function evaluateAsync(
 
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
+      configTree,
       dataTree,
       resolvedFunctions,
       context,

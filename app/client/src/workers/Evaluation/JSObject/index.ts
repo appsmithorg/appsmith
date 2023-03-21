@@ -80,6 +80,7 @@ export function saveResolvedFunctionsAndJSUpdates(
   jsUpdates: Record<string, JSUpdate>,
   unEvalDataTree: DataTree,
   entityName: string,
+  configTree: ConfigTree,
 ) {
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
@@ -108,6 +109,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                 false,
                 undefined,
                 undefined,
+                configTree,
               );
               if (!!result) {
                 let params: Array<{ key: string; value: unknown }> = [];
@@ -190,6 +192,7 @@ export function saveResolvedFunctionsAndJSUpdates(
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
+  configTree: ConfigTree,
   oldUnEvalTree?: DataTree,
   differences?: DataTreeDiff[],
 ) {
@@ -231,6 +234,7 @@ export function parseJSActions(
           jsUpdates,
           unEvalDataTree,
           entityName,
+          configTree,
         );
       }
     });
@@ -246,6 +250,7 @@ export function parseJSActions(
         jsUpdates,
         unEvalDataTree,
         entityName,
+        configTree,
       );
     });
   }
@@ -253,6 +258,7 @@ export function parseJSActions(
   functionDeterminer.setupEval(
     unEvalDataTree,
     dataTreeEvalRef.resolvedFunctions,
+    configTree,
   );
 
   Object.keys(jsUpdates).forEach((entityName) => {

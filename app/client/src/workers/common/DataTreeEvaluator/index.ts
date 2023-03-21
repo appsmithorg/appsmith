@@ -211,7 +211,13 @@ export default class DataTreeEvaluator {
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
 
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = parseJSActions(
+      this,
+      localUnEvalTree,
+      configTree,
+      undefined,
+      undefined,
+    );
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -404,6 +410,7 @@ export default class DataTreeEvaluator {
     const parsedCollections = parseJSActions(
       this,
       localUnEvalTree,
+      configTree,
       this.oldUnEvalTree,
       jsTranslatedDiffs,
     );
@@ -1051,6 +1058,7 @@ export default class DataTreeEvaluator {
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
+            configTree,
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
@@ -1114,6 +1122,7 @@ export default class DataTreeEvaluator {
     dataTree: DataTree,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
+    configTree: ConfigTree,
     context?: EvaluateContext,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
@@ -1122,6 +1131,7 @@ export default class DataTreeEvaluator {
       jsSnippets[0] || userScript,
       dataTree,
       resolvedFunctions,
+      configTree,
       context,
       callbackData,
     );
@@ -1136,6 +1146,7 @@ export default class DataTreeEvaluator {
     isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
+    configTree?: ConfigTree,
   ): EvalResult {
     try {
       return evaluateSync(
@@ -1145,6 +1156,7 @@ export default class DataTreeEvaluator {
         isJSObject,
         contextData,
         callbackData,
+        configTree,
       );
     } catch (error) {
       return {

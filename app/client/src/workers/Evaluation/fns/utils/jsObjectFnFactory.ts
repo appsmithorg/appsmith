@@ -4,7 +4,10 @@ import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "./Messenger";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTreeJSAction,
+} from "entities/DataTree/dataTreeFactory";
 
 declare global {
   interface Window {
@@ -29,16 +32,17 @@ function saveExecutionData(name: string, data: unknown) {
 export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   name: string,
-  entity: DataTreeJSAction,
+  configTree: ConfigTree,
   postProcessors: Array<(name: string, res: unknown) => void> = [
     saveExecutionData,
     postJSFunctionExecutionLog,
   ],
 ) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(name);
-  const entityMeta = entity.meta;
+  const entity = configTree[entityName] as DataTreeJSAction;
   const actionId = entity.actionId;
-  const { confirmBeforeExecute, isAsync } = entityMeta[propertyPath];
+  const meta = entity.meta;
+  const { confirmBeforeExecute, isAsync } = meta[propertyPath];
 
   if (isAsync) {
     return async (...args: P) => {

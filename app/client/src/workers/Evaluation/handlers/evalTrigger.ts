@@ -37,6 +37,7 @@ export default async function (request: EvalWorkerASyncRequest) {
     evalTree,
     resolvedFunctions,
     callbackData,
+    unEvalTree.configTree,
     {
       globalContext,
       eventType,
