@@ -152,9 +152,11 @@ export function CanvasSelectionArena({
     snapRows,
     canExtend,
   );
+  const isAutoLayout = useSelector(getIsAutoLayout);
   useEffect(() => {
     if (
       appMode === APP_MODE.EDIT &&
+      !isAutoLayout &&
       !isDragging &&
       slidingArenaRef.current &&
       stickyCanvasRef.current
@@ -482,10 +484,8 @@ export function CanvasSelectionArena({
   ]);
 
   // Resizing state still shows selection arena to aid with scroll behavior
-  const isAutoLayout = useSelector(getIsAutoLayout);
   const shouldShow =
-    appMode === APP_MODE.EDIT &&
-    !(isAutoLayout || isDragging || isPreviewMode || dropDisabled);
+    appMode === APP_MODE.EDIT && !(isDragging || isPreviewMode || dropDisabled);
 
   const canvasRef = React.useRef({
     slidingArenaRef,

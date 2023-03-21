@@ -39,9 +39,7 @@ export function CanvasPropertyPane() {
               <MainContainerLayoutControl />
             </>
           )}
-
           {isAutoLayoutFeatureEnabled && <ConversionButton />}
-
           <TooltipComponent
             content={
               <>
