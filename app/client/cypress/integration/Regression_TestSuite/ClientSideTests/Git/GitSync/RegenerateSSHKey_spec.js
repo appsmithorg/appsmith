@@ -36,4 +36,8 @@ describe("Git regenerate SSH key flow", function () {
     cy.get("body").click(0, 0);
     cy.wait(2000);
   });
+  after(() => {
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    cy.DeleteAppByApi();
+  });
 });
