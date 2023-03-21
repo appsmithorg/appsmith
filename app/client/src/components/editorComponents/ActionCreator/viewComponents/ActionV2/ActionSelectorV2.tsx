@@ -45,6 +45,7 @@ export default function ActionSelector(props: {
       isOpen={props.open}
       minimal
       popoverClassName={popoverClassName}
+      portalClassName="!z-3"
       position="left"
       positioningStrategy="fixed"
     >
