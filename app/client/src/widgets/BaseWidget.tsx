@@ -31,7 +31,6 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { get, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
@@ -65,6 +64,7 @@ import {
   isAutoHeightEnabledForWidget,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 
 /***
  * BaseWidget
@@ -721,7 +721,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
-  childWidgets?: DataTreeWidget[];
+  childWidgets?: WidgetEntity[];
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
   referencedWidgetId?: string;
