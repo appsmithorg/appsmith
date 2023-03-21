@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import type { BaseCellComponentProps, CellAlignment } from "../Constants";
 import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
@@ -122,4 +122,5 @@ const CheckboxCellComponent = (props: CheckboxCellProps) => {
     </CheckboxCellWrapper>
   );
 };
-export const CheckboxCell = React.memo(CheckboxCellComponent);
+
+export const CheckboxCell = memo(CheckboxCellComponent);

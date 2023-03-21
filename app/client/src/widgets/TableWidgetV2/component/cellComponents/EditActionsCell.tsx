@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { memo } from "react";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
@@ -91,4 +90,4 @@ function EditActionCellComponent(props: RenderEditActionsProps) {
     </CellWrapper>
   );
 }
-export const EditActionCell = React.memo(EditActionCellComponent);
+export const EditActionCell = memo(EditActionCellComponent);
