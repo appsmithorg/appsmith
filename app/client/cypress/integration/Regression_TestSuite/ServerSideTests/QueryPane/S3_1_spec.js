@@ -46,7 +46,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       formControls.commandDropdown,
       "List files in bucket",
     );
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
@@ -55,7 +55,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
-    _.dataSources.RunQuery(false);
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait(3000); //for new postExecute to come thru
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);

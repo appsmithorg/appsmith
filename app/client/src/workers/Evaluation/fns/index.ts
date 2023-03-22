@@ -46,10 +46,7 @@ import {
   isAction,
   isAppsmithEntity,
 } from "ce/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeAction,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
@@ -122,17 +119,14 @@ export const entityFns = [
   {
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) =>
-      isAsyncGuard(run.bind(entity), `${(entity as DataTreeAction).name}.run`),
+    fn: (entity: DataTreeEntity, entityName: string) =>
+      isAsyncGuard(run.bind(entity), `${entityName}.run`),
   },
   {
     name: "clear",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) =>
-      isAsyncGuard(
-        clear.bind(entity),
-        `${(entity as DataTreeAction).name}.clear`,
-      ),
+    fn: (entity: DataTreeEntity, entityName: string) =>
+      isAsyncGuard(clear.bind(entity), `${entityName}.clear`),
   },
   {
     name: "getGeoLocation",
