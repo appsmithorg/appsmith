@@ -110,7 +110,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     const selectedWidgetAncestry: string[] = useSelector((state: AppState) => {
-      if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) return [];
+      if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) {
+        return [];
+      }
       return getSelectedWidgetAncestry(state);
     }, equal);
 
