@@ -6,6 +6,7 @@ import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
@@ -17,10 +18,11 @@ import type { WidgetType } from "./WidgetFactory";
 import type { DSLWidget } from "widgets/constants";
 import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
+import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
+import type { ContainerWidgetProps } from "../widgets/ContainerWidget/widget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -37,7 +39,17 @@ export const extractCurrentDSL = (
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
+  if ("version" in currentDSL) {
+    return transformDSL(
+      currentDSL as ContainerWidgetProps<WidgetProps>,
+      newPage,
+    );
+  }
+  const transformedDsl = CanvasWidgetsNormalizer.denormalize(
+    MAIN_CONTAINER_WIDGET_ID,
+    { canvasWidgets: currentDSL },
+  );
+  return transformDSL(transformedDsl, newPage);
 };
 
 /**

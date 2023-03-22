@@ -12,6 +12,7 @@ import type {
   CreatePageActionPayload,
 } from "actions/pageActions";
 import type { FetchApplicationResponse } from "./ApplicationApi";
+import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 
 export type FetchPageRequest = {
   id: string;
@@ -33,7 +34,7 @@ export type SavePageRequest = {
 
 export type PageLayout = {
   id: string;
-  dsl: Partial<DSLWidget>;
+  dsl: CanvasWidgetsReduxState;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];

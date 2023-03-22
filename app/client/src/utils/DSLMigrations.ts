@@ -1572,9 +1572,14 @@ export const migrateToNewLayout = (dsl: DSLWidget) => {
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
-  if (!currentDSL) return false;
-  return currentDSL.version !== LATEST_PAGE_VERSION;
+  console.log({ fetchPageResponse });
+  return false;
+  // const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  // if (!currentDSL) return false;
+  // if (MAIN_CONTAINER_WIDGET_ID in currentDSL) {
+  //   return false;
+  // }
+  // return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 
 export const migrateDatePickerMinMaxDate = (currentDSL: DSLWidget) => {

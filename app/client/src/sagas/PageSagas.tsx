@@ -561,13 +561,9 @@ function getLayoutSavePayload(
   },
   editorConfigs: any,
 ) {
-  const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
-    Object.keys(widgets)[0],
-    { canvasWidgets: widgets },
-  );
   return {
     ...editorConfigs,
-    dsl: denormalizedDSL,
+    dsl: widgets,
   };
 }
 
