@@ -1056,9 +1056,9 @@ export default class DataTreeEvaluator {
             data,
             resolvedFunctions,
             !!entity && isJSAction(entity),
+            configTree,
             contextData,
             callBackData,
-            configTree,
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
@@ -1144,9 +1144,9 @@ export default class DataTreeEvaluator {
     data: DataTree,
     resolvedFunctions: Record<string, any>,
     isJSObject: boolean,
+    configTree: ConfigTree,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
-    configTree?: ConfigTree,
   ): EvalResult {
     try {
       return evaluateSync(
@@ -1154,9 +1154,9 @@ export default class DataTreeEvaluator {
         data,
         resolvedFunctions,
         isJSObject,
+        configTree,
         contextData,
         callbackData,
-        configTree,
       );
     } catch (error) {
       return {

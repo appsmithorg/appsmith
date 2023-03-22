@@ -107,9 +107,9 @@ export function saveResolvedFunctionsAndJSUpdates(
                 unEvalDataTree,
                 {},
                 false,
-                undefined,
-                undefined,
                 configTree,
+                undefined,
+                undefined,
               );
               if (!!result) {
                 let params: Array<{ key: string; value: unknown }> = [];

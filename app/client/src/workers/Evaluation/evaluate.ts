@@ -162,7 +162,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     EVAL_CONTEXT,
     resolvedFunctions,
     isTriggerBased,
-    configTree,
+    configTree || undefined,
   );
 
   return EVAL_CONTEXT;
@@ -172,9 +172,10 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
-  configTree: ConfigTree,
+  configTree?: ConfigTree,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
+
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
     const jsObject = EVAL_CONTEXT[jsObjectName];
@@ -244,9 +245,9 @@ export default function evaluateSync(
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
-  configTree?: ConfigTree,
 ): EvalResult {
   return (function () {
     resetWorkerGlobalScope();

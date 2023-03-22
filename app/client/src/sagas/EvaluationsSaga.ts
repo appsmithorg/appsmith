@@ -593,7 +593,6 @@ function* evaluationChangeListenerSaga(): any {
 
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
-
       yield call(
         evaluateTreeSaga,
         postEvalActions,

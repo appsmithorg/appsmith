@@ -9,14 +9,19 @@ export default function (request: EvalWorkerSyncRequest) {
   if (!dataTreeEvaluator) {
     return true;
   }
+
   ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
+
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
+  const configTree = dataTreeEvaluator.oldConfigTree;
+
   return evaluateSync(
     functionCall,
     evalTree,
     resolvedFunctions,
     false,
+    configTree,
     undefined,
   );
 }

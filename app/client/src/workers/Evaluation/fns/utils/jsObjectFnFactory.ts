@@ -30,13 +30,16 @@ function saveExecutionData(name: string, data: unknown) {
 export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   name: string,
-  configTree: ConfigTree,
+  configTree: ConfigTree | undefined,
   postProcessors: Array<(name: string, res: unknown) => void> = [
     saveExecutionData,
     postJSFunctionExecutionLog,
   ],
 ) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(name);
+
+  if (!configTree) return;
+
   const entity = configTree[entityName] as JSActionEntityConfig;
   const actionId = entity.actionId;
   const meta = entity.meta;
@@ -59,6 +62,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
             return "cancelled";
           }
         }
+
         return executeJsFunctionCall(fn, name, args, postProcessors);
       } catch (e) {
         postProcessors.forEach((postProcessor) => {
