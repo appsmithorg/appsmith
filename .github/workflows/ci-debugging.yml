@@ -1,127 +1,95 @@
 name: CI Debugging
+
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Run id to download artifacts:'
+        required: true
+        type: number      
 
 jobs:
-
-  server-build:
-    name: server-build
-    uses: ./.github/workflows/server-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-
-  client-build:
-    name: client-build
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-
-  rts-build:
-    name: rts-build
-    uses: ./.github/workflows/rts-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-
-  build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
-    # Only run if the build step is successful
-    if: success()
-    name: build-docker-image
-    uses: ./.github/workflows/build-docker-image.yml
-    secrets: inherit
-    with:
-      pr: 0
-
-  ci-test:
-    needs: [ build-docker-image ]
-    # Only run if the build step is successful
-    if: success()
-    name: ci-test
-    uses: ./.github/workflows/ci-test.yml
-    secrets: inherit
-    with:
-      pr: 0
-
-  ci-test-result:
-    needs: [ci-test]
-    if: always() &&
-      (github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+  ci-debugger:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     defaults:
       run:
         shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [ 0 ]
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
     steps:
-      - run: echo "All ci-test matrices completed"
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
 
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
-        if: needs.ci-test.result != 'success'
-        run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
-
-      # Download failed_spec_ci list for all CI container jobs
-      - uses: actions/download-artifact@v3
-        if: needs.ci-test.result != 'success'
-        id: download_ci
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v3
         with:
-          name: failed-spec-ci
-          path: ~/failed_spec_ci
+          fetch-depth: 0
 
-      # delete-artifact
-      - name: delete existing failed-spec-ci artifact
-        if: needs.ci-test.result != 'success'
-        uses: geekyeggo/delete-artifact@v2
+      - name: Download Docker image artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-          name: failed-spec-ci
-          failOnError: false
+          name: cicontainer
+          run_id: ${{ github.event.inputs.run_id }}
 
-      # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
-        if: needs.ci-test.result != 'success'
+      - name: Load Docker image from tar file
         run: |
-          rm -f ~/combined_failed_spec_ci
-          cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
+
+      - name: Create folder
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p cicontainerlocal/stacks/configuration/
+
+      - name: Run docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          sudo /etc/init.d/ssh stop ;
+          mkdir -p ~/git-server/keys
+          mkdir -p ~/git-server/repos
+          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+          cd cicontainerlocal
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway \
+            cicontainer
+            
+      - name: Execute access to ci-debug.sh
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          chmod +x ci-debug.sh
 
       # Start tmate session for tunnelling
       - name: Setup tmate session
+        if: steps.run_result.outputs.run_result != 'success'
         uses: mxschmitt/action-tmate@v3
-
-      # Force save the CI failed spec list into a cache
-      - name: Store the combined run result for CI
-        if: needs.ci-test.result != 'success'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ~/combined_failed_spec_ci
-          key: ${{ github.run_id }}-"ci-test-result"
-
-      # Upload combined failed CI spec list to a file
-      # This is done for debugging.
-      - name: upload combined failed spec
-        if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
-        with:
-          name: combined_failed_spec_ci
-          path: ~/combined_failed_spec_ci
-
-      - name: Return status for ui-matrix
-        run: |
-          if [[ "${{ needs.ci-test.result }}" == "success" ]]; then
-            echo "Integration tests completed successfully!";
-            exit 0;
-          elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
-            echo "Integration tests were skipped";
-            exit 1;
-          else
-            echo "Integration tests have failed";
-            exit 1;
-          fi
