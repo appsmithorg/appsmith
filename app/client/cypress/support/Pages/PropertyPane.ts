@@ -29,8 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
-  private _contentTabBtn = "li:contains('CONTENT')";
-  private _styleTabBtn = "li:contains('STYLE')";
+  private _styleTabBtn = (tab: string) => "li:contains('" + tab + "')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -60,6 +59,8 @@ export class PropertyPane {
     "//h3[text()='" + option + " Color']//parent::div//input";
   _colorInputField = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div";
+  _rowHeightBtn = (btnType: "SHORT" | "DEFAULT" | "TALL") =>
+    ".t--button-group-" + btnType + " ";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -163,12 +164,9 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public moveToContentTab() {
-    cy.get(this._contentTabBtn).first().click({ force: true });
-  }
-
-  public moveToStyleTab() {
-    cy.get(this._styleTabBtn).first().click({ force: true });
+  public MoveToTab(tab: "CONTENT" | "STYLE") {
+    this.agHelper.GetNClick(this._styleTabBtn(tab));
+    this.agHelper.Sleep();
   }
 
   public SelectPropertiesDropDown(
