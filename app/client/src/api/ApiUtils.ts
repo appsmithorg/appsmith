@@ -1,5 +1,4 @@
 import {
-  APPSMITH_HTTP_ERROR_413,
   createMessage,
   ERROR_0,
   ERROR_413,
