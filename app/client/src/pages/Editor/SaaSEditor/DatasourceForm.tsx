@@ -30,6 +30,7 @@ import Connected from "../DataSourceEditor/Connected";
 
 import {
   getCurrentApplicationId,
+  getGsheetProjectID,
   getGsheetToken,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -86,6 +87,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
   gsheetToken?: string;
+  gsheetProjectID?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -258,6 +260,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       formData,
+      gsheetProjectID,
       gsheetToken,
       hiddenHeader,
       pageId,
@@ -375,6 +378,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              gsheetProjectID={gsheetProjectID}
               gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
@@ -437,6 +441,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   ]);
 
   const gsheetToken = getGsheetToken(state);
+  const gsheetProjectID = getGsheetProjectID(state);
 
   return {
     datasource,
@@ -467,6 +472,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     canCreateDatasourceActions,
     featureFlags: selectFeatureFlags(state),
     gsheetToken,
+    gsheetProjectID,
   };
 };
 

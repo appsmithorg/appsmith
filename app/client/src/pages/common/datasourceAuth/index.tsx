@@ -6,6 +6,7 @@ import {
   getEntities,
   getPluginNameFromId,
   getPluginTypeFromDatasourceId,
+  getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   testDatasource,
@@ -45,7 +46,6 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { toast } from "design-system";
-import { getAppsmithConfigs } from "ce/configs";
 
 interface Props {
   datasource: Datasource;
@@ -60,6 +60,7 @@ interface Props {
   isFormDirty?: boolean;
   datasourceDeleteTrigger: () => void;
   gsheetToken?: string;
+  gsheetProjectID?: string;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -121,6 +122,7 @@ function DatasourceAuth({
   triggerSave,
   isFormDirty,
   gsheetToken,
+  gsheetProjectID,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -131,6 +133,9 @@ function DatasourceAuth({
   const applicationId = useSelector(getCurrentApplicationId);
   const pluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
+  );
+  const pluginPackageName = useSelector((state: AppState) =>
+    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
   );
 
   const datasourcePermissions = datasource.userPermissions || [];
@@ -258,6 +263,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      pluginName: pluginName || "",
+      pluginPackageName: pluginPackageName || "",
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
@@ -297,7 +304,7 @@ function DatasourceAuth({
 
   useEffect(() => {
     // This loads the picker object in gapi script
-    if (!!gsheetToken && !!gapi) {
+    if (!!gsheetToken && !!gapi && !!gsheetProjectID) {
       gapi.load("client:picker", async () => {
         await gapi.client.load(
           "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
@@ -305,24 +312,27 @@ function DatasourceAuth({
         setPickerInitiated(true);
       });
     }
-  }, [scriptLoadedFlag, gsheetToken]);
+  }, [scriptLoadedFlag, gsheetToken, gsheetProjectID]);
 
   useEffect(() => {
-    if (!!gsheetToken && scriptLoadedFlag && pickerInitiated && !!google) {
-      createPicker(gsheetToken);
+    if (
+      !!gsheetToken &&
+      scriptLoadedFlag &&
+      pickerInitiated &&
+      !!google &&
+      !!gsheetProjectID
+    ) {
+      createPicker(gsheetToken, gsheetProjectID);
     }
-  }, [gsheetToken, scriptLoadedFlag, pickerInitiated]);
+  }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
 
-  const createPicker = async (accessToken: string) => {
-    const { enableGoogleOAuth } = getAppsmithConfigs();
-    const googleOAuthClientId: string = enableGoogleOAuth + "";
-    const APP_ID = googleOAuthClientId.split("-")[0];
+  const createPicker = async (accessToken: string, projectID: string) => {
     const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
     view.setMimeTypes("application/vnd.google-apps.spreadsheet");
     const picker = new google.picker.PickerBuilder()
       .enableFeature(google.picker.Feature.NAV_HIDDEN)
       .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-      .setAppId(APP_ID)
+      .setAppId(projectID)
       .setOAuthToken(accessToken)
       .addView(view)
       .setCallback(pickerCallback)

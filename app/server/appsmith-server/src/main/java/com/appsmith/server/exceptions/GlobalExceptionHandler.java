@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import io.micrometer.core.instrument.util.StringUtils;
 import com.appsmith.server.filters.MDCFilter;
@@ -116,8 +117,9 @@ public class GlobalExceptionHandler {
         doLog(e);
 
         String urlPath = exchange.getRequest().getPath().toString();
+        String conflictingObjectName = DuplicateKeyExceptionUtils.extractConflictingObjectName(e.getCause().getMessage());
         ResponseDTO<ErrorDTO> response =  new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(e.getCause().getMessage()), appsmithError.getTitle()));
+                appsmithError.getMessage(conflictingObjectName), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
