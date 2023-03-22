@@ -33,6 +33,12 @@ jest.mock("../../handlers/evalTree", () => {
       getEvalTree() {
         return this.evalTree;
       },
+      oldConfigTree: {
+        JSObject1: {
+          variables: ["var", "var2"],
+          ENTITY_TYPE: "JSACTION",
+        },
+      },
     },
   };
 });
