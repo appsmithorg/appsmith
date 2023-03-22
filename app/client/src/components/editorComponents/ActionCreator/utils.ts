@@ -32,7 +32,7 @@ export const stringToJS = (string: string): string => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
-        return `'${segment}'`;
+        return `'${segment.replace(/\n/g, "\\n").replace(/'/g, "\\'")}'`;
       }
     })
     .join(" + ");
@@ -271,6 +271,7 @@ export function codeToAction(
   code: string,
   fieldOptions: TreeDropdownOption[],
   multipleActions = true,
+  strict = false,
 ): TActionBlock {
   const jsCode = getCodeFromMoustache(code);
 
@@ -279,6 +280,12 @@ export function codeToAction(
   const mainActionType = (selectedOption.type ||
     selectedOption.value ||
     AppsmithFunction.none) as any;
+
+  if (strict) {
+    if (mainActionType === AppsmithFunction.none) {
+      throw new Error("Invalid action detected");
+    }
+  }
 
   if (chainableFns.includes(mainActionType) && multipleActions) {
     const successCallback = getFuncExpressionAtPosition(
@@ -328,11 +335,11 @@ export function codeToAction(
         params: [...thenCallbackParams, ...successCallbackParams],
         blocks: [
           ...successCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, false, strict),
             type: "success" as const,
           })),
           ...thenCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, false, strict),
             type:
               successCallbackBlocks.length + errorCallbackBlocks.length > 0
                 ? ("success" as const)
@@ -344,11 +351,11 @@ export function codeToAction(
         params: [...catchCallbackParams, ...errorCallbackParams],
         blocks: [
           ...errorCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, false, strict),
             type: "failure" as const,
           })),
           ...catchCallbackBlocks.map((block: string) => ({
-            ...codeToAction(block, fieldOptions, false),
+            ...codeToAction(block, fieldOptions, false, strict),
             type:
               successCallbackBlocks.length + errorCallbackBlocks.length > 0
                 ? ("failure" as const)
@@ -367,7 +374,7 @@ export function codeToAction(
   };
 }
 
-export const chainableFns = [
+export const chainableFns: TActionBlock["actionType"][] = [
   AppsmithFunction.integration,
   AppsmithFunction.navigateTo,
   AppsmithFunction.showAlert,
@@ -380,7 +387,6 @@ export const chainableFns = [
   AppsmithFunction.resetWidget,
   AppsmithFunction.showModal,
   AppsmithFunction.download,
-  AppsmithFunction.getGeolocation,
 ];
 
 export function actionToCode(

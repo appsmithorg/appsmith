@@ -9,11 +9,21 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import { getCodeFromMoustache } from "components/editorComponents/ActionCreator/utils";
+import {
+  codeToAction,
+  getCodeFromMoustache,
+} from "components/editorComponents/ActionCreator/utils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import { getActionBlockFunctionNames } from "@shared/ast";
-import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getJSCollections,
+  getPlugins,
+} from "selectors/entitiesSelector";
 import store from "store";
+import keyBy from "lodash/keyBy";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getApiQueriesAndJsActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -105,6 +115,29 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       ) {
         return false;
       }
+    }
+    const pageId = getCurrentPageId(state);
+    const plugins = getPlugins(state);
+    const pluginGroups: any = keyBy(plugins, "id");
+
+    // this function gets all the Queries/API's/JS objects and attaches it to actionList
+    const fieldOptions = getApiQueriesAndJsActionOptionsWithChildren(
+      pageId,
+      pluginGroups,
+      actions,
+      jsActions,
+      () => {
+        return;
+      },
+      () => {
+        return;
+      },
+    );
+
+    try {
+      codeToAction(codeFromProperty, fieldOptions, true, true);
+    } catch (e) {
+      return false;
     }
     return true;
   }

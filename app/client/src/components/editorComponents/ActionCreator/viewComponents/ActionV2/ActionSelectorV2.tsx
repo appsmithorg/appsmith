@@ -1,4 +1,5 @@
 import { Popover2 } from "@blueprintjs/popover2";
+import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
 import type { TreeDropdownOption } from "design-system-old";
 import { Icon } from "design-system-old";
 import React, { useCallback, useRef } from "react";
@@ -25,6 +26,7 @@ export default function ActionSelector(props: {
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
 }) {
   const action = props.action;
+  const isOmnibarOpen = useSelector(isModalOpenSelector);
   let popoverClassName = "";
   switch (props.level) {
     case 0:
@@ -37,6 +39,8 @@ export default function ActionSelector(props: {
       popoverClassName = "w-[280px] !translate-x-[-47px]";
   }
 
+  const portalClassName = isOmnibarOpen ? "!z-1" : "!z-6";
+
   return (
     <Popover2
       canEscapeKeyClose
@@ -45,7 +49,7 @@ export default function ActionSelector(props: {
       isOpen={props.open}
       minimal
       popoverClassName={popoverClassName}
-      portalClassName="!z-3"
+      portalClassName={portalClassName}
       position="left"
       positioningStrategy="fixed"
     >
@@ -66,7 +70,9 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   });
   const widgetOptionTree: TreeDropdownOption[] =
     useSelector(getWidgetOptionsTree);
-  const modalDropdownList = useModalDropdownList();
+  const modalDropdownList = useModalDropdownList(() => {
+    return selectBlock("-1");
+  });
   const pageDropdownOptions = useSelector(getPageListAsOptions);
   const { action, additionalAutoComplete, onChange } = props;
   const { code } = action;
