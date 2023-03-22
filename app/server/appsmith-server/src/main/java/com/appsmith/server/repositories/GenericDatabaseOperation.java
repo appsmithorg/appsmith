@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.isPermissionForEntity;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -294,6 +295,7 @@ public class GenericDatabaseOperation {
                     Set<Policy> policies = obj.getPolicies();
                     if (!CollectionUtils.isNullOrEmpty(added)) {
                         added.stream()
+                                .filter(aclPermission -> isPermissionForEntity(aclPermission, clazz))
                                 .forEach(aclPermission -> {
                                     Optional<Policy> interestedPolicyOptional = policies.stream().filter(policy -> policy.getPermission().equals(aclPermission.getValue()))
                                             .findFirst();
@@ -313,6 +315,7 @@ public class GenericDatabaseOperation {
 
                     if (!CollectionUtils.isNullOrEmpty(removed)) {
                         removed.stream()
+                                .filter(aclPermission -> isPermissionForEntity(aclPermission, clazz))
                                 .forEach(aclPermission -> {
                                     Optional<Policy> interestedPolicyOptional = policies.stream().filter(policy -> policy.getPermission().equals(aclPermission.getValue()))
                                             .findFirst();
