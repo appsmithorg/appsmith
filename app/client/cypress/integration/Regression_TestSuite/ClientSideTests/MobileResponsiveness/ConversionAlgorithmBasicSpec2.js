@@ -9,7 +9,7 @@ let twidth;
 let testHeight;
 let mtestHeight;
 
-describe("Auto conversion algorithm usecases for Autolayout", function () {
+describe("Auto conversion algorithm usecases for fixed Layout", function () {
 
     afterEach(() => {
         agHelper.SaveLocalStorageCache();
@@ -63,11 +63,16 @@ describe("Auto conversion algorithm usecases for Autolayout", function () {
                                                         expect(aheight).to.not.equal(a1height);
                                                         expect(bheight).to.not.equal(b1height);
                                                         expect(dheight).to.not.equal(d1height);
-                                                        cy.get(".ads-dialog-trigger:contains('USE THE SNAPSHOT')").click({ force: true });
-                                                        cy.wait(5000);
-                                                        cy.get("button:contains('USE SNAPSHOT')").click({ force: true });
+                                                        cy.get("span:contains('DISCARD THE SNAPSHOT')").click({ force: true });
+                                                        cy.wait(2000);
+                                                        cy.reload();
+                                                        cy.wait(20000);
+                                                        cy.get("#t--layout-conversion-cta").click({ force: true });
+                                                        cy.wait(2000);
+                                                        cy.get("button:contains('CONVERT')").click({ force: true });
                                                         cy.wait(2000);
                                                         cy.get("button:contains('REFRESH THE APP')").click({ force: true });
+                                                        cy.wait(2000);
                                                         cy.wait("@updateLayout").should(
                                                             "have.nested.property",
                                                             "response.body.responseMeta.status",
