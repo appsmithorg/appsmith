@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
@@ -13,6 +14,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +54,7 @@ public class PageControllerCE {
         this.createDBTablePageSolution = createDBTablePageSolution;
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<PageDTO>> createPage(@Valid @RequestBody PageDTO resource,
@@ -62,6 +66,7 @@ public class PageControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/crud-page")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@RequestBody @NonNull CRUDPageResourceDTO resource,
@@ -71,6 +76,7 @@ public class PageControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/crud-page/{defaultPageId}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@PathVariable String defaultPageId,
@@ -82,6 +88,7 @@ public class PageControllerCE {
     }
 
     @Deprecated
+    @JsonView(Views.Public.class)
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId,
                                                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -89,6 +96,7 @@ public class PageControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId,
                                                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -96,6 +104,7 @@ public class PageControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> getPageById(@PathVariable String defaultPageId,
                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -104,6 +113,7 @@ public class PageControllerCE {
     }
 
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{defaultPageId}/view")
     public Mono<ResponseDTO<PageDTO>> getPageView(@PathVariable String defaultPageId,
                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -111,6 +121,7 @@ public class PageControllerCE {
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("{pageName}/application/{applicationName}/view")
     public Mono<ResponseDTO<PageDTO>> getPageViewByName(@PathVariable String applicationName,
                                                         @PathVariable String pageName) {
@@ -127,6 +138,7 @@ public class PageControllerCE {
      * @param branchName    git branch to find the exact page which needs to be deleted
      * @return deleted page DTO
      */
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String defaultPageId,
                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -135,6 +147,7 @@ public class PageControllerCE {
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/clone/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String defaultPageId,
                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -142,6 +155,7 @@ public class PageControllerCE {
                 .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> updatePage(@PathVariable String defaultPageId,
                                                  @RequestBody PageDTO resource,
@@ -163,6 +177,7 @@ public class PageControllerCE {
      * @param branchName    name of the current branch
      * @return List of ApplicationPagesDTO along with other meta data
      */
+    @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<ApplicationPagesDTO>> getAllPages(@RequestParam(required = false) String applicationId,
                                                               @RequestParam(required = false) String pageId,
