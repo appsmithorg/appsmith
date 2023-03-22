@@ -15,6 +15,7 @@ export function TextView(props: TextViewProps) {
           <label
             className="!text-gray-600 !text-xs"
             data-testid="text-view-label"
+            htmlFor={props.label}
           >
             {props.label}
           </label>

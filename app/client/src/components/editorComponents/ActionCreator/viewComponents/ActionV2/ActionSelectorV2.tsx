@@ -107,7 +107,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   }, []);
 
   return (
-    <div className="flex flex-col w-full" ref={ref}>
+    <div className="flex flex-col w-full t--action-selector-popup" ref={ref}>
       <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
         <div className="text-sm font-medium text-gray">
           {isCallbackBlockSelected
@@ -115,6 +115,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
             : `${action.actionType}...`}
         </div>
         <Icon
+          className="t--close"
           fillColor="var(--ads-color-black-700)"
           name="cross"
           onClick={() => selectBlock("-1")}
@@ -125,6 +126,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       <div className="flex w-full justify-between px-3 mb-[4px]">
         <div className="text-xs text-gray-600">Action</div>
         <Icon
+          className="t--delete"
           fillColor="var(--ads-color-black-500)"
           hoverFillColor="var(--ads-color-black-700)"
           name="delete"

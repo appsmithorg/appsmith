@@ -73,6 +73,7 @@ function ActionCard(props: TActionCardProps) {
   return (
     <button
       className={clsx(selected && "border-[1px] !border-gray-500", className)}
+      data-testid={`action-card-${actionTypeLabel}`}
       onClick={props.onSelect}
     >
       <div className="flex flex-row justify-between w-full">

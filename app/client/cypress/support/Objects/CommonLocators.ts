@@ -176,4 +176,9 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-cy='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
+  _actionSelectorPopup = ".t--action-selector-popup";
+  _actionSelectorFieldByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
+  _actionCardByTitle = (title: string) =>
+    `[data-testid='action-card-${title}']`;
 }

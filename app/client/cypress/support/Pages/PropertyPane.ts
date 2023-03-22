@@ -46,6 +46,7 @@ export class PropertyPane {
     `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
   private _propertyControl = (property: string) =>
     `.t--property-control-${property}`;
+  private _addAction = (property: string) => `.t--add-action-${property}`;
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
@@ -361,5 +362,9 @@ export class PropertyPane {
     );
     if (property)
       this.agHelper.AssertElementExist(this._propertyControl(property));
+  }
+
+  public AddAction(property: string) {
+    cy.get(this._addAction(property)).click();
   }
 }

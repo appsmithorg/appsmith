@@ -181,6 +181,7 @@ const ActionCreator = React.forwardRef(
             "add-action flex items-center justify-center text-center h-5 w-5",
             false && "disabled",
             "absolute right-0 top-[-22px]",
+            `t--add-action-${props.action}`,
           )}
           disabled={false}
           onClick={addBlock}
