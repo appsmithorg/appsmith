@@ -12,6 +12,7 @@ on:
       skip-tests:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
+        default: "false"
         type: string
 
   pull_request:
