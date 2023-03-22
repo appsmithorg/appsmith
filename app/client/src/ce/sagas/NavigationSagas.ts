@@ -16,6 +16,7 @@ import {
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { contextSwitchingSaga } from "ce/sagas/ContextSwitchingSaga";
+import { NavigationMethod } from "../../utils/history";
 
 let previousPath: string;
 
@@ -49,6 +50,7 @@ function* appBackgroundHandler() {
 
 function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const {
+    action,
     location: { pathname, state },
   } = payload;
   const recentEntityIds: Array<string> = yield select(getRecentEntityIds);
@@ -57,10 +59,12 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const isRecent = recentEntityIds.some(
     (entityId) => entityId === currentEntity.id,
   );
+  const navigationMethod =
+    action === "POP" ? NavigationMethod.BrowserNav : state?.invokedBy;
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
     fromPath: previousPath || undefined,
-    navigationMethod: state?.invokedBy,
+    navigationMethod,
     isRecent,
     recentLength: recentEntityIds.length,
     toType: currentEntity.entity,
