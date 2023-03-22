@@ -90,11 +90,13 @@ function getIconForAction(
     case AppsmithFunction.postWindowMessage:
       return () => <Icon name="post-message" />;
   }
-
-  return React.Fragment;
 }
 
-function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
+function getActionHeading(
+  code: string,
+  actionType: ActionTree["actionType"],
+  minimal = false,
+) {
   switch (actionType) {
     case AppsmithFunction.none:
       return "Select an action";
@@ -125,10 +127,17 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       return fileName ? fileName : "Add data to download";
 
     case AppsmithFunction.jsFunction:
-      return (
-        getFunctionName(getCodeFromMoustache(code), self.evaluationVersion) +
-        `(${getFunctionArguments(code, self.evaluationVersion)})`
-      );
+      if (minimal) {
+        return getFunctionName(
+          getCodeFromMoustache(code),
+          self.evaluationVersion,
+        );
+      } else {
+        return (
+          getFunctionName(getCodeFromMoustache(code), self.evaluationVersion) +
+          `(${getFunctionArguments(code, self.evaluationVersion)})`
+        );
+      }
 
     case AppsmithFunction.integration:
       return getFunctionName(
@@ -199,6 +208,7 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
 export function getActionInfo(
   code: string,
   actionType: ActionTree["actionType"],
+  minimal = false,
 ) {
   const Icon = getIconForAction(actionType, code);
 
@@ -208,7 +218,7 @@ export function getActionInfo(
 
   const actionTypeLabel = FIELD_GROUP_CONFIG[actionType].label;
 
-  const action = getActionHeading(`{{${code}}}`, actionType);
+  const action = getActionHeading(`{{${code}}}`, actionType, minimal);
 
   return { Icon, actionTypeLabel, action };
 }

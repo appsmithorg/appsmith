@@ -56,7 +56,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
-  const { action } = getActionInfo(valueWithoutMoustache, actionType);
+  const { action } = getActionInfo(valueWithoutMoustache, actionType, true);
 
   useEffect(() => {
     debouncedSetSearchText(searchText);
