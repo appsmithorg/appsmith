@@ -2,6 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { ProgressType } from "./constants";
 import { Colors } from "constants/Colors";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -23,6 +24,7 @@ export const CONFIG = {
     progressType: ProgressType.LINEAR,
     progress: 50,
     version: 1,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -39,12 +41,15 @@ export const CONFIG = {
         viewportMinWidth: 0,
         configuration: () => {
           return {
-            minWidth: "160px",
+            minWidth: "120px",
             minHeight: "70px",
           };
         },
       },
     ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

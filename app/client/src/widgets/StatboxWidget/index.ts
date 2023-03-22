@@ -52,6 +52,7 @@ export const CONFIG = {
     minDynamicHeight: 14,
     children: [],
     positioning: Positioning.Fixed,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     blueprint: {
       view: [
         {
@@ -257,10 +258,14 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "280px",
+            minHeight: "300px",
           };
         },
       },
     ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

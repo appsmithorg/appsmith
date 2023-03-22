@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -16,6 +17,7 @@ export const CONFIG = {
     widgetName: "Iframe",
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

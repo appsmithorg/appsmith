@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -16,6 +17,7 @@ export const CONFIG = {
     columns: 24,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -31,6 +33,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "280px",
+            minHeight: "280px",
           };
         },
       },

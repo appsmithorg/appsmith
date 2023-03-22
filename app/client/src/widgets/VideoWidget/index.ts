@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -16,6 +17,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     backgroundColor: "#000",
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -33,6 +35,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "280px",
+            minHeight: "300px",
           };
         },
       },

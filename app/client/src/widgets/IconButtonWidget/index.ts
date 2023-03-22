@@ -1,6 +1,7 @@
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariantTypes } from "components/constants";
 import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -19,6 +20,7 @@ export const CONFIG = {
     widgetName: "IconButton",
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Hug,
     minWidth: ICON_BUTTON_MIN_WIDTH,
   },
   properties: {

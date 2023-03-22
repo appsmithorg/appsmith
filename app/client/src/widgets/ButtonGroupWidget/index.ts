@@ -151,7 +151,7 @@ export const CONFIG = {
       {
         viewportMinWidth: 0,
         configuration: (props: ButtonGroupWidgetProps) => {
-          let minWidth = 128;
+          let minWidth = 120;
           const buttonLength = Object.keys(props.groupButtons).length;
           if (props.orientation === "horizontal") {
             // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
