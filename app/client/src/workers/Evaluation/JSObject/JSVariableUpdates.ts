@@ -56,7 +56,7 @@ export function getUpdatedPaths(patches: Patch[]) {
     if (!isJSAction(entityConfig)) continue;
     const variables = entityConfig.variables;
     if (variables.includes(varName)) {
-      updatedVariables.push(pathArray);
+      updatedVariables.push([jsObjectName, varName]);
     }
   }
   return updatedVariables;
