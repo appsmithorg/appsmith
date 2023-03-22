@@ -1,3 +1,4 @@
+// The `@type` comment improves auto-completion for VS Code users: https://github.com/appsmithorg/appsmith/pull/21602#discussion_r1144528505
 /** @type {import('eslint').Linter.Config} */
 const eslintConfig = {
   extends: ["../.eslintrc.base.json"],
