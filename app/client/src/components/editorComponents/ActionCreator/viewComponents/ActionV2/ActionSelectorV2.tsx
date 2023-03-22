@@ -88,12 +88,14 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const handleOutsideClick = useCallback(
     (e) => {
       const paths = e.composedPath() || [];
+      //Figure out a better way here
       for (const path of paths) {
         if (
           path.classList?.contains("CodeMirror-hints") ||
           path.classList?.contains("callback-collapse") ||
           (path.classList?.contains("add-action") &&
-            path.classList?.contains(label))
+            path.classList?.contains(label)) ||
+          path.classList?.contains("bp3-overlay-backdrop")
         ) {
           return;
         }
