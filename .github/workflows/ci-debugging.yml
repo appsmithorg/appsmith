@@ -1,95 +1,307 @@
-name: CI Debugging
+name: Test, build and push Docker Image
 
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
-    inputs:
-      run_id:
-        description: 'Run id to download artifacts:'
-        required: true
-        type: number      
 
 jobs:
-  ci-debugger:
+
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  build-docker-image:
+    needs: [ client-build, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  perf-test:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  ci-test:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: ci-test
+    uses: ./.github/workflows/ci-test.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  ci-test-result:
+    needs: [ci-test]
+    if: always() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     defaults:
       run:
         shell: bash
-    strategy:
-      fail-fast: false
-      matrix:
-        job: [ 0 ]
-
-    # Service containers to run with this job. Required for running tests
-    services:
-      # Label used to access the service container
-      redis:
-        # Docker Hub image for Redis
-        image: redis
-        ports:
-          # Opens tcp port 6379 on the host and service container
-          - 6379:6379
-      mongo:
-        image: mongo
-        ports:
-          - 27017:27017
-
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
+      - run: echo "All ci-test matrices completed"
 
-      - name: Checkout the head commit of the branch
-        uses: actions/checkout@v3
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
+      # Download failed_spec_ci list for all CI container jobs
+      - uses: actions/download-artifact@v3
+        if: needs.ci-test.result
+        id: download_ci
         with:
-          fetch-depth: 0
+          name: failed-spec-ci
+          path: ~/failed_spec_ci
 
-      - name: Download Docker image artifact
-        uses: dawidd6/action-download-artifact@v2
+      # delete-artifact
+      - name: delete existing failed-spec-ci artifact
+        if: needs.ci-test.result != 'success'
+        uses: geekyeggo/delete-artifact@v2
         with:
-          name: cicontainer
-          run_id: ${{ github.event.inputs.run_id }}
+          name: failed-spec-ci
+          failOnError: false
 
-      - name: Load Docker image from tar file
+      # In case for any ci job failure, create combined failed spec
+      - name: "combine all specs for CI"
+        if: needs.ci-test.result != 'success'
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
-
-      - name: Create folder
-        if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-        working-directory: "."
-        run: |
-          mkdir -p cicontainerlocal/stacks/configuration/
-
-      - name: Run docker image
-        if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-        working-directory: "."
-        run: |
-          sudo /etc/init.d/ssh stop ;
-          mkdir -p ~/git-server/keys
-          mkdir -p ~/git-server/repos
-          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
-          cd cicontainerlocal
-          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
-            -e APPSMITH_DISABLE_TELEMETRY=true \
-            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            --add-host=host.docker.internal:host-gateway \
-            cicontainer
-            
-      - name: Execute access to ci-debug.sh
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: "."
-        run: |
-          chmod +x ci-debug.sh
+          rm -f ~/combined_failed_spec_ci
+          cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
 
       # Start tmate session for tunnelling
       - name: Setup tmate session
-        if: steps.run_result.outputs.run_result != 'success'
         uses: mxschmitt/action-tmate@v3
+
+      # Force save the CI failed spec list into a cache
+      - name: Store the combined run result for CI
+        if: needs.ci-test.result != 'success'
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # Upload combined failed CI spec list to a file
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ci-test.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
+      - name: Return status for ui-matrix
+        run: |
+          if [[ "${{ needs.ci-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
+          fi
+
+  package:
+    needs: ci-test
+    runs-on: ubuntu-latest
+    # Set permissions since we're using OIDC token authentication between Depot and GitHub
+    permissions:
+      contents: read
+      id-token: write
+
+    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() &&
+      (
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+      )
+      ) &&
+      github.ref == 'refs/heads/release'
+      )
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v3
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push client release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push client master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+
+      - name: Build and push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
+
+      - name: Build and push master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly
+
+      # - name: Check and push CI image to Docker Hub with commit tag
+      #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      #   working-directory: "."
+      #   run: |
+      #     if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+      #       tag=nightly
+      #     else
+      #       tag="${{ steps.vars.outputs.tag }}"
+      #     fi
+      #     docker run --detach --publish 80:80 --name appsmith \
+      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+      #     sleep 180
+      #     cd deploy/docker
+      #     if bash run-test.sh; then
+      #       echo "Fat container test passed. Pushing image."
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #     else
+      #       echo "Fat container test FAILED. Not pushing image."
+      #       # Temporarily pushing even if test fails.
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #     fi
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push server release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push server master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
