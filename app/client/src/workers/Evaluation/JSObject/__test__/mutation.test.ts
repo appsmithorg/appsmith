@@ -13,6 +13,15 @@ jest.mock("../../evalTreeWithChanges.ts", () => {
 });
 
 jest.mock("../../handlers/evalTree", () => {
+  const evalTree = {
+    JSObject1: {
+      var: {},
+      var2: new Set([1, 2]),
+      variables: ["var", "var2"],
+      ENTITY_TYPE: "JSACTION",
+    },
+  };
+
   return {
     dataTreeEvaluator: {
       setupUpdateTreeWithDifferences: () => ({
@@ -20,13 +29,9 @@ jest.mock("../../handlers/evalTree", () => {
         unEvalUpdates: [],
       }),
       evalAndValidateSubTree: () => ({ evalMetaUpdates: [] }),
-      evalTree: {
-        JSObject1: {
-          var: {},
-          var2: new Set([1, 2]),
-          variables: ["var", "var2"],
-          ENTITY_TYPE: "JSACTION",
-        },
+      evalTree,
+      getEvalTree() {
+        return this.evalTree;
       },
     },
   };
