@@ -134,6 +134,7 @@ import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -833,7 +834,7 @@ public class MongoPlugin extends BasePlugin {
 
                         final String authDatabaseName;
                         if (datasourceConfiguration.getAuthentication() != null &&
-                                isBlank(((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName())) {
+                                isEmpty(((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName())) {
                             authDatabaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
                         } else {
                             return Mono.just(new DatasourceTestResult(
