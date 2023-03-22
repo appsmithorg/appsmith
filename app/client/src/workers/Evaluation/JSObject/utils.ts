@@ -50,7 +50,6 @@ export const updateJSCollectionInUnEvalTree = (
   Object.keys(jsEntityConfig?.meta).forEach((action) => {
     functionsList.push(action);
   });
-  const oldConfig = jsEntityConfig;
 
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
@@ -69,23 +68,23 @@ export const updateJSCollectionInUnEvalTree = (
           );
 
           set(modifiedUnEvalTree, `${entityName}.${action.name}.data`, data);
-          set(oldConfig.meta?.[action.name], `isAsync`, action.isAsync);
+          set(jsEntityConfig.meta?.[action.name], `isAsync`, action.isAsync);
         }
       } else {
-        const reactivePaths = oldConfig.reactivePaths;
+        const reactivePaths = jsEntityConfig.reactivePaths;
 
         reactivePaths[action.name] =
           EvaluationSubstitutionType.SMART_SUBSTITUTE;
         reactivePaths[`${action.name}.data`] =
           EvaluationSubstitutionType.TEMPLATE;
 
-        const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
+        const dynamicBindingPathList = jsEntityConfig.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
 
-        const dependencyMap = oldConfig.dependencyMap;
+        const dependencyMap = jsEntityConfig.dependencyMap;
         dependencyMap["body"].push(action.name);
 
-        const meta = oldConfig.meta;
+        const meta = jsEntityConfig.meta;
         meta[action.name] = {
           arguments: action.arguments,
           isAsync: action.isAsync,
@@ -113,22 +112,22 @@ export const updateJSCollectionInUnEvalTree = (
         (js: ParsedJSSubAction) => js.name === oldActionName,
       );
       if (!existed) {
-        const reactivePaths = oldConfig.reactivePaths;
+        const reactivePaths = jsEntityConfig.reactivePaths;
         delete reactivePaths[oldActionName];
 
-        oldConfig.dynamicBindingPathList =
-          oldConfig.dynamicBindingPathList.filter(
+        jsEntityConfig.dynamicBindingPathList =
+          jsEntityConfig.dynamicBindingPathList.filter(
             (path: any) => path["key"] !== oldActionName,
           );
 
-        const dependencyMap = oldConfig.dependencyMap["body"];
+        const dependencyMap = jsEntityConfig.dependencyMap["body"];
         const removeIndex = dependencyMap.indexOf(oldActionName);
         if (removeIndex > -1) {
-          oldConfig.dependencyMap["body"] = dependencyMap.filter(
+          jsEntityConfig.dependencyMap["body"] = dependencyMap.filter(
             (item: any) => item !== oldActionName,
           );
         }
-        const meta = oldConfig.meta;
+        const meta = jsEntityConfig.meta;
         delete meta[oldActionName];
 
         unset(modifiedUnEvalTree[entityName], oldActionName);
@@ -151,14 +150,14 @@ export const updateJSCollectionInUnEvalTree = (
         }
       } else {
         varList.push(newVar.name);
-        const reactivePaths = oldConfig.reactivePaths;
+        const reactivePaths = jsEntityConfig.reactivePaths;
         reactivePaths[newVar.name] =
           EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
-        const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
+        const dynamicBindingPathList = jsEntityConfig.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: newVar.name });
 
-        set(modifiedUnEvalTree, `${entityName}.variables`, varList);
+        set(jsEntityConfig, `${entityName}.variables`, varList);
         set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
       }
     }
@@ -169,11 +168,11 @@ export const updateJSCollectionInUnEvalTree = (
         (item) => item.name === varListItem,
       );
       if (!existsInParsed) {
-        const reactivePaths = oldConfig.reactivePaths;
+        const reactivePaths = jsEntityConfig.reactivePaths;
         delete reactivePaths[varListItem];
 
-        oldConfig.dynamicBindingPathList =
-          oldConfig.dynamicBindingPathList.filter(
+        jsEntityConfig.dynamicBindingPathList =
+          jsEntityConfig.dynamicBindingPathList.filter(
             (path: any) => path["key"] !== varListItem,
           );
 
@@ -182,7 +181,7 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
     if (newVarList.length) {
-      set(modifiedUnEvalTree, `${entityName}.variables`, newVarList);
+      set(jsEntityConfig, `${entityName}.variables`, newVarList);
     }
   }
   return modifiedUnEvalTree;
