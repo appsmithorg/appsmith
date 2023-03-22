@@ -38,7 +38,13 @@ import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLay
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import {
+  getLeftColumn,
+  getTopRow,
+  getWidgetMinMaxDimensionsInPixel,
+  setBottomRow,
+  setRightColumn,
+} from "utils/autoLayout/flexWidgetUtils";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
@@ -258,20 +264,19 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       ? 1
       : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
-    const widgetToBeUpdated = { ...widget };
-    if (isMobile) {
-      if (widgetToBeUpdated.mobileTopRow !== undefined)
-        widgetToBeUpdated.mobileBottomRow =
-          widgetToBeUpdated.mobileTopRow + height / rowSpace;
-      if (widgetToBeUpdated.mobileLeftColumn !== undefined)
-        widgetToBeUpdated.mobileRightColumn =
-          widgetToBeUpdated.mobileLeftColumn + width / columnSpace;
-    } else {
-      widgetToBeUpdated.bottomRow =
-        widgetToBeUpdated.topRow + height / rowSpace;
-      widgetToBeUpdated.rightColumn =
-        widgetToBeUpdated.leftColumn + width / columnSpace;
-    }
+    let widgetToBeUpdated = { ...widget };
+
+    widgetToBeUpdated = setBottomRow(
+      widgetToBeUpdated,
+      getTopRow(widget, isMobile) + height / rowSpace,
+      isMobile,
+    );
+
+    widgetToBeUpdated = setRightColumn(
+      widgetToBeUpdated,
+      getLeftColumn(widget, isMobile) + width / columnSpace,
+      isMobile,
+    );
 
     widgets = {
       ...widgets,
