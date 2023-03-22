@@ -188,6 +188,10 @@ function* updateWidgetDimensionsSaga(
     mainCanvasWidth,
   );
 
+  if (widget.widthInPercentage) {
+    width = widget.widthInPercentage * mainCanvasWidth;
+  }
+
   if (
     widgetMinMaxDimensions.minHeight &&
     height < widgetMinMaxDimensions.minHeight
@@ -258,8 +262,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       ...widgets,
       [widgetId]: {
         ...widget,
-        bottomRow: widget.topRow + height / rowSpace,
-        rightColumn: widget.leftColumn + width / columnSpace,
+        bottomRow: widget.topRow + Math.ceil(height / rowSpace),
+        rightColumn: widget.leftColumn + Math.ceil(width / columnSpace),
       },
     };
   }
