@@ -262,8 +262,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       ...widgets,
       [widgetId]: {
         ...widget,
-        bottomRow: widget.topRow + Math.ceil(height / rowSpace),
-        rightColumn: widget.leftColumn + Math.ceil(width / columnSpace),
+        bottomRow: widget.topRow + Math.ceil(height) / rowSpace,
+        rightColumn: widget.leftColumn + Math.ceil(width) / columnSpace,
       },
     };
   }
