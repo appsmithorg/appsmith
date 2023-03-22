@@ -363,7 +363,7 @@ export function useModalDropdownList(handleClose: () => void) {
   return finalList;
 }
 
-function getApiQueriesAndJsActionOptionsWithChildren(
+export function getApiQueriesAndJsActionOptionsWithChildren(
   pageId: string,
   plugins: any,
   actions: ActionDataState,
