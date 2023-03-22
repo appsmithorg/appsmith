@@ -254,13 +254,24 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       ? 1
       : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
+    const widgetToBeUpdated = { ...widget };
+    if (isMobile) {
+      if (widgetToBeUpdated.mobileTopRow !== undefined)
+        widgetToBeUpdated.mobileBottomRow =
+          widgetToBeUpdated.mobileTopRow + height / rowSpace;
+      if (widgetToBeUpdated.mobileLeftColumn !== undefined)
+        widgetToBeUpdated.mobileRightColumn =
+          widgetToBeUpdated.mobileLeftColumn + width / columnSpace;
+    } else {
+      widgetToBeUpdated.bottomRow =
+        widgetToBeUpdated.topRow + height / rowSpace;
+      widgetToBeUpdated.rightColumn =
+        widgetToBeUpdated.leftColumn + width / columnSpace;
+    }
+
     widgets = {
       ...widgets,
-      [widgetId]: {
-        ...widget,
-        bottomRow: widget.topRow + height / rowSpace,
-        rightColumn: widget.leftColumn + width / columnSpace,
-      },
+      [widgetId]: widgetToBeUpdated,
     };
   }
 
@@ -286,17 +297,21 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     const oldWidget = widgetsOld[widgetId];
     const propertiesToUpdate: Record<string, any> = {};
 
-    if (widget.topRow !== oldWidget.topRow) {
-      propertiesToUpdate["topRow"] = widget.topRow;
-    }
-    if (widget.bottomRow !== oldWidget.bottomRow) {
-      propertiesToUpdate["bottomRow"] = widget.bottomRow;
-    }
-    if (widget.leftColumn !== oldWidget.leftColumn) {
-      propertiesToUpdate["leftColumn"] = widget.leftColumn;
-    }
-    if (widget.rightColumn !== oldWidget.rightColumn) {
-      propertiesToUpdate["rightColumn"] = widget.rightColumn;
+    const positionProperties = [
+      "topRow",
+      "bottomRow",
+      "leftColumn",
+      "rightColumn",
+      "mobileTopRow",
+      "mobileBottomRow",
+      "mobileLeftColumn",
+      "mobileRightColumn",
+    ];
+
+    for (const prop of positionProperties) {
+      if (widget[prop] !== oldWidget[prop]) {
+        propertiesToUpdate[prop] = widget[prop];
+      }
     }
 
     if (isEmpty(propertiesToUpdate)) continue;
