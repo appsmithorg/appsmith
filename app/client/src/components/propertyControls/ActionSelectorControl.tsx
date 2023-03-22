@@ -67,6 +67,9 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       <ActionCreator
         action={label}
         additionalAutoComplete={this.props.additionalAutoComplete}
+        additionalControlData={
+          this.props.additionalControlData as Record<string, any>
+        }
         onValueChange={this.handleValueUpdate}
         ref={this.componentRef}
         value={propertyValue}

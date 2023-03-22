@@ -68,6 +68,7 @@ export type ActionCreatorProps = {
   action: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
+  additionalControlData: Record<string, any>;
 };
 
 export type Field = {
