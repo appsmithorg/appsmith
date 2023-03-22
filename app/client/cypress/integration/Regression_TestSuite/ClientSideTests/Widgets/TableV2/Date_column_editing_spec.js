@@ -338,4 +338,38 @@ describe("Table widget date column inline editing functionality", () => {
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
     ).should("not.have.value", "");
   });
+  it("11. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(".t--property-control-tabledata").then(($el) => {
+      cy.updateCodeInput(
+        $el,
+        '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
+      );
+    });
+    cy.wait(500);
+
+    cy.editColumn("dateValue");
+    //change format of column to date
+    cy.changeColumnType("Date");
+
+    cy.get(".t--property-control-dateformat").click();
+    cy.contains("ISO 8601").click();
+    // we should not see an error after selecting the ISO 8061 format
+    cy.get(".t--property-control-dateformat .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    cy.get(".t--property-control-dateformat").find(".t--js-toggle").click();
+    //check the selected format value
+    cy.get(".t--property-control-dateformat").contains(
+      "YYYY-MM-DDTHH:mm:ss.SSSZ",
+    );
+    cy.get(".t--property-control-dateformat").then(($el) => {
+      //give a corrupted date format
+      cy.updateCodeInput($el, "YYYY-MM-DDTHH:mm:ss.SSSsZ");
+    });
+    //we should now see an error when an incorrect date format
+    cy.get(".t--property-control-dateformat .t--codemirror-has-error").should(
+      "exist",
+    );
+  });
 });
