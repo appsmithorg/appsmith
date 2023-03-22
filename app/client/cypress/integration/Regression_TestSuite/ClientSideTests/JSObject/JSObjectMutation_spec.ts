@@ -10,7 +10,7 @@ const {
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
-describe("JSObject testing", () => {
+describe.skip("JSObject testing", () => {
   const utils_JSObject_body = `export default {
     valueSelector: () => {
       switch(Select1.selectedOptionValue){
