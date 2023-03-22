@@ -504,8 +504,8 @@ public class MongoPluginFormsTest {
             setDataValueSafelyInFormData(configMap, COLLECTION, "users");
             // Query for all the documents in the collection
             setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
-            setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "[{ \"$set\": { \"gender\": \"M\" } }" +
-                    ",{ \"$set\": { \"gender\": \"F\" } }]");
+            setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "[{ \"$set\": { \"department\": \"app\" } }" +
+                    ",{ \"$set\": { \"department\": \"design\" } }]");
             setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
 
             actionConfiguration.setFormData(configMap);
@@ -521,7 +521,7 @@ public class MongoPluginFormsTest {
                         assertTrue(result.getIsExecutionSuccess());
                         assertNotNull(result.getBody());
                         JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
-                        assertEquals("1", value.asText());
+                        assertEquals("3", value.asText());
                         assertEquals(
                                 List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
                                         .toString(),
@@ -529,14 +529,14 @@ public class MongoPluginFormsTest {
                     })
                     .verifyComplete();
 
-            //After update fetching to document to verify if teh value is updated properly
+            //After update fetching to document to verify if the value is updated properly
             ActionConfiguration actionConfiguration1 = new ActionConfiguration();
             Map<String, Object> configMap1 = new HashMap<>();
             setDataValueSafelyInFormData(configMap1, SMART_SUBSTITUTION, Boolean.FALSE);
             setDataValueSafelyInFormData(configMap1, COMMAND, "FIND");
             setDataValueSafelyInFormData(configMap1, COLLECTION, "users");
             // Query for all the documents in the collection
-            setDataValueSafelyInFormData(configMap1, FIND_QUERY, "{\"gender\":\"M\"}");
+            setDataValueSafelyInFormData(configMap1, FIND_QUERY, "{\"department\":\"design\"}");
             actionConfiguration1.setFormData(configMap1);
             Mono<Object> executeMono1 = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                     new ExecuteActionDTO(), dsConfig, actionConfiguration1));
@@ -547,7 +547,7 @@ public class MongoPluginFormsTest {
                         assertTrue(result.getIsExecutionSuccess());
                         assertNotNull(result.getBody());
                         int value =((ArrayNode)result.getBody()).size();
-                        assertEquals(0, value);
+                        assertEquals(3, value);
                         assertEquals(
                                 List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
                                         .toString(),
