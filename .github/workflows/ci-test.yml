@@ -89,16 +89,20 @@ jobs:
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: actions/download-artifact@v3
+        uses: martijnhols/actions-cache/restore@v3
         with:
-          name: combined_failed_spec_ci
-
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+            
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat combined_failed_spec_ci)
+          failed_spec_env=$(cat ~/combined_failed_spec_ci)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -390,7 +394,7 @@ jobs:
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: failed-spec-ci
