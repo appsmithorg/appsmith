@@ -59,6 +59,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
                 .map(file -> {
                     if (allowedFileIds != null && !allowedFileIds.isEmpty()) {
                         String fileId = file.get("id").asText();
+                        // This will filter out and send only authorised google sheet files to client
                         if (allowedFileIds.contains(fileId)) {
                             final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
                             return Map.of("id", file.get("id").asText(),
@@ -105,6 +106,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
                 .map(file -> {
                     if (allowedFileIds != null && !allowedFileIds.isEmpty()) {
                         String fileId = file.get("id").asText();
+                        // This will filter out and send only authorised google sheet files to client
                         if (allowedFileIds.contains(fileId)) {
                             final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
                             return Map.of("label", file.get("name").asText(),

@@ -1186,6 +1186,9 @@ function* filePickerActionCallbackSaga(
     });
 
     const datasource: Datasource = yield select(getDatasource, datasourceId);
+
+    // When user selects cancel in file picker, we need to revert datasource status back to failure,
+    // so users cannot create queries on top of such faulty datasource
     if (action === FilePickerActionStatus.CANCEL) {
       set(
         datasource,
@@ -1194,6 +1197,9 @@ function* filePickerActionCallbackSaga(
       );
     }
 
+    // Once users selects/cancels the file selection,
+    // Sending sheet ids selected as part of datasource
+    // config properties in order to save it in database
     set(
       datasource,
       "datasourceConfiguration.properties[0].key",
@@ -1201,7 +1207,15 @@ function* filePickerActionCallbackSaga(
     );
     set(datasource, "datasourceConfiguration.properties[0].value", fileIds);
     yield put(updateDatasource(datasource));
-  } catch (error) {}
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.SET_GSHEET_TOKEN,
+      payload: {
+        gsheetToken: "",
+        gsheetProjectID: "",
+      },
+    });
+  }
 }
 export function* watchDatasourcesSagas() {
   yield all([

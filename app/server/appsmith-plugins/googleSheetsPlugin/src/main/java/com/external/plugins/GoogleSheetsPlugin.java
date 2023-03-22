@@ -171,6 +171,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
+
+            // This will get list of authorised sheet ids from datasource config, and transform execution response to contain only authorised files
             final Set<String> allowedFileIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
 
             // Triggering the actual REST API call
@@ -326,6 +328,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
+
+            // This will get list of authorised sheet ids from datasource config, and transform trigger response to contain only authorised files
             Set<String> allowedFileIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
 
             return triggerMethod.getTriggerClient(client, methodConfig)
