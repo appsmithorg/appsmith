@@ -1,0 +1,1 @@
+export { WdsButton } from "./Button";

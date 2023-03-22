@@ -22,8 +22,8 @@ async function webpackConfig(config) {
 
 module.exports = {
   stories: [
-    "../../wds/src/**/*.stories.mdx",
-    "../../wds/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../../design-system/wds/src/**/*.stories.mdx",
+    "../../design-system/wds/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
     "@storybook/addon-links",

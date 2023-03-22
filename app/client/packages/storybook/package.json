@@ -39,6 +39,7 @@
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
     "@capsizecss/metrics": "^1.0.1",
+    "@design-system/theming": "*",
     "@design-system/wds": "*",
     "colorjs.io": "^0.4.3",
     "react": "^17.0.2",

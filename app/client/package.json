@@ -7,7 +7,7 @@
     "npm": "^8.5.5"
   },
   "workspaces": [
-    "packages/*"
+    "packages/**/*"
   ],
   "cracoConfig": "craco.dev.config.js",
   "scripts": {
