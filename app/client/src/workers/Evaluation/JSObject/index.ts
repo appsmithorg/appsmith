@@ -10,7 +10,6 @@ import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
-  isJSObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
@@ -303,7 +302,11 @@ export function updateEvalTreeWithJSCollectionState(
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
     const sanitizedState = removeProxyObject(variableState);
     if (!evalTree[jsObjectName]) {
-      merge({}, oldUnEvalTree[jsObjectName], sanitizedState);
+      evalTree[jsObjectName] = merge(
+        {},
+        oldUnEvalTree[jsObjectName],
+        sanitizedState,
+      );
       continue;
     }
 
@@ -315,7 +318,9 @@ export function updateEvalTreeWithJSCollectionState(
 }
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
-  ExecutionMetaData.setExecutionMetaData({ jsVarUpdateTrackingDisabled: true });
+  ExecutionMetaData.setExecutionMetaData({
+    jsVarUpdateTrackingDisabled: true,
+  });
   const currentEvalContext = self;
 
   const evalTree = dataTreeEvaluator?.getEvalTree();
@@ -325,7 +330,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
   for (const fullPathArray of paths) {
     const [jsObjectName, variableName] = fullPathArray;
     const entity = evalTree[jsObjectName];
-    if (jsObjectName && variableName && isJSObject(entity)) {
+    if (jsObjectName && variableName && isJSAction(entity)) {
       const variableValue = get(currentEvalContext, [
         jsObjectName,
         variableName,

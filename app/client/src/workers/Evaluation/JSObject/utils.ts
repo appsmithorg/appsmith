@@ -161,7 +161,7 @@ export const updateJSCollectionInUnEvalTree = (
         const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: newVar.name });
 
-        set(modifiedUnEvalTree, `${entityName}.variables`, varList);
+        set(configTree, `${entityName}.variables`, varList);
         set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
         // When user updates the JSObject all the variable's reset's to initial value
         JSObjectCollection.removeVariable(`${entityName}.${newVar.name}`);
@@ -187,7 +187,7 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
     if (newVarList.length) {
-      set(modifiedUnEvalTree, `${entityName}.variables`, newVarList);
+      set(configTree, `${entityName}.variables`, newVarList);
     }
   }
   return modifiedUnEvalTree;
@@ -206,7 +206,6 @@ export const removeFunctionsAndVariableJSCollection = (
   entityName: string,
   configTree: ConfigTree,
 ) => {
-  // const oldConfig = Object.getPrototypeOf(entity) as JSActionEntity;
   const oldConfig = configTree[entityName] as JSActionEntityConfig;
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
@@ -214,8 +213,8 @@ export const removeFunctionsAndVariableJSCollection = (
     functionsList.push(action);
   });
   //removed variables
-  const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entityName}.variables`, []);
+  const varList: Array<string> = oldConfig.variables;
+  set(oldConfig, `${entityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
     unset(modifiedDataTree[entityName], varName);

@@ -64,4 +64,11 @@ export default class JSObjectCollection {
     if (jsObject && jsObject[propertyPath] !== undefined)
       delete jsObject[propertyPath];
   }
+
+  static clear() {
+    this.variableState = {};
+    this.unEvalState = {};
+    this.prevUnEvalState = {};
+    this.resolvedFunctions = {};
+  }
 }

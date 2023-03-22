@@ -3,6 +3,7 @@ import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
 import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -50,11 +51,10 @@ export function getUpdatedPaths(patches: Patch[]) {
 
     if (!dataTreeEvaluator) continue;
 
-    const dataTree = dataTreeEvaluator?.getEvalTree();
-    const jsObject = dataTree[jsObjectName];
-    if (!isJSAction(jsObject)) continue;
-
-    const variables = jsObject.variables;
+    const configTree = dataTreeEvaluator?.oldConfigTree;
+    const entityConfig = configTree[jsObjectName] as unknown as DataTreeEntity;
+    if (!isJSAction(entityConfig)) continue;
+    const variables = entityConfig.variables;
     if (variables.includes(varName)) {
       updatedVariables.push(pathArray);
     }
