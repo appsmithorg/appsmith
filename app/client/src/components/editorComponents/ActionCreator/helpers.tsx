@@ -156,59 +156,67 @@ function getActionEntityFields(
   );
   const isCallbackStyle = successFunction || errorFunction;
 
-  function getter(value: string) {
-    value = getCodeFromMoustache(value);
-    if (isCallbackStyle) {
-      if (activeTabApiAndQueryCallback.id === "onSuccess") {
-        return callBackFieldGetter(value, 0);
-      } else {
-        return callBackFieldGetter(value, 1);
-      }
-    } else {
-      const { catch: catchBlock, then: thenBlock } =
-        getThenCatchBlocksFromQuery(value, 2);
-      if (activeTabApiAndQueryCallback.id === "onSuccess") {
-        return `{{${thenBlock ?? ""}}}`;
-      } else {
-        return `{{${catchBlock ?? ""}}}`;
-      }
-    }
-  }
-
-  function setter(changeValue: string, currentValue: string) {
-    changeValue = getCodeFromMoustache(changeValue);
-    currentValue = getCodeFromMoustache(currentValue);
-    if (isCallbackStyle) {
-      if (activeTabApiAndQueryCallback.id === "onSuccess") {
-        return callBackFieldSetter(changeValue, currentValue, 0);
-      } else {
-        return callBackFieldSetter(changeValue, currentValue, 1);
-      }
-    } else {
-      if (activeTabApiAndQueryCallback.id === "onSuccess") {
-        const modified = setThenBlockInQuery(currentValue, changeValue, 2);
-        if (modified) {
-          return `{{${modified}}}`;
-        } else {
-          return currentValue;
-        }
-      } else {
-        const modified = setCatchBlockInQuery(currentValue, changeValue, 2);
-        if (modified) {
-          return `{{${modified}}}`;
-        } else {
-          return currentValue;
-        }
-      }
-    }
-  }
-
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
     value,
   });
+  fields.push({
+    field: FieldType.PARAMS_FIELD,
+    getParentValue,
+    value,
+    position: isCallbackStyle ? 2 : 0,
+  });
   if (isChainedAction) {
+    function getter(value: string) {
+      value = getCodeFromMoustache(value);
+      if (isCallbackStyle) {
+        if (activeTabApiAndQueryCallback.id === "onSuccess") {
+          return callBackFieldGetter(value, 0);
+        } else {
+          return callBackFieldGetter(value, 1);
+        }
+      } else {
+        const { catch: catchBlock, then: thenBlock } =
+          getThenCatchBlocksFromQuery(value, 2);
+        if (activeTabApiAndQueryCallback.id === "onSuccess") {
+          return `{{${thenBlock ?? "() => {\n  // showAlert('success');\n}"}}}`;
+        } else {
+          return `{{${
+            catchBlock ?? "() => {\n  // showAlert('failure');\n}"
+          }}}`;
+        }
+      }
+    }
+
+    function setter(changeValue: string, currentValue: string) {
+      changeValue = getCodeFromMoustache(changeValue);
+      currentValue = getCodeFromMoustache(currentValue);
+      if (isCallbackStyle) {
+        if (activeTabApiAndQueryCallback.id === "onSuccess") {
+          return callBackFieldSetter(changeValue, currentValue, 0);
+        } else {
+          return callBackFieldSetter(changeValue, currentValue, 1);
+        }
+      } else {
+        if (activeTabApiAndQueryCallback.id === "onSuccess") {
+          const modified = setThenBlockInQuery(currentValue, changeValue, 2);
+          if (modified) {
+            return `{{${modified}}}`;
+          } else {
+            return currentValue;
+          }
+        } else {
+          const modified = setCatchBlockInQuery(currentValue, changeValue, 2);
+          if (modified) {
+            return `{{${modified}}}`;
+          } else {
+            return currentValue;
+          }
+        }
+      }
+    }
+
     fields.push({
       field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
       getParentValue,
@@ -222,12 +230,6 @@ function getActionEntityFields(
       setter,
     });
   }
-  fields.push({
-    field: FieldType.PARAMS_FIELD,
-    getParentValue,
-    value,
-    position: isCallbackStyle ? 2 : 0,
-  });
 
   return fields;
 }

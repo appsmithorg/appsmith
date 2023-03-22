@@ -103,7 +103,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: () => null,
     getter: (value: any) => {
-      return textGetter(value, 1);
+      const queryParams = textGetter(value, 1);
+      if (queryParams === "{{{}}}" || queryParams === "")
+        return '{{\n{\n //"key": "value",\n}\n}}';
+      return queryParams;
     },
     setter: (value: any, currentValue: string) => {
       return objectSetter(value, currentValue, 1);
@@ -116,7 +119,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     exampleText: "Api1.run({ a: 1 })",
     options: () => null,
     getter: (value: any, idx?: number) => {
-      return textGetter(value, idx || 0);
+      const params = textGetter(value, idx || 0);
+      if (params === "") return '{{\n{\n //"key": "value",\n}\n}}';
+      return params;
     },
     setter: (value: any, currentValue: string, idx?: number) => {
       return paramSetter(value, currentValue, idx);
