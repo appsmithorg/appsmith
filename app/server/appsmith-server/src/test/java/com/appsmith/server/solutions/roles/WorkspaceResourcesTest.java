@@ -1631,6 +1631,164 @@ public class WorkspaceResourcesTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    @DirtiesContext
+    public void testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application1 = new Application();
+        application1.setName("testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp application - 1");
+        Application createdApplication1 = applicationPageService.createApplication(application1, createdWorkspace.getId()).block();
+
+        Application application2 = new Application();
+        application2.setName("testSaveRoleConfigurationChanges_appGivenAllPermissions_assertCustomThemePermissionsOnGivenApp application - 2");
+        Application createdApplication2 = applicationPageService.createApplication(application2, createdWorkspace.getId()).block();
+        // publish the app to ensure system theme gets set
+        applicationPageService.publish(createdApplication1.getId(), TRUE).block();
+        applicationPageService.publish(createdApplication2.getId(), TRUE).block();
+
+        // Create and apply custom theme in edit mode.
+        Theme customThemeForApp1 = new Theme();
+        customThemeForApp1.setDisplayName("Custom Theme - App 1");
+        themeService.persistCurrentTheme(createdApplication1.getId(), null, customThemeForApp1)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), createdApplication1.getId(), null))
+                .block();
+        Theme customThemeForApp2 = new Theme();
+        customThemeForApp2.setDisplayName("Custom Theme - App 2");
+        themeService.persistCurrentTheme(createdApplication2.getId(), null, customThemeForApp2)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), createdApplication2.getId(), null))
+                .block();
+
+        Theme themeForApp1 = themeService.getSystemTheme("Classic")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication1.getId(), null, persistedTheme))
+                .block();
+        Theme themeForApp2 = themeService.getSystemTheme("Sharp")
+                .flatMap(persistedTheme -> themeService.persistCurrentTheme(createdApplication2.getId(), null, persistedTheme))
+                .block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Application : Give all permissions to the application - 1
+        UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(), createdApplication1.getId(), List.of(1, 1, 1, 1, 1, 1), createdApplication1.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(applicationEntity));
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+
+        // Make the role configuration changes in a blocking manner
+        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+
+        // Fetch the application again to ensure the changes are persisted
+        // Fetch the themes : 1. Edit mode theme is custom, so we should hav gotten edit and view theme permissions. 2. View mode theme is system default, so we should not have updated the policies.
+
+        Application updatedApplication1 = applicationRepository.findById(createdApplication1.getId()).block();
+        Theme editModeThemeForApp1 = themeRepository.findById(updatedApplication1.getEditModeThemeId(), READ_THEMES).block();
+        Theme publishedModeThemeForApp1 = themeRepository.findById(updatedApplication1.getPublishedModeThemeId(), READ_THEMES).block();
+        Theme themeForApp1PostUpdate = themeRepository.findById(themeForApp1.getId()).block();
+
+        Application updatedApplication2 = applicationRepository.findById(createdApplication2.getId()).block();
+        Theme editModeThemeForApp2 = themeRepository.findById(updatedApplication2.getEditModeThemeId(), READ_THEMES).block();
+        Theme publishedModeThemeForApp2 = themeRepository.findById(updatedApplication2.getPublishedModeThemeId(), READ_THEMES).block();
+        Theme themeForApp2PostUpdate = themeRepository.findById(themeForApp2.getId()).block();
+
+        // Assert that application 1 policy update happened
+        updatedApplication1.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that edit mode theme policy update happened for application 1
+        editModeThemeForApp1.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that published mode theme policy update did not happen for application 1
+        assertThat(publishedModeThemeForApp1.isSystemTheme()).isTrue();
+        publishedModeThemeForApp1.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that persisted theme policy update happened for application 1
+        themeForApp1PostUpdate.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+            }
+        });
+
+        // Assert that application 2 policy update did not happen
+        updatedApplication2.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that edit mode theme policy update did not happen for application 2
+        editModeThemeForApp2.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that published mode theme policy update did not happen for application 2
+        assertThat(publishedModeThemeForApp2.isSystemTheme()).isTrue();
+        publishedModeThemeForApp2.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that persisted theme policy update did not happen for application 2
+        themeForApp2PostUpdate.getPolicies().forEach(policy -> {
+            if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+            }
+            if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testSaveRoleConfigurationChangesForApplicationResourcesTab_assertExecuteActionOnPageUpdate() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
