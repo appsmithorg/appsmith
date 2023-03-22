@@ -73,12 +73,10 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const modalDropdownList = useModalDropdownList(() => {
     return selectBlock("-1");
   });
-  const { label } = React.useContext(ActionCreatorContext);
   const pageDropdownOptions = useSelector(getPageListAsOptions);
   const { action, additionalAutoComplete, onChange } = props;
   const { code } = action;
-  const isCallbackBlockSelected = true;
-  const { selectBlock, selectedBlockId } =
+  const { label, selectBlock, selectedBlockId } =
     React.useContext(ActionCreatorContext);
   const isChainedAction = Boolean(
     Number(selectedBlockId?.split("_").length) > 1,
@@ -120,9 +118,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
     <div className="flex flex-col w-full t--action-selector-popup" ref={ref}>
       <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
         <div className="text-sm font-medium text-gray">
-          {isCallbackBlockSelected
-            ? "Configure action"
-            : `${action.actionType}...`}
+          {isChainedAction ? "Configure action" : `${label}`}
         </div>
         <Icon
           className="t--close"
