@@ -42,7 +42,7 @@ const ButtonGroupSetting = ({
   );
 
   return (
-    <div className="pt-4">
+    <div className={`pt-4 t--navigation-settings-${keyName}`}>
       <Text type={TextType.P1}>{heading}</Text>
       <div className="pt-1">
         <ButtonGroup

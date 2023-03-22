@@ -41,7 +41,7 @@ const ApplicationName = (props: ApplicationNameProps) => {
       position="bottom"
     >
       <StyledApplicationName
-        className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap"
+        className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap t--app-viewer-application-name"
         forSidebar={forSidebar}
         isMobile={isMobile}
         navColorStyle={navColorStyle}

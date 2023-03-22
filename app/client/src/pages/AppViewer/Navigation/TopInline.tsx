@@ -102,7 +102,7 @@ export function TopInline(props: TopInlineProps) {
 
   return (
     <Container
-      className="hidden md:flex gap-x-2 items-center grow"
+      className="hidden md:flex gap-x-2 items-center grow t--app-viewer-navigation-top-inline"
       ref={navRef}
     >
       {appPages.map(

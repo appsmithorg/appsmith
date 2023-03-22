@@ -58,7 +58,7 @@ const CollapseButton = (props: CollapseButtonProps) => {
         <CollapseIconContainer
           borderRadius={borderRadius}
           className={classNames({
-            "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400 cursor-pointer":
+            "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400 cursor-pointer t--app-viewer-navigation-sidebar-collapse":
               true,
           })}
           isOpen={isOpen}

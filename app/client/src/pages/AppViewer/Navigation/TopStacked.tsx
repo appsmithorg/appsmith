@@ -111,7 +111,7 @@ export function TopStacked(props: TopStackedProps) {
 
   return (
     <Container
-      className="relative hidden px-6 h-11 md:flex"
+      className="relative hidden px-6 h-11 md:flex t--app-viewer-navigation-top-stacked"
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >

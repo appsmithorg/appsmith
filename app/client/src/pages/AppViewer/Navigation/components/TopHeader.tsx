@@ -63,8 +63,8 @@ const TopHeader = (props: TopHeaderProps) => {
 
   return (
     <StyledNav
-      className="relative js-appviewer-header"
-      data-testid={"t--appsmith-app-viewer-header"}
+      className="relative js-appviewer-header t--app-viewer-navigation-header"
+      data-testid={"t--app-viewer-navigation-header"}
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >

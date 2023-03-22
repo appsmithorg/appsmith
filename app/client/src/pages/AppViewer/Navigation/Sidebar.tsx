@@ -138,6 +138,7 @@ export function Sidebar(props: SidebarProps) {
   return (
     <StyledSidebar
       className={classNames({
+        "t--app-viewer-navigation-sidebar": true,
         "is-open": isOpen,
         "shadow-xl": !isPinned,
       })}

@@ -47,6 +47,7 @@ const MoreDropdownButton = ({
     <div>
       <StyleMoreDropdownButton
         borderRadius={borderRadius}
+        className="t--app-viewer-navigation-top-inline-more-button"
         navColorStyle={navColorStyle}
         onClick={() => {
           setIsOpen(true);
@@ -87,6 +88,7 @@ const MoreDropdownButton = ({
     <StyledMenuDropdownContainer
       autoFocus={false}
       borderRadius={borderRadius}
+      className="t--app-viewer-navigation-top-inline-more-dropdown"
       closeOnItemClick
       isOpen={isOpen}
       onClose={() => {
@@ -110,6 +112,7 @@ const MoreDropdownButton = ({
           <StyledMenuItemInDropdown
             activeClassName="is-active"
             borderRadius={borderRadius}
+            className="t--app-viewer-navigation-top-inline-more-dropdown-item"
             key={page.pageId}
             primaryColor={primaryColor}
             to={{

@@ -63,7 +63,7 @@ const ShareButton = (props: ShareButtonProps) => {
       trigger={
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className="h-8"
+          className="h-8 t--app-viewer-share-button"
           data-cy="viewmode-share"
           icon={
             <Icon
