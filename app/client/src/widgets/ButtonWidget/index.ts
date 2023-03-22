@@ -45,7 +45,7 @@ export const CONFIG = {
   autoLayout: {
     defaults: {
       rows: 4,
-      columns: 6.632,
+      columns: 6.453,
     },
     autoDimension: {
       width: true,

@@ -52,6 +52,10 @@ export const CONFIG = {
     disabledPropsDefaults: {
       labelPosition: LabelPosition.Top,
     },
+    defaults: {
+      columns: 14,
+      rows: 6.6,
+    },
     autoDimension: {
       height: true,
     },

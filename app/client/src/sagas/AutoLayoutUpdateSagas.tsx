@@ -188,6 +188,10 @@ function* updateWidgetDimensionsSaga(
     mainCanvasWidth,
   );
 
+  if (widget.widthInPercentage) {
+    width = widget.widthInPercentage * mainCanvasWidth;
+  }
+
   if (
     widgetMinMaxDimensions.minHeight &&
     height < widgetMinMaxDimensions.minHeight
