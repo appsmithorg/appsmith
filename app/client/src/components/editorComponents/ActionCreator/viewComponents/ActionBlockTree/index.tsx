@@ -107,7 +107,7 @@ export const ActionBlockTree: React.FC<Props> = ({
 
   return (
     <div
-      className="flex flex-col"
+      className="flex flex-col action-block-tree"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

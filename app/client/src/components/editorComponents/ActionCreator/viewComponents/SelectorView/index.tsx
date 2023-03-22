@@ -10,7 +10,7 @@ import React from "react";
 
 export function SelectorView(props: SelectorViewProps) {
   return (
-    <FieldWrapper>
+    <FieldWrapper className="selector-view">
       <ControlWrapper isAction key={props.label}>
         {props.label && (
           <label

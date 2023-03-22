@@ -22,7 +22,7 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
 }) => {
   const ActionIcon = icon;
 
-  let className = "flex flex-col gap-1 w-full p-2";
+  let className = "flex flex-col gap-1 w-full p-2 action-block";
 
   switch (variant) {
     case "mainBlock":

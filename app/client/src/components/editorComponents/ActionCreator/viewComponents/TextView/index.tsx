@@ -9,7 +9,7 @@ import React from "react";
 
 export function TextView(props: TextViewProps) {
   return (
-    <FieldWrapper>
+    <FieldWrapper className="text-view">
       <ControlWrapper isAction key={props.label}>
         {props.label && (
           <label
