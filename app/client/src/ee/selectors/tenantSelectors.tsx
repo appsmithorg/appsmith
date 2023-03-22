@@ -60,7 +60,8 @@ export const isBEBannerVisible = (state: AppState) => {
 
 export const shouldShowLicenseBanner = (state: AppState) => {
   const isTrialLicenseOrFailed =
-    isTrialLicense(state) || isLicensePaymentFailed(state);
+    isTrialLicense(state) ||
+    (isLicensePaymentFailed(state) && isAdminUser(state));
   const isBEBanner = isBEBannerVisible(state);
   return !isBEBanner && isTrialLicenseOrFailed;
 };
