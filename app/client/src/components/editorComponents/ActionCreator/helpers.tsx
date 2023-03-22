@@ -54,7 +54,6 @@ import {
   callBackFieldSetter,
   getCodeFromMoustache,
 } from "./utils";
-import { closeModal } from "workers/Evaluation/fns/modalFns";
 
 const actionList: {
   label: string;
