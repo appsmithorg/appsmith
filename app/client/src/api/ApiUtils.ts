@@ -109,8 +109,6 @@ export const apiFailureResponseInterceptor = (error: any) => {
       pluginErrorDetails: {
         appsmithErrorCode: "AE-APP-4013",
         appsmithErrorMessage: createMessage(ERROR_413, 100),
-        downstreamErrorCode: createMessage(APPSMITH_HTTP_ERROR_413),
-        downstreamErrorMessage: "",
         errorType: "INTERNAL_ERROR", // this value is from the server, hence cannot construct enum type.
         title: createMessage(GENERIC_API_EXECUTION_ERROR),
       },
