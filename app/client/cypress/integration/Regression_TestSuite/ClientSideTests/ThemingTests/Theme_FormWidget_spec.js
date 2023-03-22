@@ -70,7 +70,7 @@ describe("Theme validation usecases", function () {
 
       cy.get(themelocator.fontsSelected)
         .eq(10)
-        .should("have.text", "Nunito Sans");
+        .should("have.text", "System Default");
 
       cy.get(".ads-dropdown-options-wrapper div")
         .children()
