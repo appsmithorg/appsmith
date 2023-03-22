@@ -23,6 +23,7 @@ export function getlintErrorsFromTree(
     resolvedFunctions: {},
     isTriggerBased: false,
     skipEntityFunctions: true,
+    configTree,
   });
 
   const platformFnNamesMap = Object.values(
@@ -38,6 +39,7 @@ export function getlintErrorsFromTree(
     resolvedFunctions: {},
     isTriggerBased: true,
     skipEntityFunctions: true,
+    configTree,
   });
 
   // trigger paths

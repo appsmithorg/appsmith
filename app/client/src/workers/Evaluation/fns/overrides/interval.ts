@@ -35,6 +35,7 @@ export function setInterval(
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
+        configTree: dataTreeEvaluator?.oldConfigTree || {},
       });
       self["$isDataField"] = false;
       Object.assign(self, evalContext);

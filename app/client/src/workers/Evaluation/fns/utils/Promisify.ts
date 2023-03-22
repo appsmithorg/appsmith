@@ -32,6 +32,7 @@ export function promisify<P extends ReadonlyArray<unknown>>(
       dataTree: dataTreeEvaluator.evalTree,
       resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
       isTriggerBased: true,
+      configTree: dataTreeEvaluator.oldConfigTree,
     });
     Object.assign(self, evalContext);
     const { data, error } = response;

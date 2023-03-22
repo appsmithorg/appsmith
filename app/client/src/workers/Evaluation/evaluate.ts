@@ -245,7 +245,7 @@ export default function evaluateSync(
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
-  configTree?: ConfigTree,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
