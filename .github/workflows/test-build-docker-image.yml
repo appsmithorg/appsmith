@@ -81,6 +81,13 @@ jobs:
     steps:
       - run: echo "All ci-test matrices completed"
 
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
       # Download failed_spec_ci list for all CI container jobs
       - uses: actions/download-artifact@v3
         if: needs.ci-test.result
@@ -90,10 +97,11 @@ jobs:
           path: ~/failed_spec_ci
 
       # delete-artifact
-      - name: delete existing combined_failed_spec_ci artifact
+      - name: delete existing failed-spec-ci artifact
+        if: needs.ci-test.result != 'success'
         uses: geekyeggo/delete-artifact@v2
         with:
-          name: combined_failed_spec_ci
+          name: failed-spec-ci
           failOnError: false
 
       # In case for any ci job failure, create combined failed spec
@@ -103,6 +111,17 @@ jobs:
           rm -f ~/combined_failed_spec_ci
           cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
 
+      # Force save the CI failed spec list into a cache
+      - name: Store the combined run result for CI
+        if: needs.ci-test.result != 'success'
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
@@ -111,13 +130,6 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-
-      # delete-artifact
-      - name: delete existing failed-spec-ci artifact
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: failed-spec-ci
-          failOnError: false
 
       - name: Return status for ui-matrix
         run: |

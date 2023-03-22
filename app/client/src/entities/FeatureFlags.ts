@@ -13,6 +13,7 @@ type FeatureFlags = {
   LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
   LAZY_CANVAS_RENDERING?: boolean;
   ORACLE_PLUGIN?: boolean;
+  ONE_CLICK_BINDING?: boolean;
 };
 
 export default FeatureFlags;
