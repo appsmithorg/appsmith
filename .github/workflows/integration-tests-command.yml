@@ -109,7 +109,7 @@ jobs:
 
       # Download failed_spec list for all jobs
       - uses: actions/download-artifact@v3
-        if: needs.ci-test.result
+        if: needs.ci-test.result != 'success'
         id: download_ci
         with:
           name: failed-spec-ci
@@ -133,13 +133,11 @@ jobs:
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI
         if: needs.ci-test.result != 'success'
-        uses: martijnhols/actions-cache/save@v3
+        uses: actions/cache@v3
         with:
           path: |
             ~/combined_failed_spec_ci
           key: ${{ github.run_id }}-"ci-test-result"
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
             
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
