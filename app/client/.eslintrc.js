@@ -1,56 +1,7 @@
 /** @type {import('eslint').Linter.Config} */
 const eslintConfig = {
-  $schema: "http://json.schemastore.org/eslintrc",
-  root: true,
-  parser: "@typescript-eslint/parser",
-  plugins: [
-    "react",
-    "@typescript-eslint",
-    "prettier",
-    "react-hooks",
-    "sort-destructure-keys",
-    "cypress",
-  ],
-  extends: [
-    "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
-    "plugin:@typescript-eslint/recommended",
-    "plugin:cypress/recommended",
-    // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
-    // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
-    "plugin:prettier/recommended",
-  ],
-  parserOptions: {
-    ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
-    sourceType: "module", // Allows for the use of imports
-    ecmaFeatures: {
-      jsx: true, // Allows for the parsing of JSX
-    },
-  },
+  extends: ["../.eslintrc.base.json"],
   rules: {
-    "@typescript-eslint/no-explicit-any": 0,
-    // enforce `import type` for all type-only imports so the bundler knows to erase them
-    "@typescript-eslint/consistent-type-imports": "error",
-    "react-hooks/rules-of-hooks": "error",
-    "@typescript-eslint/no-use-before-define": 0,
-    "@typescript-eslint/no-var-requires": 0,
-    "import/no-webpack-loader-syntax": 0,
-    "no-undef": 0,
-    "react/prop-types": 0,
-    "react/display-name": 0,
-    "@typescript-eslint/explicit-module-boundary-types": 0,
-    "cypress/no-unnecessary-waiting": 0,
-    "cypress/no-assigning-return-values": 0,
-    "react/jsx-boolean-value": "error",
-    "react/self-closing-comp": "error",
-    "react/jsx-sort-props": "error",
-    "react/jsx-fragments": "error",
-    "react/jsx-no-useless-fragment": "error",
-    "sort-destructure-keys/sort-destructure-keys": [
-      "error",
-      { caseSensitive: false },
-    ],
-    "no-console": "warn",
-    "no-debugger": "warn",
     // `no-restricted-imports` is disabled, as recommended in https://typescript-eslint.io/rules/no-restricted-imports/.
     // Please use @typescript-eslint/no-restricted-imports below instead.
     "no-restricted-imports": "off",
@@ -111,22 +62,6 @@ const eslintConfig = {
       },
     ],
   },
-  settings: {
-    "import/resolver": {
-      "babel-module": {},
-    },
-    react: {
-      pragma: "React",
-      // Tells eslint-plugin-react to automatically detect the version of React to use
-      version: "detect",
-    },
-  },
-  env: {
-    browser: true,
-    node: true,
-    "cypress/globals": true,
-    worker: true,
-  },
 };
 
 eslintConfig.overrides = [
@@ -135,13 +70,14 @@ eslintConfig.overrides = [
     files: ["**/components/editorComponents/CodeEditor/**/*"],
     rules: {
       "@typescript-eslint/no-restricted-imports":
-        getRestrictedImportsOverrideForCodeEditor(),
-      "no-restricted-syntax": getRestrictedSyntaxOverrideForCodeEditor(),
+        getRestrictedImportsOverrideForCodeEditor(eslintConfig),
+      "no-restricted-syntax":
+        getRestrictedSyntaxOverrideForCodeEditor(eslintConfig),
     },
   },
 ];
 
-function getRestrictedImportsOverrideForCodeEditor() {
+function getRestrictedImportsOverrideForCodeEditor(eslintConfig) {
   const [errorLevel, existingRules] =
     eslintConfig.rules["@typescript-eslint/no-restricted-imports"];
 
@@ -159,7 +95,7 @@ function getRestrictedImportsOverrideForCodeEditor() {
   return [errorLevel, { patterns: newPatterns, paths: newPaths }];
 }
 
-function getRestrictedSyntaxOverrideForCodeEditor() {
+function getRestrictedSyntaxOverrideForCodeEditor(eslintConfig) {
   const [errorLevel, ...existingRules] =
     eslintConfig.rules["no-restricted-syntax"];
 
