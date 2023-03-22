@@ -1,6 +1,11 @@
 package com.external.utils;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
+
+import com.appsmith.external.models.DatasourceConfiguration;
 
 public class SheetsUtil {
 
@@ -17,5 +22,16 @@ public class SheetsUtil {
             return column;
         }
         return 1;
+    }
+
+    public static Set<String> getAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
+        if (datasourceConfiguration.getProperties() != null
+                && datasourceConfiguration.getProperties().size() > 0
+                && datasourceConfiguration.getProperties().get(0) != null
+                && datasourceConfiguration.getProperties().get(0).getValue() != null) {
+            ArrayList<String> temp = (ArrayList) datasourceConfiguration.getProperties().get(0).getValue();
+            return new HashSet<String>(temp);
+        }
+        return null;
     }
 }

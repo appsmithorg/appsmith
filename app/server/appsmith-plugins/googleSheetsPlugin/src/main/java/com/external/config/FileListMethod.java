@@ -13,6 +13,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -43,7 +45,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -55,11 +57,23 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
                 .map(file -> {
-                    final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                    return Map.of("id", file.get("id").asText(),
-                            "name", file.get("name").asText(),
-                            "url", spreadSheetUrl);
+                    if (allowedFileIds != null && !allowedFileIds.isEmpty()) {
+                        String fileId = file.get("id").asText();
+                        if (allowedFileIds.contains(fileId)) {
+                            final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
+                            return Map.of("id", file.get("id").asText(),
+                                    "name", file.get("name").asText(),
+                                    "url", spreadSheetUrl);
+                        }
+                    } else {
+                        final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
+                        return Map.of("id", file.get("id").asText(),
+                                "name", file.get("name").asText(),
+                                "url", spreadSheetUrl);
+                    }
+                    return null;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return this.objectMapper.valueToTree(filesList);
@@ -77,7 +91,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -89,10 +103,21 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
                 .map(file -> {
-                    final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                    return Map.of("label", file.get("name").asText(),
-                            "value", spreadSheetUrl);
+                    if (allowedFileIds != null && !allowedFileIds.isEmpty()) {
+                        String fileId = file.get("id").asText();
+                        if (allowedFileIds.contains(fileId)) {
+                            final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
+                            return Map.of("label", file.get("name").asText(),
+                                    "value", spreadSheetUrl);
+                        }
+                    } else {
+                        final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
+                        return Map.of("label", file.get("name").asText(),
+                                "value", spreadSheetUrl);
+                    }
+                    return null;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return this.objectMapper.valueToTree(filesList);

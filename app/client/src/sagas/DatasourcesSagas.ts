@@ -59,7 +59,7 @@ import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
 import type { Datasource, TokenResponse } from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
-
+import { FilePickerActionStatus } from "entities/Datasource";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
@@ -81,6 +81,7 @@ import {
   DATASOURCE_DELETE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
+  GSHEET_AUTHORISED_FILE_IDS_KEY,
   OAUTH_APPSMITH_TOKEN_NOT_FOUND,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
@@ -1168,10 +1169,14 @@ function* initializeFormWithDefaults(
 }
 
 function* filePickerActionCallbackSaga(
-  actionPayload: ReduxAction<{ action: string; datasourceId: string }>,
+  actionPayload: ReduxAction<{
+    action: FilePickerActionStatus;
+    datasourceId: string;
+    fileIds: Array<string>;
+  }>,
 ) {
   try {
-    const { action, datasourceId } = actionPayload.payload;
+    const { action, datasourceId, fileIds } = actionPayload.payload;
     yield put({
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
       payload: {
@@ -1180,18 +1185,24 @@ function* filePickerActionCallbackSaga(
       },
     });
 
-    if (action === "cancel") {
-      const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const datasource: Datasource = yield select(getDatasource, datasourceId);
+    if (action === FilePickerActionStatus.CANCEL) {
       set(
         datasource,
         "datasourceConfiguration.authentication.authenticationStatus",
         AuthenticationStatus.FAILURE,
       );
-      yield put(updateDatasource(datasource));
     }
+
+    set(
+      datasource,
+      "datasourceConfiguration.properties[0].key",
+      createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+    );
+    set(datasource, "datasourceConfiguration.properties[0].value", fileIds);
+    yield put(updateDatasource(datasource));
   } catch (error) {}
 }
-
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),

@@ -26,6 +26,7 @@ import com.external.config.TriggerMethod;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.plugins.exceptions.GSheetsPluginError;
+import com.external.utils.SheetsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -170,6 +171,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
+            final Set<String> allowedFileIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
 
             // Triggering the actual REST API call
             return executionMethod.executePrerequisites(methodConfig, oauth2)
@@ -222,7 +224,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
-                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig));
+                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig, allowedFileIds));
                                         } else {
                                             result.setBody(jsonNodeBody
                                                     .get("error")
@@ -324,6 +326,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
+            Set<String> allowedFileIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
 
             return triggerMethod.getTriggerClient(client, methodConfig)
                     .headers(headers -> headers.set(
@@ -352,7 +355,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         }
 
                         if (response.getStatusCode().is2xxSuccessful()) {
-                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig);
+                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig, allowedFileIds);
                             final TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                             triggerResultDTO.setTrigger(triggerResponse);
                             return triggerResultDTO;
