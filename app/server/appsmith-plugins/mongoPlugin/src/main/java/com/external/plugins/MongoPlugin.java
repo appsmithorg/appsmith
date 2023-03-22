@@ -827,10 +827,13 @@ public class MongoPlugin extends BasePlugin {
                         final String defaultDatabaseName;
                         if (datasourceConfiguration.getConnection() != null) {
                             defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
-                        } else defaultDatabaseName = null;
+                        } else {
+                            defaultDatabaseName = null;
+                        }
 
                         final String authDatabaseName;
-                        if (datasourceConfiguration.getAuthentication() != null) {
+                        if (datasourceConfiguration.getAuthentication() != null &&
+                                !((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName().isBlank()) {
                             authDatabaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
                         } else {
                             return Mono.just(new DatasourceTestResult(
