@@ -1,5 +1,4 @@
-name: Test, build and push Docker Image
-
+name: CI Debugging
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
@@ -33,16 +32,6 @@ jobs:
     if: success()
     name: build-docker-image
     uses: ./.github/workflows/build-docker-image.yml
-    secrets: inherit
-    with:
-      pr: 0
-
-  perf-test:
-    needs: [ build-docker-image ]
-    # Only run if the build step is successful
-    if: success()
-    name: perf-test
-    uses: ./.github/workflows/perf-test.yml
     secrets: inherit
     with:
       pr: 0
