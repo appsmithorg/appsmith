@@ -179,7 +179,16 @@ enum MODIFICATION_TYPE {
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentItemsView", "selectedItemView", "triggeredItemView"],
+  LIST_WIDGET_V2: ["currentItemsView"],
+};
+/**
+ * When computing level_1.currentView.List2
+ */
+const BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA: Record<
+  string,
+  string[] | undefined
+> = {
+  LIST_WIDGET_V2: ["selectedItemView", "triggeredItemView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -762,7 +771,7 @@ class MetaWidgetGenerator {
     const entityDefinition = generateEntityDefinition
       ? currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type)
-      : {};
+      : "";
 
     return {
       entityDefinition,
@@ -1121,7 +1130,7 @@ class MetaWidgetGenerator {
       }
 
       if (dynamicPathType === DynamicPathType.CURRENT_VIEW) {
-        const { entityDefinition } =
+        const { entityDefinition, type } =
           lookupLevel?.currentRowCache?.[widgetName] || {};
 
         if (entityDefinition) {
@@ -1129,7 +1138,11 @@ class MetaWidgetGenerator {
             ...(levelProps[level] || {}),
             currentView: {
               ...(levelProps[level]?.currentView || {}),
-              [widgetName]: `{{{${entityDefinition}}}}`,
+              [widgetName]: `{{{${this.removeBlackListKeysFromEntityDef(
+                entityDefinition,
+                widgetName,
+                type,
+              )}}}}`,
             },
           };
 
@@ -1148,6 +1161,48 @@ class MetaWidgetGenerator {
         { key: path },
       ];
     });
+  };
+
+  /**
+   * We can't outrightly remove selectedItemView/triggeredItemView.
+   * List1 --> Level_1
+   *    List2 --> Level_2
+   *       List3 --> Level_3
+   *          Text2
+   *       List4 --> Level_3
+   *          Text3
+   * Assuming we have this setup, Accessing Text2 from Text3 would be
+   * {{level_2.currentView.List3.triggeredItemView.Text2.text}}
+   *
+   * So for every widget this.widgetName is the parent List widget name.
+   * And we use this check to selectively blacklist some properties.
+   */
+
+  private removeBlackListKeysFromEntityDef = (
+    entityDefinition: string,
+    widgetName: string,
+    type: string,
+  ) => {
+    let filteredEntityDef = entityDefinition;
+
+    Object.keys(BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA).forEach(
+      (widgetType) => {
+        if (widgetType === type && widgetName === this.widgetName) {
+          const entityArr = entityDefinition
+            .split(",")
+            .filter(
+              (propertyPath) =>
+                !BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[widgetType]?.some(
+                  (property) => propertyPath.includes(property),
+                ),
+            );
+
+          filteredEntityDef = entityArr.join(",");
+        }
+      },
+    );
+
+    return filteredEntityDef;
   };
 
   private updateContainerBindings = (
@@ -1749,6 +1804,9 @@ class MetaWidgetGenerator {
     this.cachedItemKeys.curr = keys;
   };
 
+  /**
+   * This function is to update the cached list data(this.cachedKeyDataMap) with the updated data in this.data.
+   */
   shouldUpdateCachedKeyDataMap = () => {
     return Array.from(this.cachedItemKeys.curr).some((key) => {
       const isKeyInPrimaryKey = this.primaryKeys.includes(key);

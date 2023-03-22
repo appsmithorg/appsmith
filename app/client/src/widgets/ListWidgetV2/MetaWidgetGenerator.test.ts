@@ -84,7 +84,7 @@ const levelData: LevelData = {
       },
       List6: {
         entityDefinition:
-          "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex",
+          "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
         rowIndex: 0,
         metaWidgetId: "fs2d2lqjgd",
         metaWidgetName: "List6",
@@ -680,9 +680,16 @@ describe("#generate", () => {
   });
 
   it("adds LevelData to nested list", () => {
+    const nestedTextWidgetId = "dkk5yh9urt";
     const { initialResult } = init({
       optionsProps: {
-        currTemplateWidgets: nestedListInput.templateWidgets,
+        currTemplateWidgets: {
+          ...nestedListInput.templateWidgets,
+          dkk5yh9urt: {
+            ...nestedListInput.templateWidgets[nestedTextWidgetId],
+            text: "{{level_1.currentView.List6}}",
+          },
+        },
         containerParentId: nestedListInput.containerParentId,
         containerWidgetId: nestedListInput.mainContainerId,
       },
@@ -725,7 +732,7 @@ describe("#generate", () => {
           },
           List6: {
             entityDefinition:
-              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
+              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
             rowIndex: 0,
             metaWidgetId: "fs2d2lqjgd",
             metaWidgetName: "List6",
@@ -815,6 +822,58 @@ describe("#generate", () => {
     const count = Object.keys(initialResult.metaWidgets).length;
     expect(count).toEqual(15);
     expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
+  });
+
+  it("removed BlackListed properties from Parent InnerList", () => {
+    const nestedTextWidgetId = "dkk5yh9urt";
+
+    const nestedListWidgetId = "fs2d2lqjgd";
+    const nestedListWidget =
+      nestedListInput.templateWidgets[nestedListWidgetId];
+
+    const cache = new Cache();
+
+    const generator = new MetaWidgetGenerator({
+      getWidgetCache: () => cache.getWidgetCache(nestedListWidgetId),
+      setWidgetCache: (data) => cache.setWidgetCache(nestedListWidgetId, data),
+      getWidgetReferenceCache: cache.getWidgetReferenceCache,
+      setWidgetReferenceCache: cache.setWidgetReferenceCache,
+      infiniteScroll: false,
+      prefixMetaWidgetId: "test",
+      isListCloned: false,
+      level: 2,
+      onVirtualListScroll: jest.fn,
+      primaryWidgetType: "LIST_WIDGET_V2",
+      renderMode: RenderModes.CANVAS,
+    });
+
+    const initialResult = generator
+      .withOptions({
+        ...DEFAULT_OPTIONS,
+        currTemplateWidgets: {
+          ...nestedListInput.templateWidgets,
+          dkk5yh9urt: {
+            ...nestedListInput.templateWidgets[nestedTextWidgetId],
+            text: "{{level_1.currentView.List6}}",
+          },
+        },
+        containerParentId: nestedListWidget.mainCanvasId,
+        containerWidgetId: nestedListWidget.mainContainerId,
+        levelData,
+        pageSize: 3,
+        widgetName: "List6",
+      })
+      .generate();
+
+    const expectedLevel_1 = {
+      currentView: {
+        List6:
+          "{{{backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize}}}",
+      },
+    };
+
+    const metaNestedTextWidget = initialResult.metaWidgets[nestedTextWidgetId];
+    expect(metaNestedTextWidget.level_1).toEqual(expectedLevel_1);
   });
 
   it("updates the bindings properties that use currentItem, currentView, currentIndex and level_", () => {
@@ -925,7 +984,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
     expect(count).toEqual(18);
