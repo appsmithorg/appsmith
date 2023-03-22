@@ -21,7 +21,7 @@
     "@storybook/react": "^6.5.16",
     "@storybook/testing-library": "^0.0.13",
     "@types/react": "^17.0.2",
-    "@types/react-dom": "^17.0.2",
+    "@types/react-dom": "^18.0.11",
     "autoprefixer": "^9.0.0",
     "babel-loader": "^8.3.0",
     "eslint-plugin-storybook": "^0.6.10",
@@ -36,8 +36,8 @@
     "@capsizecss/metrics": "^1.0.1",
     "@design-system/wds": "*",
     "colorjs.io": "^0.4.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "storybook": "start-storybook -p 6006",
