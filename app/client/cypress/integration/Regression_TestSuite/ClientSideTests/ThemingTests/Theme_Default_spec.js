@@ -54,7 +54,7 @@ describe("Theme validation for default data", function () {
 
       cy.get(themelocator.fontsSelected)
         .eq(10)
-        .should("have.text", "Nunito Sans");
+        .should("have.text", "System Default");
     });
     cy.contains("Font").click({ force: true });
 
