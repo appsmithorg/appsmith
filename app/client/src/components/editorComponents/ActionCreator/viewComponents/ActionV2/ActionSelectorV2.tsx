@@ -73,6 +73,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const modalDropdownList = useModalDropdownList(() => {
     return selectBlock("-1");
   });
+  const { label } = React.useContext(ActionCreatorContext);
   const pageDropdownOptions = useSelector(getPageListAsOptions);
   const { action, additionalAutoComplete, onChange } = props;
   const { code } = action;
@@ -91,7 +92,8 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
         if (
           path.classList?.contains("CodeMirror-hints") ||
           path.classList?.contains("callback-collapse") ||
-          path.classList?.contains("add-action")
+          (path.classList?.contains("add-action") &&
+            path.classList?.contains(label))
         ) {
           return;
         }
