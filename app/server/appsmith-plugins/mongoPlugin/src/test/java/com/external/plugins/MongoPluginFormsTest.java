@@ -495,6 +495,42 @@ public class MongoPluginFormsTest {
         }
 
         @Test
+        public void testUpdateManyFormCommandWithArrayInput() {
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+            Map<String, Object> configMap = new HashMap<>();
+            setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+            setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
+            setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+            // Query for all the documents in the collection
+            setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
+            setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "[{ \"$set\": { \"gender\": \"M\" } }]");
+            setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
+
+            actionConfiguration.setFormData(configMap);
+
+            DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+            Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+            Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                    new ExecuteActionDTO(), dsConfig, actionConfiguration));
+            StepVerifier.create(executeMono)
+                    .assertNext(obj -> {
+                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                        assertNotNull(result);
+                        assertTrue(result.getIsExecutionSuccess());
+                        assertNotNull(result.getBody());
+                        JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
+                        assertEquals("2", value.asText());
+                        assertEquals(
+                                List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                        .toString(),
+                                result.getDataTypes().toString());
+                    })
+                    .verifyComplete();
+        }
+
+
+    @Test
         public void testDeleteFormCommandSingleDocument() {
                 DatasourceConfiguration dsConfig = createDatasourceConfiguration();
                 Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
