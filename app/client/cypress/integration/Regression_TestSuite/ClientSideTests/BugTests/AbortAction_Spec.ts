@@ -31,7 +31,10 @@ describe("Abort Action Execution", function () {
         "AbortQuery",
       );
       _.dataSources.SetQueryTimeout(0);
-      _.dataSources.RunQuery({toValidateResponse: false, waitTimeInterval:0});
+      _.dataSources.RunQuery({
+        toValidateResponse: false,
+        waitTimeInterval: 0,
+      });
       _.agHelper.GetNClick(_.locators._cancelActionExecution, 0, true);
       _.agHelper.AssertContains(
         createMessage(ACTION_EXECUTION_CANCELLED, "AbortQuery"),
