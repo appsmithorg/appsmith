@@ -89,10 +89,12 @@ jobs:
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: actions/download-artifact@v3
+        uses: actions/cache@v3
         with:
-          name: combined_failed_spec_ci
-
+          path: |
+            ~/combined_failed_spec_ci
+          key: ${{ github.run_id }}-"ci-test-result"
+            
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
@@ -386,11 +388,11 @@ jobs:
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type f -iname "*\(attempt 2\).png" | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook \(failed\).png" \) | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: failed-spec-ci
