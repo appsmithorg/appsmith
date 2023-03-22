@@ -149,7 +149,15 @@ describe("evaluateSync", () => {
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, {}, false, {}, callbackData);
+    const response = evaluate(
+      js,
+      dataTree,
+      {},
+      false,
+      undefined,
+      undefined,
+      callbackData,
+    );
     expect(response.result).toBe("test1");
   });
   it("handles EXPRESSIONS with new lines", () => {
@@ -182,7 +190,9 @@ describe("evaluateSync", () => {
   it("has access to this context", () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, { thisContext });
+    const response = evaluate(js, dataTree, {}, false, undefined, {
+      thisContext,
+    });
     expect(response.result).toBe("test");
     // there should not be any error when accessing "this" variables
     expect(response.errors).toHaveLength(0);
@@ -191,7 +201,9 @@ describe("evaluateSync", () => {
   it("has access to additional global context", () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, { globalContext });
+    const response = evaluate(js, dataTree, {}, false, undefined, {
+      globalContext,
+    });
     expect(response.result).toBe("test");
     expect(response.errors).toHaveLength(0);
   });
