@@ -124,7 +124,7 @@ export const getDifferenceInJSCollection = (
           body: action.body,
           isAsync: action.isAsync,
           timeoutInMillisecond: 0,
-          jsArguments: [],
+          jsArguments: action.arguments || [],
         },
       };
       toBeAddedActions.push(obj);
