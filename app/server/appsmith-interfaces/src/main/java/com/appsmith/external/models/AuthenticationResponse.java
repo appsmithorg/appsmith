@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 
@@ -28,4 +29,8 @@ public class AuthenticationResponse implements AppsmithDomain {
 
     @Encrypted
     Object tokenResponse;
+
+    // This field is not returned as response by authorisation server, but is provided by cloud-services server
+    @Transient
+    String projectID;
 }
