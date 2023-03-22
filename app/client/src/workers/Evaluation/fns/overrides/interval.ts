@@ -33,9 +33,9 @@ export function setInterval(
     (...args: any[]) => {
       const evalContext = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
+        configTree: dataTreeEvaluator?.oldConfigTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
-        configTree: dataTreeEvaluator?.oldConfigTree || {},
       });
       self["$isDataField"] = false;
       Object.assign(self, evalContext);

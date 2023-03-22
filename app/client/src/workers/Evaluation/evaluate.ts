@@ -116,13 +116,13 @@ export type EvalContext = Record<string, any>;
 type ResolvedFunctions = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
+  configTree: ConfigTree;
   resolvedFunctions: ResolvedFunctions;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
-  configTree?: ConfigTree;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -162,7 +162,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     EVAL_CONTEXT,
     resolvedFunctions,
     isTriggerBased,
-    configTree || undefined,
+    configTree || {},
   );
 
   return EVAL_CONTEXT;
@@ -172,7 +172,7 @@ export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
   isTriggerBased: boolean,
-  configTree?: ConfigTree,
+  configTree: ConfigTree,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
 
@@ -243,9 +243,9 @@ export const getUserScriptToEvaluate = (
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
+  configTree: ConfigTree,
   resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
-  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
@@ -259,11 +259,11 @@ export default function evaluateSync(
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
+      configTree,
       resolvedFunctions,
       context,
       evalArguments,
       isTriggerBased: isJSCollection,
-      configTree,
     });
 
     evalContext["$isDataField"] = true;
@@ -332,8 +332,8 @@ export async function evaluateAsync(
 
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
-      configTree,
       dataTree,
+      configTree,
       resolvedFunctions,
       context,
       evalArguments,

@@ -30,9 +30,9 @@ export function promisify<P extends ReadonlyArray<unknown>>(
     self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree: dataTreeEvaluator.evalTree,
+      configTree: dataTreeEvaluator.oldConfigTree,
       resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
       isTriggerBased: true,
-      configTree: dataTreeEvaluator.oldConfigTree,
     });
     Object.assign(self, evalContext);
     const { data, error } = response;

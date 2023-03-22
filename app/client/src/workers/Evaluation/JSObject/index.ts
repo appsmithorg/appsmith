@@ -105,9 +105,9 @@ export function saveResolvedFunctionsAndJSUpdates(
               const { result } = evaluateSync(
                 parsedElement.value,
                 unEvalDataTree,
+                configTree,
                 {},
                 false,
-                configTree,
                 undefined,
                 undefined,
               );

@@ -1152,9 +1152,9 @@ export default class DataTreeEvaluator {
       return evaluateSync(
         js,
         data,
+        configTree,
         resolvedFunctions,
         isJSObject,
-        configTree,
         contextData,
         callbackData,
       );

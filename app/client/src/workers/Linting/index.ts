@@ -20,10 +20,10 @@ export function getlintErrorsFromTree(
 
   const evalContext = createEvaluationContext({
     dataTree: unEvalTree,
+    configTree,
     resolvedFunctions: {},
     isTriggerBased: false,
     skipEntityFunctions: true,
-    configTree,
   });
 
   const platformFnNamesMap = Object.values(
@@ -36,10 +36,10 @@ export function getlintErrorsFromTree(
 
   const evalContextWithoutFunctions = createEvaluationContext({
     dataTree: unEvalTree,
+    configTree,
     resolvedFunctions: {},
     isTriggerBased: true,
     skipEntityFunctions: true,
-    configTree,
   });
 
   // trigger paths

@@ -19,9 +19,9 @@ export default function (request: EvalWorkerSyncRequest) {
   return evaluateSync(
     functionCall,
     evalTree,
+    configTree,
     resolvedFunctions,
     false,
-    configTree,
     undefined,
   );
 }

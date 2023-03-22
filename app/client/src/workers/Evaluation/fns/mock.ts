@@ -34,6 +34,7 @@ const configTree: ConfigTree = {
 
 export const evalContext = createEvaluationContext({
   dataTree,
+  configTree,
   resolvedFunctions: {},
   isTriggerBased: true,
   context: {},
