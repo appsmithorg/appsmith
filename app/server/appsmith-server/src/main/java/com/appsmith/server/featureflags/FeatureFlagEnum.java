@@ -35,7 +35,8 @@ public enum FeatureFlagEnum {
     LIMITING_GOOGLE_SHEET_ACCESS,
     LAZY_CANVAS_RENDERING,
     ORACLE_PLUGIN,
+    ONE_CLICK_BINDING,
 
-    // Put EE flags below this line, to avoid conflicts.
+    // Add EE flags below this line, to avoid conflicts.
     RBAC,
 }

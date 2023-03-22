@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.external.models.ActionDTO;
@@ -12,6 +13,8 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.RefactoringSolution;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,6 +55,7 @@ public class ActionControllerCE {
         this.refactoringSolution = refactoringSolution;
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(@Valid @RequestBody ActionDTO resource,
@@ -63,6 +67,7 @@ public class ActionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{defaultActionId}")
     public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String defaultActionId,
                                                      @Valid @RequestBody ActionDTO resource,
@@ -72,6 +77,7 @@ public class ActionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
                                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
@@ -80,6 +86,7 @@ public class ActionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/move")
     public Mono<ResponseDTO<ActionDTO>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO,
                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -88,6 +95,7 @@ public class ActionControllerCE {
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -95,6 +103,7 @@ public class ActionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId,
                                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -102,6 +111,7 @@ public class ActionControllerCE {
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/executeOnLoad/{defaultActionId}")
     public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(@PathVariable String defaultActionId,
                                                          @RequestParam Boolean flag,
@@ -111,6 +121,7 @@ public class ActionControllerCE {
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -129,6 +140,7 @@ public class ActionControllerCE {
      * @param params
      * @return
      */
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params,
                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

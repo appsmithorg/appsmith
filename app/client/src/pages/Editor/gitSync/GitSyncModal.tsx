@@ -22,6 +22,7 @@ import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
 import type { Theme } from "constants/DefaultTheme";
+import { Indices } from "constants/Layers";
 
 const Container = styled.div`
   height: 600px;
@@ -47,6 +48,7 @@ const CloseBtnContainer = styled.div`
   top: 0;
   padding: ${(props) => props.theme.spaces[1]}px 0;
   border-radius: ${(props) => props.theme.radii[1]}px;
+  z-index: ${Indices.Layer3};
 
   &:hover {
     svg,
