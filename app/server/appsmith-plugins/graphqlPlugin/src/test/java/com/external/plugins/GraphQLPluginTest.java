@@ -169,7 +169,7 @@ public class GraphQLPluginTest {
         //changing the url to add whitespaces at the start and end of the url
         String url = dsConfig.getUrl();
         url = String.format("%-" + (url.length() + 4) + "s" ,url);
-        url = String.format("%" + (url.length() + 4) + "s" ,url);;
+        url = String.format("%" + (url.length() + 4) + "s" ,url);
         dsConfig.setUrl(url);
         String queryBody = "query($limit: Int) {\n" +
                 "\tallPosts(first: $limit) {\n" +
