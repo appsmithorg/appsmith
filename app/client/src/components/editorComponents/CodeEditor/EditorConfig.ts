@@ -73,6 +73,8 @@ export type Hinter = {
 export type MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData: EntityNavigationData,
+  from?: CodeMirror.Position,
+  to?: CodeMirror.Position,
 ) => void;
 
 export enum CodeEditorBorder {

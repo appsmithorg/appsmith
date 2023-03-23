@@ -100,6 +100,18 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
+      - name: Run Eslint
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run lint:ci
+
+      - name: Run Prettier
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run prettier:ci
+
+      - name: Run type import check
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run check-types
+
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
         id: vars

@@ -16,7 +16,3 @@ if [ "$GITHUB_REPOSITORY" == "appsmithorg/appsmith-ee" ]; then
 fi
 
 echo "build finished"
-
-# build storybook and move to the static folder
-yarn workspace @design-system/storybook run build
-mv -f ./packages/storybook/storybook-static ./build/storybook

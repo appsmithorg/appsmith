@@ -61,6 +61,8 @@ import type {
   ClientCredentials,
   AuthorizationCode,
 } from "entities/Datasource/RestAPIForm";
+import { getPlugin } from "../../../selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -80,6 +82,7 @@ interface DatasourceRestApiEditorProps {
     search: string;
   };
   datasource: Datasource;
+  plugin: Plugin | undefined;
   formData: ApiDatasourceForm;
   actions: ActionDataState;
   formMeta: any;
@@ -253,6 +256,8 @@ class DatasourceRestAPIEditor extends React.Component<
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
+      pluginName: this.props?.plugin?.name || "",
+      pluginPackageName: this?.props?.plugin?.packageName || "",
     });
 
     if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
@@ -1177,12 +1182,15 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
+
   const hintMessages = datasource && datasource.messages;
 
   return {
     initialValues: datasourceToFormValues(datasource),
     datasource: datasource,
     actions: state.entities.actions,
+    plugin,
     formData: getFormValues(DATASOURCE_REST_API_FORM)(
       state,
     ) as ApiDatasourceForm,

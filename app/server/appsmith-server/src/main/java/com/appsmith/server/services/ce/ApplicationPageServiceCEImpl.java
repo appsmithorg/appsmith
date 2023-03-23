@@ -194,7 +194,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     });
         } else {
-            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id " + page.getId()));
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, page.getId()));
         }
 
     }

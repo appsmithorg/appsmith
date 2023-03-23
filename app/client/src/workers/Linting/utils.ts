@@ -1,6 +1,8 @@
 import type {
+  ConfigTree,
   DataTree,
   DataTreeEntity,
+  DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 
 import type { Position } from "codemirror";
@@ -150,6 +152,7 @@ export function pathRequiresLinting(
   dataTree: DataTree,
   entity: DataTreeEntity,
   fullPropertyPath: string,
+  entityConfig: DataTreeEntityConfig,
 ): boolean {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const unEvalPropertyValue = get(
@@ -157,12 +160,12 @@ export function pathRequiresLinting(
     fullPropertyPath,
   ) as unknown as string;
 
-  if (isATriggerPath(entity, propertyPath)) {
+  if (isATriggerPath(entityConfig, propertyPath)) {
     return isDynamicValue(unEvalPropertyValue);
   }
   const isADynamicBindingPath =
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-    isPathADynamicBinding(entity, propertyPath);
+    isPathADynamicBinding(entityConfig, propertyPath);
   const requiresLinting =
     (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
     isJSAction(entity);

@@ -85,8 +85,8 @@ export const UrlOptionContainer = styled.div`
   & .primary {
   }
 
-  margin-bottom: ${(props) => `${props.theme.spaces[3]}px`};
-  margin-top: ${(props) => `${props.theme.spaces[11]}px`};
+  margin-bottom: ${(props) => `${props.theme.spaces[1]}px`};
+  margin-top: ${(props) => `${props.theme.spaces[9]}px`};
 `;
 
 const UrlContainer = styled.div`
@@ -498,7 +498,7 @@ function GitConnection({ isImport }: Props) {
 
       {SSHKeyPair && remoteUrl ? (
         <>
-          <Space size={7} />
+          <Space size={5} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
             authorInfo={useGlobalConfigInputVal ? globalGitConfig : authorInfo}

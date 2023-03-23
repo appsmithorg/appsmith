@@ -9,6 +9,7 @@ import {
   addPlatformFunctionsToEvalContext,
 } from "@appsmith/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
+import type { ActionEntity } from "entities/DataTree/types";
 
 jest.mock("lodash/uniqueId");
 
@@ -37,7 +38,7 @@ describe("Add functions", () => {
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       dependencyMap: {},
       logBlackList: {},
-    },
+    } as ActionEntity,
   };
   const evalContext = createEvaluationContext({
     dataTree,
