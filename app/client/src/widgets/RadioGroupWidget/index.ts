@@ -47,6 +47,10 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    defaults: {
+      columns: 14,
+      rows: 7,
+    },
     disabledPropsDefaults: {
       labelPosition: LabelPosition.Top,
     },
@@ -59,6 +63,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "240px",
+            minHeight: "70px",
           };
         },
       },

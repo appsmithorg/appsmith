@@ -33,7 +33,7 @@ export const CONFIG = {
   },
   autoLayout: {
     disabledPropsDefaults: {
-      size: "SMALL",
+      size: "LARGE",
     },
     defaults: {
       columns: 7.272727,

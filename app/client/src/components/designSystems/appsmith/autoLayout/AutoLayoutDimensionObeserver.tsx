@@ -46,7 +46,7 @@ export default function AutoLayoutDimensionObserver(
     const heightDiff = Math.abs(
       props.height - 2 * FLEXBOX_PADDING - currentDimension.height,
     );
-    if (widthDiff > 0 || heightDiff > 0) {
+    if (widthDiff >= 1 || heightDiff >= 1) {
       onDimensionUpdate(currentDimension.width, currentDimension.height);
     }
   }, [
