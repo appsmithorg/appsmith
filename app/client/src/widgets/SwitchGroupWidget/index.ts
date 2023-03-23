@@ -54,7 +54,7 @@ export const CONFIG = {
     },
     defaults: {
       columns: 14,
-      rows: 6.6,
+      rows: 7,
     },
     autoDimension: {
       height: true,
@@ -65,6 +65,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "240px",
+            minHeight: "70px",
           };
         },
       },
