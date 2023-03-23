@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import adminSettings from "../../../../locators/AdminsSettings";
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Embed settings options", function () {
   const {
@@ -37,7 +38,9 @@ describe("Embed settings options", function () {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
     deployMode.DeployApp();
-    cy.get("[data-cy='viewmode-share']").click();
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    ).click();
     cy.get("[data-cy='copy-application-url']").last().click();
     agHelper.GiveChromeCopyPermission();
     cy.window()
@@ -53,7 +56,9 @@ describe("Embed settings options", function () {
     });
     // cy.testJsontext("url", this.embeddedAppUrl);
     deployMode.DeployApp();
-    cy.get("[data-cy='viewmode-share']").click();
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    ).click();
     cy.get("[data-cy='copy-application-url']").last().click();
     cy.window().its("navigator.clipboard").invoke("readText").as("deployUrl");
     cy.enablePublicAccess();

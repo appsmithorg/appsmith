@@ -93,6 +93,8 @@ export const getIsPageSaving = (state: AppState) => {
   const savingApis = state.ui.apiPane.isSaving;
   const savingJSObjects = state.ui.jsPane.isSaving;
   const isSavingAppTheme = state.ui.appTheming.isSaving;
+  const isSavingNavigationSetting =
+    state.ui.applications.isSavingNavigationSetting;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
@@ -107,7 +109,8 @@ export const getIsPageSaving = (state: AppState) => {
     areApisSaving ||
     areJsObjectsSaving ||
     isSavingAppTheme ||
-    state.ui.editor.loadingStates.savingEntity
+    state.ui.editor.loadingStates.savingEntity ||
+    isSavingNavigationSetting
   );
 };
 
