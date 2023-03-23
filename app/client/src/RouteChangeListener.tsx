@@ -12,7 +12,9 @@ export default function RouteChangeListener() {
       location,
       action,
     ) => {
-      dispatch(routeChanged(location, action));
+      if (window.location.pathname !== location.pathname) {
+        dispatch(routeChanged(location, action));
+      }
     };
     const historyUnregister = history.listen(handler);
     return () => historyUnregister();
