@@ -210,17 +210,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
-        ) {
+        if (difference.lhs === undefined && !!difference.rhs) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
-        ) {
+        if (difference.rhs === undefined && !!difference.lhs) {
           result = [
             {
               event: DataTreeDiffEvent.EDIT,
