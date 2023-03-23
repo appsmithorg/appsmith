@@ -167,7 +167,7 @@ function getActionHeading(
     case AppsmithFunction.removeValue:
       return (
         FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_REMOVE_VALUE].getter(code) ||
-        "Add ID"
+        "Add Key"
       );
 
     case AppsmithFunction.setInterval:
