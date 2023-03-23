@@ -62,6 +62,7 @@ import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
@@ -635,7 +636,7 @@ abstract class BaseWidget<
           } else {
             content = this.makePositioned(content);
           }
-          if (isAutoHeightEnabledForWidget(this.props, true)) {
+          if (isAutoHeightEnabledForWidgetWithLimits(this.props)) {
             content = this.addAutoHeightOverlay(content);
           }
         }

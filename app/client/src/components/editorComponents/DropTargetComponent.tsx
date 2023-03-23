@@ -32,7 +32,10 @@ import {
   checkContainersForAutoHeightAction,
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -125,9 +128,8 @@ function useUpdateRows(
    */
   const isParentAutoHeightEnabled = useSelector((state: AppState) => {
     return parentId
-      ? !isAutoHeightEnabledForWidget(
+      ? !isAutoHeightEnabledForWidgetWithLimits(
           state.entities.canvasWidgets[parentId],
-          true,
         ) &&
           isAutoHeightEnabledForWidget(state.entities.canvasWidgets[parentId])
       : false;
