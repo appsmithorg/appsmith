@@ -148,7 +148,7 @@ export default function ActionV2(props: {
       </ActionSelector>
       {showCallbacks && areCallbacksApplicable ? (
         <button
-          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
+          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent t--action-callbacks"
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
             setTouched(true);
@@ -188,6 +188,7 @@ export default function ActionV2(props: {
                         "flex justify-between bg-gray-50 border-[1px] border-gray-200 box-border",
                         selectedBlockId === `${id}_${blockType}_0` &&
                           "border-b-gray-500",
+                        `t--action-add-${blockType}-callback`,
                       )}
                       onClick={handleAddBlock}
                     >

@@ -179,6 +179,14 @@ export class CommonLocators {
   _actionSelectorPopup = ".t--action-selector-popup";
   _actionSelectorFieldByLabel = (label: string) =>
     `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
+  _actionSelectorFieldContentByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div`;
   _actionCardByTitle = (title: string) =>
     `[data-testid='action-card-${title}']`;
+  _actionCallbacks = ".t--action-callbacks";
+  _actionAddCallback = (type: "success" | "failure") =>
+    `.t--action-add-${type}-callback`;
+  _actionCardByValue = (value: string) =>
+    // The value can have a dot, eg. Api1.run, so we use the following selector instead of regular class selector
+    `[class~="t--action-card-value-${value}"]`;
 }
