@@ -1099,7 +1099,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     propPane.EnterJSContext(
       "onClick",
-      "{{resetWidget('Modal1', false)}}",
+      '{{resetWidget("Modal1", false)}}',
       true,
       false,
     );
@@ -1129,7 +1129,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     propPane.EnterJSContext(
       "onClick",
-      "{{resetWidget('Modal1')}}",
+      '{{resetWidget("Modal1")}}',
       true,
       false,
     );
@@ -1167,7 +1167,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     agHelper.GetNAssertElementText(
       ".action-block-tree",
-      "Reset widgetModal1",
+      "Reset widgetSelect widget",
       "have.text",
       0,
     );
