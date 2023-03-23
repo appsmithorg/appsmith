@@ -7,8 +7,8 @@ import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import type { TActionBlock } from "../../types";
 import { chainableFns } from "../../utils";
-import ActionCard from "./ActionCardV2";
-import ActionSelector from "./ActionSelectorV2";
+import ActionCard from "./ActionCard";
+import ActionSelector from "./ActionSelector";
 
 const EMPTY_ACTION_BLOCK: TActionBlock = {
   code: "",
@@ -17,7 +17,7 @@ const EMPTY_ACTION_BLOCK: TActionBlock = {
   error: { blocks: [] },
 };
 
-export default function ActionV2(props: {
+export default function ActionTree(props: {
   actionBlock: TActionBlock;
   onChange: (actionBlock: TActionBlock) => void;
   className?: string;
@@ -212,7 +212,7 @@ export default function ActionV2(props: {
                       </button>
                     </div>
                     {callbacks.map((cActionBlock, index) => (
-                      <ActionV2
+                      <ActionTree
                         actionBlock={cActionBlock}
                         className="mt-0"
                         id={`${id}_${blockType}_${index}`}

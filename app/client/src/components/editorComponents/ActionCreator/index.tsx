@@ -3,7 +3,7 @@ import { getActionBlocks } from "@shared/ast";
 import type { ActionCreatorProps } from "./types";
 import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
-import RootAction from "./viewComponents/ActionV2/RootActionV2";
+import Action from "./viewComponents/Action";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -194,7 +194,7 @@ const ActionCreator = React.forwardRef(
       <ActionCreatorContext.Provider value={contextValue}>
         <div className="flex flex-col gap-[2px]" ref={ref}>
           {Object.entries(actions).map(([id, value], index) => (
-            <RootAction
+            <Action
               code={value}
               id={id}
               index={index}
