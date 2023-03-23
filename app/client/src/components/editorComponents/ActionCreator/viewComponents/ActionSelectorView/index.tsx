@@ -56,7 +56,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
-  const { action } = getActionInfo(valueWithoutMoustache, actionType);
+  const { action } = getActionInfo(valueWithoutMoustache, actionType, true);
 
   useEffect(() => {
     debouncedSetSearchText(searchText);
@@ -73,7 +73,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   return (
     <TreeDropdown
-      className="right-8"
+      className="right-8 action-selector-view"
       defaultOpen={isOpen}
       defaultText={action}
       menuHeight={300}

@@ -8,6 +8,7 @@ type TRootActionProps = {
   code: string;
   id: string;
   onChange: (code: string) => void;
+  index: number;
 };
 
 export default function RootAction(props: TRootActionProps) {
@@ -36,7 +37,7 @@ export default function RootAction(props: TRootActionProps) {
   return (
     <ActionV2
       actionBlock={action}
-      className="mt-2"
+      className={`${props.index === 0 ? "mt-1" : "mt-2"}`}
       id={id}
       level={0}
       onChange={handleChange}

@@ -43,7 +43,7 @@ function ActionCard(props: TActionCardProps) {
     Icon: MainActionIcon,
   } = getActionInfo(code, actionType);
 
-  let className = "flex flex-col gap-1 w-full p-2";
+  let className = "flex flex-col gap-1 w-full p-2 action-block-tree";
 
   switch (variant) {
     case "mainBlock":

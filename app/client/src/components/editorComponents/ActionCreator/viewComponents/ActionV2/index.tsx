@@ -184,7 +184,7 @@ export default function ActionV2(props: {
                   <div className="flex flex-col">
                     <button
                       className={clsx(
-                        "action-callback-add",
+                        `action-callback-add`,
                         "flex justify-between bg-gray-50 border-[1px] border-gray-200 box-border",
                         selectedBlockId === `${id}_${blockType}_0` &&
                           "border-b-gray-500",

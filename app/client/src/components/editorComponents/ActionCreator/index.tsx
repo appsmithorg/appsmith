@@ -4,8 +4,6 @@ import type { ActionCreatorProps } from "./types";
 import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import RootAction from "./viewComponents/ActionV2/RootActionV2";
-import { Icon } from "design-system-old";
-import clsx from "clsx";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -160,12 +158,24 @@ const ActionCreator = React.forwardRef(
       id.current = "";
     }, [actions]);
 
+    useEffect(() => {
+      if (props.additionalControlData?.showEmptyBlock) {
+        addBlock();
+        props.additionalControlData?.setShowEmptyBlock(false);
+      }
+    }, [props.additionalControlData]);
+
     const addBlock = useCallback(() => {
       const hasAnEmptyBlock = Object.entries(actions).find(([, action]) =>
         isEmptyBlock(action),
       );
       if (hasAnEmptyBlock) {
         selectBlock(hasAnEmptyBlock[0]);
+        const children = ref.current?.children || [];
+        const lastChildElement = children[children.length - 1];
+        lastChildElement?.scrollIntoView({
+          block: "nearest",
+        });
         return;
       }
       const newActions = { ...actions };
@@ -174,35 +184,25 @@ const ActionCreator = React.forwardRef(
       setActions(newActions);
     }, [actions, save]);
 
+    const contextValue = React.useMemo(
+      () => ({ label: props.action, selectedBlockId, selectBlock }),
+      [selectedBlockId, props.action, selectBlock],
+    );
+
     return (
-      <div className="relative pt-1">
-        <button
-          className={clsx(
-            "add-action flex items-center justify-center text-center h-5 w-5",
-            false && "disabled",
-            "absolute right-0 top-[-22px]",
-            `t--add-action-${props.action}`,
-          )}
-          disabled={false}
-          onClick={addBlock}
-        >
-          <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
-        </button>
-        <ActionCreatorContext.Provider
-          value={{ label: props.action, selectedBlockId, selectBlock }}
-        >
-          <div className="flex flex-col gap-[2px]" ref={ref}>
-            {Object.entries(actions).map(([id, value]) => (
-              <RootAction
-                code={value}
-                id={id}
-                key={id}
-                onChange={handleActionChange(id)}
-              />
-            ))}
-          </div>
-        </ActionCreatorContext.Provider>
-      </div>
+      <ActionCreatorContext.Provider value={contextValue}>
+        <div className="flex flex-col gap-[2px]" ref={ref}>
+          {Object.entries(actions).map(([id, value], index) => (
+            <RootAction
+              code={value}
+              id={id}
+              index={index}
+              key={id}
+              onChange={handleActionChange(id)}
+            />
+          ))}
+        </div>
+      </ActionCreatorContext.Provider>
     );
   },
 );

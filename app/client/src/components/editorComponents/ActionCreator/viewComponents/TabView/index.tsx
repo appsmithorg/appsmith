@@ -8,7 +8,7 @@ import React from "react";
 
 export function TabView(props: TabViewProps) {
   return (
-    <FieldWrapper>
+    <FieldWrapper className="tab-view">
       <ControlWrapper>
         {props.label && (
           <label className="!text-gray-600 !text-xs" data-testid="tabs-label">
