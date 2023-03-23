@@ -93,7 +93,9 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
           path.classList?.contains("callback-collapse") ||
           (path.classList?.contains("add-action") &&
             path.classList?.contains(label)) ||
-          path.classList?.contains("bp3-overlay-backdrop")
+          path.classList?.contains("bp3-overlay-backdrop") ||
+          path.classList?.contains("evaluated-value-popup") ||
+          path.classList?.contains("subtree-container")
         ) {
           return;
         }
