@@ -1241,7 +1241,6 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.newsLetter).find("input").uncheck();//not working
   cy.get(welcomePage.dataCollection).should("be.visible");
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
-  cy.get(welcomePage.newsLetter).trigger("mouseover").click();
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click({ force: true });
   cy.wait("@createSuperUser").then((interception) => {
