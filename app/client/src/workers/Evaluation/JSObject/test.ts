@@ -127,7 +127,6 @@ describe("updateJSCollectionInUnEvalTree", function () {
       myFun2: new String("() => {\n  yeso;\n}"),
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
-      variables: ["myVar1", "myVar2"],
     };
     (expectedJSObject["myFun1"] as any).data = {};
     (expectedJSObject["myFun2"] as any).data = {};
