@@ -1237,11 +1237,13 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
   cy.get(welcomePage.newsLetter).should("be.visible");
+  cy.get(welcomePage.newsLetter).trigger("mouseover").click();
+  //cy.get(welcomePage.newsLetter).find("input").uncheck();//not working
   cy.get(welcomePage.dataCollection).should("be.visible");
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   cy.get(welcomePage.newsLetter).trigger("mouseover").click();
   cy.get(welcomePage.createButton).should("be.visible");
-  cy.get(welcomePage.createButton).click();
+  cy.get(welcomePage.createButton).click({ force: true });
   cy.wait("@createSuperUser").then((interception) => {
     expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",

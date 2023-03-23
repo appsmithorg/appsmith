@@ -1,13 +1,10 @@
-import { PluginType, PaginationType } from "entities/Action";
+import { PaginationType } from "entities/Action";
 import type {
   DataTree,
   WidgetEntity,
   AppsmithEntity,
 } from "entities/DataTree/dataTreeFactory";
-import {
-  EvaluationSubstitutionType,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export const unEvalTree = {
   MainContainer: {
