@@ -86,7 +86,7 @@ export type GeneratorOptions = {
   nestedViewIndex?: number;
   pageNo?: number;
   pageSize?: number;
-  primaryKeys?: (string | number | undefined | null)[];
+  primaryKeys?: string[];
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
   templateBottomRow: number;
@@ -756,7 +756,9 @@ class MetaWidgetGenerator {
     const metaWidgetId =
       currentCache.metaWidgetId || this.generateMetaWidgetId();
 
-    const metaWidgetName = `${this.widgetName}_${templateWidgetId}_${metaWidgetId}`;
+    const metaWidgetName =
+      currentCache.metaWidgetName ||
+      `${this.widgetName}_${templateWidgetName}_${metaWidgetId}`;
     const entityDefinition = generateEntityDefinition
       ? currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type)
@@ -1583,7 +1585,7 @@ class MetaWidgetGenerator {
        *  templateWidgetNames -> ["Text1", "Input1", "Image1"]
        *  dependantTemplateWidgets -> ["Input1"]
        */
-      templateWidgetNames.filter((templateWidgetName) => {
+      templateWidgetNames.forEach((templateWidgetName) => {
         if (value.includes(templateWidgetName)) {
           const dependantMetaWidget = metaWidgetsMap[templateWidgetName];
 
@@ -1779,6 +1781,8 @@ class MetaWidgetGenerator {
     this.updateCurrCachedRows(keys);
     this.updateCachedKeyDataMap(keys);
   };
+
+  getCurrCachedRows = () => this.cachedItemKeys.curr;
 
   /**
    * We want to always get the current data before checking the cache
