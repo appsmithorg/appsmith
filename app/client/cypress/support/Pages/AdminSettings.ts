@@ -9,7 +9,9 @@ export class AdminSettings {
   private _settingsList = ".t--settings-category-list";
   public _usersTab = ".t--settings-category-users";
   public _roles = (user: string) =>
-    "//span[contains(text(), '" + user + "')]/parent::div/parent::a/parent::td/following-sibling::td[1]";
+    "//span[contains(text(), '" +
+    user +
+    "')]/parent::div/parent::a/parent::td/following-sibling::td[1]";
 
   public NavigateToAdminSettings() {
     this.homePage.NavigateToHome();
