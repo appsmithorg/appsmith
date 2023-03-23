@@ -1,9 +1,12 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -11,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
@@ -19,7 +23,9 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
+import com.zaxxer.hikari.pool.HikariProxyConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -27,12 +33,20 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Duration;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -289,6 +303,120 @@ public class OraclePlugin extends BasePlugin {
             }
 
             return messages;
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) throws AppsmithPluginException {
+
+            PreparedStatement preparedStatement = (PreparedStatement) input;
+            HikariProxyConnection connection = (HikariProxyConnection) args[0];
+            List<DataType> explicitCastDataTypes = (List<DataType>) args[1];
+            Param param = (Param) args[2];
+            DataType valueType;
+            // If explicitly cast, set the user specified data type
+            if (explicitCastDataTypes != null && explicitCastDataTypes.get(index - 1) != null) {
+                valueType = explicitCastDataTypes.get(index - 1);
+            } else {
+                AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value,
+                        OracleSpecificDataTypes.pluginSpecificTypes);
+                valueType = appsmithType.type();
+            }
+
+            Map.Entry<String, String> parameter = new AbstractMap.SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
+
+            try {
+                switch (valueType) {
+                    case NULL: {
+                        preparedStatement.setNull(index, Types.NULL);
+                        break;
+                    }
+                    case BINARY: {
+                        preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                        break;
+                    }
+                    case BYTES: {
+                        preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                        break;
+                    }
+                    case INTEGER: {
+                        preparedStatement.setInt(index, Integer.parseInt(value));
+                        break;
+                    }
+                    case LONG: {
+                        preparedStatement.setLong(index, Long.parseLong(value));
+                        break;
+                    }
+                    case FLOAT:
+                    case DOUBLE: {
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                        break;
+                    }
+                    case BOOLEAN: {
+                        preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                        break;
+                    }
+                    case DATE: {
+                        preparedStatement.setDate(index, Date.valueOf(value));
+                        break;
+                    }
+                    case TIME: {
+                        preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
+                        break;
+                    }
+                    case NULL_ARRAY:
+                        preparedStatement.setArray(index, null);
+                        break;
+                    case ARRAY: {
+                        List arrayListFromInput = objectMapper.readValue(value, List.class);
+                        if (arrayListFromInput.isEmpty()) {
+                            break;
+                        }
+                        // Find the type of the entries in the list
+                        Object firstEntry = arrayListFromInput.get(0);
+                        AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(
+                                param.getDataTypesOfArrayElements().get(0), String.valueOf(firstEntry));
+                        DataType dataType = appsmithType.type();
+                        String typeName = toPostgresqlPrimitiveTypeName(dataType);
+
+                        // Create the Sql Array and set it.
+                        Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
+                        preparedStatement.setArray(index, inputArray);
+                        break;
+                    }
+                    case STRING: {
+                    }
+                    case JSON_OBJECT: {
+                        preparedStatement.setString(index, value);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+            } catch (SQLException | IllegalArgumentException | IOException e) {
+                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                    // In case the parameter being set is out of range, then this must be getting
+                    // set in the commented part of
+                    // the query. Ignore the exception
+                } else {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(PostgresErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
+                            e.getMessage());
+                }
+            }
+
+            return preparedStatement;
+
         }
     }
 }
