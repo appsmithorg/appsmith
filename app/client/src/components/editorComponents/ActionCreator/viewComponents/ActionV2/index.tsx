@@ -181,16 +181,13 @@ export default function ActionV2(props: {
                 tooltipContent,
               }) => (
                 <li key={label}>
-                  <div className="flex flex-col">
-                    <button
+                  <div className="flex flex-col pl-1">
+                    <div
                       className={clsx(
-                        `action-callback-add`,
-                        "flex justify-between bg-gray-50 border-[1px] border-gray-200 box-border",
+                        "flex bg-gray-50 border-[1px] border-gray-200 box-border flex-row justify-between items-start action-callback-add",
                         selectedBlockId === `${id}_${blockType}_0` &&
                           "border-b-gray-500",
-                        `t--action-add-${blockType}-callback`,
                       )}
-                      onClick={handleAddBlock}
                     >
                       <TooltipComponent
                         boundary="viewport"
@@ -201,14 +198,19 @@ export default function ActionV2(props: {
                           {label}
                         </span>
                       </TooltipComponent>
-                      <span className="icon w-7 h-7 flex items-center justify-center">
-                        <Icon
-                          fillColor="var(--ads-color-black-700)"
-                          name="plus"
-                          size="extraLarge"
-                        />
-                      </span>
-                    </button>
+                      <button
+                        className={clsx(`t--action-add-${blockType}-callback`)}
+                        onClick={handleAddBlock}
+                      >
+                        <span className="icon w-7 h-7 flex items-center justify-center">
+                          <Icon
+                            fillColor="var(--ads-color-black-700)"
+                            name="plus"
+                            size="extraLarge"
+                          />
+                        </span>
+                      </button>
+                    </div>
                     {callbacks.map((cActionBlock, index) => (
                       <ActionV2
                         actionBlock={cActionBlock}

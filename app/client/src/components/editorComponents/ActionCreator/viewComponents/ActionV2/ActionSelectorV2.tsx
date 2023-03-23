@@ -33,10 +33,8 @@ export default function ActionSelector(props: {
       popoverClassName = "w-[280px] !translate-x-[-17px]";
       break;
     case 1:
-      popoverClassName = "w-[280px] !translate-x-[-32px]";
+      popoverClassName = "w-[280px] !translate-x-[-36px]";
       break;
-    case 2:
-      popoverClassName = "w-[280px] !translate-x-[-47px]";
   }
 
   const portalClassName = isOmnibarOpen ? "!z-1" : "!z-6";
