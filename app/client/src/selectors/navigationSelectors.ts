@@ -19,7 +19,7 @@ import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
 import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
 import { getAppsmithNavData } from "utils/NavigationSelector/AppsmithNavData";
-import { isJSObject } from "ce/workers/Evaluation/evaluationUtils";
+import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
 
 export type NavigationData = {
   name: string;
@@ -113,7 +113,7 @@ export const getEntitiesForNavigation = createSelector(
     );
     if (
       entityName &&
-      isJSObject(dataTree[entityName]) &&
+      isJSAction(dataTree[entityName]) &&
       entityName in navigationData
     ) {
       return {
