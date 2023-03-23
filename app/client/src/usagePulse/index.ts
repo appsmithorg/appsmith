@@ -12,6 +12,8 @@ const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
 const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
 export const FALLBACK_KEY = "APPSMITH_ANONYMOUS_USER_ID";
+const RETRY_TIMEOUT = 2000;
+
 class UsagePulse {
   static userAnonymousId: string | undefined;
   static Timer: ReturnType<typeof setTimeout>;
@@ -24,6 +26,26 @@ class UsagePulse {
   static isTrackableUrl(path: string) {
     return isEditorPath(path) || isViewerPath(path);
   }
+
+  static fetchWithRetry = (url: string, data: object, n: number) => {
+    fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      keepalive: true,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+      })
+      .catch(() => {
+        if (n > 0) {
+          setTimeout(this.fetchWithRetry, RETRY_TIMEOUT, url, data, n - 1);
+        } else throw noop;
+      });
+  };
 
   static sendPulse() {
     let mode = getAppMode(store.getState());
@@ -45,16 +67,7 @@ class UsagePulse {
       if (UsagePulse.userAnonymousId)
         data["anonymousUserId"] = UsagePulse.userAnonymousId;
     }
-
-    fetch(PULSE_API_ENDPOINT, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      keepalive: true,
-    }).catch(noop);
+    this.fetchWithRetry(PULSE_API_ENDPOINT, data, 3);
   }
 
   static registerActivityListener() {
