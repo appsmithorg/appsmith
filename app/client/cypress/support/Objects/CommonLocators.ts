@@ -179,6 +179,8 @@ export class CommonLocators {
   _actionSelectorPopup = ".t--action-selector-popup";
   _actionSelectorFieldByLabel = (label: string) =>
     `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
+  _actionSelectorFieldContentByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div`;
   _actionCardByTitle = (title: string) =>
     `[data-testid='action-card-${title}']`;
   _actionCallbacks = ".t--action-callbacks";

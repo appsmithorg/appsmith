@@ -14,6 +14,8 @@ describe("UI to Code", () => {
     cy.fixture("buttondsl").then((val: any) => {
       AggregateHelper.AddDsl(val);
     });
+    ApiPage.CreateApi("Api1", "GET");
+    ApiPage.CreateApi("Api2", "POST");
   });
 
   beforeEach(() => {
@@ -342,12 +344,12 @@ describe("UI to Code", () => {
     cy.get(CommonLocators._actionCallbacks).click();
 
     // add a success callback
-    cy.get(CommonLocators._actionAddCallback("success")).click().wait(100);
-    cy.get(CommonLocators._dropDownValue("Store value")).click().wait(100);
+    cy.get(CommonLocators._actionAddCallback("success")).click().wait(500);
+    cy.get(CommonLocators._dropDownValue("Store value")).click().wait(500);
 
     // add an error callback
-    cy.get(CommonLocators._actionAddCallback("failure")).click().wait(100);
-    cy.get(CommonLocators._dropDownValue("Navigate to")).click().wait(100);
+    cy.get(CommonLocators._actionAddCallback("failure")).click().wait(500);
+    cy.get(CommonLocators._dropDownValue("Navigate to")).click().wait(500);
 
     cy.get(CommonLocators._jsToggle("onclick")).click();
     PropertyPane.ValidatePropertyFieldValue(
@@ -358,11 +360,6 @@ describe("UI to Code", () => {
   });
 
   it("updates the success and failure callbacks for nested query actions", () => {
-    ApiPage.CreateApi("Api1", "GET");
-    ApiPage.CreateApi("Api2", "POST");
-
-    EntityExplorer.SelectEntityByName("Button1", "Widgets");
-
     cy.get(CommonLocators._jsToggle("onclick")).click();
     PropertyPane.UpdatePropertyFieldValue(
       "onClick",
@@ -381,13 +378,37 @@ describe("UI to Code", () => {
 
     // Edit the success callback of the nested Api2.run
     cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
-    AggregateHelper.GetNClick(JSEditor._lineinPropertyPaneJsEditor(2), 0, true);
-    cy.get(JSEditor._lineinPropertyPaneJsEditor(2)).type("eeee");
+    AggregateHelper.GetNClick(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+      0,
+      true,
+    );
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+    ).type("eeee");
 
     // Edit the failure callback of the nested Api2.run
     cy.get(CommonLocators._openNavigationTab("onFailure")).click();
-    AggregateHelper.GetNClick(JSEditor._lineinPropertyPaneJsEditor(2), 0, true);
-    cy.get(JSEditor._lineinPropertyPaneJsEditor(2)).type("oooo");
+    AggregateHelper.GetNClick(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+      0,
+      true,
+    );
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+    ).type("oooo");
 
     cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
 
@@ -395,6 +416,78 @@ describe("UI to Code", () => {
     PropertyPane.ValidatePropertyFieldValue(
       "onClick",
       `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });}).catch(() => {});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("updates the query params correctly", () => {
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.UpdatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {
+      Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
+     })}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+
+    // Select the card to show the callback button
+    cy.get(CommonLocators._actionCardByValue("Api1.run")).click();
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    // Click on the callback button
+    cy.get(CommonLocators._actionCallbacks).click();
+
+    // Edit the success callback of the nested Api2.run
+    cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
+    AggregateHelper.GetNClick(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Params"),
+      ),
+      0,
+      true,
+    );
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Params"),
+      ),
+    ).type("val: 1");
+
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });}).catch(() => {});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("adds actions to callback function is argument if exists already", () => {
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.UpdatePropertyFieldValue(
+      "onClick",
+      `Api1.run(() => {
+        showAlert("Hello");
+       })
+       `,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+
+    // Select the card to show the callback button
+    cy.get(CommonLocators._actionCardByValue("Api1.run")).click();
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    // Click on the callback button
+    cy.get(CommonLocators._actionCallbacks).click();
+    cy.get(CommonLocators._actionAddCallback("success")).click();
+    cy.get(CommonLocators._dropDownValue("Store value")).click().wait(500);
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run(() => {  showAlert("Hello");  storeValue("", "");}, () => {});}}`,
     );
     cy.get(CommonLocators._jsToggle("onclick")).click();
   });
