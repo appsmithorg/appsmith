@@ -3,7 +3,10 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
 import { get } from "lodash";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -27,6 +30,7 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
     groupButtons: {
       groupButton1: {
         label: "Favorite",

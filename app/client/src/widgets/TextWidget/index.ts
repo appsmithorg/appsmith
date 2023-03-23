@@ -1,6 +1,9 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { OverflowTypes } from "./constants";
 
 import IconSVG from "./icon.svg";
@@ -32,6 +35,7 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
