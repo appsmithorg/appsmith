@@ -12,7 +12,8 @@ const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
 const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
 export const FALLBACK_KEY = "APPSMITH_ANONYMOUS_USER_ID";
-const RETRY_TIMEOUT = 2000;
+const PULSE_API_RETRY_TIMEOUT = 2000;
+const PULSE_API_MAX_RETRY_COUNT = 3;
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
@@ -27,7 +28,7 @@ class UsagePulse {
     return isEditorPath(path) || isViewerPath(path);
   }
 
-  static fetchWithRetry = (url: string, data: object, n: number) => {
+  static fetchWithRetry = (url: string, data: object, retries: number) => {
     fetch(url, {
       method: "POST",
       credentials: "same-origin",
@@ -41,8 +42,14 @@ class UsagePulse {
         if (!res.ok) throw new Error();
       })
       .catch(() => {
-        if (n > 0) {
-          setTimeout(this.fetchWithRetry, RETRY_TIMEOUT, url, data, n - 1);
+        if (retries > 0) {
+          setTimeout(
+            this.fetchWithRetry,
+            PULSE_API_RETRY_TIMEOUT,
+            url,
+            data,
+            retries - 1,
+          );
         } else throw noop;
       });
   };
@@ -67,7 +74,7 @@ class UsagePulse {
       if (UsagePulse.userAnonymousId)
         data["anonymousUserId"] = UsagePulse.userAnonymousId;
     }
-    this.fetchWithRetry(PULSE_API_ENDPOINT, data, 3);
+    this.fetchWithRetry(PULSE_API_ENDPOINT, data, PULSE_API_MAX_RETRY_COUNT);
   }
 
   static registerActivityListener() {
