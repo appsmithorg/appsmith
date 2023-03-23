@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { sizeMap, getPosition, isMarkedFilled, SliderSizes } from "../utils";
+import type { SliderSizes } from "../utils";
+import { sizeMap, getPosition, isMarkedFilled } from "../utils";
 
 interface MarksProps {
   marksBg: {

@@ -1,7 +1,7 @@
 import HomePage from "../../../../locators/HomePage";
 const pages = require("../../../../locators/Pages.json");
 
-describe("Validate Datasource Panel Styles", function() {
+describe("Validate Datasource Panel Styles", function () {
   const backgroundColorGray900 = "rgb(25, 25, 25)";
   const backgroundColorGray700 = "rgb(87, 87, 87)";
   const backgroundColorGray1 = "rgb(250, 250, 250)";
@@ -152,9 +152,7 @@ describe("Validate Datasource Panel Styles", function() {
 
   after(() => {
     //Delete Datasource
-    cy.get(".t--datasource-menu-option")
-      .eq(0)
-      .click();
+    cy.get(".t--datasource-menu-option").eq(0).click();
     cy.get(".t--datasource-option-delete").click();
     cy.get(".t--datasource-option-delete").click();
     //Delete Application
@@ -162,8 +160,6 @@ describe("Validate Datasource Panel Styles", function() {
     cy.get(".t--application-edit-menu li")
       .contains("Delete Application")
       .click();
-    cy.get(".t--application-edit-menu li")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--application-edit-menu li").contains("Are you sure?").click();
   });
 });

@@ -2,8 +2,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-describe("Check datasource doc links", function() {
-  it("1. Verify Postgres documentation opens", function() {
+describe("Check datasource doc links", function () {
+  it("1. Verify Postgres documentation opens", function () {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -16,7 +16,7 @@ describe("Check datasource doc links", function() {
     });
   });
 
-  it("2. Verify Mongo documentation opens", function() {
+  it("2. Verify Mongo documentation opens", function () {
     _.dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -29,7 +29,7 @@ describe("Check datasource doc links", function() {
     });
   });
 
-  it("3. Verify MySQL documentation opens", function() {
+  it("3. Verify MySQL documentation opens", function () {
     _.dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

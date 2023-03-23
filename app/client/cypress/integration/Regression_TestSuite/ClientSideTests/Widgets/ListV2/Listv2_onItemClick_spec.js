@@ -24,18 +24,14 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Blue_0");
-    cy.get(commonlocators.toastBody)
-      .first()
-      .click();
+    cy.get(commonlocators.toastBody).first().click();
     cy.wait(300);
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(1)
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Green_1");
-    cy.get(commonlocators.toastBody)
-      .first()
-      .click();
+    cy.get(commonlocators.toastBody).first().click();
     cy.wait(300);
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
@@ -43,16 +39,12 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Red_2");
-    cy.get(commonlocators.toastBody)
-      .first()
-      .click();
+    cy.get(commonlocators.toastBody).first().click();
     cy.wait(300);
   });
 
   it("2. List widget V2 with onItemClick shouldn't be triggered when child widget is clicked", () => {
-    cy.get(widgetSelector("Image1"))
-      .first()
-      .click({ force: true });
+    cy.get(widgetSelector("Image1")).first().click({ force: true });
     cy.get(commonlocators.toastmsg).should("not.exist");
   });
 });

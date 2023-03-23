@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { HeaderComponent as Header } from "./Header";
 import { CarouselComponent as Carousel } from "./Carousel";
 import { FooterComponent as Footer } from "./Footer";
-import { UpgradePageProps } from "./types";
+import type { UpgradePageProps } from "./types";
 
 export const Container = styled.div`
   border-left: thin solid var(--appsmith-color-black-50);

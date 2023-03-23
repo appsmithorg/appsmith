@@ -2,22 +2,21 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
+import type { WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
-import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
@@ -342,6 +341,7 @@ class TabsWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
+        selectedTabWidgetId={this.getSelectedTabWidgetId()}
       >
         {this.renderComponent()}
       </TabsComponent>
@@ -349,7 +349,7 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabWidgetId = this.props.selectedTabWidgetId;
+    const selectedTabWidgetId = this.getSelectedTabWidgetId();
     const childWidgetData = {
       ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
@@ -386,6 +386,17 @@ class TabsWidget extends BaseWidget<
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
+
+  private getSelectedTabWidgetId() {
+    let selectedTabWidgetId = this.props.selectedTabWidgetId;
+    if (this.props.children) {
+      selectedTabWidgetId =
+        this.props.children.find((tab) =>
+          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        )?.widgetId ?? this.props.selectedTabWidgetId;
+    }
+    return selectedTabWidgetId;
+  }
 
   static getWidgetType(): string {
     return "TABS_WIDGET";
