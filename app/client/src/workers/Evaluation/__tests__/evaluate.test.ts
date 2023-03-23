@@ -47,18 +47,18 @@ describe("evaluateSync", () => {
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
-    const response = evaluate(js, {}, {}, false, {});
+    const response = evaluate(js, {}, {}, {}, false);
     expect(response.result).toBe("Hello!");
   });
   it("evaluate string post unescape in v1", () => {
     const js = '[1, 2, 3].join("\\\\n")';
-    const response = evaluate(js, {}, {}, false, {});
+    const response = evaluate(js, {}, {}, {}, false);
     expect(response.result).toBe("1\n2\n3");
   });
   it("evaluate string without unescape in v2", () => {
     self.evaluationVersion = 2;
     const js = '[1, 2, 3].join("\\n")';
-    const response = evaluate(js, {}, {}, false, {});
+    const response = evaluate(js, {}, {}, {}, false);
     expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
@@ -66,7 +66,7 @@ describe("evaluateSync", () => {
     expect(() => evaluate(undefined, {})).toThrow(TypeError);
   });
   it("Returns for syntax errors", () => {
-    const response1 = evaluate("wrongJS", {}, {}, false, {});
+    const response1 = evaluate("wrongJS", {}, {}, {}, false);
     expect(response1).toStrictEqual({
       result: undefined,
       errors: [
@@ -88,7 +88,7 @@ describe("evaluateSync", () => {
         },
       ],
     });
-    const response2 = evaluate("{}.map()", {}, {}, false, {});
+    const response2 = evaluate("{}.map()", {}, {}, {}, false);
     expect(response2).toStrictEqual({
       result: undefined,
       errors: [
@@ -113,12 +113,12 @@ describe("evaluateSync", () => {
   });
   it("evaluates value from data tree", () => {
     const js = "Input1.text";
-    const response = evaluate(js, dataTree, {}, false, {});
+    const response = evaluate(js, dataTree, {}, {}, false);
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", () => {
     const js = "setImmediate(() => {}, 100)";
-    const response = evaluate(js, dataTree, {}, false, {});
+    const response = evaluate(js, dataTree, {}, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
       errors: [
@@ -143,7 +143,7 @@ describe("evaluateSync", () => {
   });
   it("has access to extra library functions", () => {
     const js = "_.add(1,2)";
-    const response = evaluate(js, dataTree, {}, false, {});
+    const response = evaluate(js, dataTree, {}, {}, false);
     expect(response.result).toBe(3);
   });
   it("evaluates functions with callback data", () => {
@@ -153,8 +153,8 @@ describe("evaluateSync", () => {
       js,
       dataTree,
       {},
-      false,
       {},
+      false,
       undefined,
       callbackData,
     );
@@ -162,35 +162,35 @@ describe("evaluateSync", () => {
   });
   it("handles EXPRESSIONS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, {});
+    let response = evaluate(js, dataTree, {}, {}, false);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, {});
+    response = evaluate(js, dataTree, {}, {}, false);
     expect(response.errors.length).toBe(0);
   });
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, {}, undefined, undefined);
+    let response = evaluate(js, dataTree, {}, {}, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, {}, undefined, undefined);
+    response = evaluate(js, dataTree, {}, {}, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, {}, undefined, undefined);
+    let response = evaluate(js, dataTree, {}, {}, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, {}, undefined, undefined);
+    response = evaluate(js, dataTree, {}, {}, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("has access to this context", () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, {}, undefined, {
+    const response = evaluate(js, dataTree, {}, {}, false, {
       thisContext,
     });
     expect(response.result).toBe("test");
@@ -201,7 +201,7 @@ describe("evaluateSync", () => {
   it("has access to additional global context", () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, {}, undefined, {
+    const response = evaluate(js, dataTree, {}, {}, false, {
       globalContext,
     });
     expect(response.result).toBe("test");
