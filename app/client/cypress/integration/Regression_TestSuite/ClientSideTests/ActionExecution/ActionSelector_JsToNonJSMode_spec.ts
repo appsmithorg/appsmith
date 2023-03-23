@@ -1187,4 +1187,180 @@ describe("JS to non-JS mode in Action Selector", () => {
       1,
     );
   });
+
+  it("should show fields appropriately for setinterval", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{setInterval()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Set intervalms",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Callback function",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Delay (ms)",
+      "have.text",
+      1,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Id",
+      "have.text",
+      2,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{setInterval(() => {}, 200, '')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Set interval200ms",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    // agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{setInterval(() => {showAlert('hi')}, 200, 'id1')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Set interval200ms",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    // agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}id1");
+  });
+
+  it("should show fields appropriately for clearInterval", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{clearInterval()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Clear intervalAdd ID",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Id",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext("onClick", "{{clearInterval('Id1')}}", true, true);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Clear intervalId1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "Id1");
+  });
+
+  it("should show no fields for clear store", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{clearStore()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Clear store",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.AssertElementAbsence(".text-view");
+    agHelper.AssertElementAbsence(".selector-view");
+  });
+
+  it("should show no fields for watch geolocation position", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{appsmith.geolocation.watchPosition()}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Watch Geolocation",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.AssertElementAbsence(".text-view");
+    agHelper.AssertElementAbsence(".selector-view");
+  });
+
+  it("should show no fields for stop watching geolocation position", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{appsmith.geolocation.clearWatch()}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Stop watching Geolocation",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.AssertElementAbsence(".text-view");
+    agHelper.AssertElementAbsence(".selector-view");
+  });
 });
