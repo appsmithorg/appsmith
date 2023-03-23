@@ -40,6 +40,7 @@ export class HomePage {
 
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
+  public _closeBtn=".bp3-dialog-close-button";
   _applicationCard = ".t--application-card";
   private _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
