@@ -1,13 +1,12 @@
-import { isEditorPath } from "ce/pages/Editor/Explorer/helpers";
-import {
-  BUILDER_VIEWER_PATH_PREFIX,
-  VIEWER_PATH_DEPRECATED_REGEX,
-} from "constants/routes";
+import { isEditorPath, isViewerPath } from "ce/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "entities/App";
 import { isNil, noop } from "lodash";
 import { getAppMode } from "selectors/applicationSelectors";
 import store from "store";
 import history from "utils/history";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
@@ -22,16 +21,14 @@ class UsagePulse {
    * Function to check if the given URL is trakable or not.
    * app builder and viewer urls are trackable
    */
-  static isTrackableUrl(url: string) {
-    return (
-      url.includes(BUILDER_VIEWER_PATH_PREFIX) ||
-      VIEWER_PATH_DEPRECATED_REGEX.test(url)
-    );
+  static isTrackableUrl(path: string) {
+    return isEditorPath(path) || isViewerPath(path);
   }
 
   static sendPulse() {
     let mode = getAppMode(store.getState());
-
+    const user = getCurrentUser(store.getState());
+    const appsmithConfig = getAppsmithConfigs();
     if (isNil(mode)) {
       mode = isEditorPath(window.location.pathname)
         ? APP_MODE.EDIT
@@ -42,8 +39,11 @@ class UsagePulse {
       viewMode: mode === APP_MODE.PUBLISHED,
     };
 
-    if (UsagePulse.userAnonymousId) {
-      data["anonymousUserId"] = UsagePulse.userAnonymousId;
+    if (user?.enableTelemetry && appsmithConfig.segment.enabled) {
+      data["anonymousUserId"] = AnalyticsUtil.getAnonymousId();
+    } else {
+      if (UsagePulse.userAnonymousId)
+        data["anonymousUserId"] = UsagePulse.userAnonymousId;
     }
 
     fetch(PULSE_API_ENDPOINT, {
@@ -81,7 +81,7 @@ class UsagePulse {
    */
   static watchForTrackableUrl(callback: () => void) {
     UsagePulse.unlistenRouteChange = history.listen(() => {
-      if (UsagePulse.isTrackableUrl(window.location.href)) {
+      if (UsagePulse.isTrackableUrl(window.location.pathname)) {
         UsagePulse.unlistenRouteChange();
         setTimeout(callback, 0);
       }
@@ -109,7 +109,7 @@ class UsagePulse {
    * registers listeners to wait for the user to go to a trackable url
    */
   static startTrackingActivity() {
-    if (UsagePulse.isTrackableUrl(window.location.href)) {
+    if (UsagePulse.isTrackableUrl(window.location.pathname)) {
       UsagePulse.sendPulse();
       UsagePulse.scheduleNextActivityListeners();
     } else {
