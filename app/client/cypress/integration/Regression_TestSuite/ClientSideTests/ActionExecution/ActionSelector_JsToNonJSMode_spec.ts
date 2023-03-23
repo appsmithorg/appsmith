@@ -1363,4 +1363,104 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.AssertElementAbsence(".text-view");
     agHelper.AssertElementAbsence(".selector-view");
   });
+
+  it("should show appropriate fields for get geolocation", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{appsmith.geolocation.getCurrentPosition()}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Get GeolocationAdd callback",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Callback function",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      `{{appsmith.geolocation.getCurrentPosition((location) => {
+      // add code here
+    });}}`,
+      true,
+      true,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Callback function",
+      "have.text",
+      0,
+    );
+  });
+
+  it("should show post message fields appropriately", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{postWindowMessage()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Post messageAdd message",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Message",
+      "have.text",
+      0,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Target iframe",
+      "have.text",
+      1,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Allowed origins",
+      "have.text",
+      2,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{postWindowMessage('hello', 'window', '*')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Post messagehello",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "hellowindow*");
+  });
 });
