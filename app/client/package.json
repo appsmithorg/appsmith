@@ -43,6 +43,7 @@
     "@googlemaps/react-wrapper": "^1.1.35",
     "@loadable/component": "^5.15.3",
     "@manaflair/redux-batch": "^1.0.0",
+    "@mantine/hooks": "^5.10.1",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
