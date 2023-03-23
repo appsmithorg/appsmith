@@ -1,9 +1,7 @@
 package com.appsmith.server.constants.ce;
 
 import com.appsmith.server.constants.Entity;
-import lombok.Getter;
 
-@Getter
 public class UrlCE {
     final static String BASE_URL = "/api";
     final static String VERSION = "/v1";
