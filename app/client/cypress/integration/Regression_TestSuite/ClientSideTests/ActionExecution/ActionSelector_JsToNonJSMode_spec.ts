@@ -551,4 +551,916 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
   });
+
+  it("shows fields for navigate to from js to non-js mode", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{navigateTo()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Navigate toSelect page",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      "#switcher--page-name",
+      "Page Name",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-Page",
+      "Select Page",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Query Params",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Same-window",
+      "Same window",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{navigateTo('Page1', {a:1}, 'NEW_WINDOW')}}",
+      true,
+      true,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Navigate toPage1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      "#switcher--page-name",
+      "Page Name",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-Page",
+      "Page1",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Query Params",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Same-window",
+      "New window",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{navigateTo('google.com', {a:1}, 'SAME_WINDOW')}}",
+      true,
+      true,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Navigate togoogle.com",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText("#switcher--url", "URL", "have.text", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Enter URL",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Query Params",
+      "have.text",
+      1,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Same-window",
+      "Same window",
+      "have.text",
+      0,
+    );
+  });
+
+  it("shows fields for show alert from js to non-js mode", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{showAlert()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Show AlertAdd message",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Message",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-type",
+      "Select type",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{showAlert('hello', 'info')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Show Alerthello",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Message",
+      "have.text",
+      0,
+    );
+    agHelper.ValidateCodeEditorContent(".text-view", "hello");
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-type",
+      "Info",
+      "have.text",
+      0,
+    );
+  });
+
+  it("shows fields for show modal from js to non-js mode", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+
+    ee.DragDropWidgetNVerifyModal(50, 50);
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{showModal()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Show modalnone",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-Modal",
+      "Select Modal",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext("onClick", "{{showModal('Modal1')}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Show modalModal1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-Modal",
+      "Modal1",
+      "have.text",
+      0,
+    );
+  });
+
+  it("shows fields for remove modal from js to non-js mode", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{closeModal()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Close modalnone",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-Modal",
+      "Select Modal",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext("onClick", "{{closeModal('Modal1')}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Close modalModal1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".t--open-dropdown-Select-Modal",
+      "Modal1",
+      "have.text",
+      0,
+    );
+  });
+
+  it("should shows appropriate fields for store value", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{storeValue()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Store valueAdd key",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Key",
+      "have.text",
+      0,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Value",
+      "have.text",
+      1,
+    );
+
+    propPane.EnterJSContext("onClick", "{{storeValue('a', '')}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Store valuea",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    propPane.EnterJSContext("onClick", "{{storeValue('a', 1)}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Store valuea",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "a{{1}}");
+
+    propPane.EnterJSContext("onClick", "{{storeValue('', 1)}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Store valueAdd key",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+  });
+
+  it("shows fields for remove value appropriately", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{removeValue()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Remove valueAdd Key",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Key",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext("onClick", "{{removeValue('a')}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Remove valuea",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "a");
+  });
+
+  it("shows fields appropriately for the download function", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{download()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "DownloadAdd data to download",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Data to download",
+      "have.text",
+      0,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "File name with extension",
+      "have.text",
+      1,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="selector-view-label"]',
+      "Type",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "Select file type (optional)",
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{download('a', '', '')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "DownloadAdd data to download",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{download('a', 'b', '')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Downloadb",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{download('a', 'b', 'image/png')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Downloadb",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+    agHelper.ValidateCodeEditorContent(".text-view", "ab");
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "PNG",
+      "have.text",
+      0,
+    );
+  });
+
+  it("shows fields for copyToClipboard appropriately", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{copyToClipboard()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Copy to clipboardAdd text",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Text to be copied to clipboard",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext("onClick", "{{copyToClipboard('a')}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Copy to clipboarda",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "a");
+  });
+
+  it("shows fields for reset widget appropriately", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{resetWidget()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Reset widgetSelect widget",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="selector-view-label"]',
+      "Widget",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="selector-view-label"]',
+      "Reset Children",
+      "have.text",
+      1,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "Select Widget",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "true",
+      "have.text",
+      1,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      '{{resetWidget("Modal1", false)}}',
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Reset widgetModal1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "Modal1",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "false",
+      "have.text",
+      1,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      '{{resetWidget("Modal1")}}',
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Reset widgetModal1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "Modal1",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "true",
+      "have.text",
+      1,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{resetWidget('', false)}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Reset widgetSelect widget",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "Select Widget",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      ".selector-view .bp3-button-text",
+      "false",
+      "have.text",
+      1,
+    );
+  });
+
+  it("should show fields appropriately for setinterval", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{setInterval()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Set intervalms",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Callback function",
+      "have.text",
+      0,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Delay (ms)",
+      "have.text",
+      1,
+    );
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Id",
+      "have.text",
+      2,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{setInterval(() => {}, 200, '')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Set interval200ms",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    // agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{setInterval(() => {showAlert('hi')}, 200, 'id1')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Set interval200ms",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    // agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}id1");
+  });
+
+  it("should show fields appropriately for clearInterval", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{clearInterval()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Clear intervalAdd ID",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Id",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext("onClick", "{{clearInterval('Id1')}}", true, true);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Clear intervalId1",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "Id1");
+  });
+
+  it("should show no fields for clear store", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{clearStore()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Clear store",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.AssertElementAbsence(".text-view");
+    agHelper.AssertElementAbsence(".selector-view");
+  });
+
+  it("should show no fields for watch geolocation position", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{appsmith.geolocation.watchPosition()}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Watch Geolocation",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.AssertElementAbsence(".text-view");
+    agHelper.AssertElementAbsence(".selector-view");
+  });
+
+  it("should show no fields for stop watching geolocation position", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{appsmith.geolocation.clearWatch()}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Stop watching Geolocation",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.AssertElementAbsence(".text-view");
+    agHelper.AssertElementAbsence(".selector-view");
+  });
+
+  it("should show appropriate fields for get geolocation", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{appsmith.geolocation.getCurrentPosition()}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Get GeolocationAdd callback",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Callback function",
+      "have.text",
+      0,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      `{{appsmith.geolocation.getCurrentPosition((location) => {
+      // add code here
+    });}}`,
+      true,
+      true,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Callback function",
+      "have.text",
+      0,
+    );
+  });
+
+  it("should show post message fields appropriately", () => {
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Button1", "Widgets");
+
+    propPane.EnterJSContext("onClick", "{{postWindowMessage()}}", true, false);
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Post messageAdd message",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Message",
+      "have.text",
+      0,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Target iframe",
+      "have.text",
+      1,
+    );
+    agHelper.GetNAssertElementText(
+      '[data-testId="text-view-label"]',
+      "Allowed origins",
+      "have.text",
+      2,
+    );
+
+    propPane.EnterJSContext(
+      "onClick",
+      "{{postWindowMessage('hello', 'window', '*')}}",
+      true,
+      false,
+    );
+    jsEditor.DisableJSContext("onClick");
+
+    agHelper.GetNAssertElementText(
+      ".action-block-tree",
+      "Post messagehello",
+      "have.text",
+      0,
+    );
+    agHelper.GetNClick(".action-block-tree", 0);
+
+    agHelper.ValidateCodeEditorContent(".text-view", "hellowindow*");
+  });
 });
