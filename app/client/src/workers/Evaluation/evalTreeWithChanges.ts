@@ -1,4 +1,8 @@
-import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
@@ -37,6 +41,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
+      dataTreeEvaluator.oldConfigTree,
       unEvalUpdates,
     );
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
@@ -58,6 +63,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     logs,
     unEvalUpdates,
     isCreateFirstTree,
+    configTree: dataTreeEvaluator?.oldConfigTree as ConfigTree,
     staleMetaIds,
     pathsToClearErrorsFor,
   };

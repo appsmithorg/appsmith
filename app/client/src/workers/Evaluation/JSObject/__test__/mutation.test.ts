@@ -13,6 +13,15 @@ jest.mock("../../evalTreeWithChanges.ts", () => {
 });
 
 jest.mock("../../handlers/evalTree", () => {
+  const evalTree = {
+    JSObject1: {
+      var: {},
+      var2: new Set([1, 2]),
+      variables: ["var", "var2"],
+      ENTITY_TYPE: "JSACTION",
+    },
+  };
+
   return {
     dataTreeEvaluator: {
       setupUpdateTreeWithDifferences: () => ({
@@ -20,10 +29,12 @@ jest.mock("../../handlers/evalTree", () => {
         unEvalUpdates: [],
       }),
       evalAndValidateSubTree: () => ({ evalMetaUpdates: [] }),
-      evalTree: {
+      evalTree,
+      getEvalTree() {
+        return this.evalTree;
+      },
+      oldConfigTree: {
         JSObject1: {
-          var: {},
-          var2: new Set([1, 2]),
           variables: ["var", "var2"],
           ENTITY_TYPE: "JSACTION",
         },
@@ -89,9 +100,6 @@ describe("Mutation", () => {
 
     expect(modifiedVariablesList).toEqual([
       ["JSObject1", "var"],
-      ["JSObject1", "var", "b"],
-      ["JSObject1", "var", "b", "a"],
-      ["JSObject1", "var", "b", "a"],
       ["JSObject1", "var2"],
     ]);
   });

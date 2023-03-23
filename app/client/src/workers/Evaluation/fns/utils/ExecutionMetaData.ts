@@ -7,12 +7,13 @@ import type {
 export default class ExecutionMetaData {
   private static triggerMeta?: TriggerMeta;
   private static eventType?: EventType;
-  private static jsVarUpdateDisabled = false;
-  private static jsVarUpdateTrackingDisabled = false;
+  private static jsVarUpdateDisabled?: boolean;
+  private static jsVarUpdateTrackingDisabled?: boolean;
 
   static setExecutionMetaData(metaData: {
     triggerMeta?: TriggerMeta;
     eventType?: EventType;
+    enableJSFnPostProcessors?: boolean;
     jsVarUpdateDisabled?: boolean;
     jsVarUpdateTrackingDisabled?: boolean;
   }) {

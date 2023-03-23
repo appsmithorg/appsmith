@@ -1,12 +1,9 @@
-import type {
-  DataTreeEntity,
-  DataTreeJSAction,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-
 import JSObjectCollection from "./JSObject/Collection";
 import JSProxy from "./JSObject/JSVariableProxy";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
+import type { JSActionEntity } from "entities/DataTree/types";
 
 function getJSFunctionsForEntity({
   enableJSFnPostProcessors,
@@ -14,7 +11,7 @@ function getJSFunctionsForEntity({
   jsObjectName,
 }: {
   jsObjectName: string;
-  jsObject: DataTreeJSAction;
+  jsObject: JSActionEntity;
   enableJSFnPostProcessors: boolean;
 }) {
   const jsObjectFunction: Record<string, any> = {};

@@ -1018,7 +1018,8 @@ export default class DataTreeEvaluator {
             set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
-            const variableList: Array<string> = get(entity, "variables") || [];
+            const variableList: Array<string> =
+              get(entityConfig, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
               const prevEvaluatedValue = get(
                 this.evalProps,
