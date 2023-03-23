@@ -72,7 +72,11 @@ function ActionCard(props: TActionCardProps) {
 
   return (
     <button
-      className={clsx(selected && "border-[1px] !border-gray-500", className)}
+      className={clsx(
+        selected && "border-[1px] !border-gray-500",
+        className,
+        `t--action-card-value-${action}`,
+      )}
       data-testid={`action-card-${actionTypeLabel}`}
       onClick={props.onSelect}
     >

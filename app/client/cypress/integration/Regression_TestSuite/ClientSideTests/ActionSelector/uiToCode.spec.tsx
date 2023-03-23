@@ -1,7 +1,13 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { AggregateHelper, CommonLocators, EntityExplorer, PropertyPane } =
-  ObjectsRegistry;
+const {
+  AggregateHelper,
+  ApiPage,
+  CommonLocators,
+  EntityExplorer,
+  JSEditor,
+  PropertyPane,
+} = ObjectsRegistry;
 
 describe("UI to Code", () => {
   before(() => {
@@ -46,7 +52,7 @@ describe("UI to Code", () => {
     // Add second action
     PropertyPane.AddAction("onClick");
     cy.get(CommonLocators._dropDownValue("Navigate to")).click();
-    cy.get("#switcher--url").click();
+    cy.get(CommonLocators._openNavigationTab("url")).click();
     AggregateHelper.TypeText(
       CommonLocators._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -142,7 +148,7 @@ describe("UI to Code", () => {
     // Add second action
     PropertyPane.AddAction("onClick");
     cy.get(CommonLocators._dropDownValue("Navigate to")).click();
-    cy.get("#switcher--url").click();
+    cy.get(CommonLocators._openNavigationTab("url")).click();
     AggregateHelper.TypeText(
       CommonLocators._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -236,7 +242,7 @@ describe("UI to Code", () => {
     // Add second action
     PropertyPane.AddAction("onClick");
     cy.get(CommonLocators._dropDownValue("Navigate to")).click();
-    cy.get("#switcher--url").click();
+    cy.get(CommonLocators._openNavigationTab("url")).click();
     AggregateHelper.TypeText(
       CommonLocators._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -318,6 +324,77 @@ describe("UI to Code", () => {
     PropertyPane.ValidatePropertyFieldValue(
       "onClick",
       `{{navigateTo('https://google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("can add success and error callbacks", () => {
+    PropertyPane.AddAction("onClick");
+    cy.get(CommonLocators._dropDownValue("Show Alert")).click();
+    AggregateHelper.TypeText(
+      CommonLocators._actionSelectorFieldByLabel("Message"),
+      "Hello!",
+    );
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._actionCardByTitle("Show Alert")).click();
+
+    cy.get(CommonLocators._actionCallbacks).click();
+
+    // add a success callback
+    cy.get(CommonLocators._actionAddCallback("success")).click().wait(100);
+    cy.get(CommonLocators._dropDownValue("Store value")).click().wait(100);
+
+    // add an error callback
+    cy.get(CommonLocators._actionAddCallback("failure")).click().wait(100);
+    cy.get(CommonLocators._dropDownValue("Navigate to")).click().wait(100);
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{showAlert('Hello!', '').then(() => {  storeValue("", "");}).catch(() => {  navigateTo("", {}, 'SAME_WINDOW');});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("updates the success and failure callbacks for nested query actions", () => {
+    ApiPage.CreateApi("Api1", "GET");
+    ApiPage.CreateApi("Api2", "POST");
+
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.UpdatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {
+      Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
+     })}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+
+    // Select the card to show the callback button
+    cy.get(CommonLocators._actionCardByValue("Api1.run")).click();
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    // Click on the callback button
+    cy.get(CommonLocators._actionCallbacks).click();
+
+    // Edit the success callback of the nested Api2.run
+    cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
+    AggregateHelper.GetNClick(JSEditor._lineinPropertyPaneJsEditor(2), 0, true);
+    cy.get(JSEditor._lineinPropertyPaneJsEditor(2)).type("eeee");
+
+    // Edit the failure callback of the nested Api2.run
+    cy.get(CommonLocators._openNavigationTab("onFailure")).click();
+    AggregateHelper.GetNClick(JSEditor._lineinPropertyPaneJsEditor(2), 0, true);
+    cy.get(JSEditor._lineinPropertyPaneJsEditor(2)).type("oooo");
+
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });}).catch(() => {});}}`,
     );
     cy.get(CommonLocators._jsToggle("onclick")).click();
   });
