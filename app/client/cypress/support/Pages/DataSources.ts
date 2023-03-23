@@ -648,8 +648,8 @@ export class DataSources {
   }
 
   RunQuery({
-    toValidateResponse = true,
     expectedStatus = true,
+    toValidateResponse = true,
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
