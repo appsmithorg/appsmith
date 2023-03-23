@@ -1478,7 +1478,8 @@ export const BUILD_FIXED_LAYOUT_TEXT = () =>
 export const USE_SNAPSHOT = () => "USE SNAPSHOT";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding A Snapshot";
-export const SAVE_SNAPSHOT = () => "We Save a Snapshot of Your App";
+export const SAVE_SNAPSHOT = () =>
+  "Save a Snapshot of your Current Layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
   "We will create a snapshot of your whole app before the conversion, so that you can go back if auto layout is just not right for you";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
@@ -1506,12 +1507,14 @@ export const SNAPSHOT_LABEL = () =>
   "To revert back to the original state use this snapshot";
 export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+export const SNAPSHOT_WARNING_MESSAGE = () =>
+  "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
 export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
-  "Confirm all the pages are converted correctly before editing. Use the snapshot to go back. Discard only after reviewing all the pages.";
+  "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "USE THE SNAPSHOT";
 export const DISCARD_SNAPSHOT_CTA = () => "DISCARD THE SNAPSHOT";
 export const MORE_DETAILS = () => "More details";
@@ -1527,7 +1530,7 @@ export const SNAPSHOT_TIME_FROM_MESSAGE = (
 ) => `Snapshot from ${timeSince} ago (${readableDate})`;
 export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
   timeTillExpiration: string,
-) => `Snapshot expires in ${timeTillExpiration}`;
+) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
 export const DISCARD = () => "DISCARD";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
