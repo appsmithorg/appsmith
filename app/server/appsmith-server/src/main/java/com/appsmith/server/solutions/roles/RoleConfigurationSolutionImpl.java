@@ -536,15 +536,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                 }
 
                                 // Translate application permissions to theme permissions
-                                List<AclPermission> themeAdded = new ArrayList<>();
-                                List<AclPermission> themeRemoved = new ArrayList<>();
-
-                                for (AclPermission permission : added) {
-                                    themeAdded.add(translateThemePermissionGivenApplicationPermission(permission));
-                                }
-                                for (AclPermission permission : removed) {
-                                    themeRemoved.add(translateThemePermissionGivenApplicationPermission(permission));
-                                }
+                                List<AclPermission> themeAdded = getRequiredThemePermissionsGivenPermissions(added);
+                                List<AclPermission> themeRemoved = getRequiredThemePermissionsGivenPermissions(removed);
 
                                 if (!editModeTheme.isSystemTheme()) {
                                     sideEffectsClassMap.put(editModeThemeId, Theme.class);
@@ -587,6 +580,18 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             return MANAGE_THEMES;
         }
         return permission;
+    }
+
+    private List<AclPermission> getRequiredThemePermissionsGivenPermissions(List<AclPermission> permissionList) {
+        Set<AclPermission> themePermissionSet = new HashSet<>();
+        permissionList.forEach(givenPermission -> {
+            if (givenPermission == READ_APPLICATIONS) {
+                themePermissionSet.add(READ_THEMES);
+            } else if (givenPermission == MANAGE_APPLICATIONS) {
+                themePermissionSet.add(MANAGE_THEMES);
+            }
+        });
+        return themePermissionSet.stream().toList();
     }
 
     private void sideEffectOnReadWorkspaceGivenApplicationUpdate(List<Mono<Long>> sideEffects,
