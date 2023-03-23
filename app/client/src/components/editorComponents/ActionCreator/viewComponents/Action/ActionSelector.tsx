@@ -93,7 +93,8 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
             path.classList?.contains(label)) ||
           path.classList?.contains("bp3-overlay-backdrop") ||
           path.classList?.contains("evaluated-value-popup") ||
-          path.classList?.contains("subtree-container")
+          path.classList?.contains("subtree-container") ||
+          path.classList?.contains("drag-handle-block")
         ) {
           return;
         }
