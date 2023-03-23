@@ -174,3 +174,13 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     },
   );
 };
+
+export const getSelectedWidgetAncestry = (state: AppState) =>
+  state.ui.widgetDragResize.selectedWidgetAncestry;
+
+export const getEntityExplorerWidgetsToExpand = createSelector(
+  getSelectedWidgetAncestry,
+  (selectedWidgetAncestry: string[]) => {
+    return selectedWidgetAncestry.slice(1);
+  },
+);
