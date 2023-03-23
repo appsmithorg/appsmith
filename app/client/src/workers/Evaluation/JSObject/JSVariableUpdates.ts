@@ -4,6 +4,7 @@ import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { get, set } from "lodash";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -45,6 +46,7 @@ export default JSVariableUpdates;
 export function getUpdatedPaths(patches: Patch[]) {
   // store exact path to diff
   const updatedVariables = [];
+  const pushedPathsMap: Record<string, string> = {};
   for (const patch of patches) {
     const pathArray = patch.path.split(".");
     const [jsObjectName, varName] = pathArray;
@@ -55,8 +57,16 @@ export function getUpdatedPaths(patches: Patch[]) {
     const entityConfig = configTree[jsObjectName] as unknown as DataTreeEntity;
     if (!isJSAction(entityConfig)) continue;
     const variables = entityConfig.variables;
-    if (variables.includes(varName)) {
+    if (
+      variables.includes(varName) &&
+      !get(pushedPathsMap, [jsObjectName, varName])
+    ) {
       updatedVariables.push([jsObjectName, varName]);
+      set(
+        pushedPathsMap,
+        [jsObjectName, varName],
+        `${jsObjectName}.${varName}`,
+      );
     }
   }
   return updatedVariables;

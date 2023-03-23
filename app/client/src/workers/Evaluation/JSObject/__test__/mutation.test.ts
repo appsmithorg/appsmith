@@ -100,9 +100,6 @@ describe("Mutation", () => {
 
     expect(modifiedVariablesList).toEqual([
       ["JSObject1", "var"],
-      ["JSObject1", "var", "b"],
-      ["JSObject1", "var", "b", "a"],
-      ["JSObject1", "var", "b", "a"],
       ["JSObject1", "var2"],
     ]);
   });
