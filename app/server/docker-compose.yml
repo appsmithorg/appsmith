@@ -20,7 +20,7 @@ services:
       - ./container-volumes/git-storage:/data/git-storage
 
   mongo:
-    image: mongo:6
+    image: mongo:5
     environment:
       - MONGO_INITDB_DATABASE=appsmith
     volumes:
@@ -29,17 +29,17 @@ services:
       - appsmith
     command: "--replSet rs0"
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
 
   mongo-initiate:
-    image: mongo:6
+    image: mongo:5
     restart: "on-failure"
     depends_on:
       mongo:
         condition: service_started
     networks:
       - appsmith
-    entrypoint: [ "bash", "-c", "mongosh --host mongo:27017 --eval 'rs.initiate()'" ]
+    entrypoint: [ "bash", "-c", "mongo --host mongo:27017 --eval 'rs.initiate()'" ]
 
   redis:
     image: redis
