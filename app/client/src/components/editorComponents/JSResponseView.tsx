@@ -343,7 +343,6 @@ function JSResponseView(props: Props) {
       />
       <TabbedViewWrapper>
         <EntityBottomTabs
-          containerRef={panelRef}
           expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={setSelectedResponseTab}
           selectedTabKey={selectedResponseTab}

@@ -1,7 +1,8 @@
 import { Icon, IconSize } from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
+import { get } from "lodash";
 import DebuggerTabs from "./DebuggerTabs";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -9,13 +10,11 @@ import {
   showDebugger as showDebuggerAction,
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
-import { matchBuilderPath } from "constants/routes";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
@@ -40,29 +39,22 @@ const TriggerContainer = styled.div<{
   ${BottomBarCTAStyles}
 
   .debugger-count {
-    color: ${Colors.WHITE};
+    color: ${(props) => props.theme.colors.debugger.floatingButton.errorCount};
     ${getTypographyByKey("btnSmall")}
     height: 16px;
     width: 16px;
-    background-color: ${(props) =>
-      props.errorCount + props.warningCount > 0
-        ? props.errorCount === 0
-          ? props.theme.colors.debugger.floatingButton.warningCount
-          : props.theme.colors.debugger.floatingButton.errorCount
-        : props.theme.colors.debugger.floatingButton.noErrorCount};
-    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 0px;
-    left: 80%;
-    font-size: 10px;
-    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 400;
+    line-height 14px;
   }
 `;
 
 export function DebuggerTrigger() {
   const dispatch = useDispatch();
+  const theme = useTheme();
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
@@ -71,22 +63,17 @@ export function DebuggerTrigger() {
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
 
   const onClick = (e: any) => {
-    const isOnCanvas = matchBuilderPath(window.location.pathname);
-    if (isOnCanvas) {
-      dispatch(showDebuggerAction(!showDebugger));
-      if (!showDebugger)
-        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-          source: "CANVAS",
-        });
+    //Removed canavs condition
+    //Because we want to show debugger in all pages.
+    dispatch(showDebuggerAction(!showDebugger));
+    if (!showDebugger)
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "CANVAS",
+      });
+    //Removed as this logic was confusing
+    // Now on click of debugger we will always show error tab.
+    dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
 
-      return;
-    } else {
-      if (totalMessageCount > 0) {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-      } else {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
-      }
-    }
     stopEventPropagation(e);
   };
 
@@ -112,17 +99,15 @@ export function DebuggerTrigger() {
         }}
       >
         <Icon
-          fillColor={Colors.GRAY_700}
-          name="bug-line"
+          fillColor={get(theme, "colors.debugger.error.hoverIconColor")}
+          name="close-circle"
           onClick={onClick}
           size={IconSize.XXXL}
         />
       </TooltipComponent>
-      {!!messageCounters.errors && (
-        <div className="debugger-count t--debugger-count">
-          {totalMessageCount > 9 ? "9+" : totalMessageCount}
-        </div>
-      )}
+      <div className="debugger-count t--debugger-count">
+        {totalMessageCount > 9 ? "9+" : totalMessageCount}
+      </div>
     </TriggerContainer>
   );
 }

@@ -97,6 +97,8 @@ const SaveButtonContainer = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
+  gap: 9px;
+  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`

@@ -27,10 +27,15 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "../DataSourceEditor/Debugger";
 
 const HeaderFlex = styled.div`
   display: flex;
   align-items: center;
+  padding: 0 20px;
 `;
 
 const ApiHomePage = styled.div`
@@ -38,7 +43,7 @@ const ApiHomePage = styled.div`
   flex-direction: column;
 
   font-size: 20px;
-  padding: 20px 20px 0 20px;
+  padding-top: 20px;
   /* margin-left: 10px; */
   flex: 1;
   overflow: hidden !important;
@@ -59,11 +64,18 @@ const ApiHomePage = styled.div`
   .fontSize16 {
     font-size: 16px;
   }
+  .integrations-content-container {
+    padding: 0 20px;
+  }
+  .t--vertical-menu {
+    overflow: auto;
+  }
 `;
 
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
+  padding: 0 20px;
   .react-tabs__tab-list {
     margin: 2px;
   }
@@ -72,7 +84,7 @@ const MainTabsContainer = styled.div`
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr ${({ isActiveTab }) => isActiveTab && "180px"};
+  grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
   flex: 1;
@@ -515,21 +527,25 @@ class IntegrationsHomeScreen extends React.Component<
             {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
               <div />
             )}
-
-            {currentScreen}
-            {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-              <TabComponent
-                className="t--vertical-menu"
-                onSelect={this.onSelectSecondaryMenu}
-                selectedIndex={this.state.activeSecondaryMenuId}
-                tabs={
-                  this.props.mockDatasources.length > 0
-                    ? getSecondaryMenu(dataSources.length > 0)
-                    : SECONDARY_MENU
-                }
-                vertical
-              />
-            )}
+            <ResizerMainContainer>
+              <ResizerContentContainer className="integrations-content-container">
+                {currentScreen}
+                {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
+                  <TabComponent
+                    className="t--vertical-menu"
+                    onSelect={this.onSelectSecondaryMenu}
+                    selectedIndex={this.state.activeSecondaryMenuId}
+                    tabs={
+                      this.props.mockDatasources.length > 0
+                        ? getSecondaryMenu(dataSources.length > 0)
+                        : SECONDARY_MENU
+                    }
+                    vertical
+                  />
+                )}
+              </ResizerContentContainer>
+              <Debugger />
+            </ResizerMainContainer>
           </SectionGrid>
         </ApiHomePage>
       </>

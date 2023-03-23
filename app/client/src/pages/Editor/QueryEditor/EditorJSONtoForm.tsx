@@ -937,6 +937,11 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
+  // Render debugger flag
+  const showDebugger = useSelector(
+    (state: AppState) => state.ui.debugger.isOpen,
+  );
+
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
@@ -1100,63 +1105,63 @@ export function EditorJSONtoForm(props: Props) {
                 ]}
               />
             </TabContainerView>
+            {showDebugger ? (
+              <TabbedViewContainer
+                className="t--query-bottom-pane-container"
+                ref={panelRef}
+              >
+                <Resizable
+                  initialHeight={responsePaneHeight}
+                  onResizeComplete={(height: number) =>
+                    setResponsePaneHeight(height)
+                  }
+                  openResizer={isRunning}
+                  panelRef={panelRef}
+                  snapToHeight={ActionExecutionResizerHeight}
+                />
+                {isRunning && (
+                  <>
+                    <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
+                    <LoadingOverlayContainer>
+                      <div>
+                        <Text textAlign={"center"} type={TextType.P1}>
+                          {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+                        </Text>
+                        <CancelRequestButton
+                          category={Category.secondary}
+                          className={`t--cancel-action-button`}
+                          onClick={() => {
+                            handleCancelActionExecution();
+                          }}
+                          size={Size.medium}
+                          tag="button"
+                          text="Cancel Request"
+                          type="button"
+                        />
+                      </div>
+                    </LoadingOverlayContainer>
+                  </>
+                )}
 
-            <TabbedViewContainer
-              className="t--query-bottom-pane-container"
-              ref={panelRef}
-            >
-              <Resizable
-                initialHeight={responsePaneHeight}
-                onResizeComplete={(height: number) =>
-                  setResponsePaneHeight(height)
-                }
-                openResizer={isRunning}
-                panelRef={panelRef}
-                snapToHeight={ActionExecutionResizerHeight}
-              />
-              {isRunning && (
-                <>
-                  <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                  <LoadingOverlayContainer>
-                    <div>
-                      <Text textAlign={"center"} type={TextType.P1}>
-                        {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
-                      </Text>
-                      <CancelRequestButton
-                        category={Category.secondary}
-                        className={`t--cancel-action-button`}
-                        onClick={() => {
-                          handleCancelActionExecution();
-                        }}
-                        size={Size.medium}
-                        tag="button"
-                        text="Cancel Request"
-                        type="button"
-                      />
-                    </div>
-                  </LoadingOverlayContainer>
-                </>
-              )}
+                {output && !!output.length && (
+                  <ResultsCount>
+                    <Text type={TextType.P3}>
+                      Result:
+                      <Text type={TextType.H5}>{` ${output.length} Record${
+                        output.length > 1 ? "s" : ""
+                      }`}</Text>
+                    </Text>
+                  </ResultsCount>
+                )}
 
-              {output && !!output.length && (
-                <ResultsCount>
-                  <Text type={TextType.P3}>
-                    Result:
-                    <Text type={TextType.H5}>{` ${output.length} Record${
-                      output.length > 1 ? "s" : ""
-                    }`}</Text>
-                  </Text>
-                </ResultsCount>
-              )}
-
-              <EntityBottomTabs
-                containerRef={panelRef}
-                expandedHeight={`${ActionExecutionResizerHeight}px`}
-                onSelect={setSelectedResponseTab}
-                selectedTabKey={selectedResponseTab}
-                tabs={responseTabs}
-              />
-            </TabbedViewContainer>
+                <EntityBottomTabs
+                  expandedHeight={`${ActionExecutionResizerHeight}px`}
+                  onSelect={setSelectedResponseTab}
+                  selectedTabKey={selectedResponseTab}
+                  tabs={responseTabs}
+                />
+              </TabbedViewContainer>
+            ) : null}
           </SecondaryWrapper>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}

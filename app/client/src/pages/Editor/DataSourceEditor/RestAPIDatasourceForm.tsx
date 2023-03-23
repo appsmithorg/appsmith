@@ -102,6 +102,9 @@ type Props = DatasourceRestApiEditorProps &
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
+  .t--save-and-authorize-datasource {
+    margin-left: 20px;
+  }
 `;
 
 const StyledButton = styled(Button)`
@@ -446,7 +449,11 @@ class DatasourceRestAPIEditor extends React.Component<
     const { formData } = this.props;
 
     return (
-      <section data-cy="section-General" data-replay-id="section-General">
+      <section
+        className="t--section-general"
+        data-cy="section-General"
+        data-replay-id="section-General"
+      >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "url",

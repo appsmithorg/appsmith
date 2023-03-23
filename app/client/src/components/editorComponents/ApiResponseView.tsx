@@ -646,7 +646,6 @@ function ApiResponseView(props: Props) {
           </ResponseMetaWrapper>
         )}
         <EntityBottomTabs
-          containerRef={panelRef}
           expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={updateSelectedResponseTab}
           selectedTabKey={selectedResponseTab}

@@ -379,6 +379,14 @@ export const filePickerCallbackAction = (data: {
   };
 };
 
+// This action is used to set the datasource pane height
+export const setDatasourcePaneResponsePaneHeight: (
+  payload: number,
+) => ReduxAction<{ height: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_DATASOURCE_PANE_RESPONSE_PANE_HEIGHT,
+  payload: { height: payload },
+});
+
 export default {
   fetchDatasources,
   initDatasourcePane,

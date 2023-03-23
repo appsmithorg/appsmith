@@ -10,6 +10,7 @@ import styled from "styled-components";
 const StyledAuthMessage = styled.div`
   max-width: 560px;
   margin-bottom: 16px;
+  padding: 0 20px;
   & > div {
     margin: 0;
   }

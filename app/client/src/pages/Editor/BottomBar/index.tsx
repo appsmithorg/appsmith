@@ -23,12 +23,19 @@ const Container = styled.div`
   padding: 0 ${(props) => props.theme.spaces[11]}px;
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+`;
+
 export default function BottomBar(props: { className?: string }) {
   const isMultiPane = useSelector(isMultiPaneActive);
   return (
     <Container className={props.className ?? ""}>
       <QuickGitActions />
-      <div className="flex justify-between items-center gap-1">
+      <Wrapper>
         <ManualUpgrades showTooltip>
           <Icon
             className="t--upgrade"
@@ -40,7 +47,7 @@ export default function BottomBar(props: { className?: string }) {
         <HelpButton />
         <DebuggerTrigger />
         {isMultiPane && <PaneCountSwitcher />}
-      </div>
+      </Wrapper>
     </Container>
   );
 }
