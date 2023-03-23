@@ -49,6 +49,7 @@ export type ConversionProps = {
     labelText: string;
   };
   snapShotDetails?: {
+    postText?: string;
     labelText?: string;
     icon: string;
     text: string;
@@ -73,6 +74,18 @@ export function ConversionForm<T>(
       snapShotDetails,
       spinner,
     } = conversionHook(props.onCancel, hookProps);
+
+    const snapShotStyles: React.CSSProperties = {};
+    if (snapShotDetails) {
+      if (!snapShotDetails.labelText) {
+        snapShotStyles.marginTop = "24px";
+      }
+
+      if (!snapShotDetails.postText) {
+        snapShotStyles.marginBottom = "16px";
+      }
+    }
+
     return (
       <>
         {bannerMessageDetails && (
@@ -147,8 +160,8 @@ export function ConversionForm<T>(
               </div>
             )}
             <div
-              className="h-14 mb-4 flex flex-row border border-gray-200 items-center"
-              style={snapShotDetails.labelText ? {} : { marginTop: "24px" }}
+              className="h-14 flex flex-row border border-gray-200 items-center"
+              style={snapShotStyles}
             >
               <Icon
                 className="mx-3"
@@ -161,6 +174,13 @@ export function ConversionForm<T>(
               />
               <Text type={TextType.H4}>{snapShotDetails.text}</Text>
             </div>
+            {snapShotDetails.postText && (
+              <div className="pt-2 mb-3">
+                <Text type={TextType.P3} weight={400}>
+                  {snapShotDetails.postText}
+                </Text>
+              </div>
+            )}
           </>
         )}
         <div className="flex flex-row pt-6 justify-between align-">
