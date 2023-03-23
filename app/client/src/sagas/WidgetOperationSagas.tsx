@@ -1367,7 +1367,7 @@ function* pasteWidgetSaga(
     flexLayers: FlexLayer[];
   } = yield getCopiedWidgets();
 
-  let copiedWidgetGroups = [...copiedWidgets];
+  let copiedWidgetGroups = copiedWidgets ? [...copiedWidgets] : [];
   const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];
