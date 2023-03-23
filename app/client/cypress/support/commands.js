@@ -1238,12 +1238,12 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).click();
   cy.get(welcomePage.newsLetter).should("be.visible");
   cy.get(welcomePage.dataCollection).should("be.visible");
-  cy.get(welcomePage.dataCollection).trigger("mouseover").click();
+  //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   cy.get(welcomePage.newsLetter).trigger("mouseover").click();
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click();
   cy.wait("@createSuperUser").then((interception) => {
-    expect(interception.request.body).not.contains(
+    expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",
     );
     expect(interception.request.body).not.contains("signupForNewsletter=true");

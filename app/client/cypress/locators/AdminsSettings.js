@@ -26,4 +26,6 @@ export default {
   formSignupDisabled: "[data-cy='APPSMITH_SIGNUP_DISABLED']",
   formLoginDisabled: "[data-cy='APPSMITH_FORM_LOGIN_DISABLED']",
   embedSettings: ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS",
+  usageDataCheckbox: "[data-cy='APPSMITH_DISABLE_TELEMETRY'] > input",
+  restartServer: ".t--admin-settings-restart-notice"
 };
