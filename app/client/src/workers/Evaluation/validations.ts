@@ -1094,8 +1094,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           config.params.fnString,
           {},
           {},
-          false,
           {},
+          false,
           undefined,
           [value, props, _, moment, propertyPath, config],
         );
