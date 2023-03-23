@@ -43,9 +43,10 @@ import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
+import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
-
+const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
@@ -108,6 +109,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
     }, equal);
 
+    const selectedWidgetAncestry: string[] = useSelector((state: AppState) => {
+      if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) {
+        return [];
+      }
+      return getSelectedWidgetAncestry(state);
+    }, equal);
+
     let widgetProps: WidgetProps = {} as WidgetProps;
 
     const widget = metaWidget || canvasWidget;
@@ -151,6 +159,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps.isMobile = !!isMobile;
       widgetProps.appPositioningType = appPositioningType;
+      widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
@@ -208,12 +217,17 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     widgetProps.googleMapsApiKey = googleMapsApiKey;
 
     // isVisible prop defines whether to render a detached widget
-    if (widgetProps.detachFromLayout && !widgetProps.isVisible) {
+    if (
+      widgetProps.detachFromLayout &&
+      !widgetProps.isVisible &&
+      !selectedWidgetAncestry.includes(widgetProps.widgetId)
+    ) {
       return null;
     }
 
     const shouldCollapseWidgetInViewOrPreviewMode =
       !widgetProps.isVisible &&
+      !selectedWidgetAncestry.includes(widgetProps.widgetId) &&
       (renderMode === RenderModes.PAGE || isPreviewMode);
 
     const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
