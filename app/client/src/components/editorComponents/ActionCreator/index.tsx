@@ -136,6 +136,7 @@ const ActionCreator = React.forwardRef(
         newActions[id] = newValueWithoutMoustache;
       } else {
         delete newActions[id];
+        !actions[id] && setActions(newActions);
       }
       save(newActions);
     };
