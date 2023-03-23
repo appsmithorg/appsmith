@@ -378,14 +378,6 @@ describe("UI to Code", () => {
 
     // Edit the success callback of the nested Api2.run
     cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
-    AggregateHelper.GetNClick(
-      JSEditor._lineinPropertyPaneJsEditor(
-        2,
-        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
-      ),
-      0,
-      true,
-    );
     cy.get(
       JSEditor._lineinPropertyPaneJsEditor(
         2,
@@ -395,14 +387,6 @@ describe("UI to Code", () => {
 
     // Edit the failure callback of the nested Api2.run
     cy.get(CommonLocators._openNavigationTab("onFailure")).click();
-    AggregateHelper.GetNClick(
-      JSEditor._lineinPropertyPaneJsEditor(
-        2,
-        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
-      ),
-      0,
-      true,
-    );
     cy.get(
       JSEditor._lineinPropertyPaneJsEditor(
         2,
@@ -439,14 +423,6 @@ describe("UI to Code", () => {
 
     // Edit the success callback of the nested Api2.run
     cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
-    AggregateHelper.GetNClick(
-      JSEditor._lineinPropertyPaneJsEditor(
-        2,
-        CommonLocators._actionSelectorFieldContentByLabel("Params"),
-      ),
-      0,
-      true,
-    );
     cy.get(
       JSEditor._lineinPropertyPaneJsEditor(
         2,
@@ -488,6 +464,31 @@ describe("UI to Code", () => {
     PropertyPane.ValidatePropertyFieldValue(
       "onClick",
       `{{Api1.run(() => {  showAlert("Hello");  storeValue("", "");}, () => {});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("correctly configures a setInterval action", () => {
+    PropertyPane.AddAction("onClick");
+    cy.get(CommonLocators._dropDownValue("Set interval")).click();
+
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+    ).type("{enter}showAlert('Hello'){enter}//");
+
+    AggregateHelper.TypeText(
+      CommonLocators._actionSelectorFieldByLabel("Id"),
+      "interval-id",
+    );
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{setInterval(() => {  // add c  showAlert(\'Hello\');  // ode here}, 5000, \'interval-id\');}}`,
     );
     cy.get(CommonLocators._jsToggle("onclick")).click();
   });
