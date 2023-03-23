@@ -5,7 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -51,16 +51,16 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
 
     @JsonView(Views.Public.class)
     @GetMapping("/{workspaceId}/members")
-    public Mono<ResponseDTO<List<WorkspaceMemberInfoDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
+    public Mono<ResponseDTO<List<MemberInfoDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
         return userWorkspaceService.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/{workspaceId}/permissionGroup")
-    public Mono<ResponseDTO<WorkspaceMemberInfoDTO>> updatePermissionGroupForMember(@RequestBody UpdatePermissionGroupDTO updatePermissionGroupDTO,
-                                                                                    @PathVariable String workspaceId,
-                                                                                    @RequestHeader(name = "Origin", required = false) String originHeader) {
+    public Mono<ResponseDTO<MemberInfoDTO>> updatePermissionGroupForMember(@RequestBody UpdatePermissionGroupDTO updatePermissionGroupDTO,
+                                                                           @PathVariable String workspaceId,
+                                                                           @RequestHeader(name = "Origin", required = false) String originHeader) {
         return userWorkspaceService.updatePermissionGroupForMember(workspaceId, updatePermissionGroupDTO, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
