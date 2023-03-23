@@ -43,6 +43,12 @@ const FlexWidget = styled.div`
   position: relative;
 `;
 
+const WIDGETS_WITH_MARGIN = [
+  "BUTTON_WIDGET",
+  "BUTTON_GROUP_WIDGET",
+  "CHECKBOX_WIDGET",
+];
+
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
 
@@ -94,6 +100,9 @@ export function FlexComponent(props: AutoLayoutProps) {
           props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
         }px`,
     margin: WIDGET_PADDING / 2 + "px",
+    marginBottom: WIDGETS_WITH_MARGIN.includes(props.widgetType)
+      ? "6px"
+      : "0px",
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
