@@ -93,7 +93,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -122,7 +122,11 @@ import { setEditorFieldFocusAction } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
-import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
+import {
+  getCodeCommentKeyMap,
+  getLineCommentString,
+  handleCodeComment,
+} from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
@@ -214,7 +218,6 @@ export type EditorProps = EditorStyleProps &
     // On focus and blur event handler
     onEditorBlur?: () => void;
     onEditorFocus?: () => void;
-    lineCommentString?: string;
     evaluatedPopUpLabel?: string;
   };
 
@@ -244,7 +247,6 @@ class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
-    lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -309,6 +311,8 @@ class CodeEditor extends Component<Props, State> {
         },
       };
 
+      const lineCommentString = getLineCommentString(this.props.mode);
+
       const gutters = new Set<string>();
 
       if (!this.props.input.onChange || this.props.disabled) {
@@ -319,11 +323,7 @@ class CodeEditor extends Component<Props, State> {
       const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
         [moveCursorLeftKey]: "goLineStartSmart",
-        [getCodeCommentKeyMap()]: handleCodeComment(
-          // We've provided the default props value for lineCommentString
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          this.props.lineCommentString!,
-        ),
+        [getCodeCommentKeyMap()]: handleCodeComment(lineCommentString),
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {

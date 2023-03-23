@@ -38,6 +38,7 @@
     "@welldone-software/why-did-you-render": "^4.2.5",
     "acorn-walk": "^8.2.0",
     "algoliasearch": "^4.2.0",
+    "assert-never": "^1.2.1",
     "astring": "^1.7.5",
     "axios": "^0.27.2",
     "classnames": "^2.3.1",
@@ -188,10 +189,7 @@
     "storybook": "yarn workspace @design-system/storybook storybook"
   },
   "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
+    "defaults and supports es6-module"
   ],
   "devDependencies": {
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",

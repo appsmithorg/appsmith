@@ -1,8 +1,16 @@
-// This JSON file configures the eslint plugin. It supports comments as well as per the JSON5 spec
+// This file is a base for all package-specific ESLint configurations
 {
+  "$schema": "http://json.schemastore.org/eslintrc",
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks","sort-destructure-keys", "cypress"],
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "prettier",
+    "react-hooks",
+    "sort-destructure-keys",
+    "cypress"
+  ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
@@ -37,22 +45,12 @@
     "react/jsx-sort-props": "error",
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
-    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
+    "sort-destructure-keys/sort-destructure-keys": [
+      "error",
+      { "caseSensitive": false }
+    ],
     "no-console": "warn",
-    "no-debugger": "warn",
-    "no-restricted-imports": ["error", {
-      "patterns": [{
-        "group": ["@blueprintjs/core/lib/esnext/*"],
-        "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
-      }, {
-        "group": ["*.svg"],
-        "importNames": ["ReactComponent"],
-        "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from design-system-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
-      }, {
-        "group": ["remixicon-react/*"],
-        "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
-      }]
-  }]
+    "no-debugger": "warn"
   },
   "settings": {
     "import/resolver": {

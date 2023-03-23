@@ -11,7 +11,6 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
-import CodeEditor from "../CodeEditor";
 import { Button, Size, TabComponent } from "design-system-old";
 import {
   evaluateArgument,
@@ -40,6 +39,7 @@ import { getTypographyByKey, Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
+import LazyCodeEditor from "../LazyCodeEditor";
 import { importSvg } from "design-system-old";
 
 const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
@@ -347,7 +347,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 onKeyDown={(e) => e.stopPropagation()}
               >
                 <span>{arg.name}</span>
-                <CodeEditor
+                <LazyCodeEditor
                   errors={evaluatedArguments[arg.name]?.errors}
                   evaluatedValue={evaluatedArguments[arg.name]?.value}
                   expected={getExpectedValue({ type: arg.type })}
