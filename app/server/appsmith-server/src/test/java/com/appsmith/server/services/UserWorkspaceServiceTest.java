@@ -14,7 +14,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -245,7 +245,7 @@ public class UserWorkspaceServiceTest {
 
         Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId())
                 .flatMapMany(workspaceMembers -> Flux.fromIterable(workspaceMembers))
-                .map(WorkspaceMemberInfoDTO::getUserId)
+                .map(MemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
                 .block();
 
@@ -329,7 +329,7 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<MemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier
                 .create(updateUserRoleMono)
@@ -369,13 +369,15 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<MemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier.create(updateUserRoleMono)
                 .assertNext(userRole1 -> {
                             assertEquals(usertest.getUsername(), userRole1.getUsername());
-                            assertEquals(developerPermissionGroup.getId(), userRole1.getPermissionGroupId());
-                            assertEquals(developerPermissionGroup.getName(), userRole1.getPermissionGroupName());
+                            assertEquals(userRole1.getRoles().size(), 1);
+                            assertEquals(developerPermissionGroup.getId(), userRole1.getRoles().get(0).getId());
+                            assertEquals(developerPermissionGroup.getName(), userRole1.getRoles().get(0).getName());
+                            assertEquals(Workspace.class.getSimpleName(), userRole1.getRoles().get(0).getEntityType());
                         }
                 )
                 .verifyComplete();
