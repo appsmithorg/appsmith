@@ -225,7 +225,7 @@ describe("Canvas context widget selection", function () {
     cy.get(".t--property-pane-title").should("contain", "Text1");
   });
 
-  it.skip("9. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back and forth between pages", function () {
+  it("9. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back and forth between pages", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     cy.SearchEntityandOpen("Button4", "Widgets");
@@ -251,7 +251,7 @@ describe("Canvas context widget selection", function () {
     cy.get(".t--property-pane-title").should("contain", "Button4");
   });
 
-  it.skip("10. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back to page from API pane", function () {
+  it("10. Widget inside non default tab in tab widget should be selected and the given tab should be open while switching back to page from API pane", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     cy.SearchEntityandOpen("Button4", "Widgets");
