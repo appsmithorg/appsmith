@@ -82,7 +82,7 @@ describe("Content Management System App", function () {
       .find("textarea")
       .type("Task completed", { force: true });
     cy.get(appPage.confirmButton).closest("div").click({ force: true });
-    cy.get(appPage.closeButton).closest("div").click({ force: true });
+    cy.get(appPage.closeButton).eq(0).closest("div").click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
     //cy.xpath(appPage.datasourcesbutton).click({ force: true });
     cy.CheckAndUnfoldEntityItem("Queries/JS");

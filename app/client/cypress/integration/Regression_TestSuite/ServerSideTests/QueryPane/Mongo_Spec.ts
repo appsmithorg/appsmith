@@ -36,6 +36,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.CreateDataSource("Mongo", false);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.Sleep();
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
 

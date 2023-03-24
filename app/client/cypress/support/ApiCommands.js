@@ -9,6 +9,9 @@ const commonlocators = require("../locators/commonlocators.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 
+import { ObjectsRegistry } from "../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -59,7 +62,7 @@ Cypress.Commands.add("CreateAPI", (apiname) => {
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   if (apiname) {
-    cy.renameWithInPane(apiname);
+    agHelper.RenameWithInPane(apiname);
     cy.WaitAutoSave();
   }
   // Added because api name edit takes some time to
