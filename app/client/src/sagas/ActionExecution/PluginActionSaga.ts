@@ -34,7 +34,18 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
+import {
+  get,
+  isArray,
+  isString,
+  set,
+  find,
+  isNil,
+  flatten,
+  isArrayBuffer,
+  unset,
+  isEmpty,
+} from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -115,6 +126,7 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "widgets/FilePickerWidgetV2/widget";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -181,7 +193,14 @@ function* readBlob(blobUrl: string): any {
     if (fileType === FileDataTypes.Base64) {
       reader.readAsDataURL(file);
     } else if (fileType === FileDataTypes.Binary) {
-      reader.readAsBinaryString(file);
+      //check size of the file, if less than 5mb, go with binary string method
+      // else go with array buffer method
+      if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
+        // TODO: this method is deprecated, use readAsText instead
+        reader.readAsBinaryString(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     } else {
       reader.readAsText(file);
     }
@@ -228,6 +247,12 @@ function* resolvingBlobUrls(
       const blobUrl = value[blobUrlPath] as string;
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
+      const blobUrlPaths = get(value, "blobUrlPaths", {}) as Record<
+        string,
+        string
+      >;
+      set(blobUrlPaths, blobUrlPath, blobUrl);
+      set(value, "blobUrlPaths", blobUrlPaths);
     }
   } else if (isBlobUrl(value)) {
     // @ts-expect-error: Values can take many types
@@ -283,6 +308,11 @@ function* evaluateActionParams(
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
 
+  // Maintain a blob map to resolve blob urls of large files
+  const blobMap: Record<string, string> = {};
+  // Maintain a blob data map to resolve blob urls of large files as array buffer
+  const blobDataMap: Record<string, Blob> = {};
+
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
@@ -313,11 +343,30 @@ function* evaluateActionParams(
       value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
     }
 
+    let useBlobMaps = false;
+
     if (typeof value === "object") {
+      // This is used in cases of large files
+      if (value.hasOwnProperty("blobUrlPaths")) {
+        Object.entries(value.blobUrlPaths as Record<string, string>).forEach(
+          ([path, blobUrl]) => {
+            if (isArrayBuffer(value[path])) {
+              useBlobMaps = true;
+              set(blobMap, blobUrl, `k${i}`);
+              set(blobDataMap, path, new Blob([value[path]]));
+              unset(value, path);
+            }
+          },
+        );
+      }
+      if (useBlobMaps) unset(value, "blobUrlPaths");
+
       value = JSON.stringify(value);
     }
 
-    value = new Blob([value], { type: "text/plain" });
+    if (!useBlobMaps) {
+      value = new Blob([value], { type: "text/plain" });
+    }
     bindingsMap[key] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
   }
@@ -325,6 +374,18 @@ function* evaluateActionParams(
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
+
+  // Append blob map and blob data map to formData if not empty
+  if (!isEmpty(blobMap) && !isEmpty(blobDataMap)) {
+    // blobMap is used to resolve blob urls of large files
+    formData.append("blobMap", JSON.stringify(blobMap));
+
+    // blobDataMap is used to resolve blob urls of large files as array buffer
+    // we need to add each blob data to formData as a separate entry
+    Object.entries(blobDataMap).forEach(([path, blobData]) =>
+      formData.append(path, blobData),
+    );
+  }
 }
 
 export default function* executePluginActionTriggerSaga(
