@@ -209,7 +209,7 @@ export const removeFunctionsAndVariableJSCollection = (
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entityName}.variables`, []);
+  set(oldConfig, `${entityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
     unset(modifiedDataTree[entityName], varName);
