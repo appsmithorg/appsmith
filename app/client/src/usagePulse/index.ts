@@ -26,15 +26,18 @@ class UsagePulse {
 
   static sendPulse() {
     const payload = getUsagePulsePayload(
-      this.isTelemetryEnabled,
-      this.isAnonymousUser,
+      UsagePulse.isTelemetryEnabled,
+      UsagePulse.isAnonymousUser,
     );
-    fetchWithRetry(
-      PULSE_API_ENDPOINT,
+
+    const fetchWithRetryConfig = {
+      url: PULSE_API_ENDPOINT,
       payload,
-      PULSE_API_MAX_RETRY_COUNT,
-      PULSE_API_RETRY_TIMEOUT * 1000,
-    );
+      retries: PULSE_API_MAX_RETRY_COUNT,
+      retryTimeout: PULSE_API_RETRY_TIMEOUT,
+    };
+
+    fetchWithRetry(fetchWithRetryConfig);
   }
 
   static registerActivityListener() {

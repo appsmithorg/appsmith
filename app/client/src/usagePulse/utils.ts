@@ -7,28 +7,34 @@ import store from "store";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FALLBACK_KEY } from "./constants";
 
-//todo: Return a promise to handle error after retries
-export const fetchWithRetry = (
-  url: string,
-  data: object,
-  retries: number,
-  retryTimeout: number,
-) => {
-  fetch(url, {
+//TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
+export const fetchWithRetry = (config: {
+  url: any;
+  payload: Record<string, unknown>;
+  retries: number;
+  retryTimeout: number;
+}) => {
+  fetch(config.url, {
     method: "POST",
     credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(config.payload),
     keepalive: true,
   })
     .then((res) => {
       if (!res.ok) throw new Error();
     })
     .catch(() => {
-      if (retries > 0) {
-        setTimeout(fetchWithRetry, retryTimeout, url, data, retries - 1);
+      if (config.retries > 0) {
+        setTimeout(
+          fetchWithRetry,
+          config.retryTimeout,
+          config.url,
+          config.payload,
+          config.retries - 1,
+        );
       } else throw noop;
     });
 };
@@ -48,11 +54,13 @@ export const getUsagePulsePayload = (
   const data: Record<string, unknown> = {
     viewMode: mode === APP_MODE.PUBLISHED,
   };
+
   if (isAnonymousUser) {
     if (isTelemetryEnabled) {
       data["anonymousUserId"] = AnalyticsUtil.getAnonymousId();
     } else {
       let fallback = localStorage.getItem(FALLBACK_KEY);
+
       if (!fallback) {
         fallback = nanoid() as string;
         localStorage.setItem(FALLBACK_KEY, fallback);

@@ -181,11 +181,7 @@ export function* runUserSideEffectsSaga() {
     }
   }
 
-  if (
-    //@ts-expect-error: response is of type unknown
-    !currentUser.isAnonymous &&
-    currentUser.username !== ANONYMOUS_USERNAME
-  ) {
+  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
     enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
   }
 
@@ -193,7 +189,7 @@ export function* runUserSideEffectsSaga() {
   UsagePulse.stopTrackingActivity();
   UsagePulse.startTrackingActivity(
     enableTelemetry && getAppsmithConfigs().segment.enabled,
-    (currentUser as any)?.isAnonymous,
+    currentUser?.isAnonymous ?? false,
   );
 
   yield put(initAppLevelSocketConnection());
