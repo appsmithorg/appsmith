@@ -18,14 +18,13 @@ public class ExchangeUtils {
      * Returns the value of the given header, from the _current_ request. Since this gets the header from
      * the current request, it has to be called from a request context. It won't work in new background contexts, like
      * when calling `.subscribe()` on a Mono.
-     * @return a Mono that resolves to the value of the given header, if present. Else, `FieldName.ANONYMOUS_USER`.
+     * @return a Mono that resolves to the value of the given header, if present. Else, an empty Mono.
      * @param headerName The header name to look for.
      */
     public static Mono<String> getHeaderFromCurrentRequest(String headerName) {
         return Mono.deferContextual(Mono::just)
-                .map(contextView -> ObjectUtils.defaultIfNull(
-                        contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst(headerName),
-                        FieldName.ANONYMOUS_USER
+                .flatMap(contextView -> Mono.justOrEmpty(
+                        contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst(headerName)
                 ))
                 // An error is thrown when the context is not available. We don't want to fail the request in this case.
                 .onErrorResume(error -> Mono.empty());
