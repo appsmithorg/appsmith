@@ -42,6 +42,9 @@ export const initialState: any = {
     },
   },
   ui: {
+    appSettingsPane: {
+      isOpen: false,
+    },
     appTheming: {
       selectedTheme: {
         properties: {
@@ -143,7 +146,7 @@ describe("App viewer fork button", () => {
     render(
       <Provider store={getStore()}>
         <ThemeProvider theme={lightTheme}>
-          <PrimaryCTA />
+          <PrimaryCTA navColorStyle="solid" primaryColor="red" />
         </ThemeProvider>
       </Provider>,
     );
@@ -155,7 +158,7 @@ describe("App viewer fork button", () => {
     render(
       <Provider store={getStore("SET_CURRENT_USER_DETAILS")}>
         <ThemeProvider theme={lightTheme}>
-          <PrimaryCTA />
+          <PrimaryCTA navColorStyle="solid" primaryColor="red" />
         </ThemeProvider>
       </Provider>,
     );

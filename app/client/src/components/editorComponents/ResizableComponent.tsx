@@ -9,6 +9,7 @@ import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Resizable from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -65,6 +66,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -277,7 +281,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     isWidgetFocused &&
     !props.resizeDisabled &&
     !isSnipingMode &&
-    !isPreviewMode;
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -322,7 +327,10 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.isFlexChild;
   const isHovered = isFocused && !isSelected;
   const showResizeBoundary =
-    !isPreviewMode && !isDragging && (isHovered || isSelected);
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen &&
+    !isDragging &&
+    (isHovered || isSelected);
   return (
     <Resizable
       allowResize={allowResize}
