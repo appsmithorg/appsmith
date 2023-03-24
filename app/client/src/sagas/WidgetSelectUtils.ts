@@ -272,7 +272,7 @@ export function assertParentId(parentId: unknown): asserts parentId is string {
 }
 
 export function* setWidgetAncestry(
-  parentId: string,
+  parentId: string | undefined,
   allWidgets: CanvasWidgetsReduxState,
 ) {
   // Fill up the ancestry of widget
