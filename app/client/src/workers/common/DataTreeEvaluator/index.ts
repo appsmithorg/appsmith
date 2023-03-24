@@ -53,6 +53,7 @@ import {
   isNewEntity,
   getStaleMetaStateIds,
   convertJSFunctionsToString,
+  DataTreeDiffEvent,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -384,6 +385,7 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
     pathsToClearErrorsFor: any[];
+    isNewWidgetAdded: boolean;
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
@@ -458,8 +460,10 @@ export default class DataTreeEvaluator {
         lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
+        isNewWidgetAdded: false,
       };
     }
+    let isNewWidgetAdded = false;
 
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
@@ -467,6 +471,21 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+
+    /** We need to know if a new widget was added so that we do not fire ENTITY_BINDING_SUCCESS event */
+    for (let i = 0; i < translatedDiffs.length; i++) {
+      const diffEvent = translatedDiffs[i];
+      if (diffEvent.event === DataTreeDiffEvent.NEW) {
+        const entity = localUnEvalTree[diffEvent.payload.propertyPath];
+
+        if (isWidget(entity)) {
+          isNewWidgetAdded = true;
+
+          break;
+        }
+      }
+    }
+
     const diffCheckTimeStopTime = performance.now();
     this.logs.push({
       differences,
@@ -520,6 +539,7 @@ export default class DataTreeEvaluator {
         findDifferenceTime,
         updateDependencyMapTime,
         configTree,
+        isNewWidgetAdded,
       }),
       jsUpdates,
     };
@@ -582,6 +602,7 @@ export default class DataTreeEvaluator {
       findDifferenceTime?: string;
       updateDependencyMapTime?: string;
       configTree: ConfigTree;
+      isNewWidgetAdded: boolean;
     },
   ) {
     const {
@@ -595,6 +616,7 @@ export default class DataTreeEvaluator {
       findDifferenceTime = "0",
       updateDependencyMapTime = "0",
       configTree,
+      isNewWidgetAdded,
     } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
@@ -663,6 +685,7 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrderSet,
       ),
       pathsToClearErrorsFor,
+      isNewWidgetAdded,
     };
   }
 
@@ -679,6 +702,7 @@ export default class DataTreeEvaluator {
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
         pathsToClearErrorsFor: [],
+        isNewWidgetAdded: false,
       };
     }
 
