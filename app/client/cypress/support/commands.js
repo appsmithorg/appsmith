@@ -1017,6 +1017,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept({
     method: "PUT",
   }).as("sucessSave");
+
+  cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
+    req.reply((res) => {
+      res.send({
+        //status: 200,
+        body: {
+          success: false, //since anything can be faked!
+        },
+      });
+    });
+  });
+  cy.intercept("GET", "/settings/general").as("getGeneral");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
