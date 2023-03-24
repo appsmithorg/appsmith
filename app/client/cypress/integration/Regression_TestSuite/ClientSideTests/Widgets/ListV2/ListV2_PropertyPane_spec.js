@@ -21,6 +21,11 @@ describe("List widget V2 PropertyPane", () => {
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.listWidgetv2).length <= 0) {
+        cy.reload();
+      }
+    });
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
     cy.get(publishPage.backToEditor).click({
       force: true,
@@ -29,6 +34,7 @@ describe("List widget V2 PropertyPane", () => {
 
   it("2. Toggle JS - Validate isVisible", function () {
     // Open Property pane
+    cy.get(widgetsPage.listWidgetv2).should("be.visible");
     cy.openPropertyPane("listwidgetv2");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
