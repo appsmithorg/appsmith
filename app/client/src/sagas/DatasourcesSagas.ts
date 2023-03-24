@@ -1200,12 +1200,10 @@ function* filePickerActionCallbackSaga(
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
-    set(
-      datasource,
-      "datasourceConfiguration.properties[0].key",
-      createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
-    );
-    set(datasource, "datasourceConfiguration.properties[0].value", fileIds);
+    set(datasource, "datasourceConfiguration.properties[0]", {
+      key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+      value: fileIds,
+    });
     yield put(updateDatasource(datasource));
   } catch (error) {
     yield put({
