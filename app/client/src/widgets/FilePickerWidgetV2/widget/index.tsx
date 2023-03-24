@@ -28,6 +28,8 @@ import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 
+export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1000;
+
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
 
@@ -673,7 +675,7 @@ class FilePickerWidget extends BaseWidget<
       const fileCount = this.props.selectedFiles?.length || 0;
       const fileReaderPromises = files.map((file, index) => {
         return new Promise((resolve) => {
-          if (file.size < 5000 * 1000) {
+          if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
             const reader = new FileReader();
             if (this.props.fileDataType === FileDataTypes.Base64) {
               reader.readAsDataURL(file.data);
