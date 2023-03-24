@@ -47,6 +47,10 @@ import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "entities/DataTree/types";
+import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
+
+let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -317,17 +321,17 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
+  isNewWidgetAdded: boolean,
   configTree: ConfigTree,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
 
-  if (isCreateFirstTree) {
-    // we only aim to log binding success which were added by user
-    // for first evaluation, bindings are not added by user hence skipping it.
-    return;
-  }
+  const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
+    ? {}
+    : { ...successfulBindingsMap.get() };
+
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
@@ -345,6 +349,23 @@ export function* logSuccessfulBindings(
       });
 
       const logBlackList = entityConfig.logBlackList;
+
+      if (!isABinding || propertyPath in logBlackList) {
+        /**Remove the binding from the map so that in case it is added again, we log it*/
+        if (successfulBindingPaths[evaluatedPath]) {
+          delete successfulBindingPaths[evaluatedPath];
+        }
+        return;
+      }
+
+      /** All the paths that are added when a new widget is added needs to be added to the map so that
+       * we don't log them again unless they are changed by the user.
+       */
+      if (isNewWidgetAdded) {
+        successfulBindingPaths[evaluatedPath] = unevalValue;
+        return;
+      }
+
       const errors: EvaluationError[] = get(
         dataTree,
         getEvalErrorPath(evaluatedPath),
@@ -352,16 +373,44 @@ export function* logSuccessfulBindings(
       ) as EvaluationError[];
 
       const hasErrors = errors.length > 0;
+      if (!hasErrors) {
+        if (!isCreateFirstTree) {
+          // we only aim to log binding success which were added by user
+          // for first evaluation, bindings are not added by user hence skipping it.
+          AnalyticsUtil.logEvent("BINDING_SUCCESS", {
+            unevalValue,
+            entityType,
+            propertyPath,
+          });
 
-      if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
-        AnalyticsUtil.logEvent("BINDING_SUCCESS", {
-          unevalValue,
-          entityType,
-          propertyPath,
-        });
+          /**Log the binding only if it doesn't already exist */
+          if (
+            !successfulBindingPaths[evaluatedPath] ||
+            (successfulBindingPaths[evaluatedPath] &&
+              successfulBindingPaths[evaluatedPath] !== unevalValue)
+          ) {
+            AnalyticsUtil.logEvent("ENTITY_BINDING_SUCCESS", {
+              unevalValue,
+              entityType,
+              propertyPath,
+            });
+          }
+        }
+        successfulBindingPaths[evaluatedPath] = unevalValue;
+      } else {
+        /**Remove the binding from the map so that in case it is added again, we log it*/
+        if (successfulBindingPaths[evaluatedPath]) {
+          delete successfulBindingPaths[evaluatedPath];
+        }
       }
     }
   });
+
+  if (!successfulBindingsMap) {
+    successfulBindingsMap = new SuccessfulBindingMap(successfulBindingPaths);
+  } else {
+    successfulBindingsMap.set(successfulBindingPaths);
+  }
 }
 
 export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
