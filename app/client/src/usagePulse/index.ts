@@ -1,24 +1,24 @@
 import { isEditorPath, isViewerPath } from "ce/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "entities/App";
-import { isNil, noop } from "lodash";
+import { isNil } from "lodash";
 import { getAppMode } from "selectors/applicationSelectors";
 import store from "store";
 import history from "utils/history";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
-const PULSE_INTERVAL = 300; /* 5 minutes in seconds */
-const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
-export const FALLBACK_KEY = "APPSMITH_ANONYMOUS_USER_ID";
-const PULSE_API_RETRY_TIMEOUT = 2000;
-const PULSE_API_MAX_RETRY_COUNT = 3;
+import { fetchWithRetry, updateAnonymousID } from "./utils";
+import {
+  PULSE_API_ENDPOINT,
+  PULSE_API_MAX_RETRY_COUNT,
+  PULSE_API_RETRY_TIMEOUT,
+  PULSE_INTERVAL,
+  USER_ACTIVITY_LISTENER_EVENTS,
+} from "./constants";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
   static Timer: ReturnType<typeof setTimeout>;
   static unlistenRouteChange: () => void;
+  static isTelemetryEnabled: boolean;
+  static isAnonymousUser: boolean;
 
   /*
    * Function to check if the given URL is trakable or not.
@@ -28,53 +28,29 @@ class UsagePulse {
     return isEditorPath(path) || isViewerPath(path);
   }
 
-  static fetchWithRetry = (url: string, data: object, retries: number) => {
-    fetch(url, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      keepalive: true,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-      })
-      .catch(() => {
-        if (retries > 0) {
-          setTimeout(
-            this.fetchWithRetry,
-            PULSE_API_RETRY_TIMEOUT,
-            url,
-            data,
-            retries - 1,
-          );
-        } else throw noop;
-      });
-  };
-
   static sendPulse() {
     let mode = getAppMode(store.getState());
-    const user = getCurrentUser(store.getState());
-    const appsmithConfig = getAppsmithConfigs();
+
     if (isNil(mode)) {
       mode = isEditorPath(window.location.pathname)
         ? APP_MODE.EDIT
         : APP_MODE.PUBLISHED;
     }
 
-    const data: Record<string, unknown> = {
+    let data: Record<string, unknown> = {
       viewMode: mode === APP_MODE.PUBLISHED,
     };
-
-    if (user?.enableTelemetry && appsmithConfig.segment.enabled) {
-      data["anonymousUserId"] = AnalyticsUtil.getAnonymousId();
-    } else {
-      if (UsagePulse.userAnonymousId)
-        data["anonymousUserId"] = UsagePulse.userAnonymousId;
-    }
-    this.fetchWithRetry(PULSE_API_ENDPOINT, data, PULSE_API_MAX_RETRY_COUNT);
+    data = updateAnonymousID(
+      data,
+      this.isTelemetryEnabled,
+      this.isAnonymousUser,
+    );
+    fetchWithRetry(
+      PULSE_API_ENDPOINT,
+      data,
+      PULSE_API_MAX_RETRY_COUNT,
+      PULSE_API_RETRY_TIMEOUT * 1000,
+    );
   }
 
   static registerActivityListener() {

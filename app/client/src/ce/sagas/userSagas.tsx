@@ -1,4 +1,4 @@
-import { call, fork, put, race, select, take } from "redux-saga/effects";
+import { call, put, race, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -68,8 +68,7 @@ import {
 } from "actions/analyticsActions";
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
-import UsagePulse, { FALLBACK_KEY } from "usagePulse";
-import nanoid from "nanoid";
+import UsagePulse from "usagePulse";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -128,45 +127,6 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   }
 }
 
-/*
- * Function to initiate usage tracking
- *  - For anonymous users we need segement id, so if telemetry is off
- *    we're intiating segment without tracking and once we get the id,
- *    analytics object is purged.
- */
-export function* initiateUsageTracking(payload: {
-  isAnonymousUser: boolean;
-  enableTelemetry: boolean;
-}) {
-  const appsmithConfigs = getAppsmithConfigs();
-
-  //To make sure that we're not tracking from previous session.
-  UsagePulse.stopTrackingActivity();
-
-  if (payload.isAnonymousUser) {
-    if (payload.enableTelemetry && appsmithConfigs.segment.enabled) {
-      UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
-    } else {
-      UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
-
-      if (!UsagePulse.userAnonymousId) {
-        let fallback = localStorage.getItem(FALLBACK_KEY);
-
-        if (!fallback) {
-          fallback = nanoid() as string;
-          localStorage.setItem(FALLBACK_KEY, fallback);
-        }
-
-        UsagePulse.userAnonymousId = fallback;
-      }
-
-      AnalyticsUtil.removeAnalytics();
-    }
-  }
-
-  UsagePulse.startTrackingActivity();
-}
-
 export function* getCurrentUserSaga() {
   try {
     PerformanceTracker.startAsyncTracking(
@@ -206,6 +166,8 @@ export function* getCurrentUserSaga() {
 export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
+  const isTelemetryEnabled =
+    enableTelemetry && getAppsmithConfigs().segment.enabled;
 
   if (enableTelemetry) {
     const promise = initializeAnalyticsAndTrackers();
@@ -229,14 +191,14 @@ export function* runUserSideEffectsSaga() {
     enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
   }
 
-  /*
-   * Forking it as we don't want to block application flow
-   */
-  yield fork(initiateUsageTracking, {
-    //@ts-expect-error: response is of type unknown
-    isAnonymousUser: currentUser.isAnonymous,
-    enableTelemetry,
-  });
+  UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
+  //@ts-expect-error: response is of type unknown
+  UsagePulse.isAnonymousUser = currentUser?.isAnonymous;
+
+  // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
+  UsagePulse.stopTrackingActivity();
+  UsagePulse.startTrackingActivity();
+
   yield put(initAppLevelSocketConnection());
   yield put(initPageLevelSocketConnection());
 
