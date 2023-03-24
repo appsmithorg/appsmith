@@ -267,8 +267,8 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
-        const wrappedCode = wrapCode(sanitizedScript);
-        ast = getAST(wrappedCode, {
+        // const wrappedCode = wrapCode(sanitizedScript);
+        ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             // collect all comments as they are not part of the ast, we will attach them back on line 46
