@@ -2007,13 +2007,6 @@ Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
 });
 
 Cypress.Commands.add("RemoveAllSelections", () => {
-  cy.get(".rc-select-selection-overflow").then(($ele) => {
-    if (
-      $ele.find(".rc-select-selection-overflow-item .remove-icon").length <= 0
-    ) {
-      cy.reload();
-    }
-  });
   cy.get(`.rc-select-selection-overflow-item .remove-icon`).each(($each) => {
     cy.wrap($each).click({ force: true }).wait(1000);
   });
