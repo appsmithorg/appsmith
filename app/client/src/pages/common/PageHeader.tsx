@@ -28,6 +28,10 @@ import { Icon, IconSize } from "design-system-old";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { get } from "lodash";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -117,6 +121,16 @@ export function PageHeader(props: PageHeaderProps) {
     loginUrl += `?redirectUrl
     =${queryParams.get("redirectUrl")}`;
   }
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const navColorStyle =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
 
   const featureFlags = useSelector(selectFeatureFlags);
 
@@ -204,7 +218,9 @@ export function PageHeader(props: PageHeaderProps) {
             <ProfileDropdown
               hideEditProfileLink={props.hideEditProfileLink}
               name={user.name}
+              navColorStyle={navColorStyle}
               photoId={user?.photoId}
+              primaryColor={primaryColor}
               userName={user.username}
             />
           )}

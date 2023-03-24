@@ -4,6 +4,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
   getCurrentAppPositioningType,
@@ -74,6 +75,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const showTableFilterPane = useShowTableFilterPane();
   const isAutoCanvasResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
@@ -153,6 +157,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isAutoCanvasResizing &&
       !isResizingOrDragging &&
       !isPreviewMode &&
+      !isAppSettingsPaneWithNavigationTabOpen &&
       !isMultiSelectedWidget &&
       (isSnipingMode
         ? isFocused

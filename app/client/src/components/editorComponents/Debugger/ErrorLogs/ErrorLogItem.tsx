@@ -319,7 +319,6 @@ function ErrorLogItem(props: LogItemProps) {
                 ? "0" + (props.messages[0].lineNumber + 1)
                 : props.messages[0].lineNumber + 1
             }`}
-            width="40px"
           />
         )}
         {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&

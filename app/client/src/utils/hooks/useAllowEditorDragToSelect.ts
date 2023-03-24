@@ -5,6 +5,7 @@ import {
   getIsAutoLayout,
 } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing
@@ -39,6 +40,9 @@ export const useAllowEditorDragToSelect = () => {
   const isResizingOrDragging = !!isResizing || !!isDragging || !!isSelecting;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   return (
     !isAutoLayout &&
@@ -46,6 +50,7 @@ export const useAllowEditorDragToSelect = () => {
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !isSnipingMode &&
-    !isPreviewMode
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen
   );
 };
