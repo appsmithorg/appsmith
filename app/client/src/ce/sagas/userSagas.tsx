@@ -166,8 +166,6 @@ export function* getCurrentUserSaga() {
 export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
-  const isTelemetryEnabled =
-    enableTelemetry && getAppsmithConfigs().segment.enabled;
 
   if (enableTelemetry) {
     const promise = initializeAnalyticsAndTrackers();
@@ -191,13 +189,12 @@ export function* runUserSideEffectsSaga() {
     enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
   }
 
-  UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
-  //@ts-expect-error: response is of type unknown
-  UsagePulse.isAnonymousUser = currentUser?.isAnonymous;
-
   // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
   UsagePulse.stopTrackingActivity();
-  UsagePulse.startTrackingActivity();
+  UsagePulse.startTrackingActivity(
+    enableTelemetry && getAppsmithConfigs().segment.enabled,
+    (currentUser as any)?.isAnonymous,
+  );
 
   yield put(initAppLevelSocketConnection());
   yield put(initPageLevelSocketConnection());

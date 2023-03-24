@@ -1,10 +1,6 @@
 import { isEditorPath, isViewerPath } from "ce/pages/Editor/Explorer/helpers";
-import { APP_MODE } from "entities/App";
-import { isNil } from "lodash";
-import { getAppMode } from "selectors/applicationSelectors";
-import store from "store";
 import history from "utils/history";
-import { fetchWithRetry, updateAnonymousID } from "./utils";
+import { fetchWithRetry, getUsagePulsePayload } from "./utils";
 import {
   PULSE_API_ENDPOINT,
   PULSE_API_MAX_RETRY_COUNT,
@@ -29,25 +25,13 @@ class UsagePulse {
   }
 
   static sendPulse() {
-    let mode = getAppMode(store.getState());
-
-    if (isNil(mode)) {
-      mode = isEditorPath(window.location.pathname)
-        ? APP_MODE.EDIT
-        : APP_MODE.PUBLISHED;
-    }
-
-    let data: Record<string, unknown> = {
-      viewMode: mode === APP_MODE.PUBLISHED,
-    };
-    data = updateAnonymousID(
-      data,
+    const payload = getUsagePulsePayload(
       this.isTelemetryEnabled,
       this.isAnonymousUser,
     );
     fetchWithRetry(
       PULSE_API_ENDPOINT,
-      data,
+      payload,
       PULSE_API_MAX_RETRY_COUNT,
       PULSE_API_RETRY_TIMEOUT * 1000,
     );
@@ -55,19 +39,13 @@ class UsagePulse {
 
   static registerActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.addEventListener(
-        event,
-        UsagePulse.startTrackingActivity,
-      );
+      window.document.body.addEventListener(event, UsagePulse.track);
     });
   }
 
   static deregisterActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.removeEventListener(
-        event,
-        UsagePulse.startTrackingActivity,
-      );
+      window.document.body.removeEventListener(event, UsagePulse.track);
     });
   }
 
@@ -95,21 +73,32 @@ class UsagePulse {
 
     UsagePulse.Timer = setTimeout(
       UsagePulse.registerActivityListener,
-      PULSE_INTERVAL * 1000,
+      PULSE_INTERVAL,
     );
   }
 
   /*
    * Point of entry for the user tracking
+   */
+  static startTrackingActivity(
+    isTelemetryEnabled: boolean,
+    isAnonymousUser: boolean,
+  ) {
+    UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
+    UsagePulse.isAnonymousUser = isAnonymousUser;
+    UsagePulse.track();
+  }
+
+  /*
    * triggers a pulse and schedules the pulse , if user is on a trackable url, otherwise
    * registers listeners to wait for the user to go to a trackable url
    */
-  static startTrackingActivity() {
+  static track() {
     if (UsagePulse.isTrackableUrl(window.location.pathname)) {
       UsagePulse.sendPulse();
       UsagePulse.scheduleNextActivityListeners();
     } else {
-      UsagePulse.watchForTrackableUrl(UsagePulse.startTrackingActivity);
+      UsagePulse.watchForTrackableUrl(UsagePulse.track);
     }
   }
 

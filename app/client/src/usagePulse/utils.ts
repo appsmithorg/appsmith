@@ -1,8 +1,13 @@
-import { noop } from "lodash";
+import { isEditorPath } from "ce/pages/Editor/Explorer/helpers";
+import { APP_MODE } from "entities/App";
+import { isNil, noop } from "lodash";
 import nanoid from "nanoid";
+import { getAppMode } from "selectors/entitiesSelector";
+import store from "store";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FALLBACK_KEY } from "./constants";
 
+//todo:Return a promise
 export const fetchWithRetry = (
   url: string,
   data: object,
@@ -28,11 +33,21 @@ export const fetchWithRetry = (
     });
 };
 
-export const updateAnonymousID = (
-  data: Record<string, unknown>,
+export const getUsagePulsePayload = (
   isTelemetryEnabled: boolean,
   isAnonymousUser: boolean,
 ) => {
+  let mode = getAppMode(store.getState());
+
+  if (isNil(mode)) {
+    mode = isEditorPath(window.location.pathname)
+      ? APP_MODE.EDIT
+      : APP_MODE.PUBLISHED;
+  }
+
+  const data: Record<string, unknown> = {
+    viewMode: mode === APP_MODE.PUBLISHED,
+  };
   if (isAnonymousUser) {
     if (isTelemetryEnabled) {
       data["anonymousUserId"] = AnalyticsUtil.getAnonymousId();
