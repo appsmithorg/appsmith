@@ -3475,6 +3475,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantine/hooks@npm:^5.10.1":
+  version: 5.10.5
+  resolution: "@mantine/hooks@npm:5.10.5"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 5af61db880d2ae4146282771ee627b258fe1c001819f12365028a3686bbf7e1a0cd672757b27f2f828579f0741e0470b0f5fac61fcb7f304b6810b829f9f3974
+  languageName: node
+  linkType: hard
+
 "@mdx-js/mdx@npm:^1.6.22":
   version: 1.6.22
   resolution: "@mdx-js/mdx@npm:1.6.22"
@@ -8377,6 +8386,7 @@ __metadata:
     "@googlemaps/react-wrapper": ^1.1.35
     "@loadable/component": ^5.15.3
     "@manaflair/redux-batch": ^1.0.0
+    "@mantine/hooks": ^5.10.1
     "@redux-saga/testing-utils": ^1.1.5
     "@sentry/react": ^6.2.4
     "@sentry/tracing": ^6.2.4
