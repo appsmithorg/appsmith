@@ -268,14 +268,14 @@ function RapidApiEditorForm(props: Props) {
             ]}
           />
         </TabbedViewContainer>
-        {showDebugger ? (
+        {showDebugger && (
           <ApiResponseView
             apiName={props.apiName}
             onRunClick={onRunClick}
             responseDataTypes={responseDataTypes}
             responseDisplayFormat={responseDisplayFormat}
           />
-        ) : null}
+        )}
       </SecondaryWrapper>
     </Form>
   );

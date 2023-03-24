@@ -30,6 +30,7 @@ import {
   Callout,
   Classes,
   Icon,
+  IconSize,
   Size,
   Text,
   TextType,
@@ -54,6 +55,7 @@ import {
   setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { showDebugger } from "actions/debuggerActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -86,6 +88,12 @@ const ResponseTabWrapper = styled.div`
 const TabbedViewWrapper = styled.div`
   height: 100%;
 
+  .close-debugger {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 9px 11px;
+  }
   &&& {
     ul.react-tabs__tab-list {
       padding: 0px ${(props) => props.theme.spaces[11]}px;
@@ -331,6 +339,10 @@ function JSResponseView(props: Props) {
     dispatch(setJsPaneResponsePaneHeight(height));
   }, []);
 
+  // close the debugger
+  //TODO: move this to a common place
+  const onClose = () => dispatch(showDebugger(false));
+
   return (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"
@@ -347,6 +359,13 @@ function JSResponseView(props: Props) {
           onSelect={setSelectedResponseTab}
           selectedTabKey={selectedResponseTab}
           tabs={tabs}
+        />
+
+        <Icon
+          className="close-debugger t--close-debugger"
+          name="close-modal"
+          onClick={onClose}
+          size={IconSize.MEDIUM}
         />
       </TabbedViewWrapper>
     </ResponseContainer>

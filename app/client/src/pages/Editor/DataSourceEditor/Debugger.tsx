@@ -46,6 +46,12 @@ export const TabbedViewContainer = styled.div`
       height: calc(100% - 36px);
     }
   }
+  .close-debugger {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 9px 11px;
+  }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   border-top: 1px solid #e8e8e8;
 `;
@@ -56,6 +62,9 @@ export const ResizerMainContainer = styled.div`
   height: calc(100% - 50px);
   overflow: hidden;
   gap: 10px;
+  .db-form-resizer-content {
+    flex-direction: column;
+  }
 `;
 
 export const ResizerContentContainer = styled.div`
@@ -106,6 +115,7 @@ export default function Debugger() {
   }, []);
 
   // close the debugger
+  //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
   return (
@@ -130,7 +140,7 @@ export default function Debugger() {
 
       <Icon
         className="close-debugger t--close-debugger"
-        name="expand-more"
+        name="close-modal"
         onClick={onClose}
         size={IconSize.MEDIUM}
       />

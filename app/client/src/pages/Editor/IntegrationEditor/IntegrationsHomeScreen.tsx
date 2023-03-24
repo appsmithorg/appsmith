@@ -116,6 +116,7 @@ type IntegrationsHomeScreenProps = {
   mockDatasources: MockDatasource[];
   applicationId: string;
   canCreateDatasource?: boolean;
+  showDebugger: boolean;
 };
 
 type IntegrationsHomeScreenState = {
@@ -407,6 +408,7 @@ class IntegrationsHomeScreen extends React.Component<
       isCreating,
       location,
       pageId,
+      showDebugger,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
@@ -544,7 +546,7 @@ class IntegrationsHomeScreen extends React.Component<
                   />
                 )}
               </ResizerContentContainer>
-              <Debugger />
+              {showDebugger && <Debugger />}
             </ResizerMainContainer>
           </SectionGrid>
         </ApiHomePage>
@@ -554,6 +556,8 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
+  const showDebugger = state.ui.debugger.isOpen;
+
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
@@ -566,6 +570,7 @@ const mapStateToProps = (state: AppState) => {
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
     canCreateDatasource,
+    showDebugger,
   };
 };
 

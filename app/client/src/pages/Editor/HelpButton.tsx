@@ -31,6 +31,10 @@ const StyledTrigger = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 400;
   ${BottomBarCTAStyles}
 `;
 
@@ -55,8 +59,9 @@ const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
         <Icon
           fillColor={theme.colors.globalSearch.helpIcon}
           name="question-line"
-          size={IconSize.XXXL}
+          size={IconSize.XL}
         />
+        <span>Help</span>
       </StyledTrigger>
     </TooltipComponent>
   );

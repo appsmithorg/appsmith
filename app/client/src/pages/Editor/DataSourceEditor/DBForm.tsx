@@ -163,7 +163,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </Header>
         )}
         <ResizerMainContainer>
-          <ResizerContentContainer>
+          <ResizerContentContainer className="db-form-resizer-content">
             {messages &&
               messages.map((msg, i) => (
                 <CalloutWrapper key={i}>
@@ -215,7 +215,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               />
             )}
           </ResizerContentContainer>
-          {showDebugger ? <Debugger /> : null}
+          {showDebugger && <Debugger />}
         </ResizerMainContainer>
       </Form>
     );

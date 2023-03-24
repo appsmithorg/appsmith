@@ -37,6 +37,7 @@ import {
   Category,
   Classes,
   Icon,
+  IconSize,
   Size,
   TAB_MIN_HEIGHT,
   Text,
@@ -60,6 +61,7 @@ import {
   setApiPaneResponseSelectedTab,
 } from "actions/apiPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { showDebugger } from "actions/debuggerActions";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -105,6 +107,13 @@ const ResponseTabWrapper = styled.div`
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
+
+  .close-debugger {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 9px 11px;
+  }
 
   &&& {
     ul.react-tabs__tab-list {
@@ -567,6 +576,10 @@ function ApiResponseView(props: Props) {
     },
   ];
 
+  // close the debugger
+  //TODO: move this to a common place
+  const onClose = () => dispatch(showDebugger(false));
+
   return (
     <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
       <Resizer
@@ -650,6 +663,12 @@ function ApiResponseView(props: Props) {
           onSelect={updateSelectedResponseTab}
           selectedTabKey={selectedResponseTab}
           tabs={tabs}
+        />
+        <Icon
+          className="close-debugger t--close-debugger"
+          name="close-modal"
+          onClick={onClose}
+          size={IconSize.MEDIUM}
         />
       </TabbedViewWrapper>
     </ResponseContainer>

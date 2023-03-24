@@ -891,7 +891,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 ]}
               />
             </TabbedViewContainer>
-            {showDebugger ? (
+            {showDebugger && (
               <ApiResponseView
                 apiName={actionName}
                 disabled={!isExecutePermitted}
@@ -900,7 +900,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 responseDisplayFormat={responseDisplayFormat}
                 theme={theme}
               />
-            ) : null}
+            )}
           </SecondaryWrapper>
           <DataSourceList
             actionName={actionName}

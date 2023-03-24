@@ -20,14 +20,18 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
   border-top: solid 1px ${Colors.MERCURY};
-  padding: 0 ${(props) => props.theme.spaces[11]}px;
+  padding-left: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.25rem;
+`;
+
+const HelpWrapper = styled.div`
+  padding: 9px 16px;
+  border-left: 1px solid #e7e7e7;
 `;
 
 export default function BottomBar(props: { className?: string }) {
@@ -41,11 +45,13 @@ export default function BottomBar(props: { className?: string }) {
             className="t--upgrade"
             fillColor={Colors.SCORPION}
             name="upgrade"
-            size={IconSize.XXXL}
+            size={IconSize.XL}
           />
         </ManualUpgrades>
-        <HelpButton />
         <DebuggerTrigger />
+        <HelpWrapper>
+          <HelpButton />
+        </HelpWrapper>
         {isMultiPane && <PaneCountSwitcher />}
       </Wrapper>
     </Container>

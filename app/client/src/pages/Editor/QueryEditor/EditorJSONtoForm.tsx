@@ -128,6 +128,7 @@ import {
 } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { showDebugger } from "actions/debuggerActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -166,6 +167,12 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
+  .close-debugger {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 9px 11px;
+  }
   .react-tabs__tab-panel {
     overflow: hidden;
   }
@@ -938,7 +945,7 @@ export function EditorJSONtoForm(props: Props) {
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
   // Render debugger flag
-  const showDebugger = useSelector(
+  const showDebuggerFlag = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
 
@@ -951,6 +958,10 @@ export function EditorJSONtoForm(props: Props) {
   const setSelectedResponseTab = useCallback((tabKey: string) => {
     dispatch(setQueryPaneResponseSelectedTab(tabKey));
   }, []);
+
+  // close the debugger
+  //TODO: move this to a common place
+  const onClose = () => dispatch(showDebugger(false));
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -1105,7 +1116,7 @@ export function EditorJSONtoForm(props: Props) {
                 ]}
               />
             </TabContainerView>
-            {showDebugger ? (
+            {showDebuggerFlag && (
               <TabbedViewContainer
                 className="t--query-bottom-pane-container"
                 ref={panelRef}
@@ -1160,8 +1171,14 @@ export function EditorJSONtoForm(props: Props) {
                   selectedTabKey={selectedResponseTab}
                   tabs={responseTabs}
                 />
+                <AdsIcon
+                  className="close-debugger t--close-debugger"
+                  name="close-modal"
+                  onClick={onClose}
+                  size={IconSize.MEDIUM}
+                />
               </TabbedViewContainer>
-            ) : null}
+            )}
           </SecondaryWrapper>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
