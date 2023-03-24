@@ -11,6 +11,7 @@ const initialState: DebuggerReduxState = {
   errors: {},
   expandId: "",
   hideErrors: true,
+  selectedDebuggerTab: "",
 };
 
 // check the last message from the current log and update the occurrence count
@@ -101,6 +102,12 @@ const debuggerReducer = createImmerReducer(initialState, {
       ...initialState,
     };
   },
+  [ReduxActionTypes.SET_DEBUGGER_SELECTED_TAB]: (
+    state: DebuggerReduxState,
+    action: { payload: string },
+  ) => {
+    state.selectedDebuggerTab = action.payload;
+  },
 });
 
 export interface DebuggerReduxState {
@@ -109,6 +116,7 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
+  selectedDebuggerTab: string;
 }
 
 export default debuggerReducer;

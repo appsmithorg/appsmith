@@ -29,11 +29,6 @@ const Wrapper = styled.div`
   justify-content: space-between;
 `;
 
-const HelpWrapper = styled.div`
-  padding: 9px 16px;
-  border-left: 1px solid #e7e7e7;
-`;
-
 export default function BottomBar(props: { className?: string }) {
   const isMultiPane = useSelector(isMultiPaneActive);
   return (
@@ -49,9 +44,7 @@ export default function BottomBar(props: { className?: string }) {
           />
         </ManualUpgrades>
         <DebuggerTrigger />
-        <HelpWrapper>
-          <HelpButton />
-        </HelpWrapper>
+        <HelpButton />
         {isMultiPane && <PaneCountSwitcher />}
       </Wrapper>
     </Container>

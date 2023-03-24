@@ -119,16 +119,15 @@ import { executeCommandAction } from "actions/apiPaneActions";
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
-  getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
 import {
   setQueryPaneConfigSelectedTabIndex,
   setQueryPaneResponsePaneHeight,
-  setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { showDebugger } from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -840,11 +839,7 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  dispatch(
-                    setQueryPaneResponseSelectedTab(
-                      DEBUGGER_TAB_KEYS.ERROR_TAB,
-                    ),
-                  );
+                  dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
@@ -953,10 +948,10 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
 
-  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTab);
+  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
 
   const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setQueryPaneResponseSelectedTab(tabKey));
+    dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
   // close the debugger

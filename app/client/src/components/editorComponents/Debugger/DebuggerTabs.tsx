@@ -4,10 +4,8 @@ import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setCanvasDebuggerSelectedTab,
-  showDebugger,
-} from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
@@ -22,7 +20,6 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
-import { getSelectedCanvasDebuggerTab } from "selectors/editorContextSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const TABS_HEADER_HEIGHT = 36;
@@ -72,14 +69,14 @@ const DEBUGGER_TABS = [
 function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const selectedTab = useSelector(getSelectedCanvasDebuggerTab);
+  const selectedTab = useSelector(getDebuggerSelectedTab);
   const setSelectedTab = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
         source: "WIDGET_EDITOR",
       });
     }
-    dispatch(setCanvasDebuggerSelectedTab(tabKey));
+    dispatch(setDebuggerSelectedTab(tabKey));
   };
   const onClose = () => dispatch(showDebugger(false));
 
@@ -98,7 +95,7 @@ function DebuggerTabs() {
       />
       <Icon
         className="close-debugger t--close-debugger"
-        name="expand-more"
+        name="close-modal"
         onClick={onClose}
         size={IconSize.MEDIUM}
       />

@@ -3,7 +3,6 @@ import type { AppState } from "@appsmith/reducers";
 import {
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
-  setApiPaneResponseSelectedTab,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import {
@@ -18,7 +17,6 @@ import {
 import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneResponsePaneHeight,
-  getApiPaneResponseSelectedTab,
   getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
@@ -29,7 +27,6 @@ import {
   getExplorerSwitchIndex,
   getFocusableInputField,
   getPropertyPanelState,
-  getSelectedCanvasDebuggerTab,
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
@@ -42,12 +39,10 @@ import {
   setAllDatasourceCollapsible,
   setDatasourceViewMode,
 } from "actions/datasourceActions";
-import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   setJsPaneConfigSelectedTabIndex,
   setJsPaneResponsePaneHeight,
-  setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
@@ -58,7 +53,6 @@ import {
 import {
   setQueryPaneConfigSelectedTabIndex,
   setQueryPaneResponsePaneHeight,
-  setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
@@ -73,7 +67,6 @@ import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getJSPaneConfigSelectedTabIndex,
   getJSPaneResponsePaneHeight,
-  getJSPaneResponseSelectedTab,
 } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
@@ -83,8 +76,8 @@ import {
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
-  getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
+// import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -184,12 +177,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: [],
     },
     {
-      name: FocusElement.CanvasDebuggerTabs,
-      selector: getSelectedCanvasDebuggerTab,
-      setter: setCanvasDebuggerSelectedTab,
-      defaultValue: 0,
-    },
-    {
       name: FocusElement.PropertyPaneWidth,
       selector: getPropertyPaneWidth,
       setter: setPropertyPaneWidthAction,
@@ -222,12 +209,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: 0,
     },
     {
-      name: FocusElement.JSPaneResponseTabs,
-      selector: getJSPaneResponseSelectedTab,
-      setter: setJsPaneResponseSelectedTab,
-      defaultValue: 0,
-    },
-    {
       name: FocusElement.JSPaneResponseHeight,
       selector: getJSPaneResponsePaneHeight,
       setter: setJsPaneResponsePaneHeight,
@@ -244,12 +225,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.QueryPaneConfigTabs,
       selector: getQueryPaneConfigSelectedTabIndex,
       setter: setQueryPaneConfigSelectedTabIndex,
-      defaultValue: 0,
-    },
-    {
-      name: FocusElement.QueryPaneResponseTabs,
-      selector: getQueryPaneResponseSelectedTab,
-      setter: setQueryPaneResponseSelectedTab,
       defaultValue: 0,
     },
     {
@@ -284,12 +259,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
           defaultValue: 2,
         },
       },
-    },
-    {
-      name: FocusElement.ApiPaneResponseTabs,
-      selector: getApiPaneResponseSelectedTab,
-      setter: setApiPaneResponseSelectedTab,
-      defaultValue: 0,
     },
     {
       name: FocusElement.ApiPaneResponseHeight,

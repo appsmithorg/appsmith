@@ -19,7 +19,6 @@ const initialState: QueryPaneReduxState = {
   lastUsed: "", // NR
   responseTabHeight: ActionExecutionResizerHeight,
   selectedConfigTabIndex: 0,
-  selectedResponseTab: "",
 };
 
 export interface QueryPaneReduxState {
@@ -31,7 +30,6 @@ export interface QueryPaneReduxState {
   lastUsed: string; // NR
   isCreating: boolean; // RR
   selectedConfigTabIndex: number;
-  selectedResponseTab: string;
   responseTabHeight: number;
 }
 

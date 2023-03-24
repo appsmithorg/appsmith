@@ -70,9 +70,10 @@ export const hideDebuggerErrors = (payload: boolean) => ({
   payload,
 });
 
-export const setCanvasDebuggerSelectedTab = (selectedTab: string) => {
+// set the selected tab in the debugger.
+export const setDebuggerSelectedTab = (selectedTab: string) => {
   return {
-    type: ReduxActionTypes.SET_CANVAS_DEBUGGER_SELECTED_TAB,
+    type: ReduxActionTypes.SET_DEBUGGER_SELECTED_TAB,
     payload: selectedTab,
   };
 };

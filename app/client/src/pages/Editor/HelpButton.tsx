@@ -38,6 +38,11 @@ const StyledTrigger = styled.div`
   ${BottomBarCTAStyles}
 `;
 
+const HelpWrapper = styled.div`
+  padding: 9px 16px;
+  border-left: 1px solid #e7e7e7;
+`;
+
 type TriggerProps = {
   tooltipsDisabled: boolean;
 };
@@ -85,27 +90,29 @@ function HelpButton() {
   }, []);
 
   return (
-    <Popover
-      minimal
-      modifiers={{
-        offset: {
-          enabled: true,
-          offset: "0, 6",
-        },
-      }}
-      onClosed={onClose}
-      onOpened={onOpened}
-      popoverClassName="navbar-help-popover"
-      position={Position.BOTTOM_RIGHT}
-    >
-      <>
-        <HelpPopoverStyle />
-        <Trigger tooltipsDisabled={isHelpOpen} />
-      </>
-      <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
-      </div>
-    </Popover>
+    <HelpWrapper>
+      <Popover
+        minimal
+        modifiers={{
+          offset: {
+            enabled: true,
+            offset: "0, 6",
+          },
+        }}
+        onClosed={onClose}
+        onOpened={onOpened}
+        popoverClassName="navbar-help-popover"
+        position={Position.BOTTOM_RIGHT}
+      >
+        <>
+          <HelpPopoverStyle />
+          <Trigger tooltipsDisabled={isHelpOpen} />
+        </>
+        <div style={{ width: HELP_MODAL_WIDTH }}>
+          <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
+        </div>
+      </Popover>
+    </HelpWrapper>
   );
 }
 

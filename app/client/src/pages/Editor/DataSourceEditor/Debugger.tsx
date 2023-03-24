@@ -9,9 +9,8 @@ import {
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "@appsmith/constants/messages";
-import { showDebugger } from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { setDatasourcePaneResponsePaneHeight } from "actions/datasourceActions";
-import { setQueryPaneResponseSelectedTab } from "actions/queryPaneActions";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
@@ -21,7 +20,7 @@ import Errors from "components/editorComponents/Debugger/Errors";
 import DebbuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { getDatasourceResponsePaneHeight } from "selectors/datasourceSelectors";
-import { getQueryPaneResponseSelectedTab } from "selectors/queryPaneSelectors";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
 
 export const TabbedViewContainer = styled.div`
@@ -83,7 +82,7 @@ export default function Debugger() {
   const responsePaneHeight = useSelector(getDatasourceResponsePaneHeight);
 
   // fetch the selected tab from the store
-  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTab);
+  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
 
   // define the tabs for the debugger
   const DEBUGGER_TABS = [
@@ -111,7 +110,7 @@ export default function Debugger() {
 
   // set the selected tab in the store
   const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setQueryPaneResponseSelectedTab(tabKey));
+    dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
   // close the debugger

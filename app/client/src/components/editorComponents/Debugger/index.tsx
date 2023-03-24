@@ -6,7 +6,7 @@ import { get } from "lodash";
 import DebuggerTabs from "./DebuggerTabs";
 import type { AppState } from "@appsmith/reducers";
 import {
-  setCanvasDebuggerSelectedTab,
+  setDebuggerSelectedTab,
   showDebugger as showDebuggerAction,
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -39,6 +39,7 @@ const TriggerContainer = styled.div<{
   justify-content: center;
   padding: 9px 16px;
   border-left: 1px solid ${Colors.GRAY_200};
+  cursor: pointer;
   ${BottomBarCTAStyles}
 
   .debugger-count {
@@ -81,7 +82,7 @@ export function DebuggerTrigger() {
       });
     //Removed as this logic was confusing
     // Now on click of debugger we will always show error tab.
-    dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
 
     stopEventPropagation(e);
   };
@@ -97,6 +98,7 @@ export function DebuggerTrigger() {
     <TriggerContainer
       className="t--debugger"
       errorCount={messageCounters.errors}
+      onClick={onClick}
       warningCount={messageCounters.warnings}
     >
       <TooltipComponent
@@ -112,7 +114,6 @@ export function DebuggerTrigger() {
               : Colors.GREY_7
           }
           name={totalMessageCount ? "close-circle" : "close-circle-line"}
-          onClick={onClick}
           size={IconSize.XL}
         />
       </TooltipComponent>

@@ -52,16 +52,11 @@ import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActi
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
-import {
-  getApiPaneResponsePaneHeight,
-  getApiPaneResponseSelectedTab,
-} from "selectors/apiPaneSelectors";
-import {
-  setApiPaneResponsePaneHeight,
-  setApiPaneResponseSelectedTab,
-} from "actions/apiPaneActions";
+import { getApiPaneResponsePaneHeight } from "selectors/apiPaneSelectors";
+import { setApiPaneResponsePaneHeight } from "actions/apiPaneActions";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { showDebugger } from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -346,7 +341,7 @@ function ApiResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    dispatch(setApiPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
   const onRunClick = () => {
@@ -403,14 +398,14 @@ function ApiResponseView(props: Props) {
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
-  const selectedResponseTab = useSelector(getApiPaneResponseSelectedTab);
+  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   const updateSelectedResponseTab = useCallback((tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
         source: "API_PANE",
       });
     }
-    dispatch(setApiPaneResponseSelectedTab(tabKey));
+    dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
   const responsePaneHeight = useSelector(getApiPaneResponsePaneHeight);

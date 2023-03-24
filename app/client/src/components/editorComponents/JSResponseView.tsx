@@ -46,16 +46,11 @@ import { TAB_MIN_HEIGHT } from "design-system-old";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
-import {
-  getJSPaneResponsePaneHeight,
-  getJSPaneResponseSelectedTab,
-} from "selectors/jsPaneSelectors";
-import {
-  setJsPaneResponsePaneHeight,
-  setJsPaneResponseSelectedTab,
-} from "actions/jsPaneActions";
+import { getJSPaneResponsePaneHeight } from "selectors/jsPaneSelectors";
+import { setJsPaneResponsePaneHeight } from "actions/jsPaneActions";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { showDebugger } from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -212,7 +207,7 @@ function JSResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
     });
-    dispatch(setJsPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
   useEffect(() => {
     setResponseStatus(
@@ -329,10 +324,10 @@ function JSResponseView(props: Props) {
     },
   ];
 
-  const selectedResponseTab = useSelector(getJSPaneResponseSelectedTab);
+  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   const responseTabHeight = useSelector(getJSPaneResponsePaneHeight);
   const setSelectedResponseTab = useCallback((selectedTab: string) => {
-    dispatch(setJsPaneResponseSelectedTab(selectedTab));
+    dispatch(setDebuggerSelectedTab(selectedTab));
   }, []);
 
   const setResponseHeight = useCallback((height: number) => {

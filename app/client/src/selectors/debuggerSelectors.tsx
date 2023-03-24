@@ -128,3 +128,7 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
 
 export const hideDebuggerIconSelector = () =>
   matchDatasourcePath(window.location.pathname);
+
+// get selected tab in debugger.
+export const getDebuggerSelectedTab = (state: AppState) =>
+  state.ui.debugger.selectedDebuggerTab;
