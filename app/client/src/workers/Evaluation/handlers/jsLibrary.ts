@@ -11,6 +11,7 @@ import {
 } from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerSyncRequest } from "../types";
+import { dataTreeEvaluator } from "./evalTree";
 
 enum LibraryInstallError {
   NameCollisionError,
@@ -55,10 +56,35 @@ class LibraryOverrideError extends Error {
   }
 }
 
+const removeDataTreeFromContext = () => {
+  if (!dataTreeEvaluator) return {};
+  const evalTree = dataTreeEvaluator?.getEvalTree();
+  const dataTreeEntityNames = Object.keys(evalTree);
+  const tempDataTreeStore: Record<string, any> = {};
+  for (const entityName of dataTreeEntityNames) {
+    // @ts-expect-error: self is a global variable
+    tempDataTreeStore[entityName] = self[entityName];
+    // @ts-expect-error: self is a global variable
+    delete self[entityName];
+  }
+  return tempDataTreeStore;
+};
+
+function addTempStoredDataTreeToContext(
+  tempDataTreeStore: Record<string, any>,
+) {
+  const dataTreeEntityNames = Object.keys(tempDataTreeStore);
+  for (const entityName of dataTreeEntityNames) {
+    // @ts-expect-error: self is a global variable
+    self[entityName] = tempDataTreeStore[entityName];
+  }
+}
+
 export function installLibrary(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { takenAccessors, takenNamesMap, url } = data;
   const defs: Def = {};
+  const tempDataTreeStore = removeDataTreeFromContext();
   try {
     const currentEnvKeys = Object.keys(self);
 
@@ -82,6 +108,8 @@ export function installLibrary(request: EvalWorkerSyncRequest) {
       Object.keys(self),
       currentEnvKeys,
     ) as Array<string>;
+
+    addTempStoredDataTreeToContext(tempDataTreeStore);
 
     checkForNameCollision(accessor, takenNamesMap);
 
