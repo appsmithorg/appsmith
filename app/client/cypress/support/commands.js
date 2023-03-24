@@ -1257,10 +1257,10 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click({ force: true });
   cy.wait("@createSuperUser").then((interception) => {
-    expect(interception.request.body).not.contains(
+    expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",
     );
-    expect(interception.request.body).not.contains("signupForNewsletter=true");
+    expect(interception.request.body).contains("signupForNewsletter=true");
   });
   cy.LogOut();
   cy.wait(2000);
