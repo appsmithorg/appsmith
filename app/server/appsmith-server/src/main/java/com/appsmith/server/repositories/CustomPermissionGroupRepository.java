@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface CustomPermissionGroupRepository extends CustomPermissionGroupRepositoryCE {
@@ -26,7 +27,13 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
     Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission aclPermission);
 
     Mono<Long> countAllReadablePermissionGroups();
+
     Mono<Long> countAllReadablePermissionGroupsForUser(User user);
+
     Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
+
+    Flux<PermissionGroup> findByDefaultApplicationId(String applicationId, Optional<AclPermission> permission);
+
+    Flux<PermissionGroup> findByDefaultApplicationIds(Set<String> applicationIds, Optional<AclPermission> permission);
 
 }

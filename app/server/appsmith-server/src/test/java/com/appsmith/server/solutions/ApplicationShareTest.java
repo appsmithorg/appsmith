@@ -11,6 +11,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -29,6 +30,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,6 +106,8 @@ public class ApplicationShareTest {
     PermissionGroupService permissionGroupService;
     @Autowired
     ThemeService themeService;
+    @Autowired
+    UserService userService;
     @Autowired
     WorkspaceService workspaceService;
 
@@ -897,5 +901,361 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
         });
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDeleteDefaultRoleForTestUser_deleteDevRole() {
+        String testName = "testDeleteDefaultRoleForTestUser_deleteDevRole";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup devApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+        assertThat(devApplicationRole).isNotNull();
+
+        applicationService.deleteDefaultRole(application, devApplicationRole).block();
+        PermissionGroup deletedDevApplicationRole = permissionGroupRepository.findById(devApplicationRole.getId()).block();
+        assertThat(deletedDevApplicationRole).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDeleteDefaultRoleForTestUser_deleteDevRoleWhenViewRolePresent() {
+        String testName = "testDeleteDefaultRoleForTestUser_deleteDevRoleWhenViewRolePresent";
+        PermissionGroup instanceAdminRole = userUtils.getSuperAdminPermissionGroup().block();
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        String adminRoleId = defaultWorkspaceRoles.stream().filter(role -> role.getName().startsWith(ADMINISTRATOR)).map(role -> role.getId()).findFirst().get();
+        String devRoleId = defaultWorkspaceRoles.stream().filter(role -> role.getName().startsWith(DEVELOPER)).map(role -> role.getId()).findFirst().get();
+        String viewRoleId = defaultWorkspaceRoles.stream().filter(role -> role.getName().startsWith(VIEWER)).map(role -> role.getId()).findFirst().get();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup devApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+        assertThat(devApplicationRole).isNotNull();
+        PermissionGroup viewApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+        assertThat(viewApplicationRole).isNotNull();
+
+        applicationService.deleteDefaultRole(application, devApplicationRole).block();
+        PermissionGroup deletedDevApplicationRole = permissionGroupRepository.findById(devApplicationRole.getId()).block();
+        assertThat(deletedDevApplicationRole).isNull();
+
+        PermissionGroup updatedViewApplicationRole = permissionGroupRepository
+                .findById(viewApplicationRole.getId(), Optional.empty()).block();
+        assertThat(updatedViewApplicationRole).isNotNull();
+        assertThat(updatedViewApplicationRole.getName()).isEqualTo(APPLICATION_VIEWER + " - " + testName);
+        assertThat(updatedViewApplicationRole.getDefaultDomainId()).isEqualTo(createdApplication.getId());
+        assertThat(updatedViewApplicationRole.getDefaultDomainType()).isEqualTo(Application.class.getSimpleName());
+        Optional<Policy> managePolicyView = updatedViewApplicationRole.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(AclPermission.MANAGE_PERMISSION_GROUPS.getValue()))
+                .findFirst();
+        assertThat(managePolicyView.isEmpty()).isTrue();
+        Optional<Policy> readPolicyView = updatedViewApplicationRole.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUPS.getValue()))
+                .findFirst();
+        assertThat(readPolicyView.isPresent()).isTrue();
+        assertThat(readPolicyView.get().getPermissionGroups()).isEqualTo(Set.of(instanceAdminRole.getId()));
+        Optional<Policy> assignPolicyView = updatedViewApplicationRole.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(AclPermission.ASSIGN_PERMISSION_GROUPS.getValue()))
+                .findFirst();
+        assertThat(assignPolicyView.isPresent()).isTrue();
+        assertThat(assignPolicyView.get().getPermissionGroups())
+                .contains(viewApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId, viewRoleId);
+        Optional<Policy> unAssignPolicyView = updatedViewApplicationRole.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue()))
+                .findFirst();
+        assertThat(unAssignPolicyView.isPresent()).isTrue();
+        assertThat(unAssignPolicyView.get().getPermissionGroups())
+                .contains(viewApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId, viewRoleId);
+        Optional<Policy> readMembersPolicyView = updatedViewApplicationRole.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
+                .findFirst();
+        assertThat(readMembersPolicyView.isPresent()).isTrue();
+        assertThat(readMembersPolicyView.get().getPermissionGroups())
+                .contains(viewApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId, viewRoleId);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDeleteDefaultRoleForTestUser_deleteViewRole() {
+        String testName = "testDeleteDefaultRoleForTestUser_deleteViewRole";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup viewApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+        assertThat(viewApplicationRole).isNotNull();
+
+        applicationService.deleteDefaultRole(application, viewApplicationRole).block();
+        PermissionGroup deletedViewApplicationRole = permissionGroupRepository.findById(viewApplicationRole.getId()).block();
+        assertThat(deletedViewApplicationRole).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasWorkspaceAdminAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceAdminAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(2);
+        PermissionGroupInfoDTO developerRole = defaultRoleDescriptionDTOs.get(0);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
+        assertThat(developerRole.getName()).startsWith(APPLICATION_DEVELOPER);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User newUser = userService.userCreate(user, false).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup workspaceDevRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
+        permissionGroupService.assignToUser(workspaceDevRole, testUser).block();
+        permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(2);
+        PermissionGroupInfoDTO developerRole = defaultRoleDescriptionDTOs.get(0);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
+        assertThat(developerRole.getName()).startsWith(APPLICATION_DEVELOPER);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User newUser = userService.userCreate(user, false).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup workspaceViewRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
+        permissionGroupService.assignToUser(workspaceViewRole, testUser).block();
+        permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(1);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(0);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasApplicationDeveloperAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasApplicationDeveloperAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User newUser = userService.userCreate(user, false).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup applicationDevRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+
+        permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
+        permissionGroupService.assignToUser(applicationDevRole, testUser).block();
+        permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(2);
+        PermissionGroupInfoDTO developerRole = defaultRoleDescriptionDTOs.get(0);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
+        assertThat(developerRole.getName()).startsWith(APPLICATION_DEVELOPER);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasApplicationViewerAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasApplicationViewerAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User newUser = userService.userCreate(user, false).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup applicationViewRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+
+        permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
+        permissionGroupService.assignToUser(applicationViewRole, testUser).block();
+        permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(1);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(0);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperApplicationViewerAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperApplicationViewerAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User newUser = userService.userCreate(user, false).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup workspaceDevRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+        PermissionGroup applicationViewRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+
+        permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
+        permissionGroupService.assignToUser(workspaceDevRole, testUser).block();
+        permissionGroupService.assignToUser(applicationViewRole, testUser).block();
+        permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(2);
+        PermissionGroupInfoDTO developerRole = defaultRoleDescriptionDTOs.get(0);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
+        assertThat(developerRole.getName()).startsWith(APPLICATION_DEVELOPER);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerApplicationDeveloperAccess() {
+        String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerApplicationDeveloperAccess";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User newUser = userService.userCreate(user, false).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup workspaceViewRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(VIEWER))
+                .findFirst().get();
+        PermissionGroup applicationDevRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+
+        permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
+        permissionGroupService.assignToUser(workspaceViewRole, testUser).block();
+        permissionGroupService.assignToUser(applicationDevRole, testUser).block();
+        permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
+
+        List<PermissionGroupInfoDTO> defaultRoleDescriptionDTOs = applicationService.fetchAllDefaultRoles(createdApplication.getId()).block();
+        assertThat(defaultRoleDescriptionDTOs).hasSize(2);
+        PermissionGroupInfoDTO developerRole = defaultRoleDescriptionDTOs.get(0);
+        PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
+        assertThat(developerRole.getName()).startsWith(APPLICATION_DEVELOPER);
+        assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
     }
 }

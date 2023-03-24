@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface PermissionGroupService extends PermissionGroupServiceCE {
@@ -55,6 +57,9 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users);
 
     Mono<Set<String>> getSessionUserPermissionGroupIds();
+
     Mono<Set<String>> getAllDirectlyAndIndirectlyAssignedUserIds(PermissionGroup permissionGroup);
+
+    Flux<PermissionGroup> getAllDefaultRolesForApplication(Application application, Optional<AclPermission> aclPermission);
 
 }

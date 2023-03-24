@@ -12,6 +12,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -27,6 +28,7 @@ import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -34,8 +36,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +50,9 @@ import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER_DESC
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
+import static com.appsmith.server.helpers.AppsmithComparators.permissionGroupInfoWithEntityTypeComparator;
 
 
 @Slf4j
@@ -371,5 +378,127 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 Datasource.class.getSimpleName(), datasourcePermissions,
                 NewPage.class.getSimpleName(), pagePermissions,
                 NewAction.class.getSimpleName(), actionPermissions);
+    }
+
+    /**
+     * The method is responsible for deleting a given default application role for application.
+     * The role will be deleted if the role's defaultDomainId matches the application's ID, and
+     * is either a Developer or App Viewer role.
+     * Else it will return an {@link AppsmithException} with Error as {@code UNSUPPORTED_OPERATION}.
+     * @param application Application for which the default role is being deleted.
+     * @param role Role which is being deleted.
+     */
+    @Override
+    public Mono<Void> deleteDefaultRole(Application application, PermissionGroup role) {
+        if (StringUtils.isNotEmpty(role.getDefaultDomainId())
+                && role.getDefaultDomainId().equals(application.getId())
+                && (role.getName().startsWith(APPLICATION_VIEWER) || role.getName().startsWith(APPLICATION_DEVELOPER))) {
+            return permissionGroupService.deleteWithoutPermission(role.getId());
+        } else {
+            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+        }
+    }
+
+    /**
+     * Returns all the default role types, the logged-in user has access to.
+     * If the user has access to assign permission for either default workspace roles - Admin/Developer or default
+     * application role - Developer, we return Developer and Viewer role types.
+     * If the user has access to assign permission for either default workspace role - App Viewer or  default
+     * application role - App Viewer, we return App Viewer role.
+     * If none of the default roles are assigned to the user, then we return an empty list.
+     * @param applicationId Application ID for which the role types would be fetched.
+     * @return {@link Mono}<{@link List}<{@link PermissionGroupInfoDTO}>>
+     */
+    @Override
+    public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRoles(String applicationId) {
+        Mono<Application> applicationMono = getById(applicationId)
+                .cache();
+
+        Flux<PermissionGroup> defaultApplicationRolesFlux = applicationMono
+                .flatMapMany(application ->
+                        permissionGroupService.getAllDefaultRolesForApplication(application,
+                                Optional.of(permissionGroupPermission.getAssignPermission())));
+        Flux<PermissionGroup> defaultWorkspaceRolesFlux = applicationMono
+                .flatMapMany(application ->
+                        permissionGroupService.getByDefaultWorkspaces(Set.of(application.getWorkspaceId()),
+                                permissionGroupPermission.getAssignPermission()));
+
+
+        // Based on default application roles it creates a set of static application roles.
+        Mono<Set<String>> accessibleApplicationRolesFromDefaultApplicationRolesMono = defaultApplicationRolesFlux.collectList()
+                .map(defaultApplicationRoles -> {
+                    Set<String> staticApplicationRoles = new HashSet<>();
+                    defaultApplicationRoles.stream().map(this::getAccessibleStaticApplicationRoles).forEach(staticApplicationRoles::addAll);
+                    return staticApplicationRoles;
+                });
+
+        // Based on default workspace roles it creates a set of static workspace roles.
+        Mono<Set<String>> accessibleApplicationRolesFromDefaultWorkspaceRolesMono = defaultWorkspaceRolesFlux.collectList()
+                .map(defaultApplicationRoles -> {
+                    Set<String> staticApplicationRoles = new HashSet<>();
+                    defaultApplicationRoles.stream().map(this::getAccessibleStaticApplicationRoles).forEach(staticApplicationRoles::addAll);
+                    return staticApplicationRoles;
+                });
+
+        /*
+         * Here, all the static application roles from accessibleApplicationRolesFromDefaultApplicationRolesMono is calculated first.
+         * If the static application roles does not contain both APPLICATION_DEVELOPER & APPLICATION_VIEWER, then
+         * static application roles are calculated from accessibleApplicationRolesFromDefaultWorkspaceRolesMono, and
+         * appended to the already existing set.
+         *
+         * This ensures that an extra call to DB is only made, if all the static roles are not present.
+         */
+        Mono<Set<String>> allAccessibleApplicationRolesMono = accessibleApplicationRolesFromDefaultApplicationRolesMono
+                .flatMap(accessibleApplicationRoles -> {
+                    if (!areAllStaticApplicationRolesPresent(accessibleApplicationRoles)) {
+                        return accessibleApplicationRolesFromDefaultWorkspaceRolesMono
+                                .map(accessibleApplicationRoles1 -> {
+                                    accessibleApplicationRoles.addAll(accessibleApplicationRoles1);
+                                    return accessibleApplicationRoles;
+                                });
+                    }
+                    return Mono.just(accessibleApplicationRoles);
+                });
+
+        return allAccessibleApplicationRolesMono
+                .zipWith(applicationMono)
+                .map(tuple -> {
+                    Set<String> roleSet = tuple.getT1();
+                    Application application = tuple.getT2();
+                    List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
+                    if (roleSet.contains(APPLICATION_DEVELOPER)) {
+                        PermissionGroupInfoDTO roleDescriptionDTO = new PermissionGroupInfoDTO();
+                        roleDescriptionDTO.setName(generateDefaultRoleNameForResource(APPLICATION_DEVELOPER, application.getName()));
+                        roleDescriptionDTO.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
+                        roleDescriptionDTO.setAutoCreated(Boolean.TRUE);
+                        roleDescriptionDTOS.add(roleDescriptionDTO);
+                    }
+                    if (roleSet.contains(APPLICATION_VIEWER)) {
+                        PermissionGroupInfoDTO roleDescriptionDTO = new PermissionGroupInfoDTO();
+                        roleDescriptionDTO.setName(generateDefaultRoleNameForResource(APPLICATION_VIEWER, application.getName()));
+                        roleDescriptionDTO.setDescription(APPLICATION_VIEWER_DESCRIPTION);
+                        roleDescriptionDTO.setAutoCreated(Boolean.TRUE);
+                        roleDescriptionDTOS.add(roleDescriptionDTO);
+                    }
+                    roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
+                    return roleDescriptionDTOS;
+                });
+    }
+
+    private HashSet<String> getAccessibleStaticApplicationRoles(PermissionGroup role) {
+        Set<String> accessibleStaticRoles = Set.of();
+        if ((role.getName().startsWith(APPLICATION_DEVELOPER) && role.getDefaultDomainType().equals(Application.class.getSimpleName()))
+                || (role.getName().startsWith(ADMINISTRATOR) && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))
+                || (role.getName().startsWith(DEVELOPER) && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))) {
+            accessibleStaticRoles = Set.of(APPLICATION_DEVELOPER, APPLICATION_VIEWER);
+        } else if ((role.getName().startsWith(APPLICATION_VIEWER) && role.getDefaultDomainType().equals(Application.class.getSimpleName()))
+                || (role.getName().startsWith(VIEWER) && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))) {
+            accessibleStaticRoles = Set.of(APPLICATION_VIEWER);
+        }
+        return new HashSet<>(accessibleStaticRoles);
+    }
+
+    private boolean areAllStaticApplicationRolesPresent(Set<String> staticDefaultRoles) {
+        return staticDefaultRoles.containsAll(Set.of(APPLICATION_DEVELOPER, APPLICATION_VIEWER));
     }
 }
