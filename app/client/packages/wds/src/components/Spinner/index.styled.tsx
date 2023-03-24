@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { importRemixIcon } from "design-system-old";
 
-const LoaderIcon = importRemixIcon(() =>
-  import("remixicon-react/Loader2FillIcon"),
+const LoaderIcon = importRemixIcon(
+  () => import("remixicon-react/Loader2FillIcon"),
 );
 
 export const StyledSpinner = styled(LoaderIcon)`
