@@ -1,6 +1,6 @@
 import { get, isEmpty, merge, set } from "lodash";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -323,9 +323,8 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
   });
   const currentEvalContext = self;
 
-  const evalTree = dataTreeEvaluator?.getEvalTree();
-
-  if (!evalTree) return;
+  if (!dataTreeEvaluator) return;
+  const evalTree = dataTreeEvaluator.getEvalTree();
 
   for (const fullPathArray of paths) {
     const [jsObjectName, variableName] = fullPathArray;
@@ -339,6 +338,19 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       JSObjectCollection.setVariableValue(
         value,
         `${jsObjectName}.${variableName}`,
+      );
+      /* 
+      JSobject variable values are picked from evalProps until the unevalValue is not modified.
+
+      Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
+      */
+      set(
+        dataTreeEvaluator.evalProps,
+        getEvalValuePath(`${jsObjectName}.${variableName}`, {
+          isPopulated: true,
+          fullPath: true,
+        }),
+        value,
       );
     }
   }
