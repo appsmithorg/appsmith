@@ -9,7 +9,6 @@ import {
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import type {
-  AnyReduxAction,
   ApplicationPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
