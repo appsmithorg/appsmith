@@ -405,10 +405,19 @@ export function actionToCode(
   if (!actionFieldConfig) {
     return code;
   }
+  /**
+   * Unfortunately, we have to do this because the integration action could be represented with success and error callbacks
+   * and then/catch blocks. We need to check if the action is an integration action and if it had a success or error callback
+   * defined already, to preserve the positions of params object which should first param when using then/catch and 3rd param when using
+   * callbacks.
+   */
+  const supportsCallback = actionType === AppsmithFunction.integration;
 
   if (chainableFns.includes(actionType as any) && multipleActions) {
-    const existingSuccessCallback = getFuncExpressionAtPosition(code, 0, 2);
-    const existingErrorCallback = getFuncExpressionAtPosition(code, 1, 2);
+    const existingSuccessCallback =
+      supportsCallback && getFuncExpressionAtPosition(code, 0, 2);
+    const existingErrorCallback =
+      supportsCallback && getFuncExpressionAtPosition(code, 1, 2);
     const thenBlockExists = checkIfCatchBlockExists(code);
     const catchBlockExists = checkIfThenBlockExists(code);
     if (actionType === AppsmithFunction.integration) {
