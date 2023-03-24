@@ -111,9 +111,19 @@ export class AggregateHelper {
   }
 
   public RenameWithInPane(renameVal: string, IsQuery = true) {
+    const target = IsQuery
+      ? this.locator._querytargetNameEdit
+      : this.locator._dstargetNameEdit;
     const name = IsQuery ? this.locator._queryName : this.locator._dsName;
     const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    this.GetNClick(name, 0, true);
+    this.GetElement(target)
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (!classes.includes("bp3-editable-text-editing")) {
+          this.GetNClick(name, 0, true);
+        }
+      });
+
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true, delay: 0 })
