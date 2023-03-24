@@ -107,6 +107,7 @@ class LazyCodeEditorStateMachine {
       case "loading":
         try {
           const codeEditorModule = await import(
+            /* webpackPrefetch: true */
             "components/editorComponents/CodeEditor"
           );
           // Once CodeEditor loads, save it, so we can render it synchronously in the future
