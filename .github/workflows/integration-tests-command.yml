@@ -109,7 +109,7 @@ jobs:
 
       # Download failed_spec list for all jobs
       - uses: actions/download-artifact@v3
-        if: needs.ci-test.result
+        if: needs.ci-test.result != 'success'
         id: download_ci
         with:
           name: failed-spec-ci
