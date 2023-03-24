@@ -14,7 +14,7 @@ import { Button } from "design-system";
 const StyledHeader = styled.div`
   height: 48px;
   padding: 10px 16px 12px;
-  box-shadow: 0 1px 0 0 ${Colors.GRAY_300};
+  border-bottom: 1px solid ${Colors.GRAY_300};
 `;
 
 const StyledText = styled.div`

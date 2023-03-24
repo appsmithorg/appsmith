@@ -1,9 +1,10 @@
-import React, { HTMLAttributes, useMemo, forwardRef } from "react";
+import type { HTMLAttributes } from "react";
+import React, { useMemo, forwardRef } from "react";
 
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
-import { fontFamilyTypes } from "../../utils/typography";
+import type { fontFamilyTypes } from "../../utils/typography";
 
 // types
 export enum ButtonVariant {
