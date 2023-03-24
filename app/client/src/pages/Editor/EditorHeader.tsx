@@ -98,6 +98,15 @@ import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { importSvg } from "design-system-old";
+
+const MenuIcon = importSvg(() => import("assets/icons/header/hamburger.svg"));
+const UnpinIcon = importSvg(
+  () => import("assets/icons/ads/double-arrow-right.svg"),
+);
+const PinIcon = importSvg(
+  () => import("assets/icons/ads/double-arrow-left.svg"),
+);
 
 const { cloudHosting } = getAppsmithConfigs();
 

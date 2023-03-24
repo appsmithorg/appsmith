@@ -31,6 +31,11 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { importSvg } from "design-system-old";
+
+const TwoLineHamburger = importSvg(
+  () => import("assets/icons/ads/two-line-hamburger.svg"),
+);
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
