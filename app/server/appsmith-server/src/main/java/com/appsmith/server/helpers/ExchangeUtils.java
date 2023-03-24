@@ -21,7 +21,7 @@ public class ExchangeUtils {
      * @return a Mono that resolves to the value of the given header, if present. Else, an empty Mono.
      * @param headerName The header name to look for.
      */
-    public static Mono<String> getHeaderFromCurrentRequest(String headerName) {
+    private static Mono<String> getHeaderFromCurrentRequest(String headerName) {
         return Mono.deferContextual(Mono::just)
                 .flatMap(contextView -> Mono.justOrEmpty(
                         contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst(headerName)
