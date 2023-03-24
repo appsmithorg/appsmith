@@ -95,4 +95,29 @@ describe("JSObject testing", () => {
         expect($label).contains("[]");
       });
   });
+
+  it("5. Set property addition and deletion", function () {
+    cy.get(publishLocators.selectwidget)
+      .eq(0)
+      .find(widgetLocators.dropdownSingleSelect)
+      .click({ force: true });
+    // Select the Array option from dropdown list
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
+      .contains("SET")
+      .click({ force: true });
+
+    _.agHelper.ClickButton("ADD");
+    _.agHelper
+      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .then(($label) => {
+        expect($label).contains("[  0]");
+      });
+
+    _.agHelper.ClickButton("SUB");
+    _.agHelper
+      .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
+      .then(($label) => {
+        expect($label).contains("[]");
+      });
+  });
 });
