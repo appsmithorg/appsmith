@@ -194,9 +194,10 @@ export class PropertyPane {
     jsName: string,
     funcName: string,
   ) {
-    this.SelectPropertiesDropDown(eventName, "Execute a JS function");
-    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
-    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
+    this.AddAction(eventName);
+    cy.get(this.locator._dropDownValue("Execute a JS function")).click();
+    cy.get(this.locator._dropDownValue(jsName)).click();
+    cy.get(this.locator._dropDownValue(funcName)).click();
     this.agHelper.AssertAutoSave();
   }
 
