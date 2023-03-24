@@ -323,8 +323,7 @@ public class OraclePlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) throws AppsmithPluginException {
 
-            OraclePreparedStatement preparedStatement = (OraclePreparedStatement) input;
-            HikariProxyConnection connection = (HikariProxyConnection) args[0];
+            PreparedStatement preparedStatement = (PreparedStatement) input;
             Param param = (Param) args[1];
             DataType valueType;
             valueType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value,
