@@ -24,8 +24,8 @@ import {
 import { Colors } from "constants/Colors";
 import { importRemixIcon } from "design-system-old";
 
-const PagesLineIcon = importRemixIcon(() =>
-  import("remixicon-react/PagesLineIcon"),
+const PagesLineIcon = importRemixIcon(
+  () => import("remixicon-react/PagesLineIcon"),
 );
 
 const Wrapper = styled.div`

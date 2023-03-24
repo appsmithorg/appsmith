@@ -41,8 +41,8 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { importRemixIcon } from "design-system-old";
 
-const ArrowRightLineIcon = importRemixIcon(() =>
-  import("remixicon-react/ArrowRightLineIcon"),
+const ArrowRightLineIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowRightLineIcon"),
 );
 
 const ShowAll = styled.div`

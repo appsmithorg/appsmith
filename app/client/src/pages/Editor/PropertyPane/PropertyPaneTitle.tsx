@@ -20,7 +20,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import type { PopoverPosition } from "@blueprintjs/core";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
 import { importSvg } from "design-system-old";
 

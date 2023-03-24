@@ -11,8 +11,8 @@ import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { Colors } from "constants/Colors";
 import { importRemixIcon, importSvg } from "design-system-old";
 
-const AddDatasourceIcon = importRemixIcon(() =>
-  import("remixicon-react/AddBoxLineIcon"),
+const AddDatasourceIcon = importRemixIcon(
+  () => import("remixicon-react/AddBoxLineIcon"),
 );
 const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
 const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));

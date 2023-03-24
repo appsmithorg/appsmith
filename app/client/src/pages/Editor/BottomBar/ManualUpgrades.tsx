@@ -30,8 +30,8 @@ import classNames from "classnames";
 import { BottomBarCTAStyles } from "./styles";
 import { importRemixIcon } from "design-system-old";
 
-const DisclaimerIcon = importRemixIcon(() =>
-  import("remixicon-react/ErrorWarningLineIcon"),
+const DisclaimerIcon = importRemixIcon(
+  () => import("remixicon-react/ErrorWarningLineIcon"),
 );
 
 const StyledList = styled.ul`

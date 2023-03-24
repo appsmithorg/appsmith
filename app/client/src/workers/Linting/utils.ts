@@ -1,5 +1,4 @@
 import type {
-  ConfigTree,
   DataTree,
   DataTreeEntity,
   DataTreeEntityConfig,

@@ -1,8 +1,12 @@
 import React from "react";
-import MenuIcon from "remixicon-react/MenuFillIcon";
-import CloseIcon from "remixicon-react/CloseFillIcon";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
+import { importRemixIcon } from "design-system-old";
+
+const MenuIcon = importRemixIcon(() => import("remixicon-react/MenuFillIcon"));
+const CloseIcon = importRemixIcon(
+  () => import("remixicon-react/CloseFillIcon"),
+);
 
 type MobileNavToggleProps = {
   isMenuOpen: boolean;

@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import classNames from "classnames";
+import type { IconProps } from "@blueprintjs/core";
 import svgImportsMap from "components/designSystems/blueprintjs/icon/svgImportsMap";
 // Below symbols must be imported directly from target files to avoid crashes
 // caused by cyclic dependencies in @blueprintjs/core.
@@ -18,7 +19,7 @@ export enum IconSize {
   LARGE = 20,
 }
 
-function Icon(props: import("@blueprintjs/core").IconProps) {
+function Icon(props: IconProps) {
   const {
     icon,
     className,
@@ -27,7 +28,6 @@ function Icon(props: import("@blueprintjs/core").IconProps) {
     iconSize,
     intent,
     size = iconSize ?? IconSize.STANDARD,
-    title = icon,
     tagName: TagName = "span",
     ...htmlprops
   } = props;
@@ -62,11 +62,11 @@ function Icon(props: import("@blueprintjs/core").IconProps) {
     return (
       <TagName {...htmlprops} className={classes} title={htmlTitle}>
         <SvgIcon
-          fill={color}
           data-icon={icon}
-          width={size}
+          fill={color}
           height={size}
           viewBox={viewBox}
+          width={size}
         />
       </TagName>
     );

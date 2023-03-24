@@ -13,8 +13,8 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { importRemixIcon } from "design-system-old";
 
-const ArrowLeft = importRemixIcon(() =>
-  import("remixicon-react/ArrowLeftSLineIcon"),
+const ArrowLeft = importRemixIcon(
+  () => import("remixicon-react/ArrowLeftSLineIcon"),
 );
 
 const Title = styled.h3`

@@ -49,8 +49,8 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { importRemixIcon } from "design-system-old";
 
-const SaveSuccessIcon = importRemixIcon(() =>
-  import("remixicon-react/CheckboxCircleFillIcon"),
+const SaveSuccessIcon = importRemixIcon(
+  () => import("remixicon-react/CheckboxCircleFillIcon"),
 );
 
 const openDoc = (e: React.MouseEvent, url: string) => {

@@ -3,8 +3,7 @@
 // Note: using type-only imports here to avoid circular dependencies between
 // this file and BlueprintJS icon components. (The circular dependency
 // may be created because this module replaces BlueprintJS's icon implementation.)
-type IconName = import("@blueprintjs/icons").IconName;
-type IconSize = import("@blueprintjs/core").IconSize;
+import type { IconName, IconSize } from "@blueprintjs/core";
 
 // This type ensures we don’t forget to add a new icon or icon size
 // when BlueprintJS updates its IconName or IconSize types.
@@ -13,6 +12,7 @@ type IconSize = import("@blueprintjs/core").IconSize;
 //   Property 'add' is missing in type '...' but required in type 'IconMapType'
 type IconMapType = Record<
   IconName,
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   Record<IconSize, () => Promise<typeof import("*.svg")>>
 >;
 

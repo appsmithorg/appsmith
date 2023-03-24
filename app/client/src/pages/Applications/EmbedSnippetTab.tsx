@@ -25,8 +25,8 @@ import classNames from "classnames";
 import { PopoverPosition } from "@blueprintjs/core";
 import { importRemixIcon } from "design-system-old";
 
-const ExternaLink = importRemixIcon(() =>
-  import("remixicon-react/ExternalLinkLineIcon"),
+const ExternaLink = importRemixIcon(
+  () => import("remixicon-react/ExternalLinkLineIcon"),
 );
 
 const StyledLink = styled.a`

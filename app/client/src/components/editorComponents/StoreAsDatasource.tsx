@@ -18,11 +18,11 @@ import {
 } from "@appsmith/constants/messages";
 import { importRemixIcon } from "design-system-old";
 
-const CloudLine = importRemixIcon(() =>
-  import("remixicon-react/CloudLineIcon"),
+const CloudLine = importRemixIcon(
+  () => import("remixicon-react/CloudLineIcon"),
 );
-const Edit2Line = importRemixIcon(() =>
-  import("remixicon-react/Edit2LineIcon"),
+const Edit2Line = importRemixIcon(
+  () => import("remixicon-react/Edit2LineIcon"),
 );
 
 export const StoreDatasourceWrapper = styled.div<{ enable?: boolean }>`

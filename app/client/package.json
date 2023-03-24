@@ -24,9 +24,9 @@
     "postinstall": "node cypress/apply-patches.js",
     "storybook": "yarn workspace @design-system/storybook storybook",
     "lint:ci": "eslint --cache --ext .js,.ts,.tsx ./src && eslint --cache --ext .js,.ts ./cypress && yarn run lint:packages",
-    "lint:packages": "workspaces-foreach -pt yarn lint:ci",
+    "lint:packages": "yarn workspaces foreach --exclude appsmith -pt run lint:ci",
     "prettier:ci": "prettier --check ./src && prettier --check ./cypress && yarn run prettier:packages",
-    "prettier:packages": "workspaces-foreach -pt yarn prettier:ci",
+    "prettier:packages": "yarn workspaces foreach --exclude appsmith -pt run prettier:ci",
     "check-types": "yarn tsc --noEmit",
     "prepare": "cd ../.. && husky install app/client/.husky"
   },
@@ -250,6 +250,7 @@
     "@types/zipcelx": "^1.5.0",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
+    "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-module-resolver": "^4.1.0",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
@@ -299,7 +300,6 @@
     "ts-jest-mock-import-meta": "^0.12.0",
     "ts-loader": "^9.4.1",
     "webpack-merge": "^5.8.0",
-    "workbox-webpack-plugin": "^6.5.3",
-    "yarn-workspaces-foreach": "^0.2.0"
+    "workbox-webpack-plugin": "^6.5.3"
   }
 }

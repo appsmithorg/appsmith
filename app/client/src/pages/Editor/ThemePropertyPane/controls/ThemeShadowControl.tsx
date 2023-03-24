@@ -4,8 +4,8 @@ import { ButtonGroup, TooltipComponent } from "design-system-old";
 import { invertedBoxShadowOptions } from "constants/ThemeConstants";
 import { importRemixIcon } from "design-system-old";
 
-const CloseLineIcon = importRemixIcon(() =>
-  import("remixicon-react/CloseLineIcon"),
+const CloseLineIcon = importRemixIcon(
+  () => import("remixicon-react/CloseLineIcon"),
 );
 
 interface ThemeBoxShadowControlProps {

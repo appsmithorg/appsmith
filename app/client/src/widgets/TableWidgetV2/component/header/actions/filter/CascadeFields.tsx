@@ -19,11 +19,11 @@ import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
 import { importRemixIcon } from "design-system-old";
 
-const CloseIcon = importRemixIcon(() =>
-  import("remixicon-react/CloseCircleFillIcon"),
+const CloseIcon = importRemixIcon(
+  () => import("remixicon-react/CloseCircleFillIcon"),
 );
-const ArrowDownIcon = importRemixIcon(() =>
-  import("remixicon-react/ArrowDownSLineIcon"),
+const ArrowDownIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowDownSLineIcon"),
 );
 
 const LabelWrapper = styled.div`

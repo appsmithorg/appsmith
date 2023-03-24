@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import AppsIcon from "remixicon-react/AppsLineIcon";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
@@ -12,6 +11,9 @@ import {
 import styled from "styled-components";
 import { TooltipComponent } from "design-system-old";
 import classNames from "classnames";
+import { importRemixIcon } from "design-system-old";
+
+const AppsIcon = importRemixIcon(() => import("remixicon-react/AppsLineIcon"));
 
 type BackToHomeButtonProps = {
   primaryColor: string;

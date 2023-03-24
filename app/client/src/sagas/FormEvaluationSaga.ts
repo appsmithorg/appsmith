@@ -27,7 +27,6 @@ import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
-import type { Action as ReduxActionType } from "redux";
 
 export type FormEvalActionPayload = {
   formId: string;

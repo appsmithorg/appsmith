@@ -17,8 +17,8 @@ import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { importRemixIcon } from "design-system-old";
 
-const QuestionFillIcon = importRemixIcon(() =>
-  import("remixicon-react/QuestionFillIcon"),
+const QuestionFillIcon = importRemixIcon(
+  () => import("remixicon-react/QuestionFillIcon"),
 );
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {

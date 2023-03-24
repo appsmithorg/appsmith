@@ -33,8 +33,8 @@ import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
 
-const AddLineIcon = importRemixIcon(() =>
-  import("remixicon-react/AddLineIcon"),
+const AddLineIcon = importRemixIcon(
+  () => import("remixicon-react/AddLineIcon"),
 );
 
 export const useFilteredFileOperations = (query = "") => {

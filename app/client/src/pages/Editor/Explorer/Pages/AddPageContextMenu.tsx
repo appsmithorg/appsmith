@@ -32,14 +32,14 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { importRemixIcon } from "design-system-old";
 
-const FileAddIcon = importRemixIcon(() =>
-  import("remixicon-react/FileAddLineIcon"),
+const FileAddIcon = importRemixIcon(
+  () => import("remixicon-react/FileAddLineIcon"),
 );
-const Database2LineIcon = importRemixIcon(() =>
-  import("remixicon-react/Database2LineIcon"),
+const Database2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Database2LineIcon"),
 );
-const Layout2LineIcon = importRemixIcon(() =>
-  import("remixicon-react/Layout2LineIcon"),
+const Layout2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Layout2LineIcon"),
 );
 
 const MenuItem = styled.div<{ active: boolean }>`

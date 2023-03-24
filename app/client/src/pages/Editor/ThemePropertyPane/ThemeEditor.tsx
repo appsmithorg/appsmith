@@ -40,11 +40,11 @@ import { Colors } from "constants/Colors";
 import { importRemixIcon } from "design-system-old";
 
 const MoreIcon = importRemixIcon(() => import("remixicon-react/MoreFillIcon"));
-const Save2LineIcon = importRemixIcon(() =>
-  import("remixicon-react/Save2LineIcon"),
+const Save2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Save2LineIcon"),
 );
-const ArrowGoBackIcon = importRemixIcon(() =>
-  import("remixicon-react/ArrowGoBackFillIcon"),
+const ArrowGoBackIcon = importRemixIcon(
+  () => import("remixicon-react/ArrowGoBackFillIcon"),
 );
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;

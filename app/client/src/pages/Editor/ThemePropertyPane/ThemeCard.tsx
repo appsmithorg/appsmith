@@ -21,8 +21,8 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { importRemixIcon } from "design-system-old";
 
-const DeleteIcon = importRemixIcon(() =>
-  import("remixicon-react/DeleteBinLineIcon"),
+const DeleteIcon = importRemixIcon(
+  () => import("remixicon-react/DeleteBinLineIcon"),
 );
 
 /**
