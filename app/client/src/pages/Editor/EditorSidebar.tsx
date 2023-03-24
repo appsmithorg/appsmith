@@ -15,7 +15,6 @@ import type { DragStart, DropResult } from "react-beautiful-dnd";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
 
