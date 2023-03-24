@@ -14,7 +14,10 @@ import { FocusEntity } from "navigation/FocusEntity";
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];
 
-const useResentEntities = () => {
+const useResentEntities = (): Array<{
+  entityType: FocusEntity;
+  [key: string]: any;
+}> => {
   const widgetsMap = useSelector(getAllWidgetsMap);
   const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
