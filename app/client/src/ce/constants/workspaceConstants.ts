@@ -26,6 +26,12 @@ export type WorkspaceUser = {
   isDeleting: boolean;
   isChangingRole: boolean;
   photoId?: string;
+  roles: {
+    id: string;
+    name: string;
+    description: string;
+    entityType: string;
+  }[];
 };
 
 export type Workspaces = {

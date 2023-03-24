@@ -205,7 +205,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it("7. Validate Filter table", () => {
-    var filterTitle = new Array();
+    let filterTitle = new Array();
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
 
