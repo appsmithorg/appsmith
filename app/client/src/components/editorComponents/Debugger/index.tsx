@@ -75,11 +75,13 @@ export function DebuggerTrigger() {
   const onClick = (e: any) => {
     //Removed canavs condition
     //Because we want to show debugger in all pages.
-    dispatch(showDebuggerAction(!showDebugger));
-    if (!showDebugger)
-      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-        source: "CANVAS",
-      });
+    if (!showDebugger) {
+      dispatch(showDebuggerAction(!showDebugger));
+      if (!showDebugger)
+        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+          source: "CANVAS",
+        });
+    }
     //Removed as this logic was confusing
     // Now on click of debugger we will always show error tab.
     dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
