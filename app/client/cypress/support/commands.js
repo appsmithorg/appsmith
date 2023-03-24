@@ -19,6 +19,7 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+import { ObjectsRegistry } from "./Objects/Registry";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -32,6 +33,8 @@ const publishWidgetspage = require("../locators/publishWidgetspage.json");
 
 // import { ObjectsRegistry } from "../support/Objects/Registry";
 // let agHelper = ObjectsRegistry.AggregateHelper;
+
+const { AggregateHelper, CommonLocators } = ObjectsRegistry;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -780,41 +783,28 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.canvas).click({ force: true });
 });
 
-Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
-  cy.EnableAllCodeEditors();
-  // Filling the messages for success/failure in the onClickAction of the button widget.
-  // For Success
-  cy.get(".code-highlight", { timeout: 10000 })
-    .children()
-    .contains("No action")
-    .first()
-    .click({ force: true })
-    .selectOnClickOption("Show message")
-    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-    .click()
-    .type(forSuccess)
-    .get("button.t--open-dropdown-Select-type")
-    .first()
-    .click({ force: true })
-    .selectOnClickOption(forSuccess);
+Cypress.Commands.add("onClickActions", (forSuccess, forFailure, queryName) => {
+  cy.get(CommonLocators._actionCardByValue(queryName)).click();
 
-  cy.wait(2000);
-  // For Failure
-  cy.get(".code-highlight")
-    .children()
-    .contains("No action")
-    .last()
-    .click({ force: true })
-    .selectOnClickOption("Show message")
-    .wait(2000)
-    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-    .last()
-    .click()
-    .type(forFailure)
-    .get("button.t--open-dropdown-Select-type")
-    .last()
-    .click({ force: true })
-    .selectOnClickOption(forFailure);
+  cy.get(CommonLocators._actionCallbacks).click();
+
+  // add a success callback
+  cy.get(CommonLocators._actionAddCallback("success")).click().wait(500);
+  cy.get(CommonLocators._dropDownValue("Show Alert")).click().wait(500);
+  AggregateHelper.TypeText(
+    CommonLocators._actionSelectorFieldByLabel("Message"),
+    forSuccess,
+  );
+  cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+  // add a failure callback
+  cy.get(CommonLocators._actionAddCallback("failure")).click().wait(500);
+  cy.get(CommonLocators._dropDownValue("Show Alert")).click().wait(500);
+  AggregateHelper.TypeText(
+    CommonLocators._actionSelectorFieldByLabel("Message"),
+    forFailure,
+  );
+  cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
 });
 
 Cypress.Commands.add("isSelectRow", (index) => {
