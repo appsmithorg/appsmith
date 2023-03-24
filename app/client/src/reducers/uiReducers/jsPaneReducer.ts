@@ -179,16 +179,6 @@ const jsPaneReducer = createReducer(initialState, {
       selectedConfigTabIndex: selectedTabIndex,
     };
   },
-  [ReduxActionTypes.SET_JS_PANE_RESPONSE_SELECTED_TAB]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
   [ReduxActionTypes.SET_JS_PANE_RESPONSE_PANE_HEIGHT]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ height: number }>,

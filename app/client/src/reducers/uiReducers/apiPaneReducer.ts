@@ -226,16 +226,6 @@ const apiPaneReducer = createReducer(initialState, {
       selectedConfigTabIndex: selectedTabIndex,
     };
   },
-  [ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
   [ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ height: number }>,
