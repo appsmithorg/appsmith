@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.netty.handler.logging.LogLevel;
 import lombok.NoArgsConstructor;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
+import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -296,6 +298,7 @@ public class RestAPIActivateUtils {
                 .build();
 
         HttpClient httpClient = HttpClient.create(provider)
+                .wiretap("reactor.netty.http.client.HttpClient", LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL)
                 .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
                 .compress(true);
 
