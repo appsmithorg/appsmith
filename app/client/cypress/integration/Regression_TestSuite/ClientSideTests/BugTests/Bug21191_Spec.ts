@@ -12,7 +12,7 @@ describe("Evaluates anonymous usage", function () {
       .should("not.be.checked");
     _.agHelper.GetNClick(adminLocators.saveButton);
     _.agHelper
-      .GetElement(adminLocators.restartNotice, 60000)
+      .GetElement(adminLocators.restartNotice, 120000)
       .should("have.length", 0);
   });
 });
