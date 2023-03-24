@@ -226,6 +226,18 @@ export class JSEditor {
       });
   }
 
+  public EnableJSContext(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (!classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+  }
+
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
     cy.get(this._jsObjTxt)

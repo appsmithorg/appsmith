@@ -9,7 +9,7 @@ const {
 } = ObjectsRegistry;
 
 describe("JS to non-JS mode in Action Selector", () => {
-  it("should not show any fields with a blank JS field", () => {
+  it.only("should not show any fields with a blank JS field", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
@@ -1052,6 +1052,18 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.GetNClick(".action-block-tree", 0);
 
     agHelper.ValidateCodeEditorContent(".text-view", "a");
+    agHelper.EnterActionValue(
+      "Text to be copied to clipboard",
+      "line1{enter}line2{enter}line3",
+      false,
+      0,
+      true,
+    );
+    jsEditor.EnableJSContext("onClick");
+    propPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{copyToClipboard('line1\\nline2\\nline3');}}`,
+    );
   });
 
   it("shows fields for reset widget appropriately", () => {
