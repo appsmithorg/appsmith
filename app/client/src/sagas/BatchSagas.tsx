@@ -31,6 +31,10 @@ const BATCH_PRIORITY = {
     priority: 1,
     needsSaga: true,
   },
+  [ReduxActionTypes.EXECUTE_JS_UPDATES]: {
+    priority: 1,
+    needsSaga: true,
+  },
   [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: {
     priority: 0,
     needsSaga: false,

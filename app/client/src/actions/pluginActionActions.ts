@@ -5,6 +5,7 @@ import type {
   ReduxAction,
   ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -281,6 +282,13 @@ export const updateActionProperty = (
 
 export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+});
+
+export const executeJSUpdates = (
+  payload: Record<string, JSUpdate>,
+): ReduxAction<unknown> => ({
+  type: ReduxActionTypes.EXECUTE_JS_UPDATES,
+  payload,
 });
 
 export const setActionsToExecuteOnPageLoad = (

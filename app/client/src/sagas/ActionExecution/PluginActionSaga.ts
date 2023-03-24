@@ -6,7 +6,10 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import type {
+  AnyReduxAction,
   ApplicationPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -1038,6 +1041,14 @@ function* executePluginActionSaga(
   }
 }
 
+function* executeUpdateJSCollectionSaga(
+  action: ReduxAction<Record<string, JSUpdate>>,
+) {
+  const payload: Record<string, JSUpdate> = action.payload;
+
+  yield call(makeUpdateJSCollection, payload);
+}
+
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1048,6 +1059,10 @@ export function* watchPluginActionExecutionSagas() {
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.EXECUTE_JS_UPDATES,
+      executeUpdateJSCollectionSaga,
     ),
   ]);
 }
