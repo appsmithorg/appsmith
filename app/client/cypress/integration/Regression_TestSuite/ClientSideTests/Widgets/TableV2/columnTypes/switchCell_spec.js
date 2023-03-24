@@ -123,7 +123,8 @@ describe("Switch column type funtionality test", () => {
 
       // Verify on check change handler
       propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPropertiesDropDown("onchange", "Show message");
+      propPane.AddAction("onchange");
+      cy.get(commonLocators._dropDownValue("Show Alert")).click();
       agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);

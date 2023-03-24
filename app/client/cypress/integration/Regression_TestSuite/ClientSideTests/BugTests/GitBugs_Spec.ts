@@ -41,7 +41,8 @@ describe("Git Bugs", function () {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.SelectPropertiesDropDown("onClick", "Navigate to");
+    _.propPane.AddAction("onClick");
+    cy.get(_.locators._dropDownValue("Navigate to")).click();
     _.agHelper.Sleep(500);
     _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
     _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
