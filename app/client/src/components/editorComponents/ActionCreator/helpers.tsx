@@ -517,11 +517,11 @@ export function getJSOptions(
               icon: jsFunctionIcon,
               args: argValue,
             };
-
             (jsObject.children as TreeDropdownOption[]).push(
               jsFunction as unknown as TreeDropdownOption,
             );
           });
+          jsObject.children.sort((a, b) => a.label?.localeCompare(b.label));
         }
       }
     });
