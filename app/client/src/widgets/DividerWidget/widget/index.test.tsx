@@ -10,6 +10,9 @@ import DividerWidget from "./";
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       users: {
         featureFlag: {
           data: {

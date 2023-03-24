@@ -90,7 +90,7 @@ jobs:
 
       # Download failed_spec_ci list for all CI container jobs
       - uses: actions/download-artifact@v3
-        if: needs.ci-test.result
+        if: needs.ci-test.result != 'success'
         id: download_ci
         with:
           name: failed-spec-ci
