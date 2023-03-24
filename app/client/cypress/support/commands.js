@@ -1017,6 +1017,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept({
     method: "PUT",
   }).as("sucessSave");
+
+  cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
+    req.reply((res) => {
+      res.send({
+        //status: 200,
+        body: {
+          success: false, //since anything can be faked!
+        },
+      });
+    });
+  });
+  cy.intercept("GET", "/settings/general").as("getGeneral");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -2007,13 +2019,6 @@ Cypress.Commands.add("RemoveMultiSelectItems", (dropdownOptions) => {
 });
 
 Cypress.Commands.add("RemoveAllSelections", () => {
-  cy.get(".rc-select-selection-overflow").then(($ele) => {
-    if (
-      $ele.find(".rc-select-selection-overflow-item .remove-icon").length <= 0
-    ) {
-      cy.reload();
-    }
-  });
   cy.get(`.rc-select-selection-overflow-item .remove-icon`).each(($each) => {
     cy.wrap($each).click({ force: true }).wait(1000);
   });
