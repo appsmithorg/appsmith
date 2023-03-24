@@ -180,13 +180,15 @@ describe("List v2 - Data Identifier property", () => {
 
   it("9. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
     cy.addDsl(ListV2WithNullPrimaryKeyDSL);
-    _.apiPage.CreateAndFillApi("https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}");
+    _.apiPage.CreateAndFillApi(
+      "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
+    );
     _.apiPage.RunAPI();
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("List1");
     _.entityExplorer.ExpandCollapseEntity("Container1");
     _.entityExplorer.SelectEntityByName("Text2");
-    _.propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}")
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     cy.get(`${widgetSelector("Text2")} ${commonlocators.bodyTextStyle}`)
       .first()
@@ -207,7 +209,7 @@ describe("List v2 - Data Identifier property", () => {
     _.entityExplorer.ExpandCollapseEntity("List2");
     _.entityExplorer.ExpandCollapseEntity("Container2");
     _.entityExplorer.SelectEntityByName("Text4");
-    _.propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}")
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
