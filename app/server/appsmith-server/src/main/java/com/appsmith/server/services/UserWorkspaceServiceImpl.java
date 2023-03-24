@@ -152,40 +152,41 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
         userGroupAndPermissionGroupDTOsMono = userGroupAndPermissionGroupDTOsMono
                 .zipWith(userGroupMapMono)
                 .map(tuple -> {
-                    List<MemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
+                    List<MemberInfoDTO> memberInfoDTOList = tuple.getT1();
                     Map<String, UserGroup> userGroupMap = tuple.getT2();
-                    workspaceMemberInfoDTOList.forEach(workspaceMemberInfoDTO -> {
-                        UserGroup userGroup = userGroupMap.get(workspaceMemberInfoDTO.getUserGroupId());
-                        workspaceMemberInfoDTO.setName(userGroup.getName());
-                        workspaceMemberInfoDTO.setUsername(userGroup.getName());
+                    memberInfoDTOList.forEach(memberInfoDTO -> {
+                        UserGroup userGroup = userGroupMap.get(memberInfoDTO.getUserGroupId());
+                        memberInfoDTO.setName(userGroup.getName());
+                        memberInfoDTO.setUsername(userGroup.getName());
                     });
-                    return workspaceMemberInfoDTOList;
+                    return memberInfoDTOList;
                 });
 
         return userGroupAndPermissionGroupDTOsMono.zipWith(sortedOnlyUsersWorkspaceMembersMono)
                 .map(tuple -> Stream.of(tuple.getT1(), tuple.getT2())
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList()))
-                .map(workspaceMemberInfoDTOS -> {
-                    workspaceMemberInfoDTOS.sort(AppsmithComparators.getWorkspaceMemberComparator());
-                    return workspaceMemberInfoDTOS;
+                .map(memberInfoDTOS -> {
+                    memberInfoDTOS.sort(AppsmithComparators.getWorkspaceMemberComparator());
+                    return memberInfoDTOS;
                 });
     }
 
     // Create a list of all the PermissionGroup IDs to UserGroup IDs associations
     // and store them as MemberInfoDTO.
     private List<MemberInfoDTO> mapPermissionGroupListToUserGroups(List<PermissionGroup> permissionGroupList) {
-        List<MemberInfoDTO> workspaceMemberInfoDTOList = new ArrayList<>();
+        List<MemberInfoDTO> memberInfoDTOList = new ArrayList<>();
         permissionGroupList.forEach(permissionGroup -> {
             PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(permissionGroup.getId(), permissionGroup.getName(), permissionGroup.getDescription());
             roleInfoDTO.setEntityType(Workspace.class.getSimpleName());
             permissionGroup.getAssignedToGroupIds().forEach(userGroupId -> {
-                workspaceMemberInfoDTOList.add(MemberInfoDTO.builder()
-                        .userGroupId(userGroupId).roles(List.of(roleInfoDTO))
+                memberInfoDTOList.add(MemberInfoDTO.builder()
+                        .userGroupId(userGroupId)
+                        .roles(List.of(roleInfoDTO))
                         .build()); // collect user groups
             });
         });
-        return workspaceMemberInfoDTOList;
+        return memberInfoDTOList;
     }
 
     @Override

@@ -5,6 +5,7 @@ import {
   INVITE_USERS_PLACEHOLDER as CE_INVITE_USERS_PLACEHOLDER,
   INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
   MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE,
+  SEARCH_USERS as CE_SEARCH_USERS,
 } from "ce/constants/messages";
 
 // GAC begin
@@ -68,6 +69,8 @@ export const MEMBERS_TAB_TITLE = (length: number, cloudHosting?: boolean) =>
   cloudHosting
     ? createMessage(CE_MEMBERS_TAB_TITLE, length)
     : `Users / User Groups (${length})`;
+export const SEARCH_USERS = (cloudHosting?: boolean) =>
+  cloudHosting ? createMessage(CE_SEARCH_USERS) : `Search for users or groups`;
 export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
   "Group Details page > Top bar";
 export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>

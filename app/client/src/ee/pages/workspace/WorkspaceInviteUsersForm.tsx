@@ -477,8 +477,12 @@ function WorkspaceInviteUsersForm(props: any) {
                   (user: {
                     username: string;
                     name: string;
-                    permissionGroupId: string;
-                    permissionGroupName: string;
+                    roles: {
+                      id: string;
+                      name: string;
+                      description: string;
+                      entityType: string;
+                    }[];
                     initials: string;
                     userGroupId: string;
                     userId: string;
@@ -524,7 +528,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
-                              {user.permissionGroupName?.split(" - ")[0]}
+                              {user.roles?.[0]?.name?.split(" - ")[0] || ""}
                             </Text>
                           </UserRole>
                         </User>
