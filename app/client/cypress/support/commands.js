@@ -1017,6 +1017,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept({
     method: "PUT",
   }).as("sucessSave");
+
+  cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
+    req.reply((res) => {
+      res.send({
+        //status: 200,
+        body: {
+          success: false, //since anything can be faked!
+        },
+      });
+    });
+  });
+  cy.intercept("GET", "/settings/general").as("getGeneral");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1237,11 +1249,11 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
   cy.get(welcomePage.newsLetter).should("be.visible");
-  cy.get(welcomePage.newsLetter).trigger("mouseover").click();
+  //cy.get(welcomePage.newsLetter).trigger("mouseover").click();
   //cy.get(welcomePage.newsLetter).find("input").uncheck();//not working
   cy.get(welcomePage.dataCollection).should("be.visible");
-  cy.get(welcomePage.dataCollection).trigger("mouseover").click();
-  cy.wait(1000); //for toggles to settle
+  //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
+  //cy.wait(1000); //for toggles to settle
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click({ force: true });
   cy.wait("@createSuperUser").then((interception) => {
