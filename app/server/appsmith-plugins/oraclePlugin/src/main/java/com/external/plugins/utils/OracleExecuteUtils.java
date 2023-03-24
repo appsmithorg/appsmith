@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import oracle.jdbc.OracleArray;
 import oracle.sql.Datum;
 import org.apache.commons.lang.ObjectUtils;
 
@@ -35,6 +36,7 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String DATE = "date";
     public static final String TIME = "time";
     public static final String FLOAT8 = "float8";
+    private static final String PLSQL_MATCH_REGEX = "declare\\s(\\s|.)*";
 
     public static void closeConnectionPostExecution(ResultSet resultSet, Statement statement,
                                                     PreparedStatement preparedQuery, Connection connectionFromPool) {
@@ -84,6 +86,10 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
         return query.replaceAll(";", "");
     }
 
+    public static boolean isPLSQL(String query) {
+        return query.toLowerCase().matches(PLSQL_MATCH_REGEX) ? true : false;
+    }
+
     public static void populateRowsAndColumns(List<Map<String, Object>> rowsList, List<String> columnsList,
                                               ResultSet resultSet, Boolean isResultSet, Boolean preparedStatement,
                                               Statement statement, PreparedStatement preparedQuery) throws SQLException {
@@ -128,16 +134,15 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                     } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = resultSet.getObject(i).toString();
 
-                    } else {
+                    } else if (resultSet.getObject(i) instanceof OracleArray) {
+                        value = ((OracleArray)resultSet.getObject(i)).getArray();
+                    }
+                    else {
                         value = resultSet.getObject(i);
 
                         /**
-                         * Any type that JDBC does not understand gets mapped to PGobject. PGobject has
-                         * two attributes: type and value. Hence, when PGobject gets serialized, it gets
-                         * converted into a JSON like {"type":"citext", "value":"someText"}. Since we are
-                         * only interested in the value and not the type, it makes sense to extract out
-                         * the value as a string.
-                         * Reference: https://jdbc.postgresql.org/documentation/publicapi/org/oracleql/util/PGobject.html
+                         * 'Datum' class is the root of Oracle native datatype hierarchy.
+                         * Ref: https://docs.oracle.com/cd/A97329_03/web.902/q20224/oracle/sql/Datum.html
                          */
                         if (value instanceof Datum) {
                             value = new String(((Datum) value).getBytes());

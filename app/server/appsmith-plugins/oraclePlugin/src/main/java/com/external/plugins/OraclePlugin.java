@@ -1,7 +1,6 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
-import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -26,6 +25,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
 import lombok.extern.slf4j.Slf4j;
+import oracle.jdbc.OraclePreparedStatement;
 import org.apache.commons.io.IOUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -36,7 +36,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -71,9 +70,9 @@ import static com.external.plugins.utils.OracleDatasourceUtils.JDBC_DRIVER;
 import static com.external.plugins.utils.OracleDatasourceUtils.createConnectionPool;
 import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
+import static com.external.plugins.utils.OracleExecuteUtils.isPLSQL;
 import static com.external.plugins.utils.OracleExecuteUtils.populateRowsAndColumns;
 import static com.external.plugins.utils.OracleExecuteUtils.removeSemicolonFromQuery;
-import static com.external.plugins.utils.OracleExecuteUtils.toOraclePrimitiveTypeName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -151,7 +150,9 @@ public class OraclePlugin extends BasePlugin {
             List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
-            updatedQuery = removeSemicolonFromQuery(updatedQuery);
+            if (!isPLSQL(updatedQuery)) {
+                updatedQuery = removeSemicolonFromQuery(updatedQuery);
+            }
             setDataValueSafelyInFormData(formData, BODY, updatedQuery);
             return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE,
                     mustacheKeysInOrder, executeActionDTO);
@@ -315,7 +316,7 @@ public class OraclePlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) throws AppsmithPluginException {
 
-            PreparedStatement preparedStatement = (PreparedStatement) input;
+            OraclePreparedStatement preparedStatement = (OraclePreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
             Param param = (Param) args[1];
             DataType valueType;
@@ -367,26 +368,6 @@ public class OraclePlugin extends BasePlugin {
                         preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
                         break;
                     }
-                    case NULL_ARRAY:
-                        preparedStatement.setArray(index, null);
-                        break;
-                    case ARRAY: {
-                        List arrayListFromInput = objectMapper.readValue(value, List.class);
-                        if (arrayListFromInput.isEmpty()) {
-                            break;
-                        }
-                        // Find the type of the entries in the list
-                        Object firstEntry = arrayListFromInput.get(0);
-                        AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(
-                                param.getDataTypesOfArrayElements().get(0), String.valueOf(firstEntry));
-                        DataType dataType = appsmithType.type();
-                        String typeName = toOraclePrimitiveTypeName(dataType);
-
-                        // Create the Sql Array and set it.
-                        Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
-                        preparedStatement.setArray(index, inputArray);
-                        break;
-                    }
                     case STRING: {
                         /* same as the next case */
                     }
@@ -410,7 +391,6 @@ public class OraclePlugin extends BasePlugin {
             }
 
             return preparedStatement;
-
         }
     }
 }
