@@ -308,7 +308,7 @@ export class Table {
       cy.get(this._previousPage(tableVersion)).should("have.attr", "disabled");
   }
 
-  public AssertSelectedRow(rowNum: number = 0) {
+  public AssertSelectedRow(rowNum = 0) {
     cy.xpath(this._tableSelectedRow)
       .invoke("attr", "data-rowindex")
       .then(($rowIndex) => {
