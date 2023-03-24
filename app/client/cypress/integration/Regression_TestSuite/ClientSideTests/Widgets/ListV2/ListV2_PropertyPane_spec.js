@@ -21,11 +21,7 @@ describe("List widget V2 PropertyPane", () => {
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.listWidgetv2).length <= 0) {
-        cy.reload();
-      }
-    });
+    cy.wait(2000); //for the deployed page to load fully
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
     cy.get(publishPage.backToEditor).click({
       force: true,
