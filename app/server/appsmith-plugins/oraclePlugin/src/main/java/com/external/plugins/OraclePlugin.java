@@ -21,6 +21,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.utils.OracleDatasourceUtils;
+import com.external.plugins.utils.OracleSpecificDataTypes;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
@@ -72,6 +73,7 @@ import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFrom
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 import static com.external.plugins.utils.OracleExecuteUtils.populateRowsAndColumns;
 import static com.external.plugins.utils.OracleExecuteUtils.removeSemicolonFromQuery;
+import static com.external.plugins.utils.OracleExecuteUtils.toOraclePrimitiveTypeName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -315,18 +317,10 @@ public class OraclePlugin extends BasePlugin {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
-            List<DataType> explicitCastDataTypes = (List<DataType>) args[1];
-            Param param = (Param) args[2];
+            Param param = (Param) args[1];
             DataType valueType;
-            // If explicitly cast, set the user specified data type
-            if (explicitCastDataTypes != null && explicitCastDataTypes.get(index - 1) != null) {
-                valueType = explicitCastDataTypes.get(index - 1);
-            } else {
-                AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value,
-                        OracleSpecificDataTypes.pluginSpecificTypes);
-                valueType = appsmithType.type();
-            }
-
+            valueType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value,
+                    OracleSpecificDataTypes.pluginSpecificTypes).type();
             Map.Entry<String, String> parameter = new AbstractMap.SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
 
@@ -386,7 +380,7 @@ public class OraclePlugin extends BasePlugin {
                         AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(
                                 param.getDataTypesOfArrayElements().get(0), String.valueOf(firstEntry));
                         DataType dataType = appsmithType.type();
-                        String typeName = toPostgresqlPrimitiveTypeName(dataType);
+                        String typeName = toOraclePrimitiveTypeName(dataType);
 
                         // Create the Sql Array and set it.
                         Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
@@ -394,6 +388,7 @@ public class OraclePlugin extends BasePlugin {
                         break;
                     }
                     case STRING: {
+                        /* same as the next case */
                     }
                     case JSON_OBJECT: {
                         preparedStatement.setString(index, value);
@@ -410,7 +405,6 @@ public class OraclePlugin extends BasePlugin {
                     // the query. Ignore the exception
                 } else {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            String.format(PostgresErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
                             e.getMessage());
                 }
             }

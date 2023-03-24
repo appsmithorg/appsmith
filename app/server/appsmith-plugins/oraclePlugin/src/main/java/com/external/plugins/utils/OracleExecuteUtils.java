@@ -1,5 +1,6 @@
 package com.external.plugins.utils;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.sql.Datum;
 import org.apache.commons.lang.ObjectUtils;
@@ -26,6 +27,14 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String TIMESTAMPTZ_TYPE_NAME = "TIMESTAMP WITH TIME ZONE";
     public static final String INTERVAL_TYPE_NAME = "interval";
     public static final String AFFECTED_ROWS_KEY = "affectedRows";
+    public static final String INT8 = "int8";
+    public static final String INT4 = "int4";
+    public static final String DECIMAL = "decimal";
+    public static final String VARCHAR = "varchar";
+    public static final String BOOL = "bool";
+    public static final String DATE = "date";
+    public static final String TIME = "time";
+    public static final String FLOAT8 = "float8";
 
     public static void closeConnectionPostExecution(ResultSet resultSet, Statement statement,
                                                     PreparedStatement preparedQuery, Connection connectionFromPool) {
@@ -140,6 +149,32 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
 
                 rowsList.add(row);
             }
+        }
+    }
+
+    public static String toOraclePrimitiveTypeName(DataType type) {
+        switch (type) {
+            case LONG:
+                return INT8;
+            case INTEGER:
+                return INT4;
+            case FLOAT:
+                return DECIMAL;
+            case STRING:
+                return VARCHAR;
+            case BOOLEAN:
+                return BOOL;
+            case DATE:
+                return DATE;
+            case TIME:
+                return TIME;
+            case DOUBLE:
+                return FLOAT8;
+            case ARRAY:
+                throw new IllegalArgumentException("Array of Array datatype is not supported.");
+            default:
+                throw new IllegalArgumentException(
+                        "Unable to map the computed data type to primitive Postgresql type");
         }
     }
 }
