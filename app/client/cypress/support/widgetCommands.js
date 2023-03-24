@@ -127,9 +127,9 @@ Cypress.Commands.add("AddActionWithModal", () => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 });
 
-Cypress.Commands.add("createModal", (ModalName) => {
-  cy.get(widgetsPage.actionSelect).first().click({ force: true });
-  cy.selectOnClickOption("Open modal");
+Cypress.Commands.add("createModal", (ModalName, property) => {
+  ObjectsRegistry.PropertyPane.AddAction(property);
+  cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Show modal")).click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.wait(2000);
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -826,14 +826,9 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
 });
 
 Cypress.Commands.add("addAction", (value, property) => {
-  let dropdownSelect = commonlocators.dropdownSelectButton;
-  if (property)
-    dropdownSelect = `.t--property-control-${property} ${dropdownSelect}`;
-  cy.get(dropdownSelect).last().click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
+  cy.get(`.t--add-action-${property}`).click();
+  cy.get(`.single-select:contains('Show Alert')`).click();
+
   cy.enterActionValue(value, property);
 });
 
@@ -892,12 +887,11 @@ Cypress.Commands.add("SetDateToToday", () => {
 Cypress.Commands.add("enterActionValue", (value, property) => {
   cy.EnableAllCodeEditors();
   let codeMirrorTextArea = ".CodeMirror textarea";
-  if (property)
-    codeMirrorTextArea = `.t--property-control-${property} ${codeMirrorTextArea}`;
+  if (property) codeMirrorTextArea = `${codeMirrorTextArea}`;
   cy.get(codeMirrorTextArea)
     .last()
     .focus()
-    .type("{ctrl}{shift}{downarrow}")
+    .type("{ctrl}{shift}{downarrow}", { force: true })
     .then(($cm) => {
       if ($cm.val() !== "") {
         cy.get(codeMirrorTextArea).last().clear({
@@ -1104,10 +1098,9 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
 });
 
 Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
-  cy.get(commonlocators.dropdownSelectButton)
-    .first()
-    .click({ force: true })
-    .selectOnClickOption("Execute a query")
+  ObjectsRegistry.PropertyPane.AddAction("onClick");
+  cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Execute a query"))
+    .click()
     .selectOnClickOption(ApiName);
 });
 
