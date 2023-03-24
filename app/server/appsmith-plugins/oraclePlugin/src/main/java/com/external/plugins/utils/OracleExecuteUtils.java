@@ -86,6 +86,13 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
         return query.replaceAll(";", "");
     }
 
+    /**
+     * PL/SQL cmds have a block structure of the following format: DECLARE...BEGIN...EXCEPTION...END
+     * Ref: https://blogs.oracle.com/connect/post/building-with-blocks
+     *
+     * Oracle supports semicolon as a delimiter with PL/SQL syntax but not with normal SQL.
+     * Ref: https://forums.oracle.com/ords/apexds/post/why-semicolon-not-allowed-in-jdbc-oracle-0099
+     */
     public static boolean isPLSQL(String query) {
         return query.toLowerCase().matches(PLSQL_MATCH_REGEX) ? true : false;
     }
