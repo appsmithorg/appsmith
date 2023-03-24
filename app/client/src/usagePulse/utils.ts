@@ -7,7 +7,7 @@ import store from "store";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FALLBACK_KEY } from "./constants";
 
-//todo:Return a promise
+//todo: Return a promise to handle error after retries
 export const fetchWithRetry = (
   url: string,
   data: object,
