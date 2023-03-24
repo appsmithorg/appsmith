@@ -86,7 +86,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const state = store.getState();
     const actions = getActions(state);
     const jsActions = getJSCollections(state);
-    const codeFromProperty = getCodeFromMoustache(value);
+    const codeFromProperty = getCodeFromMoustache(value?.trim() || "");
 
     const actionsArray: string[] = [];
     const jsActionsArray: string[] = [];
