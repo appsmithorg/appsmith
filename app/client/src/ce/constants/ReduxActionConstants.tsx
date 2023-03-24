@@ -1,18 +1,18 @@
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import type { ApplicationVersion } from "actions/applicationActions";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
+import type { ApplicationVersion } from "actions/applicationActions";
+import type { NavigationSetting } from "constants/AppConstants";
+import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
   WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL: "WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL",
@@ -494,6 +494,7 @@ export const ReduxActionTypes = {
   CURRENT_APPLICATION_ICON_UPDATE: "CURRENT_APPLICATION_ICON_UPDATE",
   CURRENT_APPLICATION_EMBED_SETTING_UPDATE:
     "CURRENT_APPLICATION_EMBED_SETTING_UPDATE",
+  UPDATE_NAVIGATION_SETTING: "UPDATE_NAVIGATION_SETTING",
   FORK_APPLICATION_INIT: "FORK_APPLICATION_INIT",
   FORK_APPLICATION_SUCCESS: "FORK_APPLICATION_SUCCESS",
   IMPORT_APPLICATION_INIT: "IMPORT_APPLICATION_INIT",
@@ -692,6 +693,8 @@ export const ReduxActionTypes = {
   SET_TRIGGER_VALUES_LOADING: "SET_TRIGGER_VALUES_LOADING",
   OPEN_APP_SETTINGS_PANE: "OPEN_APP_SETTINGS_PANE",
   CLOSE_APP_SETTINGS_PANE: "CLOSE_APP_SETTINGS_PANE",
+  UPDATE_APP_SETTINGS_PANE_SELECTED_TAB:
+    "UPDATE_APP_SETTINGS_PANE_SELECTED_TAB",
   FETCH_CURRENT_TENANT_CONFIG: "FETCH_CURRENT_TENANT_CONFIG",
   FETCH_CURRENT_TENANT_CONFIG_SUCCESS: "FETCH_CURRENT_TENANT_CONFIG_SUCCESS",
   SET_FOCUS_HISTORY: "SET_FOCUS_HISTORY",
@@ -757,6 +760,7 @@ export const ReduxActionTypes = {
   SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
   SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
   SET_PANE_COUNT: "SET_PANE_COUNT",
+  SET_APP_SIDEBAR_PINNED: "SET_APP_SIDEBAR_PINNED",
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
   RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
@@ -1071,6 +1075,9 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
+  applicationDetail?: {
+    navigationSetting?: NavigationSetting;
+  };
   collapseInvisibleWidgets?: boolean;
 }
 

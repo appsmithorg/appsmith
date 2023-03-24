@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-import { TextProps } from "./Text";
+import type { TextProps } from "./Text";
 import { createTypographyStyles } from "../../utils/typography";
 
 const shouldForwardProp = (prop: any) => {

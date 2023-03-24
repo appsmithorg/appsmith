@@ -244,6 +244,18 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
  * @returns
  */
 export const getComplementaryGrayscaleColor = (color = "#fff") => {
+  const textColor = isLightColor(color) ? "black" : "white";
+
+  return textColor;
+};
+
+/**
+ *  return true if the color is light
+ *
+ * @param color
+ * @returns
+ */
+export const isLightColor = (color = "#fff") => {
   const tinyColor = tinycolor(color);
   const rgb: any = tinyColor.isValid()
     ? tinyColor.toRgb()
@@ -253,9 +265,8 @@ export const getComplementaryGrayscaleColor = (color = "#fff") => {
     (parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) /
       1000,
   );
-  const textColor = brightness > 125 ? "black" : "white";
 
-  return textColor;
+  return brightness > 125;
 };
 
 /**
