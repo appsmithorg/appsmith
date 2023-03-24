@@ -11,7 +11,7 @@ import {
   NAVIGATION_CLASSNAME,
   PEEKABLE_CLASSNAME,
   PEEK_STYLE_PERSIST_CLASS,
-} from "./markHelpers";
+} from "./MarkHelpers/entityMarker";
 
 const getBorderStyle = (
   props: { theme: Theme } & {

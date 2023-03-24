@@ -33,10 +33,8 @@ export default function ActionSelector(props: {
       popoverClassName = "w-[280px] !translate-x-[-17px]";
       break;
     case 1:
-      popoverClassName = "w-[280px] !translate-x-[-32px]";
+      popoverClassName = "w-[280px] !translate-x-[-36px]";
       break;
-    case 2:
-      popoverClassName = "w-[280px] !translate-x-[-47px]";
   }
 
   const portalClassName = isOmnibarOpen ? "!z-1" : "!z-6";
@@ -93,7 +91,10 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
           path.classList?.contains("callback-collapse") ||
           (path.classList?.contains("add-action") &&
             path.classList?.contains(label)) ||
-          path.classList?.contains("bp3-overlay-backdrop")
+          path.classList?.contains("bp3-overlay-backdrop") ||
+          path.classList?.contains("evaluated-value-popup") ||
+          path.classList?.contains("subtree-container") ||
+          path.classList?.contains("drag-handle-block")
         ) {
           return;
         }

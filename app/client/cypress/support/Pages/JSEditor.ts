@@ -93,6 +93,10 @@ export class JSEditor {
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
+  _lineinPropertyPaneJsEditor = (lineNumber: number, selector = "") =>
+    `${
+      selector ? `${selector} ` : ""
+    }.CodeMirror-line:nth-child(${lineNumber})`;
   _logsTab = "[data-cy=t--tab-LOGS_TAB]";
   //#endregion
 

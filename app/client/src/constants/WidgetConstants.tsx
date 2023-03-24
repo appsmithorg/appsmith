@@ -151,6 +151,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   children: true,
   requiresFlatWidgetChildren: true,
   hasMetaWidgets: true,
+  isMetaWidget: true,
   parentId: true,
   referencedWidgetId: true,
   topRow: true,

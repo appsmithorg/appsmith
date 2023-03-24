@@ -784,6 +784,7 @@ const PropertyControl = memo((props: Props) => {
                 config.controlType !== "ACTION_SELECTOR" && "hidden",
                 `${config.label}`,
                 "add-action flex items-center justify-center text-center h-7 w-7",
+                isDynamic && "hidden",
                 `t--add-action-${config.label}`,
               )}
               disabled={false}

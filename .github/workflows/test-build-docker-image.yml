@@ -81,18 +81,35 @@ jobs:
     steps:
       - run: echo "All ci-test matrices completed"
 
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
       # Download failed_spec_ci list for all CI container jobs
       - uses: actions/download-artifact@v3
-        if: needs.ci-test.result
+        if: needs.ci-test.result != 'success'
         id: download_ci
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
 
+      # delete-artifact
+      - name: delete existing failed-spec-ci artifact
+        if: needs.ci-test.result != 'success'
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: failed-spec-ci
+          failOnError: false
+
       # In case for any ci job failure, create combined failed spec
       - name: "combine all specs for CI"
         if: needs.ci-test.result != 'success'
-        run: cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
+        run: |
+          rm -f ~/combined_failed_spec_ci
+          cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
 
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI
@@ -104,13 +121,6 @@ jobs:
           key: ${{ github.run_id }}-"ci-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
-      
-      # delete-artifact
-      - name: delete failed-spec-ci artifact
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: failed-spec-ci
-          failOnError: false
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
@@ -300,23 +310,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
-      # Build release Docker image and push to Docker Hub
-      - name: Push RTS release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
-
-      # Build master Docker image and push to Docker Hub
-      - name: Push RTS master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/rts
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly

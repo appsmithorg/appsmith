@@ -7,8 +7,8 @@ import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import type { TActionBlock } from "../../types";
 import { chainableFns } from "../../utils";
-import ActionCard from "./ActionCardV2";
-import ActionSelector from "./ActionSelectorV2";
+import ActionCard from "./ActionCard";
+import ActionSelector from "./ActionSelector";
 
 const EMPTY_ACTION_BLOCK: TActionBlock = {
   code: "",
@@ -17,7 +17,7 @@ const EMPTY_ACTION_BLOCK: TActionBlock = {
   error: { blocks: [] },
 };
 
-export default function ActionV2(props: {
+export default function ActionTree(props: {
   actionBlock: TActionBlock;
   onChange: (actionBlock: TActionBlock) => void;
   className?: string;
@@ -148,7 +148,7 @@ export default function ActionV2(props: {
       </ActionSelector>
       {showCallbacks && areCallbacksApplicable ? (
         <button
-          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent"
+          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-[1px] border-gray-200 border-t-transparent t--action-callbacks"
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
             setTouched(true);
@@ -181,15 +181,13 @@ export default function ActionV2(props: {
                 tooltipContent,
               }) => (
                 <li key={label}>
-                  <div className="flex flex-col">
-                    <button
+                  <div className="flex flex-col pl-1">
+                    <div
                       className={clsx(
-                        `action-callback-add`,
-                        "flex justify-between bg-gray-50 border-[1px] border-gray-200 box-border",
+                        "flex bg-gray-50 border-[1px] border-gray-200 box-border flex-row justify-between items-start action-callback-add",
                         selectedBlockId === `${id}_${blockType}_0` &&
                           "border-b-gray-500",
                       )}
-                      onClick={handleAddBlock}
                     >
                       <TooltipComponent
                         boundary="viewport"
@@ -200,16 +198,21 @@ export default function ActionV2(props: {
                           {label}
                         </span>
                       </TooltipComponent>
-                      <span className="icon w-7 h-7 flex items-center justify-center">
-                        <Icon
-                          fillColor="var(--ads-color-black-700)"
-                          name="plus"
-                          size="extraLarge"
-                        />
-                      </span>
-                    </button>
+                      <button
+                        className={clsx(`t--action-add-${blockType}-callback`)}
+                        onClick={handleAddBlock}
+                      >
+                        <span className="icon w-7 h-7 flex items-center justify-center">
+                          <Icon
+                            fillColor="var(--ads-color-black-700)"
+                            name="plus"
+                            size="extraLarge"
+                          />
+                        </span>
+                      </button>
+                    </div>
                     {callbacks.map((cActionBlock, index) => (
-                      <ActionV2
+                      <ActionTree
                         actionBlock={cActionBlock}
                         className="mt-0"
                         id={`${id}_${blockType}_${index}`}

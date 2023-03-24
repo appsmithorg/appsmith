@@ -1,13 +1,21 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-const { AggregateHelper, CommonLocators, EntityExplorer, PropertyPane } =
-  ObjectsRegistry;
+const {
+  AggregateHelper,
+  ApiPage,
+  CommonLocators,
+  EntityExplorer,
+  JSEditor,
+  PropertyPane,
+} = ObjectsRegistry;
 
 describe("UI to Code", () => {
   before(() => {
     cy.fixture("buttondsl").then((val: any) => {
       AggregateHelper.AddDsl(val);
     });
+    ApiPage.CreateApi("Api1", "GET");
+    ApiPage.CreateApi("Api2", "POST");
   });
 
   beforeEach(() => {
@@ -46,7 +54,7 @@ describe("UI to Code", () => {
     // Add second action
     PropertyPane.AddAction("onClick");
     cy.get(CommonLocators._dropDownValue("Navigate to")).click();
-    cy.get("#switcher--url").click();
+    cy.get(CommonLocators._openNavigationTab("url")).click();
     AggregateHelper.TypeText(
       CommonLocators._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -142,7 +150,7 @@ describe("UI to Code", () => {
     // Add second action
     PropertyPane.AddAction("onClick");
     cy.get(CommonLocators._dropDownValue("Navigate to")).click();
-    cy.get("#switcher--url").click();
+    cy.get(CommonLocators._openNavigationTab("url")).click();
     AggregateHelper.TypeText(
       CommonLocators._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -236,7 +244,7 @@ describe("UI to Code", () => {
     // Add second action
     PropertyPane.AddAction("onClick");
     cy.get(CommonLocators._dropDownValue("Navigate to")).click();
-    cy.get("#switcher--url").click();
+    cy.get(CommonLocators._openNavigationTab("url")).click();
     AggregateHelper.TypeText(
       CommonLocators._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -318,6 +326,169 @@ describe("UI to Code", () => {
     PropertyPane.ValidatePropertyFieldValue(
       "onClick",
       `{{navigateTo('https://google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("can add success and error callbacks", () => {
+    PropertyPane.AddAction("onClick");
+    cy.get(CommonLocators._dropDownValue("Show Alert")).click();
+    AggregateHelper.TypeText(
+      CommonLocators._actionSelectorFieldByLabel("Message"),
+      "Hello!",
+    );
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._actionCardByTitle("Show Alert")).click();
+
+    cy.get(CommonLocators._actionCallbacks).click();
+
+    // add a success callback
+    cy.get(CommonLocators._actionAddCallback("success")).click().wait(500);
+    cy.get(CommonLocators._dropDownValue("Store value")).click().wait(500);
+
+    // add an error callback
+    cy.get(CommonLocators._actionAddCallback("failure")).click().wait(500);
+    cy.get(CommonLocators._dropDownValue("Navigate to")).click().wait(500);
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{showAlert('Hello!', '').then(() => {  storeValue("", "");}).catch(() => {  navigateTo("", {}, 'SAME_WINDOW');});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("updates the success and failure callbacks for nested query actions", () => {
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.UpdatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {
+      Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
+     })}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+
+    // Select the card to show the callback button
+    cy.get(CommonLocators._actionCardByValue("Api1.run")).click();
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    // Click on the callback button
+    cy.get(CommonLocators._actionCallbacks).click();
+
+    // Edit the success callback of the nested Api2.run
+    cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+    ).type("eeee");
+
+    // Edit the failure callback of the nested Api2.run
+    cy.get(CommonLocators._openNavigationTab("onFailure")).click();
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+    ).type("oooo");
+
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });}).catch(() => {});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("updates the query params correctly", () => {
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.UpdatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {
+      Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
+     })}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+
+    // Select the card to show the callback button
+    cy.get(CommonLocators._actionCardByValue("Api1.run")).click();
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    // Click on the callback button
+    cy.get(CommonLocators._actionCallbacks).click();
+
+    // Edit the success callback of the nested Api2.run
+    cy.get(CommonLocators._actionCardByValue("Api2.run")).click();
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Params"),
+      ),
+    ).type("val: 1");
+
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });}).catch(() => {});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("adds actions to callback function is argument if exists already", () => {
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.UpdatePropertyFieldValue(
+      "onClick",
+      `Api1.run(() => {
+        showAlert("Hello");
+       })
+       `,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+
+    // Select the card to show the callback button
+    cy.get(CommonLocators._actionCardByValue("Api1.run")).click();
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    // Click on the callback button
+    cy.get(CommonLocators._actionCallbacks).click();
+    cy.get(CommonLocators._actionAddCallback("success")).click();
+    cy.get(CommonLocators._dropDownValue("Store value")).click().wait(500);
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{Api1.run(() => {  showAlert("Hello");  storeValue("", "");}, () => {});}}`,
+    );
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+  });
+
+  it("correctly configures a setInterval action", () => {
+    PropertyPane.AddAction("onClick");
+    cy.get(CommonLocators._dropDownValue("Set interval")).click();
+
+    cy.get(
+      JSEditor._lineinPropertyPaneJsEditor(
+        2,
+        CommonLocators._actionSelectorFieldContentByLabel("Callback function"),
+      ),
+    ).type("{enter}showAlert('Hello'){enter}//");
+
+    AggregateHelper.TypeText(
+      CommonLocators._actionSelectorFieldByLabel("Id"),
+      "interval-id",
+    );
+    cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+
+    cy.get(CommonLocators._jsToggle("onclick")).click();
+    PropertyPane.ValidatePropertyFieldValue(
+      "onClick",
+      `{{setInterval(() => {  // add c  showAlert(\'Hello\');  // ode here}, 5000, \'interval-id\');}}`,
     );
     cy.get(CommonLocators._jsToggle("onclick")).click();
   });

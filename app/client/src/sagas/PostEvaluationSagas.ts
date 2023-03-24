@@ -4,7 +4,12 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -41,6 +46,7 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
+import type { ActionEntityConfig } from "entities/DataTree/types";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -48,6 +54,7 @@ function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
   evaluationOrder: Array<string>,
+  configTree: ConfigTree,
   pathsToClearErrorsFor?: any[],
 ) {
   const errorsToAdd = [];
@@ -60,8 +67,13 @@ function logLatestEvalPropertyErrors(
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
+    const entityConfig = configTree[entityName] as any;
+
     if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
-      if (entity.logBlackList && propertyPath in entity.logBlackList) {
+      if (
+        entityConfig?.logBlackList &&
+        propertyPath in entityConfig?.logBlackList
+      ) {
         continue;
       }
       const allEvalErrors: EvaluationError[] = get(
@@ -92,13 +104,13 @@ function logLatestEvalPropertyErrors(
         ? ENTITY_TYPE.ACTION
         : ENTITY_TYPE.JSACTION;
       const pluginTypeField = isAction(entity)
-        ? entity.pluginType
+        ? entityConfig.pluginType
         : entity.type;
       const iconId = isWidget(entity)
         ? entity.widgetId
         : isJSAction(entity)
         ? entity.actionId
-        : entity.pluginId;
+        : entityConfig.pluginId;
       const debuggerKeys = [
         {
           key: `${idField}-${propertyPath}`,
@@ -200,9 +212,10 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
+  configTree?: ConfigTree,
   pathsToClearErrorsFor?: any[],
 ): any {
-  if (dataTree && evaluationOrder) {
+  if (dataTree && evaluationOrder && configTree) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
@@ -211,6 +224,7 @@ export function* evalErrorHandler(
       currentDebuggerErrors,
       dataTree,
       evaluationOrder,
+      configTree,
       pathsToClearErrorsFor,
     );
   }
@@ -303,6 +317,7 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
+  configTree: ConfigTree,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -317,14 +332,19 @@ export function* logSuccessfulBindings(
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
+    const entityConfig = configTree[entityName] as
+      | WidgetEntityConfig
+      | ActionEntityConfig;
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
-      const entityType = isAction(entity) ? entity.pluginType : entity.type;
-      const isABinding = find(entity.dynamicBindingPathList, {
+      const entityType = isAction(entity)
+        ? entityConfig.pluginType
+        : entity.type;
+      const isABinding = find(entityConfig.dynamicBindingPathList, {
         key: propertyPath,
       });
 
-      const logBlackList = entity.logBlackList;
+      const logBlackList = entityConfig.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,
         getEvalErrorPath(evaluatedPath),
@@ -354,6 +374,7 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
+  configTree: ConfigTree,
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
   jsData: Record<string, unknown> = {},
@@ -374,13 +395,18 @@ export function* updateTernDefinitions(
 
   if (!shouldUpdate) return;
   const start = performance.now();
+
   // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
-  const dataTreeForAutocomplete = getDataTreeForAutocomplete(dataTree);
+  const dataTreeForAutocomplete = getDataTreeForAutocomplete(
+    dataTree,
+    configTree,
+  );
   const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
     dataTreeForAutocomplete,
     !!featureFlags.JS_EDITOR,
     jsData,
+    configTree,
   );
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();

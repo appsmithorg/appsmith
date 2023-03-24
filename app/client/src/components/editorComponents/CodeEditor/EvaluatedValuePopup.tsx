@@ -490,7 +490,7 @@ function PopoverContent(props: PopoverContentProps) {
   };
   return (
     <ContentWrapper
-      className="t--CodeEditor-evaluatedValue"
+      className="t--CodeEditor-evaluatedValue evaluated-value-popup"
       colorTheme={theme}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

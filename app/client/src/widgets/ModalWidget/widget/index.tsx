@@ -135,6 +135,16 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return Math.min(this.getMaxModalWidth(), width);
   }
 
+  getModalVisibility() {
+    if (this.props.selectedWidgetAncestry) {
+      return (
+        this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
+        !!this.props.isVisible
+      );
+    }
+    return !!this.props.isVisible;
+  }
+
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
@@ -256,7 +266,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={this.props.height}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
-        isOpen={!!this.props.isVisible}
+        isOpen={this.getModalVisibility()}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}
