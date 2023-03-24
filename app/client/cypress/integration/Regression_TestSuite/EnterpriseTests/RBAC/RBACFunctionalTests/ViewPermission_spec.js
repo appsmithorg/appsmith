@@ -5,6 +5,7 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../../locators/Pages.json");
+const appNavigationLocators = require("../../../../../locators/AppNavigation.json");
 let currentUrl;
 
 describe("View Permission flow ", function () {
@@ -180,7 +181,9 @@ describe("View Permission flow ", function () {
   });
 
   it("2.Verify user with make Public permission, is able to make app public", function () {
-    cy.get("[data-cy=viewmode-share]").click();
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    ).click();
     cy.enablePublicAccess();
     currentUrl = cy.url();
     cy.url().then((url) => {
