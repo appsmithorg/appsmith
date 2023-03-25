@@ -66,6 +66,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     configTree: dataTreeEvaluator?.oldConfigTree as ConfigTree,
     staleMetaIds,
     pathsToClearErrorsFor,
+    isNewWidgetAdded: false,
   };
 
   const data: UpdateDataTreeMessageData = {

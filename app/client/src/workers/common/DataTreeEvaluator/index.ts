@@ -720,6 +720,7 @@ export default class DataTreeEvaluator {
       ...this.setupTree(localUnEvalTree, updatedValuePaths, {
         pathsToSkipFromEval,
         configTree: this.oldConfigTree,
+        isNewWidgetAdded: false,
       }),
       jsUpdates: {},
     };

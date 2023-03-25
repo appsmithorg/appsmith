@@ -149,6 +149,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       yield call(updateDataTreeHandler, {
         evalTreeResponse: workerResponse as EvalTreeResponseData,
         unevalTree,
+        requiresLogging: false,
       });
     }
   }
