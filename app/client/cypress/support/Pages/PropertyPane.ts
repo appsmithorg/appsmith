@@ -364,6 +364,6 @@ export class PropertyPane {
   }
 
   public AddAction(property: string) {
-    cy.get(this._addAction(property)).click();
+    cy.get(this._addAction(property)).click({ force: true });
   }
 }
