@@ -84,6 +84,11 @@ export function installLibrary(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { takenAccessors, takenNamesMap, url } = data;
   const defs: Def = {};
+  /**
+   * We need to remove the data tree from the global scope before importing the library.
+   * This is because the library might have a variable with the same name as a data tree entity. If that happens, the data tree entity will be overridden by the library variable.
+   * We store the data tree in a temporary variable and add it back to the global scope after the library is imported.
+   */
   const tempDataTreeStore = removeDataTreeFromContext();
   try {
     const currentEnvKeys = Object.keys(self);
