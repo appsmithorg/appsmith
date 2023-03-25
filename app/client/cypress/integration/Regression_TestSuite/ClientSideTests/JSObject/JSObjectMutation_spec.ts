@@ -37,7 +37,7 @@ describe("JSObject testing", () => {
       .eq(0)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    // Select the Array option from dropdown list
+
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("ARRAY")
       .click({ force: true });
@@ -58,7 +58,7 @@ describe("JSObject testing", () => {
       .eq(0)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    // Select the Array option from dropdown list
+
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("OBJECT")
       .click({ force: true });
@@ -76,7 +76,7 @@ describe("JSObject testing", () => {
       .eq(0)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    // Select the Array option from dropdown list
+
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("MAP")
       .click({ force: true });
@@ -101,7 +101,7 @@ describe("JSObject testing", () => {
       .eq(0)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    // Select the Array option from dropdown list
+
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("SET")
       .click({ force: true });
