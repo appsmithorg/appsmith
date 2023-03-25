@@ -38,6 +38,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    disabledPropsDefaults: {
+      scannerLayout: ScannerLayout.ALWAYS_ON,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,
