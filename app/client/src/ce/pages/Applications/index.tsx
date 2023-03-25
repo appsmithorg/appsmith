@@ -265,10 +265,10 @@ export const WorkspaceShareUsers = styled.div`
     margin-left: 8px;
   }
 
-  & button,
-  & a {
-    padding: 4px 12px;
-  }
+  // & button,
+  // & a {
+  //   padding: 4px 12px;
+  // }
 `;
 
 export const NoAppsFound = styled.div`
@@ -471,6 +471,7 @@ export const CreateNewLabel = styled(Text)`
 export const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
   max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis}
+  color: var(--ads-v2-color-gray-600);
 `;
 
 export const WorkspaceNameHolder = styled(Text)`
@@ -797,7 +798,7 @@ export function ApplicationsSection(props: any) {
                           <Button
                             className="t--options-icon"
                             isIconButton
-                            kind="secondary"
+                            kind="tertiary"
                             onClick={() => {
                               setWorkspaceToOpenMenu(workspace.id);
                             }}
