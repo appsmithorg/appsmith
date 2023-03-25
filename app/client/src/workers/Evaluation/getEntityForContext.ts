@@ -6,13 +6,11 @@ import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import type { JSActionEntity } from "entities/DataTree/types";
 
 function getJSFunctionsForEntity({
-  enableJSFnPostProcessors,
   jsObject,
   jsObjectName,
 }: {
   jsObjectName: string;
   jsObject: JSActionEntity;
-  enableJSFnPostProcessors: boolean;
 }) {
   const jsObjectFunction: Record<string, any> = {};
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
@@ -21,9 +19,11 @@ function getJSFunctionsForEntity({
     const fn = resolvedObject[fnName];
     if (typeof fn !== "function") continue;
     const data = jsObject[fnName]?.data;
-    jsObjectFunction[fnName] = enableJSFnPostProcessors
-      ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
-      : fn;
+    jsObjectFunction[fnName] = jsObjectFunctionFactory(
+      fn,
+      jsObjectName + "." + fnName,
+    );
+
     if (!!data) {
       jsObjectFunction[fnName]["data"] = data;
     }
@@ -34,7 +34,6 @@ function getJSFunctionsForEntity({
 export function getEntityForEvalContext(
   entity: DataTreeEntity,
   entityName: string,
-  enableJSFnPostProcessors: boolean,
 ) {
   if (entity && "ENTITY_TYPE" in entity) {
     switch (entity.ENTITY_TYPE) {
@@ -48,7 +47,6 @@ export function getEntityForEvalContext(
         const fns = getJSFunctionsForEntity({
           jsObjectName,
           jsObject,
-          enableJSFnPostProcessors,
         });
 
         if (!jsObjectForEval) {
