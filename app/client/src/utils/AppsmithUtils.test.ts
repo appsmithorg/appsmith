@@ -41,6 +41,9 @@ describe("isURL", () => {
     expect(
       isURL("https://www.example.com/path(withparentheses)/file.html"),
     ).toBe(true);
+    expect(
+      isURL("https://www.example.com/path[withparentheses]/file_(1)[2].html"),
+    ).toBe(true);
   });
 
   test("returns false for invalid URLs", () => {
@@ -49,5 +52,7 @@ describe("isURL", () => {
     expect(isURL("ftp:/example.com")).toBe(false);
     expect(isURL("http://example.")).toBe(false);
     expect(isURL("http://localhost:port")).toBe(false);
+    expect(isURL("notAURL")).toBe(false);
+    expect(isURL("httpsnotAURL")).toBe(false);
   });
 });
