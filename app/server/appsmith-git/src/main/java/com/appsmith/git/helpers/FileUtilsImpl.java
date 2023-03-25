@@ -12,26 +12,37 @@ import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
+import com.appsmith.util.WebClientUtils;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.util.retry.Retry;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,6 +55,7 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -235,6 +247,8 @@ public class FileUtilsImpl implements FileInterface {
 
                         Map<String, Object> flattenedJson = JsonFlattener.flattenAsMap(new JSONObject(applicationGitReference.getPageDsl().get(pageName)).toString());
                         JSONObject dsl = new JSONObject(applicationGitReference.getPageDsl().get(pageName));
+
+                        Object normalizedDSL = getNormalizedDSL(new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
 
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
@@ -804,5 +818,48 @@ public class FileUtilsImpl implements FileInterface {
 
     private boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
+    }
+
+    private final String RTS_BASE_URL = "http://localhost:8091";
+
+    private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
+            .maxConnections(100)
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofSeconds(40))
+            .pendingAcquireTimeout(Duration.ofSeconds(10))
+            .pendingAcquireMaxCount(-1)
+            .build());
+
+    public Object getNormalizedDSL(JSONObject dsl) {
+        return webClient.post()
+                .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/normalize")
+                .body(BodyInserters.fromValue(dsl))
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(o -> {
+
+                    return o;
+                })
+                .block();
+
+                /*.exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError()) {
+                        return clientResponse.bodyToMono(JSONObject.class)
+                                .flatMap(error -> {
+                                    log.error("Error while normalizing DSL: {}", error);
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error));
+                                });
+                    }
+                    return clientResponse.bodyToMono(JSONObject.class);
+                })*/
+
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    static class WidgetDSL {
+        JSONObject widgets;
     }
 }
