@@ -296,6 +296,7 @@ export function Item(props: {
         className={
           !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
+        color={"var(--ads-v2-color-gray-600)"}
         type={props.textType}
       >
         {" "}
@@ -432,6 +433,7 @@ export function LeftPane(props: LeftPaneProps) {
         <WorkpsacesNavigator data-cy="t--left-panel">
           {canCreateWorkspace && (
             <MenuItem
+              color="var(--ads-v2-color-gray-600)"
               cypressSelector="t--workspace-new-workspace-auto-create"
               icon="plus"
               onSelect={() =>

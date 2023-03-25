@@ -1,14 +1,15 @@
 import React from "react";
-import styled from "styled-components";
+// import styled from "styled-components";
 import { debounce } from "lodash";
 import {
-  notEmptyValidator,
-  Text,
-  TextInput,
-  TextType,
+  // notEmptyValidator,
+  // Text,
+  // TextInput,
+  // TextType,
   Toaster,
   Variant,
 } from "design-system-old";
+import { Button, Input, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
@@ -19,19 +20,19 @@ import {
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
-import { getAppsmithConfigs } from "@appsmith/configs";
+// import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-const { disableLoginForm } = getAppsmithConfigs();
+// const { disableLoginForm } = getAppsmithConfigs();
 
-const ForgotPassword = styled.a`
-  margin-top: 12px;
-  border-bottom: 1px solid transparent;
-  &:hover {
-    cursor: pointer;
-    text-decoration: none;
-  }
-  display: inline-block;
-`;
+// const ForgotPassword = styled.a`
+//   margin-top: 12px;
+//   border-bottom: 1px solid transparent;
+//   &:hover {
+//     cursor: pointer;
+//     text-decoration: none;
+//   }
+//   display: inline-block;
+// `;
 
 function General() {
   const user = useSelector(getCurrentUser);
@@ -67,12 +68,28 @@ function General() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Display Picture</Text>
+          <Text kind="body-m" renderAs="span">
+            Display Picture
+          </Text>
         </LabelWrapper>
         <UserProfileImagePicker />
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
+        <Input
+          // cypressSelector="t--display-name"
+          // fill={false}
+          isRequired
+          label="Display name"
+          labelPosition="left"
+          onChange={onNameChange}
+          placeholder="Display name"
+          renderAs="input"
+          size="md"
+          type="text"
+          value={user?.name}
+          // validator={notEmptyValidator}
+        />
+        {/* <LabelWrapper>
           <Text type={TextType.H4}>Display name</Text>
         </LabelWrapper>
         {
@@ -86,20 +103,54 @@ function General() {
               validator={notEmptyValidator}
             />
           </div>
-        }
+        } */}
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Email</Text>
-        </LabelWrapper>
-        <div style={{ flexDirection: "column", display: "flex" }}>
-          {<Text type={TextType.P1}>{user?.email}</Text>}
+        <Input
+          // cypressSelector="t--display-name"
+          // fill={false}
+          isDisabled
+          isReadOnly
+          label="Email"
+          labelPosition="left"
+          placeholder="Display name"
+          renderAs="input"
+          size="md"
+          type="text"
+          value={user?.email}
+          // validator={notEmptyValidator}
+        />
+        {/* // <LabelWrapper>
 
-          {!disableLoginForm && (
-            <ForgotPassword onClick={forgotPassword}>
-              Reset Password
-            </ForgotPassword>
-          )}
+        //   <Text type={TextType.H4}>Email</Text>
+        // </LabelWrapper> */}
+        {/* <div style={{ flexDirection: "column", display: "flex" }}>
+          {/* //   {<Text type={TextType.P1}>{user?.email}</Text>} */}
+
+        {/* {!disableLoginForm && (
+          <ForgotPassword onClick={forgotPassword}>
+            Reset Password
+          </ForgotPassword>
+          )} */}
+        {/* </div> */}
+      </FieldWrapper>
+      <FieldWrapper>
+        <div
+          style={{
+            display: "flex",
+            flex: "1 1 0%",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            // isDisabled={!disableLoginForm}
+            kind="tertiary"
+            onClick={forgotPassword}
+            renderAs="a"
+            size="md"
+          >
+            Reset Password
+          </Button>
         </div>
       </FieldWrapper>
       {/* <InputWrapper>

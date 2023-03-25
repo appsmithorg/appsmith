@@ -14,8 +14,10 @@ export const LabelWrapper = styled.div`
   .self-center {
     align-self: center;
   }
-  width: 200px;
+  width: 240px;
   display: flex;
+  color: var(--ads-v2-color-fg);
+  font-size: 14px;
 `;
 
 export const Loader = styled.div`
