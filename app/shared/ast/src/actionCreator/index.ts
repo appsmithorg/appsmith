@@ -1234,3 +1234,20 @@ export function checkIfCatchBlockExists(code: string) {
         return false;
     }
 }
+
+export function checkIfArgumentExistAtPosition(code: string, position: number) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        const ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+        });
+        const rootCallExpression = findRootCallExpression(ast);
+        if(!rootCallExpression) return false;
+        const args = rootCallExpression.arguments;
+        if(!args || args.length === 0 || !args[position]) return false;
+        return true;
+    } catch(e) {
+        return false;
+    }
+}

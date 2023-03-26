@@ -24,12 +24,13 @@ import {
   callBackFieldGetter,
   objectSetter,
   paramSetter,
+  getCodeFromMoustache,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import type { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
-import { getFunctionName } from "@shared/ast";
+import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
@@ -375,6 +376,13 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeGetter(value, 2, "SAME_WINDOW");
     },
     setter: (option: any, currentValue: string) => {
+      const isQueryParamsSet = checkIfArgumentExistAtPosition(
+        getCodeFromMoustache(currentValue),
+        1,
+      );
+      if (!isQueryParamsSet) {
+        currentValue = objectSetter("{{{}}}", currentValue, 1);
+      }
       return enumTypeSetter(option.value, currentValue, 2);
     },
     view: ViewTypes.SELECTOR_VIEW,
