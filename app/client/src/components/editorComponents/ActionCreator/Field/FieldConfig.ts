@@ -221,6 +221,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  // download()
   [FieldType.DOWNLOAD_DATA_FIELD]: {
     label: () => "Data to download",
     defaultText: "",
@@ -304,7 +305,17 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeGetter(value, 1);
     },
     setter: (value, currentValue) => {
-      return enumTypeSetter(value, currentValue, 1);
+      const isCallbackFunctionSet = Boolean(
+        callBackFieldGetter(currentValue, 0) !== "{{}}",
+      );
+      if (!isCallbackFunctionSet) {
+        currentValue = callBackFieldSetter(
+          "{{() => {\n // showAlert('Hello'); \n}}}",
+          currentValue,
+          0,
+        );
+      }
+      return enumTypeSetter(value, currentValue, 1, "0");
     },
     view: ViewTypes.TEXT_VIEW,
   },
@@ -317,6 +328,16 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 2);
     },
     setter: (value, currentValue) => {
+      const isCallbackFunctionSet = Boolean(
+        callBackFieldGetter(currentValue, 0) !== "{{}}",
+      );
+      if (!isCallbackFunctionSet) {
+        currentValue = callBackFieldSetter("", currentValue, 0);
+      }
+      const isDelaySet = Boolean(enumTypeGetter(currentValue, 1));
+      if (!isDelaySet) {
+        currentValue = enumTypeSetter("10", currentValue, 1);
+      }
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,

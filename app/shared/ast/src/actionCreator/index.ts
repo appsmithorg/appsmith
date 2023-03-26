@@ -323,6 +323,12 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
         throw error;
     }
 
+    try {
+        getAST(changeValue);
+    } catch(e) {
+        return currentValue;
+    }
+
     // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
