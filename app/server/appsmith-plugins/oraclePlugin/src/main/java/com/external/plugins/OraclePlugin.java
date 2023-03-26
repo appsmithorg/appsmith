@@ -232,8 +232,7 @@ public class OraclePlugin extends BasePlugin {
                                 preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                         mustacheValuesInOrder,
                                         executeActionDTO.getParams(),
-                                        parameters,
-                                        connectionFromPool);
+                                        parameters);
 
                                 IntStream.range(0, parameters.size())
                                         .forEachOrdered(i ->
@@ -324,7 +323,7 @@ public class OraclePlugin extends BasePlugin {
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
-            Param param = (Param) args[1];
+            Param param = (Param) args[0];
             DataType valueType;
             valueType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value,
                     OracleSpecificDataTypes.pluginSpecificTypes).type();
