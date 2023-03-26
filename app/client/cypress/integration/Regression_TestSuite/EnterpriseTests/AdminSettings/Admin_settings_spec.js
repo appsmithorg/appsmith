@@ -12,7 +12,7 @@ describe("Admin settings page", function () {
     }).as("postEnvVariables");
   });
 
-  it("should test that settings page is redirected to default tab", () => {
+  it("1. should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait(3000);
@@ -20,17 +20,85 @@ describe("Admin settings page", function () {
     cy.url().should("contain", "/settings/general");
   });
 
-  it("should test that authentication page shows upgrade button for SSO", () => {
+  it("2. should test that authentication and branding page shows upgrade button and redirects to pricing page", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
     if (CURRENT_REPO === REPO.CE) {
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://www.appsmith.com/pricing?";
+        }).as("pricingPage");
+      });
       cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
         .should("be.visible")
-        .should("contain", "UPGRADE");
+        .should("contain", "UPGRADE")
+        .click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://www.appsmith.com/pricing?";
+        }).as("pricingPage");
+      });
       cy.get(EnterpriseAdminSettingsLocators.upgradeSamlButton)
         .should("be.visible")
-        .should("contain", "UPGRADE");
+        .should("contain", "UPGRADE")
+        .click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
+
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://www.appsmith.com/pricing?";
+        }).as("pricingPage");
+      });
+      cy.get(".t--settings-category-branding").click();
+      cy.url().should("contain", "/settings/branding");
+      cy.xpath(adminsSettings.upgrade).click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
+    }
+  });
+  it("3. should test that Business features shows upgrade button and direct to pricing page", () => {
+    cy.visit("/settings");
+    cy.get(adminsSettings.accessControl).click();
+    cy.url().should("contain", "/settings/access-control");
+    if (CURRENT_REPO === REPO.CE) {
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://www.appsmith.com/pricing?";
+        }).as("pricingPage");
+      });
+      cy.xpath(adminsSettings.upgrade).click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
+      cy.get(adminsSettings.auditLogs).click();
+      cy.url().should("contain", "/settings/audit-logs");
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://www.appsmith.com/pricing?";
+        }).as("pricingPage");
+      });
+      cy.xpath(adminsSettings.upgrade).click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
+      cy.get(adminsSettings.upgrageLeftPane).click();
+      cy.url().should("contain", "/settings/business-edition");
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://www.appsmith.com/pricing?";
+        }).as("pricingPage");
+      });
+      cy.xpath(adminsSettings.upgrade).click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
     }
   });
 });
