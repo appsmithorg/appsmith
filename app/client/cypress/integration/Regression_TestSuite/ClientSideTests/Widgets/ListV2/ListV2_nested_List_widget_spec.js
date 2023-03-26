@@ -201,6 +201,8 @@ describe(" Nested List Widgets ", function () {
       .first()
       .click({ force: true });
 
+    cy.wait(300);
+
     cy.waitUntil(() =>
       cy
         .get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
