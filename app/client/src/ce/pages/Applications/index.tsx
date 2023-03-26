@@ -296,7 +296,7 @@ export function Item(props: {
         className={
           !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
-        color={"var(--ads-v2-color-gray-600)"}
+        color={"var(--ads-v2-color-fg-emphasis)"}
         type={props.textType}
       >
         {" "}
@@ -433,7 +433,7 @@ export function LeftPane(props: LeftPaneProps) {
         <WorkpsacesNavigator data-cy="t--left-panel">
           {canCreateWorkspace && (
             <MenuItem
-              color="var(--ads-v2-color-gray-600)"
+              color="var(--ads-v2-color-fg-emphasis)"
               cypressSelector="t--workspace-new-workspace-auto-create"
               icon="plus"
               onSelect={() =>
@@ -473,7 +473,7 @@ export const CreateNewLabel = styled(Text)`
 export const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
   max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis}
-  color: var(--ads-v2-color-gray-600);
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 export const WorkspaceNameHolder = styled(Text)`

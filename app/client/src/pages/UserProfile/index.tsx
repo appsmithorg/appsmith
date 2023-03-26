@@ -10,6 +10,7 @@ import General from "./General";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
+import { createMessage, GO_BACK } from "@appsmith/constants/messages";
 
 const ProfileWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -72,7 +73,7 @@ function UserProfile() {
             size="sm"
             startIcon="arrow-left-line"
           >
-            Back
+            {createMessage(GO_BACK)}
           </Button>
           {/* <Icon name="chevron-left" />
           <Text kind="body-m" renderAs="span">

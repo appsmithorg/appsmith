@@ -1321,7 +1321,7 @@ export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
   "Use these templates to learn, create, and build apps even faster";
-export const GO_BACK = () => "GO BACK";
+export const GO_BACK = () => "Back";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
 export const INDUSTRY = () => "Use Case";
