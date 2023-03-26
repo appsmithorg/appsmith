@@ -214,6 +214,7 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
     if(typeof changeValue !== "string" || changeValue === '' || changeValue.trim() === '') {
         changeValue = '{}'
     }
+    changeValue = changeValue.trim();
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];

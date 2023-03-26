@@ -147,6 +147,7 @@ export const enumTypeSetter = (
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  changeValue = getCodeFromMoustache(changeValue);
   try {
     return setEnumArgumentAtPosition(
       requiredValue,
