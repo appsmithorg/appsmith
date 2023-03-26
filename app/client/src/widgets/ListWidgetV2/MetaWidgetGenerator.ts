@@ -178,9 +178,6 @@ enum MODIFICATION_TYPE {
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
-const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentItemsView"],
-};
 /**
  * When computing level_1.currentView.List2
  */
@@ -188,7 +185,7 @@ const BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA: Record<
   string,
   string[] | undefined
 > = {
-  LIST_WIDGET_V2: ["selectedItemView", "triggeredItemView"],
+  LIST_WIDGET_V2: ["selectedItemView", "triggeredItemView", "currentItemsView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -1134,15 +1131,17 @@ class MetaWidgetGenerator {
           lookupLevel?.currentRowCache?.[widgetName] || {};
 
         if (entityDefinition) {
+          const filteredEntityDefinition = this.getFilteredEntityDef(
+            entityDefinition,
+            widgetName,
+            type,
+          );
+
           levelProps[level] = {
             ...(levelProps[level] || {}),
             currentView: {
               ...(levelProps[level]?.currentView || {}),
-              [widgetName]: `{{{${this.removeBlackListKeysFromEntityDef(
-                entityDefinition,
-                widgetName,
-                type,
-              )}}}}`,
+              [widgetName]: `{{{${filteredEntityDefinition}}}}`,
             },
           };
 
@@ -1178,29 +1177,19 @@ class MetaWidgetGenerator {
    * And we use this check to selectively blacklist some properties.
    */
 
-  private removeBlackListKeysFromEntityDef = (
+  private getFilteredEntityDef = (
     entityDefinition: string,
     widgetName: string,
     type: string,
   ) => {
-    let filteredEntityDef = entityDefinition;
-
-    Object.keys(BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA).forEach(
-      (widgetType) => {
-        if (widgetType === type && widgetName === this.widgetName) {
-          const entityArr = entityDefinition
-            .split(",")
-            .filter(
-              (propertyPath) =>
-                !BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[widgetType]?.some(
-                  (property) => propertyPath.includes(property),
-                ),
-            );
-
-          filteredEntityDef = entityArr.join(",");
-        }
-      },
-    );
+    const filteredEntityDef =
+      this.widgetName === widgetName
+        ? this.getPropertiesOfWidget(
+            widgetName,
+            type,
+            BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+          )
+        : entityDefinition;
 
     return filteredEntityDef;
   };
@@ -1735,18 +1724,28 @@ class MetaWidgetGenerator {
     return metaWidgets;
   };
 
-  private getEntityDefinitionsFor = (widgetType: string) => {
+  private getEntityDefinitionsFor = (
+    widgetType: string,
+    blacklistedWidgetProperties?: string[],
+  ) => {
     const config = get(entityDefinitions, widgetType);
     const entityDefinition = typeof config === "function" ? config({}) : config;
     const blacklistedKeys = ["!doc", "!url"].concat(
-      BLACKLISTED_ENTITY_DEFINITION[widgetType] || [],
+      blacklistedWidgetProperties || [],
     );
 
     return Object.keys(omit(entityDefinition, blacklistedKeys));
   };
 
-  private getPropertiesOfWidget = (widgetName: string, widgetType: string) => {
-    const entityDefinitions = this.getEntityDefinitionsFor(widgetType);
+  private getPropertiesOfWidget = (
+    widgetName: string,
+    widgetType: string,
+    blacklistedWidgetProperties?: string[],
+  ) => {
+    const entityDefinitions = this.getEntityDefinitionsFor(
+      widgetType,
+      blacklistedWidgetProperties,
+    );
 
     return entityDefinitions
       .map((definition) => `${definition}: ${widgetName}.${definition}`)
