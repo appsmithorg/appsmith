@@ -321,13 +321,19 @@ export function extractAlignmentInfo(
     // For hug widgets with horizontal resizing enabled,
     // make sure the width is not getting greater than user defined width
     if (!isFillWidget && !disableResizeHandles?.horizontal) {
-      if (widget.widthInPercentage) {
-        const userDefinedWidth = widget.widthInPercentage * mainCanvasWidth;
-        if (columns * columnSpace > userDefinedWidth) {
-          columns = (widget.widthInPercentage * mainCanvasWidth) / columnSpace;
-        }
+      if (!isMobile && widget.widthInPercentage) {
+        columns = Math.round(
+          (widget.widthInPercentage * mainCanvasWidth) / columnSpace,
+        );
+      } else if (isMobile && widget.mobileWidthInPercentage) {
+        columns = Math.round(
+          (widget.mobileWidthInPercentage * mainCanvasWidth) / columnSpace,
+        );
       } else if (firstTimeDSLUpdate) {
+        // Sets the widthInPercentage & mobileWidthInPercentage value after conversion
         widget.widthInPercentage = (columns * columnSpace) / mainCanvasWidth;
+        widget.mobileWidthInPercentage =
+          (columns * columnSpace) / mainCanvasWidth;
       }
     }
 

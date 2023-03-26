@@ -187,6 +187,7 @@ function* updateWidgetDimensionsSaga(
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isLayoutUpdating: boolean = yield select(getIsDraggingOrResizing);
+  const isMobile: boolean = yield select(getIsMobile);
 
   const widget = allWidgets[widgetId];
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
@@ -194,8 +195,12 @@ function* updateWidgetDimensionsSaga(
     mainCanvasWidth,
   );
 
-  if (widget.widthInPercentage) {
+  if (!isMobile && widget.widthInPercentage) {
     width = widget.widthInPercentage * mainCanvasWidth;
+  }
+
+  if (isMobile && widget.mobileWidthInPercentage) {
+    width = widget.mobileWidthInPercentage * mainCanvasWidth;
   }
 
   if (

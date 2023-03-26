@@ -815,6 +815,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   flexVerticalAlignment?: FlexVerticalAlignment;
   appPositioningType?: AppPositioningTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
+  mobileWidthInPercentage?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {
