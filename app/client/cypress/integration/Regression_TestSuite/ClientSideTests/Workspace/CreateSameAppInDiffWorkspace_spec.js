@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe("Create app same name in different workspace", function() {
+describe("Create app same name in different workspace", function () {
   let workspaceId;
   let appid;
   let newWorkspaceName;
@@ -21,7 +21,7 @@ describe("Create app same name in different workspace", function() {
       });
     });
   });
-  it("1. create app with same name in a different workspace", function() {
+  it("1. create app with same name in a different workspace", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(

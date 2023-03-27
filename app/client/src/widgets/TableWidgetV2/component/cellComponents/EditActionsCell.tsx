@@ -1,12 +1,10 @@
 import React from "react";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ButtonColumnActions,
-  EditableCellActions,
-} from "widgets/TableWidgetV2/constants";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { Button } from "./Button";
-import { BaseCellComponentProps } from "../Constants";
+import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 
 type RenderEditActionsProps = BaseCellComponentProps & {

@@ -66,7 +66,7 @@ const invalidUrls = [
 ];
 
 describe("gitSync utils", () => {
-  describe("getIsStartingWithRemoteBranches", function() {
+  describe("getIsStartingWithRemoteBranches", function () {
     it("returns true when only remote starts with origin/", () => {
       const actual = getIsStartingWithRemoteBranches(
         "whatever",

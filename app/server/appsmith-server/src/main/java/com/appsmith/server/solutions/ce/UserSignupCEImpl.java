@@ -11,6 +11,7 @@ import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
@@ -224,8 +225,10 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     return Mono.when(
                             userDataService.updateForUser(user, userData),
-                            configService.getInstanceId()
-                                    .flatMap(instanceId -> {
+                            Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress().defaultIfEmpty("unknown"))
+                                    .flatMap(tuple -> {
+                                        final String instanceId = tuple.getT1();
+                                        final String ip = tuple.getT2();
                                         log.debug("Installation setup complete.");
                                         analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
                                         return analyticsService.sendEvent(
@@ -236,7 +239,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                                                         "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
                                                         "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
                                                         "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
-                                                        "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
+                                                        "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), ""),
+                                                        "ip", ip
                                                 ),
                                                 false
                                         );

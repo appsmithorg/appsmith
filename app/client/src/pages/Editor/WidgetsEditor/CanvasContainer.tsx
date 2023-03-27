@@ -1,5 +1,6 @@
 // import { ReactComponent as CanvasResizer } from "assets/icons/ads/app-icons/canvas-resizer.svg";
-import React, { ReactNode, useEffect } from "react";
+import type { ReactNode } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -78,12 +79,22 @@ import Canvas from "../Canvas";
 // `;
 const Container = styled.section<{
   background: string;
+  isPreviewingNavigation?: boolean;
+  navigationHeight?: number;
 }>`
   width: 100%;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
   background: ${({ background }) => background};
+
+  ${({ isPreviewingNavigation, navigationHeight }) => {
+    if (isPreviewingNavigation) {
+      return `
+        margin-top: ${navigationHeight}px !important;
+      `;
+    }
+  }}
 
   &:before {
     position: absolute;
@@ -95,7 +106,12 @@ const Container = styled.section<{
   }
 `;
 
-function CanvasContainer() {
+const CanvasContainer = (props: {
+  navigationHeight?: number;
+  isAppSettingsPaneWithNavigationTabOpen?: boolean;
+}) => {
+  const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
+
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -106,7 +122,10 @@ function CanvasContainer() {
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const shouldHaveTopMargin = isPreviewMode && pages.length > 1;
+  const shouldHaveTopMargin =
+    !isPreviewMode ||
+    !isAppSettingsPaneWithNavigationTabOpen ||
+    pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
 
@@ -140,6 +159,7 @@ function CanvasContainer() {
       />
     );
   }
+
   // const appPositioningType = useSelector(getCurrentAppPositioningType);
   // const appLayout = useSelector(getCurrentApplicationLayout);
   // useEffect(() => {
@@ -226,26 +246,45 @@ function CanvasContainer() {
   //   }
   // }, [appLayout, isPreviewMode, currentPageId, appPositioningType]);
 
-  // calculating exact height to not allow scroll at this component,
-  // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  /**
+   * calculating exact height to not allow scroll at this component,
+   * calculating total height of the canvas minus
+   * - 1. navigation height
+   *   - 1.1 height for top + stacked or top + inline nav style is calculated
+   *   - 1.2 in case of sidebar nav, height is 0
+   * - 2. top bar (header with preview/share/deploy buttons)
+   * - 3. bottom bar (footer with debug/logs buttons)
+   */
+  const topMargin =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen ? "0px" : "2.25rem";
+  const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
+  const heightWithMargins = `calc(100vh - ${navigationHeight}px - ${theme.smallHeaderHeight} - ${bottomBarHeight} - ${topMargin})`;
+
   return (
     <Container
       background={
-        isPreviewMode
+        isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
           ? selectedTheme.properties.colors.backgroundColor
           : "initial"
       }
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
-        "mt-0": !shouldHaveTopMargin && isPreviewMode, // We do this because we don't need any spacing at the top in preview mode and no pagination
-        "mt-4": !shouldHaveTopMargin && !isPreviewMode, // We do this because we need enough space for widget name component to show up at the top of the canvas for a widget at the top
-        "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
+        "mt-0": !shouldHaveTopMargin && isPreviewMode,
+        "mt-4": showCanvasTopSection && !isPreviewMode,
+        "mt-8":
+          shouldHaveTopMargin &&
+          !showCanvasTopSection &&
+          !isPreviewMode &&
+          !isAppSettingsPaneWithNavigationTabOpen,
       })}
       id={"canvas-viewport"}
+      isPreviewingNavigation={
+        isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+      }
       key={currentPageId}
+      navigationHeight={navigationHeight}
       style={{
-        height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
+        height: shouldHaveTopMargin ? heightWithMargins : "100vh",
         fontFamily: fontFamily,
       }}
     >
@@ -281,6 +320,6 @@ function CanvasContainer() {
       )} */}
     </Container>
   );
-}
+};
 
 export default CanvasContainer;

@@ -114,8 +114,8 @@ function EmbedSnippetTab() {
                   large
                   onChange={() =>
                     embedSnippet.onChange({
-                      showNavigationBar: !embedSnippet.currentEmbedSetting
-                        .showNavigationBar,
+                      showNavigationBar:
+                        !embedSnippet.currentEmbedSetting.showNavigationBar,
                     })
                   }
                 />

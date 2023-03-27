@@ -1,17 +1,18 @@
 import React from "react";
 import Table from "./Table";
-import {
+import type {
   AddNewRowActions,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
   StickyType,
 } from "./Constants";
-import { Row } from "react-table";
+import type { Row } from "react-table";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import { ColumnTypes, EditableCell, TableVariant } from "../constants";
+import type { EditableCell, TableVariant } from "../constants";
+import { ColumnTypes } from "../constants";
 import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
@@ -200,12 +201,14 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     }
   };
 
-  const memoziedDisableDrag = useCallback(() => disableDrag(true), [
-    disableDrag,
-  ]);
-  const memoziedEnableDrag = useCallback(() => disableDrag(false), [
-    disableDrag,
-  ]);
+  const memoziedDisableDrag = useCallback(
+    () => disableDrag(true),
+    [disableDrag],
+  );
+  const memoziedEnableDrag = useCallback(
+    () => disableDrag(false),
+    [disableDrag],
+  );
 
   return (
     <Table

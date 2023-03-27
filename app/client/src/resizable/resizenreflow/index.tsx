@@ -1,29 +1,29 @@
 import { stopReflowAction } from "actions/reflowActions";
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { animated, Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
-import {
+import type {
   GridProps,
   MovementLimitMap,
-  ReflowDirection,
   ReflowedSpace,
 } from "reflow/reflowTypes";
+import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import styled, { StyledComponent } from "styled-components";
-import {
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import type { StyledComponent } from "styled-components";
+import styled from "styled-components";
+import type { LayoutDirection } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
@@ -346,11 +346,8 @@ export function ReflowResizable(props: ResizableProps) {
     const { direction, height, width, x, y } = rect;
 
     //if it is reached the end of canvas
-    const {
-      canResizeHorizontally,
-      canResizeVertically,
-      resizedPositions,
-    } = props.getResizedPositions({ width, height }, { x, y });
+    const { canResizeHorizontally, canResizeVertically, resizedPositions } =
+      props.getResizedPositions({ width, height }, { x, y });
     const canResize = canResizeHorizontally || canResizeVertically;
 
     if (canResize) {
@@ -376,9 +373,8 @@ export function ReflowResizable(props: ResizableProps) {
           movementLimitMap &&
           movementLimitMap[resizedPositions.id]
         ) {
-          ({ canHorizontalMove, canVerticalMove } = movementLimitMap[
-            resizedPositions.id
-          ]);
+          ({ canHorizontalMove, canVerticalMove } =
+            movementLimitMap[resizedPositions.id]);
         }
 
         //if it should not resize horizontally, we keep keep the previous horizontal dimensions
@@ -677,9 +673,9 @@ export function ReflowResizable(props: ResizableProps) {
         maxHeight:
           (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        transform: `translate3d(${newDimensions.x -
-          bufferForBoundary / 2}px,${newDimensions.y -
-          bufferForBoundary / 2}px,0)`,
+        transform: `translate3d(${newDimensions.x - bufferForBoundary / 2}px,${
+          newDimensions.y - bufferForBoundary / 2
+        }px,0)`,
       }}
     >
       {(_props) => (

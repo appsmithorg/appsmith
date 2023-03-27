@@ -177,6 +177,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+export const SHARE_APP = () => `Share app`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -985,11 +986,13 @@ export const WELCOME_FORM_FULL_NAME = () => "Full Name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
-export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
-export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () => "- Select a role -";
-export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_ROLE_DROPDOWN = () =>
+  "Tell us about your primary skillset";
+export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
+  "- Select a skillset -";
+export const WELCOME_FORM_ROLE = () => "Skillset";
 export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
-export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_USE_CASE = () => "Tell us about your use case";
 export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
@@ -1108,7 +1111,7 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
-  "Tell us more about what you do at work?";
+  "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
@@ -1374,6 +1377,10 @@ export const MEMBERS_TAB_TITLE = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cloudHosting?: boolean,
 ) => `Users (${length})`;
+export const SEARCH_USERS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Search for users`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
@@ -1451,6 +1458,25 @@ export const IN_APP_EMBED_SETTING = {
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
 };
+
+export const APP_NAVIGATION_SETTING = {
+  sectionHeader: () => "Navigation",
+  sectionHeaderDesc: () => "Customize the navigation bar",
+  showNavbarLabel: () => "Show Navbar",
+  orientationLabel: () => "Orientation",
+  navStyleLabel: () => "Variant",
+  positionLabel: () => "Position",
+  itemStyleLabel: () => "Item Style",
+  colorStyleLabel: () => "Background color",
+  logoLabel: () => "Logo",
+  logoConfigurationLabel: () => "Logo Configuration",
+  showSignInLabel: () => "Show Sign In",
+  showSignInTooltip: () =>
+    "Toggle to show the sign-in button for users who are not logged in.",
+};
+
+export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";

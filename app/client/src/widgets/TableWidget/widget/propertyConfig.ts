@@ -1,9 +1,9 @@
 import { get } from "lodash";
-import { TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ButtonVariantTypes } from "components/constants";
 import {
   updateDerivedColumnsHook,
@@ -372,6 +372,7 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: [
+                          "YYYY-MM-DDTHH:mm:ss.SSSZ",
                           "Epoch",
                           "Milliseconds",
                           "YYYY-MM-DD",
@@ -509,6 +510,7 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: [
+                          "YYYY-MM-DDTHH:mm:ss.SSSZ",
                           "Epoch",
                           "Milliseconds",
                           "YYYY-MM-DD",

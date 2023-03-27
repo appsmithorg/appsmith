@@ -20,7 +20,7 @@ export const handlers = [
   rest.get("/api/v1/applications/new", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(ApplicationsNewMockResponse));
   }),
-  rest.get("/api/v1/applications/releaseItems",  (req, res, ctx) => {
+  rest.get("/api/v1/applications/releaseItems", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(FetchReleasesMockResponse));
   }),
   // comment thread api

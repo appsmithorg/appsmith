@@ -1,13 +1,8 @@
 import React from "react";
 import { Link, Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
-import {
-  InjectedFormProps,
-  reduxForm,
-  formValueSelector,
-  isDirty,
-  DecoratedFormProps,
-} from "redux-form";
+import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
+import { reduxForm, formValueSelector, isDirty } from "redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
@@ -36,7 +31,7 @@ import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
-import { LoginFormValues } from "pages/UserAuth/helpers";
+import type { LoginFormValues } from "pages/UserAuth/helpers";
 
 import {
   SpacedSubmitForm,

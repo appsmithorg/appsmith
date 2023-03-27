@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import styled, { DefaultTheme, useTheme } from "styled-components";
+import type { DefaultTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { get, isUndefined } from "lodash";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
@@ -17,8 +18,9 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
-import { Theme, thinScrollbar } from "constants/DefaultTheme";
-import { IconName } from "@blueprintjs/core";
+import type { Theme } from "constants/DefaultTheme";
+import { thinScrollbar } from "constants/DefaultTheme";
+import type { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LIST_HEADER_HEIGHT = "38px";
@@ -29,6 +31,7 @@ const ContainerWrapper = styled.div`
 `;
 
 export const ListWrapper = styled.div`
+  overflow-wrap: anywhere;
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   ${thinScrollbar};

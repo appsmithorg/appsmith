@@ -6,7 +6,7 @@ const dsl = require("../../../../../fixtures/filePickerV2WidgetReskinDsl.json");
 
 const appSettings = ObjectsRegistry.AppSettings;
 
-describe("Checkbox Widget Functionality", function() {
+describe("Checkbox Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -17,9 +17,7 @@ describe("Checkbox Widget Functionality", function() {
 
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
-    cy.get(commonlocators.themeAppBorderRadiusBtn)
-      .last()
-      .click();
+    cy.get(commonlocators.themeAppBorderRadiusBtn).last().click();
     appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
@@ -40,9 +38,7 @@ describe("Checkbox Widget Functionality", function() {
     // Check the border radius of close button top right
     cy.get(".uppy-Dashboard-close").should("have.css", "border-radius", "24px");
 
-    cy.get(commonlocators.filePickerInput)
-      .first()
-      .attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerInput).first().attachFile("testFile.mov");
     cy.get(".uppy-StatusBar-actionBtn--upload").should(
       "have.css",
       "border-radius",
@@ -63,9 +59,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(commonlocators.canvas).click({ force: true });
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
-    cy.get(commonlocators.themeAppBorderRadiusBtn)
-      .eq(1)
-      .click();
+    cy.get(commonlocators.themeAppBorderRadiusBtn).eq(1).click();
     appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();

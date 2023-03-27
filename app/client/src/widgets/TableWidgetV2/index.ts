@@ -6,7 +6,7 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { StickyType } from "./component/Constants";
 import { InlineEditingSaveOptions } from "./constants";

@@ -3,6 +3,7 @@ import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import TabItem from "./components/TabItem";
+import { Indices } from "constants/Layers";
 
 type Props = {
   activeTabIndex: number;
@@ -13,6 +14,8 @@ type Props = {
 const TabWrapper = styled.div`
   .react-tabs {
     border-bottom: 1px solid ${Colors.ALTO2};
+    z-index: ${Indices.Layer3};
+    position: relative;
   }
   .react-tabs__tab {
     margin-right: 0px;

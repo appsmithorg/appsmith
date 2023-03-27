@@ -1,11 +1,14 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { reflow } from "reflow";
-import {
+import type {
   BlockSpace,
   CollidingSpace,
   CollidingSpaceMap,
@@ -80,9 +83,8 @@ export const useReflow = (
 
   const isReflowing = useRef<boolean>(false);
 
-  const reflowSpacesSelector = getContainerWidgetSpacesSelectorWhileMoving(
-    parentId,
-  );
+  const reflowSpacesSelector =
+    getContainerWidgetSpacesSelectorWhileMoving(parentId);
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
   // Store previous values of reflow results
@@ -166,7 +168,8 @@ export const useReflow = (
       );
 
       prevPositions.current = newPositions;
-      prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
+      prevCollidingSpaces.current =
+        collidingSpaceMap as WidgetCollidingSpaceMap;
       prevSecondOrderCollisionMap.current = secondOrderCollisionMap || {};
 
       //store exit container and mouse pointer if we are not reflowing drop targets and it doesn't already have a value
@@ -235,7 +238,8 @@ export const useReflow = (
                   movementLimitMap,
                 });
 
-              prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
+              prevCollidingSpaces.current =
+                collidingSpaceMap as WidgetCollidingSpaceMap;
               prevSecondOrderCollisionMap.current =
                 secondOrderCollisionMap || {};
               prevMovementMap.current = movementMap || {};
