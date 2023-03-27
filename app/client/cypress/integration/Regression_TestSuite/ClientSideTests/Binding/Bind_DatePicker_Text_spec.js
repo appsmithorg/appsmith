@@ -120,11 +120,7 @@ describe("Binding the Datepicker and Text Widget", function () {
      * bind datepicker to show a message "Hello" on date selected
      */
     cy.openPropertyPane("datepickerwidget");
-    cy.get(commonlocators.onDateSelectedField).click();
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Show message")
-      .click({ force: true });
-    cy.getAlert(commonlocators.optionchangetextDatePicker);
+    cy.getAlert("onDateSelected");
 
     /**
      * checking if on selecting the date triggers the message
