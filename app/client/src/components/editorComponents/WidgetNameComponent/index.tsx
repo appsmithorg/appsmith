@@ -1,8 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import type { WidgetType } from "constants/WidgetConstants";
-import React, { useMemo } from "react";
-import type { CSSProperties } from "react";
+import React from "react";
+// import type { CSSProperties } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -35,10 +35,20 @@ import { Layers } from "constants/Layers";
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
 
-const PositionStyle = styled.div`
+const PositionStyle = styled.div<{
+  positionOffset: [number, number];
+  topRow: number;
+}>`
   position: absolute;
   display: flex;
   cursor: pointer;
+  top: ${(props) =>
+    props.topRow > 2
+      ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
+      : `calc(100% - ${1 + props.positionOffset[0]}px)`};
+  height: ${WidgetNameComponentHeight}px;
+  margin-left: ${(props) => props.positionOffset[1]}px;
+  z-index: ${Layers.widgetName};
 `;
 
 const ControlGroup = styled.div`
@@ -165,28 +175,29 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
     : [0, -RESIZE_BORDER_BUFFER];
 
-  const positionStyle: CSSProperties = useMemo(() => {
-    return {
-      top:
-        props.topRow > 2
-          ? `${-1 * WidgetNameComponentHeight + 1 + positionOffset[0]}px`
-          : `calc(100% - ${1 + positionOffset[0]}px)`,
-      height: WidgetNameComponentHeight + "px",
-      marginLeft: positionOffset[1] + "px",
-      zIndex: Layers.widgetName,
-    };
-  }, [
-    Layers?.widgetName,
-    props.topRow,
-    positionOffset,
-    WidgetNameComponentHeight,
-  ]);
+  // const positionStyle: CSSProperties = useMemo(() => {
+  //   return {
+  //     top:
+  //       props.topRow > 2
+  //         ? `${-1 * WidgetNameComponentHeight + 1 + positionOffset[0]}px`
+  //         : `calc(100% - ${1 + positionOffset[0]}px)`,
+  //     height: WidgetNameComponentHeight + "px",
+  //     marginLeft: positionOffset[1] + "px",
+  //     zIndex: Layers.widgetName,
+  //   };
+  // }, [
+  //   Layers?.widgetName,
+  //   props.topRow,
+  //   positionOffset,
+  //   WidgetNameComponentHeight,
+  // ]);
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
       id={"widget_name_" + props.widgetId}
-      style={positionStyle}
+      positionOffset={positionOffset}
+      topRow={props.topRow}
     >
       <ControlGroup>
         <SettingsControl
