@@ -886,8 +886,7 @@ public class ExamplesWorkspaceClonerTests {
                             "header prefix",
                             Set.of(
                                     new Property("custom token param 1", "custom token param value 1"),
-                                    new Property("custom token param 2", "custom token param value 2"),
-                                    new Property("custom token param 3", Set.of("file1", "file2", "file3"))
+                                    new Property("custom token param 2", "custom token param value 2")
                             ),
                             null,
                             null,

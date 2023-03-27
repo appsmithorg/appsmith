@@ -26,5 +26,5 @@ public interface TriggerMethod {
     /**
      * Transforms the response from the end point into an Appsmith friendly structure
      */
-    JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds);
+    JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds);
 }

@@ -140,6 +140,17 @@ public class FileListMethodTest {
         assertNotNull(result);
         assertTrue(result.isArray());
         assertEquals(result.size(), 2);
+
+        final ObjectNode expectedObjectNode1 = objectMapper.createObjectNode();
+        expectedObjectNode1.put("label", "test1");
+        expectedObjectNode1.put("value", "https://docs.google.com/spreadsheets/d/id1/edit");
+
+        final ObjectNode expectedObjectNode2 = objectMapper.createObjectNode();
+        expectedObjectNode2.put("label", "test2");
+        expectedObjectNode2.put("value", "https://docs.google.com/spreadsheets/d/id2/edit");
+
+        assertEquals(expectedObjectNode1, result.get(0));
+        assertEquals(expectedObjectNode2, result.get(1));
     }
 
     @Test
@@ -149,14 +160,70 @@ public class FileListMethodTest {
         final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
-        Set<String> allowedFileIds = new HashSet<String>();
-        allowedFileIds.add("id1");
+        Set<String> userAuthorizedSheetIds = new HashSet<String>();
+        userAuthorizedSheetIds.add("id1");
         assertNotNull(jsonNode);
 
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileListMethod = new FileListMethod(objectMapper);
-        JsonNode result = fileListMethod.transformTriggerResponse(jsonNode, methodConfig, allowedFileIds);
+        JsonNode result = fileListMethod.transformTriggerResponse(jsonNode, methodConfig, userAuthorizedSheetIds);
+
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(result.size(), 1);
+
+        final ObjectNode expectedObjectNode = objectMapper.createObjectNode();
+        expectedObjectNode.put("label", "test1");
+        expectedObjectNode.put("value", "https://docs.google.com/spreadsheets/d/id1/edit");
+        assertEquals(expectedObjectNode, result.get(0));
+    }
+
+    @Test
+    public void testTransformExecutionResponse_withAllSheetsAccess_returnsAllSheets() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+        assertNotNull(jsonNode);
+
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
+
+        ExecutionMethod fileListMethod = new FileListMethod(objectMapper);
+        JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, methodConfig, null);
+
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(result.size(), 2);
+
+        final ObjectNode expectedObjectNode1 = objectMapper.createObjectNode();
+        expectedObjectNode1.put("label", "test1");
+        expectedObjectNode1.put("value", "https://docs.google.com/spreadsheets/d/id1/edit");
+
+        final ObjectNode expectedObjectNode2 = objectMapper.createObjectNode();
+        expectedObjectNode2.put("label", "test2");
+        expectedObjectNode2.put("value", "https://docs.google.com/spreadsheets/d/id2/edit");
+
+        assertEquals(expectedObjectNode1, result.get(0));
+        assertEquals(expectedObjectNode2, result.get(1));
+    }
+
+    @Test
+    public void testTransformExecutionResponse_withSpecificSheets_returnsSpecificSheets() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"files\":[{\"id\":\"id1\",\"name\":\"test1\"},{\"id\":\"id2\",\"name\":\"test2\"}]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+        Set<String> userAuthorizedSheetIds = new HashSet<String>();
+        userAuthorizedSheetIds.add("id1");
+        assertNotNull(jsonNode);
+
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
+
+        ExecutionMethod fileListMethod = new FileListMethod(objectMapper);
+        JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, methodConfig, userAuthorizedSheetIds);
 
         assertNotNull(result);
         assertTrue(result.isArray());

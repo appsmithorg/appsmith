@@ -250,7 +250,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

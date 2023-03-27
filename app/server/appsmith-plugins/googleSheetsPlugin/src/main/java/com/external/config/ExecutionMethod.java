@@ -67,7 +67,7 @@ public interface ExecutionMethod {
 
     WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig);
 
-    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
+    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw Exceptions.propagate(new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

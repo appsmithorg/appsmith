@@ -173,7 +173,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             assert (oauth2.getAuthenticationResponse() != null);
 
             // This will get list of authorised sheet ids from datasource config, and transform execution response to contain only authorised files
-            final Set<String> allowedFileIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
+            final Set<String> userAuthorizedSheetIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
 
             // Triggering the actual REST API call
             return executionMethod.executePrerequisites(methodConfig, oauth2)
@@ -226,7 +226,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
-                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig, allowedFileIds));
+                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig, userAuthorizedSheetIds));
                                         } else {
                                             result.setBody(jsonNodeBody
                                                     .get("error")
@@ -330,7 +330,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             assert (oauth2.getAuthenticationResponse() != null);
 
             // This will get list of authorised sheet ids from datasource config, and transform trigger response to contain only authorised files
-            Set<String> allowedFileIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
+            Set<String> userAuthorizedSheetIds = SheetsUtil.getAuthorizedSheetIds(datasourceConfiguration);
 
             return triggerMethod.getTriggerClient(client, methodConfig)
                     .headers(headers -> headers.set(
@@ -359,7 +359,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         }
 
                         if (response.getStatusCode().is2xxSuccessful()) {
-                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig, allowedFileIds);
+                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig, userAuthorizedSheetIds);
                             final TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                             triggerResultDTO.setTrigger(triggerResponse);
                             return triggerResultDTO;

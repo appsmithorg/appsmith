@@ -1,7 +1,10 @@
 package com.external.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -33,5 +36,11 @@ public class SheetsUtil {
             return new HashSet<String>(temp);
         }
         return null;
+    }
+
+    public static Map<String, String> getSpreadSheetInfo(JsonNode file) {
+        final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
+        return Map.of("label", file.get("name").asText(),
+                "value", spreadSheetUrl);
     }
 }

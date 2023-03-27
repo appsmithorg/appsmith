@@ -106,7 +106,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -141,7 +141,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

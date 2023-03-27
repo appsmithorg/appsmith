@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.exceptions.GSheetsPluginError;
+import com.external.utils.SheetsUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -45,7 +46,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -57,20 +58,14 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
                 .map(file -> {
-                    if (allowedFileIds != null && !allowedFileIds.isEmpty()) {
+                    if (userAuthorizedSheetIds != null && !userAuthorizedSheetIds.isEmpty()) {
                         String fileId = file.get("id").asText();
                         // This will filter out and send only authorised google sheet files to client
-                        if (allowedFileIds.contains(fileId)) {
-                            final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                            return Map.of("id", file.get("id").asText(),
-                                    "name", file.get("name").asText(),
-                                    "url", spreadSheetUrl);
+                        if (userAuthorizedSheetIds.contains(fileId)) {
+                            return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
                         }
                     } else {
-                        final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                        return Map.of("id", file.get("id").asText(),
-                                "name", file.get("name").asText(),
-                                "url", spreadSheetUrl);
+                        return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
                     }
                     return null;
                 })
@@ -92,7 +87,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> allowedFileIds) {
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -104,18 +99,14 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
                 .map(file -> {
-                    if (allowedFileIds != null && !allowedFileIds.isEmpty()) {
+                    if (userAuthorizedSheetIds != null && !userAuthorizedSheetIds.isEmpty()) {
                         String fileId = file.get("id").asText();
                         // This will filter out and send only authorised google sheet files to client
-                        if (allowedFileIds.contains(fileId)) {
-                            final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                            return Map.of("label", file.get("name").asText(),
-                                    "value", spreadSheetUrl);
+                        if (userAuthorizedSheetIds.contains(fileId)) {
+                            return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
                         }
                     } else {
-                        final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                        return Map.of("label", file.get("name").asText(),
-                                "value", spreadSheetUrl);
+                        return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
                     }
                     return null;
                 })
