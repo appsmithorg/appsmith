@@ -56,6 +56,7 @@ import classNames from "classnames";
 import { APP_MODE } from "entities/App";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -82,7 +83,7 @@ function WidgetsEditor() {
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
-
+  const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
@@ -204,7 +205,7 @@ function WidgetsEditor() {
                       true,
                   })}
                   hasPinnedSidebar={
-                    isPreviewingNavigation
+                    isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail
                           ?.navigationSetting?.orientation ===
                           NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
