@@ -705,7 +705,7 @@ const PropertyControl = memo((props: Props) => {
 
     const helpText =
       config.controlType === "ACTION_SELECTOR"
-        ? `Configure one or chain multiple Actions ${props.helpText}. All nested Actions run at the same time.`
+        ? `Configure one or chain multiple actions ${props.helpText}. All nested actions run at the same time.`
         : props.helpText;
 
     if (config.controlType === "ACTION_SELECTOR") {

@@ -116,7 +116,7 @@ export default function ActionTree(props: {
       callbacks: successBlocks,
       blockType: "success",
       tooltipContent:
-        "Show a message, chain other Actions, or both when the parent Action block runs successfully. All nested Actions run at the same time.",
+        "Show a message, chain other actions, or both when the parent action block runs successfully. All nested actions run at the same time.",
     },
     {
       label: "On failure",
@@ -124,7 +124,7 @@ export default function ActionTree(props: {
       callbacks: errorBlocks,
       blockType: "failure",
       tooltipContent:
-        "Show a message, chain Actions, or both when the parent Action block fails to run. All nested Actions run at the same time.",
+        "Show a message, chain actions, or both when the parent action block fails to run. All nested actions run at the same time.",
     },
   ];
 
@@ -154,9 +154,7 @@ export default function ActionTree(props: {
             setTouched(true);
           }}
         >
-          <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
-            Callbacks
-          </span>
+          <span className="text-gray-800">Callbacks</span>
           <div className="flex gap-1">
             <span className="text-gray-800">
               {actionsCount > 0 ? actionsCount : "No"} actions
