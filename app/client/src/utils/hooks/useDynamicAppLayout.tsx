@@ -117,7 +117,8 @@ export const useDynamicAppLayout = () => {
    * @returns
    */
   const calculateCanvasWidth = () => {
-    const { maxWidth, minWidth } = layoutWidthRange;
+    let { maxWidth } = layoutWidthRange;
+    const { minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     const gutterWidth =
@@ -169,6 +170,9 @@ export const useDynamicAppLayout = () => {
       sidebarWidth
     ) {
       calculatedWidth -= sidebarWidth;
+    }
+    if (isMobile) {
+      maxWidth += sidebarWidth;
     }
     const ele: any = document.getElementById("canvas-viewport");
     if (
@@ -311,6 +315,7 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     isAppSettingsPaneWithNavigationTabOpen,
     explorerWidth,
+    sidebarWidth,
     propertyPaneWidth,
     isExplorerPinned,
     propertyPaneWidth,

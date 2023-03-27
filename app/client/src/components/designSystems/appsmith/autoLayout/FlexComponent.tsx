@@ -99,7 +99,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     return {
       display: "flex",
       zIndex,
-      ...(props.renderMode === "PAGE" || isPreviewMode
+      ...(props.renderMode === "PAGE"
         ? widgetDimensionsViewCss
         : widgetDimensionsEditCss),
       minHeight: "30px",
@@ -115,6 +115,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.flexVerticalAlignment,
     zIndex,
     isResizing,
+    isPreviewMode,
     onHoverZIndex,
   ]);
 
