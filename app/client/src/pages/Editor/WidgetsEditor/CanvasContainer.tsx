@@ -141,15 +141,12 @@ function CanvasContainer(props: CanvasContainerProps) {
    * - 2. top bar (header with preview/share/deploy buttons)
    * - 3. bottom bar (footer with debug/logs buttons)
    */
-  const topMargin = shouldShowSnapShotBanner
-    ? "4rem"
-    : isPreviewingNavigation
-    ? "0rem"
-    : "2.25rem";
-  //const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
+  const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
+
+  const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${bottomBarHeight})`;
   const resizerTop = `calc(2rem + ${topMargin} + ${theme.smallHeaderHeight})`;
   return (
     <>
