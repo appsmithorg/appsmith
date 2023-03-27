@@ -32,6 +32,10 @@ export const ResizeWrapper = (props: {
   showBoundaries: boolean;
   inverted?: boolean;
   children: ReactNode;
+  className?: string;
+  id?: string;
+  ref?: any;
+  style?: any;
 }) => {
   const getWrapperStyle = (): CSSProperties => {
     return {
@@ -58,7 +62,7 @@ export const ResizeWrapper = (props: {
     props.showBoundaries,
     props.isHovered,
   ]);
-  return <ResizeWrapperBox style={wrapperStyle} />;
+  return <ResizeWrapperBox style={{ ...wrapperStyle, ...props.style }} />;
 };
 
 // export const ResizeWrapper = styled(animated.div)<{
