@@ -23,12 +23,11 @@ import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Icon } from "design-system-old";
-import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 import { isNil } from "lodash";
+import { Icon } from "design-system";
 
 export interface TreeSelectProps
   extends Required<
@@ -81,9 +80,9 @@ const getSvg = (expanded: boolean) => (
   >
     <StyledIcon
       className="switcher-icon"
-      expanded={expanded}
-      fillColor={Colors.GREY_10}
+      isExpanded={expanded}
       name="dropdown"
+      size="md"
     />
   </i>
 );
@@ -276,26 +275,14 @@ function SingleSelectTreeComponent({
           animation="slide-up"
           choiceTransitionName="rc-tree-select-selection__choice-zoom"
           className="rc-tree-select"
-          clearIcon={
-            <Icon
-              className="clear-icon"
-              fillColor={Colors.GREY_10}
-              name="close-x"
-            />
-          }
+          clearIcon={<Icon className="clear-icon" name="close-x" />}
           disabled={disabled}
           dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${widgetId}`}
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
           filterTreeNode
           getPopupContainer={getPopupContainer}
-          inputIcon={
-            <Icon
-              className="dropdown-icon"
-              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-              name="dropdown"
-            />
-          }
+          inputIcon={<Icon className="dropdown-icon" name="dropdown" />}
           key={key}
           loading={loading}
           maxTagCount={"responsive"}

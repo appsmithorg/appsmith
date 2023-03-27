@@ -2,7 +2,6 @@ import React from "react";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import { Category } from "design-system-old";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { getFormValues, isDirty, reduxForm } from "redux-form";
@@ -19,7 +18,6 @@ import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
 import {
   ActionWrapper,
-  EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
@@ -63,6 +61,7 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { Button } from "design-system";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -271,7 +270,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
 
-    /* 
+    /*
       TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
       Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
     */
@@ -302,9 +301,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
               {viewMode && (
                 <ActionWrapper>
-                  <EditDatasourceButton
-                    category={Category.secondary}
+                  <Button
                     className="t--edit-datasource"
+                    kind="secondary"
                     onClick={() => {
                       this.props.setDatasourceViewMode(false);
                       this.props.history.replace(
@@ -318,8 +317,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         }),
                       );
                     }}
-                    text="EDIT"
-                  />
+                  >
+                    Edit
+                  </Button>
                   {isGoogleSheetPlugin && (
                     <NewActionButton
                       datasource={datasource}
@@ -328,9 +328,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       }
                       eventFrom="datasource-pane"
                       plugin={plugin}
-                      style={{
-                        marginLeft: "16px",
-                      }}
                     />
                   )}
                 </ActionWrapper>

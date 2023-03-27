@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Button, IconPositions, Size } from "design-system-old";
+import { Button } from "design-system";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import {
   BACK_TO_HOMEPAGE,
@@ -27,17 +27,14 @@ function PageNotFound(props: Props) {
     <Page
       cta={
         <Button
-          category="primary"
           className="mt-4 button-position"
-          fill="true"
-          icon="right-arrow"
-          iconPosition={IconPositions.right}
+          endIcon="right-arrow"
+          kind="primary"
           onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
-          size={Size.large}
-          tag="button"
-          text={createMessage(BACK_TO_HOMEPAGE)}
-          variant="info"
-        />
+          size="md"
+        >
+          {createMessage(BACK_TO_HOMEPAGE)}
+        </Button>
       }
       description="Either this page doesn't exist, or you don't have access to this page"
       errorCode={createMessage(PAGE_NOT_FOUND_TITLE)}

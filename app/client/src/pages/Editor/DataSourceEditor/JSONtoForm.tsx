@@ -10,7 +10,6 @@ import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
-import { Button } from "design-system-old";
 import type FeatureFlags from "entities/FeatureFlags";
 
 export const PluginImageWrapper = styled.div`
@@ -72,29 +71,6 @@ export const Header = styled.div`
 
 export const ActionWrapper = styled.div`
   display: flex;
-`;
-
-export const ActionButton = styled(Button)`
-  &&& {
-    width: auto;
-    min-width: 74px;
-    margin-right: 9px;
-    min-height: 32px;
-
-    & > span {
-      max-width: 100%;
-    }
-  }
-`;
-
-export const EditDatasourceButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    max-width: 160px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
 `;
 
 export interface JSONtoFormProps {

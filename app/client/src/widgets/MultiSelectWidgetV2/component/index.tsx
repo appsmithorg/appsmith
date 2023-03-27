@@ -20,12 +20,11 @@ import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import { Icon } from "design-system-old";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { Icon } from "design-system";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -329,13 +328,7 @@ function MultiSelectComponent({
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
           getPopupContainer={getPopupContainer}
-          inputIcon={
-            <Icon
-              className="dropdown-icon"
-              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-              name="dropdown"
-            />
-          }
+          inputIcon={<Icon className="dropdown-icon" name="dropdown" />}
           labelInValue
           listHeight={300}
           loading={loading}
@@ -350,13 +343,7 @@ function MultiSelectComponent({
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}
           ref={selectRef}
-          removeIcon={
-            <Icon
-              className="remove-icon"
-              fillColor={Colors.GREY_10}
-              name="close-x"
-            />
-          }
+          removeIcon={<Icon className="remove-icon" name="close-x" />}
           showArrow
           showSearch={false}
           value={value}

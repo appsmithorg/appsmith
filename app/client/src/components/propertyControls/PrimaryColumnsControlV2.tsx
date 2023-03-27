@@ -6,10 +6,8 @@ import * as Sentry from "@sentry/react";
 import _, { toString } from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -33,21 +31,12 @@ import { Checkbox, CheckboxType } from "design-system-old";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import { Button } from "design-system";
 
 const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const AddColumnButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
 `;
 
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
@@ -261,17 +250,15 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               updateOption={this.updateOption}
             />
           </EvaluatedValuePopupWrapper>
-
-          <AddColumnButton
-            category={Category.secondary}
+          <Button
             className="t--add-column-btn"
-            icon="plus"
+            kind="secondary"
             onClick={this.addNewColumn}
-            size={Size.medium}
-            tag="button"
-            text="Add a new column"
-            type="button"
-          />
+            size="md"
+            startIcon="plus"
+          >
+            Add a new column
+          </Button>
         </TabsWrapper>
       </>
     );

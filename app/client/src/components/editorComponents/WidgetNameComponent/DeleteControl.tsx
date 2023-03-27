@@ -1,10 +1,8 @@
 import React from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 import { Colors } from "constants/Colors";
-const DeleteIcon = ControlIcons.DELETE_CONTROL;
-const deleteControlIcon = <DeleteIcon height={14} width={10} />;
+import { Icon } from "design-system";
 
 const StyledDeleteIcon = styled.div`
   justify-self: flex-start;
@@ -40,7 +38,7 @@ function DeleteControl(props: DeleteControlProps) {
       onClick={props.deleteWidget}
     >
       <Tooltip content="Delete" hoverOpenDelay={500} position="top">
-        {deleteControlIcon}
+        <Icon name="delete-control" size="sm" />;
       </Tooltip>
     </StyledDeleteIcon>
   ) : null;

@@ -5,7 +5,7 @@ import type { IPopover2Props } from "@blueprintjs/popover2";
 import { Popover2 } from "@blueprintjs/popover2";
 import type { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system-old";
+import { Classes, Text, FontWeight, TextType } from "design-system-old";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -22,8 +22,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import type { IconName } from "design-system-old";
-import { Classes, Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -115,7 +114,7 @@ type ContextualMenuProps = {
 const searchAction: Record<
   CONTEXT_MENU_ACTIONS,
   {
-    icon: IconName;
+    icon: string;
     text: string;
     onSelect: (
       error: Message,
@@ -258,11 +257,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                 onClick={onSelect}
               >
                 <IconContainer>
-                  <Icon
-                    fillColor="#858282"
-                    name={menuProps.icon}
-                    size={IconSize.XL}
-                  />
+                  <Icon color="#858282" name={menuProps.icon} size="md" />
                   <Text type={TextType.P3} weight={FontWeight.NORMAL}>
                     {menuProps.text}
                   </Text>

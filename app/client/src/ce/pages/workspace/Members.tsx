@@ -20,11 +20,10 @@ import {
   Classes as AppClass,
   Dropdown,
   HighlightText,
-  Icon,
-  IconSize,
   Text,
   TextType,
 } from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
@@ -228,7 +227,7 @@ export const EachUser = styled.div`
   }
 `;
 
-export const DeleteIcon = styled(Icon)`
+export const DeleteIcon = styled(Button)`
   position: absolute;
   top: ${(props) => props.theme.spaces[9]}px;
   right: ${(props) => props.theme.spaces[7]}px;
@@ -451,15 +450,15 @@ export default function MemberSettings(props: PageProps) {
       accessor: "actions",
       Cell: function DeleteCell(cellProps: any) {
         return (
-          <Icon
+          <Button
             className="t--deleteUser"
-            cypressSelector="t--deleteUser"
-            fillColor="#FF6786"
-            hoverFillColor="#FF6786"
+            data-cy="t--deleteUser"
+            isIconButton
             isLoading={
               deletingUserInfo &&
               deletingUserInfo.username === cellProps.cell.row.original.username
             }
+            kind="error"
             name="trash-outline"
             onClick={() => {
               onConfirmMemberDeletion(
@@ -468,7 +467,7 @@ export default function MemberSettings(props: PageProps) {
                 workspaceId,
               );
             }}
-            size={IconSize.LARGE}
+            size="md"
           />
         );
       },
@@ -555,9 +554,10 @@ export default function MemberSettings(props: PageProps) {
                   )}
                   <DeleteIcon
                     className="t--deleteUser"
-                    cypressSelector="t--deleteUser"
-                    fillColor={Colors.DANGER_SOLID}
-                    hoverFillColor={Colors.DANGER_SOLID_HOVER}
+                    color={Colors.DANGER_SOLID}
+                    data-cy="t--deleteUser"
+                    isIconButton
+                    kind="tertiary"
                     name="trash-outline"
                     onClick={() => {
                       onConfirmMemberDeletion(
@@ -566,7 +566,7 @@ export default function MemberSettings(props: PageProps) {
                         workspaceId,
                       );
                     }}
-                    size={IconSize.LARGE}
+                    size="sm"
                   />
                 </UserCard>
               );

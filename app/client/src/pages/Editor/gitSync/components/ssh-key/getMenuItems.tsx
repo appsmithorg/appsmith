@@ -1,6 +1,7 @@
 import React from "react";
 import type { SupportedKeyType } from "./SupportedKeyTypeList";
-import { Icon, IconSize, MenuItem } from "design-system-old";
+import { MenuItem } from "design-system-old";
+import { Icon } from "design-system";
 
 /**
  * getMenuItems returns a list of options of SSH keys to generate
@@ -21,11 +22,7 @@ export function getMenuItems(
       <MenuItem
         cypressSelector={`t--regenerate-sshkey-${supportedKey.protocolName}`}
         key={`supported-key-${supportedKey.protocolName}-menu-item`}
-        label={
-          supportedKey.generated && (
-            <Icon name="check-line" size={IconSize.XXXL} />
-          )
-        }
+        label={supportedKey.generated && <Icon name="check-line" size="lg" />}
         onSelect={() => {
           setShowConfirmation(true);
           setNewKeyType(supportedKey.protocolName);

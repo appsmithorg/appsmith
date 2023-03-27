@@ -3,7 +3,6 @@ import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { Colors } from "constants/Colors";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
@@ -14,7 +13,13 @@ import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import { Button, Category } from "design-system-old";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -43,13 +48,6 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import {
-  Button as AdsButton,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-} from "design-system";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -93,18 +91,6 @@ const DatasourceIconWrapper = styled.div`
   height: 34px;
   display: flex;
   align-items: center;
-`;
-
-const GenerateTemplateOrReconnect = styled(Button)`
-  padding: 10px 10px;
-  font-size: 12px;
-
-  &&&& {
-    height: 36px;
-    max-width: 200px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
 `;
 
 const DatasourceName = styled.span`
@@ -297,24 +283,23 @@ function DatasourceCard(props: DatasourceCardProps) {
           <ButtonsWrapper className="action-wrapper">
             {(!datasource.isConfigured || supportTemplateGeneration) &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
-                <GenerateTemplateOrReconnect
-                  category={Category.secondary}
+                <Button
                   className={
                     datasource.isConfigured
                       ? "t--generate-template"
                       : "t--reconnect-btn"
                   }
+                  kind="secondary"
                   onClick={
                     datasource.isConfigured
-                      ? routeToGeneratePage
+                      ? () => routeToGeneratePage
                       : editDatasource
                   }
-                  text={
-                    datasource.isConfigured
-                      ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
-                      : createMessage(RECONNECT_BUTTON_TEXT)
-                  }
-                />
+                >
+                  {datasource.isConfigured
+                    ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
+                    : createMessage(RECONNECT_BUTTON_TEXT)}
+                </Button>
               )}
             {datasource.isConfigured && (
               <NewActionButton
@@ -336,7 +321,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               >
                 <MenuComponent>
                   <MenuTrigger>
-                    <AdsButton
+                    <Button
                       isIconButton
                       kind="tertiary"
                       size="sm"

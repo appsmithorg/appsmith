@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Size, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import RequestTemplateSvg from "assets/images/request-template.svg";
 import { Colors } from "constants/Colors";
 import {
@@ -63,13 +64,9 @@ function RequestTemplate() {
       <Text className={"description"} type={TextType.P1}>
         {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
-      <Button
-        className="button"
-        onClick={onClick}
-        size={Size.large}
-        tag="button"
-        text={createMessage(REQUEST_TEMPLATE)}
-      />
+      <Button className="button" onClick={onClick} size="md">
+        {createMessage(REQUEST_TEMPLATE)}
+      </Button>
     </Wrapper>
   );
 }

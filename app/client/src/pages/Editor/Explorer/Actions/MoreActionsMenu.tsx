@@ -14,7 +14,7 @@ import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
-import { Classes, Icon, IconSize } from "design-system-old";
+import { Classes } from "design-system-old";
 import { Intent, Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
@@ -26,6 +26,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { IconName } from "@blueprintjs/icons";
+import { Icon } from "design-system";
 
 type EntityContextMenuProps = {
   id: string;
@@ -206,7 +207,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           className={props.className}
           isOpen={isMenuOpen}
         >
-          <Icon name="context-menu" size={IconSize.XXXL} />
+          <Icon name="context-menu" size="lg" />
         </MoreActionablesContainer>
       }
     />

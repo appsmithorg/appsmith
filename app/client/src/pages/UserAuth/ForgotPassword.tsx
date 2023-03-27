@@ -24,7 +24,8 @@ import {
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
+import { FormGroup, FormMessage } from "design-system-old";
+import { Button } from "design-system";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { ForgotPasswordFormValues } from "./helpers";
@@ -128,14 +129,13 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
         </FormGroup>
         <FormActions>
           <Button
-            disabled={!isEmail(props.emailValue)}
-            fill
+            isDisabled={!isEmail(props.emailValue)}
             isLoading={submitting}
-            size={Size.large}
-            tag="button"
-            text={createMessage(FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT)}
+            size="md"
             type="submit"
-          />
+          >
+            {createMessage(FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT)}
+          </Button>
         </FormActions>
       </StyledForm>
     </Container>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, IconSize, Menu, Toaster, Variant } from "design-system-old";
+import { Menu, Toaster, Variant } from "design-system-old";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,6 +13,7 @@ import DangerMenuItem from "./DangerMenuItem";
 import type { Dispatch } from "redux";
 import type { GitApplicationMetadata } from "api/ApplicationApi";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { Button } from "design-system";
 
 interface Props {
   branchName: string;
@@ -62,17 +62,17 @@ function MenuButton(
   open: boolean,
 ) {
   return (
-    <Icon
-      fillColor={Colors.DARK_GRAY}
-      hoverFillColor={Colors.GRAY_900}
-      name="more-2-fill"
+    <Button
+      isIconButton
+      kind="tertiary"
       onClick={() => {
         AnalyticsUtil.logEvent("GS_BRANCH_MORE_MENU_OPEN", {
           source: "GS_OPEN_BRANCH_LIST_POPUP",
         });
         setOpen(!open);
       }}
-      size={IconSize.XXXXL}
+      size="sm"
+      startIcon="more-2-fill"
     />
   );
 }

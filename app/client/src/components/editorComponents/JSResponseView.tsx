@@ -25,16 +25,8 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import {
-  Button,
-  Callout,
-  Classes,
-  Icon,
-  Size,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
+import { Callout, Classes, Text, TextType, Variant } from "design-system-old";
+import { Button, Icon } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -141,10 +133,6 @@ const StyledCallout = styled(Callout)`
 const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
-`;
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 export enum JSResponseState {
@@ -261,15 +249,14 @@ function JSResponseView(props: Props) {
                     <Icon name="no-response" />
                     <Text type={TextType.P1}>
                       {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
-                      <InlineButton
-                        disabled={disabled}
+                      <Button
+                        isDisabled={disabled}
                         isLoading={isLoading}
-                        onClick={onButtonClick}
-                        size={Size.medium}
-                        tag="button"
-                        text="Run"
-                        type="button"
-                      />
+                        onClick={() => onButtonClick}
+                        size="md"
+                      >
+                        Run
+                      </Button>
                       {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
                     </Text>
                   </NoResponseContainer>

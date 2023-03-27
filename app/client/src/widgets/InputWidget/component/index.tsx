@@ -37,12 +37,12 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import { Icon } from "design-system-old";
 import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
+import { Button } from "design-system";
 
 /**
  * All design system component specific logic goes here.
@@ -564,12 +564,15 @@ class InputComponent extends React.Component<
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
-            <Icon
+            <Button
               className="password-input"
-              name={this.state.showPassword ? "eye-off" : "eye-on"}
+              isIconButton
+              kind="tertiary"
               onClick={() => {
                 this.setState({ showPassword: !this.state.showPassword });
               }}
+              size="sm"
+              startIcon={this.state.showPassword ? "eye-off" : "eye-on"}
             />
           ) : this.props.iconName && this.props.iconAlign === "right" ? (
             <Tag icon={this.props.iconName} />

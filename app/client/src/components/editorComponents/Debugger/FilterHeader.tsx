@@ -1,22 +1,19 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
-import { get } from "lodash";
 import type { DropdownOption } from "design-system-old";
 import {
   Classes,
   Dropdown,
-  Icon,
-  IconSize,
   TextInput,
   TooltipComponent,
 } from "design-system-old";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import type { Theme } from "constants/DefaultTheme";
+import { Button } from "design-system";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -69,7 +66,6 @@ type FilterHeaderProps = {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const theme = useTheme() as Theme;
   return (
     <Wrapper>
       <TooltipComponent
@@ -78,11 +74,13 @@ function FilterHeader(props: FilterHeaderProps) {
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position="bottom"
       >
-        <Icon
+        <Button
           className="t--debugger-clear-logs"
-          name="cancel"
+          isIconButton
+          kind="tertiary"
           onClick={() => dispatch(clearLogs())}
-          size={IconSize.XL}
+          size="sm"
+          startIcon="cancel"
         />
       </TooltipComponent>
       <div className="input-container">
@@ -98,17 +96,17 @@ function FilterHeader(props: FilterHeaderProps) {
           width="100%"
         />
         {props.searchQuery && (
-          <Icon
-            fillColor={get(theme, "colors.debugger.jsonIcon")}
-            hoverFillColor={get(theme, "colors.debugger.message")}
-            name="cross"
+          <Button
+            isIconButton
+            kind="tertiary"
             onClick={() => {
               if (searchRef.current) {
                 props.onChange("");
                 searchRef.current.value = "";
               }
             }}
-            size={IconSize.LARGE}
+            size="sm"
+            startIcon="cross"
           />
         )}
       </div>

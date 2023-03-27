@@ -1,14 +1,8 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import {
-  Icon,
-  IconSize,
-  Spinner,
-  Toaster,
-  TooltipComponent,
-  Variant,
-} from "design-system-old";
+import { Toaster, TooltipComponent, Variant } from "design-system-old";
+import { Button, Icon, Spinner } from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -157,7 +151,7 @@ const Library = styled.li`
         justify-content: center;
         background: transparent;
         width: 25px;
-        &: hover {
+        &:hover {
           background: ${Colors.SHARK2};
           > svg > path {
             fill: ${Colors.WHITE};
@@ -199,20 +193,20 @@ const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
   if (installationStatus[url] === InstallState.Queued)
     return (
       <div className="loading">
-        <Spinner size={IconSize.MEDIUM} />
+        <Spinner size="md" />
       </div>
     );
 
   if (url) {
     //Default libraries will not have url
     return (
-      <div className="delete" onClick={uninstallLibrary}>
-        <Icon
-          className="uninstall-library t--uninstall-library"
-          name="trash-outline"
-          size={IconSize.MEDIUM}
-        />
-      </div>
+      <Button
+        className="delete uninstall-library t--uninstall-library"
+        isIconButton
+        onClick={uninstallLibrary}
+        size="sm"
+        startIcon="trash-outline"
+      />
     );
   }
 
@@ -248,9 +242,9 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
       >
         <Icon
           className={isOpen ? "open-collapse" : ""}
-          fillColor={Colors.GREY_7}
+          color={Colors.GREY_7}
           name="right-arrow-2"
-          size={IconSize.XXXL}
+          size="lg"
         />
         <div className="flex items-center flex-start flex-1 overflow-hidden">
           <Name>{lib.name}</Name>
@@ -258,9 +252,9 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
             <div className="share" onClick={openDocs(docsURL)}>
               <Icon
                 className="open-link"
-                fillColor={Colors.GRAY_700}
+                color={Colors.GRAY_700}
                 name="share-2"
-                size={IconSize.SMALL}
+                size="sm"
               />
             </div>
           )}

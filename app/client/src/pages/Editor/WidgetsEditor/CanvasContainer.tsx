@@ -19,7 +19,7 @@ import { getCanvasClassName } from "utils/generators";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { IconSize, Spinner } from "design-system-old";
+import { Spinner } from "design-system";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
@@ -142,7 +142,7 @@ const CanvasContainer = (props: {
   let node: ReactNode;
   const pageLoading = (
     <Centered>
-      <Spinner />
+      <Spinner size="sm" />
     </Centered>
   );
 
@@ -294,7 +294,7 @@ const CanvasContainer = (props: {
       />
       {isAppThemeChanging && (
         <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
-          <Spinner size={IconSize.XXL} />
+          <Spinner size="md" />
         </div>
       )}
       {node}

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
@@ -25,6 +25,7 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "RouteBuilder";
+import { Icon } from "design-system";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -197,7 +198,7 @@ function TemplateView() {
             <HeaderWrapper>
               <div className="left">
                 <BackButtonWrapper onClick={goBack}>
-                  <Icon name="view-less" size={IconSize.XL} />
+                  <Icon name="view-less" size="md" />
                   <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
                 </BackButtonWrapper>
               </div>

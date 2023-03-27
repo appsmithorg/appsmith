@@ -5,7 +5,7 @@ import { PopoverPosition } from "@blueprintjs/core";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Case, Icon, IconSize, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -27,6 +27,7 @@ import {
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { Button, Icon } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -116,27 +117,18 @@ function AppInviteUsersForm(props: any) {
           canInviteToWorkspace ? "mt-6 pt-5" : ""
         }`}
       >
-        <div
+        <Button
           className="flex gap-1.5 cursor-pointer"
           data-cy={"copy-application-url"}
           onClick={copyToClipboard}
+          startIcon="links-line"
         >
-          <Icon
-            fillColor={Colors.GRAY_700}
-            name="links-line"
-            size={IconSize.XL}
-          />
-          <Text
-            case={Case.UPPERCASE}
-            className="self-center"
-            color={Colors.GRAY_700}
-            type={TextType.P4}
-          >{`${
+          {`${
             isCopied
               ? createMessage(IN_APP_EMBED_SETTING.copied)
               : createMessage(IN_APP_EMBED_SETTING.copy)
-          } ${createMessage(IN_APP_EMBED_SETTING.applicationUrl)}`}</Text>
-        </div>
+          } ${createMessage(IN_APP_EMBED_SETTING.applicationUrl)}`}
+        </Button>
         {canShareWithPublic && (
           <div className="flex flex-1 items-center justify-end">
             <Text color={Colors.GRAY_800} type={TextType.P1}>
@@ -150,12 +142,7 @@ function AppInviteUsersForm(props: any) {
               }
               position={PopoverPosition.TOP_RIGHT}
             >
-              <Icon
-                className="pl-1"
-                fillColor={Colors.GRAY2}
-                name="question-fill"
-                size={IconSize.XL}
-              />
+              <Icon className="pl-1" name="question-fill" size="md" />
             </TooltipComponent>
             <ShareToggle className="ml-4 t--share-public-toggle">
               {currentApplicationDetails && (

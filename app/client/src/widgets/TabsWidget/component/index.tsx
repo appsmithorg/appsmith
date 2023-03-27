@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
 import React, { useRef, useState, useCallback } from "react";
 import styled from "styled-components";
-import type { MaybeElement } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { Icon, IconSize } from "design-system-old";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { Button } from "design-system";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -56,10 +54,6 @@ const TabsContainerWrapper = styled.div<{
   overflow: hidden;
 `;
 
-export interface TabsContainerProps {
-  isScrollable: boolean;
-}
-
 const Container = styled.div`
   width: 100%;
   align-items: flex-end;
@@ -75,21 +69,14 @@ const Container = styled.div`
   border-bottom: 1px solid var(--wds-color-border-onaccent);
 `;
 
-const ScrollBtnContainer = styled.div<{ visible: boolean }>`
+const ScrollButton = styled(Button)<{ isVisible: boolean }>`
   cursor: pointer;
   display: flex;
   position: absolute;
-  height: 30px;
   padding: 0 10px;
 
-  & > span {
-    background: white;
-    position: relative;
-    z-index: 1;
-  }
-
   ${(props) =>
-    props.visible
+    props.isVisible
       ? `
       visibility: visible;
       opacity: 1;
@@ -102,13 +89,6 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
     transition: visibility 0s linear 300ms, opacity 300ms;
     `}
 `;
-
-export interface ScrollNavControlProps {
-  onClick: () => void;
-  icon: IconName | MaybeElement;
-  disabled?: boolean;
-  className?: string;
-}
 
 const ScrollCanvas = styled.div<{ $shouldScrollContents: boolean }>`
   overflow: hidden;
@@ -168,13 +148,15 @@ function TabsComponent(props: TabsComponentProps) {
     >
       {props.shouldShowTabs && (
         <Container className="relative flex px-6 h-9">
-          <ScrollBtnContainer
+          <ScrollButton
             className="left-0 cursor-pointer scroll-nav-left-button"
+            isIconButton
+            isVisible={shouldShowLeftArrow}
+            kind="tertiary"
             onClick={() => scroll(true)}
-            visible={shouldShowLeftArrow}
-          >
-            <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-          </ScrollBtnContainer>
+            size="sm"
+            startIcon="left-arrow-2"
+          />
           <PageTabs
             accentColor={props.accentColor}
             backgroundColor={props.backgroundColor}
@@ -185,13 +167,15 @@ function TabsComponent(props: TabsComponentProps) {
             tabs={tabs}
             tabsScrollable={tabsScrollable}
           />
-          <ScrollBtnContainer
+          <ScrollButton
             className="right-0 cursor-pointer scroll-nav-right-button"
+            isIconButton
+            isVisible={shouldShowRightArrow}
+            kind="tertiary"
             onClick={() => scroll(false)}
-            visible={shouldShowRightArrow}
-          >
-            <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-          </ScrollBtnContainer>
+            size="sm"
+            startIcon="right-arrow-2"
+          />
         </Container>
       )}
 

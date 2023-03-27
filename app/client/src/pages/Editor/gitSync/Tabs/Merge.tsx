@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Caption, Space, Title } from "../components/StyledComponents";
-import { Dropdown } from "design-system-old";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -44,7 +43,8 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Button, Case, Size, Text, TextType } from "design-system-old";
+import { Case, Dropdown, Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
@@ -281,14 +281,12 @@ export default function Merge() {
           <Button
             className="t--git-merge-button"
             data-testid="t--git-merge-button"
-            disabled={mergeBtnDisabled}
+            isDisabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}
-            size={Size.large}
-            tag="button"
-            text={createMessage(MERGE_CHANGES)}
-            width="max-content"
-          />
+          >
+            {createMessage(MERGE_CHANGES)}
+          </Button>
         )
       )}
       {isMerging && (

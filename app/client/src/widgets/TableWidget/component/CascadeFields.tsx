@@ -6,7 +6,6 @@ import { debounce } from "lodash";
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
-import { ControlIcons } from "icons/ControlIcons";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import type { Condition, Operator, ReactTableFilter } from "./Constants";
@@ -17,15 +16,7 @@ import { RenderOptionWrapper } from "./TableStyledWrappers";
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-
-const StyledRemoveIcon = styled(ControlIcons.CLOSE_CIRCLE_CONTROL)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  &.hide-icon {
-    display: none;
-  }
-`;
+import { Button } from "design-system";
 
 const LabelWrapper = styled.div`
   width: 95px;
@@ -504,14 +495,14 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   }, [props]);
   return (
     <FieldWrapper className="t--table-filter">
-      <StyledRemoveIcon
+      <Button
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
-        color={Colors.GRAY}
-        height={16}
+        isIconButton
         onClick={handleRemoveFilter}
-        width={16}
+        size="sm"
+        startIcon="close-circle-control"
       />
       {index === 1 ? (
         <DropdownWrapper width={95}>

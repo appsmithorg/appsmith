@@ -1,19 +1,15 @@
 import {
-  IconSize,
   TextType,
   Text,
   Switch,
   Case,
   TooltipComponent,
   Classes,
-  Icon,
-  IconWrapper,
 } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
-import ExternaLink from "remixicon-react/ExternalLinkLineIcon";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
@@ -24,6 +20,7 @@ import {
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
 import { PopoverPosition } from "@blueprintjs/core";
+import { Icon } from "design-system";
 
 const StyledLink = styled.a`
   position: relative;
@@ -55,7 +52,7 @@ function EmbedSnippetTab() {
                 <div className="flex items-center gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]">
                   <Icon
                     name={embedSnippet.embedSettingContent.icon}
-                    size={IconSize.XXL}
+                    size="md"
                   />
                   <Text type={TextType.P1}>
                     {embedSnippet.embedSettingContent.label}
@@ -70,12 +67,7 @@ function EmbedSnippetTab() {
                     }
                     position={PopoverPosition.TOP}
                   >
-                    <Icon
-                      className={`ml-1`}
-                      fillColor={Colors.GRAY2}
-                      name={"question-fill"}
-                      size={IconSize.XL}
-                    />
+                    <Icon className={`ml-1`} name={"question-fill"} size="md" />
                   </TooltipComponent>
                 </div>
                 <StyledLink
@@ -149,15 +141,14 @@ function EmbedSnippetTab() {
       <div
         className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
       >
+        {/* TODO (tanvi): replace with Link*/}
         <StyledPreviewLink
           className="flex gap-1 items-center self-end"
           data-cy="preview-embed"
           href={embedSnippet.appViewEndPoint}
           target={"_blank"}
         >
-          <IconWrapper fillColor={Colors.GRAY_700} size={IconSize.XL}>
-            <ExternaLink />
-          </IconWrapper>
+          <Icon name="external-link-line" size="md" />
           <Text color={Colors.GRAY_700} type={TextType.P4}>
             {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
           </Text>

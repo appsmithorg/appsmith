@@ -41,17 +41,12 @@ import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import {
-  Category,
   EditInteractionKind,
-  IconPositions,
   SavingState,
-  Button,
   getTypographyByKey,
-  Icon,
-  IconSize,
   TooltipComponent,
-  Size,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -197,32 +192,12 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
-const StyledDeployIcon = styled(Icon)`
-  height: ${(props) => props.theme.smallHeaderHeight};
-  width: 20px;
-  align-self: center;
-  &:hover {
-    background-color: ${Colors.GRAY_100};
-  }
-`;
-
 const HamburgerContainer = styled.div`
   height: ${(props) => props.theme.smallHeaderHeight};
   width: 34px;
 
   :hover {
     background-color: ${Colors.GEYSER_LIGHT};
-  }
-`;
-
-const StyledButton = styled(Button)`
-  padding: 0 6px;
-  height: ${(props) => props.theme.smallHeaderHeight};
-  color: ${Colors.GREY_900};
-
-  svg {
-    height: 18px;
-    width: 18px;
   }
 `;
 
@@ -249,15 +224,14 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <StyledButton
-      category={Category.tertiary}
+    <Button
       className="t--application-share-btn"
-      icon={"share-line"}
-      iconPosition={IconPositions.left}
-      size={Size.medium}
-      tag={"button"}
-      text={createMessage(EDITOR_HEADER.share)}
-    />
+      kind="tertiary"
+      size="md"
+      startIcon={"share-line"}
+    >
+      {createMessage(EDITOR_HEADER.share)}
+    </Button>
   );
 }
 
@@ -522,30 +496,22 @@ export function EditorHeader(props: EditorHeaderProps) {
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 position="bottom-right"
               >
-                <StyledButton
-                  category={Category.tertiary}
+                <Button
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
-                  icon={"rocket"}
-                  iconPosition={IconPositions.left}
                   isLoading={isPublishing}
+                  kind="tertiary"
                   onClick={() => handleClickDeploy(true)}
-                  size={Size.medium}
-                  tag={"button"}
-                  text={DEPLOY_MENU_OPTION()}
-                  width={"88px"}
-                />
+                  size="md"
+                  startIcon={"rocket"}
+                >
+                  {DEPLOY_MENU_OPTION()}
+                </Button>
               </TooltipComponent>
 
               <DeployLinkButtonDialog
                 link={deployLink}
-                trigger={
-                  <StyledDeployIcon
-                    fill={Colors.GREY_900}
-                    name={"down-arrow"}
-                    size={IconSize.XXL}
-                  />
-                }
+                trigger={<Icon name={"down-arrow"} size="md" />}
               />
             </DeploySection>
           </Boxed>

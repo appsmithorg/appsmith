@@ -5,7 +5,8 @@ import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Button, Category, Checkbox } from "design-system-old";
+import { Checkbox } from "design-system-old";
+import { Button } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -17,12 +18,6 @@ const CheckboxWrapper = styled.div`
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 16px;
-`;
-
-const UpgradeButton = styled(Button)`
-  height: 30px;
-  width: 94px;
-  padding: 8px 16px;
 `;
 
 type CheckboxProps = {
@@ -71,11 +66,9 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         />
         <div>{labelSuffix}</div>
         {props.needsUpgrade && (
-          <UpgradeButton
-            category={Category.secondary}
-            onClick={onUpgrade}
-            text="UPGRADE"
-          />
+          <Button kind="secondary" onClick={onUpgrade}>
+            Upgrade
+          </Button>
         )}
       </CheckboxWrapper>
     );

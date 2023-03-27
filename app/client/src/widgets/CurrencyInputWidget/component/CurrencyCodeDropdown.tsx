@@ -3,11 +3,12 @@ import styled, { createGlobalStyle } from "styled-components";
 import type { CurrencyOptionProps } from "constants/Currency";
 import { CurrencyTypeOptions } from "constants/Currency";
 import type { DropdownOption } from "design-system-old";
-import { Dropdown, Icon, IconSize } from "design-system-old";
+import { Dropdown } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
+import { Icon } from "design-system";
 
 const StyledDropdown = styled(Dropdown)`
   /*
@@ -234,7 +235,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     >
       {selectedCurrency}
       {props.allowCurrencyChange && (
-        <Icon className="dropdown" name="down-arrow" size={IconSize.XXS} />
+        <Icon className="dropdown" name="down-arrow" size="sm" />
       )}
     </DropdownTriggerIconWrapper>
   );

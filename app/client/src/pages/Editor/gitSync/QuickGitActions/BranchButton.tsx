@@ -5,47 +5,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
-import { Colors } from "constants/Colors";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
-import {
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Button } from "design-system";
 
-const ButtonContainer = styled.div`
+const ButtonContainer = styled(Button)`
   display: flex;
   align-items: center;
-
-  & .label {
-    color: ${(props) => props.theme.colors.editorBottomBar.branchBtnText};
-    ${getTypographyByKey("p1")};
-    line-height: 18px;
-  }
-
-  & .icon {
-    height: 24px;
-  }
-
   margin: 0 ${(props) => props.theme.spaces[4]}px;
-  cursor: pointer;
-
-  &:hover svg path {
-    fill: ${Colors.CHARCOAL};
-  }
-
-  & .label {
-    width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 `;
 
 function BranchButton() {
@@ -54,7 +26,7 @@ function BranchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const fetchBranches = () => dispatch(fetchBranchesInit());
-  const labelTarget = useRef<HTMLDivElement>(null);
+  const labelTarget = useRef<HTMLButtonElement>(null);
   const status = useSelector(getGitStatus);
 
   useEffect(() => {
@@ -87,20 +59,14 @@ function BranchButton() {
         position="top-left"
       >
         <ButtonContainer
-          className="t--branch-button"
-          data-testid={"t--branch-button-container"}
+          className="t--branch-button "
+          data-testid={"t--branch-button-currentBranch"}
+          kind="secondary"
+          ref={labelTarget}
+          startIcon="git-branch"
         >
-          <div className="icon">
-            <Icon name="git-branch" size={IconSize.XXXXL} />
-          </div>
-          <div
-            className="label"
-            data-testid={"t--branch-button-currentBranch"}
-            ref={labelTarget}
-          >
-            {currentBranch}
-            {!status?.isClean && "*"}
-          </div>
+          {currentBranch}
+          {!status?.isClean && "*"}
         </ButtonContainer>
       </Tooltip>
     </Popover2>

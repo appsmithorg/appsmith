@@ -24,7 +24,7 @@ import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
 import useDropdown from "widgets/useDropdown";
@@ -82,8 +82,7 @@ const getSvg = (expanded: boolean) => (
   >
     <StyledIcon
       className="switcher-icon"
-      expanded={expanded}
-      fillColor={Colors.GREY_10}
+      isExpanded={expanded}
       name="dropdown"
     />
   </i>
@@ -267,7 +266,7 @@ function MultiTreeSelectComponent({
           clearIcon={
             <Icon
               className="clear-icon"
-              fillColor={Colors.GREY_10}
+              color={Colors.GREY_10}
               name="close-x"
             />
           }
@@ -280,7 +279,7 @@ function MultiTreeSelectComponent({
           inputIcon={
             <Icon
               className="dropdown-icon"
-              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+              color={disabled ? Colors.GREY_7 : Colors.GREY_10}
               name="dropdown"
             />
           }
@@ -301,7 +300,7 @@ function MultiTreeSelectComponent({
           removeIcon={
             <Icon
               className="remove-icon"
-              fillColor={Colors.GREY_10}
+              color={Colors.GREY_10}
               name="close-x"
             />
           }

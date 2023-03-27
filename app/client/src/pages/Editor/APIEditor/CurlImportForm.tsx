@@ -15,7 +15,7 @@ import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { Button, Size } from "design-system-old";
+import { Button } from "design-system";
 import FormRow from "components/editorComponents/FormRow";
 
 const MainConfiguration = styled.div`
@@ -133,11 +133,10 @@ class CurlImportForm extends React.Component<Props> {
                 className="t--importBtn"
                 isLoading={isImportingCurl}
                 onClick={handleSubmit(curlImportSubmitHandler)}
-                size={Size.medium}
-                tag="button"
-                text="Import"
-                type="button"
-              />
+                size="md"
+              >
+                Import
+              </Button>
             </ActionButtons>
           </FormRow>
         </MainConfiguration>

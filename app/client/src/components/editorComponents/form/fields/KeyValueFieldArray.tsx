@@ -12,14 +12,7 @@ import {
   CodeEditorBorder,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  Case,
-  Classes,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Case, Classes, Text, TextType } from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
@@ -30,6 +23,7 @@ import {
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { Button, Icon } from "design-system";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -52,7 +46,7 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-const CenteredIcon = styled(Icon)`
+const CenteredButton = styled(Button)`
   align-self: center;
   margin-left: 15px;
 `;
@@ -285,10 +279,12 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                   </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
-                  <CenteredIcon
-                    name="delete"
+                  <CenteredButton
+                    isIconButton
+                    kind="tertiary"
                     onClick={() => props.fields.remove(index)}
-                    size={IconSize.LARGE}
+                    size="sm"
+                    startIcon="delete"
                   />
                 )}
               </FormRowWithLabel>
@@ -297,7 +293,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
         </>
       )}
       <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
-        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
+        <Icon className="t--addApiHeader" name="add-more" size="md" />
         <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
         </Text>

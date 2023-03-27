@@ -64,16 +64,8 @@ import { ScrollIndicator } from "design-system-old";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import {
-  Button,
-  Category,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
+import { Text, TextType, TooltipComponent } from "design-system-old";
+import { Button } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
@@ -282,7 +274,7 @@ function GitConnection({ isImport }: Props) {
 
   const submitButtonDisabled = useMemo(() => {
     const isAuthInfoUpdated = isAuthorInfoUpdated();
-    let buttonDisabled = false;
+    let buttonDisabled;
     if (isGitConnected) {
       const isFetchingConfig =
         isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
@@ -449,13 +441,13 @@ function GitConnection({ isImport }: Props) {
             {isGitConnected && (
               <TooltipWrapper>
                 <TooltipComponent content="Disconnect Git">
-                  <Icon
+                  <Button
                     className="t--git-disconnect-icon"
-                    fillColor={Colors.DARK_GRAY}
-                    hoverFillColor={Colors.ERROR_RED}
-                    name="delete"
+                    isIconButton
+                    kind="tertiary"
                     onClick={openDisconnectGitModal}
-                    size={IconSize.XXXXL}
+                    size="sm"
+                    startIcon="delete"
                   />
                 </TooltipComponent>
               </TooltipWrapper>
@@ -467,10 +459,9 @@ function GitConnection({ isImport }: Props) {
           !isInvalidRemoteUrl && (
             <ButtonContainer topMargin={7}>
               <Button
-                category={Category.primary}
                 className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
                 data-testid="t--generate-deploy-ssh-key-button"
-                disabled={!remoteUrl || isInvalidRemoteUrl}
+                isDisabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => {
                   generateSSHKey(
@@ -480,10 +471,9 @@ function GitConnection({ isImport }: Props) {
                   );
                   AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
                 }}
-                size={Size.large}
-                tag="button"
-                text={createMessage(GENERATE_KEY)}
-              />
+              >
+                {createMessage(GENERATE_KEY)}
+              </Button>
             </ButtonContainer>
           )
         ) : (
@@ -523,21 +513,17 @@ function GitConnection({ isImport }: Props) {
             )}
             {!(isConnectingToGit || isImportingApplicationViaGit) && (
               <Button
-                category={Category.primary}
                 className="t--connect-submit-btn"
-                disabled={submitButtonDisabled}
+                isDisabled={submitButtonDisabled}
                 isLoading={submitButtonIsLoading}
                 onClick={onSubmit}
-                size={Size.large}
-                tag="button"
-                text={
-                  isImport
-                    ? createMessage(IMPORT_BTN_LABEL)
-                    : isGitConnected
-                    ? createMessage(UPDATE_CONFIG)
-                    : createMessage(CONNECT_BTN_LABEL)
-                }
-              />
+              >
+                {isImport
+                  ? createMessage(IMPORT_BTN_LABEL)
+                  : isGitConnected
+                  ? createMessage(UPDATE_CONFIG)
+                  : createMessage(CONNECT_BTN_LABEL)}
+              </Button>
             )}
             {!(isConnectingToGit || isImportingApplicationViaGit) && (
               <GitConnectError

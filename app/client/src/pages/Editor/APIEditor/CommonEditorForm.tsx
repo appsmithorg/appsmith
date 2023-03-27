@@ -26,20 +26,17 @@ import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers"
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  Button,
   Callout,
   Case,
   Classes,
-  Icon,
-  IconSize,
   SearchSnippet,
-  Size,
   TabComponent,
   Text,
   TextType,
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -179,17 +176,12 @@ export const TabbedViewContainer = styled.div`
               props.theme.colors.apiPane.requestTree.header.icon};
           }
           path {
-            fill: unset;
+            fill: none;
           }
         }
       }
     }
   }
-`;
-
-export const BindingText = styled.span`
-  color: ${(props) => props.theme.colors.bindingTextDark};
-  font-weight: 700;
 `;
 
 const SettingsWrapper = styled.div`
@@ -275,19 +267,6 @@ export const NameWrapper = styled.div`
     margin: 0;
     box-sizing: border-box;
   }
-`;
-
-export const ShowHideImportedHeaders = styled.button`
-  background: #ebebeb;
-  color: #4b4848;
-  padding: 3px 5px;
-  border: none;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 12px;
-  height: 20px;
-  margin-right: 10px;
 `;
 
 const Flex = styled.div<{
@@ -475,7 +454,7 @@ function ImportedKeyValue(props: {
                     <CenteredIcon
                       className={`t--auto-generated-${data.key}-info`}
                       name="question-line"
-                      size={IconSize.LARGE}
+                      size="md"
                     />
                   </TooltipComponent>
                 )}
@@ -518,25 +497,20 @@ function renderImportedDatasButton(
   attributeName: string,
 ) {
   return (
-    <ShowHideImportedHeaders
+    <Button
       className="t--show-imported-datas"
+      kind="tertiary"
       onClick={(e) => {
         e.preventDefault();
         onClick(!showInheritedAttributes);
       }}
+      size="sm"
+      startIcon="eye-on-off"
     >
-      <Icon
-        className="eye-on-off"
-        name={showInheritedAttributes ? "eye-on" : "eye-off"}
-        size={IconSize.XXL}
-      />
-      &nbsp;&nbsp;
-      <Text case={Case.CAPITALIZE} type={TextType.P2}>
-        {showInheritedAttributes
-          ? `${attributeName}`
-          : `${dataCount} ${attributeName}`}
-      </Text>
-    </ShowHideImportedHeaders>
+      {showInheritedAttributes
+        ? `${attributeName}`
+        : `${dataCount} ${attributeName}`}
+    </Button>
   );
 }
 
@@ -558,7 +532,7 @@ function renderHelpSection(
               <Text case={Case.UPPERCASE} type={TextType.H6}>
                 Learn How
               </Text>
-              <Icon name="right-arrow" size={IconSize.XL} />
+              <Icon name="right-arrow" size="md" />
             </Link>
           </CalloutContent>
         }
@@ -744,16 +718,15 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
-                disabled={!isExecutePermitted}
+                isDisabled={!isExecutePermitted}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();
                 }}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
+                size="md"
+              >
+                Run
+              </Button>
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">

@@ -15,20 +15,7 @@ import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
-import { ControlIcons } from "icons/ControlIcons";
-import { Icon, IconSize } from "design-system-old";
-
-const StyledPlusCircleIcon = styled(ControlIcons.ADD_CIRCLE_CONTROL)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  svg {
-    circle {
-      fill: none !important;
-      stroke: ${Colors.GREEN};
-    }
-  }
-`;
+import { Button as AdsButton, Icon } from "design-system";
 
 const TableFilterOuterWrapper = styled.div`
   display: flex;
@@ -184,9 +171,14 @@ function TableFilterPaneContent(props: TableFilterProps) {
         <div className="message-text">
           {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
         </div>
-        <div className="close-button t--close-filter-btn" onClick={hideFilter}>
-          <Icon fillColor={Colors.GREY_6} name="close-x" size={IconSize.XXL} />
-        </div>
+        <AdsButton
+          className="close-button t--close-filter-btn"
+          isIconButton
+          kind="tertiary"
+          onClick={hideFilter}
+          size="sm"
+          startIcon="close-x"
+        />
       </ColumnTypeBindingMessage>
       <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
         {filters.map((filter: ReactTableFilter, index: number) => {
@@ -232,11 +224,11 @@ function TableFilterPaneContent(props: TableFilterProps) {
           <ButtonWrapper>
             <Button
               className="t--add-filter-btn"
-              icon={<StyledPlusCircleIcon height={16} width={16} />}
+              icon={<Icon name="add-circle-control" size="md" />}
               intent="primary"
               onClick={addFilter}
               size="small"
-              text="Add Filter"
+              text="ADD FILTER"
             />
             <ButtonActionsWrapper>
               <Button

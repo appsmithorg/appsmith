@@ -8,20 +8,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
-  Button,
-  Category,
   DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Size,
   Text,
   TextInput,
   TextType,
-  Variant,
 } from "design-system-old";
-
+import { Button, Icon } from "design-system";
 import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
 import {
@@ -119,11 +112,7 @@ function DisconnectGitModal() {
               className="t--close-disconnect-modal"
               onClick={handleClose}
             >
-              <Icon
-                fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-                name="close-modal"
-                size={IconSize.XXXXL}
-              />
+              <Icon name="close-modal" size="lg" />
             </CloseBtnContainer>
           </div>
           <div
@@ -155,11 +144,7 @@ function DisconnectGitModal() {
           </div>
 
           <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0 0` }}>
-            <Icon
-              fillColor={Colors.CRIMSON}
-              name="warning-line"
-              size={IconSize.XXXL}
-            />
+            <Icon name="warning-line" size="lg" />
             <div style={{ display: "block" }}>
               <Text
                 color={Colors.CRIMSON}
@@ -185,15 +170,13 @@ function DisconnectGitModal() {
 
           <ButtonContainer>
             <Button
-              category={Category.primary}
               className="t--git-revoke-button"
-              disabled={shouldDisableRevokeButton}
+              isDisabled={shouldDisableRevokeButton}
+              kind="error"
               onClick={onDisconnectGit}
-              size={Size.large}
-              tag="button"
-              text={createMessage(REVOKE)}
-              variant={Variant.danger}
-            />
+            >
+              {createMessage(REVOKE)}
+            </Button>
           </ButtonContainer>
         </BodyContainer>
       </Container>

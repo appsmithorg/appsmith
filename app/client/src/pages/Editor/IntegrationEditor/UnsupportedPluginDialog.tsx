@@ -2,17 +2,8 @@ import React from "react";
 import { HelpIcons } from "icons/HelpIcons";
 import styled, { useTheme } from "styled-components";
 import type { Color } from "constants/Colors";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
-import type { IconProps } from "constants/IconConstants";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -63,24 +54,8 @@ const ActionButtonWrapper = styled.div`
   margin: 30px 0px 0px;
 `;
 
-const StyledIcon = styled(Icon)<IconProps>`
+const StyledIcon = styled(Icon)`
   margin: 0px 8px;
-  svg {
-    .triangle {
-      fill: #efa903;
-    }
-    .symbol {
-      fill: #ffffff;
-    }
-  }
-  &:hover {
-    .triangle {
-      fill: #efa903;
-    }
-    .symbol {
-      fill: #ffffff;
-    }
-  }
 `;
 
 const ActionButton = styled(Button)`
@@ -102,9 +77,8 @@ const Header = ({ onClose }: { onClose: () => void }) => {
         <Heading>
           <StyledIcon
             className="default_cursor"
-            clickable={false}
             name="warning-triangle"
-            size={IconSize.XL}
+            size="md"
           />
           {UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING()}
         </Heading>
@@ -152,24 +126,25 @@ function UnsupportedPluginDialog(props: Props) {
 
       <ActionButtonWrapper>
         <ActionButton
-          category={Category.secondary}
+          kind="secondary"
           onClick={() => {
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION");
             handleClose();
           }}
-          size={Size.medium}
-          text="BACK"
-        />
+          size="md"
+        >
+          Back
+        </ActionButton>
         <ActionButton
-          category={Category.primary}
           onClick={() => {
             handleClose();
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_CONTINUE_ACTION");
             onContinue();
           }}
-          size={Size.medium}
-          text="CONTINUE BUILDING"
-        />
+          size="md"
+        >
+          Continue Building
+        </ActionButton>
       </ActionButtonWrapper>
     </Dialog>
   );

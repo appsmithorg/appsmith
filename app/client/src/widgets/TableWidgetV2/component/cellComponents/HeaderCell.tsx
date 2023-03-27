@@ -2,10 +2,7 @@ import React, { createRef, useCallback, useEffect, useState } from "react";
 import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
 import Check from "remixicon-react/CheckFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
-
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 import type { CellAlignment } from "../Constants";
 import {
   HEADER_MENU_PORTAL_CLASS,
@@ -20,30 +17,20 @@ import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "design-system-old";
+import { Icon } from "design-system";
 
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
-  padding: 0;
+const AscendingIcon = styled(Icon)`
   position: relative;
   top: 3px;
   cursor: pointer;
   transform: rotate(180deg);
-  && svg {
-    path {
-      fill: ${Colors.LIGHT_GREYISH_BLUE};
-    }
-  }
 `;
 
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
+const DescendingIcon = styled(Icon)`
   padding: 0;
   position: relative;
   top: 3px;
   cursor: pointer;
-  && svg {
-    path {
-      fill: ${Colors.LIGHT_GREYISH_BLUE};
-    }
-  }
 `;
 
 const ColumnNameContainer = styled.div<{
@@ -109,8 +96,6 @@ function Title(props: TitleProps) {
     </TitleWrapper>
   );
 }
-
-const ICON_SIZE = 16;
 
 type HeaderProps = {
   canFreezeColumn?: boolean;
@@ -318,9 +303,9 @@ export const HeaderCell = (props: HeaderProps) => {
       {props.isAscOrder !== undefined ? (
         <div>
           {props.isAscOrder ? (
-            <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            <AscendingIcon name="sort-control" size="md" />
           ) : (
-            <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            <DescendingIcon name="sort-control" size="md" />
           )}
         </div>
       ) : null}

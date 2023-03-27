@@ -4,7 +4,8 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import { Button, SearchInput, SearchVariant, Size } from "design-system-old";
+import { SearchInput, SearchVariant } from "design-system-old";
+import { Button } from "design-system";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
@@ -67,7 +68,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
   const createTrigger = props.add && (
-    <Button size={Size.medium} text={props.add.title} />
+    <Button size="md">{props.add.title}</Button>
   );
 
   return (

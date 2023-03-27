@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Size, Category } from "design-system-old";
+import { Button } from "design-system";
 import PageUnavailableImage from "assets/images/invalid-page.png";
 import {
   PAGE_NOT_FOUND_ERROR,
@@ -72,14 +72,13 @@ function EntityNotFoundPane(props: Props) {
         <p>Hash: {history.location.hash}</p>
         <p>Action: {history.action}</p>
         <Button
-          category={Category.secondary}
           className="button-position"
-          cypressSelector="t--invalid-page-go-back"
+          kind="secondary"
           onClick={props.goBackFn ? props.goBackFn : history.goBack}
-          size={Size.large}
-          tag="button"
-          text="Go Back"
-        />
+          size="md"
+        >
+          Go Back
+        </Button>
       </div>
     </Wrapper>
   );

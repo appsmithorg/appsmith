@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import {
-  Button,
-  CalloutV2,
-  getTypographyByKey,
-  Variant,
-} from "design-system-old";
+import { CalloutV2, getTypographyByKey } from "design-system-old";
+import { Button } from "design-system";
 import {
   createMessage,
   DANGER_ZONE,
@@ -17,21 +13,6 @@ import { Colors } from "constants/Colors";
 export const Container = styled.div`
   width: 100%;
   padding: 16px 0;
-`;
-
-export const DisconnectButton = styled(Button)`
-  display: inline-block;
-  padding: 10px 20px;
-  min-width: 152px;
-  text-align: center;
-  font-size: 13px;
-  height: 38px;
-  background: ${Colors.CRIMSON};
-  border: 2px solid ${Colors.CRIMSON};
-
-  &:hover {
-    border: 2px solid ${Colors.CRIMSON};
-  }
 `;
 
 export const Header = styled.h2`
@@ -70,18 +51,17 @@ export function DisconnectService(props: {
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
       <CalloutV2 desc={props.warning} type="Warning" />
-      <DisconnectButton
+      <Button
         data-testid="disconnect-service-button"
+        kind="error"
         onClick={() =>
           warnDisconnectAuth ? callDisconnect() : setWarnDisconnectAuth(true)
         }
-        text={
-          warnDisconnectAuth
-            ? createMessage(DISCONNECT_CONFIRMATION)
-            : createMessage(DISCONNECT_AUTH_METHOD)
-        }
-        variant={Variant.danger}
-      />
+      >
+        {warnDisconnectAuth
+          ? createMessage(DISCONNECT_CONFIRMATION)
+          : createMessage(DISCONNECT_AUTH_METHOD)}
+      </Button>
     </Container>
   );
 }

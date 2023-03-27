@@ -22,7 +22,6 @@ import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { Icon } from "design-system-old";
 import type { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
@@ -34,6 +33,7 @@ import LabelWithTooltip, {
 import { getLocale } from "utils/helpers";
 import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
 import { checkInputTypeText } from "../utils";
+import { Button } from "design-system";
 
 /**
  * All design system component specific logic goes here.
@@ -602,12 +602,14 @@ class BaseInputComponent extends React.Component<
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
-            <Icon
+            <Button
               className="password-input"
-              name={this.state.showPassword ? "eye-off" : "eye-on"}
+              isIconButton
+              kind="tertiary"
               onClick={() => {
                 this.setState({ showPassword: !this.state.showPassword });
               }}
+              startIcon={this.state.showPassword ? "eye-off" : "eye-on"}
             />
           ) : this.props.iconName && this.props.iconAlign === "right" ? (
             <Tag icon={this.props.iconName} />

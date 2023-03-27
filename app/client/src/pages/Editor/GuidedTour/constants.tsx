@@ -9,7 +9,6 @@ import {
   forceShowContent,
   focusWidget,
 } from "actions/onboardingActions";
-import type { IconName } from "design-system-old";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -246,7 +245,7 @@ type Step = {
     buttonText?: string;
   };
   info?: {
-    icon: IconName;
+    icon: string;
     text: ReactNode;
     onClick: (dispatch: Dispatch<any>) => void;
     buttonText?: string;

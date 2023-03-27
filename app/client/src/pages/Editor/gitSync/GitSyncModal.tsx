@@ -12,17 +12,15 @@ import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import { DialogComponent as Dialog, Icon, IconSize } from "design-system-old";
+import { DialogComponent as Dialog } from "design-system-old";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
+import styled from "styled-components";
 import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
-import type { Theme } from "constants/DefaultTheme";
-import { Indices } from "constants/Layers";
+import { Button } from "design-system";
 
 const Container = styled.div`
   height: 600px;
@@ -42,20 +40,11 @@ const MenuContainer = styled.div`
   height: ${MENU_HEIGHT}px;
 `;
 
-const CloseBtnContainer = styled.div`
+const CloseButton = styled(Button)`
   position: absolute;
   right: -5px;
   top: 0;
   padding: ${(props) => props.theme.spaces[1]}px 0;
-  border-radius: ${(props) => props.theme.radii[1]}px;
-  z-index: ${Indices.Layer3};
-
-  &:hover {
-    svg,
-    svg path {
-      fill: ${({ theme }) => get(theme, "colors.gitSyncModal.closeIconHover")};
-    }
-  }
 `;
 
 const ComponentsByTab = {
@@ -70,7 +59,6 @@ const TabKeys: string[] = Object.values(GitSyncModalTab)
   .map((value) => value as string);
 
 function GitSyncModal(props: { isImport?: boolean }) {
-  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
@@ -171,16 +159,14 @@ function GitSyncModal(props: { isImport?: boolean }) {
               <BodyComponent />
             )}
           </BodyContainer>
-          <CloseBtnContainer
+          <CloseButton
             className="t--close-git-sync-modal"
+            isIconButton
+            kind="tertiary"
             onClick={handleClose}
-          >
-            <Icon
-              fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-              name="close-modal"
-              size={IconSize.XXXXL}
-            />
-          </CloseBtnContainer>
+            size={"sm"}
+            startIcon="close-modal"
+          />
         </Container>
       </Dialog>
       <GitErrorPopup />

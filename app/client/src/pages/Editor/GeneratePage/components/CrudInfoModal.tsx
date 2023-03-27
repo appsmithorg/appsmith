@@ -4,14 +4,12 @@ import { connect, useDispatch } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  Button,
-  Category,
   DialogComponent as Dialog,
   getTypographyByKey,
-  Size,
   Text,
   TextType,
 } from "design-system-old";
+import { Button } from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
@@ -52,10 +50,6 @@ export const StyledSeparator = styled.div`
   background-color: ${(props) => props.theme.colors.modal.separator};
   opacity: 0.6;
   height: 1px;
-`;
-
-const ActionButton = styled(Button)`
-  margin-right: 16px;
 `;
 
 const Content = styled.div`
@@ -144,14 +138,13 @@ function InfoContent({
       </Content>
 
       <ActionButtonWrapper>
-        <ActionButton
-          category={Category.primary}
+        <Button
           onClick={() => {
             onClose();
           }}
-          size={Size.medium}
-          text="GOT IT"
-        />
+        >
+          Got It
+        </Button>
       </ActionButtonWrapper>
     </>
   );

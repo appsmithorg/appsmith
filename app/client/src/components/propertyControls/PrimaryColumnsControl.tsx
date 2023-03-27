@@ -6,10 +6,8 @@ import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -27,21 +25,12 @@ import { getEvalErrorPath, getEvalValuePath } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import { Button } from "design-system";
 
 const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const AddColumnButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
 `;
 
 interface ReduxStateProps {
@@ -184,16 +173,15 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
           />
         </EvaluatedValuePopupWrapper>
 
-        <AddColumnButton
-          category={Category.secondary}
+        <Button
           className="t--add-column-btn"
-          icon="plus"
+          kind="secondary"
           onClick={this.addNewColumn}
-          size={Size.medium}
-          tag="button"
-          text="Add a new column"
-          type="button"
-        />
+          size="md"
+          startIcon="plus"
+        >
+          Add a new column
+        </Button>
       </TabsWrapper>
     );
   }

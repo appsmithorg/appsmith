@@ -6,13 +6,8 @@ import {
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Size,
-  Variant,
-} from "design-system-old";
+import { DialogComponent as Dialog } from "design-system-old";
+import { Button } from "design-system";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
@@ -43,19 +38,12 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
         </div>
         <div className="">
           <div className="flex items-center justify-end space-x-3">
-            <Button
-              category={Category.secondary}
-              onClick={onClose}
-              size={Size.medium}
-              text="Cancel"
-            />
-            <Button
-              category={Category.primary}
-              onClick={onDelete}
-              size={Size.medium}
-              text="Delete"
-              variant={Variant.danger}
-            />
+            <Button kind="secondary" onClick={onClose} size="md">
+              Cancel
+            </Button>
+            <Button kind="error" onClick={onDelete} size="md">
+              Delete
+            </Button>
           </div>
         </div>
       </div>
