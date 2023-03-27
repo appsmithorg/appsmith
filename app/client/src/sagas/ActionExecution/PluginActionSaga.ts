@@ -6,6 +6,7 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -115,6 +116,7 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -385,6 +387,8 @@ export default function* executePluginActionTriggerSaga(
     params,
   );
   const { isError, payload } = executePluginActionResponse;
+  // open response tab in debugger on triggered exection of action from widget.
+  openDebugger();
 
   if (isError) {
     AppsmithConsole.addErrors([
@@ -567,7 +571,11 @@ function* runActionSaga(
     );
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
+    // open response tab in debugger on exection of action.
+    openDebugger();
   } catch (e) {
+    // open response tab in debugger on exection of action.
+    openDebugger();
     // When running from the pane, we just want to end the saga if the user has
     // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
@@ -797,7 +805,11 @@ function* executePageLoadAction(pageAction: PageAction) {
         yield call(executePluginActionSaga, pageAction);
       payload = executePluginActionResponse.payload;
       isError = executePluginActionResponse.isError;
+      // open response tab in debugger on exection of action on page load.
+      openDebugger();
     } catch (e) {
+      // open response tab in debugger on exection of action on page load.
+      openDebugger();
       log.error(e);
 
       if (e instanceof UserCancelledActionExecutionError) {
@@ -1036,6 +1048,11 @@ function* executePluginActionSaga(
 
     throw new PluginActionExecutionError("Response not valid", false);
   }
+}
+
+function* openDebugger() {
+  yield put(showDebugger(true));
+  yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
 }
 
 export function* watchPluginActionExecutionSagas() {
