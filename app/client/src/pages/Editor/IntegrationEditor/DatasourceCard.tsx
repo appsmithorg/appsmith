@@ -12,17 +12,9 @@ import {
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import {
-  Button,
-  Category,
-  Icon,
-  IconSize,
-  Menu,
-  MenuItem,
-} from "design-system-old";
+import { Button, Category } from "design-system-old";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -51,6 +43,13 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import {
+  Button as AdsButton,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "design-system";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -147,32 +146,9 @@ const ButtonsWrapper = styled.div`
   align-items: center;
 `;
 
-const MoreOptionsContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const CollapseComponentWrapper = styled.div`
   display: flex;
   width: fit-content;
-`;
-
-const RedMenuItem = styled(MenuItem)`
-  &&,
-  && .cs-text {
-    color: ${Colors.DANGER_SOLID};
-  }
-
-  &&,
-  &&:hover {
-    svg,
-    svg path {
-      fill: ${Colors.DANGER_SOLID};
-    }
-  }
 `;
 
 type DatasourceCardProps = {
@@ -353,55 +329,50 @@ function DatasourceCard(props: DatasourceCardProps) {
             )}
             {(canDeleteDatasource || canEditDatasource) && (
               <MenuWrapper
-                className="t--datasource-menu-option"
+                className="t--datasource-menu-option here-is-a-test"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
               >
-                <MenuComponent
-                  menuItemWrapperWidth="160px"
-                  position={Position.BOTTOM_RIGHT}
-                  target={
-                    <MoreOptionsContainer>
-                      <Icon
-                        fillColor={
-                          datasource.isConfigured ? Colors.GREY_8 : Colors.GRAY2
-                        }
-                        name="comment-context-menu"
-                        size={IconSize.XXXL}
-                      />
-                    </MoreOptionsContainer>
-                  }
-                >
-                  {canEditDatasource && (
-                    <MenuItem
-                      className="t--datasource-option-edit"
-                      icon="edit"
-                      onSelect={editDatasource}
-                      text="Edit"
+                <MenuComponent>
+                  <MenuTrigger>
+                    <AdsButton
+                      isIconButton
+                      kind="tertiary"
+                      size="sm"
+                      startIcon="comment-context-menu"
                     />
-                  )}
-                  {canDeleteDatasource && (
-                    <RedMenuItem
-                      className="t--datasource-option-delete"
-                      icon="delete"
-                      isLoading={isDeletingDatasource}
-                      onSelect={() => {
-                        if (!isDeletingDatasource) {
-                          confirmDelete
-                            ? deleteAction()
-                            : setConfirmDelete(true);
-                        }
-                      }}
-                      text={
-                        isDeletingDatasource
+                  </MenuTrigger>
+                  <MenuContent>
+                    {canEditDatasource && (
+                      <MenuItem
+                        className="t--datasource-option-edit"
+                        onSelect={editDatasource}
+                        startIcon="edit"
+                      >
+                        Edit
+                      </MenuItem>
+                    )}
+                    {canDeleteDatasource && (
+                      <MenuItem
+                        className="t--datasource-option-delete"
+                        onSelect={() => {
+                          if (!isDeletingDatasource) {
+                            confirmDelete
+                              ? deleteAction()
+                              : setConfirmDelete(true);
+                          }
+                        }}
+                        startIcon="delete"
+                      >
+                        {isDeletingDatasource
                           ? createMessage(CONFIRM_CONTEXT_DELETING)
                           : confirmDelete
                           ? createMessage(CONFIRM_CONTEXT_DELETE)
-                          : createMessage(CONTEXT_DELETE)
-                      }
-                    />
-                  )}
+                          : createMessage(CONTEXT_DELETE)}
+                      </MenuItem>
+                    )}
+                  </MenuContent>
                 </MenuComponent>
               </MenuWrapper>
             )}
