@@ -27,6 +27,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -108,8 +109,8 @@ type IntegrationsHomeScreenProps = {
 
 type IntegrationsHomeScreenState = {
   page: number;
-  activePrimaryMenuId: number;
-  activeSecondaryMenuId: number;
+  activePrimaryMenuId: string;
+  activeSecondaryMenuId: string;
   unsupportedPluginDialogVisible: boolean;
 };
 
@@ -117,8 +118,8 @@ type Props = IntegrationsHomeScreenProps &
   InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;
 
 const PRIMARY_MENU_IDS = {
-  ACTIVE: 0,
-  CREATE_NEW: 1,
+  ACTIVE: "ACTIVE",
+  CREATE_NEW: "CREATE_NEW",
 };
 
 const SECONDARY_MENU: TabProp[] = [
@@ -270,7 +271,7 @@ class IntegrationsHomeScreen extends React.Component<
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: getSecondaryMenuIds(
         props.mockDatasources.length > 0,
-      ).API,
+      ).API.toString(),
       unsupportedPluginDialogVisible: false,
     };
   }
@@ -331,7 +332,7 @@ class IntegrationsHomeScreen extends React.Component<
         }),
       );
       this.onSelectSecondaryMenu(
-        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
+        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE.toString(),
       );
     } else {
       this.syncActivePrimaryMenu();
@@ -349,12 +350,12 @@ class IntegrationsHomeScreen extends React.Component<
         }),
       );
       this.onSelectSecondaryMenu(
-        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
+        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE.toString(),
       );
     }
   }
 
-  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
+  onSelectPrimaryMenu = (activePrimaryMenuId: string) => {
     const { dataSources, history, pageId } = this.props;
     if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
       return;
@@ -371,12 +372,12 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({
       activeSecondaryMenuId:
         activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
-          : getSecondaryMenuIds(dataSources.length > 0).API,
+          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS.toString()
+          : getSecondaryMenuIds(dataSources.length > 0).API.toString(),
     });
   };
 
-  onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
+  onSelectSecondaryMenu = (activeSecondaryMenuId: string) => {
     this.setState({ activeSecondaryMenuId });
   };
 
@@ -427,7 +428,7 @@ class IntegrationsHomeScreen extends React.Component<
         <UseMockDatasources
           active={
             activeSecondaryMenuId ===
-            getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE
+            getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE.toString()
           }
           mockDatasources={this.props.mockDatasources}
         />
@@ -443,7 +444,7 @@ class IntegrationsHomeScreen extends React.Component<
           <CreateNewAPI
             active={
               activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).API
+              getSecondaryMenuIds(dataSources.length > 0).API.toString()
             }
             history={history}
             isCreating={isCreating}
@@ -454,7 +455,7 @@ class IntegrationsHomeScreen extends React.Component<
           <CreateNewDatasource
             active={
               activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).DATABASE
+              getSecondaryMenuIds(dataSources.length > 0).DATABASE.toString()
             }
             history={history}
             isCreating={isCreating}
@@ -504,12 +505,24 @@ class IntegrationsHomeScreen extends React.Component<
           >
             <MainTabsContainer>
               {showTabs && (
-                <TabComponent
-                  cypressSelector="t--datasource-tab"
-                  onSelect={this.onSelectPrimaryMenu}
-                  selectedIndex={this.state.activePrimaryMenuId}
-                  tabs={PRIMARY_MENU}
-                />
+                <Tabs
+                  data-cy="t--datasource-tab"
+                  onValueChange={this.onSelectPrimaryMenu}
+                  value={this.state.activePrimaryMenuId}
+                >
+                  <TabsList>
+                    {PRIMARY_MENU.map((tab: TabProp) => (
+                      <Tab key={tab.key} value={tab.key}>
+                        {tab.title}
+                      </Tab>
+                    ))}
+                  </TabsList>
+                  {PRIMARY_MENU.map((tab: TabProp) => (
+                    <TabPanel key={tab.key} value={tab.key}>
+                      {tab.panelComponent}
+                    </TabPanel>
+                  ))}
+                </Tabs>
               )}
             </MainTabsContainer>
             {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
