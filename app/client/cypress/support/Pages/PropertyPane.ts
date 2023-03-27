@@ -366,4 +366,9 @@ export class PropertyPane {
   public AddAction(property: string) {
     cy.get(this._addAction(property)).click({ force: true });
   }
+
+  public SelectPlatformFunction(eventName: string, dropdownValue: string) {
+    this.AddAction(eventName);
+    cy.get(this.locator._dropDownValue(dropdownValue)).click();
+  }
 }

@@ -28,12 +28,8 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.setDate(1, "ddd MMM DD YYYY");
     const nextDay = dayjs().format("DD/MM/YYYY");
     cy.log(nextDay);
-    cy.get(".t--add-action-onDateSelected")
-      .scrollIntoView()
-      .click({ force: true });
-    cy.get('.single-select:contains("Reset widget")').click({ force: true });
-    cy.get(widgetsPage.selectWidget).click({ force: true });
-    cy.get('.single-select:contains("Toggler")').click();
+    cy.selectResetWidget("onDateSelected");
+    cy.selectWidgetForReset("Toggler");
     cy.closePropertyPane();
     cy.get(widgetsPage.switchWidget).click();
     cy.get(widgetsPage.toastMsg)
