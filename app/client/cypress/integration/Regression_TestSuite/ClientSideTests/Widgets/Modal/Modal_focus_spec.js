@@ -63,6 +63,7 @@ describe("Modal focus", function () {
     cy.get(widgets.modalCloseButton).click({ force: true });
     cy.get(widgets.modalCloseButton).should("not.be.visible");
 
+    cy.wait(1500);
     //open the modal
     cy.get(widgets.widgetBtn).contains("Submit").click({ force: true });
     //check if the focus is on the input field
