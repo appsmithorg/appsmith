@@ -35,6 +35,7 @@ import { SIDEBAR_ID } from "constants/Explorer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { getEditingEntityName } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -68,6 +69,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+  const isEditingEntityName = useSelector(getEditingEntityName);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -80,7 +82,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
     };
-  }, [active, pinned, resizer.resizing]);
+  }, [active, pinned, resizer.resizing, isEditingEntityName]);
 
   /**
    * passing the event to touch move on mouse move
@@ -129,7 +131,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         if (
           currentX >= props.width + 20 &&
           !resizer.resizing &&
-          !isContextMenuOpen()
+          !isContextMenuOpen() &&
+          !isEditingEntityName
         ) {
           dispatch(setExplorerActiveAction(false));
         }
