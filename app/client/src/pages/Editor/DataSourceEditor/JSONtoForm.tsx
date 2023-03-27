@@ -15,12 +15,9 @@ import type FeatureFlags from "entities/FeatureFlags";
 export const PluginImageWrapper = styled.div`
   height: 34px;
   width: 34px;
-  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.GREY_200};
-  border-radius: 100%;
   margin-right: 8px;
   flex-shrink: 0;
   img {
