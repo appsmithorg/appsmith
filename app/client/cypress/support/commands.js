@@ -413,9 +413,9 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).scrollIntoView({ easing: "linear" });
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .first()
+    .scrollIntoView({ easing: "linear" });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(500);
   cy.get(
@@ -1080,7 +1080,7 @@ Cypress.Commands.add(
         interception.response.body.data.body[0].name,
       );
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");      
+      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
       cy.isSelectRow(0);
       if (isNext) {
