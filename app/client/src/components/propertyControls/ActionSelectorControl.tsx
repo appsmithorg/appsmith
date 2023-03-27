@@ -13,8 +13,7 @@ import {
   codeToAction,
   getCodeFromMoustache,
 } from "components/editorComponents/ActionCreator/utils";
-import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
-import { getActionBlockFunctionNames } from "@shared/ast";
+import { canTranslateToUI, getActionBlocks } from "@shared/ast";
 import {
   getActions,
   getJSCollections,
@@ -102,23 +101,15 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       }),
     );
 
-    const { actionBlockFunctionNames, canTranslate } =
-      getActionBlockFunctionNames(codeFromProperty, self.evaluationVersion);
+    const canTranslate = canTranslateToUI(
+      codeFromProperty,
+      self.evaluationVersion,
+    );
 
     if (codeFromProperty.trim() && !canTranslate) {
       return false;
     }
-    for (const fn of actionBlockFunctionNames) {
-      if (
-        ![
-          ...AppsmithFunctionsWithFields,
-          ...actionsArray,
-          ...jsActionsArray,
-        ].includes(fn)
-      ) {
-        return false;
-      }
-    }
+
     const pageId = getCurrentPageId(state);
     const plugins = getPlugins(state);
     const pluginGroups: any = keyBy(plugins, "id");
@@ -138,7 +129,10 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     );
 
     try {
-      codeToAction(codeFromProperty, fieldOptions, true, true);
+      const blocks = getActionBlocks(codeFromProperty, self.evaluationVersion);
+      for (const block of blocks) {
+        codeToAction(block, fieldOptions, true, true);
+      }
     } catch (e) {
       return false;
     }
