@@ -72,6 +72,7 @@ function NewActionButton(props: NewActionButtonProps) {
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
       onClick={disabled ? noop : createQueryAction}
+      size="md"
       startIcon="plus"
     >
       {pluginType === PluginType.DB || pluginType === PluginType.SAAS
