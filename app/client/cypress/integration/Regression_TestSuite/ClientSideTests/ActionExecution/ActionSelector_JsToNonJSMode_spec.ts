@@ -9,7 +9,7 @@ const {
 } = ObjectsRegistry;
 
 describe("JS to non-JS mode in Action Selector", () => {
-  it.only("should not show any fields with a blank JS field", () => {
+  it("1. should not show any fields with a blank JS field", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
@@ -19,7 +19,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.AssertElementAbsence(".action");
   });
 
-  it("should show Api fields when Api1.run is entered", () => {
+  it("2. should show Api fields when Api1.run is entered", () => {
     apiPage.CreateApi("Api1");
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
@@ -31,7 +31,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show Api fields when an Api with then/catch is entered", () => {
+  it("3. should show Api fields when an Api with then/catch is entered", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -46,7 +46,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show Api fields when an Api with then/catch is entered", () => {
+  it("4. should show Api fields when an Api with then/catch is entered", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -87,7 +87,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show Api fields when an Api with then/catch is entered", () => {
+  it("5. should show Api fields when an Api with then/catch is entered", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -147,7 +147,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show Api related fields appropriately with platform functions with callbacks", () => {
+  it("6. should show Api related fields appropriately with platform functions with callbacks", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -192,7 +192,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show Api related fields appropriately with platform functions with catch callback", () => {
+  it("7. should show Api related fields appropriately with platform functions with catch callback", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -228,7 +228,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.ValidateCodeEditorContent(".text-view", "hi");
   });
 
-  it("should show Api related fields appropriately with platform functions with catch callback", () => {
+  it("8. should show Api related fields appropriately with platform functions with catch callback", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -261,7 +261,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields appropriately for JS object functions with/without arguments", () => {
+  it("9. shows fields appropriately for JS object functions with/without arguments", () => {
     const JS_OBJECT_BODY = `export default {
       funcWithoutArgsSync: () => {
         console.log("hi");
@@ -382,7 +382,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields appropriately for JS object functions with/without arguments and then/catch blocks", () => {
+  it("10. shows fields appropriately for JS object functions with/without arguments and then/catch blocks", () => {
     const JS_OBJECT_BODY = `export default {
       promiseFuncNoArgs: () => {
         return new Promise((resolve) => {
@@ -552,7 +552,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields for navigate to from js to non-js mode", () => {
+  it("11. shows fields for navigate to from js to non-js mode", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -679,7 +679,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields for show alert from js to non-js mode", () => {
+  it("12. shows fields for show alert from js to non-js mode", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -740,10 +740,10 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields for show modal from js to non-js mode", () => {
+  it("13. shows fields for show modal from js to non-js mode", () => {
     ee.SelectEntityByName("Page1", "Pages");
 
-    ee.DragDropWidgetNVerifyModal(50, 50);
+    ee.DragDropWidgetNVerify("modalwidget", 50, 50);
     ee.SelectEntityByName("Button1", "Widgets");
 
     propPane.EnterJSContext("onClick", "{{showModal()}}", true, false);
@@ -783,7 +783,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields for remove modal from js to non-js mode", () => {
+  it("14. shows fields for remove modal from js to non-js mode", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -824,7 +824,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should shows appropriate fields for store value", () => {
+  it("15. should shows appropriate fields for store value", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -888,7 +888,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.GetNClick(".action-block-tree", 0);
   });
 
-  it("shows fields for remove value appropriately", () => {
+  it("16. shows fields for remove value appropriately", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -924,7 +924,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.ValidateCodeEditorContent(".text-view", "a");
   });
 
-  it("shows fields appropriately for the download function", () => {
+  it("17. shows fields appropriately for the download function", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1018,7 +1018,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields for copyToClipboard appropriately", () => {
+  it("18. shows fields for copyToClipboard appropriately", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1066,7 +1066,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("shows fields for reset widget appropriately", () => {
+  it("19. shows fields for reset widget appropriately", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1200,7 +1200,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show fields appropriately for setinterval", () => {
+  it("20. should show fields appropriately for setinterval", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1273,7 +1273,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     // agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}id1");
   });
 
-  it("should show fields appropriately for clearInterval", () => {
+  it("21. should show fields appropriately for clearInterval", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1309,7 +1309,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.ValidateCodeEditorContent(".text-view", "Id1");
   });
 
-  it("should show no fields for clear store", () => {
+  it("22. should show no fields for clear store", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1328,7 +1328,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.AssertElementAbsence(".selector-view");
   });
 
-  it("should show no fields for watch geolocation position", () => {
+  it("23. should show no fields for watch geolocation position", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1352,7 +1352,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.AssertElementAbsence(".selector-view");
   });
 
-  it("should show no fields for stop watching geolocation position", () => {
+  it("24. should show no fields for stop watching geolocation position", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1376,7 +1376,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.AssertElementAbsence(".selector-view");
   });
 
-  it("should show appropriate fields for get geolocation", () => {
+  it("25. should show appropriate fields for get geolocation", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 
@@ -1423,7 +1423,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
   });
 
-  it("should show post message fields appropriately", () => {
+  it("26. should show post message fields appropriately", () => {
     ee.SelectEntityByName("Page1", "Pages");
     ee.SelectEntityByName("Button1", "Widgets");
 

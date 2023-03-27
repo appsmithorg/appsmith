@@ -15,8 +15,7 @@ describe("Post window message", () => {
     ee.DragDropWidgetNVerify(WIDGET.IFRAME, 200, 300);
 
     ee.SelectEntityByName("Button1", "Widgets");
-    propPane.AddAction("onClick");
-    cy.get(locator._dropDownValue("Post message")).click();
+    propPane.SelectPlatformFunction("onClick", "Post message");
     agHelper.EnterActionValue("Message", "After postMessage");
     agHelper.EnterActionValue("Target iframe", "Iframe1");
 
@@ -42,8 +41,7 @@ describe("Post window message", () => {
       </body>
       </html>`,
     );
-    propPane.AddAction("onMessageReceived");
-    cy.get(locator._dropDownValue("Show Alert")).click();
+    propPane.SelectPlatformFunction("onMessageReceived", "Show Alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp();
 

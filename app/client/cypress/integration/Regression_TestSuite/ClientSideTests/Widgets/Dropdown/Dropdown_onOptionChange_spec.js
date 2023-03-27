@@ -175,7 +175,7 @@ describe("Dropdown Widget Functionality", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     // Dropdown On Option Change
-    cy.addEvent("Option Changed", ".t--property-control-onoptionchange");
+    cy.getAlert("onOptionChange", "Option Changed");
     cy.PublishtheApp();
     // Change the Option
     cy.get(formWidgetsPage.selectWidget)

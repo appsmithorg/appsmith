@@ -182,22 +182,11 @@ export class EntityExplorer {
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
-  }
-
-  public DragDropWidgetNVerifyModal(x = 200, y = 200) {
-    this.NavigateToSwitcher("widgets");
-    this.agHelper.Sleep();
-    cy.get(this.locator._widgetPageIcon("modalwidget"))
-      .first()
-      .trigger("dragstart", { force: true })
-      .trigger("mousemove", x, y, { force: true });
-    cy.get(this.locator._dropHere)
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-    this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    cy.get(".t--modal-widget").should("exist");
+    if (widgetType === "modalwidget") {
+      cy.get(".t--modal-widget").should("exist");
+    } else {
+      cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+    }
   }
 
   public ClonePage(pageName = "Page1") {
