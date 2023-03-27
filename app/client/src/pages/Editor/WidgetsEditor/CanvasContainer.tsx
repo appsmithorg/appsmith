@@ -129,6 +129,9 @@ function CanvasContainer(props: CanvasContainerProps) {
     );
   }
 
+  const isPreviewingNavigation =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
   /**
    * calculating exact height to not allow scroll at this component,
    * calculating total height of the canvas minus
@@ -140,15 +143,13 @@ function CanvasContainer(props: CanvasContainerProps) {
    */
   const topMargin = shouldShowSnapShotBanner
     ? "4rem"
-    : isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+    : isPreviewingNavigation
     ? "0rem"
     : "2.25rem";
-  const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
+  //const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  // TODO: Rahul - Check if only one of the following margin variables can be used.
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
-  const heightWithMargins = `calc(100vh - ${navigationHeight}px - ${theme.smallHeaderHeight} - ${bottomBarHeight} - ${topMargin})`;
   const resizerTop = `calc(2rem + ${topMargin} + ${theme.smallHeaderHeight})`;
   return (
     <>
@@ -167,17 +168,15 @@ function CanvasContainer(props: CanvasContainerProps) {
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
-            !isPreviewMode &&
-            !isAppSettingsPaneWithNavigationTabOpen,
+            !isPreviewingNavigation,
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
-        isPreviewingNavigation={
-          isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-        }
+        isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
+        navigationHeight={navigationHeight}
         style={{
-          height: shouldHaveTopMargin ? heightWithMargins : "100vh",
+          height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
           fontFamily: fontFamily,
         }}
       >

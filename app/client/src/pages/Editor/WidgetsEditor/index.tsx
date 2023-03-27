@@ -69,8 +69,6 @@ function WidgetsEditor() {
   const isPreviewMode = useSelector(previewModeSelector);
   const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
 
-  const shouldShowSnapShotBanner = !!readableSnapShotDetails && !isPreviewMode;
-
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
@@ -84,6 +82,12 @@ function WidgetsEditor() {
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
+
+  const isPreviewingNavigation =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
+  const shouldShowSnapShotBanner =
+    !!readableSnapShotDetails && !isPreviewingNavigation;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -155,7 +159,7 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
+    if (isPreviewingNavigation) {
       return (
         <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={
@@ -195,8 +199,12 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
+                  className={classNames({
+                    "relative flex flex-row w-full justify-center overflow-hidden":
+                      true,
+                  })}
                   hasPinnedSidebar={
-                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                    isPreviewingNavigation
                       ? currentApplicationDetails?.applicationDetail
                           ?.navigationSetting?.orientation ===
                           NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
@@ -205,11 +213,7 @@ function WidgetsEditor() {
                   }
                   isPreviewMode={isPreviewMode}
                   isPublished={isPublished}
-                  sidebarWidth={
-                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-                      ? sidebarWidth
-                      : 0
-                  }
+                  sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
                 >
                   {shouldShowSnapShotBanner && (
                     <div className="absolute top-0 z-1 w-full">
