@@ -133,6 +133,7 @@ export type ModalComponentProps = {
   background?: string;
   borderRadius?: string;
   settingsComponent?: ReactNode;
+  isAutoLayout: boolean;
 };
 
 /* eslint-disable react/display-name */
@@ -219,7 +220,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   const isVerticalResizeEnabled = useMemo(() => {
-    return !props.isDynamicHeightEnabled && enableResize;
+    return !props.isDynamicHeightEnabled && enableResize && !props.isAutoLayout;
   }, [props.isDynamicHeightEnabled, enableResize]);
 
   const getResizableContent = () => {
