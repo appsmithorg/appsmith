@@ -48,6 +48,10 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
     [],
   );
 
+  useEffect(() => {
+    setSearchText("");
+  }, [isOpen]);
+
   const valueWithoutMoustache = getCodeFromMoustache(value);
 
   const selectedOption = getSelectedFieldFromValue(value, options);
@@ -78,9 +82,13 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       defaultText={(action || "").toString()}
       menuHeight={300}
       menuWidth={256}
+      modifiers={{
+        preventOverflow: {
+          boundariesElement: "viewport",
+        },
+      }}
       onMenuToggle={(isOpen) => {
         setOpen(isOpen);
-        setSearchText("");
       }}
       onSelect={set}
       optionTree={filteredOptions}

@@ -29,6 +29,12 @@ export function SelectorView(props: SelectorViewProps) {
             preventOverflow: {
               boundariesElement: "viewport",
             },
+            offset: {
+              offset: "0, -8",
+            },
+            flip: {
+              enabled: false,
+            },
           }}
           onSelect={props.set as Setter}
           optionTree={props.options}
