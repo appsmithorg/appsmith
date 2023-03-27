@@ -272,6 +272,7 @@ export default {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: [
+              "YYYY-MM-DDTHH:mm:ss.SSSZ",
               DateInputFormat.EPOCH,
               DateInputFormat.MILLISECONDS,
               "YYYY-MM-DD",
@@ -401,6 +402,7 @@ export default {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: [
+              "YYYY-MM-DDTHH:mm:ss.SSSZ",
               "Epoch",
               "Milliseconds",
               "YYYY-MM-DD",

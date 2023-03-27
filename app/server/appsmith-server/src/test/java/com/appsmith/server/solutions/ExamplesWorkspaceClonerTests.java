@@ -862,7 +862,7 @@ public class ExamplesWorkspaceClonerTests {
                             new Property("custom auth param 2", "custom auth param value 2")
                     ));
                     auth.setIsAuthorized(true);
-                    auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null));
+                    auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
 
                     final Datasource ds2 = new Datasource();

@@ -1,21 +1,25 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
+  width: 320px;
+  margin: 0 auto;
   & > div {
     margin-top: 27px;
   }
 `;
 export const FieldWrapper = styled.div`
-  width: 460px;
-  display: flex;
+  /* width: 460px; */
+  /* display: flex; */
 `;
 
 export const LabelWrapper = styled.div`
   .self-center {
     align-self: center;
   }
-  width: 200px;
-  display: flex;
+  /* width: 240px; */
+  /* display: flex; */
+  color: var(--ads-v2-color-fg);
+  /* font-size: 14px; */
 `;
 
 export const Loader = styled.div`

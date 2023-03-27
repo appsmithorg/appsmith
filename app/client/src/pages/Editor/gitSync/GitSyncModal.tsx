@@ -21,7 +21,6 @@ import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
 import { Button } from "design-system";
-import { Indices } from "constants/Layers";
 
 const Container = styled.div`
   height: 600px;
