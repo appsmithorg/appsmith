@@ -193,7 +193,10 @@
     "zipcelx": "^1.6.2"
   },
   "browserslist": [
-    "defaults and supports es6-module"
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
   ],
   "devDependencies": {
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
