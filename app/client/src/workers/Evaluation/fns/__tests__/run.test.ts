@@ -128,11 +128,11 @@ describe("Tests for run function in callback styled", () => {
     );
     const successCallback = jest.fn(() =>
       //@ts-expect-error no types
-      self.showAlert(evalContext.action1.name),
+      self.showAlert(evalContext.action1.actionId),
     );
     await evalContext.action1.run(successCallback);
     expect(successCallback).toBeCalledWith("resolved");
-    expect(showAlertMock).toBeCalledWith("action1");
+    expect(showAlertMock).toBeCalledWith("123");
   });
 });
 
