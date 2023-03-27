@@ -23,22 +23,19 @@ describe("Switch Widget within Form widget Functionality", function () {
     // Check the toggler button
     cy.togglebar(widgetsPage.defaultcheck);
     // Type in message field and verify
-    cy.getAlert(commonlocators.optionchangetextSwitch);
+    cy.getAlert("onChange");
     cy.closePropertyPane();
   });
 
-  it("Form reset button valdiation with switch widget", function () {
+  it("Form reset button validation with switch widget", function () {
     // Open form button
     cy.SearchEntityandOpen("FormButton2");
     // Click on reset widget action
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Reset widget")
-      .click();
+    cy.get(".t--add-action-onClick").click();
+    cy.get('.single-select:contains("Reset widget")').click();
     // click on toggler from actions
     cy.get(widgetsPage.selectWidget).click({ force: true });
-    cy.get(commonlocators.chooseAction).children().contains("Toggler").click();
+    cy.get('.single-select:contains("Toggler")').click();
     cy.closePropertyPane();
     // Uncheck the switch
     cy.get(widgetsPage.switchWidget).click();
