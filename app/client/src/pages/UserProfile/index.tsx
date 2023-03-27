@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-// import React from "react";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import styled from "styled-components";
-// import type { TabProp } from "design-system-old";
 import { Button, Tabs, Tab, TabsList, Icon, TabPanel } from "design-system";
-// import { Icon } from "@blueprintjs/core";
 import General from "./General";
-// import { Colors } from "constants/Colors";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
@@ -26,16 +22,6 @@ const ProfileWrapper = styled.div`
 const LinkToApplications = styled.div`
   margin-top: 20px;
   margin-bottom: 20px;
-  // display: inline-block;
-  // width: auto;
-
-  // &:hover {
-  //   text-decoration: none;
-  // }
-
-  // svg {
-  //   cursor: pointer;
-  // }
 `;
 
 function UserProfile() {
@@ -75,10 +61,6 @@ function UserProfile() {
           >
             {createMessage(GO_BACK)}
           </Button>
-          {/* <Icon name="chevron-left" />
-          <Text kind="body-m" renderAs="span">
-            Back
-          </Text> */}
         </LinkToApplications>
         <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>

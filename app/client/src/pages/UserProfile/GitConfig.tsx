@@ -77,67 +77,37 @@ export default function GitConfig() {
   return (
     <Wrapper>
       <FieldWrapper>
-        {/* <LabelWrapper>
-          <Text type={TextType.H4}>{createMessage(AUTHOR_NAME)}</Text>
-        </LabelWrapper> */}
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
           <Input
-            // cypressSelector="t--git-author-name"
-            // fill={false}
+            data-test-id="t--git-author-name"
             isRequired
             label={createMessage(AUTHOR_NAME)}
-            labelPosition="left"
+            labelPosition="top"
             onChange={setAuthorName}
             placeholder={createMessage(AUTHOR_NAME)}
             renderAs="input"
             size="md"
             type="text"
             value={authorName}
-            // validator={notEmptyValidator}
           />
-          // <div style={{ flex: 1 }}>
-          //   <TextInput
-          //     cypressSelector="t--git-author-name"
-          //     defaultValue={authorName}
-          //     fill={false}
-          //     onChange={setAuthorName}
-          //     placeholder={createMessage(AUTHOR_NAME)}
-          //     validator={notEmptyValidator}
-          //   />
-          // </div>
         )}
       </FieldWrapper>
       <FieldWrapper>
-        {/* <LabelWrapper>
-          <Text type={TextType.H4}>{createMessage(AUTHOR_EMAIL)}</Text>
-        </LabelWrapper> */}
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
           <Input
-            //     cypressSelector="t--git-author-email"
+            data-test-id="t--git-author-email"
             isRequired
             label={createMessage(AUTHOR_EMAIL)}
-            labelPosition="left"
+            labelPosition="top"
             onChange={setAuthorEmail}
             placeholder={createMessage(AUTHOR_EMAIL)}
             renderAs="input"
             size="md"
             type="text"
             value={authorEmail}
-            // validator={notEmptyValidator}
           />
-          // <div style={{ flex: 1 }}>
-
-          //   <TextInput
-          //     cypressSelector="t--git-author-email"
-          //     defaultValue={authorEmail}
-          //     fill={false}
-          //     onChange={setAuthorEmail}
-          //     placeholder={createMessage(AUTHOR_EMAIL)}
-          //     validator={emailValidator}
-          //   />
-          // </div>
         )}
       </FieldWrapper>
       <FieldWrapper>
