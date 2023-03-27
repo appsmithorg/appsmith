@@ -388,7 +388,7 @@ export default function* executePluginActionTriggerSaga(
   );
   const { isError, payload } = executePluginActionResponse;
   // open response tab in debugger on triggered exection of action from widget.
-  openDebugger();
+  yield call(openDebugger);
 
   if (isError) {
     AppsmithConsole.addErrors([
@@ -572,10 +572,10 @@ function* runActionSaga(
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
     // open response tab in debugger on exection of action.
-    openDebugger();
+    yield call(openDebugger);
   } catch (e) {
     // open response tab in debugger on exection of action.
-    openDebugger();
+    yield call(openDebugger);
     // When running from the pane, we just want to end the saga if the user has
     // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
@@ -806,10 +806,10 @@ function* executePageLoadAction(pageAction: PageAction) {
       payload = executePluginActionResponse.payload;
       isError = executePluginActionResponse.isError;
       // open response tab in debugger on exection of action on page load.
-      openDebugger();
+      yield call(openDebugger);
     } catch (e) {
       // open response tab in debugger on exection of action on page load.
-      openDebugger();
+      yield call(openDebugger);
       log.error(e);
 
       if (e instanceof UserCancelledActionExecutionError) {

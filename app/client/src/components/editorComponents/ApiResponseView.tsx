@@ -11,7 +11,6 @@ import type { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
-import { Colors } from "constants/Colors";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
@@ -260,7 +259,9 @@ export const EMPTY_RESPONSE: ActionResponse = {
 
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
-    props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
+    props.code.startsWith("2")
+      ? props.theme.colors.primaryOld
+      : props.theme.colors.debugger.floatingButton.errorCount};
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;

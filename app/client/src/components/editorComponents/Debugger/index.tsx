@@ -37,6 +37,7 @@ const TriggerContainer = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   padding: 9px 16px;
   border-left: 1px solid ${Colors.GRAY_200};
   cursor: pointer;
@@ -48,8 +49,6 @@ const TriggerContainer = styled.div<{
         ? props.theme.colors.debugger.floatingButton.errorCount
         : Colors.GRAY_700};
     ${getTypographyByKey("btnSmall")}
-    height: 16px;
-    width: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,17 +112,17 @@ export function DebuggerTrigger() {
   if (hideDebuggerIcon) return null;
 
   return (
-    <TriggerContainer
-      className="t--debugger"
-      errorCount={messageCounters.errors}
-      onClick={onClick}
-      warningCount={messageCounters.warnings}
+    <TooltipComponent
+      content={tooltipContent}
+      modifiers={{
+        preventOverflow: { enabled: true },
+      }}
     >
-      <TooltipComponent
-        content={tooltipContent}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
+      <TriggerContainer
+        className="t--debugger"
+        errorCount={messageCounters.errors}
+        onClick={onClick}
+        warningCount={messageCounters.warnings}
       >
         <Icon
           fillColor={
@@ -134,11 +133,11 @@ export function DebuggerTrigger() {
           name={totalMessageCount ? "close-circle" : "close-circle-line"}
           size={IconSize.XL}
         />
-      </TooltipComponent>
-      <div className="debugger-count t--debugger-count">
-        {totalMessageCount > 9 ? "9+" : totalMessageCount}
-      </div>
-    </TriggerContainer>
+        <div className="debugger-count t--debugger-count">
+          {totalMessageCount > 99 ? "99+" : totalMessageCount}
+        </div>
+      </TriggerContainer>
+    </TooltipComponent>
   );
 }
 
