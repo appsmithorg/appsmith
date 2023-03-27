@@ -77,7 +77,7 @@ function AppRouter(props: {
         });
       }
     }
-  }, [tenantIsLoading]);
+  }, [tenantIsLoading, currentUserIsLoading]);
 
   if (tenantIsLoading || currentUserIsLoading) return null;
 
