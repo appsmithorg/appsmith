@@ -1481,7 +1481,7 @@ export const DISCARD_SNAPSHOT_HEADER = () => "Discarding A Snapshot";
 export const SAVE_SNAPSHOT = () =>
   "Save a Snapshot of your Current Layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
-  "We will create a snapshot of your whole app before the conversion, so that you can go back if auto layout is just not right for you";
+  "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
 export const RESTORING_SNAPSHOT = () => "Removing changes made";
