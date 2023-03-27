@@ -135,6 +135,27 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testValidApiExecutionWithWhitespacesInUrl() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        //added whitespaces in url to validate successful execution of the same
+        dsConfig.setUrl("    https://postman-echo.com/post       ");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        final List<Property> headers = List.of(new Property("content-type", "application/json"));
+        actionConfig.setHeaders(headers);
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"key\":\"value\"}";
+        actionConfig.setBody(requestBody);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
 
     @Test
     public void testExecuteApiWithPaginationForPreviousUrl() throws IOException {
