@@ -77,10 +77,19 @@ export const setDebuggerSelectedTab = (selectedTab: string) => {
     payload: selectedTab,
   };
 };
+
 // set the height of the response pane in the debugger.
 export const setResponsePaneHeight = (payload: number) => {
   return {
     type: ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT,
     payload: { height: payload },
+  };
+};
+
+// set the height of the response pane in the debugger.
+export const setErrorCount = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_ERROR_COUNT,
+    payload: { count: payload },
   };
 };

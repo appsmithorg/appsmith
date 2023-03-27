@@ -62,7 +62,6 @@ import {
 } from "components/formControls/utils";
 import {
   createMessage,
-  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
   DOCUMENTATION,
@@ -129,6 +128,7 @@ import {
   getDebuggerSelectedTab,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
+import { ErrorTabTitle } from "components/editorComponents/Debugger/DebuggerTabs";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -897,7 +897,7 @@ export function EditorJSONtoForm(props: Props) {
     },
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
+      title: ErrorTabTitle(),
       panelComponent: <ErrorLogs />,
     },
     {

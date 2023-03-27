@@ -7,6 +7,7 @@ import DebuggerTabs from "./DebuggerTabs";
 import type { AppState } from "@appsmith/reducers";
 import {
   setDebuggerSelectedTab,
+  setErrorCount,
   showDebugger as showDebuggerAction,
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -88,6 +89,7 @@ export function DebuggerTrigger() {
   const messageCounters = useSelector(getMessageCount);
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
+  totalMessageCount && dispatch(setErrorCount(totalMessageCount));
 
   const onClick = (e: any) => {
     //Removed canavs condition

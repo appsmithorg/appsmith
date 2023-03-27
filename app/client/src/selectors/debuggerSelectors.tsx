@@ -135,3 +135,5 @@ export const getDebuggerSelectedTab = (state: AppState) =>
 
 export const getResponsePaneHeight = (state: AppState) =>
   state.ui.debugger.responseTabHeight;
+
+export const getErrorCount = (state: AppState) => state.ui.debugger.errorCount;

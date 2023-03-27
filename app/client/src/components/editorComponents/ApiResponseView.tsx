@@ -15,7 +15,6 @@ import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
-  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
@@ -61,6 +60,7 @@ import {
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
+import { ErrorTabTitle } from "./Debugger/DebuggerTabs";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -217,7 +217,6 @@ export const LoadingOverlayContainer = styled.div`
   height: 100%;
   margin-top: 5px;
 `;
-
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -565,7 +564,7 @@ function ApiResponseView(props: Props) {
     },
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
+      title: ErrorTabTitle(),
       panelComponent: <ErrorLogs />,
     },
     {

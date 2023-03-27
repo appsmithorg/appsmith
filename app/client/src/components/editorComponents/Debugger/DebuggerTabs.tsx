@@ -11,6 +11,7 @@ import {
 } from "actions/debuggerActions";
 import {
   getDebuggerSelectedTab,
+  getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -55,23 +56,31 @@ const Container = styled.div`
   }
 `;
 
-const DEBUGGER_TABS = [
-  {
-    key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-    title: createMessage(DEBUGGER_ERRORS),
-    panelComponent: <Errors hasShortCut />,
-  },
-  {
-    key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-    title: createMessage(DEBUGGER_LOGS),
-    panelComponent: <DebuggerLogs hasShortCut />,
-  },
-  {
-    key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-    title: createMessage(INSPECT_ENTITY),
-    panelComponent: <EntityDeps />,
-  },
-];
+const ErrorTitleContainer = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+`;
+
+const ErrorCount = styled.div`
+  border: 1px solid;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+`;
+
+// error tab title component.
+export const ErrorTabTitle = () => {
+  // get the error count in debugger.
+  const errorCount = useSelector(getErrorCount);
+  return (
+    <ErrorTitleContainer>
+      <div>{createMessage(DEBUGGER_ERRORS)} </div>
+      <ErrorCount>{errorCount}</ErrorCount>
+    </ErrorTitleContainer>
+  );
+};
 
 function DebuggerTabs() {
   const dispatch = useDispatch();
@@ -92,6 +101,24 @@ function DebuggerTabs() {
     dispatch(setDebuggerSelectedTab(tabKey));
   };
   const onClose = () => dispatch(showDebugger(false));
+
+  const DEBUGGER_TABS = [
+    {
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+      title: ErrorTabTitle(),
+      panelComponent: <Errors hasShortCut />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+      title: createMessage(DEBUGGER_LOGS),
+      panelComponent: <DebuggerLogs hasShortCut />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
+    },
+  ];
 
   return (
     <Container

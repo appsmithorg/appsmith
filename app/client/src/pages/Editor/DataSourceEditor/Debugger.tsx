@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import {
   createMessage,
-  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "@appsmith/constants/messages";
@@ -22,6 +21,7 @@ import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { getDatasourceResponsePaneHeight } from "selectors/datasourceSelectors";
 import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
+import { ErrorTabTitle } from "components/editorComponents/Debugger/DebuggerTabs";
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
@@ -88,7 +88,7 @@ export default function Debugger() {
   const DEBUGGER_TABS = [
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
+      title: ErrorTabTitle(),
       panelComponent: <Errors hasShortCut />,
     },
     {

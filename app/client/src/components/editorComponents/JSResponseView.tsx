@@ -8,7 +8,6 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
-  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   PARSING_ERROR,
@@ -56,6 +55,7 @@ import {
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
+import { ErrorTabTitle } from "./Debugger/DebuggerTabs";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -319,7 +319,7 @@ function JSResponseView(props: Props) {
     },
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
+      title: ErrorTabTitle(),
       panelComponent: <ErrorLogs />,
     },
     {
