@@ -2,6 +2,13 @@ const EnterpriseAdminSettingsLocators = require("../../../../locators/Enterprise
 import adminsSettings from "../../../../locators/AdminsSettings";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
+function stubPricingPage() {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
+}
 describe("Admin settings page", function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
@@ -25,11 +32,7 @@ describe("Admin settings page", function () {
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
     if (CURRENT_REPO === REPO.CE) {
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://www.appsmith.com/pricing?";
-        }).as("pricingPage");
-      });
+      stubPricingPage();
       cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
         .should("be.visible")
         .should("contain", "UPGRADE")
@@ -37,11 +40,7 @@ describe("Admin settings page", function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://www.appsmith.com/pricing?";
-        }).as("pricingPage");
-      });
+      stubPricingPage();
       cy.get(EnterpriseAdminSettingsLocators.upgradeSamlButton)
         .should("be.visible")
         .should("contain", "UPGRADE")
@@ -49,12 +48,7 @@ describe("Admin settings page", function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
-
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://www.appsmith.com/pricing?";
-        }).as("pricingPage");
-      });
+      stubPricingPage();
       cy.get(".t--settings-category-branding").click();
       cy.url().should("contain", "/settings/branding");
       cy.xpath(adminsSettings.upgrade).click();
@@ -68,33 +62,21 @@ describe("Admin settings page", function () {
     cy.get(adminsSettings.accessControl).click();
     cy.url().should("contain", "/settings/access-control");
     if (CURRENT_REPO === REPO.CE) {
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://www.appsmith.com/pricing?";
-        }).as("pricingPage");
-      });
+      stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
       cy.get(adminsSettings.auditLogs).click();
       cy.url().should("contain", "/settings/audit-logs");
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://www.appsmith.com/pricing?";
-        }).as("pricingPage");
-      });
+      stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
       cy.get(adminsSettings.upgrageLeftPane).click();
       cy.url().should("contain", "/settings/business-edition");
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://www.appsmith.com/pricing?";
-        }).as("pricingPage");
-      });
+      stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
