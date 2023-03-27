@@ -176,4 +176,5 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-cy='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
+  _canvas = "[data-testid=widgets-editor]";
 }
