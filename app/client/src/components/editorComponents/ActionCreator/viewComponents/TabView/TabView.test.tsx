@@ -25,9 +25,8 @@ describe("Tab View component", () => {
       {
         id: "url",
         text: "URL",
-        action: () => {
-          console.log("URL");
-        },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        action: () => {},
       },
     ],
     value: "{{navigateTo('Page1', {}, 'SAME_WINDOW'}}",

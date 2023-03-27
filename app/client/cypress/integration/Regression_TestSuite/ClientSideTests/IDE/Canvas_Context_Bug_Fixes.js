@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/Bugs/CheckboxGroupInListWidgetDsl.json");
+const commonLocators = require("../../../../locators/commonlocators.json");
 
 describe("Canvas context Property Pane", function () {
   it("Bug Fix: Unable to delete checkbox child when it is inside list widget #18191", () => {
@@ -19,6 +20,7 @@ describe("Canvas context Property Pane", function () {
       "have.length",
       2,
     );
+    cy.get(commonLocators.canvas).click({ force: true });
   });
 
   it("Bug Fix: widget explorer should automatically open on widget selection", () => {
