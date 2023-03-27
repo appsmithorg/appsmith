@@ -52,11 +52,16 @@ import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActi
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
-import { getApiPaneResponsePaneHeight } from "selectors/apiPaneSelectors";
-import { setApiPaneResponsePaneHeight } from "actions/apiPaneActions";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
+import {
+  getDebuggerSelectedTab,
+  getResponsePaneHeight,
+} from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import {
+  setDebuggerSelectedTab,
+  setResponsePaneHeight,
+  showDebugger,
+} from "actions/debuggerActions";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -398,7 +403,9 @@ function ApiResponseView(props: Props) {
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
+  // get the selected tab in the response pane.
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
+  // update the selected tab in the response pane.
   const updateSelectedResponseTab = useCallback((tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -407,10 +414,11 @@ function ApiResponseView(props: Props) {
     }
     dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
-
-  const responsePaneHeight = useSelector(getApiPaneResponsePaneHeight);
+  // get the height of the response pane.
+  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  // update the height of the response pane on resize.
   const updateResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setApiPaneResponsePaneHeight(height));
+    dispatch(setResponsePaneHeight(height));
   }, []);
 
   const responseTabs =

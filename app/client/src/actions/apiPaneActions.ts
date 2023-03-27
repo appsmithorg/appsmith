@@ -101,13 +101,6 @@ export const setApiPaneConfigSelectedTabIndex: (
   payload: { selectedTabIndex: payload },
 });
 
-export const setApiPaneResponsePaneHeight: (
-  payload: number,
-) => ReduxAction<{ height: number }> = (payload: number) => ({
-  type: ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT,
-  payload: { height: payload },
-});
-
 export const setApiRightPaneSelectedTab: (
   payload: number,
 ) => ReduxAction<{ selectedTab: number }> = (payload: number) => ({

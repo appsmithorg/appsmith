@@ -62,6 +62,24 @@ const TriggerContainer = styled.div<{
   }
 `;
 
+export const ResizerMainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 50px);
+  overflow: hidden;
+  gap: 10px;
+  .db-form-resizer-content {
+    flex-direction: column;
+  }
+`;
+
+export const ResizerContentContainer = styled.div`
+  overflow: auto;
+  flex: 1;
+  position: relative;
+  display: flex;
+`;
+
 export function DebuggerTrigger() {
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -75,13 +93,11 @@ export function DebuggerTrigger() {
   const onClick = (e: any) => {
     //Removed canavs condition
     //Because we want to show debugger in all pages.
-    if (!showDebugger) {
-      dispatch(showDebuggerAction(!showDebugger));
-      if (!showDebugger)
-        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-          source: "CANVAS",
-        });
-    }
+    dispatch(showDebuggerAction(!showDebugger));
+    if (!showDebugger)
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "CANVAS",
+      });
     //Removed as this logic was confusing
     // Now on click of debugger we will always show error tab.
     dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));

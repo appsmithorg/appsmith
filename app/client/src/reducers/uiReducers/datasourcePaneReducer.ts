@@ -159,16 +159,6 @@ const datasourcePaneReducer = createReducer(initialState, {
       defaultKeyValueArrayConfig: [],
     };
   },
-  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: DatasourcePaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
-    };
-  },
 });
 
 export default datasourcePaneReducer;

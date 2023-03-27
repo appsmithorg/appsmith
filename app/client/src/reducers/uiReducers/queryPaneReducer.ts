@@ -187,16 +187,6 @@ const queryPaneReducer = createReducer(initialState, {
       selectedConfigTabIndex: selectedTabIndex,
     };
   },
-  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: QueryPaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
-    };
-  },
 });
 
 export default queryPaneReducer;

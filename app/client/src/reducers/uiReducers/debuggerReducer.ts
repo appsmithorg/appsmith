@@ -4,6 +4,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: DebuggerReduxState = {
   logs: [],
@@ -12,6 +13,7 @@ const initialState: DebuggerReduxState = {
   expandId: "",
   hideErrors: true,
   selectedDebuggerTab: "",
+  responseTabHeight: ActionExecutionResizerHeight,
 };
 
 // check the last message from the current log and update the occurrence count
@@ -108,6 +110,16 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedDebuggerTab = action.payload;
   },
+  [ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<{ height: number }>,
+  ) => {
+    const { height } = action.payload;
+    return {
+      ...state,
+      responseTabHeight: height,
+    };
+  },
 });
 
 export interface DebuggerReduxState {
@@ -117,6 +129,7 @@ export interface DebuggerReduxState {
   expandId: string;
   hideErrors: boolean;
   selectedDebuggerTab: string;
+  responseTabHeight: number;
 }
 
 export default debuggerReducer;

@@ -2,7 +2,6 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import {
   setApiPaneConfigSelectedTabIndex,
-  setApiPaneResponsePaneHeight,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import {
@@ -16,7 +15,6 @@ import {
 } from "actions/editorContextActions";
 import {
   getApiPaneConfigSelectedTabIndex,
-  getApiPaneResponsePaneHeight,
   getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
@@ -40,20 +38,14 @@ import {
   setDatasourceViewMode,
 } from "actions/datasourceActions";
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import {
-  setJsPaneConfigSelectedTabIndex,
-  setJsPaneResponsePaneHeight,
-} from "actions/jsPaneActions";
+import { setJsPaneConfigSelectedTabIndex } from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import {
-  setQueryPaneConfigSelectedTabIndex,
-  setQueryPaneResponsePaneHeight,
-} from "actions/queryPaneActions";
+import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
@@ -61,23 +53,15 @@ import {
 } from "constants/AppConstants";
 import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import {
-  getJSPaneConfigSelectedTabIndex,
-  getJSPaneResponsePaneHeight,
-} from "selectors/jsPaneSelectors";
+import { getJSPaneConfigSelectedTabIndex } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
-import {
-  getQueryPaneConfigSelectedTabIndex,
-  getQueryPaneResponsePaneHeight,
-} from "selectors/queryPaneSelectors";
-// import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
+import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -208,12 +192,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setJsPaneConfigSelectedTabIndex,
       defaultValue: 0,
     },
-    {
-      name: FocusElement.JSPaneResponseHeight,
-      selector: getJSPaneResponsePaneHeight,
-      setter: setJsPaneResponsePaneHeight,
-      defaultValue: ActionExecutionResizerHeight,
-    },
   ],
   [FocusEntity.QUERY]: [
     {
@@ -226,12 +204,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getQueryPaneConfigSelectedTabIndex,
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
-    },
-    {
-      name: FocusElement.QueryPaneResponseHeight,
-      selector: getQueryPaneResponsePaneHeight,
-      setter: setQueryPaneResponsePaneHeight,
-      defaultValue: ActionExecutionResizerHeight,
     },
   ],
   [FocusEntity.PROPERTY_PANE]: [
@@ -259,12 +231,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
           defaultValue: 2,
         },
       },
-    },
-    {
-      name: FocusElement.ApiPaneResponseHeight,
-      selector: getApiPaneResponsePaneHeight,
-      setter: setApiPaneResponsePaneHeight,
-      defaultValue: ActionExecutionResizerHeight,
     },
     {
       name: FocusElement.InputField,

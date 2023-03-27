@@ -33,6 +33,7 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 
 const HeaderFlex = styled.div`
+  font-size: 20px;
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -42,7 +43,6 @@ const ApiHomePage = styled.div`
   display: flex;
   flex-direction: column;
 
-  font-size: 20px;
   padding-top: 20px;
   /* margin-left: 10px; */
   flex: 1;
@@ -526,9 +526,6 @@ class IntegrationsHomeScreen extends React.Component<
                 />
               )}
             </MainTabsContainer>
-            {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
-              <div />
-            )}
             <ResizerMainContainer>
               <ResizerContentContainer className="integrations-content-container">
                 {currentScreen}

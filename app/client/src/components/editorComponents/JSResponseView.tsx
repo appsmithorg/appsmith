@@ -46,11 +46,16 @@ import { TAB_MIN_HEIGHT } from "design-system-old";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
-import { getJSPaneResponsePaneHeight } from "selectors/jsPaneSelectors";
-import { setJsPaneResponsePaneHeight } from "actions/jsPaneActions";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
+import {
+  getDebuggerSelectedTab,
+  getResponsePaneHeight,
+} from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import {
+  setDebuggerSelectedTab,
+  setResponsePaneHeight,
+  showDebugger,
+} from "actions/debuggerActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -324,14 +329,17 @@ function JSResponseView(props: Props) {
     },
   ];
 
+  // get the selected tab from the store.
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
-  const responseTabHeight = useSelector(getJSPaneResponsePaneHeight);
+  // set the selected tab in the store.
   const setSelectedResponseTab = useCallback((selectedTab: string) => {
     dispatch(setDebuggerSelectedTab(selectedTab));
   }, []);
-
+  // get the height of the response pane.
+  const responseTabHeight = useSelector(getResponsePaneHeight);
+  // set the height of the response pane on resize.
   const setResponseHeight = useCallback((height: number) => {
-    dispatch(setJsPaneResponsePaneHeight(height));
+    dispatch(setResponsePaneHeight(height));
   }, []);
 
   // close the debugger

@@ -132,3 +132,6 @@ export const hideDebuggerIconSelector = () =>
 // get selected tab in debugger.
 export const getDebuggerSelectedTab = (state: AppState) =>
   state.ui.debugger.selectedDebuggerTab;
+
+export const getResponsePaneHeight = (state: AppState) =>
+  state.ui.debugger.responseTabHeight;

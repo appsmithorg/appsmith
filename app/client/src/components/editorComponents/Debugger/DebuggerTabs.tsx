@@ -1,11 +1,18 @@
 import type { RefObject } from "react";
-import React, { useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
+import {
+  setDebuggerSelectedTab,
+  setResponsePaneHeight,
+  showDebugger,
+} from "actions/debuggerActions";
+import {
+  getDebuggerSelectedTab,
+  getResponsePaneHeight,
+} from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
@@ -70,6 +77,12 @@ function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const selectedTab = useSelector(getDebuggerSelectedTab);
+  // get the height of the response pane.
+  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  // set the height of the response pane.
+  const updateResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setResponsePaneHeight(height));
+  }, []);
   const setSelectedTab = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -86,7 +99,14 @@ function DebuggerTabs() {
       onClick={stopEventPropagation}
       ref={panelRef}
     >
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        initialHeight={responsePaneHeight}
+        onResizeComplete={(height: number) => {
+          updateResponsePaneHeight(height);
+        }}
+        panelRef={panelRef}
+        snapToHeight={ActionExecutionResizerHeight}
+      />
       <EntityBottomTabs
         expandedHeight={`${ActionExecutionResizerHeight}px`}
         onSelect={setSelectedTab}

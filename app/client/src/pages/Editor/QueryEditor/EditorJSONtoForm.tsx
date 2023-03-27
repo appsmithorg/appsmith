@@ -116,18 +116,19 @@ import {
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import {
-  getQueryPaneConfigSelectedTabIndex,
-  getQueryPaneResponsePaneHeight,
-} from "selectors/queryPaneSelectors";
-import {
-  setQueryPaneConfigSelectedTabIndex,
-  setQueryPaneResponsePaneHeight,
-} from "actions/queryPaneActions";
+import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
+import {
+  setDebuggerSelectedTab,
+  setResponsePaneHeight,
+  showDebugger,
+} from "actions/debuggerActions";
+import {
+  getDebuggerSelectedTab,
+  getResponsePaneHeight,
+} from "selectors/debuggerSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -776,9 +777,11 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
-  const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
-  const setResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setQueryPaneResponsePaneHeight(height));
+  // get the response pane height from the store.
+  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  // set the response pane height on resize.
+  const setQueryResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setResponsePaneHeight(height));
   }, []);
 
   const responseBodyTabs =
@@ -1119,7 +1122,7 @@ export function EditorJSONtoForm(props: Props) {
                 <Resizable
                   initialHeight={responsePaneHeight}
                   onResizeComplete={(height: number) =>
-                    setResponsePaneHeight(height)
+                    setQueryResponsePaneHeight(height)
                   }
                   openResizer={isRunning}
                   panelRef={panelRef}
