@@ -214,6 +214,7 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
     if(typeof changeValue !== "string" || changeValue === '' || changeValue.trim() === '') {
         changeValue = '{}'
     }
+    changeValue = changeValue.trim();
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
@@ -320,6 +321,12 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     } catch (error) {
         // if ast is invalid throw error
         throw error;
+    }
+
+    try {
+        getAST(changeValue);
+    } catch(e) {
+        return currentValue;
     }
 
     // attach comments to ast
@@ -1230,6 +1237,23 @@ export function checkIfCatchBlockExists(code: string) {
         catchBlock = findNodeWithCalleeAndProperty(ast, thenBlock, "catch");
         if(catchBlock) return true;
         return false;
+    } catch(e) {
+        return false;
+    }
+}
+
+export function checkIfArgumentExistAtPosition(code: string, position: number) {
+    try {
+        const sanitizedScript = sanitizeScript(code, 2);
+        const ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+        });
+        const rootCallExpression = findRootCallExpression(ast);
+        if(!rootCallExpression) return false;
+        const args = rootCallExpression.arguments;
+        if(!args || args.length === 0 || !args[position]) return false;
+        return true;
     } catch(e) {
         return false;
     }

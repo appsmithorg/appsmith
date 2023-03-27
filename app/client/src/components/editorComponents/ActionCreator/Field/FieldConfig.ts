@@ -24,12 +24,13 @@ import {
   callBackFieldGetter,
   objectSetter,
   paramSetter,
+  getCodeFromMoustache,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import type { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
-import { getFunctionName } from "@shared/ast";
+import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
@@ -68,6 +69,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.ACTION_SELECTOR_VIEW,
   },
+  // Show Alert
   [FieldType.ALERT_TEXT_FIELD]: {
     label: () => "Message",
     defaultText: "",
@@ -81,6 +83,24 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
+    label: () => "Type",
+    exampleText: "showAlert('Hello world!', 'info')",
+    options: () => ALERT_STYLE_OPTIONS,
+    defaultText: "Select type",
+    getter: (value: any) => {
+      return enumTypeGetter(value, 1, "success");
+    },
+    setter: (option: any, currentValue: string) => {
+      const isMessageSet = Boolean(textGetter(currentValue, 0));
+      if (!isMessageSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      return enumTypeSetter(option.value, currentValue, 1);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
+  // navigateTo
   [FieldType.URL_FIELD]: {
     label: () => "Enter URL",
     defaultText: "",
@@ -109,10 +129,39 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return queryParams;
     },
     setter: (value: any, currentValue: string) => {
+      const isPageOrURLSet = Boolean(textGetter(currentValue, 0));
+      if (!isPageOrURLSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
       return objectSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.NAVIGATION_TARGET_FIELD]: {
+    label: () => "Target",
+    exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
+    options: () => NAVIGATION_TARGET_FIELD_OPTIONS,
+    defaultText: NAVIGATION_TARGET_FIELD_OPTIONS[0].label,
+    getter: (value: any) => {
+      return enumTypeGetter(value, 2, "SAME_WINDOW");
+    },
+    setter: (option: any, currentValue: string) => {
+      const isPageOrURLSet = textGetter(currentValue, 0);
+      if (!isPageOrURLSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      const isQueryParamsSet = checkIfArgumentExistAtPosition(
+        getCodeFromMoustache(currentValue),
+        1,
+      );
+      if (!isQueryParamsSet) {
+        currentValue = objectSetter("{{{}}}", currentValue, 1);
+      }
+      return enumTypeSetter(option.value, currentValue, 2);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
+  // Integration
   [FieldType.PARAMS_FIELD]: {
     label: () => "Params",
     defaultText: "{{\n{}\n}}",
@@ -141,6 +190,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  // storeValue
   [FieldType.KEY_TEXT_FIELD_STORE_VALUE]: {
     label: () => "Key",
     defaultText: "",
@@ -163,10 +213,15 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 1);
     },
     setter: (option: any, currentValue: string) => {
+      const isKeySet = Boolean(textGetter(currentValue, 0));
+      if (!isKeySet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
       return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  // download()
   [FieldType.DOWNLOAD_DATA_FIELD]: {
     label: () => "Data to download",
     defaultText: "",
@@ -189,6 +244,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 1);
     },
     setter: (option: any, currentValue: string) => {
+      const isDataFieldSet = textGetter(currentValue, 0);
+      if (!isDataFieldSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
       return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -206,12 +265,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL]: {
+  [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION]: {
     label: () => "Callback function",
     defaultText: "",
-    exampleText: `setInterval(() => {
-      const a = 0;
-     }, 5000, '1')`,
+    exampleText: `appsmith.geolocation.getCurrentPosition((location) => { console.log(location) })`,
     options: () => null,
     getter: (value: string) => {
       return callBackFieldGetter(value);
@@ -221,10 +278,13 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION]: {
+  // setInterval
+  [FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL]: {
     label: () => "Callback function",
     defaultText: "",
-    exampleText: `appsmith.geolocation.getCurrentPosition((location) => { console.log(location) })`,
+    exampleText: `setInterval(() => {
+      const a = 0;
+     }, 5000, '1')`,
     options: () => null,
     getter: (value: string) => {
       return callBackFieldGetter(value);
@@ -242,10 +302,20 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
      }, 5000, '1')`,
     options: () => null,
     getter: (value: string) => {
-      return textGetter(value, 1);
+      return enumTypeGetter(value, 1);
     },
     setter: (value, currentValue) => {
-      return textSetter(value, currentValue, 1);
+      const isCallbackFunctionSet = Boolean(
+        callBackFieldGetter(currentValue, 0) !== "{{}}",
+      );
+      if (!isCallbackFunctionSet) {
+        currentValue = callBackFieldSetter(
+          "{{() => {\n // showAlert('Hello'); \n}}}",
+          currentValue,
+          0,
+        );
+      }
+      return enumTypeSetter(value, currentValue, 1, "0");
     },
     view: ViewTypes.TEXT_VIEW,
   },
@@ -258,6 +328,16 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 2);
     },
     setter: (value, currentValue) => {
+      const isCallbackFunctionSet = Boolean(
+        callBackFieldGetter(currentValue, 0) !== "{{}}",
+      );
+      if (!isCallbackFunctionSet) {
+        currentValue = callBackFieldSetter("", currentValue, 0);
+      }
+      const isDelaySet = Boolean(enumTypeGetter(currentValue, 1));
+      if (!isDelaySet) {
+        currentValue = enumTypeSetter("10", currentValue, 1);
+      }
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -301,19 +381,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
-  [FieldType.RESET_CHILDREN_FIELD]: {
-    label: () => "Reset Children",
-    options: () => RESET_CHILDREN_OPTIONS,
-    defaultText: "true",
-    exampleText: "resetWidget('Modal1', true)",
-    getter: (value: any) => {
-      return enumTypeGetter(value, 1);
-    },
-    setter: (option: any, currentValue: string) => {
-      return enumTypeSetter(option.value, currentValue, 1);
-    },
-    view: ViewTypes.SELECTOR_VIEW,
-  },
   [FieldType.WIDGET_NAME_FIELD]: {
     label: () => "Widget",
     exampleText: "resetWidget('Modal1', true)",
@@ -324,6 +391,23 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (option: any, currentValue: string) => {
       return enumTypeSetter(option.value, currentValue, 0);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
+  [FieldType.RESET_CHILDREN_FIELD]: {
+    label: () => "Reset Children",
+    options: () => RESET_CHILDREN_OPTIONS,
+    defaultText: "true",
+    exampleText: "resetWidget('Modal1', true)",
+    getter: (value: any) => {
+      return enumTypeGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      const isWidgetFieldSet = enumTypeGetter(currentValue, 0);
+      if (!isWidgetFieldSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -340,19 +424,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
-  [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
-    label: () => "Type",
-    exampleText: "showAlert('Hello world!', 'info')",
-    options: () => ALERT_STYLE_OPTIONS,
-    defaultText: "Select type",
-    getter: (value: any) => {
-      return enumTypeGetter(value, 1, "success");
-    },
-    setter: (option: any, currentValue: string) => {
-      return enumTypeSetter(option.value, currentValue, 1);
-    },
-    view: ViewTypes.SELECTOR_VIEW,
-  },
   [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
     label: () => "Type",
     exampleText: "download('Image', 'img.png;, 'image/png')",
@@ -362,19 +433,14 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeGetter(value, 2);
     },
     setter: (option: any, currentValue: string) => {
-      return enumTypeSetter(option.value, currentValue, 2);
-    },
-    view: ViewTypes.SELECTOR_VIEW,
-  },
-  [FieldType.NAVIGATION_TARGET_FIELD]: {
-    label: () => "Target",
-    exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
-    options: () => NAVIGATION_TARGET_FIELD_OPTIONS,
-    defaultText: NAVIGATION_TARGET_FIELD_OPTIONS[0].label,
-    getter: (value: any) => {
-      return enumTypeGetter(value, 2, "SAME_WINDOW");
-    },
-    setter: (option: any, currentValue: string) => {
+      const isDataFieldSet = textGetter(currentValue, 0);
+      if (!isDataFieldSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      const isFileTypeSet = textGetter(currentValue, 1);
+      if (!isFileTypeSet) {
+        currentValue = enumTypeSetter("''", currentValue, 1);
+      }
       return enumTypeSetter(option.value, currentValue, 2);
     },
     view: ViewTypes.SELECTOR_VIEW,

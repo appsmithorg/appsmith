@@ -54,7 +54,7 @@ describe("Dropdown Widget Functionality", function () {
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("dropdownApi");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
+    cy.onClickActions("Success", "Error", "dropdownApi.run");
 
     cy.PublishtheApp();
 
@@ -106,7 +106,7 @@ describe("Dropdown Widget Functionality", function () {
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
+    cy.onClickActions("Success", "Error", "Query1.run");
 
     cy.PublishtheApp();
 

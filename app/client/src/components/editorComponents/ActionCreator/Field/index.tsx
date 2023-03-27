@@ -93,7 +93,7 @@ export function Field(props: FieldProps) {
           field.value !== "{{()}}" &&
           field.value !== "{{{}, ()}}"
             ? field.value
-            : undefined,
+            : "",
       });
       break;
     case FieldType.ON_SUCCESS_FIELD:

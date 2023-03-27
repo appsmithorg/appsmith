@@ -75,7 +75,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
     <TreeDropdown
       className="right-8 action-selector-view"
       defaultOpen={isOpen}
-      defaultText={action}
+      defaultText={(action || "").toString()}
       menuHeight={300}
       menuWidth={256}
       onMenuToggle={(isOpen) => {

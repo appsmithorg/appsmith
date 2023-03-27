@@ -49,7 +49,7 @@ describe("Statbox Widget Functionality", function () {
       cy.get(".bp3-button-text").first().click();
       cy.get(".bp3-icon-arrow-up").click().wait(500);
       // opening modal from onClick action of icon button
-      cy.createModal("Modal", "Modal1");
+      cy.createModal("Modal", "onClick");
     });
     // verifying the changed icon
     cy.get(".bp3-icon-arrow-up").should("be.visible").click({ force: true });

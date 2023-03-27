@@ -143,10 +143,12 @@ export const enumTypeSetter = (
   changeValue: any,
   currentValue: string,
   argNum: number,
+  defaultValue?: string,
 ): string => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  changeValue = getCodeFromMoustache(changeValue) || defaultValue || "";
   try {
     return setEnumArgumentAtPosition(
       requiredValue,
@@ -407,8 +409,8 @@ export function actionToCode(
   }
   /**
    * Unfortunately, we have to do this because the integration action could be represented with success and error callbacks
-   * and then/catch blocks. We need to check if the action is an integration action and if it had a success or error callback
-   * defined already, to preserve the positions of params object which should first param when using then/catch and 3rd param when using
+   * or then/catch blocks. We need to check if the action is an integration action and if it had a success or error callback
+   * defined already to preserve the positions of params object which should first param when using then/catch and 3rd param when using
    * callbacks.
    */
   const supportsCallback = actionType === AppsmithFunction.integration;

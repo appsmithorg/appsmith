@@ -15,7 +15,7 @@ import type { TreeDropdownOption } from "design-system-old";
 import { ENTITY_TYPE, Icon } from "design-system-old";
 import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
-import { isString, keyBy } from "lodash";
+import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
   JsFileIconV2,
@@ -26,7 +26,11 @@ import { useDispatch, useSelector } from "react-redux";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getActionsForCurrentPage,
+  getJSCollectionFromName,
+  getJSCollectionsForCurrentPage,
+} from "selectors/entitiesSelector";
 import {
   getModalDropdownList,
   getNextModalName,
@@ -51,6 +55,7 @@ import {
   callBackFieldSetter,
   getCodeFromMoustache,
 } from "./utils";
+import store from "store";
 
 const actionList: {
   label: string;
@@ -88,13 +93,9 @@ export function getFieldFromValue(
     ];
   }
 
-  let entity;
-
-  if (isString(value)) {
-    const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
-    const entityProps = getEntityNameAndPropertyPath(trimmedVal);
-    entity = dataTree && dataTree[entityProps.entityName];
-  }
+  const trimmedVal = value?.replace(/(^{{)|(}}$)/g, "") || "";
+  const entityProps = getEntityNameAndPropertyPath(trimmedVal);
+  const entity = dataTree && dataTree[entityProps.entityName];
 
   if (entity && "ENTITY_TYPE" in entity) {
     if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
@@ -116,7 +117,7 @@ export function getFieldFromValue(
         fields,
         getParentValue as (changeValue: string) => string,
         value,
-        entity,
+        entityProps.entityName,
       );
     }
   }
@@ -235,23 +236,29 @@ function getJsFunctionExecutionFields(
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
-  entity: any,
+  collectionName: string,
 ) {
-  const { propertyPath } = getEntityNameAndPropertyPath(value);
-  const path =
-    propertyPath &&
-    getFunctionNameFromJsObjectExpression(value, self.evaluationVersion);
-  const argsProps =
-    path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
+  const functionName = getFunctionNameFromJsObjectExpression(
+    value,
+    self.evaluationVersion,
+  );
+
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
     value,
-    args: argsProps ? argsProps : [],
   });
 
-  if (argsProps && argsProps.length > 0) {
-    argsProps.forEach((arg: { name: string }, index: number) => {
+  const state = store.getState();
+  const jsCollection = getJSCollectionFromName(state, collectionName);
+
+  const action = jsCollection?.config.actions?.find(
+    (action) => action.name === functionName,
+  );
+  const args = action?.actionConfiguration?.jsArguments || [];
+
+  if (args && args.length > 0) {
+    args.forEach((arg: { name: string }, index: number) => {
       fields.push({
         field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
         getParentValue,
@@ -535,8 +542,8 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     return state.entities.plugins.list;
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const actions = useSelector(getActions);
-  const jsActions = useSelector(getJSCollections);
+  const actions = useSelector(getActionsForCurrentPage);
+  const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   // this function gets all the Queries/API's/JS objects and attaches it to actionList
   return getApiQueriesAndJsActionOptionsWithChildren(

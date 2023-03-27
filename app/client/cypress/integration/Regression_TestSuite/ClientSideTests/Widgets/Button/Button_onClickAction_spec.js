@@ -16,7 +16,7 @@ describe("Button Widget Functionality", function () {
 
   it("1. Button-Modal Validation", function () {
     //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName);
+    cy.createModal(this.data.ModalName, "onClick");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("be.visible");
     cy.get(publishPage.buttonWidget).click();
@@ -51,7 +51,7 @@ describe("Button Widget Functionality", function () {
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("buttonApi");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onclick");
+    cy.onClickActions("Success", "Error", "buttonApi.run");
 
     cy.PublishtheApp();
     cy.get("body").then(($ele) => {
@@ -103,7 +103,7 @@ describe("Button Widget Functionality", function () {
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onclick");
+    cy.onClickActions("Success", "Error", "Query1.run");
 
     cy.PublishtheApp();
 
