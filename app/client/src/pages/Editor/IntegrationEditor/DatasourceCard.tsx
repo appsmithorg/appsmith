@@ -58,10 +58,10 @@ const Wrapper = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: ${Colors.GREY_1};
+    background-color: var(--ads-v2-color-bg-subtle);
 
     .bp3-collapse-body {
-      background-color: ${Colors.GREY_1};
+      background-color: var(--ads-v2-color-bg-subtle);
     }
   }
 `;
@@ -92,8 +92,6 @@ const DatasourceImage = styled.img`
 const DatasourceIconWrapper = styled.div`
   width: 34px;
   height: 34px;
-  border-radius: 50%;
-  background: ${Colors.GREY_2};
   display: flex;
   align-items: center;
 `;
@@ -111,7 +109,7 @@ const GenerateTemplateOrReconnect = styled(Button)`
 `;
 
 const DatasourceName = styled.span`
-  color: ${Colors.BLACK};
+  color: var(--ads-v2-color-fg);
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
@@ -137,7 +135,7 @@ const DatasourceInfo = styled.div`
 `;
 
 const Queries = styled.div`
-  color: ${Colors.DOVE_GRAY};
+  color: var(--ads-v2-color-fg-muted);
   font-size: 14px;
   display: flex;
   margin: 4px 0;
