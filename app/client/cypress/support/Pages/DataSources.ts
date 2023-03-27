@@ -9,6 +9,7 @@ const DataSourceKVP = {
   UnAuthenticatedGraphQL: "GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
+  Arango: "ArangoDB",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -427,6 +428,30 @@ export class DataSources {
     this.agHelper.Sleep();
   }
 
+  public FillArangoDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["arango-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["arango-port"].toString(),
+    );
+    //Validating db name is _system, currently unable to create DB via curl in Arango
+    this.agHelper
+      .GetText(this._databaseName, "val")
+      .then(($dbName) => expect($dbName).to.eq("_system"));
+    this.ExpandSectionByName(this._sectionAuthentication);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["arango-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["arango-password"],
+    );
+  }
+
   public FillFirestoreDSForm() {
     cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
       datasourceFormData["database-url"],
@@ -746,7 +771,8 @@ export class DataSources {
       | "MySql"
       | "UnAuthenticatedGraphQL"
       | "MsSql"
-      | "Airtable",
+      | "Airtable"
+      | "Arango",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -767,6 +793,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
           this.FillMsSqlDSForm();
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
+        else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
