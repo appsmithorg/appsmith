@@ -12,6 +12,7 @@ import { ReflowResizable as AutoLayoutResizable } from "resizable/autolayoutresi
 import { ReflowResizable as FixedLayoutResizable } from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -70,6 +71,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -305,7 +309,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     isWidgetFocused &&
     !props.resizeDisabled &&
     !isSnipingMode &&
-    !isPreviewMode;
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -351,6 +356,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showResizeBoundary =
     !isAutoCanvasResizing &&
     !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
     (isHovered || isSelected);
   return (

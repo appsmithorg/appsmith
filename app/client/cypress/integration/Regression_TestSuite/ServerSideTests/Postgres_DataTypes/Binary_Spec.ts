@@ -356,8 +356,6 @@ describe("Binary Datatype tests", function () {
     });
   });
 
-  it("9. Validate Drop of the Newly Created - binarytype - Table from Postgres datasource", () => {});
-
   after(
     "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
     () => {

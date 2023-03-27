@@ -14,6 +14,9 @@ import { RenderModes } from "constants/WidgetConstants";
 describe("<DropdownWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       widgetDragResize: {
         lastSelectedWidget: "Widget1",
         selectedWidgets: ["Widget1"],

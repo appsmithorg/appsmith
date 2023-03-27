@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
@@ -24,6 +23,10 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
+import type { NavigationSetting } from "constants/AppConstants";
+import { Icon } from "design-system-old";
+import { getApplicationNameTextColor } from "./utils";
+import { ButtonVariantTypes } from "components/constants";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -33,6 +36,10 @@ import { useHref } from "pages/Editor/utils";
 type Props = {
   url?: string;
   className?: string;
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+  insideSidebar?: boolean;
+  isMinimal?: boolean;
 };
 
 /**
@@ -42,7 +49,14 @@ type Props = {
  */
 
 function PrimaryCTA(props: Props) {
-  const { className, url } = props;
+  const {
+    className,
+    insideSidebar,
+    isMinimal,
+    navColorStyle,
+    primaryColor,
+    url,
+  } = props;
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -83,13 +97,25 @@ function PrimaryCTA(props: Props) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          buttonColor={selectedTheme.properties.colors.primaryColor}
-          buttonVariant="PRIMARY"
-          className={`w-full md:w-auto ${className}`}
+          className={className}
+          icon={
+            <Icon
+              fillColor={getApplicationNameTextColor(
+                primaryColor,
+                navColorStyle,
+              )}
+              name="edit-line"
+              size="extraLarge"
+            />
+          }
+          insideSidebar={insideSidebar}
+          isMinimal={isMinimal}
+          navColorStyle={navColorStyle}
           onClick={() => {
             history.push(url);
           }}
-          text={createMessage(EDIT_APP)}
+          primaryColor={primaryColor}
+          text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
         />
       );
     }
@@ -107,9 +133,12 @@ function PrimaryCTA(props: Props) {
           buttonVariant="PRIMARY"
           className={`t--fork-app w-full md:w-auto ${className}`}
           icon="fork"
+          insideSidebar={insideSidebar}
+          navColorStyle={navColorStyle}
           onClick={() => {
             history.push(forkURL);
           }}
+          primaryColor={primaryColor}
           text={createMessage(FORK_APP)}
         />
       );
@@ -130,6 +159,9 @@ function PrimaryCTA(props: Props) {
                 className={`t--fork-app w-full md:w-auto ${className}`}
                 data-testid="fork-modal-trigger"
                 icon="fork"
+                insideSidebar={insideSidebar}
+                navColorStyle={navColorStyle}
+                primaryColor={primaryColor}
                 text={createMessage(FORK_APP)}
               />
             }
@@ -140,18 +172,28 @@ function PrimaryCTA(props: Props) {
 
     if (
       currentApplication?.isPublic &&
-      currentUser?.username === ANONYMOUS_USERNAME
+      currentUser?.username === ANONYMOUS_USERNAME &&
+      /**
+       * Since the Backend doesn't have navigationSetting field by default
+       * and we are creating the default values only when any nav settings via the
+       * settings pane has changed, we need to hide the sign in button ONLY when the
+       * showSignIn setting is explicitly set to false by the user via the settings pane.
+       */
+      currentApplication?.applicationDetail?.navigationSetting?.showSignIn !==
+        false
     ) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          buttonColor={selectedTheme.properties.colors.primaryColor}
-          buttonVariant="PRIMARY"
           className="t--sign-in"
+          insideSidebar={insideSidebar}
+          navColorStyle={navColorStyle}
           onClick={() => {
             window.location.href = LOGIN_URL;
           }}
+          primaryColor={primaryColor}
           text={createMessage(SIGN_IN)}
+          varient={ButtonVariantTypes.SECONDARY}
         />
       );
     }
@@ -162,6 +204,8 @@ function PrimaryCTA(props: Props) {
     currentUser?.username,
     selectedTheme.properties.colors.primaryColor,
     selectedTheme.properties.borderRadius.appBorderRadius,
+    navColorStyle,
+    primaryColor,
   ]);
 
   return <div>{PrimaryCTA}</div>;

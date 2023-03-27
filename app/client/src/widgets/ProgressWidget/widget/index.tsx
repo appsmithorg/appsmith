@@ -9,6 +9,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -45,6 +46,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             defaultValue: ProgressType.LINEAR,
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: isAutoLayout,
           },
           {
             helpText: "Sets the value of the progress indicator",
