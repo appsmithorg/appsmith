@@ -605,14 +605,13 @@ export function getActionBlocks(
 /**
  * This function gets the action block top-level names
  */
-export function getActionBlockFunctionNames(
+export function canTranslateToUI(
     value: string,
     evaluationVersion: number,
-): { canTranslate: boolean, actionBlockFunctionNames: Array<string> } {
+): boolean {
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let canTranslate = true;
-    let actionBlockFunctionNames: Array<string> = [];
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -621,7 +620,7 @@ export function getActionBlockFunctionNames(
             onComment: commentArray,
         });
     } catch (error) {
-        return { canTranslate: false, actionBlockFunctionNames } ;
+        return false;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -640,7 +639,7 @@ export function getActionBlockFunctionNames(
         }
     });
 
-    if(!canTranslate) return { canTranslate, actionBlockFunctionNames };
+    if(!canTranslate) return canTranslate;
 
     for(const node of astWithComments.body) {
         if (isExpressionStatementNode(node)) {
@@ -653,15 +652,12 @@ export function getActionBlockFunctionNames(
             if(!rootCallExpression) {
                 canTranslate = false;
                 break;
-            } else {
-                const functionName = generate(rootCallExpression.callee);
-                actionBlockFunctionNames.push(functionName);
             }
         } else {
             canTranslate = false;
         }
     }
-    return { canTranslate, actionBlockFunctionNames };
+    return canTranslate;
 }
 
 export function getFunctionBodyStatements(
