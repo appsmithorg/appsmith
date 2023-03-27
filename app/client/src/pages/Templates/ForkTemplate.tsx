@@ -108,7 +108,7 @@ function ForkTemplate({
             <Button
               isDisabled={isImportingTemplate}
               kind="secondary"
-              onClick={() => (isImportingTemplate ? noop : onClose)}
+              onClick={onClose}
               size="md"
             >
               {createMessage(CANCEL)}
