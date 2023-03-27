@@ -20,6 +20,7 @@ import {
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
 import type { Theme } from "constants/DefaultTheme";
+import { Divider } from "design-system";
 
 type Props = {
   isModalOpen: boolean;
@@ -60,13 +61,6 @@ const CloseIconContainer = styled.div`
 const ActionButtonWrapper = styled.div`
   display: flex;
   margin: 30px 0px 0px;
-`;
-
-export const StyledSeparator = styled.div`
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.modal.separator};
-  opacity: 0.6;
-  height: 1px;
 `;
 
 const StyledIcon = styled(Icon)<IconProps>`
@@ -128,7 +122,7 @@ const Header = ({ onClose }: { onClose: () => void }) => {
         </HeaderRight>
       </HeaderContents>
       <div>
-        <StyledSeparator />
+        <Divider />
       </div>
     </>
   );
