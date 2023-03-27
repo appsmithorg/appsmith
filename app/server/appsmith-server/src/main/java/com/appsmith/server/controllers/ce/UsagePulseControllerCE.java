@@ -1,9 +1,12 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.services.UsagePulseService;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ public class UsagePulseControllerCE {
 
     private final UsagePulseService service;
 
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Boolean>> create(@RequestBody @Valid UsagePulseDTO usagePulseDTO) {

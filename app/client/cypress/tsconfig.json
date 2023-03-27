@@ -26,10 +26,7 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./typings", "./node_modules/@types"],
     "sourceMap": true,
     "baseUrl": "./cypress",
     "noFallthroughCasesInSwitch": true,

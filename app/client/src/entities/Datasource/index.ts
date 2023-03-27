@@ -108,6 +108,7 @@ export interface Datasource extends BaseDatasource {
 export interface TokenResponse {
   datasource: Datasource;
   token: string;
+  projectID: string;
 }
 
 export interface MockDatasource {
