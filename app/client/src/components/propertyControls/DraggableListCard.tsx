@@ -5,7 +5,6 @@ import _ from "lodash";
 import {
   StyledDragIcon,
   StyledOptionControlInputGroup,
-  StyledDeleteIcon,
   StyledCheckbox,
   StyledActionContainer,
   StyledPinIcon,
@@ -186,13 +185,15 @@ export function DraggableListCard(props: RenderComponentProps) {
           startIcon="settings-control"
         />
         {showDelete && (
-          <StyledDeleteIcon
+          <Button
             className="t--delete-column-btn"
-            height={20}
+            isIconButton
+            kind="tertiary"
             onClick={() => {
               deleteOption && deleteOption(index);
             }}
-            width={20}
+            size="sm"
+            startIcon="delete-bin-line"
           />
         )}
         {!showDelete && toggleVisibility && renderVisibilityIcon()}

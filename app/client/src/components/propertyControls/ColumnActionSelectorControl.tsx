@@ -4,7 +4,6 @@ import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
-import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import ActionCreator from "components/editorComponents/ActionCreator";
 import { Button } from "design-system";
@@ -14,15 +13,12 @@ export interface ColumnAction {
   id: string;
   dynamicTrigger: string;
 }
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
+const StyledDeleteButton = styled(Button)`
   padding: 5px 0px;
   position: absolute;
   right: 0px;
   cursor: pointer;
   top: 0px;
-  && svg path {
-    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
-  }
 `;
 
 const InputTextWrapper = styled.div`
@@ -68,10 +64,12 @@ class ColumnActionSelectorControl extends BaseControl<ColumnActionSelectorContro
                     value={columnAction.dynamicTrigger}
                   />
                 </Wrapper>
-                <StyledDeleteIcon
-                  height={20}
+                <StyledDeleteButton
+                  isIconButton
+                  kind="tertiary"
                   onClick={this.removeColumnAction.bind(this, columnAction)}
-                  width={20}
+                  size="sm"
+                  startIcon="delete-bin-line"
                 />
               </div>
             );

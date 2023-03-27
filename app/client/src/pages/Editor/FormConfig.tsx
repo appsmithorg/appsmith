@@ -12,7 +12,6 @@ import {
   FormSubtitleText,
   FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
-import { FormIcons } from "icons/FormIcons";
 import type { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
@@ -25,6 +24,7 @@ import {
 } from "utils/editorContextUtils";
 import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import { setFocusableInputField } from "actions/editorContextActions";
+import { Icon } from "design-system";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -211,11 +211,7 @@ function renderFormConfigTop(props: {
                     )}
                     {encrypted && (
                       <FormEncrytedSection>
-                        <FormIcons.LOCK_ICON
-                          height={12}
-                          keepColors
-                          width={12}
-                        />
+                        <Icon name="lock-line" size="sm" />
                         <FormSubtitleText config={props.config}>
                           Encrypted
                         </FormSubtitleText>

@@ -8,8 +8,8 @@ import type {
   RenderDropdownOptionType,
 } from "design-system-old";
 import { Classes, Text, TextType, TooltipComponent } from "design-system-old";
-import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
+import { Icon } from "design-system";
 
 // ---------- Helpers and constants ----------
 
@@ -150,11 +150,7 @@ function DataSourceOption({
       >
         {isConnectNewDataSourceBtn ? (
           <CreateIconWrapper>
-            <FormIcons.CREATE_NEW_ICON
-              color={Colors.GRAY2}
-              height={20}
-              width={20}
-            />
+            <Icon name="plus" size="md" />
           </CreateIconWrapper>
         ) : pluginImages[(dropdownOption as DropdownOption).data.pluginId] ? (
           <ImageWrapper>

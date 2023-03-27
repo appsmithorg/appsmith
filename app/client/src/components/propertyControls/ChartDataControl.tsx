@@ -4,7 +4,6 @@ import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { ControlWrapper } from "./StyledControls";
-import { FormIcons } from "icons/FormIcons";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -48,17 +47,11 @@ const StyledDynamicInput = styled.div`
   }
 `;
 
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
+const StyledDeleteButton = styled(Button)`
   padding: 0;
   position: relative;
   margin-left: 15px;
   cursor: pointer;
-
-  &&& svg {
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.jsIconBg};
-    }
-  }
 `;
 
 const ActionHolder = styled.div`
@@ -129,12 +122,14 @@ function DataControlComponent(props: RenderComponentProps) {
       <ActionHolder>
         <StyledLabel>Series Title</StyledLabel>
         {length > 1 && (
-          <StyledDeleteIcon
-            height={20}
+          <StyledDeleteButton
+            isIconButton
+            kind="tertiary"
             onClick={() => {
               deleteOption(index);
             }}
-            width={20}
+            size="md"
+            startIcon="delete-bin-line"
           />
         )}
       </ActionHolder>
