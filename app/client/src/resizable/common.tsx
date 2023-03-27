@@ -1,7 +1,7 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Colors } from "constants/Colors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
-import React, { useMemo } from "react";
+import React from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
@@ -13,6 +13,7 @@ import type {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
+import memoize from "micro-memoize";
 
 const resizeBorderPadding = 1;
 const resizeBorder = 1;
@@ -22,48 +23,68 @@ const resizeOutline = 1;
 export const RESIZE_BORDER_BUFFER =
   resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
 
-export const ResizeWrapperBox = styled(animated.div)`
+export const ResizeWrapper = styled(animated.div)<{
+  $prevents: boolean;
+}>`
   display: block;
+  outline-offset: 1px;
+  & {
+    * {
+      pointer-events: ${(props) => !props.$prevents && "none"};
+    }
+  }
 `;
 
-export const ResizeWrapper = (props: {
-  $prevents: boolean;
-  isHovered: boolean;
-  showBoundaries: boolean;
-  inverted?: boolean;
-  children: ReactNode;
-  className?: string;
-  id?: string;
-  ref?: any;
-  style?: any;
-}) => {
-  const getWrapperStyle = (): CSSProperties => {
+export const getWrapperStyle = memoize(
+  (
+    inverted: boolean,
+    showBoundaries: boolean,
+    isHovered: boolean,
+  ): CSSProperties => {
     return {
-      borderRadius: props.inverted ? "4px 4px 4px 0px" : "0px 4px 4px 4px",
+      borderRadius: inverted ? "4px 4px 4px 0px" : "0px 4px 4px 4px",
       border: `${resizeBorder}px solid`,
       padding: `${resizeBorderPadding}px`,
       outline: `${resizeOutline}px solid !important`,
       outlineColor: `${
-        props.showBoundaries ? Colors.GREY_1 : "transparent"
+        showBoundaries ? Colors.GREY_1 : "transparent"
       } !important`,
-      borderColor: `${props.showBoundaries ? Colors.GREY_1 : "transparent"}`,
+      borderColor: `${showBoundaries ? Colors.GREY_1 : "transparent"}`,
       boxShadow: `${
-        props.showBoundaries
+        showBoundaries
           ? "0px 0px 0px " +
             resizeBoxShadow +
             "px " +
-            (props.isHovered ? Colors.WATUSI : "#f86a2b")
+            (isHovered ? Colors.WATUSI : "#f86a2b")
           : "none"
       }`,
     };
-  };
-  const wrapperStyle: CSSProperties = useMemo(getWrapperStyle, [
-    props.inverted,
-    props.showBoundaries,
-    props.isHovered,
-  ]);
-  return <ResizeWrapperBox style={{ ...wrapperStyle, ...props.style }} />;
-};
+  },
+);
+
+// export const ResizeWrapper = (props: {
+//   $prevents: boolean;
+//   isHovered: boolean;
+//   showBoundaries: boolean;
+//   inverted?: boolean;
+//   children: ReactNode;
+//   className?: string;
+//   id?: string;
+//   ref?: any;
+//   style?: any;
+// }) => {
+//   const wrapperStyle: CSSProperties = useMemo(getWrapperStyle, [
+//     props.inverted,
+//     props.showBoundaries,
+//     props.isHovered,
+//     props.style,
+//   ]);
+//   return (
+//     <ResizeWrapperBox $prevents={props.$prevents} style={wrapperStyle}>
+//       {props.children}
+//     </ResizeWrapperBox>
+//   );
+// };
 
 // export const ResizeWrapper = styled(animated.div)<{
 //   $prevents: boolean;
@@ -198,7 +219,7 @@ export function ResizableHandle(props: ResizableHandleProps) {
     disableDot: props.disableDot,
     isHovered: props.isHovered,
   };
-  console.log("#### props.component", props.component);
+
   return (
     <props.component
       data-cy={`t--resizable-handle-${props.direction}`}

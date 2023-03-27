@@ -7,10 +7,12 @@ import {
 } from "constants/WidgetConstants";
 import { Spring } from "react-spring";
 import React, { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import type { MovementLimitMap, ReflowedSpace } from "reflow/reflowTypes";
 import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import {
+  getWrapperStyle,
   RESIZE_BORDER_BUFFER,
   ResizableHandle,
   ResizeWrapper,
@@ -383,6 +385,11 @@ export function ReflowResizable(props: ResizableProps) {
     (reflowedPosition?.height === undefined
       ? newDimensions.height
       : reflowedPosition.height - 2 * WIDGET_PADDING) + RESIZE_BORDER_BUFFER;
+  const resizeWrapperStyle: CSSProperties = getWrapperStyle(
+    props.topRow <= 2,
+    props.showResizeBoundary,
+    props.isHovered,
+  );
   return (
     <Spring
       config={{
@@ -433,11 +440,8 @@ export function ReflowResizable(props: ResizableProps) {
           $prevents={pointerEvents}
           className={props.className}
           id={`resize-${props.widgetId}`}
-          inverted={props.topRow <= 2}
-          isHovered={props.isHovered}
           ref={resizableRef}
-          showBoundaries={props.showResizeBoundary}
-          style={_props}
+          style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}
           {props.enableHorizontalResize && renderHandles}
