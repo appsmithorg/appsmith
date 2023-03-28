@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type {
   CONVERSION_STATES,
@@ -14,6 +15,7 @@ export const updateLayoutForMobileBreakpointAction = (
   parentId: string,
   isMobile: boolean,
   canvasWidth: number,
+  widgets?: CanvasWidgetsReduxState,
 ) => {
   return {
     type: ReduxActionTypes.RECALCULATE_COLUMNS,
@@ -21,6 +23,7 @@ export const updateLayoutForMobileBreakpointAction = (
       parentId,
       isMobile,
       canvasWidth,
+      widgets,
     },
   };
 };

@@ -20,7 +20,7 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 describe("test PositionUtils methods", () => {
   const mainCanvasWidth = 960;
-  const columnSpace = 10;
+
   describe("test extractAlignmentInfo method", () => {
     it("should extract children and required columns for each alignment", () => {
       const widgets = {

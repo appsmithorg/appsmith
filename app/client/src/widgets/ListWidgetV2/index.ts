@@ -57,7 +57,7 @@ export const CONFIG = {
     columns: 24,
     animateLoading: true,
     gridType: "vertical",
-    positioning: Positioning.Fixed,
+    //positioning: Positioning.Fixed,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     responsiveBehavior: ResponsiveBehavior.Fill,
     dynamicBindingPathList: [
@@ -276,6 +276,8 @@ export const CONFIG = {
           ) => {
             if (!isAutoLayout) return [];
 
+            const firstCanvas = get(widget, "children.0");
+
             //get first container widget
             const containerId = get(widget, "children.0.children.0");
             const containerWidget = widgets[containerId];
@@ -322,8 +324,26 @@ export const CONFIG = {
               },
             ];
 
+            const firstCanvasFlexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: containerId,
+                    align: FlexLayerAlignment.Center,
+                  },
+                ],
+              },
+            ];
+
             //create properties to be updated
             return getWidgetBluePrintUpdates({
+              [firstCanvas.widgetId]: {
+                flexLayers: firstCanvasFlexLayers,
+                positioning: Positioning.Vertical,
+              },
+              [containerId]: {
+                positioning: Positioning.Vertical,
+              },
               [canvasWidget.widgetId]: {
                 flexLayers,
                 useAutoLayout: true,

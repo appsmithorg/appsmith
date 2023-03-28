@@ -38,11 +38,15 @@ import { CanvasResizer } from "widgets/CanvasResizer";
 type CanvasContainerProps = {
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
+  navigationHeight?: number;
+  isAppSettingsPaneWithNavigationTabOpen?: boolean;
 };
 
 const Container = styled.section<{
   $isAutoLayout: boolean;
   background: string;
+  isPreviewingNavigation?: boolean;
+  navigationHeight?: number;
 }>`
   width: ${({ $isAutoLayout }) =>
     $isAutoLayout
@@ -52,6 +56,14 @@ const Container = styled.section<{
   overflow-x: auto;
   overflow-y: auto;
   background: ${({ background }) => background};
+
+  ${({ isPreviewingNavigation, navigationHeight }) => {
+    if (isPreviewingNavigation) {
+      return `
+        margin-top: ${navigationHeight}px !important;
+      `;
+    }
+  }}
 
   &:before {
     position: absolute;
@@ -64,6 +76,7 @@ const Container = styled.section<{
 `;
 
 function CanvasContainer(props: CanvasContainerProps) {
+  const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { isPreviewMode, shouldShowSnapShotBanner } = props;
 
@@ -76,7 +89,10 @@ function CanvasContainer(props: CanvasContainerProps) {
   const theme = useSelector(getCurrentThemeDetails);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+  const shouldHaveTopMargin =
+    !isPreviewMode ||
+    !isAppSettingsPaneWithNavigationTabOpen ||
+    pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
 
@@ -113,10 +129,24 @@ function CanvasContainer(props: CanvasContainerProps) {
     );
   }
 
+  const isPreviewingNavigation =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
+  /**
+   * calculating exact height to not allow scroll at this component,
+   * calculating total height of the canvas minus
+   * - 1. navigation height
+   *   - 1.1 height for top + stacked or top + inline nav style is calculated
+   *   - 1.2 in case of sidebar nav, height is 0
+   * - 2. top bar (header with preview/share/deploy buttons)
+   * - 3. bottom bar (footer with debug/logs buttons)
+   */
   const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
+
+  const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${bottomBarHeight})`;
   const resizerTop = `calc(2rem + ${topMargin} + ${theme.smallHeaderHeight})`;
   return (
     <>
@@ -134,11 +164,14 @@ function CanvasContainer(props: CanvasContainerProps) {
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
-            !showCanvasTopSection,
+            !showCanvasTopSection &&
+            !isPreviewingNavigation,
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
+        isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
+        navigationHeight={navigationHeight}
         style={{
           height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
           fontFamily: fontFamily,

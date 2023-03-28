@@ -17,7 +17,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
-const unHandledWidgets = ["LIST_WIDGET", "FORM_WIDGET", "MODAL_WIDGET"];
+const unHandledWidgets = ["LIST_WIDGET"];
+const specialCaseWidgets = ["LIST_WIDGET_V2"];
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
 /**
@@ -61,6 +62,10 @@ export function convertDSLtoAuto(dsl: DSLWidget) {
 
   if (dsl.type === "CANVAS_WIDGET") {
     return { ...getAutoCanvasWidget(dsl) };
+  }
+
+  if (specialCaseWidgets.indexOf(dsl.type) > -1) {
+    return handleSpecialCaseWidgets(dsl);
   }
 
   const currDSL: DSLWidget = { ...dsl, children: [] };
@@ -158,11 +163,21 @@ export function fitChildWidgetsIntoLayers(widgets: DSLWidget[] | undefined): {
 
   //Add unhandled widgets to children
   for (const nonLayerWidget of nonLayerWidgets) {
+    const propUpdates = getPropertyUpdatesBasedOnConfig(nonLayerWidget);
     modifiedWidgets.push(
       unHandledWidgets.indexOf(nonLayerWidget.type) < 0
-        ? convertDSLtoAuto(nonLayerWidget)
+        ? { ...convertDSLtoAuto(nonLayerWidget), ...propUpdates }
         : { ...nonLayerWidget, positioning: Positioning.Fixed },
     );
+
+    flexLayers.push({
+      children: [
+        {
+          id: nonLayerWidget.widgetId,
+          align: FlexLayerAlignment.Center,
+        },
+      ],
+    });
   }
 
   return {
@@ -738,4 +753,24 @@ function getPropertyUpdatesBasedOnConfig(widget: DSLWidget) {
   }
 
   return propertyUpdates;
+}
+
+function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
+  if (dsl.type === "LIST_WIDGET_V2" && dsl?.children?.[0]?.children?.[0]) {
+    dsl.children[0].children = [convertDSLtoAuto(dsl.children[0].children[0])];
+    const flexLayers: FlexLayer[] = [
+      {
+        children: [
+          {
+            id: dsl.children[0].children[0].widgetId,
+            align: FlexLayerAlignment.Center,
+          },
+        ],
+      },
+    ];
+    dsl.children[0].flexLayers = flexLayers;
+    dsl.children[0].positioning = Positioning.Vertical;
+  }
+
+  return dsl;
 }

@@ -307,11 +307,14 @@ export function extractAlignmentInfo(
     if (!widget) continue;
 
     let columns = getWidgetWidth(widget, isMobile);
-    const rows = getWidgetHeight(widget, isMobile);
-    const { minWidth } = getWidgetMinMaxDimensionsInPixel(
+    let rows = getWidgetHeight(widget, isMobile);
+    const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
       widget,
       mainCanvasWidth,
     );
+    const rowSpace = widget.detachFromLayout
+      ? 1
+      : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
     const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
@@ -335,6 +338,17 @@ export function extractAlignmentInfo(
         widget.mobileWidthInPercentage =
           (columns * columnSpace) / mainCanvasWidth;
       }
+    }
+
+    // Make sure that the height of the widget that cannot be vertically resized is
+    // set to the minimum height after converting from fixed to auto layout.
+    if (
+      firstTimeDSLUpdate &&
+      isFillWidget &&
+      disableResizeHandles?.vertical &&
+      minHeight
+    ) {
+      rows = Math.round(minHeight / rowSpace);
     }
 
     // If the widget's width is less than its min width, then calculate the number of columns based on min width.

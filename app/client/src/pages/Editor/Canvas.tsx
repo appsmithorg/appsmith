@@ -11,6 +11,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -31,6 +32,9 @@ const Container = styled.section<{
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const selectedTheme = useSelector(getSelectedAppTheme);
 
   /**
@@ -38,7 +42,7 @@ const Canvas = (props: CanvasProps) => {
    */
   let backgroundForCanvas;
 
-  if (isPreviewMode) {
+  if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
     backgroundForCanvas = "initial";
   } else {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
