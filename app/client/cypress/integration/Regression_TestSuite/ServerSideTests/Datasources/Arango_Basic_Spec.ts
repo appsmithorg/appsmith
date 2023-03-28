@@ -20,8 +20,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
       expect(res.status).equal(200);
     });
 
-     //Wait for the container to be up
-     _.agHelper.Sleep(10000);
+    //Wait for the container to be up
+    _.agHelper.Sleep(10000);
 
     _.dataSources.CreateDataSource("Arango");
     cy.get("@dsName").then(($dsName) => {
