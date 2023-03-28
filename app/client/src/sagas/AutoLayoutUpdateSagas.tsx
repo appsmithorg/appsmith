@@ -45,7 +45,6 @@ import {
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
@@ -203,7 +202,6 @@ function* updateWidgetDimensionsSaga(
   const { widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isLayoutUpdating: boolean = yield select(getIsDraggingOrResizing);
 
   const widget = allWidgets[widgetId];
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
@@ -241,7 +239,6 @@ function* updateWidgetDimensionsSaga(
   }
 
   addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
-  if (isLayoutUpdating) return;
   yield put({
     type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
   });
