@@ -139,7 +139,6 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import type { PageDefaultMeta } from "api/ApplicationApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
@@ -226,11 +225,11 @@ export function* refreshTheApp() {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
     const defaultPageId: string = yield select(getDefaultPageId);
-    const pagesList: PageDefaultMeta[] = yield select(getPageList);
+    const pagesList: Page[] = yield select(getPageList);
     const gitBranch: string = yield select(getCurrentGitBranch);
 
     const isCurrentPageIdInList =
-      pagesList.filter((page) => page.id === currentPageId).length > 0;
+      pagesList.filter((page) => page.pageId === currentPageId).length > 0;
 
     if (isCurrentPageIdInList) {
       location.reload();
