@@ -7,6 +7,7 @@ import {
   UserCard,
   UserCardContainer,
   DeleteIcon,
+  RowWrapper,
 } from "ce/pages/workspace/Members";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +17,6 @@ import {
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Table } from "design-system-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -24,13 +24,12 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
-import type { TableDropdownOption } from "design-system-old";
 import {
   Dropdown,
   HighlightText,
   Icon,
   IconSize,
-  TableDropdown,
+  Table,
   Text,
   TextType,
 } from "design-system-old";
@@ -46,8 +45,22 @@ import {
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import styled from "styled-components";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
+import { useHistory } from "react-router";
 
 const { cloudHosting } = getAppsmithConfigs();
+
+const Delimeter = styled.div`
+  border-left: 1px solid var(--appsmith-color-black-200);
+  line-height: 24px;
+  padding-right: 12px;
+  text-align: center;
+  width: 15px;
+  /*height: 44px;*/
+  /*margin: 0 12px 0 6px;*/
+  margin: 0 4px 0 16px;
+`;
 
 export default function MemberSettings(props: PageProps) {
   const {
@@ -58,6 +71,7 @@ export default function MemberSettings(props: PageProps) {
   } = props;
 
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
@@ -134,6 +148,8 @@ export default function MemberSettings(props: PageProps) {
       allUsers.map((user) => ({
         ...user,
         isCurrentUser: user.username === currentUser?.username,
+        permissionGroupId: user.roles?.[0]?.id || "",
+        permissionGroupName: user.roles?.[0]?.name || "",
       })),
     [allUsers, currentUser],
   );
@@ -166,7 +182,8 @@ export default function MemberSettings(props: PageProps) {
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
         const isUserGroup = member.hasOwnProperty("userGroupId");
-        return (
+        const isNotSubRow = props.cell.row.id.split(".").length === 1;
+        return isNotSubRow ? (
           <EachUser>
             {isUserGroup ? (
               <>
@@ -193,6 +210,40 @@ export default function MemberSettings(props: PageProps) {
               </>
             )}
           </EachUser>
+        ) : null;
+      },
+    },
+    {
+      Header: "Resource",
+      accessor: "resource",
+      Cell: function ResourceCell(cellProps: any) {
+        const isSubRow = cellProps.cell.row.id.split(".").length > 1;
+        const del: JSX.Element[] = [];
+        for (let i = 0; i < cellProps.row.depth; i++) {
+          del.push(<Delimeter key={i} />);
+        }
+        return cellProps.row.canExpand ? (
+          <RowWrapper
+            {...cellProps.row.getToggleRowExpandedProps({ title: undefined })}
+          >
+            {cellProps.row.isExpanded ? (
+              <Icon name="arrow-down-s-fill" size={IconSize.XL} />
+            ) : (
+              <Icon name="arrow-right-s-fill" size={IconSize.XL} />
+            )}
+            <div className="resource-name">
+              {cellProps.cell.row.original.roles?.[0]?.entityType ||
+                "Workspace"}
+            </div>
+          </RowWrapper>
+        ) : (
+          <RowWrapper isSubRow={isSubRow}>
+            {cellProps.row.depth ? del : null}
+            <div className="resource-name">
+              {cellProps.cell.row.original.roles?.[0]?.entityType ||
+                "Workspace"}
+            </div>
+          </RowWrapper>
         );
       },
     },
@@ -206,41 +257,62 @@ export default function MemberSettings(props: PageProps) {
           ? allRoles.map((role: any) => {
               return {
                 id: role.id,
-                name: role.name?.split(" - ")[0],
-                desc: role.description,
+                value: role.name?.split(" - ")[0],
+                label: role.description,
               };
             })
           : [];
-        const index = roles.findIndex(
-          (role: { id: string; name: string; desc: string }) =>
-            role.name?.split(" - ")[0] ===
+        if (!cloudHosting && showAdminSettings(currentUser)) {
+          roles.push({
+            id: "custom-pg",
+            value: "Assign Custom Role",
+            link: "/settings/groups",
+            icon: "right-arrow",
+          });
+        }
+        const selectedRole = roles.find(
+          (role: { id: string; value: string; label: string }) =>
+            role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
         if (username === currentUser?.username) {
           return cellProps.cell.value?.split(" - ")[0];
         }
+
+        const onSelectHandler = (_value: string, option: any) => {
+          if (option.link) {
+            history.push(option.link);
+          } else {
+            userGroupId
+              ? dispatch(
+                  changeWorkspaceUserRole(
+                    workspaceId,
+                    option.id,
+                    username,
+                    userGroupId,
+                  ),
+                )
+              : dispatch(
+                  changeWorkspaceUserRole(workspaceId, option.id, username),
+                );
+          }
+        };
+
         return (
-          <TableDropdown
+          <Dropdown
+            boundary="viewport"
+            className="t--user-status"
+            defaultIcon="downArrow"
+            dontUsePortal
+            height="31px"
             isLoading={
               roleChangingUserInfo && roleChangingUserInfo.username === username
             }
-            onSelect={(option: TableDropdownOption) => {
-              userGroupId
-                ? dispatch(
-                    changeWorkspaceUserRole(
-                      workspaceId,
-                      option.id,
-                      username,
-                      userGroupId,
-                    ),
-                  )
-                : dispatch(
-                    changeWorkspaceUserRole(workspaceId, option.id, username),
-                  );
-            }}
+            onSelect={(_value: string, option: any) =>
+              onSelectHandler(_value, option)
+            }
             options={roles}
-            selectedIndex={index}
-            selectedTextWidth="90px"
+            selected={selectedRole}
           />
         );
       },
@@ -312,7 +384,8 @@ export default function MemberSettings(props: PageProps) {
             {filteredData.map((member, index) => {
               const role =
                 roles.find(
-                  (role: any) => role.value === member.permissionGroupName,
+                  (role: any) =>
+                    role.value === member.permissionGroupName.split(" - ")[0],
                 ) || roles[0];
               const isOwner = member.username === currentUser?.username;
               const isUserGroup = member.hasOwnProperty("userGroupId");
