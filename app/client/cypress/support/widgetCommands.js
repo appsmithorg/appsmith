@@ -1,8 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-import { propPane } from "./Objects/ObjectsCore";
-
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const pages = require("../locators/Pages.json");
@@ -22,6 +20,7 @@ let pageidcopy = " ";
 
 const ee = ObjectsRegistry.EntityExplorer;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
