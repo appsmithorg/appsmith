@@ -19,7 +19,8 @@ describe("JSVariableProxy", () => {
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: false,
+      enableJSVarUpdateTracking: true,
+      enableJSVarUpdate: true,
     });
 
     proxiedJSObject.number = 5;
@@ -74,7 +75,7 @@ describe("JSVariableProxy", () => {
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: true,
+      enableJSVarUpdateTracking: false,
     });
 
     proxiedJSObject.number = 5;
@@ -104,7 +105,8 @@ describe("JSVariableProxy", () => {
     const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
 
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: false,
+      enableJSVarUpdateTracking: true,
+      enableJSVarUpdate: true,
     });
 
     proxiedJSObject.number;

@@ -52,7 +52,7 @@ export function jsObjectProxyHandler(path: string) {
       return target[prop];
     },
     set: function (target: any, prop: string, value: unknown, rec: any) {
-      if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
+      if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdate)
         return DEFAULT_SET_RETURN_VALUE;
       addPatch({
         path: `${path}.${prop}`,
@@ -62,7 +62,7 @@ export function jsObjectProxyHandler(path: string) {
       return Reflect.set(target, prop, value, rec);
     },
     deleteProperty: function (target: any, prop: string) {
-      if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateDisabled)
+      if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdate)
         return DEFAULT_DELETE_RETURN_VALUE;
       addPatch({
         path: `${path}.${prop}`,
