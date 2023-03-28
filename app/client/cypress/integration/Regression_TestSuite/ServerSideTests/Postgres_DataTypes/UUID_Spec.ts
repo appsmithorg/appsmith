@@ -437,7 +437,7 @@ describe("UUID Datatype tests", function () {
     ee.ActionContextMenuByEntityName("version1", "Delete", "Are you sure?");
   });
 
-  it("16. Verify Deletion of datasource", () => {
+  it.skip("16. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");

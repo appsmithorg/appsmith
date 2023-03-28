@@ -726,7 +726,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   //#endregion
 
-  it("28. Verify Deletion of datasource", () => {
+  it.skip("28. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");

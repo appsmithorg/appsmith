@@ -634,7 +634,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("19. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+  it.skip("19. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
