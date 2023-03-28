@@ -27,8 +27,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
     ee.SelectEntityByName("Chart1");
-    propPane.AddAction("ondatapointclick");
-    cy.get(locator._dropDownValue("Show Alert")).click();
+    propPane.SelectPlatformFunction("onDataPointClick", "Show Alert");
     agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
     ee.SelectEntityByName("Input2");
     propPane.UpdatePropertyFieldValue(

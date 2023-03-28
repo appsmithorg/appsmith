@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import { propPane } from "./Objects/ObjectsCore";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const pages = require("../locators/Pages.json");
@@ -122,10 +124,9 @@ Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
 });
 
 Cypress.Commands.add("AddActionWithModal", () => {
-  cy.get(commonlocators.dropdownSelectButton).last().click();
-  cy.get(".single-select").contains("Open modal").click({ force: true });
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+  propPane.SelectPlatformFunction("onTabSelected", "Show modal");
+  cy.get(".t--open-dropdown-Select-Modal").click({ force: true });
+  cy.get(".t--create-modal-btn").click({ force: true });
 });
 
 Cypress.Commands.add("createModal", (ModalName, property) => {
