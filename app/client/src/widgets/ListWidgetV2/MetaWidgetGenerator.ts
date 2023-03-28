@@ -1127,13 +1127,13 @@ class MetaWidgetGenerator {
       }
 
       if (dynamicPathType === DynamicPathType.CURRENT_VIEW) {
-        const { entityDefinition, type } =
+        const { entityDefinition, metaWidgetName, type } =
           lookupLevel?.currentRowCache?.[widgetName] || {};
 
         if (entityDefinition) {
           const filteredEntityDefinition = this.getFilteredEntityDef(
             entityDefinition,
-            widgetName,
+            metaWidgetName,
             type,
           );
 
