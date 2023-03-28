@@ -217,8 +217,8 @@ Cypress.Commands.add("LogOutUser", () => {
   cy.wait("@postLogout");
 });
 
-Cypress.Commands.add("LoginUser", (uname, pword) => {
-  cy.visit("/user/login");
+Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
+  goToLoginPage && cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });

@@ -8,14 +8,14 @@ describe("Login failure", function () {
     cy.location()
       .then((location) => {
         cy.LogOutUser();
-        appUrl = location.href;
+        appUrl = location.href.split("?")[0];
         cy.visit(appUrl);
         cy.get(loginPage.username).should("be.visible");
       })
       .then(() => cy.GetUrlQueryParams())
       .then((queryParams) => {
         expect(decodeURIComponent(queryParams.redirectUrl)).to.eq(appUrl);
-        cy.LoginUser("user@error.com", "pwd_error");
+        cy.LoginUser("user@error.com", "pwd_error", false);
       })
       .then(() => cy.GetUrlQueryParams())
       .then((queryParams) => {
