@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.QApplication;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -24,8 +25,8 @@ public class Migration005CreateApplicationDetailMigration {
     @Execution
     public void executeMigration() {
         Update update = new Update();
-        update.set(fieldName(QApplication.application.unpublishedApplicationDetail), new Object());
-        update.set(fieldName(QApplication.application.publishedApplicationDetail), new Object());
+        update.set(fieldName(QApplication.application.unpublishedApplicationDetail), new ApplicationDetail());
+        update.set(fieldName(QApplication.application.publishedApplicationDetail), new ApplicationDetail());
         mongoTemplate.updateMulti(new Query(), update, Application.class);
     }
 }
