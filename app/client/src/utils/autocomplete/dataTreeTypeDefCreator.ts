@@ -17,6 +17,8 @@ export type ExtraDef = Record<string, Def | string>;
 
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
+import widget from "widgets/ModalWidget/widget";
+import WidgetFactory from "utils/WidgetFactory";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -41,6 +43,8 @@ export const dataTreeTypeDefCreator = (
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
+      const autoconfig = WidgetFactory.getAutoCompleteConfig(widgetType);
+
       if (widgetType in entityDefinitions) {
         const definition = get(entityDefinitions, widgetType);
         if (isFunction(definition)) {
@@ -48,6 +52,8 @@ export const dataTreeTypeDefCreator = (
         } else {
           def[entityName] = definition;
         }
+        def[entityName] = autoconfig;
+
         flattenDef(def, entityName);
         entityMap.set(entityName, {
           type: ENTITY_TYPE.WIDGET,

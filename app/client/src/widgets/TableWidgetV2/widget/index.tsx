@@ -145,6 +145,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getAutoCompleteConfig() : any {
+    return {
+      "isVisible" : "This is a sample autocomplete suggestion for isVisible property"
+    }
+  }
+
   static getDerivedPropertiesMap() {
     return {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
