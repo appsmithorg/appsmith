@@ -206,6 +206,9 @@ class AsyncJsFunctionInDataField {
   getFunctionInvocationRegex(funcName: string) {
     return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
   }
+  clearMap() {
+    this.asyncFunctionsInDataFieldsMap = {};
+  }
 }
 
 export const asyncJsFunctionInDataFields = new AsyncJsFunctionInDataField();

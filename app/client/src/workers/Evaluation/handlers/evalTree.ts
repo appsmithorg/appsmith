@@ -246,5 +246,6 @@ export default function (request: EvalWorkerSyncRequest) {
 export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
+  asyncJsFunctionInDataFields.clearMap();
   return true;
 }
