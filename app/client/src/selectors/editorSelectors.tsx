@@ -58,6 +58,7 @@ import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import type { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import WidgetFactory from "utils/WidgetFactory";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -339,22 +340,29 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
-  (widgetConfigs: WidgetConfigReducerState) => {
+  getIsAutoLayout,
+  (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
     const cards = Object.values(widgetConfigs.config).filter(
       (config) => !config.hideCard,
     );
 
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
-        columns,
         detachFromLayout = false,
         displayName,
         iconSVG,
         key,
-        rows,
         searchTags,
         type,
       } = config;
+      let { columns, rows } = config;
+      const autoLayoutConfig = WidgetFactory.getWidgetAutoLayoutConfig(type);
+
+      if (isAutoLayout && autoLayoutConfig) {
+        rows = autoLayoutConfig?.defaults?.rows ?? rows;
+        columns = autoLayoutConfig?.defaults?.columns ?? columns;
+      }
+
       return {
         key,
         type,
