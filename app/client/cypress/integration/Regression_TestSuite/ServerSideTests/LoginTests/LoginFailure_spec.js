@@ -21,6 +21,11 @@ describe("Login failure", function () {
       .then((queryParams) => {
         expect(decodeURIComponent(queryParams.error)).to.eq("true");
         expect(decodeURIComponent(queryParams.redirectUrl)).to.eq(appUrl);
+        cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+      })
+      .then(() => cy.location())
+      .then((location) => {
+        expect(location.href.split("?")[0]).to.eq(appUrl);
       });
   });
 });
