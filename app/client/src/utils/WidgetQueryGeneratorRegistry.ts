@@ -12,9 +12,11 @@ export default class WidgetQueryGeneratorRegistry {
 
     this.queryGeneratorMap.set(pluginId, queryGenerator);
   }
+
   static clear() {
     WidgetQueryGeneratorRegistry.queryGeneratorMap = new Map();
   }
+
   static get(pluginId: string) {
     const adaptor = this.queryGeneratorMap.get(pluginId);
 
