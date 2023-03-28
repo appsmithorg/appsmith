@@ -2,26 +2,27 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any,
   collectionName = "countries_places_to_visit";
-const tedUrl = "http://host.docker.internal:5001/v1/parent/cmd";
+const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   before("Create a new Arango DS", () => {
-    let ArangoDB =
-      "docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb";
-    cy.request({
-      method: "GET",
-      url: tedUrl,
-      qs: {
-        cmd: ArangoDB,
-      },
-    }).then((res) => {
-      cy.log("ContainerID", res.body.stdout);
-      cy.log(res.body.stderr);
-      expect(res.status).equal(200);
-    });
+    // let ArangoDB =
+    //   "mkdir -p `$PWD`/arangodb/bin/bash;
+    //      docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -v  ~/arango/bin/bash:/arango/bin/bash -d arangodb";
+    // cy.request({
+    //   method: "GET",
+    //   url: tedUrl,
+    //   qs: {
+    //     cmd: ArangoDB,
+    //   },
+    // }).then((res) => {
+    //   cy.log("ContainerID", res.body.stdout);
+    //   cy.log(res.body.stderr);
+    //   expect(res.status).equal(200);
+    // });
 
-    //Wait for the container to be up
-    _.agHelper.Sleep(10000);
+    // //Wait for the container to be up
+    // _.agHelper.Sleep(10000);
 
     _.dataSources.CreateDataSource("Arango");
     cy.get("@dsName").then(($dsName) => {
