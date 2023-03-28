@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any,
   collectionName = "countries_places_to_visit";
-const tedUrl = "http://localhost:5001/v1/parent/cmd";
+const tedUrl = "http://host.docker.internal:5001/v1/parent/cmd";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   before("Create a new Arango DS", () => {
