@@ -15,6 +15,7 @@ const initialState: DebuggerReduxState = {
   selectedDebuggerTab: "",
   responseTabHeight: ActionExecutionResizerHeight,
   errorCount: 0,
+  scrollPosition: 0,
 };
 
 // check the last message from the current log and update the occurrence count
@@ -121,7 +122,6 @@ const debuggerReducer = createImmerReducer(initialState, {
       responseTabHeight: height,
     };
   },
-
   [ReduxActionTypes.SET_ERROR_COUNT]: (
     state: DebuggerReduxState,
     action: ReduxAction<{ count: number }>,
@@ -130,6 +130,16 @@ const debuggerReducer = createImmerReducer(initialState, {
     return {
       ...state,
       errorCount: count,
+    };
+  },
+  [ReduxActionTypes.SET_RESPONSE_PANE_SCROLL_POSITION]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<{ position: number }>,
+  ) => {
+    const { position } = action.payload;
+    return {
+      ...state,
+      scrollPosition: position,
     };
   },
 });
@@ -143,6 +153,7 @@ export interface DebuggerReduxState {
   selectedDebuggerTab: string;
   responseTabHeight: number;
   errorCount: number;
+  scrollPosition: number;
 }
 
 export default debuggerReducer;

@@ -137,3 +137,6 @@ export const getResponsePaneHeight = (state: AppState) =>
   state.ui.debugger.responseTabHeight;
 
 export const getErrorCount = (state: AppState) => state.ui.debugger.errorCount;
+
+export const getScrollPosition = (state: AppState) =>
+  state.ui.debugger.scrollPosition;

@@ -93,3 +93,11 @@ export const setErrorCount = (payload: number) => {
     payload: { count: payload },
   };
 };
+
+// set the height of the response pane in the debugger.
+export const setResponsePaneScrollPosition = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_RESPONSE_PANE_SCROLL_POSITION,
+    payload: { position: payload },
+  };
+};
