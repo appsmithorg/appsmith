@@ -43,7 +43,7 @@ describe("Check datasource doc links", function () {
   });
 
   afterEach(() => {
-    // _.agHelper.PressEscape();
+    _.agHelper.PressEscape();
     // _.agHelper.ActionContextMenuWithInPane("Delete");
     // _.entityExplorer.ExpandCollapseEntity("Datasources");
     // _.entityExplorer.ActionContextMenuByEntityName(
