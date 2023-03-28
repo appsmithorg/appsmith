@@ -107,6 +107,17 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     debouncedUpdatePairs(updatedPairs);
   }
 
+  function deletePair(index: number, isUpdatedViaKeyboard = false) {
+    let { pairs } = props;
+    pairs = Array.isArray(pairs) ? pairs : [];
+
+    const newPairs = pairs.filter((o, i) => i !== index);
+    const newRenderPairs = renderPairs.filter((o, i) => i !== index);
+
+    setRenderPairs(newRenderPairs);
+    props.updatePairs(newPairs, isUpdatedViaKeyboard);
+  }
+
   function addPair(e: React.MouseEvent) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
@@ -175,10 +186,11 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.value}
             />
             <StyledBox />
-            {/* TODO (tanvi): Figure out what was here before the onPress and fix it*/}
             <Button
               isIconButton
-              // onClick={() => deletePair(index, e.hasOwnProperty("detail"))}
+              onClick={(e: React.MouseEvent) => {
+                deletePair(index, e.detail === 0);
+              }}
               size="sm"
               startIcon="delete-bin-line"
             />
@@ -189,7 +201,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       <Button
         className="t--property-control-options-add"
         kind="secondary"
-        onClick={() => addPair}
+        onClick={addPair}
         size="md"
         startIcon="plus"
       >
