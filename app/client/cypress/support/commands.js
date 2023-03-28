@@ -1260,7 +1260,9 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   //cy.wait(1000); //for toggles to settle
   cy.get(welcomePage.createButton).should("be.visible");
-  cy.get(welcomePage.createButton).click({ force: true });
+  cy.get(welcomePage.createButton).trigger("mouseover").click();
+  //if seeing issue with above also, to try multiple click as below
+  //cy.get(welcomePage.createButton).click({ multiple: true });
   cy.wait("@createSuperUser").then((interception) => {
     expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",
