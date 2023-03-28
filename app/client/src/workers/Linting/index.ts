@@ -18,6 +18,7 @@ import {
 export function getlintErrorsFromTree({
   asyncJSFunctionsInSyncFields,
   cloudHosting,
+  configTree,
   jsPropertiesState,
   pathsToLint,
   unEvalTree,
@@ -34,6 +35,7 @@ export function getlintErrorsFromTree({
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
     pathsToLint,
     unEvalTree,
+    configTree,
   );
   // Lint binding paths
   bindingPaths.forEach((bindingPath) => {

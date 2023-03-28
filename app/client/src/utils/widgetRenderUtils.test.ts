@@ -206,6 +206,7 @@ describe("test EditorUtils methods", () => {
           metaWidgets,
           dataTree,
           new Set<string>("one"),
+          {},
           "2",
         ),
       ).toEqual(childWidgetTree);
@@ -285,6 +286,7 @@ describe("test EditorUtils methods", () => {
           metaWidgets,
           dataTree,
           new Set<string>("two"),
+          {},
           "1",
         ),
       ).toEqual(childWidgetTree);
@@ -401,6 +403,7 @@ describe("test EditorUtils methods", () => {
           metaWidgets,
           {},
           new Set<string>("one"),
+          {},
           "1",
         ),
       ).toEqual(childWidgetTree);

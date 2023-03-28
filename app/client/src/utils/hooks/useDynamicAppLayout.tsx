@@ -11,9 +11,7 @@ import {
   // MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 // import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getCurrentApplicationLayout,
   // getCurrentAppPositioningType,
@@ -28,10 +26,21 @@ import {
 } from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import {
+  getIsAppSettingsPaneOpen,
+  getIsAppSettingsPaneWithNavigationTabOpen,
+} from "selectors/appSettingsPaneSelectors";
+import {
   getPaneCount,
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+import {
+  getAppSidebarPinned,
+  getCurrentApplication,
+  getSidebarWidth,
+} from "selectors/applicationSelectors";
+import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
@@ -56,6 +65,13 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isMobile = useIsMobileDevice();
   // const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   // /**
@@ -132,6 +148,25 @@ export const useDynamicAppLayout = () => {
       if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
     }
 
+    /**
+     * If there is
+     * 1. a sidebar for navigation,
+     * 2. it is pinned,
+     * 3. and device is not mobile
+     * we need to subtract the sidebar width as well in the following modes -
+     * 1. Preview
+     * 2. App settings open with navigation tab
+     * 3. Published
+     */
+    if (
+      (appMode === APP_MODE.PUBLISHED ||
+        isPreviewMode ||
+        isAppSettingsPaneWithNavigationTabOpen) &&
+      !isMobile &&
+      sidebarWidth
+    ) {
+      calculatedWidth -= sidebarWidth;
+    }
     // const ele: any = document.getElementById("canvas-viewport");
     // if (
     //   appMode === "EDIT" &&
@@ -154,7 +189,9 @@ export const useDynamicAppLayout = () => {
         // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
-          (appMode === APP_MODE.EDIT && !isPreviewMode
+          (appMode === APP_MODE.EDIT &&
+          !isPreviewMode &&
+          !isAppSettingsPaneWithNavigationTabOpen
             ? totalWidthToSubtract
             : 0)
         );
@@ -249,6 +286,12 @@ export const useDynamicAppLayout = () => {
    *  - explorer width
    *  - explorer is pinned
    *  - theme mode is turned on
+   *  - sidebar pin/unpin
+   *  - app settings pane open with navigation tab
+   *  - any of the following navigation settings changes
+   *    - orientation
+   *    - nav style
+   *  - device changes to/from mobile
    */
   useEffect(() => {
     resizeToLayout();
@@ -256,11 +299,17 @@ export const useDynamicAppLayout = () => {
     appLayout,
     mainCanvasProps?.width,
     isPreviewMode,
+    isAppSettingsPaneWithNavigationTabOpen,
     explorerWidth,
     propertyPaneWidth,
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
+    isAppSidebarPinned,
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.orientation,
+    currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle,
+    isMobile,
     currentPageId, //TODO: preet - remove this after first merge.
   ]);
 

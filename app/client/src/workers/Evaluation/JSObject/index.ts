@@ -1,7 +1,4 @@
-import type {
-  DataTree,
-  DataTreeJSAction,
-} from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -20,6 +17,7 @@ import {
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
 import { jsPropertiesState } from "./jsPropertiesState";
+import type { JSActionEntity } from "entities/DataTree/types";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -31,11 +29,12 @@ import { jsPropertiesState } from "./jsPropertiesState";
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: DataTree,
+  configTree: ConfigTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
-    Object.keys(jsUpdates).forEach((jsEntityName) => {
-      const entity = localUnEvalTree[jsEntityName];
-      const parsedBody = jsUpdates[jsEntityName].parsedBody;
+    Object.entries(jsUpdates).forEach(([entityName, jsEntity]) => {
+      const entity = localUnEvalTree[entityName] as JSActionEntity;
+      const parsedBody = jsEntity.parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
@@ -43,13 +42,16 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
             parsedBody,
             entity,
             localUnEvalTree,
+            configTree,
+            entityName,
           );
         } else {
           //if parse error remove functions and variables from dataTree
           localUnEvalTree = removeFunctionsAndVariableJSCollection(
             localUnEvalTree,
             entity,
-            jsEntityName,
+            entityName,
+            configTree,
           );
         }
       }
@@ -75,7 +77,7 @@ const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
  */
 export function saveResolvedFunctionsAndJSUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
-  entity: DataTreeJSAction,
+  entity: JSActionEntity,
   jsUpdates: Record<string, JSUpdate>,
   unEvalDataTree: DataTree,
   entityName: string,
@@ -192,8 +194,8 @@ export function saveResolvedFunctionsAndJSUpdates(
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
-  differences?: DataTreeDiff[],
   oldUnEvalTree?: DataTree,
+  differences?: DataTreeDiff[],
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
   jsPropertiesState.startUpdate();
@@ -280,7 +282,7 @@ export function parseJSActions(
 }
 
 export function getJSEntities(dataTree: DataTree) {
-  const jsCollections: Record<string, DataTreeJSAction> = {};
+  const jsCollections: Record<string, JSActionEntity> = {};
   Object.keys(dataTree).forEach((entityName: string) => {
     const entity = dataTree[entityName];
     if (isJSAction(entity)) {

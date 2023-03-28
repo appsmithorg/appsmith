@@ -72,6 +72,7 @@ function eventRequestHandler({
         const {
           asyncJSFunctionsInSyncFields,
           cloudHosting,
+          configTree,
           jsPropertiesState,
           pathsToLint,
           unevalTree: unEvalTree,
@@ -83,8 +84,10 @@ function eventRequestHandler({
             jsPropertiesState,
             cloudHosting,
             asyncJSFunctionsInSyncFields,
+            configTree,
           },
         );
+
         lintTreeResponse.errors = lintErrors;
         lintTreeResponse.updatedJSEntities = updatedJSEntities;
       } catch (e) {}

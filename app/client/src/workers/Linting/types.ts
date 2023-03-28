@@ -1,4 +1,5 @@
 import type {
+  ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
@@ -25,6 +26,7 @@ export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
   jsPropertiesState: TJSPropertiesState;
+  configTree: ConfigTree;
   cloudHosting: boolean;
   asyncJSFunctionsInSyncFields: DependencyMap;
 }
@@ -39,6 +41,7 @@ export type LintTreeSagaRequestData = {
   unevalTree: DataTree;
   jsPropertiesState: TJSPropertiesState;
   asyncJSFunctionsInSyncFields: DependencyMap;
+  configTree: ConfigTree;
 };
 
 export interface lintTriggerPathProps {

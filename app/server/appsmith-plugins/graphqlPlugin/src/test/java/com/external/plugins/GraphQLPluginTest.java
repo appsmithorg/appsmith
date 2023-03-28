@@ -162,6 +162,40 @@ public class GraphQLPluginTest {
     }
 
     @Test
+    public void testValidGraphQLApiExecutionWithWhitespacesInUrl() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+
+        //changing the url to add whitespaces at the start and end of the url
+        String url = dsConfig.getUrl();
+        url = String.format("%-" + (url.length() + 4) + "s" ,url);
+        url = String.format("%" + (url.length() + 4) + "s" ,url);
+        dsConfig.setUrl(url);
+        String queryBody = "query($limit: Int) {\n" +
+                "\tallPosts(first: $limit) {\n" +
+                "\t\tnodes {\n" +
+                "\t\t\tid\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+        actionConfig.setBody(queryBody);
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("", "true"));
+        properties.add(new Property("", "{\n" +
+                "  \"limit\": 2\n" +
+                "}"));
+        actionConfig.setPluginSpecifiedTemplates(properties);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testValidGraphQLApiExecutionWithQueryVariablesWithHttpGet() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("https://rickandmortyapi.com/graphql");

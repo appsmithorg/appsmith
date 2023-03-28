@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx lint-staged --cwd app/client && git-secrets --scan --untracked && git-secrets --scan -r

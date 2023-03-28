@@ -1,7 +1,7 @@
 import type {
   DataTree,
   DataTreeEntity,
-  UnEvalTreeJSAction,
+  ConfigTree,
 } from "entities/DataTree/dataTreeFactory";
 
 import type { Position } from "codemirror";
@@ -51,6 +51,7 @@ import {
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import type {
   getLintingErrorsProps,
+  initiateLintingProps,
   lintBindingPathProps,
   LintTreeSagaRequestData,
   lintTriggerPathProps,
@@ -63,9 +64,9 @@ import {
 } from "workers/Evaluation/fns";
 import type {
   TJSFunctionPropertyState,
-  TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
+import type { JSActionEntity } from "entities/DataTree/types";
 
 export function lintBindingPath({
   dynamicBinding,
@@ -407,22 +408,18 @@ function getInvalidPropertyErrorsFromScript(
 
 export function initiateLinting({
   asyncJSFunctionsInSyncFields,
+  configTree,
   jsPropertiesState,
   lintOrder,
   requiresLinting,
   unevalTree,
-}: {
-  asyncJSFunctionsInSyncFields: DependencyMap;
-  lintOrder: string[];
-  unevalTree: DataTree;
-  requiresLinting: boolean;
-  jsPropertiesState: TJSPropertiesState;
-}) {
+}: initiateLintingProps) {
   const data = {
     pathsToLint: lintOrder,
     unevalTree,
     jsPropertiesState,
     asyncJSFunctionsInSyncFields,
+    configTree,
   } as LintTreeSagaRequestData;
   if (!requiresLinting) return;
   WorkerMessenger.ping({
@@ -527,7 +524,7 @@ export function lintJSObjectBody(
   const jsObject = globalData[jsObjectName];
   const jsbody = getJSToLint(
     jsObject,
-    (jsObject as unknown as UnEvalTreeJSAction).body,
+    (jsObject as unknown as JSActionEntity).body,
     "body",
   );
   const scriptType = getScriptType(false, false);
@@ -574,6 +571,7 @@ export function getEvaluationContext(
 export function sortLintingPathsByType(
   pathsToLint: string[],
   unevalTree: DataTree,
+  configTree: ConfigTree,
 ) {
   const triggerPaths = new Set<string>();
   const bindingPaths = new Set<string>();
@@ -583,10 +581,11 @@ export function sortLintingPathsByType(
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(fullPropertyPath);
     const entity = unevalTree[entityName];
+    const entityConfig = configTree[entityName];
 
     // We are only interested in dynamic leaves
-    if (!isDynamicLeaf(unevalTree, fullPropertyPath)) continue;
-    if (isATriggerPath(entity, propertyPath)) {
+    if (!isDynamicLeaf(unevalTree, fullPropertyPath, configTree)) continue;
+    if (isATriggerPath(entityConfig, propertyPath)) {
       triggerPaths.add(fullPropertyPath);
       continue;
     }
