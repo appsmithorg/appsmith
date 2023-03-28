@@ -2,7 +2,7 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { difference, get } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
@@ -44,14 +44,19 @@ class AsyncJsFunctionInDataField {
     return Array.from(updatedAsyncJSFunctionsInMap);
   }
 
-  handlePathDeletion(deletedPath: string, unevalTree: DataTree) {
+  handlePathDeletion(
+    deletedPath: string,
+    unevalTree: DataTree,
+    configTree: ConfigTree,
+  ) {
     const updatedAsyncJSFunctionsInMap = new Set<string>();
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(deletedPath);
     const entity = unevalTree[entityName];
+    const entityConfig = configTree[entityName];
     if (
       isWidgetActionOrJsObject(entity) ||
-      isATriggerPath(entity, propertyPath)
+      isATriggerPath(entityConfig, propertyPath)
     )
       return [];
 
