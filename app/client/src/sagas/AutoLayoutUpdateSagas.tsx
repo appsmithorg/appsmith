@@ -45,7 +45,6 @@ import {
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
@@ -57,6 +56,7 @@ export function* updateLayoutForMobileCheckpoint(
     parentId: string;
     isMobile: boolean;
     canvasWidth: number;
+    widgets?: CanvasWidgetsReduxState;
   }>,
 ) {
   try {
@@ -68,8 +68,21 @@ export function* updateLayoutForMobileCheckpoint(
     );
     if (isCurrentlyConvertingLayout) return;
 
-    const { canvasWidth, isMobile, parentId } = actionPayload.payload;
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const {
+      canvasWidth,
+      isMobile,
+      parentId,
+      widgets: payloadWidgets,
+    } = actionPayload.payload;
+
+    let allWidgets: CanvasWidgetsReduxState;
+
+    if (payloadWidgets) {
+      allWidgets = payloadWidgets;
+    } else {
+      allWidgets = yield select(getWidgets);
+    }
+
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
@@ -125,7 +138,7 @@ export function* updateLayoutPositioningSaga(
         ),
       );
 
-      yield call(recalculateAutoLayoutColumns);
+      yield call(recalculateAutoLayoutColumnsAndSave);
     }
     // Convert Auto layout to fixed
     else {
@@ -147,7 +160,9 @@ export function* updateLayoutPositioningSaga(
 }
 
 //This Method is used to re calculate Positions based on canvas width
-export function* recalculateAutoLayoutColumns() {
+export function* recalculateAutoLayoutColumnsAndSave(
+  widgets?: CanvasWidgetsReduxState,
+) {
   const appPositioningType: AppPositioningTypes = yield select(
     getCurrentAppPositioningType,
   );
@@ -162,6 +177,7 @@ export function* recalculateAutoLayoutColumns() {
         ? mainCanvasProps?.isMobile
         : false,
       mainCanvasProps.width,
+      widgets,
     ),
   );
 }
@@ -186,7 +202,6 @@ function* updateWidgetDimensionsSaga(
   const { widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isLayoutUpdating: boolean = yield select(getIsDraggingOrResizing);
 
   const widget = allWidgets[widgetId];
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
@@ -224,7 +239,6 @@ function* updateWidgetDimensionsSaga(
   }
 
   addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
-  if (isLayoutUpdating) return;
   yield put({
     type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
   });

@@ -27,7 +27,7 @@ export type AutoLayoutConfig = {
   // Indicates if a widgets dimensions should be auto adjusted according to content inside it
   autoDimension?: AutoDimensionOptions;
   // min/max sizes for the widget
-  widgetSize: Array<WidgetSizeConfig>;
+  widgetSize?: Array<WidgetSizeConfig>;
   // Indicates if the widgets resize handles should be disabled
   disableResizeHandles?: ResizeableOptions;
   // default values for the widget specifi to auto layout

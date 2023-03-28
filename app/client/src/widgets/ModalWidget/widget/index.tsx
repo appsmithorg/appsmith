@@ -14,7 +14,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import type {
   Alignment,
   Positioning,
@@ -259,6 +263,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
         height={this.props.height}
+        isAutoLayout={this.props.isAutoLayout}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
         isOpen={this.getModalVisibility()}
@@ -343,6 +348,7 @@ const mapStateToProps = (state: AppState) => {
     isSnipingMode: snipingModeSelector(state),
     isResizing: state.ui.widgetDragResize.isResizing,
     isPreviewMode: state.ui.editor.isPreviewMode,
+    isAutoLayout: getIsAutoLayout(state),
   };
   return props;
 };
