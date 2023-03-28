@@ -44,7 +44,8 @@ describe("UI to Code", () => {
 
     // Add second action
     _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click();
+    cy.get(_.locators._dropDownValue("Navigate to")).click({ force: true });
+    _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
     cy.get(_.locators._openNavigationTab("url")).click();
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Enter URL"),
@@ -134,7 +135,8 @@ describe("UI to Code", () => {
 
     // Add second action
     _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click();
+    cy.get(_.locators._dropDownValue("Navigate to")).click({ force: true });
+    _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
     cy.get(_.locators._openNavigationTab("url")).click();
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Enter URL"),
@@ -210,7 +212,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
   });
 
-  it("3. works with redo using cmd+y", () => {
+  it("4. works with redo using cmd+y", () => {
     // Add first action
     _.propPane.AddAction("onClick");
     cy.get(_.locators._dropDownValue("Show Alert")).click();
@@ -222,7 +224,8 @@ describe("UI to Code", () => {
 
     // Add second action
     _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click();
+    cy.get(_.locators._dropDownValue("Navigate to")).click({ force: true });
+    _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
     cy.get(_.locators._openNavigationTab("url")).click();
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Enter URL"),
@@ -303,7 +306,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
   });
 
-  it("4. can add success and error callbacks", () => {
+  it("5. can add success and error callbacks", () => {
     _.propPane.AddAction("onClick");
     cy.get(_.locators._dropDownValue("Show Alert")).click();
     _.agHelper.TypeText(
@@ -332,7 +335,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
   });
 
-  it("5. updates the success and failure callbacks for nested query actions", () => {
+  it("6. updates the success and failure callbacks for nested query actions", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
     _.propPane.UpdatePropertyFieldValue(
       "onClick",
@@ -343,14 +346,14 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Select the card to show the callback button
-    cy.get(_.locators._actionCardByValue("Api1.run")).click();
+    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Click on the callback button
     cy.get(_.locators._actionCallbacks).click();
 
     // Edit the success callback of the nested Api2.run
-    cy.get(_.locators._actionCardByValue("Api2.run")).click();
+    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
     cy.get(
       _.jsEditor._lineinPropertyPaneJsEditor(
         2,
@@ -377,7 +380,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
   });
 
-  it("6. updates the query params correctly", () => {
+  it("7. updates the query params correctly", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
     _.propPane.UpdatePropertyFieldValue(
       "onClick",
@@ -388,14 +391,14 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Select the card to show the callback button
-    cy.get(_.locators._actionCardByValue("Api1.run")).click();
+    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Click on the callback button
     cy.get(_.locators._actionCallbacks).click();
 
     // Edit the success callback of the nested Api2.run
-    cy.get(_.locators._actionCardByValue("Api2.run")).click();
+    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
     cy.get(
       _.jsEditor._lineinPropertyPaneJsEditor(
         2,
@@ -413,7 +416,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
   });
 
-  it("7. adds actions to callback function is argument if exists already", () => {
+  it("8. adds actions to callback function is argument if exists already", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
     _.propPane.UpdatePropertyFieldValue(
       "onClick",
@@ -425,7 +428,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Select the card to show the callback button
-    cy.get(_.locators._actionCardByValue("Api1.run")).click();
+    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Click on the callback button
@@ -441,7 +444,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
   });
 
-  it("8. correctly configures a setInterval action", () => {
+  it("9. correctly configures a setInterval action", () => {
     _.propPane.AddAction("onClick");
     cy.get(_.locators._dropDownValue("Set interval")).click();
 

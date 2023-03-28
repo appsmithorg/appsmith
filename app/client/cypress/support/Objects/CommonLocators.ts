@@ -186,7 +186,4 @@ export class CommonLocators {
   _actionCallbacks = ".t--action-callbacks";
   _actionAddCallback = (type: "success" | "failure") =>
     `.t--action-add-${type}-callback`;
-  _actionCardByValue = (value: string) =>
-    // The value can have a dot, eg. Api1.run, so we use the following selector instead of regular class selector
-    `[class~="t--action-card-value-${value}"]`;
 }

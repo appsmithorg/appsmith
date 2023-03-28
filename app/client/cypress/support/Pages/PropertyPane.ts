@@ -371,4 +371,11 @@ export class PropertyPane {
     this.AddAction(eventName);
     cy.get(this.locator._dropDownValue(dropdownValue)).click();
   }
+
+  public SelectActionByTitleAndValue(title: string, value: string) {
+    cy.get(this.locator._actionCardByTitle(title))
+      .children()
+      .contains(value)
+      .click();
+  }
 }
