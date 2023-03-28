@@ -1826,10 +1826,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return applicationService
-                    .findById(params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
-                    .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission()))
-                    .flatMap(this::sanitizeAction)
+
+            return repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, actionPermission.getReadPermission())
+                    .collectList()
+                    .flatMapMany(this::sanitizeAction)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, actionPermission.getReadPermission(), sort)
@@ -1892,6 +1892,47 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionMono;
+    }
+
+    public Flux<NewAction> sanitizeAction(List<NewAction> actionList) {
+        return pluginService.getDefaultPlugins()
+                .collectMap(Plugin::getId)
+                .flatMapMany(defaultPluginMap -> {
+                    return Flux.fromIterable(actionList)
+                            .flatMap(action-> {
+                                if (isPluginTypeOrPluginIdMissing(action)) {
+                                    return providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action, defaultPluginMap);
+                                }
+
+                                return Mono.just(action);
+                            });
+                });
+    }
+
+    private Mono<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action,
+                                                                                           Map<String, Plugin> pluginMap) {
+        ActionDTO actionDTO = action.getUnpublishedAction();
+        if (actionDTO == null) {
+            return Mono.just(action);
+        }
+
+        Datasource datasource = actionDTO.getDatasource();
+        if (actionDTO.getCollectionId() != null) {
+            return setPluginIdAndTypeForJSAction(action);
+
+        } else if (datasource != null && datasource.getPluginId() != null) {
+            String pluginId = datasource.getPluginId();
+            action.setPluginId(pluginId);
+
+            if (pluginMap.containsKey(pluginId)) {
+                Plugin plugin = pluginMap.get(pluginId);
+                action.setPluginType(plugin.getType());
+            } else {
+                setPluginTypeFromId(action, pluginId);
+            }
+        }
+
+        return Mono.just(action);
     }
 
     @Override
