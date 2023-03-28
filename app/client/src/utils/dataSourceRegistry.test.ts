@@ -1,7 +1,7 @@
 import { POSTGRE_SQL_PLUGIN_ID } from "DataSourceAdaptors/PostgreSQL";
 import DataSourceRegistry from "./dataSourceRegistry";
 
-describe("boxHelpers", () => {
+describe("dataSourceRegistry", () => {
   it("should have PostgreSQL adaptor registered", () => {
     const postgreSQLAdaptor = DataSourceRegistry.getAdaptor(
       POSTGRE_SQL_PLUGIN_ID,
