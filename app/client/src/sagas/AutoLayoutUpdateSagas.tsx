@@ -204,7 +204,6 @@ function* updateWidgetDimensionsSaga(
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsMobile);
 
-
   const widget = allWidgets[widgetId];
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
     widget,
