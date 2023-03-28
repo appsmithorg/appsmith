@@ -2293,8 +2293,8 @@
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tcounterObj: [1,,2,3,4],\n\tincrement: async function(){\n\t  this.counterObj.push(this.counterObj.length) \n\t},\n\tdecrement: function(){\n\t this.counterObj.pop()\n\t}\n }",
-        "variables": [{ "name": "counterObj", "value": "[1, , 2, 3, 4]" }],
+        "body": "export default {\n\tcounterObj: [],\n\tincrement: async function(){\n\t  this.counterObj.push(this.counterObj.length) \n\t},\n\tdecrement: function(){\n\t this.counterObj.pop()\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "[]" }],
         "userPermissions": []
       },
       "publishedCollection": {
@@ -2304,8 +2304,8 @@
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tcounterObj: [1,,2,3,4],\n\tincrement: async function(){\n\t  this.counterObj.push(this.counterObj.length) \n\t},\n\tdecrement: function(){\n\t this.counterObj.pop()\n\t},\n\tprint: () => this.counterObj\n }",
-        "variables": [{ "name": "counterObj", "value": "[1, , 2, 3, 4]" }],
+        "body": "export default {\n\tcounterObj: [],\n\tincrement: async function(){\n\t  this.counterObj.push(this.counterObj.length) \n\t},\n\tdecrement: function(){\n\t this.counterObj.pop()\n\t},\n\tprint: () => this.counterObj\n }",
+        "variables": [{ "name": "counterObj", "value": "[]" }],
         "userPermissions": []
       },
       "id": "Mutation_Test_array_",
