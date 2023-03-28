@@ -348,8 +348,6 @@ describe("Validate Arango & CURL Import Datasources", () => {
 
       //Deleting datasource finally
       _.dataSources.DeleteDatasouceFromWinthinDS(dsName);
-      expect(true).to.eq(false)
-
     });
   });
 });
