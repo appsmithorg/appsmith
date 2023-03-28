@@ -342,7 +342,7 @@ export function extractAlignmentInfo(
       disableResizeHandles?.vertical &&
       minHeight
     ) {
-      rows = minHeight / rowSpace;
+      rows = Math.round(minHeight / rowSpace);
     }
 
     // If the widget's width is less than its min width, then calculate the number of columns based on min width.
