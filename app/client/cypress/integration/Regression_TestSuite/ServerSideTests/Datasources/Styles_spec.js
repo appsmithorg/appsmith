@@ -152,9 +152,9 @@ describe("Validate Datasource Panel Styles", function () {
 
   after(() => {
     //Delete Datasource
-    cy.get(".t--datasource-menu-option").eq(0).click();
-    cy.get(".t--datasource-option-delete").click();
-    cy.get(".t--datasource-option-delete").click();
+    // cy.get(".t--datasource-menu-option").eq(0).click();
+    // cy.get(".t--datasource-option-delete").click();
+    // cy.get(".t--datasource-option-delete").click();
     //Delete Application
     cy.get(HomePage.applicationName).click();
     cy.get(".t--application-edit-menu li")

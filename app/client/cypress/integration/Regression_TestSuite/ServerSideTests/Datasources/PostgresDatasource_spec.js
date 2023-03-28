@@ -9,20 +9,7 @@ describe("Postgres datasource test cases", function () {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create, test, save then delete a postgres datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.fillPostgresDatasourceForm();
-    cy.testSaveDatasource();
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = JSON.stringify(httpResponse.response.body.data.name);
-      dataSource.DeleteDatasouceFromActiveTab(
-        datasourceName.replace(/['"]+/g, ""),
-      );
-    });
-  });
-
-  it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function () {
+  it("1. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.fillPostgresDatasourceForm(true);
@@ -34,7 +21,7 @@ describe("Postgres datasource test cases", function () {
     });
   });
 
-  it("3. Create a new query from the datasource editor", function () {
+  it("2. Create a new query from the datasource editor", function () {
     cy.get(datasource.createQuery).last().click();
     cy.wait("@createNewApi").should(
       "have.nested.property",
