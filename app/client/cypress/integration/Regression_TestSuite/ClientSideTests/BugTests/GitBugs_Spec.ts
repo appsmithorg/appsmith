@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { locators } from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
 describe("Git Bugs", function () {
@@ -41,10 +42,10 @@ describe("Git Bugs", function () {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.agHelper.Sleep(500);
-    _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
+    cy.get(".t--open-dropdown-Select-Page").click();
+    cy.get(locators._dropDownValue("Page2")).click();
     _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");
