@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @ChangeUnit(order = "005", id="create-application-detail-field-to-application-collection")
 public class Migration005CreateApplicationDetailMigration {
@@ -27,6 +28,7 @@ public class Migration005CreateApplicationDetailMigration {
         Update update = new Update();
         update.set(fieldName(QApplication.application.unpublishedApplicationDetail), new ApplicationDetail());
         update.set(fieldName(QApplication.application.publishedApplicationDetail), new ApplicationDetail());
-        mongoTemplate.updateMulti(new Query(), update, Application.class);
+        Query query = new Query(where(fieldName(QApplication.application.deleted)).ne(true));
+        mongoTemplate.updateMulti(query, update, Application.class);
     }
 }
