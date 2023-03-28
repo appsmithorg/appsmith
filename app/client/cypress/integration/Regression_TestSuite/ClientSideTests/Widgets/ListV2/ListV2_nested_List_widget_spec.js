@@ -152,52 +152,42 @@ describe(" Nested List Widgets ", function () {
     cy.openPropertyPaneByWidgetName("Text4", "textwidget");
     cy.testJsontextclear("text");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.List3.",
+      "{{level_1.currentView.List3.currentItemsView",
       {
         force: true,
       },
     );
 
-    checkAutosuggestion("backgroundColor", "String");
-    checkAutosuggestion("itemSpacing", "Number");
-    checkAutosuggestion("isVisible", "Boolean");
-    checkAutosuggestion("listData", "Array");
-    checkAutosuggestion("pageNo", "Number");
-    checkAutosuggestion("pageSize", "Number");
-    checkAutosuggestion("currentItemsView", "Array");
-    checkAutosuggestion("selectedItemView", "Object");
-    checkAutosuggestion("triggeredItemView", "Object");
-
-    cy.get(".CodeMirror-hints")
-      .contains("selectedItemView")
-      .first()
-      .click({ force: true });
-
-    cy.get(`${widgetSelector("List3")} ${containerWidgetSelector} `)
-      .first()
-      .click({ force: true });
-
-    cy.wait(300);
-
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
-      .then((val) => {
-        const data = JSON.parse(val.text());
-        cy.wrap(data.Text6.text).should("equal", "Blue");
-      });
+      .should("be.empty");
 
     cy.openPropertyPaneByWidgetName("Text4", "textwidget");
 
     cy.testJsontextclear("text");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.List3.",
+      "{{level_1.currentView.List2.currentItemsView",
+      {
+        force: true,
+      },
+    );
+    cy.wait(300);
+
+    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("be.empty");
+
+    cy.openPropertyPaneByWidgetName("Text5", "textwidget");
+    cy.testJsontextclear("text");
+
+    cy.get(".t--property-control-text .CodeMirror textarea").type(
+      "{{List1.selectedItemView.List2.currentItemsView",
       {
         force: true,
       },
     );
 
-    cy.get(".CodeMirror-hints")
-      .contains("currentItemsView")
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector} `)
       .first()
       .click({ force: true });
 
@@ -205,16 +195,9 @@ describe(" Nested List Widgets ", function () {
 
     cy.waitUntil(() =>
       cy
-        .get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
+        .get(`${widgetSelector("Text5")} ${commonlocators.bodyTextStyle}`)
         .first()
-        .contains("Text6"),
+        .contains("Text4"),
     );
-
-    cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
-      .first()
-      .then((val) => {
-        const data = JSON.parse(val.text());
-        cy.wrap(data[0].Text6.text).should("equal", "Blue");
-      });
   });
 });

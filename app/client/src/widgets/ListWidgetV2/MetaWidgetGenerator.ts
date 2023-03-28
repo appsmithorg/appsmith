@@ -1131,11 +1131,15 @@ class MetaWidgetGenerator {
           lookupLevel?.currentRowCache?.[widgetName] || {};
 
         if (entityDefinition) {
-          const filteredEntityDefinition = this.getFilteredEntityDef(
-            entityDefinition,
-            metaWidgetName,
-            type,
-          );
+          let filteredEntityDefinition = entityDefinition;
+
+          if (BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type]) {
+            filteredEntityDefinition = this.getPropertiesOfWidget(
+              metaWidgetName,
+              type,
+              BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+            );
+          }
 
           levelProps[level] = {
             ...(levelProps[level] || {}),
@@ -1160,38 +1164,6 @@ class MetaWidgetGenerator {
         { key: path },
       ];
     });
-  };
-
-  /**
-   * We can't outrightly remove selectedItemView/triggeredItemView.
-   * List1 --> Level_1
-   *    List2 --> Level_2
-   *       List3 --> Level_3
-   *          Text2
-   *       List4 --> Level_3
-   *          Text3
-   * Assuming we have this setup, Accessing Text2 from Text3 would be
-   * {{level_2.currentView.List3.triggeredItemView.Text2.text}}
-   *
-   * So for every widget this.widgetName is the parent List widget name.
-   * And we use this check to selectively blacklist some properties.
-   */
-
-  private getFilteredEntityDef = (
-    entityDefinition: string,
-    widgetName: string,
-    type: string,
-  ) => {
-    const filteredEntityDef =
-      this.widgetName === widgetName
-        ? this.getPropertiesOfWidget(
-            widgetName,
-            type,
-            BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
-          )
-        : entityDefinition;
-
-    return filteredEntityDef;
   };
 
   private updateContainerBindings = (

@@ -680,16 +680,9 @@ describe("#generate", () => {
   });
 
   it("adds LevelData to nested list", () => {
-    const nestedTextWidgetId = "dkk5yh9urt";
     const { initialResult } = init({
       optionsProps: {
-        currTemplateWidgets: {
-          ...nestedListInput.templateWidgets,
-          dkk5yh9urt: {
-            ...nestedListInput.templateWidgets[nestedTextWidgetId],
-            text: "{{level_1.currentView.List6}}",
-          },
-        },
+        currTemplateWidgets: nestedListInput.templateWidgets,
         containerParentId: nestedListInput.containerParentId,
         containerWidgetId: nestedListInput.mainContainerId,
       },
