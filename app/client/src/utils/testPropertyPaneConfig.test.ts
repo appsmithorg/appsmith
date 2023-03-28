@@ -1,4 +1,4 @@
-import {
+import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
@@ -163,9 +163,13 @@ describe("Tests all widget's propertyPane config", () => {
       expect(isNotFloat(config.defaults.rows)).toBe(true);
       expect(isNotFloat(config.defaults.columns)).toBe(true);
     });
-    if (config.isDeprecated && config.replacement !== undefined) {
+
+    if (config.isDeprecated) {
       it(`Check if ${widget.getWidgetType()}'s deprecation config has a proper replacement Widget`, () => {
         const widgetType = widget.getWidgetType();
+        if (config.replacement === undefined) {
+          fail(`${widgetType}'s replacement widget is not defined`);
+        }
         const replacementWidgetType = config.replacement;
         const replacementWidgetConfig = WidgetFactory.widgetConfigMap.get(
           replacementWidgetType,

@@ -8,7 +8,7 @@ const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Table Widget V2 and Navigate to functionality validation", function() {
+describe("Table Widget V2 and Navigate to functionality validation", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -22,7 +22,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.wait(2000); //dsl to settle!
   });
 
-  it("1. Create MyPage and validate if its successfully created", function() {
+  it("1. Create MyPage and validate if its successfully created", function () {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -31,7 +31,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
-  it("2. Table Widget V2 Functionality with multiple page", function() {
+  it("2. Table Widget V2 Functionality with multiple page", function () {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -39,13 +39,11 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,
-      commonlocators.tableV2Inner,
+      widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();
-    cy.get(widgetsPage.tableOnRowSelect)
-      .scrollIntoView()
-      .should("be.visible");
+    cy.get(widgetsPage.tableOnRowSelect).scrollIntoView().should("be.visible");
     cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
@@ -58,7 +56,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.assertPageSave();
   });
 
-  it("3. Validate NavigateTo Page functionality ", function() {
+  it("3. Validate NavigateTo Page functionality ", function () {
     cy.wait(2000);
     cy.PublishtheApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");

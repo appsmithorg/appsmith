@@ -1,15 +1,15 @@
 import { get } from "lodash";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 import {
   ERROR_CODES,
   SERVER_ERROR_CODES,

@@ -1,6 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { TimePrecision } from "./constants";
 import IconSVG from "./icon.svg";
@@ -41,6 +43,8 @@ export const CONFIG = {
     firstDayOfWeek: 0,
     timePrecision: TimePrecision.MINUTE,
     animateLoading: true,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -1,28 +1,26 @@
 import hash from "object-hash";
 import { klona } from "klona";
 import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
+import type { VirtualizerOptions } from "@tanstack/virtual-core";
 import {
   elementScroll,
   observeElementOffset,
   observeElementRect,
   Virtualizer,
-  VirtualizerOptions,
 } from "@tanstack/virtual-core";
 import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
   RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import {
-  DEFAULT_TEMPLATE_BOTTOM_ROW,
-  DynamicPathType,
+import type {
   LevelData,
   ListWidgetProps,
   MetaWidget,
@@ -30,15 +28,15 @@ import {
   MetaWidgetCacheProps,
   MetaWidgets,
 } from "./widget";
-import { WidgetProps } from "widgets/BaseWidget";
+import { DEFAULT_TEMPLATE_BOTTOM_ROW, DynamicPathType } from "./widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 
-type TemplateWidgets = ListWidgetProps<
-  WidgetProps
->["flattenedChildCanvasWidgets"];
+type TemplateWidgets =
+  ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];
 
 type CachedKeyDataMap = Record<string, Record<string, unknown>>;
 
@@ -88,7 +86,7 @@ export type GeneratorOptions = {
   nestedViewIndex?: number;
   pageNo?: number;
   pageSize?: number;
-  primaryKeys?: (string | number | undefined | null)[];
+  primaryKeys?: string[];
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
   templateBottomRow: number;
@@ -181,7 +179,7 @@ enum MODIFICATION_TYPE {
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentItemsView"],
+  LIST_WIDGET_V2: ["currentItemsView", "selectedItemView", "triggeredItemView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -364,9 +362,8 @@ class MetaWidgetGenerator {
     const currentViewData = this.getCurrentViewData();
     const dataCount = currentViewData.length;
     const indices = Array.from(Array(dataCount).keys());
-    const containerParentWidget = this?.currTemplateWidgets?.[
-      this.containerParentId
-    ];
+    const containerParentWidget =
+      this?.currTemplateWidgets?.[this.containerParentId];
     let metaWidgets: MetaWidgets = {};
     this.siblings = {};
 
@@ -388,14 +385,12 @@ class MetaWidgetGenerator {
 
           this.generateWidgetCacheData(rowIndex, viewIndex);
 
-          const {
-            childMetaWidgets,
-            metaWidget,
-          } = this.generateMetaWidgetRecursively({
-            rowIndex,
-            parentId: this.containerParentId,
-            templateWidgetId: this.containerWidgetId,
-          });
+          const { childMetaWidgets, metaWidget } =
+            this.generateMetaWidgetRecursively({
+              rowIndex,
+              parentId: this.containerParentId,
+              templateWidgetId: this.containerWidgetId,
+            });
 
           metaWidgets = {
             ...metaWidgets,
@@ -435,18 +430,16 @@ class MetaWidgetGenerator {
     this.cachedItemKeys.curr.forEach((key) => {
       const rowIndex = this.getRowIndexFromPrimaryKey(key);
 
-      const {
-        childMetaWidgets,
-        metaWidget,
-      } = this.generateMetaWidgetRecursively({
-        rowIndex,
-        parentId: this.containerParentId,
-        templateWidgetId: this.containerWidgetId,
-        options: {
-          keepMetaWidgetData: true,
-          key,
-        },
-      });
+      const { childMetaWidgets, metaWidget } =
+        this.generateMetaWidgetRecursively({
+          rowIndex,
+          parentId: this.containerParentId,
+          templateWidgetId: this.containerWidgetId,
+          options: {
+            keepMetaWidgetData: true,
+            key,
+          },
+        });
 
       cachedMetaWidgets = {
         ...cachedMetaWidgets,
@@ -508,10 +501,8 @@ class MetaWidgetGenerator {
    */
 
   private getRemovedMetaWidgetIds = () => {
-    const {
-      currCachedMetaWidgetIds,
-      prevCachedMetaWidgetIds,
-    } = this.getMetaWidgetIdsInCachedItems();
+    const { currCachedMetaWidgetIds, prevCachedMetaWidgetIds } =
+      this.getMetaWidgetIdsInCachedItems();
     const currViewMetaWidgetIds = this.getCurrViewMetaWidgetIds();
     const prevViewMetaWidgetIds = this.getPrevViewMetaWidgetIds();
 
@@ -564,15 +555,13 @@ class MetaWidgetGenerator {
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
     const viewIndex = this.getViewIndex(rowIndex);
     const rowReferences = this.getRowReferences(key);
-    const {
-      children,
-      metaWidgets: childMetaWidgets,
-    } = this.generateMetaWidgetChildren({
-      rowIndex,
-      templateWidget,
-      parentId: metaWidgetId,
-      options,
-    });
+    const { children, metaWidgets: childMetaWidgets } =
+      this.generateMetaWidgetChildren({
+        rowIndex,
+        templateWidget,
+        parentId: metaWidgetId,
+        options,
+      });
 
     if (
       !this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key) &&
@@ -652,16 +641,13 @@ class MetaWidgetGenerator {
     let metaWidgets: MetaWidgets = {};
 
     (templateWidget.children || []).forEach((childWidgetId: string) => {
-      const {
-        childMetaWidgets,
-        metaWidget,
-        metaWidgetId,
-      } = this.generateMetaWidgetRecursively({
-        rowIndex,
-        parentId,
-        templateWidgetId: childWidgetId,
-        options,
-      });
+      const { childMetaWidgets, metaWidget, metaWidgetId } =
+        this.generateMetaWidgetRecursively({
+          rowIndex,
+          parentId,
+          templateWidgetId: childWidgetId,
+          options,
+        });
 
       metaWidgets = {
         ...metaWidgets,
@@ -770,7 +756,9 @@ class MetaWidgetGenerator {
     const metaWidgetId =
       currentCache.metaWidgetId || this.generateMetaWidgetId();
 
-    const metaWidgetName = `${this.widgetName}_${templateWidgetId}_${metaWidgetId}`;
+    const metaWidgetName =
+      currentCache.metaWidgetName ||
+      `${this.widgetName}_${templateWidgetName}_${metaWidgetId}`;
     const entityDefinition = generateEntityDefinition
       ? currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type)
@@ -943,11 +931,8 @@ class MetaWidgetGenerator {
     key: string,
     options: AddDynamicPathsPropertiesOptions = {},
   ) => {
-    const {
-      metaWidgetId,
-      metaWidgetName,
-      templateWidgetName,
-    } = metaWidgetCacheProps;
+    const { metaWidgetId, metaWidgetName, templateWidgetName } =
+      metaWidgetCacheProps;
     const { excludedPaths = [] } = options;
     const dynamicPaths = [
       ...(metaWidget.dynamicBindingPathList || []),
@@ -1023,18 +1008,12 @@ class MetaWidgetGenerator {
      * Calling this here as all references in all the dynamicBindingPathList has to
      * be collected first in the above loop and then added at last.
      */
-    // if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
-    //   this.addCurrentViewProperty(
-    //     metaWidget,
-    //     Object.values(referencesEntityDef),
-    //   );
-    // }
-    /**
-     * The above commented out code should be used instead of this
-     * only after the following issue is resolved
-     * https://github.com/appsmithorg/appsmith/issues/20401
-     */
-    this.addCurrentViewProperty(metaWidget, Object.values(referencesEntityDef));
+    if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
+      this.addCurrentViewProperty(
+        metaWidget,
+        Object.values(referencesEntityDef),
+      );
+    }
   };
 
   /**
@@ -1352,9 +1331,8 @@ class MetaWidgetGenerator {
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
-    const isMetaWidgetPresentInCurrentView = this.isMetaWidgetPresentInView(
-      originalMetaWidgetId,
-    );
+    const isMetaWidgetPresentInCurrentView =
+      this.isMetaWidgetPresentInView(originalMetaWidgetId);
     const hasTemplateWidgetChanged = !unchanged.has(templateWidgetId);
     const containerUpdateRequired = this.modificationsQueue.has(
       MODIFICATION_TYPE.UPDATE_CONTAINER,
@@ -1607,14 +1585,15 @@ class MetaWidgetGenerator {
        *  templateWidgetNames -> ["Text1", "Input1", "Image1"]
        *  dependantTemplateWidgets -> ["Input1"]
        */
-      templateWidgetNames.filter((templateWidgetName) => {
+      templateWidgetNames.forEach((templateWidgetName) => {
         if (value.includes(templateWidgetName)) {
           const dependantMetaWidget = metaWidgetsMap[templateWidgetName];
 
           // "Input1: { value: List1_Input1_1.value, text: List1_Input1_1.text }"
           dependantBinding[templateWidgetName] = `
-            ${templateWidgetName}: {${dependantMetaWidget?.entityDefinition ||
-            ""}}
+            ${templateWidgetName}: {${
+            dependantMetaWidget?.entityDefinition || ""
+          }}
           `;
         }
       });
@@ -1722,12 +1701,8 @@ class MetaWidgetGenerator {
   private getContainerBinding = (metaWidgets: MetaWidgetCacheProps[]) => {
     const widgetsProperties: string[] = [];
     metaWidgets.forEach((metaWidget) => {
-      const {
-        metaWidgetName,
-        templateWidgetId,
-        templateWidgetName,
-        type,
-      } = metaWidget;
+      const { metaWidgetName, templateWidgetId, templateWidgetName, type } =
+        metaWidget;
       const properties = this.getPropertiesOfWidget(metaWidgetName, type);
       const isContainer = templateWidgetId === this.containerWidgetId;
 
@@ -1806,6 +1781,8 @@ class MetaWidgetGenerator {
     this.updateCurrCachedRows(keys);
     this.updateCachedKeyDataMap(keys);
   };
+
+  getCurrCachedRows = () => this.cachedItemKeys.curr;
 
   /**
    * We want to always get the current data before checking the cache

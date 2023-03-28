@@ -1,19 +1,15 @@
-import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
-import { Types } from "utils/TypeHelpers";
-import {
-  ActionTriggerKeys,
-  getActionTriggerFunctionNames,
-} from "@appsmith/workers/Evaluation/fns/index";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import type { Types } from "utils/TypeHelpers";
+import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { toast } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "../../selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {
@@ -21,6 +17,7 @@ import {
   showDebugger,
 } from "../../actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
+import store from "store";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -96,18 +93,16 @@ export const logActionExecutionError = (
   //   ]);
   // }
 
-  // function onDebugClick() {
-  //   const dispatch = useDispatch();
-  //   const appMode = useSelector(getAppMode);
-  //
-  //   if (appMode === "PUBLISHED") return null;
-  //
-  //   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-  //     source: "TOAST",
-  //   });
-  //   dispatch(showDebugger(true));
-  //   dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-  // }
+  function onDebugClick() {
+    const appMode = getAppMode(store.getState());
+    if (appMode === "PUBLISHED") return null;
+
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "TOAST",
+    });
+    store.dispatch(showDebugger(true));
+    store.dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  }
 
   if (!!triggerPropertyName) {
     toast.show(errorMessage, {
@@ -117,9 +112,8 @@ export const logActionExecutionError = (
     toast.show(errorMessage, {
       kind: "error",
       action: {
-        actionText: "debug",
-        // effect: () => onDebugClick(),
-        effect: () => console.log("open debugger"),
+        text: "debug",
+        effect: () => onDebugClick(),
         className: "t--toast-debug-button",
       },
     });

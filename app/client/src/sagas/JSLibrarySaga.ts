@@ -1,17 +1,17 @@
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
 import {
   createMessage,
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import type { ActionPattern } from "redux-saga/effects";
 import {
   actionChannel,
-  ActionPattern,
   all,
   call,
   put,
@@ -29,17 +29,14 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { TJSLibrary } from "workers/common/JSLibrary";
+import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "selectors/entitiesSelector";
 import { toast } from "design-system";
 
 export function parseErrorMessage(text: string) {
-  return text
-    .split(": ")
-    .slice(1)
-    .join("");
+  return text.split(": ").slice(1).join("");
 }
 
 function* handleInstallationFailure(
@@ -62,9 +59,8 @@ function* handleInstallationFailure(
   toast.show(message || `Failed to install library script at ${url}`, {
     kind: "error",
   });
-  const applicationid: ReturnType<typeof getCurrentApplicationId> = yield select(
-    getCurrentApplicationId,
-  );
+  const applicationid: ReturnType<typeof getCurrentApplicationId> =
+    yield select(getCurrentApplicationId);
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
     payload: { url, show: false },
@@ -314,19 +310,17 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
 
     const libraries = response.data as Array<TJSLibrary & { defs: string }>;
 
-    const {
-      message,
-      success,
-    }: { success: boolean; message: string } = yield call(
-      EvalWorker.request,
-      EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
-      libraries.map((lib) => ({
-        name: lib.name,
-        version: lib.version,
-        url: lib.url,
-        accessor: lib.accessor,
-      })),
-    );
+    const { message, success }: { success: boolean; message: string } =
+      yield call(
+        EvalWorker.request,
+        EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
+        libraries.map((lib) => ({
+          name: lib.name,
+          version: lib.version,
+          url: lib.url,
+          accessor: lib.accessor,
+        })),
+      );
 
     if (!success) {
       if (mode === APP_MODE.EDIT) {
@@ -409,7 +403,7 @@ function* startInstallationRequestChannel() {
   }
 }
 
-export default function*() {
+export default function* () {
   yield all([
     takeEvery(ReduxActionTypes.UNINSTALL_LIBRARY_INIT, uninstallLibrarySaga),
     takeLatest(ReduxActionTypes.FETCH_JS_LIBRARIES_INIT, fetchJSLibraries),

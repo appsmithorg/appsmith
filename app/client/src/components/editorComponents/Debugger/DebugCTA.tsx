@@ -1,13 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import {
-  setCanvasDebuggerSelectedTab,
-  showDebugger,
-} from "actions/debuggerActions";
-import { useDispatch, useSelector } from "react-redux";
-import { getAppMode } from "selectors/applicationSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
   Button,
   Classes,
   getTypographyByKey,
@@ -15,12 +8,11 @@ import {
   IconSize,
   Variant,
 } from "design-system-old";
-import { Message } from "entities/AppsmithConsole";
+import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
-import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
-import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const EVDebugButton = styled.button`
   ${getTypographyByKey("btnSmall")};
@@ -116,30 +108,6 @@ const StyledButton = styled(Button)`
   }
 `;
 
-type DebugCTAProps = {
-  className?: string;
-  // For Analytics
-  source?: string;
-};
-
-function DebugCTA(props: DebugCTAProps) {
-  const dispatch = useDispatch();
-  const appMode = useSelector(getAppMode);
-
-  if (appMode === "PUBLISHED") return null;
-
-  const onClick = () => {
-    props.source &&
-      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-        source: props.source,
-      });
-    dispatch(showDebugger(true));
-    dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-  };
-
-  return <DebugButton className={props.className} onClick={onClick} />;
-}
-
 type DebugButtonProps = {
   className?: string;
   onClick: () => void;
@@ -158,5 +126,3 @@ export function DebugButton(props: DebugButtonProps) {
     />
   );
 }
-
-export default DebugCTA;

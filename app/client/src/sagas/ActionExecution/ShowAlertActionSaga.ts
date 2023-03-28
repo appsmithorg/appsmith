@@ -1,8 +1,8 @@
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 import { toast } from "design-system";
+import type { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 
 export default function* showAlertSaga(action: TShowAlertDescription) {
   const { payload } = action;

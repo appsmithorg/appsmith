@@ -1,14 +1,16 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import CheckboxComponent from "../component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import React from "react";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
-import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import CheckboxComponent from "../component";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -123,6 +125,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

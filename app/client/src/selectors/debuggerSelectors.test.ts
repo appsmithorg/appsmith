@@ -1,7 +1,7 @@
 import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getFilteredErrors } from "./debuggerSelectors";
 
@@ -62,8 +62,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -150,8 +150,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -262,8 +262,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -374,8 +374,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -512,8 +512,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -600,8 +600,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -693,8 +693,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -813,8 +813,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -901,8 +901,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });

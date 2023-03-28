@@ -9,7 +9,6 @@ import { redoAction, undoAction } from "actions/pageActions";
 import { Toast } from "design-system";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { MemoryRouter } from "react-router-dom";
-import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import store, { runSagaMiddleware } from "store";
@@ -31,6 +30,7 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import MainContainer from "../MainContainer";
 import GlobalHotKeys from "./GlobalHotKeys";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
@@ -65,7 +65,7 @@ describe("Canvas Hot Keys", () => {
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
-    const mockGenerator = function*() {
+    const mockGenerator = function* () {
       yield all([]);
     };
 
@@ -145,9 +145,8 @@ describe("Canvas Hot Keys", () => {
           fireEvent.click(canvasWidgets[0].firstChild);
         }
       });
-      const tabsWidgetName: any = component.container.querySelector(
-        `span.t--widget-name`,
-      );
+      const tabsWidgetName: any =
+        component.container.querySelector(`span.t--widget-name`);
       fireEvent.click(tabsWidgetName);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
@@ -497,6 +496,7 @@ describe("Cut/Copy/Paste hotkey", () => {
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const artBoard: any = await component.queryByTestId("t--canvas-artboard");
     // deselect all other widgets

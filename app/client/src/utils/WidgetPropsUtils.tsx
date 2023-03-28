@@ -1,28 +1,26 @@
-import { FetchPageResponse } from "api/PageApi";
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import {
-  WidgetOperation,
-  WidgetOperations,
-  WidgetProps,
-} from "widgets/BaseWidget";
+import type { FetchPageResponse } from "api/PageApi";
+import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/BaseWidget";
+import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
-  RenderMode,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";
-import { WidgetType } from "./WidgetFactory";
-import { DSLWidget } from "widgets/constants";
-import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { BlockSpace, GridProps } from "reflow/reflowTypes";
-import { areIntersecting, Rect } from "./boxHelpers";
+import type { WidgetType } from "./WidgetFactory";
+import type { DSLWidget } from "widgets/constants";
+import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { BlockSpace, GridProps } from "reflow/reflowTypes";
+import type { Rect } from "./boxHelpers";
+import { areIntersecting } from "./boxHelpers";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -223,6 +221,7 @@ export const widgetOperationParams = (
     width: number;
     height: number;
   },
+  fullWidth = false,
 ): WidgetOperationParams => {
   const [leftColumn, topRow] = getDropZoneOffsets(
     parentColumnSpace,
@@ -242,9 +241,11 @@ export const widgetOperationParams = (
         bottomRow: Math.round(
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
-        rightColumn: Math.round(
-          leftColumn + widgetSizeUpdates.width / parentColumnSpace,
-        ),
+        rightColumn: fullWidth
+          ? 64
+          : Math.round(
+              leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+            ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
@@ -253,7 +254,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: widget.columns,
+    columns: fullWidth ? 64 : widget.columns,
     rows: widget.rows,
   };
 
@@ -272,10 +273,17 @@ export const widgetOperationParams = (
   };
 };
 
-export const getCanvasSnapRows = (bottomRow: number): number => {
-  const totalRows = Math.floor(
-    bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
+export const getCanvasSnapRows = (
+  bottomRow: number,
+  mobileBottomRow?: number,
+  isMobile?: boolean,
+  isAutoLayoutActive?: boolean,
+): number => {
+  const bottom =
+    isMobile && mobileBottomRow !== undefined && isAutoLayoutActive
+      ? mobileBottomRow
+      : bottomRow;
+  const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
   return totalRows - 1;
 };

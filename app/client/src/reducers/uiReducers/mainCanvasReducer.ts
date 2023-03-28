@@ -1,17 +1,21 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import {
+import type {
   ReduxAction,
-  ReduxActionTypes,
   UpdateCanvasPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { UpdateCanvasLayoutPayload } from "actions/controlActions";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  layoutConfigurations,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import type { UpdateCanvasLayoutPayload } from "actions/controlActions";
 
 const initialState: MainCanvasReduxState = {
   initialized: false,
   width: 0,
   height: 0,
   scale: 1,
+  isMobile: false,
 };
 
 const mainCanvasReducer = createImmerReducer(initialState, {
@@ -33,6 +37,8 @@ const mainCanvasReducer = createImmerReducer(initialState, {
     state.width = action.payload.width || state.width;
     state.scale = action.payload.scale;
     state.initialized = true;
+    state.isMobile =
+      action.payload.width <= layoutConfigurations.MOBILE.maxWidth;
   },
 });
 
@@ -41,6 +47,7 @@ export interface MainCanvasReduxState {
   width: number;
   height: number;
   scale: number;
+  isMobile: boolean;
 }
 
 export default mainCanvasReducer;

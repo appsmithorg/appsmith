@@ -10,7 +10,7 @@ const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
 
-describe("MaintainContext&Focus", function() {
+describe("MaintainContext&Focus", function () {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
@@ -170,9 +170,9 @@ describe("MaintainContext&Focus", function() {
     dataSources.ExpandSection(0);
     agHelper.GoBack();
     ee.SelectEntityByName("Github", "Datasources");
-    dataSources.AssertViewMode();
+    dataSources.AssertDSEditViewMode("View");
     ee.SelectEntityByName("Appsmith", "Datasources");
-    dataSources.AssertEditMode();
+    dataSources.AssertDSEditViewMode("Edit");
     dataSources.AssertSectionCollapseState(0, false);
   });
 

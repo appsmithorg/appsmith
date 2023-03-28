@@ -1,5 +1,5 @@
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   FocusHistory,
   FocusState,
 } from "reducers/uiReducers/focusHistoryReducer";
