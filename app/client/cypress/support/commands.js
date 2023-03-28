@@ -19,7 +19,7 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
-import { ObjectsRegistry } from "./Objects/Registry";
+import * as _ from "./Objects/ObjectsCore";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -30,11 +30,6 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-
-// import { ObjectsRegistry } from "../support/Objects/Registry";
-// let agHelper = ObjectsRegistry.AggregateHelper;
-
-const { AggregateHelper, CommonLocators } = ObjectsRegistry;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -784,27 +779,27 @@ Cypress.Commands.add("closePropertyPane", () => {
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, queryName) => {
-  cy.get(CommonLocators._actionCardByValue(queryName)).click();
+  cy.get(_.locators._actionCardByValue(queryName)).click();
 
-  cy.get(CommonLocators._actionCallbacks).click();
+  cy.get(_.locators._actionCallbacks).click();
 
   // add a success callback
-  cy.get(CommonLocators._actionAddCallback("success")).click().wait(500);
-  cy.get(CommonLocators._dropDownValue("Show Alert")).click().wait(500);
-  AggregateHelper.TypeText(
-    CommonLocators._actionSelectorFieldByLabel("Message"),
+  cy.get(_.locators._actionAddCallback("success")).click().wait(500);
+  cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
+  _.agHelper.TypeText(
+    _.locators._actionSelectorFieldByLabel("Message"),
     forSuccess,
   );
-  cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+  cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
   // add a failure callback
-  cy.get(CommonLocators._actionAddCallback("failure")).click().wait(500);
-  cy.get(CommonLocators._dropDownValue("Show Alert")).click().wait(500);
-  AggregateHelper.TypeText(
-    CommonLocators._actionSelectorFieldByLabel("Message"),
+  cy.get(_.locators._actionAddCallback("failure")).click().wait(500);
+  cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
+  _.agHelper.TypeText(
+    _.locators._actionSelectorFieldByLabel("Message"),
     forFailure,
   );
-  cy.get(`${CommonLocators._actionSelectorPopup} .t--close`).click();
+  cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 });
 
 Cypress.Commands.add("isSelectRow", (index) => {

@@ -366,4 +366,11 @@ export class PropertyPane {
   public AddAction(property: string) {
     cy.get(this._addAction(property)).click({ force: true });
   }
+
+  public SelectActionByTitleAndValue(title: string, value: string) {
+    cy.get(this.locator._actionCardByTitle(title))
+      .children()
+      .contains(value)
+      .click();
+  }
 }
