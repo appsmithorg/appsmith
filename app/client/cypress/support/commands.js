@@ -778,29 +778,32 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.canvas).click({ force: true });
 });
 
-Cypress.Commands.add("onClickActions", (forSuccess, forFailure, queryName) => {
-  cy.get(_.locators._actionCardByValue(queryName)).click();
+Cypress.Commands.add(
+  "onClickActions",
+  (forSuccess, forFailure, actionType, actionValue) => {
+    _.propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-  cy.get(_.locators._actionCallbacks).click();
+    cy.get(_.locators._actionCallbacks).click();
 
-  // add a success callback
-  cy.get(_.locators._actionAddCallback("success")).click().wait(500);
-  cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
-  _.agHelper.TypeText(
-    _.locators._actionSelectorFieldByLabel("Message"),
-    forSuccess,
-  );
-  cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    // add a success callback
+    cy.get(_.locators._actionAddCallback("success")).click().wait(500);
+    cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
+    _.agHelper.TypeText(
+      _.locators._actionSelectorFieldByLabel("Message"),
+      forSuccess,
+    );
+    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
-  // add a failure callback
-  cy.get(_.locators._actionAddCallback("failure")).click().wait(500);
-  cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
-  _.agHelper.TypeText(
-    _.locators._actionSelectorFieldByLabel("Message"),
-    forFailure,
-  );
-  cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
-});
+    // add a failure callback
+    cy.get(_.locators._actionAddCallback("failure")).click().wait(500);
+    cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
+    _.agHelper.TypeText(
+      _.locators._actionSelectorFieldByLabel("Message"),
+      forFailure,
+    );
+    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+  },
+);
 
 Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')

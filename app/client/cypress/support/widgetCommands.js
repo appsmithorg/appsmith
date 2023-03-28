@@ -1093,12 +1093,15 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
     .selectOnClickOption(QueryName);
 });
 
-Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
-  ObjectsRegistry.PropertyPane.AddAction("onClick");
-  cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Execute a query"))
-    .click()
-    .selectOnClickOption(ApiName);
-});
+Cypress.Commands.add(
+  "addAPIFromLightningMenu",
+  (ApiName, eventName = "onClick") => {
+    ObjectsRegistry.PropertyPane.AddAction(eventName);
+    cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Execute a query"))
+      .click()
+      .selectOnClickOption(ApiName);
+  },
+);
 
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
