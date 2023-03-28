@@ -13,11 +13,13 @@ import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
 import com.appsmith.util.WebClientUtils;
+import com.eclipsesource.json.Json;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -50,6 +52,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -245,10 +248,10 @@ public class FileUtilsImpl implements FileInterface {
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
 
-                        Map<String, Object> flattenedJson = JsonFlattener.flattenAsMap(new JSONObject(applicationGitReference.getPageDsl().get(pageName)).toString());
+                        //Map<String, Object> flattenedJson = JsonFlattener.flattenAsMap(new JSONObject(applicationGitReference.getPageDsl().get(pageName)).toString());
                         JSONObject dsl = new JSONObject(applicationGitReference.getPageDsl().get(pageName));
 
-                        Object normalizedDSL = getNormalizedDSL(new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
+                        JSONObject normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
 
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
@@ -830,28 +833,21 @@ public class FileUtilsImpl implements FileInterface {
             .pendingAcquireMaxCount(-1)
             .build());
 
-    public Object getNormalizedDSL(JSONObject dsl) {
+    public JSONObject getNormalizedDSL(String dsl) {
+
         return webClient.post()
                 .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/normalize")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(dsl))
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(o -> {
+                .map(jsonString -> {
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    return jsonObject;
 
-                    return o;
                 })
                 .block();
-
-                /*.exchangeToMono(clientResponse -> {
-                    if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError()) {
-                        return clientResponse.bodyToMono(JSONObject.class)
-                                .flatMap(error -> {
-                                    log.error("Error while normalizing DSL: {}", error);
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error));
-                                });
-                    }
-                    return clientResponse.bodyToMono(JSONObject.class);
-                })*/
 
     }
 
