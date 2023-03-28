@@ -85,7 +85,7 @@ export function* updateLayoutForMobileCheckpoint(
 
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
-      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
+      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
