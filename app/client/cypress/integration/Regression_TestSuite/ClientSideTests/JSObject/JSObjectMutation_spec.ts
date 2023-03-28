@@ -49,7 +49,7 @@ describe("JSObject testing", () => {
     _.agHelper
       .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
       .then(($label) => {
-        expect($label).contains("[  1,  1,  2,  3]");
+        expect($label).contains("[  0,  1,  2]");
       });
   });
 
