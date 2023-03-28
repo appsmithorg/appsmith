@@ -4,7 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.exceptions.GSheetsPluginError;
-import com.external.utils.SheetsUtil;
+import static com.external.utils.SheetsUtil.getSpreadsheetData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -57,18 +57,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> {
-                    if (userAuthorizedSheetIds != null && !userAuthorizedSheetIds.isEmpty()) {
-                        String fileId = file.get("id").asText();
-                        // This will filter out and send only authorised google sheet files to client
-                        if (userAuthorizedSheetIds.contains(fileId)) {
-                            return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
-                        }
-                    } else {
-                        return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
-                    }
-                    return null;
-                })
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -98,18 +87,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> {
-                    if (userAuthorizedSheetIds != null && !userAuthorizedSheetIds.isEmpty()) {
-                        String fileId = file.get("id").asText();
-                        // This will filter out and send only authorised google sheet files to client
-                        if (userAuthorizedSheetIds.contains(fileId)) {
-                            return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
-                        }
-                    } else {
-                        return SheetsUtil.getSpreadSheetInfo((JsonNode) file);
-                    }
-                    return null;
-                })
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 

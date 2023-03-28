@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import com.appsmith.external.models.DatasourceConfiguration;
 
 public class SheetsUtil {
@@ -27,9 +27,8 @@ public class SheetsUtil {
         return 1;
     }
 
-    public static Set<String> getAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
-        if (datasourceConfiguration.getProperties() != null
-                && datasourceConfiguration.getProperties().size() > 0
+    public static Set<String> getUserAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
+        if (!isEmpty(datasourceConfiguration.getProperties())
                 && datasourceConfiguration.getProperties().get(0) != null
                 && datasourceConfiguration.getProperties().get(0).getValue() != null) {
             ArrayList<String> temp = (ArrayList) datasourceConfiguration.getProperties().get(0).getValue();
@@ -38,7 +37,21 @@ public class SheetsUtil {
         return null;
     }
 
-    public static Map<String, String> getSpreadSheetInfo(JsonNode file) {
+    public static Map<String, String> getSpreadsheetData(JsonNode file, Set<String> userAuthorizedSheetIds) {
+        if (userAuthorizedSheetIds == null) {
+            return extractSheetData((JsonNode) file);
+        }
+
+        String fileId = file.get("id").asText();
+        // This will filter out and send only authorised google sheet files to client
+        if (userAuthorizedSheetIds.contains(fileId)) {
+            return extractSheetData((JsonNode) file);
+        }
+
+        return null;
+    }
+
+    private static Map<String, String> extractSheetData(JsonNode file) {
         final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
         return Map.of("label", file.get("name").asText(),
                 "value", spreadSheetUrl);
