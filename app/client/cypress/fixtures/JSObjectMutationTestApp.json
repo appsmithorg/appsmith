@@ -76,7 +76,7 @@
                     { "key": "buttonColor" },
                     { "key": "borderRadius" }
                   ],
-                  "text": "SUB ",
+                  "text": "SUB",
                   "isDisabled": false,
                   "key": "qlrzspfmgw",
                   "isDeprecated": false,
@@ -296,7 +296,7 @@
                     { "key": "buttonColor" },
                     { "key": "borderRadius" }
                   ],
-                  "text": "SUB ",
+                  "text": "SUB",
                   "isDisabled": false,
                   "key": "qlrzspfmgw",
                   "isDeprecated": false,
