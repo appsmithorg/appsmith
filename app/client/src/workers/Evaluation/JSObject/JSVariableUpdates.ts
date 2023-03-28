@@ -22,7 +22,7 @@ class JSVariableUpdates {
   private static patches: Patch[] = [];
 
   static add(patch: Patch) {
-    if (ExecutionMetaData.getExecutionMetaData().jsVarUpdateTrackingDisabled)
+    if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking)
       return;
     this.patches.push(patch);
     /**

@@ -1302,8 +1302,9 @@ export default class DataTreeEvaluator {
   ): EvalResult {
     let evalResponse: EvalResult;
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateDisabled: true,
-      jsVarUpdateTrackingDisabled: true,
+      enableJSVarUpdate: false,
+      enableJSVarUpdateTracking: false,
+      enableJSFnPostProcessors: false,
     });
     try {
       evalResponse = evaluateSync(
@@ -1330,8 +1331,9 @@ export default class DataTreeEvaluator {
       };
     }
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateDisabled: false,
-      jsVarUpdateTrackingDisabled: false,
+      enableJSVarUpdate: true,
+      enableJSVarUpdateTracking: true,
+      enableJSFnPostProcessors: true,
     });
     return evalResponse;
   }

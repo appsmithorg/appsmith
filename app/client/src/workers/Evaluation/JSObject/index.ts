@@ -109,8 +109,9 @@ export function saveResolvedFunctionsAndJSUpdates(
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
             ExecutionMetaData.setExecutionMetaData({
-              jsVarUpdateDisabled: true,
-              jsVarUpdateTrackingDisabled: true,
+              enableJSVarUpdate: false,
+              enableJSVarUpdateTracking: false,
+              enableJSFnPostProcessors: false,
             });
             const { errors, result } = evaluateSync(
               parsedElement.value,
@@ -120,8 +121,9 @@ export function saveResolvedFunctionsAndJSUpdates(
               undefined,
             );
             ExecutionMetaData.setExecutionMetaData({
-              jsVarUpdateDisabled: false,
-              jsVarUpdateTrackingDisabled: false,
+              enableJSVarUpdate: true,
+              enableJSVarUpdateTracking: true,
+              enableJSFnPostProcessors: true,
             });
             if (errors.length) return;
 
@@ -319,7 +321,7 @@ export function updateEvalTreeWithJSCollectionState(
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
   ExecutionMetaData.setExecutionMetaData({
-    jsVarUpdateTrackingDisabled: true,
+    enableJSVarUpdateTracking: false,
   });
   const currentEvalContext = self;
 
@@ -355,6 +357,6 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
     }
   }
   ExecutionMetaData.setExecutionMetaData({
-    jsVarUpdateTrackingDisabled: false,
+    enableJSVarUpdateTracking: true,
   });
 }

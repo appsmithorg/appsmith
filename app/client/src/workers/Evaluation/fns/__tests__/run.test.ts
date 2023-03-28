@@ -48,6 +48,9 @@ describe("Tests for run function in callback styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdate: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -80,6 +83,9 @@ describe("Tests for run function in callback styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdate: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -160,6 +166,9 @@ describe("Tests for run function in promise styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdate: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -190,6 +199,9 @@ describe("Tests for run function in promise styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdate: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {

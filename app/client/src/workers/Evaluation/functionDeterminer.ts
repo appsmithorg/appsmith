@@ -15,14 +15,13 @@ class FunctionDeterminer {
     };
 
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: true,
+      enableJSVarUpdateTracking: false,
     });
 
     addDataTreeToContext({
       dataTree,
       EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
-      enableJSFnPostProcessors: false,
     });
 
     // Set it to self so that the eval function can have access to it
@@ -37,7 +36,7 @@ class FunctionDeterminer {
   close() {
     userLogs.enable();
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: false,
+      enableJSVarUpdateTracking: true,
     });
   }
 

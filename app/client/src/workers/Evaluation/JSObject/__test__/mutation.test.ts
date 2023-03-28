@@ -63,7 +63,8 @@ describe("Mutation", () => {
     });
 
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: false,
+      enableJSVarUpdateTracking: true,
+      enableJSVarUpdate: true,
     });
 
     Object.assign(self, evalContext);
@@ -77,7 +78,7 @@ describe("Mutation", () => {
     `);
 
     ExecutionMetaData.setExecutionMetaData({
-      jsVarUpdateTrackingDisabled: true,
+      enableJSVarUpdateTracking: false,
     });
 
     expect(JSVariableUpdates.getAll()).toEqual([

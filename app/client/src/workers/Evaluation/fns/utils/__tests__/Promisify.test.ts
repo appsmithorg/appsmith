@@ -47,6 +47,9 @@ describe("Tests for promisify util", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdate: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "TEST_TYPE",
           payload: { key: 123 },
@@ -56,6 +59,12 @@ describe("Tests for promisify util", () => {
       },
     });
     expect(metaDataSpy).toBeCalledTimes(1);
-    expect(metaDataSpy).toBeCalledWith({ triggerMeta, eventType });
+    expect(metaDataSpy).toBeCalledWith({
+      triggerMeta,
+      eventType,
+      enableJSFnPostProcessors: true,
+      enableJSVarUpdate: true,
+      enableJSVarUpdateTracking: true,
+    });
   });
 });
