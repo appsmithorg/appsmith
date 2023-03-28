@@ -11,7 +11,7 @@ describe("Validate Airtable Ds", () => {
   });
 
   it("1. Validate List Records", () => {
-    var specieslist = new Array();
+    let specieslist = new Array();
     _.dataSources.CreateQueryAfterDSSaved();
 
     //List all records
