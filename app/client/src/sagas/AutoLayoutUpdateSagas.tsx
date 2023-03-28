@@ -187,7 +187,7 @@ let autoLayoutWidgetDimensionUpdateBatch: Record<
   { width: number; height: number }
 > = {};
 
-function addWidgetToAutoLayoutDimensionUpdateBatch(
+function batchWidgetDimensionsUpdateForAutoLayout(
   widgetId: string,
   width: number,
   height: number,
@@ -238,7 +238,7 @@ function* updateWidgetDimensionsSaga(
     width = widgetMinMaxDimensions.maxWidth;
   }
 
-  addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
+  batchWidgetDimensionsUpdateForAutoLayout(widgetId, width, height);
   yield put({
     type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
   });
