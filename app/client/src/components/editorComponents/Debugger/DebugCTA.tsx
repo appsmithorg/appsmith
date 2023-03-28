@@ -84,9 +84,9 @@ export function DebugButton(props: DebugButtonProps) {
   return (
     <Button
       className={props.className}
+      endIcon="bug"
       kind="error"
       onClick={props.onClick}
-      startIcon="bug"
     >
       Debug
     </Button>
