@@ -109,6 +109,7 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
   private _createBlankGraphQL = ".t--createBlankApiGraphqlCard";
+  private _createBlankCurl = ".t--createBlankCurlCard";
   private _graphQLHeaderKey = "input[name='headers[0].key']";
   private _graphQLHeaderValue = "input[name='headers[0].value']";
   _graphqlQueryEditor = ".t--graphql-query-editor";
@@ -144,6 +145,16 @@ export class DataSources {
   private _suggestedWidget = (widgetType: string) =>
     ".t--suggested-widget-" + widgetType + "";
 
+  private _curlTextArea =
+    "//label[text()='Paste CURL Code Here']/parent::form/div";
+  _allQueriesforDB = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
+  _noSchemaAvailable = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-cy=authType]";
@@ -450,6 +461,18 @@ export class DataSources {
       this._password,
       datasourceFormData["arango-password"],
     );
+  }
+
+  public FillCurlNImport(value: string) {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._createBlankCurl);
+    this.ImportCurlNRun(value);
+  }
+
+  public ImportCurlNRun(value: string) {
+    this.agHelper.UpdateTextArea(this._curlTextArea, value);
+    this.agHelper.ClickButton("Import");
+    this.apiPage.RunAPI();
   }
 
   public FillFirestoreDSForm() {
