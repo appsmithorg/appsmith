@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static java.lang.Boolean.FALSE;
@@ -36,7 +37,20 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String DATE = "date";
     public static final String TIME = "time";
     public static final String FLOAT8 = "float8";
-    private static final String PLSQL_MATCH_REGEX = "declare\\s(\\s|.)*";
+
+    /**
+     * Every PL/SQL block must have `BEGIN` and `END` keywords to define the block. Apart from these they could also
+     * have the following two optional keywords: `DECLARE` and `EXCEPTION`. The following regex is meant to check for
+     * the presence of any one of these keywords to indicate the usage of PL/SQL block.
+     * Please note that we convert the query into lowercase before regex match.
+     *
+     * Quoting from official Oracle documentation:
+     * " A PL/SQL block is defined by the keywords DECLARE, BEGIN, EXCEPTION, and END. These keywords partition the
+     * block into a declarative part, an executable part, and an exception-handling part. Only the executable part is
+     * required. "
+     * Ref: https://docs.oracle.com/cd/B14117_01/appdev.101/b10807/13_elems003.htm#:~:text=A%20PL%2FSQL%20block%20is,the%20executable%20part%20is%20required.
+     */
+    private static final String PLSQL_MATCH_REGEX = "\\bdeclare\\b|\\bbegin\\b|\\bend\\b|\\bexception\\b";
 
     public static void closeConnectionPostExecution(ResultSet resultSet, Statement statement,
                                                     PreparedStatement preparedQuery, Connection connectionFromPool) {
@@ -94,7 +108,14 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      * Ref: https://forums.oracle.com/ords/apexds/post/why-semicolon-not-allowed-in-jdbc-oracle-0099
      */
     public static boolean isPLSQL(String query) {
-        return query.toLowerCase().matches(PLSQL_MATCH_REGEX) ? true : false;
+        /**
+         * Please don't use Java's String.matches(...) function here because it doesn't behave like normal regex
+         * match. It returns true only if the entire string matches the regex as opposed to finding a substring
+         * matching the pattern.
+         * Ref: https://stackoverflow.com/questions/8923398/regex-doesnt-work-in-string-matches 
+         */
+        Pattern pattern = Pattern.compile(PLSQL_MATCH_REGEX);
+        return pattern.matcher(query.toLowerCase()).find();
     }
 
     public static void populateRowsAndColumns(List<Map<String, Object>> rowsList, List<String> columnsList,
