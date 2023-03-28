@@ -177,6 +177,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+export const SHARE_APP = () => `Share app`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -1459,6 +1460,25 @@ export const IN_APP_EMBED_SETTING = {
   showNavigationBar: () => "Show navigation bar",
 };
 
+export const APP_NAVIGATION_SETTING = {
+  sectionHeader: () => "Navigation",
+  sectionHeaderDesc: () => "Customize the navigation bar",
+  showNavbarLabel: () => "Show Navbar",
+  orientationLabel: () => "Orientation",
+  navStyleLabel: () => "Variant",
+  positionLabel: () => "Position",
+  itemStyleLabel: () => "Item Style",
+  colorStyleLabel: () => "Background color",
+  logoLabel: () => "Logo",
+  logoConfigurationLabel: () => "Logo Configuration",
+  showSignInLabel: () => "Show Sign In",
+  showSignInTooltip: () =>
+    "Toggle to show the sign-in button for users who are not logged in.",
+};
+
+export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
+
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
@@ -1478,9 +1498,10 @@ export const BUILD_FIXED_LAYOUT_TEXT = () =>
 export const USE_SNAPSHOT = () => "USE SNAPSHOT";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding A Snapshot";
-export const SAVE_SNAPSHOT = () => "We Save a Snapshot of Your App";
+export const SAVE_SNAPSHOT = () =>
+  "Save a Snapshot of your Current Layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
-  "We will create a snapshot of your whole app before the conversion, so that you can go back if auto layout is just not right for you";
+  "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
 export const RESTORING_SNAPSHOT = () => "Removing changes made";
@@ -1506,12 +1527,14 @@ export const SNAPSHOT_LABEL = () =>
   "To revert back to the original state use this snapshot";
 export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+export const SNAPSHOT_WARNING_MESSAGE = () =>
+  "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
 export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
-  "Confirm all the pages are converted correctly before editing. Use the snapshot to go back. Discard only after reviewing all the pages.";
+  "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "USE THE SNAPSHOT";
 export const DISCARD_SNAPSHOT_CTA = () => "DISCARD THE SNAPSHOT";
 export const MORE_DETAILS = () => "More details";
@@ -1527,7 +1550,7 @@ export const SNAPSHOT_TIME_FROM_MESSAGE = (
 ) => `Snapshot from ${timeSince} ago (${readableDate})`;
 export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
   timeTillExpiration: string,
-) => `Snapshot expires in ${timeTillExpiration}`;
+) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
 export const DISCARD = () => "DISCARD";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

@@ -1,10 +1,9 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let appName: string = "",
-  datasourceName: string = "GraphQL_DS",
-  apiName: string = "GraphQL_API_";
-let tokenToAuthorizeGraphQl: string = "",
-  authoemail = "";
+let appName = "";
+let datasourceName = "GraphQL_DS";
+let tokenToAuthorizeGraphQl = "";
+let authoemail = "";
 
 const GRAPHQL_QUERY = `query ($myid: Int!) {
 	postById(id: $myid) {

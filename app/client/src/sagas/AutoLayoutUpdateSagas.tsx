@@ -38,7 +38,13 @@ import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLay
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import {
+  getLeftColumn,
+  getTopRow,
+  getWidgetMinMaxDimensionsInPixel,
+  setBottomRow,
+  setRightColumn,
+} from "utils/autoLayout/flexWidgetUtils";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { isEmpty } from "lodash";
@@ -51,6 +57,7 @@ export function* updateLayoutForMobileCheckpoint(
     parentId: string;
     isMobile: boolean;
     canvasWidth: number;
+    widgets?: CanvasWidgetsReduxState;
   }>,
 ) {
   try {
@@ -62,8 +69,21 @@ export function* updateLayoutForMobileCheckpoint(
     );
     if (isCurrentlyConvertingLayout) return;
 
-    const { canvasWidth, isMobile, parentId } = actionPayload.payload;
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const {
+      canvasWidth,
+      isMobile,
+      parentId,
+      widgets: payloadWidgets,
+    } = actionPayload.payload;
+
+    let allWidgets: CanvasWidgetsReduxState;
+
+    if (payloadWidgets) {
+      allWidgets = payloadWidgets;
+    } else {
+      allWidgets = yield select(getWidgets);
+    }
+
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
@@ -119,7 +139,7 @@ export function* updateLayoutPositioningSaga(
         ),
       );
 
-      yield call(recalculateAutoLayoutColumns);
+      yield call(recalculateAutoLayoutColumnsAndSave);
     }
     // Convert Auto layout to fixed
     else {
@@ -141,7 +161,9 @@ export function* updateLayoutPositioningSaga(
 }
 
 //This Method is used to re calculate Positions based on canvas width
-export function* recalculateAutoLayoutColumns() {
+export function* recalculateAutoLayoutColumnsAndSave(
+  widgets?: CanvasWidgetsReduxState,
+) {
   const appPositioningType: AppPositioningTypes = yield select(
     getCurrentAppPositioningType,
   );
@@ -156,6 +178,7 @@ export function* recalculateAutoLayoutColumns() {
         ? mainCanvasProps?.isMobile
         : false,
       mainCanvasProps.width,
+      widgets,
     ),
   );
 }
@@ -258,13 +281,23 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       ? 1
       : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
+    let widgetToBeUpdated = { ...widget };
+
+    widgetToBeUpdated = setBottomRow(
+      widgetToBeUpdated,
+      getTopRow(widget, isMobile) + height / rowSpace,
+      isMobile,
+    );
+
+    widgetToBeUpdated = setRightColumn(
+      widgetToBeUpdated,
+      getLeftColumn(widget, isMobile) + width / columnSpace,
+      isMobile,
+    );
+
     widgets = {
       ...widgets,
-      [widgetId]: {
-        ...widget,
-        bottomRow: widget.topRow + Math.ceil(height) / rowSpace,
-        rightColumn: widget.leftColumn + Math.ceil(width) / columnSpace,
-      },
+      [widgetId]: widgetToBeUpdated,
     };
   }
 
@@ -290,17 +323,21 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     const oldWidget = widgetsOld[widgetId];
     const propertiesToUpdate: Record<string, any> = {};
 
-    if (widget.topRow !== oldWidget.topRow) {
-      propertiesToUpdate["topRow"] = widget.topRow;
-    }
-    if (widget.bottomRow !== oldWidget.bottomRow) {
-      propertiesToUpdate["bottomRow"] = widget.bottomRow;
-    }
-    if (widget.leftColumn !== oldWidget.leftColumn) {
-      propertiesToUpdate["leftColumn"] = widget.leftColumn;
-    }
-    if (widget.rightColumn !== oldWidget.rightColumn) {
-      propertiesToUpdate["rightColumn"] = widget.rightColumn;
+    const positionProperties = [
+      "topRow",
+      "bottomRow",
+      "leftColumn",
+      "rightColumn",
+      "mobileTopRow",
+      "mobileBottomRow",
+      "mobileLeftColumn",
+      "mobileRightColumn",
+    ];
+
+    for (const prop of positionProperties) {
+      if (widget[prop] !== oldWidget[prop]) {
+        propertiesToUpdate[prop] = widget[prop];
+      }
     }
 
     if (isEmpty(propertiesToUpdate)) continue;

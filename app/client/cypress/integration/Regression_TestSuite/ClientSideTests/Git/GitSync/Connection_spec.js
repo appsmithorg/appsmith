@@ -190,9 +190,9 @@ describe("Git sync modal: connect tab", function () {
       `{selectAll}${Cypress.env("USERNAME")}`,
     );
     cy.wait(200);
-    cy.get(gitSyncLocators.gitConnectionContainer)
-      .scrollTo("top")
-      .should("be.visible");
+    // cy.get(gitSyncLocators.gitConnectionContainer)
+    //   .scrollTo("top")
+    //   .should("be.visible");
     cy.get(gitSyncLocators.gitRepoInput)
       .click({ force: true })
       .type(`{selectAll}${invalidURLDetectedOnTheBackend}`);

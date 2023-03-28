@@ -10,6 +10,7 @@ import type {
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
+import type { NavigationSetting } from "constants/AppConstants";
 import { getSnapShotAPIRoute } from "ce/constants/ApiConstants";
 
 export type EvaluationVersion = number;
@@ -114,10 +115,11 @@ export type UpdateApplicationPayload = {
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
+  embedSetting?: AppEmbedSetting;
   applicationDetail?: {
+    navigationSetting?: NavigationSetting;
     appPositioning?: AppPositioningTypeConfig;
   };
-  embedSetting?: AppEmbedSetting;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -206,6 +208,9 @@ export interface UpdateApplicationResponse {
   new: boolean;
   modifiedAt: Date;
   embedSetting: AppEmbedSetting;
+  applicationDetail?: {
+    navigationSetting?: NavigationSetting;
+  };
 }
 
 export interface PageDefaultMeta {

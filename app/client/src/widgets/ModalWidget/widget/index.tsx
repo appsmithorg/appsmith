@@ -14,7 +14,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import type {
   Alignment,
   Positioning,
@@ -141,6 +145,16 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return Math.min(this.getMaxModalWidth(), width);
   }
 
+  getModalVisibility() {
+    if (this.props.selectedWidgetAncestry) {
+      return (
+        this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
+        !!this.props.isVisible
+      );
+    }
+    return !!this.props.isVisible;
+  }
+
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
@@ -249,9 +263,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
         height={this.props.height}
+        isAutoLayout={this.props.isAutoLayout}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
-        isOpen={!!this.props.isVisible}
+        isOpen={this.getModalVisibility()}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}
@@ -333,6 +348,7 @@ const mapStateToProps = (state: AppState) => {
     isSnipingMode: snipingModeSelector(state),
     isResizing: state.ui.widgetDragResize.isResizing,
     isPreviewMode: state.ui.editor.isPreviewMode,
+    isAutoLayout: getIsAutoLayout(state),
   };
   return props;
 };

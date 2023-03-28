@@ -19,6 +19,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
+import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -171,6 +172,46 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
         isTableFilterPaneVisible ||
         isAutoHeightWithLimitsChanging
       );
+    },
+  );
+};
+
+export const getSelectedWidgetAncestry = (state: AppState) =>
+  state.ui.widgetDragResize.selectedWidgetAncestry;
+
+export const getEntityExplorerWidgetsToExpand = createSelector(
+  getSelectedWidgetAncestry,
+  (selectedWidgetAncestry: string[]) => {
+    return selectedWidgetAncestry.slice(1);
+  },
+);
+
+export const showWidgetAsSelected = (widgetId: string) => {
+  return createSelector(
+    getLastSelectedWidget,
+    getSelectedWidgets,
+    (lastSelectedWidgetId, selectedWidgets) => {
+      return (
+        lastSelectedWidgetId === widgetId ||
+        (selectedWidgets.length > 1 && selectedWidgets.includes(widgetId))
+      );
+    },
+  );
+};
+
+export const getFirstSelectedWidgetInList = createSelector(
+  getSelectedWidgets,
+  (selectedWidgets) => {
+    return selectedWidgets?.length ? selectedWidgets[0] : undefined;
+  },
+);
+
+export const isCurrentWidgetActiveInPropertyPane = (widgetId: string) => {
+  return createSelector(
+    getIsPropertyPaneVisible,
+    getFirstSelectedWidgetInList,
+    (isPaneVisible, firstSelectedWidgetId) => {
+      return isPaneVisible && firstSelectedWidgetId === widgetId;
     },
   );
 };

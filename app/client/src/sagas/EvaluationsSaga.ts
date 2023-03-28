@@ -42,6 +42,7 @@ import {
   setDependencyMap,
   setEvaluatedTree,
   shouldLint,
+  shouldLog,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
@@ -136,6 +137,7 @@ export function* evaluateTreeSaga(
   shouldReplay = true,
   requiresLinting = false,
   forceEvaluation = false,
+  requiresLogging = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
@@ -184,6 +186,7 @@ export function* evaluateTreeSaga(
     configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
+    isNewWidgetAdded,
   } = workerResponse;
 
   PerformanceTracker.stopAsyncTracking(
@@ -230,14 +233,18 @@ export function* evaluateTreeSaga(
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     yield call(makeUpdateJSCollection, jsUpdates);
-    yield fork(
-      logSuccessfulBindings,
-      unevalTree,
-      updatedDataTree,
-      evaluationOrder,
-      isCreateFirstTree,
-      configTree,
-    );
+
+    if (requiresLogging) {
+      yield fork(
+        logSuccessfulBindings,
+        unevalTree,
+        updatedDataTree,
+        evaluationOrder,
+        isCreateFirstTree,
+        isNewWidgetAdded,
+        configTree,
+      );
+    }
 
     yield fork(
       updateTernDefinitions,
@@ -578,7 +585,7 @@ function* evaluationChangeListenerSaga(): any {
     type: ReduxActionType;
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true, false);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -596,6 +603,8 @@ function* evaluationChangeListenerSaga(): any {
         postEvalActions,
         get(action, "payload.shouldReplay"),
         shouldLint(action),
+        false,
+        shouldLog(action),
       );
     }
   }
