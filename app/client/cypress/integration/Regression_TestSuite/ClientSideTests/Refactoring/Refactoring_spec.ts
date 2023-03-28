@@ -166,22 +166,22 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
   });
 
   after("Delete Mysql query, JSObject, API & Datasource", () => {
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "QueryRefactorRenamed",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "JSObject1Renamed",
-      "Delete",
-      "Are you sure?",
-      true,
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "RefactorAPIRenamed",
-      "Delete",
-      "Are you sure?",
-    );
-    _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    // _.entityExplorer.ActionContextMenuByEntityName(
+    //   "QueryRefactorRenamed",
+    //   "Delete",
+    //   "Are you sure?",
+    // );
+    // _.entityExplorer.ActionContextMenuByEntityName(
+    //   "JSObject1Renamed",
+    //   "Delete",
+    //   "Are you sure?",
+    //   true,
+    // );
+    // _.entityExplorer.ActionContextMenuByEntityName(
+    //   "RefactorAPIRenamed",
+    //   "Delete",
+    //   "Are you sure?",
+    // );
+    // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

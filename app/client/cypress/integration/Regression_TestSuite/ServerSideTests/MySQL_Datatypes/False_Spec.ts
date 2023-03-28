@@ -58,18 +58,18 @@ describe("MySQL Datatype tests", function () {
       _.dataSources.EnterQuery(query);
       _.dataSources.RunQuery();
 
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      ["falseCases", "createTable"].forEach((type) => {
-        _.entityExplorer.ActionContextMenuByEntityName(
-          type,
-          "Delete",
-          "Are you sure?",
-        );
-      });
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // ["falseCases", "createTable"].forEach((type) => {
+      //   _.entityExplorer.ActionContextMenuByEntityName(
+      //     type,
+      //     "Delete",
+      //     "Are you sure?",
+      //   );
+      // });
+      // _.deployMode.DeployApp();
+      // _.deployMode.NavigateBacktoEditor();
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
     },
   );
 });

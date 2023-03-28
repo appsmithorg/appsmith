@@ -277,7 +277,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains("Unknown table 'fakeapi.productlines'");
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("11. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {

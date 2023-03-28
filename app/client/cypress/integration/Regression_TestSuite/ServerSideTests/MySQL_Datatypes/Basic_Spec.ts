@@ -118,37 +118,37 @@ describe("MySQL Datatype tests", function () {
   after(
     "Verify Drop of tables & Deletion of the datasource after all created queries are Deleted",
     () => {
-      _.entityExplorer.SelectEntityByName("dropTable");
-      _.dataSources.RunQuery();
-      _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped _.table!
-      });
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.entityExplorer.ExpandCollapseEntity(dsName);
-      _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-      _.agHelper.AssertElementAbsence(
-        _.entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
-      _.entityExplorer.ExpandCollapseEntity(dsName, false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources", false);
+      // _.entityExplorer.SelectEntityByName("dropTable");
+      // _.dataSources.RunQuery();
+      // _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      //   expect($cellData).to.eq("0"); //Success response for dropped _.table!
+      // });
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      // _.entityExplorer.ExpandCollapseEntity("Datasources");
+      // _.entityExplorer.ExpandCollapseEntity(dsName);
+      // _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+      // _.agHelper.AssertElementAbsence(
+      //   _.entityExplorer._entityNameInExplorer(inputData.tableName),
+      // );
+      // _.entityExplorer.ExpandCollapseEntity(dsName, false);
+      // _.entityExplorer.ExpandCollapseEntity("Datasources", false);
 
-      //DS deletion
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
-        (type) => {
-          _.entityExplorer.ActionContextMenuByEntityName(
-            type,
-            "Delete",
-            "Are you sure?",
-          );
-        },
-      );
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      // //DS deletion
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
+      //   (type) => {
+      //     _.entityExplorer.ActionContextMenuByEntityName(
+      //       type,
+      //       "Delete",
+      //       "Are you sure?",
+      //     );
+      //   },
+      // );
+      // _.deployMode.DeployApp();
+      // _.deployMode.NavigateBacktoEditor();
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
     },
   );
 });

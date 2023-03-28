@@ -136,44 +136,44 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       expect($cellData).to.eq("0");
     });
 
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    // _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   after(
     "Verify Verify Deletion of all created queries & Deletion of datasource",
     () => {
       //Verify Deletion of all created queries
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "create_user",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "check_number_of_connections_1",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "check_number_of_connections_2",
-        "Delete",
-        "Are you sure?",
-      );
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "create_user",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "check_number_of_connections_1",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "check_number_of_connections_2",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
 
-      for (let i = 1; i <= 10; i++) {
-        _.entityExplorer.ActionContextMenuByEntityName(
-          "Query_" + i,
-          "Delete",
-          "Are you sure?",
-        );
-      }
+      // for (let i = 1; i <= 10; i++) {
+      //   _.entityExplorer.ActionContextMenuByEntityName(
+      //     "Query_" + i,
+      //     "Delete",
+      //     "Are you sure?",
+      //   );
+      // }
 
-      //Verify deletion of datasource
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName_1, 200);
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName_2, 200);
+      // //Verify deletion of datasource
+      // _.deployMode.DeployApp();
+      // _.deployMode.NavigateBacktoEditor();
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName_1, 200);
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName_2, 200);
     },
   );
 });

@@ -316,7 +316,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
     dataSources.RunQueryNVerifyResponseViews(1, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
@@ -328,7 +328,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       inputFieldName: "Query",
     });
     dataSources.RunQueryNVerifyResponseViews(1, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("5. Validate 'Insert' record from new collection & verify query response", () => {
@@ -400,7 +400,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("6. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
@@ -426,7 +426,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("7. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
@@ -462,7 +462,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("8. Validate 'Update' record from new collection & verify query response - Record present - Single Document", () => {
@@ -493,7 +493,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("9. Validate 'Delete' record from new collection & verify query response - Record not present - Single Document", () => {
@@ -513,7 +513,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single Document", () => {
@@ -535,7 +535,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("11. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
@@ -559,7 +559,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("12. Validate 'Count' record from new collection & verify query response", () => {
@@ -571,7 +571,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("13. Validate 'Distinct' record from new collection & verify query response", () => {
@@ -594,14 +594,14 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
     agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
     dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
     dataSources.RunQueryNVerifyResponseViews(7, false);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
@@ -665,7 +665,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper
       .GetText(dataSources._queryError)
       .then(($errorText) => expect($errorText).to.eq("ns not found."));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
@@ -738,7 +738,7 @@ describe("Validate Mongo Query Pane Validations", () => {
         4,
       );
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
 
     //Execute a find query on this collection to see if dates are fetched properly
     ee.ExpandCollapseEntity("Datasources");

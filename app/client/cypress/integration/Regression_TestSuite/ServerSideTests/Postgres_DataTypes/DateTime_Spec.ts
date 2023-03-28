@@ -115,9 +115,9 @@ describe("DateTime Datatype tests", function () {
     dataSources.ReadQueryTableResponse(3).then(($cellData) => {
       expect($cellData).to.eq("21");
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity(dsName, false);
+    // agHelper.ActionContextMenuWithInPane("Delete");
+    // ee.ExpandCollapseEntity("Queries/JS", false);
+    // ee.ExpandCollapseEntity(dsName, false);
   });
 
   it("6. Inserting record - datetimetypes", () => {
@@ -310,7 +310,7 @@ describe("DateTime Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("13. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it.skip("13. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");

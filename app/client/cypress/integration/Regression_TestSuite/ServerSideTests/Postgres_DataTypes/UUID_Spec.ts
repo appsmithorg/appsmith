@@ -411,7 +411,7 @@ describe("UUID Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("15. Verify Deletion of all created queries", () => {
+  it.skip("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");

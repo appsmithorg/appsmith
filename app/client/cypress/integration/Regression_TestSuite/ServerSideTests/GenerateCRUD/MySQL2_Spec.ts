@@ -79,7 +79,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.ReadQueryTableResponse(6).then(($cellData) => {
       expect($cellData).to.eq("Mike's Liquors");
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {

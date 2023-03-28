@@ -51,7 +51,7 @@ describe("API Panel Test Functionality", function () {
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
       cy.validateRequest(
-        "Api1",
+        "Api2",
         testdata.baseUrl,
         testdata.echoMethod,
         testdata.Post,
@@ -76,7 +76,7 @@ describe("API Panel Test Functionality", function () {
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
       cy.validateRequest(
-        "Api1",
+        "Api3",
         testdata.baseUrl,
         testdata.echoMethod,
         testdata.Patch,
@@ -101,7 +101,7 @@ describe("API Panel Test Functionality", function () {
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
       cy.validateRequest(
-        "Api1",
+        "Api4",
         testdata.baseUrl,
         testdata.echoMethod,
         testdata.Delete,
@@ -117,7 +117,7 @@ describe("API Panel Test Functionality", function () {
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
     cy.validateRequest(
-      "Api1",
+      "Api5",
       testdata.baseUrl,
       testdata.methods,
       testdata.Get,
@@ -132,7 +132,7 @@ describe("API Panel Test Functionality", function () {
       testdata.nextUrl,
     );
     cy.clickTest(apiwidget.TestNextUrl);
-    cy.validateRequest("Api1", testdata.baseUrl, testdata.next, testdata.Get);
+    cy.validateRequest("Api5", testdata.baseUrl, testdata.next, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck("Josh M Krantz");
     cy.switchToPaginationTab();
@@ -142,7 +142,7 @@ describe("API Panel Test Functionality", function () {
       testdata.prevUrl,
     );
     cy.clickTest(apiwidget.TestPreUrl);
-    cy.validateRequest("Api1", testdata.baseUrl, testdata.prev, testdata.Get);
+    cy.validateRequest("Api5", testdata.baseUrl, testdata.prev, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck(testdata.responsetext);
   });
@@ -153,7 +153,7 @@ describe("API Panel Test Functionality", function () {
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
     cy.validateRequest(
-      "Api1",
+      "Api6",
       testdata.baseUrl,
       testdata.queryAndValue,
       testdata.Get,
@@ -168,7 +168,7 @@ describe("API Panel Test Functionality", function () {
     agHelper.AssertAutoSave();
     apiPage.RunAPI(false);
     cy.validateRequest(
-      "Api1",
+      "Api7",
       testdata.baseUrl,
       testdata.methods,
       testdata.Get,

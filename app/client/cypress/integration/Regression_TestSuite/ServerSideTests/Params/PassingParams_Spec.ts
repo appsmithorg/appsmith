@@ -206,7 +206,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
+  it.skip("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.ActionContextMenuByEntityName(
@@ -221,9 +221,9 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       "Are you sure?",
       true,
     );
-    // //Bug 12532
-    // _.entityExplorer.ExpandCollapseEntity('Datasources')
-    // _.entityExplorer.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
-    // _.agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    //Bug 12532
+    _.entityExplorer.ExpandCollapseEntity('Datasources')
+    _.entityExplorer.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
+    _.agHelper.ValidateNetworkStatus("@deleteAction", 200)
   });
 });

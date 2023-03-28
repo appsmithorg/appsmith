@@ -90,7 +90,7 @@ describe("JS Function Execution", function () {
     );
 
     jsEditor.AssertParseError(false, false);
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("2. Prevents execution of js function when parse errors are present in code", function () {
@@ -110,7 +110,7 @@ describe("JS Function Execution", function () {
     );
 
     jsEditor.AssertParseError(true, false);
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function () {
@@ -151,7 +151,7 @@ describe("JS Function Execution", function () {
 
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
@@ -194,7 +194,7 @@ describe("JS Function Execution", function () {
         "contain.text",
         -1,
       );
-      agHelper.ActionContextMenuWithInPane("Delete", "", true);
+      // agHelper.ActionContextMenuWithInPane("Delete", "", true);
     };
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
@@ -314,7 +314,7 @@ describe("JS Function Execution", function () {
     agHelper.AssertContains("Cyclic dependency", "not.exist");
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
@@ -435,7 +435,7 @@ describe("JS Function Execution", function () {
     agHelper.Sleep(3000);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("9. Bug 13197: Verify converting async functions to sync resets all settings", () => {
@@ -472,7 +472,7 @@ return "yes";`;
       expect(response?.body.data.actions[0].executeOnLoad).to.eq(false);
       expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
     });
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("10. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
@@ -546,6 +546,6 @@ return "yes";`;
       "Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
+    // agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 });

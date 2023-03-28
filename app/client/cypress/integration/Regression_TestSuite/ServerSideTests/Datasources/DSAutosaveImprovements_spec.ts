@@ -28,7 +28,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       );
       agHelper.GoBack();
       agHelper.AssertElementVisible(dataSources._activeDS);
-      // dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
 

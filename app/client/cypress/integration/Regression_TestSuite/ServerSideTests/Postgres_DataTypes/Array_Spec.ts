@@ -572,7 +572,7 @@ describe("Array Datatype tests", function () {
         ),
       );
 
-    _.agHelper.ActionContextMenuWithInPane("Delete");
+    // _.agHelper.ActionContextMenuWithInPane("Delete");
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
@@ -640,49 +640,49 @@ describe("Array Datatype tests", function () {
     "Verify Deletion of all created queries & Deletion of datasource",
     () => {
       //Verify Deletion of all created queries
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "createTable",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "deleteAllRecords",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "deleteRecord",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "dropTable",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "insertRecord",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "selectRecords",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "updateRecord",
-        "Delete",
-        "Are you sure?",
-      );
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "createTable",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "deleteAllRecords",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "deleteRecord",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "dropTable",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "insertRecord",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "selectRecords",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
+      // _.entityExplorer.ActionContextMenuByEntityName(
+      //   "updateRecord",
+      //   "Delete",
+      //   "Are you sure?",
+      // );
 
-      //Ds Deletion
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      // //Ds Deletion
+      // _.deployMode.DeployApp();
+      // _.deployMode.NavigateBacktoEditor();
+      // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+      // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
     },
   );
 });

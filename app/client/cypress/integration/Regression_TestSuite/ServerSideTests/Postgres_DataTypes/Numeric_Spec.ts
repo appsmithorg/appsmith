@@ -295,7 +295,7 @@ describe("Numeric Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it.skip("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");

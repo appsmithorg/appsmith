@@ -73,7 +73,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.ReadQueryTableResponse(6).then(($cellData) => {
       expect($cellData).to.eq("Passenger");
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
@@ -631,7 +631,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
         response?.body.data.pluginErrorDetails.downstreamErrorMessage,
       ).to.contains(`table "vessels" does not exist`);
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("19. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {

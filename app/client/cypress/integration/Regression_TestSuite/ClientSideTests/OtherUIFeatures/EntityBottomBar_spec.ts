@@ -43,8 +43,8 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.AssertOpen(PageType.Query);
 
       // clean up
-      _.dataSources.DeleteQuery("Query1");
-      _.dataSources.DeleteDatasouceFromActiveTab(dbName);
+      // _.dataSources.DeleteQuery("Query1");
+      // _.dataSources.DeleteDatasouceFromActiveTab(dbName);
     });
   });
 });

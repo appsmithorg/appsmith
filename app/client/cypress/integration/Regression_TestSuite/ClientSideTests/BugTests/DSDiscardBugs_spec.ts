@@ -23,7 +23,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       dataSources.EditDatasource();
       agHelper.GoBack();
       agHelper.AssertElementVisible(dataSources._activeDS);
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      // dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
 
@@ -66,7 +66,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       agHelper.GoBack();
       agHelper.AssertElementVisible(dataSources._activeDS);
 
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      // dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
 
@@ -90,7 +90,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       dataSources.SaveDSFromDialog(false);
 
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      // dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
 

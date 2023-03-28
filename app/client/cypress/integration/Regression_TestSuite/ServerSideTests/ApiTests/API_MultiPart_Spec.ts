@@ -19,7 +19,7 @@ describe("Validate API request body panel", () => {
   });
 
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
-    apiPage.CreateApi("FirstAPI", "POST");
+    apiPage.CreateApi("API1", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
     agHelper.AssertElementVisible(apiPage._bodyKey(0));
@@ -28,19 +28,19 @@ describe("Validate API request body panel", () => {
     agHelper.AssertElementVisible(apiPage._bodyKey(0));
     agHelper.AssertElementVisible(apiPage._bodyTypeDropdown);
     agHelper.AssertElementVisible(apiPage._bodyValue(0));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
-    apiPage.CreateApi("FirstAPI", "GET");
+    apiPage.CreateApi("API2", "GET");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("NONE");
     cy.get(apiPage._noBodyMessageDiv).contains(apiPage._noBodyMessage);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
-    apiPage.CreateApi("FirstAPI", "POST");
+    apiPage.CreateApi("API3", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("JSON");
     apiPage.ValidateImportedHeaderParams(true, {
@@ -53,11 +53,11 @@ describe("Validate API request body panel", () => {
       key: "content-type",
       value: "application/x-www-form-urlencoded",
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
-    apiPage.CreateApi("FirstAPI", "POST");
+    apiPage.CreateApi("API4", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("JSON");
     apiPage.ValidateImportedHeaderParams(true, {
@@ -70,25 +70,25 @@ describe("Validate API request body panel", () => {
       key: "content-type",
       value: "multipart/form-data",
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
-    apiPage.CreateApi("FirstAPI", "POST");
+    apiPage.CreateApi("API5", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
     apiPage.SelectSubTab("NONE");
     apiPage.ValidateImportedHeaderParamsAbsence(true);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
-    apiPage.CreateApi("FirstAPI", "POST");
+    apiPage.CreateApi("API6", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
     apiPage.SelectSubTab("NONE");
     apiPage.ValidateImportedHeaderParamsAbsence(true);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {

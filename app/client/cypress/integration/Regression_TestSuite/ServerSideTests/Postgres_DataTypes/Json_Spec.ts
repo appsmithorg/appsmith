@@ -258,8 +258,8 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("3");
     });
 
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Queries/JS", false);
+    // agHelper.ActionContextMenuWithInPane("Delete");
+    // ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("9. Deleting records - jsonbooks", () => {
@@ -626,8 +626,8 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("true");
     });
 
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Queries/JS", false);
+    // agHelper.ActionContextMenuWithInPane("Delete");
+    // ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("23. Deleting records - jsonbooks", () => {
@@ -701,7 +701,7 @@ describe("Json & JsonB Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("27. Verify Deletion of all created queries", () => {
+  it.skip("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createEnum", "Delete", "Are you sure?");

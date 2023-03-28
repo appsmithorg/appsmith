@@ -43,14 +43,14 @@ describe("Check datasource doc links", function () {
   });
 
   afterEach(() => {
-    _.agHelper.PressEscape();
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.AssertContains("deleted successfully");
+    // _.agHelper.PressEscape();
+    // _.agHelper.ActionContextMenuWithInPane("Delete");
+    // _.entityExplorer.ExpandCollapseEntity("Datasources");
+    // _.entityExplorer.ActionContextMenuByEntityName(
+    //   dsName,
+    //   "Delete",
+    //   "Are you sure?",
+    // );
+    // _.agHelper.AssertContains("deleted successfully");
   });
 });

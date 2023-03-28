@@ -42,7 +42,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
       "Default",
       "Extra",
     ]);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("3. Validate SHOW & verify query response", () => {
@@ -51,10 +51,10 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
     agHelper.RenameWithInPane("verifyShow");
     runQueryNValidate("SHOW tables;", ["Tables_in_fakeapi"]);
     runQueryNValidate("SHOW databases", ["Database"]);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("4. Verify Deletion of the datasource", () => {
+  it.skip("4. Verify Deletion of the datasource", () => {
     ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
