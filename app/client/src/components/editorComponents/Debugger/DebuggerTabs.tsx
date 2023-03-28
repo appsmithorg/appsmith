@@ -62,12 +62,17 @@ const ErrorTitleContainer = styled.div`
   align-items: center;
 `;
 
-const ErrorCount = styled.div`
+const ErrorCount = styled.div<{
+  errorCount: number;
+}>`
   border: 1px solid;
   border-radius: 50%;
   width: 16px;
   height: 16px;
-  font-size: 12px;
+  font-size: ${(props) =>
+    props.errorCount < 9 ? "11px" : props.errorCount < 100 ? "9px" : "6px"};
+  letter-spacing: -0.195px;
+  text-align: center;
 `;
 
 // error tab title component.
@@ -77,7 +82,9 @@ export const ErrorTabTitle = () => {
   return (
     <ErrorTitleContainer>
       <div>{createMessage(DEBUGGER_ERRORS)} </div>
-      <ErrorCount>{errorCount}</ErrorCount>
+      <ErrorCount errorCount={errorCount}>
+        {errorCount > 99 ? "99+" : errorCount}
+      </ErrorCount>
     </ErrorTitleContainer>
   );
 };
