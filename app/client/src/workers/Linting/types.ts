@@ -74,9 +74,19 @@ export interface getlintErrorsFromTreeProps {
   jsPropertiesState: TJSPropertiesState;
   cloudHosting: boolean;
   asyncJSFunctionsInSyncFields: DependencyMap;
+  configTree: ConfigTree;
 }
 
 export interface getlintErrorsFromTreeResponse {
   errors: LintErrorsStore;
   updatedJSEntities: string[];
+}
+
+export interface initiateLintingProps {
+  asyncJSFunctionsInSyncFields: DependencyMap;
+  lintOrder: string[];
+  unevalTree: DataTree;
+  requiresLinting: boolean;
+  jsPropertiesState: TJSPropertiesState;
+  configTree: ConfigTree;
 }

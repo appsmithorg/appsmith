@@ -6,11 +6,10 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
   DataTree,
-  DataTreeAction,
   DataTreeEntity,
-  DataTreeJSAction,
-  DataTreeWidget,
+  WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
 import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJsFunctionInDataField";
@@ -29,7 +28,7 @@ export function isDataField(fullPath: string, unevalTree: DataTree) {
 
 export function isWidgetActionOrJsObject(
   entity: DataTreeEntity,
-): entity is DataTreeAction | DataTreeJSAction | DataTreeWidget {
+): entity is ActionEntity | WidgetEntity | JSActionEntity {
   return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }
 
