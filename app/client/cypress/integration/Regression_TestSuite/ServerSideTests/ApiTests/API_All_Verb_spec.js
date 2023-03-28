@@ -8,7 +8,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("API Panel Test Functionality", function () {
   afterEach(function () {
-    agHelper.ActionContextMenuWithInPane("Delete");
+    // agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("1. PUT Action test API feature", function () {

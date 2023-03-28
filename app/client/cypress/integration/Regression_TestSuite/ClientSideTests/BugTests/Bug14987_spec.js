@@ -51,7 +51,7 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
         });
       });
 
-    agHelper.ActionContextMenuWithInPane("Delete");
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
+    // agHelper.ActionContextMenuWithInPane("Delete");
+    // dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
   });
 });

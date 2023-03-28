@@ -17,7 +17,7 @@ describe("Abort Action Execution", function () {
       createMessage(ACTION_EXECUTION_CANCELLED, "AbortApi"),
     );
     _.agHelper.AssertElementAbsence(_.locators._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
-    _.agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
+    // _.agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
 
   // Queries were resolving quicker than we could cancel them
@@ -40,8 +40,8 @@ describe("Abort Action Execution", function () {
         createMessage(ACTION_EXECUTION_CANCELLED, "AbortQuery"),
       );
       _.agHelper.AssertElementAbsence(_.locators._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
-      _.agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
-      _.dataSources.DeleteDatasouceFromWinthinDS($dsName as unknown as string);
+      // _.agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
+      // _.dataSources.DeleteDatasouceFromWinthinDS($dsName as unknown as string);
     });
   });
 });

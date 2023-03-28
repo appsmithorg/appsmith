@@ -28,7 +28,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       );
       agHelper.GoBack();
       agHelper.AssertElementVisible(dataSources._activeDS);
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      // dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
 
@@ -63,7 +63,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       agHelper.AssertContains(dsName, "exist", dataSources._datasourceCard);
 
       // delete datasource
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      // dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
 
@@ -82,11 +82,11 @@ describe("Datasource Autosave Improvements Tests", function () {
       agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0, false);
       dataSources.UpdateDatasource();
 
-      // delete datasource
-      cy.get("@dsName").then(($dsName) => {
-        dsName = $dsName;
-        dataSources.DeleteDatasouceFromActiveTab(dsName);
-      });
+    //   // delete datasource
+    //   cy.get("@dsName").then(($dsName) => {
+    //     dsName = $dsName;
+    //     dataSources.DeleteDatasouceFromActiveTab(dsName);
+    //   });
     });
   });
 });

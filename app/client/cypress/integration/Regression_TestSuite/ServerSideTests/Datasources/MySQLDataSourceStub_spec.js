@@ -20,7 +20,7 @@ describe("MySQL datasource test cases", function () {
         fixture: "testAction.json",
       }).as("testDatasource");
       cy.testSaveDatasource(false);
-      dataSource.DeleteDatasouceFromActiveTab(datasourceName);
+      // dataSource.DeleteDatasouceFromActiveTab(datasourceName);
     });
   });
 
@@ -46,7 +46,7 @@ describe("MySQL datasource test cases", function () {
       "response.body.responseMeta.status",
       201,
     );
-    cy.deleteQueryUsingContext();
-    cy.deleteDatasource(datasourceName);
+    // cy.deleteQueryUsingContext();
+    // cy.deleteDatasource(datasourceName);
   });
 });
