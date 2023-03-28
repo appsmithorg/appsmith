@@ -1006,11 +1006,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-
-
-                    if (application.getUnpublishedApplicationDetail() != null){
-                        application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
-                    }
+                    application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
 
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
