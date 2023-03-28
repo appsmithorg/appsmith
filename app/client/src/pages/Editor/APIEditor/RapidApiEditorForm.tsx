@@ -244,6 +244,8 @@ function RapidApiEditorForm(props: Props) {
                             label=""
                             name="actionConfiguration.bodyFormData"
                             pushFields={false}
+                            /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+                            // @ts-ignore
                             rightIcon={<Icon name="info" />}
                           />
                         )}
