@@ -215,3 +215,9 @@ export const isCurrentWidgetActiveInPropertyPane = (widgetId: string) => {
     },
   );
 };
+
+export const isResizingOrDragging = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  (isResizing, isDragging) => !!isResizing || !!isDragging,
+);
