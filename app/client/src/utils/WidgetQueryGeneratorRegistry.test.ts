@@ -1,8 +1,9 @@
 import WidgetQueryGeneratorRegistry from "./WidgetQueryGeneratorRegistry";
 
 describe("WidgetQueryGeneratorRegistry", () => {
+  const somepluginId = "somePluginId";
+
   it("should be able to register a QueryGenerator", () => {
-    const somepluginId = "somePluginId";
     const someQueryGenerator = {};
 
     WidgetQueryGeneratorRegistry.register(somepluginId, someQueryGenerator);
@@ -14,6 +15,15 @@ describe("WidgetQueryGeneratorRegistry", () => {
     expect(
       WidgetQueryGeneratorRegistry.get(nonExistingQueryGeneratopr),
     ).toBeFalsy();
+  });
+
+  it("should return the same adaptor reference when querying the same pluginId", () => {
+    const adaptor = WidgetQueryGeneratorRegistry.get(somepluginId);
+    expect(adaptor).toBe(WidgetQueryGeneratorRegistry.get(somepluginId));
+  });
+  it("should not find the registered plugin after clearing the registry", () => {
+    WidgetQueryGeneratorRegistry.clear();
+    expect(WidgetQueryGeneratorRegistry.get(somepluginId)).toBeFalsy();
   });
 
   afterAll(() => {
