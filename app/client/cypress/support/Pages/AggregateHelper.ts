@@ -840,6 +840,15 @@ export class AggregateHelper {
     // });
   }
 
+  public UpdateTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .invoke("val", value)
+      .trigger("input");
+    this.Sleep(500); //for value set to settle
+  }
+
   public UpdateInputValue(selector: string, value: string) {
     this.GetElement(selector)
       .closest("input")
