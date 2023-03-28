@@ -216,7 +216,6 @@ describe("Boolean & Enum Datatype tests", function () {
     "Verify Deletion of the datasource after all created queries are Deleted",
     () => {
       //Drop table:
-
       // _.deployMode.NavigateBacktoEditor();
       // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
       // _.entityExplorer.SelectEntityByName("dropTable");
@@ -233,7 +232,6 @@ describe("Boolean & Enum Datatype tests", function () {
       // );
       // _.entityExplorer.ExpandCollapseEntity(dsName, false);
       // _.entityExplorer.ExpandCollapseEntity("Datasources", false);
-
       // //Delete queries
       // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
       // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
@@ -287,7 +285,6 @@ describe("Boolean & Enum Datatype tests", function () {
       //   "Delete",
       //   "Are you sure?",
       // );
-
       // //Delete ds
       // _.deployMode.DeployApp();
       // _.deployMode.NavigateBacktoEditor();

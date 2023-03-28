@@ -132,7 +132,6 @@ describe("MySQL Datatype tests", function () {
       // );
       // _.entityExplorer.ExpandCollapseEntity(dsName, false);
       // _.entityExplorer.ExpandCollapseEntity("Datasources", false);
-
       // //DS deletion
       // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
       // _.entityExplorer.ExpandCollapseEntity("Queries/JS");

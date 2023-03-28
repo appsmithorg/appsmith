@@ -376,7 +376,6 @@ describe("Binary Datatype tests", function () {
       // );
       // _.entityExplorer.ExpandCollapseEntity(dsName, false);
       // _.entityExplorer.ExpandCollapseEntity("Datasources", false);
-
       // //Delete all queries
       // _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
       // _.entityExplorer.ExpandCollapseEntity("Queries/JS");
@@ -415,7 +414,6 @@ describe("Binary Datatype tests", function () {
       //   "Delete",
       //   "Are you sure?",
       // );
-
       // //Delete DS
       // _.deployMode.DeployApp();
       // _.deployMode.NavigateBacktoEditor();

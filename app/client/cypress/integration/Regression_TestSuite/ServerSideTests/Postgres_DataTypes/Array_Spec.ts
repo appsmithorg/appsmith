@@ -677,7 +677,6 @@ describe("Array Datatype tests", function () {
       //   "Delete",
       //   "Are you sure?",
       // );
-
       // //Ds Deletion
       // _.deployMode.DeployApp();
       // _.deployMode.NavigateBacktoEditor();

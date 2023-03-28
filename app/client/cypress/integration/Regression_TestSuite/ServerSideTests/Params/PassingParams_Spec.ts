@@ -222,8 +222,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       true,
     );
     //Bug 12532
-    _.entityExplorer.ExpandCollapseEntity('Datasources')
-    _.entityExplorer.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
-    _.agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      dsName,
+      "Delete",
+      "Are you sure?",
+    );
+    _.agHelper.ValidateNetworkStatus("@deleteAction", 200);
   });
 });

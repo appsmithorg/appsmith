@@ -159,7 +159,6 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       //   "Delete",
       //   "Are you sure?",
       // );
-
       // for (let i = 1; i <= 10; i++) {
       //   _.entityExplorer.ActionContextMenuByEntityName(
       //     "Query_" + i,
@@ -167,7 +166,6 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       //     "Are you sure?",
       //   );
       // }
-
       // //Verify deletion of datasource
       // _.deployMode.DeployApp();
       // _.deployMode.NavigateBacktoEditor();
