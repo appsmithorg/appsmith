@@ -1054,6 +1054,11 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     });
   });
+
+  cy.intercept("PUT", "/api/v1/admin/env", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("postEnv");
+
   cy.intercept("GET", "/settings/general").as("getGeneral");
 });
 
