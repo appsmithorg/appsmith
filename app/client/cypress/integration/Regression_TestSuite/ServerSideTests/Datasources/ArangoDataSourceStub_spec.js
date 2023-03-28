@@ -5,7 +5,6 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
 describe("Arango datasource test cases", function () {
-
   it("1. Create, test, save then delete a Arango datasource", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("ArangoDB");
