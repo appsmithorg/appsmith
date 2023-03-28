@@ -17,8 +17,24 @@ export default class JSObjectCollection {
     this.resolvedFunctions = resolvedFunctions;
   }
 
+  static updateResolvedFunctions(path: string, value: any) {
+    set(this.resolvedFunctions, path, value);
+  }
+
+  static deleteResolvedFunction(entityName: string) {
+    delete this.resolvedFunctions[entityName];
+  }
+
   static getResolvedFunctions() {
     return this.resolvedFunctions;
+  }
+
+  static updateUnEvalState(path: string, value: any) {
+    set(this.unEvalState, path, value);
+  }
+
+  static deleteUnEvalState(entityName: string) {
+    delete this.unEvalState[entityName];
   }
 
   static getUnEvalState() {

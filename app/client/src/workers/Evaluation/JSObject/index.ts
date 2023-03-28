@@ -87,14 +87,12 @@ export function saveResolvedFunctionsAndJSUpdates(
 ) {
   const correctFormat = regex.test(entity.body);
 
-  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
-  const unEvalJSCollection = JSObjectCollection.getUnEvalState();
-
   if (correctFormat) {
     const body = entity.body.replace(/export default/g, "");
     try {
-      delete unEvalJSCollection[entityName];
-      delete resolvedFunctions[entityName];
+      JSObjectCollection.deleteResolvedFunction(entityName);
+      JSObjectCollection.deleteUnEvalState(entityName);
+
       const parseStartTime = performance.now();
       const parsedObject = parseJSObjectWithAST(body);
       const parseEndTime = performance.now();
@@ -139,13 +137,11 @@ export function saveResolvedFunctionsAndJSUpdates(
             }
 
             const functionString = parsedElement.value;
-            set(
-              resolvedFunctions,
+            JSObjectCollection.updateResolvedFunctions(
               `${entityName}.${parsedElement.key}`,
               result,
             );
-            set(
-              unEvalJSCollection,
+            JSObjectCollection.updateUnEvalState(
               `${entityName}.${parsedElement.key}`,
               functionString,
             );
@@ -161,8 +157,7 @@ export function saveResolvedFunctionsAndJSUpdates(
               name: parsedElement.key,
               value: parsedElement.value,
             });
-            set(
-              unEvalJSCollection,
+            JSObjectCollection.updateUnEvalState(
               `${entityName}.${parsedElement.key}`,
               parsedElement.value,
             );
@@ -207,7 +202,7 @@ export function parseJSActions(
   differences?: DataTreeDiff[],
 ) {
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
-  const unEvalJSCollection = JSObjectCollection.getUnEvalState();
+  const unEvalState = JSObjectCollection.getUnEvalState();
   let jsUpdates: Record<string, JSUpdate> = {};
   if (!!differences && !!oldUnEvalTree) {
     differences.forEach((diff) => {
@@ -220,14 +215,11 @@ export function parseJSActions(
 
       if (diff.event === DataTreeDiffEvent.DELETE) {
         // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
-        if (
-          unEvalJSCollection &&
-          unEvalJSCollection[diff.payload.propertyPath]
-        ) {
-          delete unEvalJSCollection[diff.payload.propertyPath];
+        if (unEvalState && unEvalState[diff.payload.propertyPath]) {
+          JSObjectCollection.deleteUnEvalState(diff.payload.propertyPath);
         }
         if (resolvedFunctions && resolvedFunctions[diff.payload.propertyPath]) {
-          delete resolvedFunctions[diff.payload.propertyPath];
+          JSObjectCollection.deleteResolvedFunction(diff.payload.propertyPath);
         }
       }
 
