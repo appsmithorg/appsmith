@@ -242,18 +242,19 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const { isPreviewMode, isSnipingMode } = this.props;
     const modalWidth = this.getModalWidth(this.props.width);
     const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
-    const settingsComponent = isEditMode ? (
-      <WidgetNameComponent
-        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
-        parentId={this.props.parentId}
-        showControls
-        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-        type={this.props.type}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        widgetWidth={modalWidth}
-      />
-    ) : null;
+    const settingsComponent =
+      isEditMode && false ? (
+        <WidgetNameComponent
+          errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+          parentId={this.props.parentId}
+          showControls
+          topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+          type={this.props.type}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
+          widgetWidth={modalWidth}
+        />
+      ) : null;
     return (
       <ModalComponent
         background={this.props.backgroundColor}
