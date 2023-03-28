@@ -44,6 +44,8 @@ const is404orAuthPath = () => {
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
 };
 
+export const MAX_CONTENT_LENGTH = 104857600;
+
 // Request interceptor will add a timer property to the request.
 // this will be used to calculate the time taken for an action
 // execution request
@@ -70,6 +72,10 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     anonymousId &&
     (config.headers["x-anonymous-user-id"] = anonymousId);
 
+  // config.headers["Expect"] = "100-continue";
+
+  console.log("heree", config);
+
   return { ...config, timer: performance.now() };
 };
 
@@ -79,6 +85,8 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 export const apiSuccessResponseInterceptor = (
   response: AxiosResponse,
 ): AxiosResponse["data"] => {
+  console.log("heree suc", response);
+
   if (response.config.url) {
     if (response.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(response);
@@ -97,6 +105,7 @@ export const apiSuccessResponseInterceptor = (
 
 // Handle different api failure scenarios
 export const apiFailureResponseInterceptor = (error: any) => {
+  console.log("heree err", error);
   // this can be extended to other errors we want to catch.
   // in this case it is 413.
   if (error && error?.response && error?.response.status === 413) {

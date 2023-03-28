@@ -128,6 +128,7 @@ export const ERROR_401 = () =>
 export const ERROR_413 = (maxFileSize: number) =>
   `Payload too large. File size cannot exceed ${maxFileSize}MB.`;
 export const GENERIC_API_EXECUTION_ERROR = () => `API execution error`;
+export const APPSMITH_ERROR_413_STATUS_CODE = () => `AE-APP-4013`;
 export const APPSMITH_HTTP_ERROR_413 = () => `413 CONTENT_TOO_LARGE`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;

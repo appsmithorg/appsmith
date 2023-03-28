@@ -319,6 +319,24 @@ export function* flushErrorsAndRedirectSaga(
   history.push(action.payload.url);
 }
 
+export class ClientDefinedError extends Error {
+  message = "";
+  clientDefinedErr = true;
+  statusCode = "";
+  pluginErrorDetails = {};
+
+  constructor(
+    message: string,
+    statusCode: string,
+    pluginErrorDetails: PluginErrorDetails,
+  ) {
+    super(message);
+    this.message = message;
+    this.statusCode = statusCode;
+    this.pluginErrorDetails = pluginErrorDetails;
+  }
+}
+
 export default function* errorSagas() {
   yield takeLatest(Object.values(ReduxActionErrorTypes), errorSaga);
   yield takeLatest(

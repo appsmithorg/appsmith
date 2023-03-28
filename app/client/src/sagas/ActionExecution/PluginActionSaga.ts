@@ -37,10 +37,7 @@ import {
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
-import {
-  extractClientDefinedErrorMetadata,
-  validateResponse,
-} from "sagas/ErrorSagas";
+import { ClientDefinedError, validateResponse } from "sagas/ErrorSagas";
 import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
@@ -54,6 +51,9 @@ import {
   ERROR_PLUGIN_ACTION_EXECUTE,
   ACTION_EXECUTION_CANCELLED,
   ACTION_EXECUTION_FAILED,
+  ERROR_413,
+  GENERIC_API_EXECUTION_ERROR,
+  APPSMITH_ERROR_413_STATUS_CODE,
 } from "@appsmith/constants/messages";
 import type {
   LayoutOnLoadActionErrors,
@@ -118,6 +118,7 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { MAX_CONTENT_LENGTH } from "api/ApiUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -328,6 +329,22 @@ function* evaluateActionParams(
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
+}
+
+function estimateContentLength(formData: FormData) {
+  const baseLength = 50;
+  const separatorLength = 115;
+  let length = baseLength;
+  const entries = formData.entries();
+  for (const [key, value] of entries) {
+    length += key.length + separatorLength;
+    if (typeof value === "object") {
+      length += value.size;
+    } else {
+      length += String(value).length;
+    }
+  }
+  return length;
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -601,18 +618,9 @@ function* runActionSaga(
     log.error(e);
     error = { name: (e as Error).name, message: (e as Error).message };
 
-    const clientDefinedErrorMetadata = extractClientDefinedErrorMetadata(e);
-    if (clientDefinedErrorMetadata) {
-      set(
-        payload,
-        "statusCode",
-        `${clientDefinedErrorMetadata?.statusCode || ""}`,
-      );
-      set(
-        payload,
-        "pluginErrorDetails",
-        clientDefinedErrorMetadata?.pluginErrorDetails,
-      );
+    if (e instanceof ClientDefinedError && e?.clientDefinedErr) {
+      set(payload, "statusCode", `${e.statusCode || ""}`);
+      set(payload, "pluginErrorDetails", e?.pluginErrorDetails);
       set(error, "clientDefinedError", true);
     }
   }
@@ -1027,6 +1035,22 @@ function* executePluginActionSaga(
   let payload = EMPTY_RESPONSE;
   let response: ActionExecutionResponse;
   try {
+    const requestLength = estimateContentLength(formData);
+
+    // if more than 100MB, throw a 413 error without actually executing the request
+    if (requestLength > MAX_CONTENT_LENGTH) {
+      throw new ClientDefinedError(
+        createMessage(ERROR_413, 100),
+        createMessage(APPSMITH_ERROR_413_STATUS_CODE),
+        {
+          appsmithErrorCode: createMessage(APPSMITH_ERROR_413_STATUS_CODE),
+          appsmithErrorMessage: createMessage(ERROR_413, 100),
+          errorType: "INTERNAL_ERROR", // this value is from the server, hence cannot construct enum type.
+          title: createMessage(GENERIC_API_EXECUTION_ERROR),
+        },
+      );
+    }
+
     response = yield ActionAPI.executeAction(formData, timeout);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
@@ -1060,7 +1084,7 @@ function* executePluginActionSaga(
       isError: isErrorResponse(response),
     };
   } catch (e) {
-    if ("clientDefinedError" in (e as any)) {
+    if (e instanceof ClientDefinedError) {
       throw e;
     }
 
