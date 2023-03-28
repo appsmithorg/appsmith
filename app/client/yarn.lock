@@ -3579,6 +3579,7 @@
   version "5.10.1"
   resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.10.1.tgz#0227441a818144932dd6e8fd8f53eb7525dfe005"
   integrity sha512-Fhl2f5z/F+NVzZgPUPP9tP4NUUMeTBpmlmlo3mPuQztw1kmXdxtBjD1MzRS7A84FuaJNo2wxLhQ+Gnjtf3hZ8A==
+
 "@mdx-js/mdx@^1.6.22":
   version "1.6.22"
   resolved "https://registry.yarnpkg.com/@mdx-js/mdx/-/mdx-1.6.22.tgz#8a723157bf90e78f17dc0f27995398e6c731f1ba"
@@ -9657,10 +9658,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system-old@npm:@appsmithorg/design-system-old@0.0.0-alpha-20230324064922":
-  version "0.0.0-alpha-20230324064922"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-0.0.0-alpha-20230324064922.tgz#570d099fa75c94729124c03566dc1258ec8dfade"
-  integrity sha512-vpoX1JvTHEZ69MyL0XTk8CDYP9B+WpBNIz4nYas6fvGq2siF9DuDmWu57H9eKm7NGLVZBJZmfQbmyHvUJ/YjgA==
+"design-system-old@npm:@appsmithorg/design-system-old@0.0.0-alpha-20230328090830":
+  version "0.0.0-alpha-20230328090830"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-0.0.0-alpha-20230328090830.tgz#f7abf0eb5d9017cb469bc2ab78dfc0428f29659a"
+  integrity sha512-RRCzryGRJODHW4zjdVk6LPJ0Sw5osQITIzx1UbPqPL1/BajidbT59OXRZSSl8SR0bNcPJNHauibQozrncvIvPg==
   dependencies:
     emoji-mart "3.0.1"
 
