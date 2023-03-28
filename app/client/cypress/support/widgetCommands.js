@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import { propPane } from "./Objects/ObjectsCore";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const pages = require("../locators/Pages.json");
@@ -122,10 +124,9 @@ Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
 });
 
 Cypress.Commands.add("AddActionWithModal", () => {
-  cy.get(commonlocators.dropdownSelectButton).last().click();
-  cy.get(".single-select").contains("Open modal").click({ force: true });
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+  propPane.SelectPlatformFunction("onTabSelected", "Show modal");
+  cy.get(".t--open-dropdown-Select-Modal").click({ force: true });
+  cy.get(".t--create-modal-btn").click({ force: true });
 });
 
 Cypress.Commands.add("createModal", (ModalName, property) => {
@@ -833,49 +834,47 @@ Cypress.Commands.add("addAction", (value, property) => {
   cy.enterActionValue(value, property);
 });
 
-Cypress.Commands.add("addEvent", (value, selector) => {
-  cy.get(selector + " " + commonlocators.dropdownSelectButton)
-    .last()
-    .click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
-  cy.enterEventValue(value);
-});
+// Cypress.Commands.add("addEvent", (value, selector) => {
+//   cy.get(selector + " " + commonlocators.dropdownSelectButton)
+//     .last()
+//     .click();
+//   cy.get(commonlocators.chooseAction)
+//     .children()
+//     .contains("Show message")
+//     .click();
+//   cy.enterEventValue(value);
+// });
 
-Cypress.Commands.add("onTableAction", (value, value1, value2) => {
-  cy.get(commonlocators.dropdownSelectButton).eq(value).click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
-  cy.testJsontext(value1, value2);
-});
+// Cypress.Commands.add("onTableAction", (value, value1, value2) => {
+//   cy.get(commonlocators.dropdownSelectButton).eq(value).click();
+//   cy.get(commonlocators.chooseAction)
+//     .children()
+//     .contains("Show message")
+//     .click();
+//   cy.testJsontext(value1, value2);
+// });
 
-Cypress.Commands.add("selectShowMsg", () => {
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show message")
-    .click();
-});
+// Cypress.Commands.add("selectShowMsg", () => {
+//   cy.get(commonlocators.chooseAction)
+//     .children()
+//     .contains("Show message")
+//     .click();
+// });
 
-Cypress.Commands.add("addSuccessMessage", (value) => {
-  cy.get(commonlocators.chooseMsgType).last().click({ force: true });
-  cy.get(commonlocators.chooseAction).children().contains("Success").click();
-  cy.enterActionValue(value);
-});
+// Cypress.Commands.add("addSuccessMessage", (value) => {
+//   cy.get(commonlocators.chooseMsgType).last().click({ force: true });
+//   cy.get(commonlocators.chooseAction).children().contains("Success").click();
+//   cy.enterActionValue(value);
+// });
 
-Cypress.Commands.add("selectResetWidget", () => {
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Reset widget")
-    .click();
+Cypress.Commands.add("selectResetWidget", (eventName) => {
+  cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
+  cy.get('.single-select:contains("Reset widget")').click({ force: true });
 });
 
 Cypress.Commands.add("selectWidgetForReset", (value) => {
-  cy.get(commonlocators.chooseWidget).last().click({ force: true });
-  cy.get(commonlocators.chooseAction).children().contains(value).click();
+  cy.get(widgetsPage.selectWidget).click({ force: true });
+  cy.get(`.single-select:contains(${value})`).click();
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
@@ -1055,10 +1054,10 @@ Cypress.Commands.add("selectTxtSize", (text) => {
   cy.get(".t--dropdown-option").contains(text).click({ force: true });
 });
 
-Cypress.Commands.add("getAlert", (eventName) => {
+Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
   cy.get('.single-select:contains("Show Alert")').click({ force: true });
-  agHelper.EnterActionValue("Message", "hello");
+  agHelper.EnterActionValue("Message", value);
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")

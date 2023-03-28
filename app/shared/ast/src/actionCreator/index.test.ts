@@ -10,7 +10,7 @@ import {
   setCatchBlockInQuery,
   setTextArgumentAtPosition,
   getEnumArgumentAtPosition,
-  getActionBlockFunctionNames,
+  canTranslateToUI,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -372,19 +372,21 @@ describe("Tests AST methods around function arguments", function() {
     })
 });
 
-describe("Test AST functions to find getActionBlockFunctionNames", () => {
+describe("Test canTranslateToUI methoda", () => {
   const cases = [
-    { index: 0, input: "a(); JSObject1.myFunc1(); showModal();", expected: ['a', 'JSObject1.myFunc1', 'showModal']},
-    { index: 1, input: "navigateTo('Page1', {}, 'SAME_WINDOW'); showAlert('hi');", expected: ['navigateTo', 'showAlert']},
-    { index: 2, input: "Api1.run(); copyToClipboard('hi');", expected: ['Api1.run', 'copyToClipboard']},
-    { index: 2, input: "Api1.run().then(() => { return 1; }); copyToClipboard('hi');", expected: ['Api1.run', 'copyToClipboard']},
-    { index: 2, input: "Api1.run(() => { return 1; }); copyToClipboard('hi');", expected: ['Api1.run', 'copyToClipboard']},
+    { index: 0, input: "a(); JSObject1.myFunc1(); showModal();", expected: true},
+    { index: 1, input: "navigateTo('Page1', {}, 'SAME_WINDOW'); showAlert('hi');", expected: true},
+    { index: 2, input: "Api1.run(); copyToClipboard('hi');", expected: true},
+    { index: 3, input: "Api1.run().then(() => { return 1; }); copyToClipboard('hi');", expected: true},
+    { index: 4, input: "Api1.run(() => { return 1; }); copyToClipboard('hi');", expected: true},
+    { index: 5, input: "false || Api1.run(() => { return 1; }); copyToClipboard('hi');", expected: false},
+    { index: 6, input: "true && Api1.run(() => { return 1; }); copyToClipboard('hi');", expected: false},
   ];
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
       "test case %d",
       (_, input, expected) => {
-        const result = getActionBlockFunctionNames(input as string, 2);
-        expect(result).toStrictEqual({ actionBlockFunctionNames: expected, canTranslate: true });
+        const result = canTranslateToUI(input as string, 2);
+        expect(result).toEqual(expected);
       },
   );
 });

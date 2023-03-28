@@ -31,11 +31,9 @@ describe("Switch Widget within Form widget Functionality", function () {
     // Open form button
     cy.SearchEntityandOpen("FormButton2");
     // Click on reset widget action
-    cy.get(".t--add-action-onClick").click();
-    cy.get('.single-select:contains("Reset widget")').click();
+    cy.selectResetWidget("onClick");
     // click on toggler from actions
-    cy.get(widgetsPage.selectWidget).click({ force: true });
-    cy.get('.single-select:contains("Toggler")').click();
+    cy.selectWidgetForReset("Toggler");
     cy.closePropertyPane();
     // Uncheck the switch
     cy.get(widgetsPage.switchWidget).click();

@@ -126,9 +126,9 @@ describe("Map Chart Widget Functionality", function () {
   });
 
   it("Action: onDataPointClick, Show message using selectedDataPoint", function () {
-    cy.get(
-      ObjectsRegistry.CommonLocators._jsToggle("ondatapointclick"),
-    ).click();
+    cy.get(ObjectsRegistry.CommonLocators._jsToggle("ondatapointclick"))
+      .scrollIntoView()
+      .click();
     ObjectsRegistry.PropertyPane.UpdatePropertyFieldValue(
       "onDataPointClick",
       "",

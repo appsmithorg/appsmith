@@ -3,6 +3,8 @@ const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function () {
   before(() => {
@@ -11,11 +13,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
 
   it("Button widget with action navigate to page", function () {
     cy.openPropertyPane("buttonwidget");
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Navigate to")
-      .click();
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
     cy.get("#switcher--url").click();
     cy.get("label")
       .contains("Enter URL")
