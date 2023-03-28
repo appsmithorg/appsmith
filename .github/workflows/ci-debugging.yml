@@ -216,6 +216,6 @@ jobs:
           chmod +x ci-debug.sh
 
       # Start tmate session for tunnelling
-     # - name: Setup tmate session
-     #   if: steps.run_result.outputs.run_result != 'success'
-      #  uses: mxschmitt/action-tmate@v3
+      - name: Setup tmate session
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: mxschmitt/action-tmate@v3
