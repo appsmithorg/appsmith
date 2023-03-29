@@ -15,6 +15,34 @@
       transition: all ease-in 0.3s;
     }
   </style>
+  <%=
+    (function () {
+      // Emit additional `link rel="preload"` tags for the edit mode and the view mode
+      let chunksToPreload = [];
+      if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'edit-mode') {
+        chunksToPreload = [
+          ...compilation.namedChunkGroups.get("editor").chunks,
+          ...compilation.namedChunkGroups.get("global-search").chunks,
+        ]
+      } else if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'view-mode') {
+        chunksToPreload = [...compilation.namedChunkGroups.get("AppViewer").chunks]
+      }
+
+      return chunksToPreload.flatMap(i => [...i.files])
+        .map(url => `<link rel="preload" as="${getPreloadValueForFile(url)}" href="${webpackConfig.output.publicPath + url}" />`)
+        .join('\n')
+
+      function getPreloadValueForFile(fileName) {
+        if (fileName.endsWith('.js')) {
+          return 'script';
+        } else if (fileName.endsWith('.css')) {
+          return 'style';
+        }
+
+        throw new Error(`Unknown preload type for file: ${fileName}`);
+      }
+    })()
+  %>
   <script>
     // '' (empty strings), 'false' are falsy
     // could return either boolean or string based on value
