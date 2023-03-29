@@ -42,24 +42,19 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import type { IconName } from "design-system-old";
 import {
   AppIconCollection,
-  Button,
-  Category,
   Classes,
   EditableText,
   EditInteractionKind,
-  Icon,
-  IconSize,
   Menu,
   MenuItem,
   notEmptyValidator,
   SavingState,
-  Size,
   Text,
   TextType,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import {
   duplicateApplication,
   updateApplication,
@@ -290,12 +285,12 @@ export const NoAppsFound = styled.div`
 export function Item(props: {
   label: string;
   textType: TextType;
-  icon?: IconName;
+  icon?: string;
   isFetchingApplications?: boolean;
 }) {
   return (
     <ItemWrapper>
-      {props.icon && <StyledIcon />}
+      {props.icon && <StyledIcon name={props.icon} />}
       <Text
         className={
           !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
@@ -749,12 +744,12 @@ export function ApplicationsSection(props: any) {
                       title={`Invite Users to ${workspace.name}`}
                       trigger={
                         <Button
-                          category={Category.secondary}
-                          icon={"share-line"}
-                          size={Size.medium}
-                          tag="button"
-                          text={"Share"}
-                        />
+                          kind="secondary"
+                          size="md"
+                          startIcon="share-line"
+                        >
+                          Share
+                        </Button>
                       }
                       workspaceId={workspace.id}
                     />
@@ -764,16 +759,16 @@ export function ApplicationsSection(props: any) {
                     applications.length !== 0 && (
                       <Button
                         className="t--new-button createnew"
-                        icon={"plus"}
                         isLoading={
                           creatingApplicationMap &&
                           creatingApplicationMap[workspace.id]
                         }
                         onClick={() => onClickAddNewButton(workspace.id)}
-                        size={Size.medium}
-                        tag="button"
-                        text={"New"}
-                      />
+                        size="md"
+                        startIcon="plus"
+                      >
+                        New
+                      </Button>
                     )}
                   {(currentUser || isFetchingApplications) &&
                     !isMobile &&
@@ -800,7 +795,7 @@ export function ApplicationsSection(props: any) {
                             onClick={() => {
                               setWorkspaceToOpenMenu(workspace.id);
                             }}
-                            size={IconSize.XXXL}
+                            size="md"
                           />
                         }
                       >
@@ -941,16 +936,16 @@ export function ApplicationsSection(props: any) {
                   {hasCreateNewApplicationPermission && (
                     <Button
                       className="t--new-button createnew"
-                      icon={"plus"}
                       isLoading={
                         creatingApplicationMap &&
                         creatingApplicationMap[workspace.id]
                       }
                       onClick={() => onClickAddNewButton(workspace.id)}
-                      size={Size.medium}
-                      tag="button"
-                      text={"New"}
-                    />
+                      size="md"
+                      startIcon={"plus"}
+                    >
+                      New
+                    </Button>
                   )}
                 </NoAppsFound>
               )}
