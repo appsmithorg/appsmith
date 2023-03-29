@@ -107,7 +107,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   }
 
   & > .icon-text:first-child {
-    color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
+    color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h4")}
     cursor: pointer;
     .${Classes.ICON} {
