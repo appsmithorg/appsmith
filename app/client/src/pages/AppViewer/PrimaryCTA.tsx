@@ -123,7 +123,6 @@ function PrimaryCTA(props: Props) {
     if (!currentUser) return;
     if (
       currentApplication?.forkingEnabled &&
-      currentApplication?.isPublic &&
       currentUser?.username === ANONYMOUS_USERNAME
     ) {
       return (
@@ -144,7 +143,7 @@ function PrimaryCTA(props: Props) {
       );
     }
 
-    if (currentApplication?.forkingEnabled && currentApplication?.isPublic) {
+    if (currentApplication?.forkingEnabled) {
       return (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModal
