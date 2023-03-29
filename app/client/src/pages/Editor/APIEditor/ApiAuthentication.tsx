@@ -46,8 +46,12 @@ interface ErrorProps {
   hasError: boolean;
 }
 
+// TODO (tanvi): this should probably be a different component?
 const OAuthText = styled.span<ErrorProps>`
-  color: ${(props) => (props.hasError ? "#F22B2B" : "#03B365")};
+  color: ${(props) =>
+    props.hasError
+      ? "var(--ads-v2-color-fg-error)"
+      : "var(--ads-v2-color-fg-success)"};
   margin-left: 5px;
 `;
 
