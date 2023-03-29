@@ -177,6 +177,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+export const SHARE_APP = () => `Share app`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -1457,6 +1458,25 @@ export const IN_APP_EMBED_SETTING = {
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
 };
+
+export const APP_NAVIGATION_SETTING = {
+  sectionHeader: () => "Navigation",
+  sectionHeaderDesc: () => "Customize the navigation bar",
+  showNavbarLabel: () => "Show Navbar",
+  orientationLabel: () => "Orientation",
+  navStyleLabel: () => "Variant",
+  positionLabel: () => "Position",
+  itemStyleLabel: () => "Item Style",
+  colorStyleLabel: () => "Background color",
+  logoLabel: () => "Logo",
+  logoConfigurationLabel: () => "Logo Configuration",
+  showSignInLabel: () => "Show Sign In",
+  showSignInTooltip: () =>
+    "Toggle to show the sign-in button for users who are not logged in.",
+};
+
+export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";

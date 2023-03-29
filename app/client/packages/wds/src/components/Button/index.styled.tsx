@@ -7,7 +7,7 @@ import {
   darkenColor,
   parseColor,
 } from "../../utils/colors";
-import { ButtonProps } from "./Button";
+import type { ButtonProps } from "./Button";
 
 /**
  * creates locally scoped css variables to be used in variants styles

@@ -254,9 +254,7 @@ describe("List v2 - Data Identifier property", () => {
       });
     cy.wait(250);
 
-    cy.get(".t--dropdown-option").contains("same").last().click({
-      force: true,
-    });
+    cy.get(".t--dropdown-option").contains("same").last().click({});
     cy.get(`${widgetSelector("List2")} ${widgetsPage.containerWidget}`).should(
       "have.length",
       1,
