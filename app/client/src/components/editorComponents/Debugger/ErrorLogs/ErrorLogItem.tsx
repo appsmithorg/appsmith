@@ -4,31 +4,18 @@ import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
 import type { IconName } from "design-system-old";
-import {
-  AppIcon,
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
-import {
-  createMessage,
-  TROUBLESHOOT_ISSUE,
-} from "@appsmith/constants/messages";
+import { Classes, getTypographyByKey, Icon, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
-import ContextualMenu from "../ContextualMenu";
 import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment";
+import LogHelper from "./components/LogHelper";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -139,21 +126,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const StyledSearchIcon = styled(AppIcon)`
-  height: 16px;
-  width: 16px;
-  svg {
-    height: 16px;
-    width: 16px;
-  }
-`;
-
-const ContextWrapper = styled.div`
-  height: 14px;
-  display: flex;
-  align-items: center;
-`;
-
 const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -165,7 +137,7 @@ const showToggleIcon = (e: Log) => {
 };
 
 //format the requestedAt timestamp to a readable format.
-const getUpdateTimestamp = (state?: Record<string, any>) => {
+export const getUpdateTimestamp = (state?: Record<string, any>) => {
   if (state) {
     //clone state to avoid mutating the original state.
     const copyState = JSON.parse(JSON.stringify(state));
@@ -233,15 +205,6 @@ function ErrorLogItem(props: LogItemProps) {
       });
     }
     setIsOpen(!isOpen);
-  };
-
-  const addHelpTelemetry = () => {
-    AnalyticsUtil.logEvent("DEBUGGER_HELP_CLICK", {
-      errorType: props.logType,
-      errorSubType: props.messages && props.messages[0].message.name,
-      appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
-      downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
-    });
   };
 
   const { collapsable } = props;
@@ -324,33 +287,12 @@ function ErrorLogItem(props: LogItemProps) {
         {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
           props.severity === Severity.ERROR &&
           props.logType !== LOG_TYPE.LINT_ERROR && (
-            <ContextWrapper
-              onClick={(e) => {
-                addHelpTelemetry();
-                e.stopPropagation();
-              }}
-            >
-              <ContextualMenu
-                entity={props.source}
-                error={{ message: { name: "", message: "" } }}
-              >
-                <TooltipComponent
-                  content={
-                    <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                      {createMessage(TROUBLESHOOT_ISSUE)}
-                    </Text>
-                  }
-                  minimal
-                  position="bottom-right"
-                >
-                  <StyledSearchIcon
-                    className={`${Classes.ICON}`}
-                    name={"help"}
-                    size={IconSize.SMALL}
-                  />
-                </TooltipComponent>
-              </ContextualMenu>
-            </ContextWrapper>
+            <LogHelper
+              logType={props.logType}
+              name={props.messages ? props.messages[0].message.name : ""}
+              pluginErrorDetails={props.pluginErrorDetails}
+              source={props.source}
+            />
           )}
       </InnerWrapper>
       {collapsable && isOpen && <LogCollapseData isOpen={isOpen} {...props} />}

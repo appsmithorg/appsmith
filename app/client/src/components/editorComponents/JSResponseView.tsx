@@ -10,7 +10,6 @@ import {
   createMessage,
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
-  PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
@@ -21,24 +20,20 @@ import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import {
   Button,
-  Callout,
   Classes,
   Icon,
   IconSize,
   Size,
   Text,
   TextType,
-  Variant,
 } from "design-system-old";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { DebugButton } from "./Debugger/DebugCTA";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { TAB_MIN_HEIGHT } from "design-system-old";
@@ -47,6 +42,7 @@ import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
 import {
   getDebuggerSelectedTab,
+  getFilteredErrors,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -56,6 +52,14 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import { ErrorTabTitle } from "./Debugger/DebuggerTabs";
+import {
+  ResponseTabErrorContainer,
+  ResponseTabErrorContent,
+} from "./ApiResponseView";
+import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -129,22 +133,6 @@ const NoResponseContainer = styled.div`
     color: #090707;
   }
 `;
-const HelpSection = styled.div`
-  padding-bottom: 5px;
-  padding-top: 10px;
-`;
-
-const FailedMessage = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 5px;
-`;
-
-const StyledCallout = styled(Callout)`
-  .${Classes.TEXT} {
-    line-height: normal;
-  }
-`;
 
 const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
@@ -208,12 +196,6 @@ function JSResponseView(props: Props) {
   const hasJSObjectParseError = errors.length > 0;
 
   const isSaving = useSelector(getIsSavingEntity);
-  const onDebugClick = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-      source: "JS_OBJECT",
-    });
-    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-  }, []);
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -225,6 +207,40 @@ function JSResponseView(props: Props) {
       ),
     );
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
+
+  const filteredErrors = useSelector(getFilteredErrors);
+  let errorMessage = createMessage(
+    JS_ACTION_EXECUTION_ERROR,
+    `${jsObject.name}.${currentFunction?.name}`,
+  );
+  let errorType = "ValidationError";
+
+  // action source for analytics.
+  let actionSource: SourceEntity = {
+    type: ENTITY_TYPE.JSACTION,
+    name: "",
+    id: "",
+  };
+  if (props.currentFunction) {
+    try {
+      const errorObject =
+        filteredErrors[
+          props.currentFunction?.collectionId + "-" + props.currentFunction?.id
+        ];
+      if (errorObject.source) {
+        // update action source.
+        actionSource = errorObject.source;
+      }
+      if (errorObject.messages) {
+        // update error message.
+        errorMessage =
+          errorObject.messages[0].message.name +
+          ": " +
+          errorObject.messages[0].message.message;
+        errorType = errorObject.messages[0].message.name;
+      }
+    } catch (e) {}
+  }
   const tabs = [
     {
       key: "response",
@@ -232,34 +248,17 @@ function JSResponseView(props: Props) {
       panelComponent: (
         <>
           {(hasExecutionParseErrors || hasJSObjectParseError) && (
-            <HelpSection
-              className={`${
-                hasJSObjectParseError
-                  ? "t--js-response-parse-error-call-out"
-                  : "t--function-execution-parse-error-call-out"
-              }`}
-            >
-              <StyledCallout
-                fill
-                label={
-                  <FailedMessage>
-                    <DebugButton
-                      className="js-editor-debug-cta"
-                      onClick={onDebugClick}
-                    />
-                  </FailedMessage>
-                }
-                text={
-                  hasJSObjectParseError
-                    ? createMessage(PARSING_ERROR)
-                    : createMessage(
-                        JS_ACTION_EXECUTION_ERROR,
-                        `${jsObject.name}.${currentFunction?.name}`,
-                      )
-                }
-                variant={Variant.danger}
-              />
-            </HelpSection>
+            <ResponseTabErrorContainer>
+              <ResponseTabErrorContent>
+                <div>{errorMessage}</div>
+
+                <LogHelper
+                  logType={LOG_TYPE.EVAL_ERROR}
+                  name={errorType}
+                  source={actionSource}
+                />
+              </ResponseTabErrorContent>
+            </ResponseTabErrorContainer>
           )}
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             <ResponseViewer>
@@ -343,9 +342,7 @@ function JSResponseView(props: Props) {
   }, []);
 
   // close the debugger
-  //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
-
   return (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"

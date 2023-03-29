@@ -46,7 +46,6 @@ import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
-import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
@@ -63,7 +62,6 @@ import {
 import {
   createMessage,
   DEBUGGER_LOGS,
-  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
@@ -71,7 +69,6 @@ import {
   UNEXPECTED_ERROR,
   NO_DATASOURCE_FOR_QUERY,
   ACTION_EDITOR_REFRESH,
-  EXPECTED_ERROR,
   INVALID_FORM_CONFIGURATION,
   ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
   ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
@@ -85,7 +82,11 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import type { SuggestedWidget } from "api/ActionAPI";
+import type {
+  ActionApiResponseReq,
+  PluginErrorDetails,
+  SuggestedWidget,
+} from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
@@ -105,6 +106,10 @@ import {
   CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
+  ResponseTabErrorContainer,
+  ResponseTabErrorContent,
+  ResponseTabErrorDefaultMessage,
+  apiReactJsonProps,
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -129,6 +134,14 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ErrorTabTitle } from "components/editorComponents/Debugger/DebuggerTabs";
+import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
+import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
+import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
+import ReactJson from "react-json-view";
+import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -238,9 +251,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div`
-  padding: 10px 0px;
   overflow-y: auto;
-  height: 100%;
   display: grid;
 
   ${HelpSection} {
@@ -265,34 +276,6 @@ const NoResponseContainer = styled.div`
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
   }
-`;
-
-const ErrorContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding-top: 10px;
-  flex-direction: column;
-  & > .${Classes.ICON} {
-    margin-right: 0px;
-    svg {
-      width: 75px;
-      height: 75px;
-    }
-  }
-  .${Classes.TEXT} {
-    margin-top: ${(props) => props.theme.spaces[9]}px;
-  }
-`;
-
-const ErrorDescriptionText = styled(Text)`
-  width: 500px;
-  text-align: center;
-  line-height: 25px;
-  letter-spacing: -0.195px;
 `;
 
 export const StyledFormRow = styled(FormRow)`
@@ -455,6 +438,8 @@ type QueryFormProps = {
     messages?: Array<string>;
     suggestedWidgets?: SuggestedWidget[];
     readableError?: string;
+    pluginErrorDetails?: PluginErrorDetails;
+    request?: ActionApiResponseReq;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -818,6 +803,16 @@ export function EditorJSONtoForm(props: Props) {
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
+  //Update request timestamp to human readable format.
+  const responseState =
+    executedQueryData && getUpdateTimestamp(executedQueryData.request);
+
+  // action source for analytics.
+  const actionSource: SourceEntity = {
+    type: SOURCE_ENTITY_TYPE.ACTION,
+    name: currentActionConfig ? currentActionConfig.name : "",
+    id: currentActionConfig ? currentActionConfig.id : "",
+  };
   const responseTabs = [
     {
       key: "response",
@@ -825,30 +820,51 @@ export function EditorJSONtoForm(props: Props) {
       panelComponent: (
         <ResponseContentWrapper>
           {error && (
-            <ErrorContainer>
-              <AdsIcon keepColors name="warning-triangle" />
-              <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
-                {createMessage(EXPECTED_ERROR)}
-              </Text>
-
-              <ErrorDescriptionText
-                className="t--query-error"
-                type={TextType.P1}
-              >
-                {error}
-              </ErrorDescriptionText>
-              <DebuggerMessage
-                onClick={() => {
-                  AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-                    source: "QUERY",
-                  });
-                  dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-                }}
-                secondHalfText={createMessage(
-                  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
+            <ResponseTabErrorContainer>
+              <ResponseTabErrorContent>
+                <ResponseTabErrorDefaultMessage>
+                  Your query failed to execute
+                  {executedQueryData &&
+                    executedQueryData.pluginErrorDetails &&
+                    ":"}
+                </ResponseTabErrorDefaultMessage>
+                {executedQueryData && executedQueryData.pluginErrorDetails && (
+                  <>
+                    <div>
+                      {
+                        executedQueryData.pluginErrorDetails
+                          .downstreamErrorMessage
+                      }
+                    </div>
+                    {executedQueryData.pluginErrorDetails
+                      .downstreamErrorCode && (
+                      <LogAdditionalInfo
+                        text={
+                          executedQueryData.pluginErrorDetails
+                            .downstreamErrorCode
+                        }
+                      />
+                    )}
+                  </>
                 )}
-              />
-            </ErrorContainer>
+                <LogHelper
+                  logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
+                  name="PluginExecutionError"
+                  pluginErrorDetails={
+                    executedQueryData && executedQueryData.pluginErrorDetails
+                  }
+                  source={actionSource}
+                />
+              </ResponseTabErrorContent>
+              {executedQueryData && executedQueryData.request && (
+                <JsonWrapper
+                  className="t--debugger-log-state"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ReactJson src={responseState} {...apiReactJsonProps} />
+                </JsonWrapper>
+              )}
+            </ResponseTabErrorContainer>
           )}
           {hintMessages && hintMessages.length > 0 && (
             <HelpSection>

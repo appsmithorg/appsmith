@@ -3,11 +3,15 @@ import React, { useRef, useCallback } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
+import ReactJson from "react-json-view";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import type { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import type { APIEditorRouteParams } from "constants/routes";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
@@ -61,6 +65,14 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import { ErrorTabTitle } from "./Debugger/DebuggerTabs";
+import LogAdditionalInfo from "./Debugger/ErrorLogs/components/LogAdditionalInfo";
+import {
+  JsonWrapper,
+  reactJsonProps,
+} from "./Debugger/ErrorLogs/components/LogCollapseData";
+import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
+import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
+import type { Action } from "entities/Action";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -281,6 +293,31 @@ const ResponseDataContainer = styled.div`
   }
 `;
 
+export const ResponseTabErrorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px;
+  gap: 4px;
+  max-height: 100%;
+  overflow: auto;
+  background: #fff8f8;
+  box-shadow: 0px 1px 0px #ffecec;
+`;
+
+export const ResponseTabErrorContent = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+`;
+
+export const ResponseTabErrorDefaultMessage = styled.div`
+  flex-shrink: 0;
+`;
+
+export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
+
 export const responseTabComponent = (
   responseType: string,
   output: any,
@@ -339,6 +376,12 @@ function ApiResponseView(props: Props) {
     isRunning = props.isRunning[apiId];
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
+  const actions: Action[] = useSelector((state: AppState) =>
+    state.entities.actions.map((action) => action.config),
+  );
+  const currentActionConfig: Action | undefined = actions.find(
+    (action) => action.id === apiId,
+  );
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
 
@@ -435,7 +478,14 @@ function ApiResponseView(props: Props) {
         ),
       };
     });
-
+  // get request timestamp formatted to human readable format.
+  const responseState = getUpdateTimestamp(response.request);
+  // action source for analytics.
+  const actionSource: SourceEntity = {
+    type: ENTITY_TYPE.ACTION,
+    name: currentActionConfig ? currentActionConfig.name : "API",
+    id: apiId ? apiId : "",
+  };
   const tabs = [
     {
       key: "response",
@@ -449,63 +499,85 @@ function ApiResponseView(props: Props) {
               ))}
             </HelpSection>
           )}
-          {hasFailed && !isRunning && (
-            <StyledCallout
-              fill
-              label={
-                <FailedMessage>
-                  <DebugButton
-                    className="api-debugcta"
-                    onClick={onDebugClick}
-                  />
-                </FailedMessage>
-              }
-              text={createMessage(CHECK_REQUEST_BODY)}
-              variant={Variant.danger}
-            />
+          {hasFailed && !isRunning ? (
+            <ResponseTabErrorContainer>
+              <ResponseTabErrorContent>
+                <ResponseTabErrorDefaultMessage>
+                  Your API failed to execute
+                  {response.pluginErrorDetails && ":"}
+                </ResponseTabErrorDefaultMessage>
+                {response.pluginErrorDetails && (
+                  <>
+                    <div>
+                      {response.pluginErrorDetails.downstreamErrorMessage}
+                    </div>
+                    {response.pluginErrorDetails.downstreamErrorCode && (
+                      <LogAdditionalInfo
+                        text={response.pluginErrorDetails.downstreamErrorCode}
+                      />
+                    )}
+                  </>
+                )}
+                <LogHelper
+                  logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
+                  name="PluginExecutionError"
+                  pluginErrorDetails={response.pluginErrorDetails}
+                  source={actionSource}
+                />
+              </ResponseTabErrorContent>
+              {response.request && (
+                <JsonWrapper
+                  className="t--debugger-log-state"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ReactJson src={responseState} {...apiReactJsonProps} />
+                </JsonWrapper>
+              )}
+            </ResponseTabErrorContainer>
+          ) : (
+            <ResponseDataContainer>
+              {isEmpty(response.statusCode) ? (
+                <NoResponseContainer>
+                  <Icon name="no-response" />
+                  <Text type={TextType.P1}>
+                    {EMPTY_RESPONSE_FIRST_HALF()}
+                    <InlineButton
+                      disabled={disabled}
+                      isLoading={isRunning}
+                      onClick={onRunClick}
+                      size={Size.medium}
+                      tag="button"
+                      text="Run"
+                      type="button"
+                    />
+                    {EMPTY_RESPONSE_LAST_HALF()}
+                  </Text>
+                </NoResponseContainer>
+              ) : (
+                <ResponseBodyContainer>
+                  {isString(response?.body) && isHtml(response?.body) ? (
+                    <ReadOnlyEditor
+                      folding
+                      height={"100%"}
+                      input={{
+                        value: response?.body,
+                      }}
+                      isReadOnly
+                    />
+                  ) : responseTabs &&
+                    responseTabs.length > 0 &&
+                    selectedTabIndex !== -1 ? (
+                    <EntityBottomTabs
+                      onSelect={onResponseTabSelect}
+                      responseViewer
+                      selectedTabKey={responseDisplayFormat.value}
+                      tabs={responseTabs}
+                    />
+                  ) : null}
+                </ResponseBodyContainer>
+              )}
+            </ResponseDataContainer>
           )}
-          <ResponseDataContainer>
-            {isEmpty(response.statusCode) ? (
-              <NoResponseContainer>
-                <Icon name="no-response" />
-                <Text type={TextType.P1}>
-                  {EMPTY_RESPONSE_FIRST_HALF()}
-                  <InlineButton
-                    disabled={disabled}
-                    isLoading={isRunning}
-                    onClick={onRunClick}
-                    size={Size.medium}
-                    tag="button"
-                    text="Run"
-                    type="button"
-                  />
-                  {EMPTY_RESPONSE_LAST_HALF()}
-                </Text>
-              </NoResponseContainer>
-            ) : (
-              <ResponseBodyContainer>
-                {isString(response?.body) && isHtml(response?.body) ? (
-                  <ReadOnlyEditor
-                    folding
-                    height={"100%"}
-                    input={{
-                      value: response?.body,
-                    }}
-                    isReadOnly
-                  />
-                ) : responseTabs &&
-                  responseTabs.length > 0 &&
-                  selectedTabIndex !== -1 ? (
-                  <EntityBottomTabs
-                    onSelect={onResponseTabSelect}
-                    responseViewer
-                    selectedTabKey={responseDisplayFormat.value}
-                    tabs={responseTabs}
-                  />
-                ) : null}
-              </ResponseBodyContainer>
-            )}
-          </ResponseDataContainer>
         </ResponseTabWrapper>
       ),
     },
