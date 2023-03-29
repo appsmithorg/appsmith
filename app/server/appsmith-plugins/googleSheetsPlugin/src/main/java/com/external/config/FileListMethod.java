@@ -57,7 +57,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds))
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, true))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -87,7 +87,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds))
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, false))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 

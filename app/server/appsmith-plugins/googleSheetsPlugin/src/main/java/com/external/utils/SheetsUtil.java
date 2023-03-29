@@ -37,25 +37,31 @@ public class SheetsUtil {
         return null;
     }
 
-    public static Map<String, String> getSpreadsheetData(JsonNode file, Set<String> userAuthorizedSheetIds) {
+    public static Map<String, String> getSpreadsheetData(JsonNode file, Set<String> userAuthorizedSheetIds, Boolean isExecutionResponse) {
         // This if block will be executed for all sheets modality
         if (userAuthorizedSheetIds == null) {
-            return extractSheetData((JsonNode) file);
+            return extractSheetData((JsonNode) file, isExecutionResponse);
         }
 
         // This block will be executed for specific sheets modality
         String fileId = file.get("id").asText();
         // This will filter out and send only authorised google sheet files to client
         if (userAuthorizedSheetIds.contains(fileId)) {
-            return extractSheetData((JsonNode) file);
+            return extractSheetData((JsonNode) file, isExecutionResponse);
         }
 
         return null;
     }
 
-    private static Map<String, String> extractSheetData(JsonNode file) {
+    private static Map<String, String> extractSheetData(JsonNode file, Boolean isExecutionResponse) {
         final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-        return Map.of("label", file.get("name").asText(),
-                "value", spreadSheetUrl);
+        if (isExecutionResponse) {
+            return Map.of("id", file.get("id").asText(),
+                    "name", file.get("name").asText(),
+                    "url", spreadSheetUrl);
+        } else {
+            return Map.of("label", file.get("name").asText(),
+                    "value", spreadSheetUrl);
+        }
     }
 }

@@ -198,12 +198,14 @@ public class FileListMethodTest {
         assertEquals(result.size(), 2);
 
         final ObjectNode expectedObjectNode1 = objectMapper.createObjectNode();
-        expectedObjectNode1.put("label", "test1");
-        expectedObjectNode1.put("value", "https://docs.google.com/spreadsheets/d/id1/edit");
+        expectedObjectNode1.put("id", "id1");
+        expectedObjectNode1.put("url", "https://docs.google.com/spreadsheets/d/id1/edit");
+        expectedObjectNode1.put("name", "test1");
 
         final ObjectNode expectedObjectNode2 = objectMapper.createObjectNode();
-        expectedObjectNode2.put("label", "test2");
-        expectedObjectNode2.put("value", "https://docs.google.com/spreadsheets/d/id2/edit");
+        expectedObjectNode2.put("id", "id2");
+        expectedObjectNode2.put("url", "https://docs.google.com/spreadsheets/d/id2/edit");
+        expectedObjectNode2.put("name", "test2");
 
         assertEquals(expectedObjectNode1, result.get(0));
         assertEquals(expectedObjectNode2, result.get(1));
@@ -230,8 +232,9 @@ public class FileListMethodTest {
         assertEquals(result.size(), 1);
 
         final ObjectNode expectedObjectNode = objectMapper.createObjectNode();
-        expectedObjectNode.put("label", "test1");
-        expectedObjectNode.put("value", "https://docs.google.com/spreadsheets/d/id1/edit");
+        expectedObjectNode.put("id", "id1");
+        expectedObjectNode.put("url", "https://docs.google.com/spreadsheets/d/id1/edit");
+        expectedObjectNode.put("name", "test1");
         assertEquals(expectedObjectNode, result.get(0));
     }
 }
