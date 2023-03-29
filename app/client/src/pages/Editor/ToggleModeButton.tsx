@@ -12,7 +12,7 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
