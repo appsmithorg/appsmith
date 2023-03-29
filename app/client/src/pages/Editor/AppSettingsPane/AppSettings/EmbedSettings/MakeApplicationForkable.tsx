@@ -1,0 +1,155 @@
+import React, { useState } from "react";
+import {
+  Button,
+  Category,
+  DialogComponent,
+  Size,
+  Switch,
+  Text,
+  TextType,
+} from "design-system-old";
+import {
+  createMessage,
+  IN_APP_EMBED_SETTING,
+} from "@appsmith/constants/messages";
+import styled from "styled-components";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+import SwitchWrapper from "../../Components/SwitchWrapper";
+import { useDispatch, useSelector } from "react-redux";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { updateApplication } from "actions/applicationActions";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+
+const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
+  .bp3-popover-content > div {
+    text-align: center;
+    max-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+`;
+
+type ConfirmEnableForkingModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+};
+
+function ConfirmEnableForkingModal({
+  isOpen,
+  onClose,
+  onConfirm,
+}: ConfirmEnableForkingModalProps) {
+  return (
+    <DialogComponent
+      isOpen={isOpen}
+      onClose={onClose}
+      title={"Allow developers to fork this app to their workspace?"}
+    >
+      <div id="confirm-fork-modal">
+        <Text type={TextType.P1}>
+          Forking allows developers to copy your app to their workspace. The
+          user will also get access to any connected datasources.
+        </Text>
+
+        <ButtonWrapper>
+          <Button
+            category={Category.secondary}
+            onClick={onClose}
+            size={Size.large}
+            tag="button"
+            text="CANCEL"
+            width={"142px"}
+          />
+          <Button
+            category={Category.primary}
+            onClick={onConfirm}
+            size={Size.large}
+            tag="button"
+            text="ALLOW FORKING"
+          />
+        </ButtonWrapper>
+      </div>
+    </DialogComponent>
+  );
+}
+
+function MakeApplicationForkable({
+  application,
+}: {
+  application: ApplicationPayload | undefined;
+}) {
+  const dispatch = useDispatch();
+  const isFetchingApplication = useSelector(getIsFetchingApplications);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+  const onChangeInit = () => {
+    if (!application?.forkingEnabled) {
+      setShowConfirmationModal(true);
+    } else {
+      onChangeConfirm();
+    }
+  };
+
+  const onChangeConfirm = () => {
+    setShowConfirmationModal(false);
+    application &&
+      dispatch(
+        updateApplication(application?.id, {
+          forkingEnabled: !application?.forkingEnabled,
+          currentApp: true,
+        }),
+      );
+  };
+
+  const closeModal = () => {
+    setShowConfirmationModal(false);
+  };
+
+  return (
+    <>
+      <div className="px-4">
+        <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+          {createMessage(IN_APP_EMBED_SETTING.forkContentHeader)}
+        </div>
+      </div>
+      <div className="px-4">
+        <div className="flex justify-between items-center pb-4">
+          <StyledPropertyHelpLabel
+            label={createMessage(IN_APP_EMBED_SETTING.forkLabel)}
+            lineHeight="1.17"
+            maxWidth="270px"
+            tooltip={createMessage(IN_APP_EMBED_SETTING.forkLabelTooltip)}
+          />
+          <SwitchWrapper>
+            <Switch
+              checked={application?.forkingEnabled}
+              className="mb-0"
+              disabled={isFetchingApplication}
+              id="t--embed-settings-application-public"
+              large
+              onChange={onChangeInit}
+            />
+          </SwitchWrapper>
+        </div>
+      </div>
+      <div
+        className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
+      />
+      <ConfirmEnableForkingModal
+        isOpen={showConfirmationModal}
+        onClose={closeModal}
+        onConfirm={onChangeConfirm}
+      />
+    </>
+  );
+}
+
+export default MakeApplicationForkable;
