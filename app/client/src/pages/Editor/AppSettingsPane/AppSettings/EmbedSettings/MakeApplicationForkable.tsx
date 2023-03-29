@@ -130,7 +130,7 @@ function MakeApplicationForkable({
           />
           <SwitchWrapper>
             <Switch
-              checked={application?.forkingEnabled}
+              checked={!!application?.forkingEnabled}
               className="mb-0"
               disabled={isFetchingApplication}
               id="t--embed-settings-application-public"
