@@ -150,7 +150,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
 
   return (
     <Button
-      UNSAFE_width="100px"
+      UNSAFE_width="94px"
       className={`t--settings-sub-category-${
         method.needsUpgrade ? `upgrade-${method.category}` : method.category
       }`}
