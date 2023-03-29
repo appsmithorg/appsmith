@@ -177,7 +177,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tr_.entityExplorer",
+      ".action-block-tree",
       "Set interval5000ms",
       "have.text",
       2,

@@ -49,7 +49,7 @@ describe("Button Widget Functionality", function () {
     cy.openPropertyPane("buttonwidget");
 
     // Adding the api in the onClickAction of the button widget.
-    cy.executeDbQuery("buttonApi", "onOptionChange");
+    cy.executeDbQuery("buttonApi", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
