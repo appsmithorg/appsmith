@@ -3,6 +3,7 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.constants.ErrorMessages;
+import com.external.enums.GoogleSheetMethodEnum;
 import com.external.plugins.exceptions.GSheetsPluginError;
 import static com.external.utils.SheetsUtil.getSpreadsheetData;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -57,7 +58,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, true))
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, GoogleSheetMethodEnum.EXECUTE))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -87,7 +88,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, false))
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, GoogleSheetMethodEnum.TRIGGER))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 

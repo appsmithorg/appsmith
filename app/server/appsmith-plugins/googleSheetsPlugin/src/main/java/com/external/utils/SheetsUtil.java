@@ -1,5 +1,6 @@
 package com.external.utils;
 
+import com.external.enums.GoogleSheetMethodEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
@@ -37,31 +38,32 @@ public class SheetsUtil {
         return null;
     }
 
-    public static Map<String, String> getSpreadsheetData(JsonNode file, Set<String> userAuthorizedSheetIds, Boolean isExecutionResponse) {
+    public static Map<String, String> getSpreadsheetData(JsonNode file, Set<String> userAuthorizedSheetIds, GoogleSheetMethodEnum methodType) {
         // This if block will be executed for all sheets modality
         if (userAuthorizedSheetIds == null) {
-            return extractSheetData((JsonNode) file, isExecutionResponse);
+            return extractSheetData((JsonNode) file, methodType);
         }
 
         // This block will be executed for specific sheets modality
         String fileId = file.get("id").asText();
         // This will filter out and send only authorised google sheet files to client
         if (userAuthorizedSheetIds.contains(fileId)) {
-            return extractSheetData((JsonNode) file, isExecutionResponse);
+            return extractSheetData((JsonNode) file, methodType);
         }
 
         return null;
     }
 
-    private static Map<String, String> extractSheetData(JsonNode file, Boolean isExecutionResponse) {
+    private static Map<String, String> extractSheetData(JsonNode file, GoogleSheetMethodEnum methodType) {
         final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-        if (isExecutionResponse) {
-            return Map.of("id", file.get("id").asText(),
-                    "name", file.get("name").asText(),
-                    "url", spreadSheetUrl);
-        } else {
-            return Map.of("label", file.get("name").asText(),
-                    "value", spreadSheetUrl);
+        switch (methodType) {
+            case TRIGGER:
+                return Map.of("label", file.get("name").asText(),
+                        "value", spreadSheetUrl);
+            default:
+                return Map.of("id", file.get("id").asText(),
+                        "name", file.get("name").asText(),
+                        "url", spreadSheetUrl);
         }
     }
 }
