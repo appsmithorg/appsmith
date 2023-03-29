@@ -42,7 +42,8 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      * Every PL/SQL block must have `BEGIN` and `END` keywords to define the block. Apart from these they could also
      * have the following two optional keywords: `DECLARE` and `EXCEPTION`. The following regex is meant to check for
      * the presence of any one of these keywords to indicate the usage of PL/SQL block.
-     * Please note that we convert the query into lowercase before regex match.
+     * Please note that we convert the query into lowercase before regex match. Also, this regex would not match any
+     * of the keywords enclosed within single or double quotes e.g. 'declare' or "declare"
      *
      * Quoting from official Oracle documentation:
      * " A PL/SQL block is defined by the keywords DECLARE, BEGIN, EXCEPTION, and END. These keywords partition the
@@ -50,7 +51,7 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      * required. "
      * Ref: https://docs.oracle.com/cd/B14117_01/appdev.101/b10807/13_elems003.htm#:~:text=A%20PL%2FSQL%20block%20is,the%20executable%20part%20is%20required.
      */
-    private static final String PLSQL_MATCH_REGEX = "\\bdeclare\\b|\\bbegin\\b|\\bend\\b|\\bexception\\b";
+    private static final String PLSQL_MATCH_REGEX = "(\\bdeclare\\b(\\s))|(\\bbegin\\b(\\s))|(\\bend\\b(\\s|;))|(\\bexception\\b(\\s))";
     private static final Pattern PL_SQL_MATCH_PATTERN = Pattern.compile(PLSQL_MATCH_REGEX);
 
     public static void closeConnectionPostExecution(ResultSet resultSet, Statement statement,
