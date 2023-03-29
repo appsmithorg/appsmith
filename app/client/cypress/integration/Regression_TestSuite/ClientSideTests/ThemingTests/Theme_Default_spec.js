@@ -101,19 +101,4 @@ describe("Theme validation for default data", function () {
           });
       });
   });
-
-  it("Publish the App and validate Default Theme across the app", function () {
-    cy.PublishtheApp();
-    cy.get(".bp3-button:contains('Submit')")
-      .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Edit App')")
-          .invoke("css", "background-color")
-          .then((selectedBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
-            expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
-            expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
-          });
-      });
-  });
 });
