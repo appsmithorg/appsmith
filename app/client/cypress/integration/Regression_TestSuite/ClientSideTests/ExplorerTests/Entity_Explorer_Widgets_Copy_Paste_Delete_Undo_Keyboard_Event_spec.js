@@ -5,6 +5,7 @@ const dsl = require("../../../../fixtures/formWithInputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
+agHelper = ObjectsRegistry.agHelper;
 
 before(() => {
   cy.addDsl(dsl);
@@ -37,7 +38,8 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("body").type(`{${modifierKey}}z`);
+    agHelper.Sleep(1000);
+    cy.get("body").type(`{${modifierKey}}z`, { force: true });
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("FormTest");
     ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
