@@ -58,10 +58,10 @@ describe("Admin settings page", function () {
     }
   });
   it("3. should test that Business features shows upgrade button and direct to pricing page", () => {
-    cy.visit("/settings");
-    cy.get(adminsSettings.accessControl).click();
-    cy.url().should("contain", "/settings/access-control");
+    cy.visit("/settings/general");
     if (CURRENT_REPO === REPO.CE) {
+      cy.get(adminsSettings.accessControl).click();
+      cy.url().should("contain", "/settings/access-control");
       stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
