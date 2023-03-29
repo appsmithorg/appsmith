@@ -26,7 +26,8 @@ import {
   createMessage,
   LOGIN_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
-import { Button, FormGroup, FormMessage, Size } from "design-system-old";
+import { FormGroup, FormMessage } from "design-system-old";
+import { Button } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
@@ -190,8 +191,7 @@ export function Login(props: LoginFormProps) {
 
             <FormActions>
               <Button
-                disabled={!isFormValid}
-                fill
+                isDisabled={!isFormValid}
                 onClick={() => {
                   PerformanceTracker.startTracking(
                     PerformanceTransactionName.LOGIN_CLICK,
@@ -200,11 +200,11 @@ export function Login(props: LoginFormProps) {
                     loginMethod: "EMAIL",
                   });
                 }}
-                size={Size.large}
-                tag="button"
-                text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+                size="md"
                 type="submit"
-              />
+              >
+                {createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+              </Button>
             </FormActions>
           </SpacedSubmitForm>
           <ForgotPasswordLink>
