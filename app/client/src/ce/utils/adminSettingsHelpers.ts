@@ -38,7 +38,6 @@ export const getDefaultAdminSettingsPath = (
 };
 
 export const showAdminSettings = (user?: User): boolean => {
-  return true;
   return (user?.isSuperUser && user?.isConfigurable) || false;
 };
 
