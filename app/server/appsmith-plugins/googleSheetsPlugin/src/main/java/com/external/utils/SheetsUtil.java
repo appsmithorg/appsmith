@@ -38,10 +38,12 @@ public class SheetsUtil {
     }
 
     public static Map<String, String> getSpreadsheetData(JsonNode file, Set<String> userAuthorizedSheetIds) {
+        // This if block will be executed for all sheets modality
         if (userAuthorizedSheetIds == null) {
             return extractSheetData((JsonNode) file);
         }
 
+        // This block will be executed for specific sheets modality
         String fileId = file.get("id").asText();
         // This will filter out and send only authorised google sheet files to client
         if (userAuthorizedSheetIds.contains(fileId)) {
