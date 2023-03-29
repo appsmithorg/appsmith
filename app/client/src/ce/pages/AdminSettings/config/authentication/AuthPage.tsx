@@ -12,10 +12,10 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import type { CalloutType } from "design-system-old";
-import { CalloutV2 } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Button, Category, Icon, TooltipComponent } from "design-system-old";
+import type { CalloutType } from "design-system-old";
+import { CalloutV2, TooltipComponent } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -102,12 +102,6 @@ export type AuthMethodType = {
   calloutBanner?: banner;
 };
 
-const StyledAuthButton = styled(Button)`
-  height: 30px;
-  width: 94px;
-  padding: 8px 16px;
-`;
-
 const Label = styled.span<{ business?: boolean }>`
   display: inline;
   ${(props) =>
@@ -155,17 +149,20 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   };
 
   return (
-    <StyledAuthButton
-      category={method.isConnected ? Category.primary : Category.secondary}
+    <Button
+      UNSAFE_width="100px"
       className={`t--settings-sub-category-${
         method.needsUpgrade ? `upgrade-${method.category}` : method.category
       }`}
       data-cy="btn-auth-account"
+      kind={method.isConnected ? "primary" : "secondary"}
       onClick={() => onClickHandler(method)}
-      text={createMessage(
+      size="md"
+    >
+      {createMessage(
         method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
       )}
-    />
+    </Button>
   );
 }
 
@@ -207,7 +204,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       >
                         <Icon
                           className={`${method.category}-green-check`}
-                          fillColor={Colors.GREEN}
+                          color={Colors.GREEN}
                           name="oval-check"
                         />
                       </TooltipComponent>
