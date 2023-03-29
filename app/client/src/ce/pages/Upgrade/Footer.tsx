@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React from "react";
-import { Button, Size, Text, TextType } from "design-system-old";
-import { Variant } from "design-system-old/build/constants/variants";
+import { Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import type { FooterProps } from "./types";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
@@ -54,12 +54,14 @@ export function FooterComponent(props: FooterProps) {
       </div>
       <div className="right">
         <Button
+          UNSAFE_width="150px"
+          kind="primary"
           onClick={onClick}
-          size={Size.large}
-          text={createMessage(UPGRADE)}
+          size="md"
           type="button"
-          variant={Variant.info}
-        />
+        >
+          {createMessage(UPGRADE)}
+        </Button>
       </div>
     </FooterContainer>
   );
