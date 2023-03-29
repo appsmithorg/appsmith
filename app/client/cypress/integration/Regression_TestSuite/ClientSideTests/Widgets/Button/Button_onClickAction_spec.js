@@ -22,7 +22,7 @@ describe("Button Widget Functionality", function () {
     cy.get(publishPage.buttonWidget).click();
     cy.get("body").then(($ele) => {
       if ($ele.find(modalWidgetPage.modelTextField).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
+        cy.get(publishPage.buttonWidget).click({ force: true });
       }
     });
     cy.get(modalWidgetPage.modelTextField).should(
@@ -43,13 +43,13 @@ describe("Button Widget Functionality", function () {
     );
     cy.SaveAndRunAPI();
 
-    // Going to HomePage where the button widget is located and opeing it's property pane.
+    // Going to HomePage where the button widget is located and opening it's property pane.
     cy.get(widgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("buttonwidget");
 
     // Adding the api in the onClickAction of the button widget.
-    cy.addAPIFromLightningMenu("buttonApi", "onClick");
+    cy.executeDbQuery("buttonApi", "onOptionChange");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
@@ -101,7 +101,7 @@ describe("Button Widget Functionality", function () {
     cy.openPropertyPane("buttonwidget");
 
     // Adding the query in the onClickAction of the button widget.
-    cy.addQueryFromLightningMenu("Query1");
+    cy.executeDbQuery("Query1", "onOptionChange");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 

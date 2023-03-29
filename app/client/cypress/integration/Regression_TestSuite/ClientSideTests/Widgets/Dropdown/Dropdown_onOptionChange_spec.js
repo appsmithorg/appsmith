@@ -5,6 +5,8 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
@@ -52,7 +54,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
     // Adding the api in the onClickAction of the button widget.
-    cy.addAPIFromLightningMenu("dropdownApi", "onOptionChange");
+    cy.executeDbQuery("dropdownApi", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
 
@@ -104,7 +106,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.reload();
     cy.openPropertyPane("selectwidget");
     // Adding the query in the onClickAction of the button widget.
-    cy.addQueryFromLightningMenu("Query1");
+    cy.executeDbQuery("Query1", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
@@ -163,12 +165,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("selectwidget");
     // Click on onOptionChange JS button
-    cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
-    cy.get(commonlocators.dropdownSelectButton).eq(0).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("No action")
-      .click();
+    propPane.SelectPlatformFunction("onOptionChange", "No action");
   });
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
