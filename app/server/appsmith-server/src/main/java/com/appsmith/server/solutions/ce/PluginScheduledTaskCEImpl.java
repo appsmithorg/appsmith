@@ -1,10 +1,10 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.util.WebClientUtils;
@@ -37,6 +37,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
     private final ConfigService configService;
     private final PluginService pluginService;
     private final CloudServicesConfig cloudServicesConfig;
+    private final CommonConfig commonConfig;
+
 
     private Instant lastUpdatedAt = null;
 
@@ -44,6 +46,11 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 30 * 1000 /* 30 seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void updateRemotePlugins() {
+
+        // Do not fetch the remote plugins for air-gap instance as access to cloud-services will be restricted
+        if (commonConfig.isAirGapInstance()) {
+            return;
+        }
         // Get all plugins on this instance
         final Mono<Map<PluginIdentifier, Plugin>> availablePluginsMono =
                 pluginService

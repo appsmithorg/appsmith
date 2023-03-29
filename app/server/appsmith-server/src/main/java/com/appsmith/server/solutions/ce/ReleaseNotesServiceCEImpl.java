@@ -15,12 +15,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.net.URI;
-import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,6 +126,11 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void refreshReleaseNotes() {
+
+        // Do not fetch the release notes for air-gap instance as access to cloud-services will be restricted
+        if (commonConfig.isAirGapInstance()) {
+            return;
+        }
         cacheExpiryTime = null;  // Bust the release notes cache to force fetching again.
         getReleaseNodes()
                 .subscribeOn(Schedulers.boundedElastic())
