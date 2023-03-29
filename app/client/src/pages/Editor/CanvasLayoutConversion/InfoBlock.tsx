@@ -10,7 +10,7 @@ export type InfoBlockProps = {
 
 export const InfoBlock = (props: InfoBlockProps) => {
   return (
-    <div className="flex flex-row gap-2 pt-2">
+    <div className="flex flex-row gap-2 pt-3">
       <Icon
         clickable={false}
         fillColor={Colors.PRIMARY_ORANGE}

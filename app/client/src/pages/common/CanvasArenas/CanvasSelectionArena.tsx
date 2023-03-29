@@ -15,6 +15,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getIsAutoLayout,
   getIsDraggingForSelection,
@@ -55,8 +56,11 @@ export function CanvasSelectionArena({
   snapRowSpace: number;
 }) {
   const dispatch = useDispatch();
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const canvasPadding =
-    widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
+    !isAutoLayout && widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? theme.canvasBottomPadding
+      : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
@@ -68,6 +72,9 @@ export function CanvasSelectionArena({
   );
   const appMode = useSelector(getAppMode);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
@@ -152,7 +159,6 @@ export function CanvasSelectionArena({
     snapRows,
     canExtend,
   );
-  const isAutoLayout = useSelector(getIsAutoLayout);
   useEffect(() => {
     if (
       appMode === APP_MODE.EDIT &&
@@ -485,7 +491,13 @@ export function CanvasSelectionArena({
 
   // Resizing state still shows selection arena to aid with scroll behavior
   const shouldShow =
-    appMode === APP_MODE.EDIT && !(isDragging || isPreviewMode || dropDisabled);
+    appMode === APP_MODE.EDIT &&
+    !(
+      isDragging ||
+      isPreviewMode ||
+      isAppSettingsPaneWithNavigationTabOpen ||
+      dropDisabled
+    );
 
   const canvasRef = React.useRef({
     slidingArenaRef,

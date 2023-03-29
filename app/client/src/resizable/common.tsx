@@ -1,8 +1,8 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Colors } from "constants/Colors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
-import type { ReactNode } from "react";
 import React from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import type { GridProps, ReflowDirection } from "reflow/reflowTypes";
@@ -13,6 +13,7 @@ import type {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
+import memoize from "micro-memoize";
 
 const resizeBorderPadding = 1;
 const resizeBorder = 1;
@@ -24,45 +25,108 @@ export const RESIZE_BORDER_BUFFER =
 
 export const ResizeWrapper = styled(animated.div)<{
   $prevents: boolean;
-  isHovered: boolean;
-  showBoundaries: boolean;
-  inverted?: boolean;
 }>`
   display: block;
+  outline-offset: 1px;
   & {
     * {
       pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
-  border-radius: 4px 0px 4px 4px;
-  ${(props) => {
-    if (props.inverted) {
-      return `border-radius: 4px 4px 4px 0px;`;
-    } else {
-      return `border-radius: 0px 4px 4px 4px;`;
-    }
-  }}
-  border: ${resizeBorder}px solid;
-  padding: ${resizeBorderPadding}px;
-  outline: ${resizeOutline}px solid !important;
-  outline-offset: 1px;
-  ${(props) => {
-    if (props.showBoundaries) {
-      return `
-      box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
-        props.isHovered ? Colors.WATUSI : "#f86a2b"
-      };
-      outline-color: ${Colors.GREY_1} !important;
-      border-color: ${Colors.GREY_1};
-      `;
-    } else {
-      return `
-      outline-color: transparent !important;
-      border-color: transparent;
-      `;
-    }
-  }}}
 `;
+
+export const getWrapperStyle = memoize(
+  (
+    inverted: boolean,
+    showBoundaries: boolean,
+    isHovered: boolean,
+  ): CSSProperties => {
+    return {
+      borderRadius: inverted ? "4px 4px 4px 0px" : "0px 4px 4px 4px",
+      border: `${resizeBorder}px solid`,
+      padding: `${resizeBorderPadding}px`,
+      outline: `${resizeOutline}px solid !important`,
+      outlineColor: `${
+        showBoundaries ? Colors.GREY_1 : "transparent"
+      } !important`,
+      borderColor: `${showBoundaries ? Colors.GREY_1 : "transparent"}`,
+      boxShadow: `${
+        showBoundaries
+          ? "0px 0px 0px " +
+            resizeBoxShadow +
+            "px " +
+            (isHovered ? Colors.WATUSI : "#f86a2b")
+          : "none"
+      }`,
+    };
+  },
+);
+
+// export const ResizeWrapper = (props: {
+//   $prevents: boolean;
+//   isHovered: boolean;
+//   showBoundaries: boolean;
+//   inverted?: boolean;
+//   children: ReactNode;
+//   className?: string;
+//   id?: string;
+//   ref?: any;
+//   style?: any;
+// }) => {
+//   const wrapperStyle: CSSProperties = useMemo(getWrapperStyle, [
+//     props.inverted,
+//     props.showBoundaries,
+//     props.isHovered,
+//     props.style,
+//   ]);
+//   return (
+//     <ResizeWrapperBox $prevents={props.$prevents} style={wrapperStyle}>
+//       {props.children}
+//     </ResizeWrapperBox>
+//   );
+// };
+
+// export const ResizeWrapper = styled(animated.div)<{
+//   $prevents: boolean;
+//   isHovered: boolean;
+//   showBoundaries: boolean;
+//   inverted?: boolean;
+// }>`
+//   display: block;
+//   & {
+//     * {
+//       pointer-events: ${(props) => !props.$prevents && "none"};
+//     }
+//   }
+//   border-radius: 4px 0px 4px 4px;
+//   ${(props) => {
+//     if (props.inverted) {
+//       return `border-radius: 4px 4px 4px 0px;`;
+//     } else {
+//       return `border-radius: 0px 4px 4px 4px;`;
+//     }
+//   }}
+//   border: ${resizeBorder}px solid;
+//   padding: ${resizeBorderPadding}px;
+//   outline: ${resizeOutline}px solid !important;
+//   outline-offset: 1px;
+//   ${(props) => {
+//     if (props.showBoundaries) {
+//       return `
+//       box-shadow: 0px 0px 0px ${resizeBoxShadow}px ${
+//         props.isHovered ? Colors.WATUSI : "#f86a2b"
+//       };
+//       outline-color: ${Colors.GREY_1} !important;
+//       border-color: ${Colors.GREY_1};
+//       `;
+//     } else {
+//       return `
+//       outline-color: transparent !important;
+//       border-color: transparent;
+//       `;
+//     }
+//   }}}
+// `;
 
 const getSnappedValues = (
   x: number,

@@ -36,13 +36,16 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
   autoLayout: {
+    disabledPropsDefaults: {
+      progressType: ProgressType.LINEAR,
+    },
     widgetSize: [
       {
         viewportMinWidth: 0,
         configuration: () => {
           return {
             minWidth: "120px",
-            minHeight: "70px",
+            minHeight: "40px",
           };
         },
       },

@@ -180,8 +180,12 @@ export function alterLayoutForDesktop(
   const parent = widgets[parentId];
   const children = parent.children;
 
-  if (!isStack(allWidgets, parent)) return widgets;
-  if (!children || !children.length) return widgets;
+  if (!isStack(allWidgets, parent)) {
+    return widgets;
+  }
+  if (!children || !children.length) {
+    return widgets;
+  }
 
   widgets = updateWidgetPositions(
     widgets,
@@ -469,19 +473,29 @@ function getCanvasWidth(
   while (widget.parentId) {
     stack.push(widget);
     widget = widgets[widget.parentId];
+
+    //stop at modal
+    if (widget.type === "MODAL_WIDGET") {
+      break;
+    }
   }
   stack.push(widget);
 
   let width = mainCanvasWidth;
+
+  //modal will be the total width instead of the mainCanvasWidth
+  if (widget.type === "MODAL_WIDGET") {
+    width = widget.width;
+  }
+
   while (stack.length) {
     const widget = stack.pop();
     if (!widget) continue;
     const columns = getWidgetWidth(widget, isMobile);
     const padding = getPadding(widget);
-    const factor =
-      columns > GridDefaults.DEFAULT_GRID_COLUMNS
-        ? 1
-        : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    const factor = widget.detachFromLayout
+      ? 1
+      : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
     width = width * factor - padding;
   }
 
@@ -494,11 +508,14 @@ function getPadding(canvas: FlattenedWidgetProps): number {
     padding = FLEXBOX_PADDING * 2;
   } else if (canvas.type === "CONTAINER_WIDGET") {
     padding = (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
+  } else if (canvas.isCanvas) {
+    padding = CONTAINER_GRID_PADDING * 2;
   }
+
   if (canvas.noPad) {
-    // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
+    padding -= WIDGET_PADDING;
   }
+
   return padding;
 }
 

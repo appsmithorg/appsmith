@@ -2,8 +2,19 @@ import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import get from "lodash/get";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -107,6 +118,102 @@ export const CONFIG = {
                 },
               ],
             },
+          },
+        },
+      ],
+      operations: [
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (
+            widget: FlattenedWidgetProps,
+            widgets: CanvasWidgetsReduxState,
+            parent: FlattenedWidgetProps,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return [];
+
+            //get Canvas Widget
+            const canvasWidget: FlattenedWidgetProps = get(
+              widget,
+              "children.0",
+            );
+
+            //get Children Ids of the StatBox
+            const childrenIds: string[] = get(widget, "children.0.children");
+
+            //get Children props of the StatBox
+            const children: FlattenedWidgetProps[] = childrenIds.map(
+              (childId) => widgets[childId],
+            );
+
+            //get the Text Widgets
+            const textWidget = children.filter(
+              (child) => child.type === "TEXT_WIDGET",
+            )?.[0];
+
+            const [buttonWidget1, buttonWidget2] = children.filter(
+              (child) => child.type === "BUTTON_WIDGET",
+            );
+
+            //Create flex layer object based on the children
+            const flexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: textWidget.widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: buttonWidget2.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                  {
+                    id: buttonWidget1.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+            ];
+
+            //create properties to be updated
+            return getWidgetBluePrintUpdates({
+              [widget.widgetId]: {
+                dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+              },
+              [canvasWidget.widgetId]: {
+                flexLayers,
+                useAutoLayout: true,
+                positioning: Positioning.Vertical,
+              },
+              [textWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                topRow: 0,
+                bottomRow: 4,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [buttonWidget2.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 2 * 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+              },
+              [buttonWidget1.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+            });
           },
         },
       ],

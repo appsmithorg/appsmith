@@ -560,6 +560,7 @@ abstract class BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <FlexComponent
+        alignment={this.props.alignment}
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         direction={this.props.direction || LayoutDirection.Horizontal}
@@ -690,14 +691,11 @@ abstract class BaseWidget<
       // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
-        if (this.props.isVisible) {
-          if (this.props.isFlexChild) content = this.makeFlex(content);
-          else if (!this.props.detachFromLayout) {
-            content = this.makePositioned(content);
-          }
-          return content;
+        if (this.props.isFlexChild) content = this.makeFlex(content);
+        else if (!this.props.detachFromLayout) {
+          content = this.makePositioned(content);
         }
-        return null;
+        return content;
       default:
         throw Error("RenderMode not defined");
     }
@@ -815,6 +813,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   flexVerticalAlignment?: FlexVerticalAlignment;
   appPositioningType?: AppPositioningTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
+  mobileWidthInPercentage?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {
@@ -833,6 +832,7 @@ export interface WidgetDisplayProps {
   animateLoading?: boolean;
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
+  selectedWidgetAncestry?: string[];
 }
 
 export interface WidgetDataProps

@@ -153,6 +153,25 @@ function getFixedCanvasWidget(
     !canvasWidget.useAutoLayout ||
     !canvasWidget.flexLayers
   ) {
+    if (
+      canvasWidget &&
+      canvasWidget.children &&
+      canvasWidget.children.length > 0
+    ) {
+      //even if it is not autoLayout, remove all the unwanted props from it's children
+      for (const childId of canvasWidget.children) {
+        const currWidget = { ...widgets[childId] };
+
+        if (!currWidget) continue;
+
+        for (const responsiveProperty of deletedResponsiveProperties) {
+          delete currWidget[responsiveProperty];
+        }
+
+        widgets[childId] = { ...currWidget };
+      }
+    }
+
     return widgets;
   }
 

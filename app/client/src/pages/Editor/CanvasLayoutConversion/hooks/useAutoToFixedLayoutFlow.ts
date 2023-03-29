@@ -13,6 +13,7 @@ import {
   SAVE_SNAPSHOT_TEXT,
   SNAPSHOT_LABEL,
   SNAPSHOT_TIME_FROM_MESSAGE,
+  SNAPSHOT_WARNING_MESSAGE,
   USE_SNAPSHOT,
 } from "@appsmith/constants/messages";
 import type { ConversionProps } from "../ConversionForm";
@@ -118,13 +119,19 @@ export const useAutoToFixedLayoutFlow = (
           readableSnapShotDetails.timeSince,
           readableSnapShotDetails.readableDate,
         ),
+        postText: createMessage(SNAPSHOT_WARNING_MESSAGE),
       },
       primaryButton: {
         text: createMessage(USE_SNAPSHOT),
         onClick: () => {
           dispatch(
-            setLayoutConversionStateAction(CONVERSION_STATES.SNAPSHOT_START),
+            setLayoutConversionStateAction(
+              CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER,
+            ),
           );
+          dispatch({
+            type: ReduxActionTypes.RESTORE_SNAPSHOT,
+          });
         },
       },
       secondaryButton: {
@@ -149,11 +156,6 @@ export const useAutoToFixedLayoutFlow = (
       spinner: createMessage(CONVERTING_APP),
     },
     ...commonConversionFlows(dispatch, onCancel),
-    ...snapShotFlow(
-      dispatch,
-      readableSnapShotDetails,
-      onCancel,
-      CONVERSION_STATES.CONFIRM_CONVERSION,
-    ),
+    ...snapShotFlow(dispatch, readableSnapShotDetails, onCancel),
   };
 };

@@ -62,6 +62,28 @@ export const isCurrentCanvasDragging = (widgetId: string) => {
   );
 };
 
+export const getTotalTopOffset = (widgetId: string) => {
+  return createSelector(
+    getWidgets,
+    getIsMobile,
+    (widgets, isMobile): number => {
+      let widget = widgets[widgetId];
+      if (!widget) return 0;
+      let offset = 0;
+      while (widget.parentId) {
+        const parent = widgets[widget.parentId];
+        const top =
+          isMobile && parent.mobileTopRow !== undefined
+            ? parent.mobileTopRow
+            : parent.topRow;
+        offset += top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
+        widget = parent;
+      }
+      return offset;
+    },
+  );
+};
+
 export const getParentOffsetTop = (widgetId: string) =>
   createSelector(getWidgets, getIsMobile, (widgets, isMobile): number => {
     const widget = widgets[widgetId];

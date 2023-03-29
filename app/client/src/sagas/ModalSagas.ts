@@ -45,6 +45,8 @@ import { Toaster } from "design-system-old";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -210,6 +212,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
 
     let widget = { ...stateWidget };
     const widgets = { ...stateWidgets };
@@ -240,7 +243,11 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
 
     log.debug("resize computations took", performance.now() - start, "ms");
     //TODO Identify the updated widgets and pass the values
-    yield put(updateAndSaveLayout(widgets));
+    if (isAutoLayout) {
+      yield call(recalculateAutoLayoutColumnsAndSave, widgets);
+    } else {
+      yield put(updateAndSaveLayout(widgets));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

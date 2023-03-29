@@ -169,6 +169,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
+import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -179,6 +180,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       getWidget,
       resizeAction.payload.widgetId,
     );
+    const isMobile: boolean = yield select(getIsMobile);
     const widgets = { ...stateWidgets };
     let widget = { ...stateWidget };
     const {
@@ -210,9 +212,17 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileRightColumn,
       mobileTopRow,
       mobileBottomRow,
-      widthInPercentage:
-        ((rightColumn - leftColumn) * snapColumnSpace) / mainCanvasWidth,
     };
+
+    // Keeps track of user defined widget width in terms of percentage
+    if (isMobile) {
+      widget.mobileWidthInPercentage =
+        (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
+    } else {
+      widget.widthInPercentage =
+        (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+    }
+
     const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
@@ -236,7 +246,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
-    const isMobile: boolean = yield select(getIsMobile);
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
@@ -250,12 +259,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
-    yield put(
-      generateAutoHeightLayoutTreeAction(
-        appPositioningType !== AppPositioningTypes.AUTO,
-        true,
-      ),
-    );
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1367,7 +1371,7 @@ function* pasteWidgetSaga(
     flexLayers: FlexLayer[];
   } = yield getCopiedWidgets();
 
-  let copiedWidgetGroups = [...copiedWidgets];
+  let copiedWidgetGroups = copiedWidgets ? [...copiedWidgets] : [];
   const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];

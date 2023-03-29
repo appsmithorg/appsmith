@@ -38,7 +38,7 @@ const DEFAULT_OPTIONS = {
   infiniteScroll: false,
   levelData: undefined,
   prevTemplateWidgets: {},
-  primaryKeys: data.map((d) => d.id),
+  primaryKeys: data.map((d) => d.id.toString()),
   scrollElement: null,
   templateBottomRow: 12,
   widgetName: "List1",
@@ -267,7 +267,7 @@ describe("#generate", () => {
       { id: 4, name: "White" },
     ];
     options.data = newData;
-    options.primaryKeys = newData.map((d) => d.id);
+    options.primaryKeys = newData.map((d) => d.id.toString());
 
     const result = generator.withOptions(options).generate();
     const count = Object.keys(result.metaWidgets).length;
@@ -770,7 +770,7 @@ describe("#generate", () => {
     const nestedListWidgetId = "fs2d2lqjgd";
     const metaListWidget = initialResult.metaWidgets[nestedListWidgetId];
 
-    Object.values(initialResult.metaWidgets).map((metaWidget) => {
+    Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
       if (metaWidget.type === "LIST_WIDGET_V2") {
         expect(metaWidget.level).toEqual(2);
       }
@@ -949,13 +949,13 @@ describe("#generate", () => {
       { id: 1, name: "Blue" },
       { id: 2, name: "Pink" },
     ];
-    const page1PrimaryKeys = page1Data.map((d) => d.id);
+    const page1PrimaryKeys = page1Data.map((d) => d.id.toString());
 
     const page2Data = [
       { id: 3, name: "Red" },
       { id: 4, name: "Blue" },
     ];
-    const page2PrimaryKeys = page2Data.map((d) => d.id);
+    const page2PrimaryKeys = page2Data.map((d) => d.id.toString());
 
     /**
      * Here page1Data's first item got shuffled into 2nd item and
@@ -965,7 +965,7 @@ describe("#generate", () => {
       { id: 5, name: "Green" },
       { id: 1, name: "White" },
     ];
-    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id);
+    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id.toString());
 
     const { generator, initialResult, options } = init({
       optionsProps: {
@@ -1011,13 +1011,13 @@ describe("#generate", () => {
       { id: 1, name: "Blue" },
       { id: 2, name: "Pink" },
     ];
-    const page1PrimaryKeys = page1Data.map((d) => d.id);
+    const page1PrimaryKeys = page1Data.map((d) => d.id.toString());
 
     const page2Data = [
       { id: 3, name: "Red" },
       { id: 4, name: "Blue" },
     ];
-    const page2PrimaryKeys = page2Data.map((d) => d.id);
+    const page2PrimaryKeys = page2Data.map((d) => d.id.toString());
 
     /**
      * Here page1Data's first item got shuffled into 2nd item and
@@ -1027,7 +1027,7 @@ describe("#generate", () => {
       { id: 5, name: "Green" },
       { id: 1, name: "White" },
     ];
-    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id);
+    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id.toString());
 
     const { generator, initialResult, options } = init({
       constructorProps: {
