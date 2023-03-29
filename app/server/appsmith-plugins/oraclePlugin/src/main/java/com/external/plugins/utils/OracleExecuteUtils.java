@@ -51,6 +51,7 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      * Ref: https://docs.oracle.com/cd/B14117_01/appdev.101/b10807/13_elems003.htm#:~:text=A%20PL%2FSQL%20block%20is,the%20executable%20part%20is%20required.
      */
     private static final String PLSQL_MATCH_REGEX = "\\bdeclare\\b|\\bbegin\\b|\\bend\\b|\\bexception\\b";
+    private static final Pattern PL_SQL_MATCH_PATTERN = Pattern.compile(PLSQL_MATCH_REGEX);
 
     public static void closeConnectionPostExecution(ResultSet resultSet, Statement statement,
                                                     PreparedStatement preparedQuery, Connection connectionFromPool) {
@@ -114,8 +115,7 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
          * matching the pattern.
          * Ref: https://stackoverflow.com/questions/8923398/regex-doesnt-work-in-string-matches 
          */
-        Pattern pattern = Pattern.compile(PLSQL_MATCH_REGEX);
-        return pattern.matcher(query.toLowerCase()).find();
+        return PL_SQL_MATCH_PATTERN.matcher(query.toLowerCase()).find();
     }
 
     public static void populateRowsAndColumns(List<Map<String, Object>> rowsList, List<String> columnsList,
