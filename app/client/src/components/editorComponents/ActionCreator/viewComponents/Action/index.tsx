@@ -3,6 +3,8 @@ import ActionTree from "./ActionTree";
 import { useApisQueriesAndJsActionOptions } from "../../helpers";
 import type { TActionBlock } from "../../types";
 import { actionToCode, codeToAction } from "../../utils";
+import { useSelector } from "react-redux";
+import { selectEvaluationVersion } from "selectors/applicationSelectors";
 
 type TRootActionProps = {
   code: string;
@@ -13,6 +15,7 @@ type TRootActionProps = {
 
 export default function Action(props: TRootActionProps) {
   const { code, id, onChange } = props;
+  const evaluationVersion = useSelector(selectEvaluationVersion);
 
   const integrationOptions = useApisQueriesAndJsActionOptions(() => {
     return;
@@ -28,7 +31,7 @@ export default function Action(props: TRootActionProps) {
 
   const handleChange = useCallback(
     (actionBlock: TActionBlock) => {
-      const newCode = actionToCode(actionBlock, true);
+      const newCode = actionToCode(actionBlock, true, evaluationVersion);
       onChange(newCode);
     },
     [onChange],

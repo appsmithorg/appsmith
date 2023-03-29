@@ -11,6 +11,8 @@ import type { NavigationSetting } from "constants/AppConstants";
 
 export type EvaluationVersion = number;
 
+export const DEFAULT_EVALUATION_VERSION = 2;
+
 export interface PublishApplicationRequest {
   applicationId: string;
 }
