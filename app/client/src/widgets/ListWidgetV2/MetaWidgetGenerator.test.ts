@@ -762,7 +762,21 @@ describe("#generate", () => {
             id: 1,
             name: "Blue",
           },
-          currentView: "{{Container1.data}}",
+          currentView: `{{((data, blackListArr) => {
+              const newObj = {};
+
+              for (const key in data) {
+                if (data.hasOwnProperty(key) && typeof data[key] === 'object') {
+                  newObj[key] = Object.fromEntries(
+                    Object.entries(data[key]).filter(
+                      ([nestedKey]) => !blackListArr.includes(nestedKey)
+                    )
+                  );
+                }
+              }
+              return newObj;
+              })(Container1.data, [\"selectedItemView\",\"triggeredItemView\",\"currentItemsView\"] )
+          }}`,
         },
       },
     };

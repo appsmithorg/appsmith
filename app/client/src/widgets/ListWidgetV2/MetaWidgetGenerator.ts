@@ -604,7 +604,7 @@ class MetaWidgetGenerator {
       /**
        * If nestedViewIndex is present then it comes from the outermost listwidget
        * and that value should ideally be continued to the nested list widgets.
-       *  */
+       */
       metaWidget.nestedViewIndex = this.nestedViewIndex || viewIndex;
     }
 
@@ -852,7 +852,7 @@ class MetaWidgetGenerator {
     rowIndex: number,
     key: string,
   ) => {
-    const { metaWidgetId, widgetId } = metaWidget;
+    const { metaWidgetId, type, widgetId } = metaWidget;
     const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
       metaWidgetId ?? widgetId,
@@ -898,7 +898,24 @@ class MetaWidgetGenerator {
           currentItem: currentViewData?.[0],
           // Uses any one of the row's container present on the List widget to
           // get the object of current row for autocomplete
-          currentView: `{{${metaContainerName}.data}}`,
+          // traverse this data and create a new object filtering out the blacklisted properties
+          currentView: `{{((data, blackListArr) => {
+              const newObj = {};
+
+              for (const key in data) {
+                if (data.hasOwnProperty(key) && typeof data[key] === 'object') {
+                  newObj[key] = Object.fromEntries(
+                    Object.entries(data[key]).filter(
+                      ([nestedKey]) => !blackListArr.includes(nestedKey)
+                    )
+                  );
+                }
+              }
+              return newObj;
+              })(${metaContainerName}.data, ${JSON.stringify(
+            BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+          )} )
+          }}`,
         },
       },
     };
