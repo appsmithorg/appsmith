@@ -37,10 +37,12 @@ function* addWidgetAndReorderSaga(
     parentId: string;
     direction: LayoutDirection;
     dropPayload: HighlightInfo;
+    addToBottom: boolean;
   }>,
 ) {
   const start = performance.now();
-  const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
+  const { addToBottom, direction, dropPayload, newWidget, parentId } =
+    actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
   const isMobile: boolean = yield select(getIsMobile);
   try {
@@ -52,17 +54,31 @@ function* addWidgetAndReorderSaga(
       },
     );
 
+    if (!parentId || !updatedWidgetsOnAddition[parentId]) {
+      return updatedWidgetsOnAddition;
+    }
+
+    let widgetIndex = index;
+    let currLayerIndex = layerIndex;
+
+    const canvasWidget = updatedWidgetsOnAddition[parentId];
+
+    if (addToBottom && canvasWidget.children && canvasWidget.flexLayers) {
+      widgetIndex = canvasWidget.children.length;
+      currLayerIndex = canvasWidget.flexLayers.length;
+    }
+
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,
       {
         movedWidgets: [newWidget.newWidgetId],
-        index,
+        index: widgetIndex,
         isNewLayer,
         parentId,
         allWidgets: updatedWidgetsOnAddition,
         alignment,
         direction,
-        layerIndex,
+        layerIndex: currLayerIndex,
         rowIndex,
         isMobile,
       },
