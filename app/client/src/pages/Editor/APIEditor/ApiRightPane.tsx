@@ -15,7 +15,6 @@ import { getQueryParams } from "utils/URLUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
@@ -29,14 +28,15 @@ const EmptyDatasourceContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 50px;
-  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid var(--ads-v2-color-border);
   height: 100%;
   flex-direction: column;
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.apiPane.text};
+    color: var(--ads-v2-color-fg);
   }
 `;
 
+// TODO: replace
 const DatasourceContainer = styled.div`
   &&&&&&&&&&& .react-tabs__tab-list {
     padding: 0 16px !important;
@@ -49,7 +49,7 @@ const DatasourceContainer = styled.div`
     }
   }
   width: ${(props) => props.theme.actionSidePane.width}px;
-  color: ${(props) => props.theme.colors.apiPane.text};
+  color: var(--ads-v2-color-fg);
 
   &&&& {
     .react-tabs__tab-panel {
@@ -63,7 +63,7 @@ const DataSourceListWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   padding: 10px;
-  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid var(--ads-v2-color-border);
   overflow: auto;
 `;
 
@@ -74,7 +74,7 @@ const DatasourceCard = styled.div`
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border: 1px solid var(--ads-v2-color-border);
   cursor: pointer;
   transition: 0.3s all ease;
   .cs-icon {
@@ -114,10 +114,10 @@ const DataSourceNameContainer = styled.div`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: ${(props) => props.theme.colors.apiPane.text};
+    color: var(--ads-v2-color-fg);
   }
   .cs-text {
-    color: ${(props) => props.theme.colors.apiPane.text};
+    color: var(--ads-v2-color-fg);
   }
   .cs-icon {
     flex-shrink: 0;
@@ -141,7 +141,7 @@ const SelectedDatasourceInfoContainer = styled.div`
   flex-direction: row;
   align-items: center;
   padding: 2px 8px;
-  background-color: ${Colors.LIGHT_GREEN_CYAN};
+  background-color: var(--ads-v2-color-bg-success);
   margin-right: 2px;
   margin-left: 3px;
   text-transform: uppercase;
@@ -155,13 +155,13 @@ const SelectedDatasourceInfoContainer = styled.div`
     text-align: center;
     letter-spacing: 0.4px;
     text-transform: uppercase;
-    color: ${Colors.GREEN};
+    color: var(--ads-v2-color-fg-success);
     white-space: nowrap;
   }
 `;
 
 const SomeWrapper = styled.div`
-  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid var(--ads-v2-color-border);
   height: 100%;
 `;
 
