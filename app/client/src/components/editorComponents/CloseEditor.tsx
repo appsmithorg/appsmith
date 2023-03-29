@@ -1,8 +1,5 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import styled from "styled-components";
-import { Text, TextType } from "design-system-old";
-import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -17,18 +14,7 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const IconContainer = styled.div`
-  //width: 100%;
-  height: 30px;
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  cursor: pointer;
-  padding-left: 16px;
-  width: fit-content;
-  /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
-`;
+import { Link } from "design-system";
 
 function CloseEditor() {
   const history = useHistory();
@@ -76,15 +62,19 @@ function CloseEditor() {
       toUrl: URL,
     });
     history.push(URL);
+    return false;
   };
 
   return (
-    <IconContainer className="t--close-editor" onClick={handleClose}>
-      <Icon icon="chevron-left" iconSize={16} />
-      <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P1}>
-        Back
-      </Text>
-    </IconContainer>
+    <Link
+      className="t--close-editor"
+      kind="secondary"
+      onClick={handleClose}
+      startIcon="arrow-left-s-line"
+      to="#"
+    >
+      Back
+    </Link>
   );
 }
 
