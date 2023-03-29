@@ -25,29 +25,6 @@ describe("Test Create Api and Bind to Button widget", function () {
     propPane.SelectPlatformFunction("onClick", "Set interval");
     agHelper.EnterActionValue("Callback function", "{{() => { Api1.run() }}}");
     agHelper.EnterActionValue("Id", "myInterval");
-
-    // cy.get(widgetsPage.toggleOnClick)
-    //   .invoke("attr", "class")
-    //   .then((classes) => {
-    //     if (classes.includes("is-active")) {
-    //       cy.get(widgetsPage.toggleOnClick).click();
-    //     }
-    //   });
-    //
-    // cy.get("label")
-    //   .contains("Callback function")
-    //   .parent()
-    //   .then(($el) => {
-    //     cy.updateCodeInput($el, "{{() => { Api1.run() }}}");
-    //   });
-
-    // cy.get("label")
-    //   .contains("Id")
-    //   .parent()
-    //   .then(($el) => {
-    //     cy.updateCodeInput($el, "myInterval");
-    //   });
-
     jsEditor.EnableJSContext("onClick");
     propPane.ValidatePropertyFieldValue(
       "onClick",
