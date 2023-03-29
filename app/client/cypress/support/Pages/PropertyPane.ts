@@ -378,4 +378,10 @@ export class PropertyPane {
       .contains(value)
       .click();
   }
+
+  public ClearActionField(property: string) {
+    cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+    this.UpdatePropertyFieldValue(property, "");
+    cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+  }
 }
