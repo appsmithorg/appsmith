@@ -35,7 +35,7 @@ import type { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { Link } from "react-router-dom";
 import { showDebugger } from "actions/debuggerActions";
-import { isMacOrIOS } from "utils/helpers";
+import { modText } from "utils/helpers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -187,13 +187,14 @@ const StyledTitleName = styled.p`
 `;
 
 const AsyncFunctionErrorLink = styled(Link)`
-  color: black;
+  color: ${(props) => props.theme.colors.debugger.entityLink};
   font-weight: 600;
+  font-size: 12px;
+  line-height: 14px;
   cursor: pointer;
-  font-style: normal;
-  display: flex;
+  letter-spacing: 0.6px;
   &:hover {
-    color: black;
+    color: ${(props) => props.theme.colors.debugger.entityLink};
   }
 `;
 
@@ -540,7 +541,7 @@ function PopoverContent(props: PopoverContentProps) {
           {props.asyncFuncErrorRootCauseUrl ? (
             <AsyncFunctionErrorView>
               <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
-                See Error ({isMacOrIOS() ? `Cmd + D` : `Ctrl + D`})
+                See Error ({modText()} D)
               </AsyncFunctionErrorLink>
               <AsyncFunctionErrorLink to={props.asyncFuncErrorRootCauseUrl}>
                 View Source

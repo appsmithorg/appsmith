@@ -1078,7 +1078,7 @@ export default class DataTreeEvaluator {
             addErrorToEntityProperty({
               errors: addRootcauseToAsyncInvocationErrors(
                 fullPropertyPath,
-                data,
+                configTree,
                 evalErrors,
               ),
               evalProps: this.evalProps,

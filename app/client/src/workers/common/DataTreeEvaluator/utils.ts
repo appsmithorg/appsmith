@@ -5,7 +5,7 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DataTree,
+  ConfigTree,
   DataTreeEntity,
   WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
@@ -17,11 +17,11 @@ import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJs
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";
 }
-export function isDataField(fullPath: string, unevalTree: DataTree) {
+export function isDataField(fullPath: string, configTree: ConfigTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const entity = unevalTree[entityName];
-  if ("triggerPaths" in entity) {
-    return !(propertyPath in entity.triggerPaths);
+  const entityConfig = configTree[entityName];
+  if ("triggerPaths" in entityConfig) {
+    return !(propertyPath in entityConfig.triggerPaths);
   }
   return false;
 }
@@ -34,12 +34,12 @@ export function isWidgetActionOrJsObject(
 
 export function addRootcauseToAsyncInvocationErrors(
   fullPropertyPath: string,
-  unevalTree: DataTree,
+  configTree: ConfigTree,
   errors: EvaluationError[],
 ) {
   let updatedErrors = errors;
 
-  if (isDataField(fullPropertyPath, unevalTree)) {
+  if (isDataField(fullPropertyPath, configTree)) {
     const asyncFunctionBindingInPath =
       asyncJsFunctionInDataFields.getAsyncFunctionBindingInDataField(
         fullPropertyPath,

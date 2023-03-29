@@ -13,6 +13,7 @@ import {
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
+  isJSActionConfig,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 
@@ -428,19 +429,23 @@ export function updateMap(
   }
 }
 
-export function isAsyncJSFunction(unevalTree: DataTree, fullPath: string) {
+export function isAsyncJSFunction(configTree: ConfigTree, fullPath: string) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const entity = unevalTree[entityName];
+  const configEntity = configTree[entityName];
   return (
-    isJSAction(entity) &&
+    isJSActionConfig(configEntity) &&
     propertyPath &&
-    propertyPath in entity.meta &&
-    entity.meta[propertyPath].isAsync
+    propertyPath in configEntity.meta &&
+    configEntity.meta[propertyPath].isAsync
   );
 }
 
-export function isJSFunction(unevalTree: DataTree, fullPath: string) {
+export function isJSFunction(configTree: ConfigTree, fullPath: string) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const entity = unevalTree[entityName];
-  return isJSAction(entity) && propertyPath && propertyPath in entity.meta;
+  const entityConfig = configTree[entityName];
+  return (
+    isJSActionConfig(entityConfig) &&
+    propertyPath &&
+    propertyPath in entityConfig.meta
+  );
 }

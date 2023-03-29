@@ -23,15 +23,17 @@ class AsyncJsFunctionInDataField {
     fullPath: string,
     referencesInPath: string[],
     unEvalDataTree: DataTree,
+    configTree: ConfigTree,
   ) {
     const updatedAsyncJSFunctionsInMap = new Set<string>();
     // Only datafields can cause updates
-    if (!isDataField(fullPath, unEvalDataTree)) return [];
+    if (!isDataField(fullPath, configTree)) return [];
 
     const asyncJSFunctionsInvokedInPath =
       this.getAsyncJSFunctionInvocationsInPath(
         referencesInPath,
         unEvalDataTree,
+        configTree,
         fullPath,
       );
 
@@ -92,13 +94,15 @@ class AsyncJsFunctionInDataField {
     dependenciesInPath: string[],
     unevalTree: DataTree,
     inverseDependencyMap: DependencyMap,
+    configTree: ConfigTree,
   ) {
     const updatedAsyncJSFunctionsInMap = new Set<string>();
-    if (isDataField(editedPath, unevalTree)) {
+    if (isDataField(editedPath, configTree)) {
       const asyncJSFunctionInvocationsInPath =
         this.getAsyncJSFunctionInvocationsInPath(
           dependenciesInPath,
           unevalTree,
+          configTree,
           editedPath,
         );
       asyncJSFunctionInvocationsInPath.forEach((funcName) => {
@@ -134,25 +138,26 @@ class AsyncJsFunctionInDataField {
           );
         },
       );
-    } else if (isJSFunction(unevalTree, editedPath)) {
+    } else if (isJSFunction(configTree, editedPath)) {
       if (
-        !isAsyncJSFunction(unevalTree, editedPath) &&
+        !isAsyncJSFunction(configTree, editedPath) &&
         Object.keys(this.asyncFunctionsInDataFieldsMap).includes(editedPath)
       ) {
         updatedAsyncJSFunctionsInMap.add(editedPath);
         delete this.asyncFunctionsInDataFieldsMap[editedPath];
-      } else if (isAsyncJSFunction(unevalTree, editedPath)) {
+      } else if (isAsyncJSFunction(configTree, editedPath)) {
         const boundFields = inverseDependencyMap[editedPath];
         let boundDataFields: string[] = [];
         if (boundFields) {
           boundDataFields = boundFields.filter((path) =>
-            isDataField(path, unevalTree),
+            isDataField(path, configTree),
           );
           for (const dataFieldPath of boundDataFields) {
             const asyncJSFunctionInvocationsInPath =
               this.getAsyncJSFunctionInvocationsInPath(
                 [editedPath],
                 unevalTree,
+                configTree,
                 dataFieldPath,
               );
             if (asyncJSFunctionInvocationsInPath) {
@@ -174,6 +179,7 @@ class AsyncJsFunctionInDataField {
   getAsyncJSFunctionInvocationsInPath(
     dependencies: string[],
     unEvalTree: DataTree,
+    configTree: ConfigTree,
     fullPath: string,
   ) {
     const asyncJSFunctions = new Set<string>();
@@ -183,7 +189,7 @@ class AsyncJsFunctionInDataField {
 
     dependencies.forEach((dependant) => {
       if (
-        isAsyncJSFunction(unEvalTree, dependant) &&
+        isAsyncJSFunction(configTree, dependant) &&
         this.getFunctionInvocationRegex(dependant).test(unevalPropValue)
       ) {
         asyncJSFunctions.add(dependant);

@@ -108,7 +108,12 @@ export function createDependencyMap(
       replaceValue: true,
     });
 
-    asyncJsFunctionInDataFields.update(key, validReferences, unEvalTree);
+    asyncJsFunctionInDataFields.update(
+      key,
+      validReferences,
+      unEvalTree,
+      configTree,
+    );
     errors.forEach((error) => {
       dataTreeEvalRef.errors.push(error);
     });
@@ -247,6 +252,7 @@ export const updateDependencyMap = ({
                         entityDependent,
                         validReferences,
                         unEvalDataTree,
+                        configTree,
                       );
 
                     extraPathsToLint = extraPathsToLint.concat(
@@ -426,6 +432,7 @@ export const updateDependencyMap = ({
                           fullPath,
                           validReferences,
                           unEvalDataTree,
+                          configTree,
                         );
                       extraPathsToLint = extraPathsToLint.concat(
                         updatedAsyncJSFunctions,
@@ -612,6 +619,7 @@ export const updateDependencyMap = ({
             asyncJsFunctionInDataFields.handlePathDeletion(
               fullPropertyPath,
               unEvalDataTree,
+              configTree,
             );
           extraPathsToLint = extraPathsToLint.concat(updatedAsyncJSFunctions);
 
@@ -663,6 +671,7 @@ export const updateDependencyMap = ({
                   validReferences,
                   unEvalDataTree,
                   inverseDependencyMap,
+                  configTree,
                 );
               extraPathsToLint = extraPathsToLint.concat(
                 updatedAsyncJSFunctions,
@@ -723,6 +732,7 @@ export const updateDependencyMap = ({
                   [],
                   unEvalDataTree,
                   inverseDependencyMap,
+                  configTree,
                 );
               extraPathsToLint = extraPathsToLint.concat(
                 updatedAsyncJSFunctions,

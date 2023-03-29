@@ -391,6 +391,15 @@ export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
     entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
+export function isJSActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is JSActionEntityConfig {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
 
 export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
