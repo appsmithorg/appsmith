@@ -485,7 +485,7 @@ export function getJSOptions(
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
-          icon: JsFileIconV2,
+          icon: JsFileIconV2(18, 18),
         } as unknown as TreeDropdownOption;
 
         (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
