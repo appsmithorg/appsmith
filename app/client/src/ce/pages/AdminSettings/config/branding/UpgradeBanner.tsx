@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system-old";
+import { Button } from "design-system";
 
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
@@ -35,13 +35,13 @@ const UpgradeBanner = () => {
         </main>
         <aside>
           <Button
-            className="w-max min-w-48"
-            icon="star-line"
-            iconPosition="left"
+            UNSAFE_width="10rem"
             onClick={onUpgrade}
-            size="large"
-            text="UPGRADE"
-          />
+            size="md"
+            startIcon="star-line"
+          >
+            upgrade
+          </Button>
         </aside>
       </div>
     </div>
