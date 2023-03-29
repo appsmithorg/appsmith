@@ -34,6 +34,7 @@ describe("Button Widget Functionality", function () {
   it("2. Button-CallAnApi Validation", function () {
     //creating an api and calling it from the onClickAction of the button widget.
     // Creating the api
+    _.propPane.ClearActionField("onClick");
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");

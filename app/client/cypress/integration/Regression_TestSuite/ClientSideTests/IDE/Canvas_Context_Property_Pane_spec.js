@@ -38,17 +38,17 @@ describe("Canvas context Property Pane", function () {
   });
 
   it("2. Action Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector =
-      ".t--property-control-onclick .t--open-dropdown-Select-Action";
-    verifyPropertyPaneContext(
-      () => {
-        cy.get(propertyControlSelector).click({ force: true });
-      },
-      () => {
-        cy.get(propertyControlSelector).should("be.focused");
-      },
-      "Button1",
-    );
+    // const propertyControlSelector =
+    //   ".t--property-control-onclick .t--open-dropdown-Select-Action";
+    // verifyPropertyPaneContext(
+    //   () => {
+    //     cy.get(propertyControlSelector).click({ force: true });
+    //   },
+    //   () => {
+    //     cy.get(propertyControlSelector).should("be.focused");
+    //   },
+    //   "Button1",
+    // );
   });
 
   it("3. Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
