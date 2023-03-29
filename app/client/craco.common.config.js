@@ -3,6 +3,7 @@ const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
+const IconChunkNamingPlugin = require("./webpack/IconChunkNamingPlugin");
 
 module.exports = {
   devServer: {
@@ -60,6 +61,8 @@ module.exports = {
             "./src/components/designSystems/blueprintjs/icon/index.js",
           ),
         ),
+        // Give icon chunks names like `icon.dfd465bd.chunk.js` instead of `35140.dfd465bd.chunk.js`
+        new IconChunkNamingPlugin(),
       ],
     },
   },
