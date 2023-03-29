@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Icon } from "design-system";
 import type { CarouselProps } from "./types";
 
 const CarouselContainer = styled.div`
@@ -55,7 +56,7 @@ const CarouselContainer = styled.div`
           & .trigger-details-container {
             .cs-text {
               span {
-                color: var(--ads-color-orange-500);
+                color: var(--ads-v2-color-bg-brand);
                 font-weight: 500;
               }
             }
@@ -71,8 +72,8 @@ const CarouselContainer = styled.div`
 
         background-color: var(--ads-color-black-0);
 
-        & .icon-container .cs-icon svg {
-          fill: var(--ads-color-orange-500);
+        & .icon-container .ads-v2-icon {
+          color: var(--ads-v2-color-bg-brand);
         }
 
         & .trigger {
@@ -141,7 +142,7 @@ export function CarouselComponent(props: CarouselProps) {
           >
             <div className={"trigger"}>
               <div className="icon-container">
-                <Icon name={d.icon} size={IconSize.XXXXL} />
+                <Icon name={d.icon} size="lg" />
               </div>
               <div className="trigger-content">
                 <div className="trigger-heading">
