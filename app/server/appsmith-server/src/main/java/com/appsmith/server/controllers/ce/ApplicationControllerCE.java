@@ -141,7 +141,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/releaseItems")
+    @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
         return applicationFetcher.getReleaseItems()
