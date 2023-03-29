@@ -3,7 +3,7 @@ import { Colors } from "constants/Colors";
 import { Icon, IconSize } from "design-system-old";
 import { ControlIcons } from "icons/ControlIcons";
 import type { CSSProperties } from "react";
-import React from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -23,7 +23,7 @@ const StyledTooltip = styled(Tooltip)<{
 `;
 const WidgetNameBoundary = 1;
 const BORDER_RADIUS = 4;
-const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
+const SettingsWrapper = styled.div<{ widgetWidth: number }>`
   justify-self: flex-end;
   height: 100%;
   padding: 0 5px;
@@ -39,18 +39,6 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
-  ${(props) => {
-    if (props.inverted) {
-      return `border-bottom-left-radius: ${BORDER_RADIUS}px;
-      border-bottom-right-radius: ${BORDER_RADIUS}px;
-      border-top: none;`;
-    } else {
-      return `border-top-left-radius: ${BORDER_RADIUS}px;
-      border-top-right-radius: ${BORDER_RADIUS}px;
-      border-bottom: none;`;
-    }
-  }}
 `;
 
 const WidgetName = styled.span`
@@ -127,23 +115,39 @@ export function SettingsControl(props: SettingsControlProps) {
       size={IconSize.SMALL}
     />
   );
+  const tooltipContent = isSnipingMode
+    ? `Bind to widget ${props.name}`
+    : "Edit widget properties";
+
+  const wrapperStyle: CSSProperties = useMemo(() => {
+    return {
+      border: `${WidgetNameBoundary}px solid ${Colors.GREY_1}`,
+      ...getStyles(props.activity, props.errorCount, isSnipingMode),
+      ...(props.inverted
+        ? {
+            borderBottomLeftRadius: props.inverted ? BORDER_RADIUS : 0,
+            borderBottomRightRadius: props.inverted ? BORDER_RADIUS : 0,
+            borderTop: "none",
+          }
+        : {
+            borderTopLeftRadius: props.inverted ? 0 : BORDER_RADIUS,
+            borderTopRightRadius: props.inverted ? 0 : BORDER_RADIUS,
+            borderBottom: "none",
+          }),
+    };
+  }, [props.activity, props.errorCount, props.inverted, isSnipingMode]);
 
   return (
     <StyledTooltip
-      content={
-        isSnipingMode
-          ? `Bind to widget ${props.name}`
-          : "Edit widget properties"
-      }
+      content={tooltipContent}
       hoverOpenDelay={500}
       position="top-right"
     >
       <SettingsWrapper
         className="t--widget-propertypane-toggle"
         data-testid="t--widget-propertypane-toggle"
-        inverted={props.inverted}
         onClick={props.toggleSettings}
-        style={getStyles(props.activity, props.errorCount, isSnipingMode)}
+        style={wrapperStyle}
         widgetWidth={props.widgetWidth}
       >
         {!!props.errorCount && !isSnipingMode && (
