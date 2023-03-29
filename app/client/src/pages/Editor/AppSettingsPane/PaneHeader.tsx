@@ -12,7 +12,7 @@ import styled from "styled-components";
 
 const StyledHeader = styled.div`
   height: 48px;
-  padding: 10px 0px 12px;
+  padding: 10px 0px 10px;
   border-bottom: 1px solid ${Colors.GRAY_300};
   margin-bottom: 0;
 `;
@@ -22,7 +22,7 @@ const StyledText = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  height: 49px;
+  height: 48px;
   width: 48px;
   justify-content: center;
   &:hover {
