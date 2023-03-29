@@ -356,6 +356,11 @@ export function extractAlignmentInfo(
       columns = minWidth / columnSpace;
     }
 
+    // If the widget's width is less than its min height, then calculate the number of rows based on min height.
+    if (minHeight && rows * rowSpace < minHeight) {
+      rows = minHeight / rowSpace;
+    }
+
     // Store the min columns and rows information of each fill widget.
     if (isFillWidget)
       fillChildren.push({
