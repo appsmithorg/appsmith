@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Link } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
 import Connections from "./Connections";
@@ -46,6 +46,11 @@ const SideBar = styled.div`
     margin-top: ${(props) => props.theme.spaces[11]}px;
   }
 
+  & > a {
+    margin-top: 0;
+    margin-left: 0;
+  }
+
   .icon-text {
     display: flex;
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
@@ -87,7 +92,7 @@ const SideBar = styled.div`
   }
 `;
 
-const BackToCanvasButton = styled(Button)`
+const BackToCanvasLink = styled(Link)`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
@@ -233,6 +238,7 @@ function ActionSidebar({
   };
   const navigateToCanvas = useCallback(() => {
     history.push(builderURL({ pageId }));
+    return false;
   }, [pageId]);
 
   const hasWidgets = Object.keys(widgets).length > 1;
@@ -251,14 +257,15 @@ function ActionSidebar({
 
   return (
     <SideBar>
-      {/* TODO (tanvi): replace this with a link*/}
-      <BackToCanvasButton
-        kind="tertiary"
+      <BackToCanvasLink
+        kind="secondary"
         onClick={navigateToCanvas}
-        startIcon="chevron-left"
+        startIcon="arrow-left-s-line"
+        target="_self"
+        to="#"
       >
         {createMessage(BACK_TO_CANVAS)}
-      </BackToCanvasButton>
+      </BackToCanvasLink>
 
       {hasConnections && (
         <Connections
