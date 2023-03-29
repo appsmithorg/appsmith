@@ -1458,7 +1458,7 @@ export const IN_APP_EMBED_SETTING = {
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
   forkContentHeader: () => "Fork",
-  forkLabel: () => "Allow other developers to fork this app to their workspace",
+  forkLabel: () => "Make application forkable",
   forkLabelTooltip: () =>
     "Forking allow developers to copy your app to their workspace. The user will also get access to any connected datasources",
 };
