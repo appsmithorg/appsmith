@@ -115,6 +115,7 @@ export type UpdateApplicationPayload = {
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
   };
+  forkingEnabled?: boolean;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -199,6 +200,7 @@ export interface UpdateApplicationResponse {
   evaluationVersion: number;
   applicationVersion: number;
   isManualUpdate: boolean;
+  forkingEnabled: boolean;
   appLayout: AppLayoutConfig;
   new: boolean;
   modifiedAt: Date;

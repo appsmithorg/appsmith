@@ -52,6 +52,7 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateApplicationNavigationSettingAction,
+  updateCurrentApplicationForkingEnabled,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -403,6 +404,13 @@ export function* updateApplicationSaga(
         if (request.embedSetting) {
           yield put(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
+          );
+        }
+        if (request.forkingEnabled) {
+          yield put(
+            updateCurrentApplicationForkingEnabled(
+              response.data.forkingEnabled,
+            ),
           );
         }
         if (
