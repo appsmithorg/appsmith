@@ -44,6 +44,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import { getCanvasWidth } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -79,6 +80,7 @@ function* getChildWidgetProps(
   const { disableResizeHandles } =
     WidgetFactory.getWidgetAutoLayoutConfig(type);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
+  const isMobile: boolean = yield select(getIsMobile);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -145,9 +147,17 @@ function* getChildWidgetProps(
     restDefaultConfig.version,
   );
 
-  // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
-  if (!isFillWidget && !disableResizeHandles?.horizontal) {
-    widget.widthInPercentage = (columns * parentColumnSpace) / mainCanvasWidth;
+  if (isAutoLayout) {
+    // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage
+    if (!isFillWidget && !disableResizeHandles?.horizontal) {
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (columns * parentColumnSpace) / mainCanvasWidth;
+      }
+    }
   }
 
   widget.widgetId = newWidgetId;
