@@ -1578,6 +1578,7 @@ Cypress.Commands.add("changeLayoutHeight", (locator) => {
 
 Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
+    .last()
     .scrollIntoView()
     .click({ force: true });
   cy.get(locator).click({ force: true });
