@@ -290,9 +290,9 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
-export const ENABLE = () => "ENABLE";
-export const UPGRADE = () => "UPGRADE";
-export const EDIT = () => "EDIT";
+export const ENABLE = () => "enable";
+export const UPGRADE = () => "upgrade";
+export const EDIT = () => "edit";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
