@@ -66,7 +66,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     ee.NavigateToSwitcher("explorer");
   });
 
-  it("When unpinned explorer is to be open when any context menu is open", function () {
+  it("Unpinned explorer is to be open when any context menu is open or when an entity name is being edited", function () {
     agHelper.AssertElementVisible(ee._entityExplorer);
     ee.PinUnpinEntityExplorer(true);
     const menu = Object.keys(ExplorerMenu);
@@ -76,9 +76,8 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       agHelper.Sleep();
       agHelper.AssertElementVisible(ee._entityExplorer);
     });
-  });
 
-  it("When unpinned explorer is to be open when any entity name is being edited", function () {
+    // when an entity is being edited
     ee.ActionContextMenuByEntityName("Page1", "Edit Name");
     cy.get(locator._canvas).trigger("mousemove", 500, 400);
     agHelper.AssertElementVisible(ee._entityExplorer);
