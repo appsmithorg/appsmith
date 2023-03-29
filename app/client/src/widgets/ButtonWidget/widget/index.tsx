@@ -258,11 +258,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             fullWidth: true,
             options: [
               {
-                icon: "VERTICAL_LEFT",
+                startIcon: "layout-line",
                 value: "left",
               },
               {
-                icon: "VERTICAL_RIGHT",
+                startIcon: "layout-line",
                 value: "right",
               },
             ],

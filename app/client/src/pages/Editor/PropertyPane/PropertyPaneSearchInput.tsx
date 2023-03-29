@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { SearchVariant } from "design-system-old";
-import { InputWrapper, SearchInput } from "design-system-old";
-import { Colors } from "constants/Colors";
+import { SearchInput } from "design-system";
 import { useSelector } from "react-redux";
 import {
   getShouldFocusPanelPropertySearch,
@@ -15,19 +14,9 @@ const SearchInputWrapper = styled.div`
   position: sticky;
   top: 42px;
   z-index: 3;
-  border: 1px solid ${Colors.GRAY_50};
-  :focus-within {
-    border-color: var(--appsmith-input-focus-border-color);
-  }
+  padding: 0 1rem;
+  background: var(--ads-v2-color-white);
 `;
-
-const StyledSearchInput = React.memo(styled(SearchInput)`
-  ${InputWrapper} {
-    background: ${Colors.GRAY_50};
-    padding: 0 8px;
-    height: 34px;
-  }
-`);
 
 type PropertyPaneSearchInputProps = {
   onTextChange: (text: string) => void;
@@ -36,7 +25,7 @@ type PropertyPaneSearchInputProps = {
 
 export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const shouldFocusSearch = useSelector(getShouldFocusPropertySearch);
   const shouldFocusPanelSearch = useSelector(getShouldFocusPanelPropertySearch);
   const isPanel = !!props.isPanel;
@@ -95,11 +84,11 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
       ref={wrapperRef}
       tabIndex={0}
     >
-      <StyledSearchInput
+      <SearchInput
         className="propertyPaneSearch"
-        fill
         onChange={props.onTextChange}
         placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
+        // @ts-expect-error: ref not allowed
         ref={inputRef}
         tabIndex={-1}
         variant={SearchVariant.BACKGROUND}

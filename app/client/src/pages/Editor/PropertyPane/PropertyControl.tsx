@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { JSToggleButton } from "design-system-old";
+import { ToggleButton } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -630,12 +630,13 @@ const PropertyControl = memo((props: Props) => {
                 openOnTargetFocus={false}
                 position="auto"
               >
-                <JSToggleButton
-                  handleClick={() =>
-                    toggleDynamicProperty(propertyName, isDynamic)
-                  }
-                  isActive={isDynamic}
-                  isToggleDisabled={isToggleDisabled}
+                <ToggleButton
+                  icon="js-toggle-v2"
+                  isDisabled={isToggleDisabled}
+                  isSelected={isDynamic}
+                  // @ts-expect-error: Type mismatch
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  size="sm"
                 />
               </TooltipComponent>
             )}

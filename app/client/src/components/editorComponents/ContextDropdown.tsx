@@ -84,7 +84,7 @@ export function ContextDropdown(props: ContextDropdownProps) {
     const TriggerElement = (
       // TODO (tanvi): Change the type of the underlying icon prop
       <Icon
-        name={props?.toggle?.icon ? props.toggle.icon : "things"}
+        name={props?.toggle?.icon ? props.toggle.icon.toString() : "things"}
         size="md"
       />
     );

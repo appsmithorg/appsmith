@@ -89,7 +89,7 @@ export const EditorWrapper = styled.div<{
     && {
       .cm-s-duotone-dark.CodeMirror {
         cursor: pointer;
-        border-radius: 0px;
+        border-radius: var(--ads-v2-border-radius);
         background: ${
           !props.isNotHover
             ? Colors.SHARK2
@@ -100,7 +100,7 @@ export const EditorWrapper = styled.div<{
       }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
-        border-radius: 0px;
+        border-radius: var(--ads-v2-border-radius);
         background: ${Colors.GREY_1};
       }
     }
@@ -117,7 +117,7 @@ export const EditorWrapper = styled.div<{
     }
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
-      border-radius: 0px;
+      border-radius: var(--ads-v2-border-radius);
       border: 1px solid
         ${(props) => {
           switch (true) {
@@ -128,9 +128,9 @@ export const EditorWrapper = styled.div<{
             case props.hasError:
               return "red";
             case props.isFocused:
-              return "var(--appsmith-input-focus-border-color)";
+              return "var(--ads-v2-color-border-emphasis)";
             default:
-              return Colors.GREY_5;
+              return "var(--ads-v2-color-gray-300)";
           }
         }};
       background: ${(props) => props.theme.colors.apiPane.bg};
@@ -276,7 +276,8 @@ export const EditorWrapper = styled.div<{
     width: 100%;
 
     &:focus {
-      border: 1px solid var(--appsmith-input-focus-border-color);
+      border-radius: var(--ads-v2-border-radius);
+      border: 1px solid var(--ads-v2-color-border-emphasis);
       .CodeMirror.cm-s-duotone-light {
         border: none;
       }
@@ -390,7 +391,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       display: flex;
     }
   }
-  border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
   }

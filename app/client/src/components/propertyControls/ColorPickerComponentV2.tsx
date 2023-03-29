@@ -14,7 +14,6 @@ import {
 } from "@blueprintjs/core";
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
@@ -76,7 +75,8 @@ const ColorPickerIconContainer = styled.div`
 const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
     box-shadow: none;
-    border-radius: 0;
+    border: 1px solid var(--ads-v2-color-gray-300);
+    border-radius: var(--ads-v2-border-radius);
     &:focus {
       box-shadow: none;
     }
@@ -84,13 +84,13 @@ const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
     height: 36px;
-    border: 1px solid ${Colors.GREY_5};
+    border: 1px solid var(--ads-v2-color-gray-300);
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
 
     &:focus {
-      border: 1px solid ${Colors.GREY_9};
+      border: 1px solid var(--ads-v2-color-border-emphasis);
     }
   }
 `;

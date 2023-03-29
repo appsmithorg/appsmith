@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ButtonGroup, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
@@ -10,6 +10,7 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import { SegmentedControl } from "design-system";
 
 /**
  * ----------------------------------------------------------------------------
@@ -21,7 +22,7 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 }
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
-  icon: (
+  startIcon: (
     <TooltipComponent
       content={optionKey}
       key={optionKey}
@@ -78,17 +79,18 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
 
   public render() {
     return (
-      <ButtonGroup
-        options={options}
-        ref={this.componentRef}
-        selectButton={(value, isUpdatedViaKeyboard = false) => {
+      <SegmentedControl
+        defaultValue={this.props.evaluatedValue || ""}
+        onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
             value,
             isUpdatedViaKeyboard,
           );
         }}
-        values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
+        options={options}
+        //@ts-expect-error: Type mismatch
+        ref={this.componentRef}
       />
     );
   }

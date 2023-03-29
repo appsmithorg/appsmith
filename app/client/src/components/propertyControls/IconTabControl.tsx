@@ -1,14 +1,21 @@
 import React from "react";
+import styled from "styled-components";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ButtonGroupOption } from "design-system-old";
-import { ButtonGroup } from "design-system-old";
+import { SegmentedControl } from "design-system";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+const StyledSegmentedControl = styled(SegmentedControl)`
+  > .ads-v2-segmented-control__segments-container {
+    flex: 1 1 0%;
+  }
+`;
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -40,26 +47,25 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   };
 
   selectOption = (value: string, isUpdatedViaKeyboard = false) => {
-    const { defaultValue, propertyValue } = this.props;
-    if (propertyValue === value) {
+    if (this.props.propertyValue === value) {
       this.updateProperty(
         this.props.propertyName,
-        defaultValue,
+        this.props.defaultValue,
         isUpdatedViaKeyboard,
       );
     } else {
       this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
     }
   };
+
   render() {
-    const { fullWidth, options, propertyValue } = this.props;
     return (
-      <ButtonGroup
-        fullWidth={fullWidth}
-        options={options}
+      <StyledSegmentedControl
+        defaultValue={this.props.propertyValue}
+        // @ts-expect-error: Type mismatch
+        onChange={this.selectOption}
+        options={this.props.options}
         ref={this.componentRef}
-        selectButton={this.selectOption}
-        values={[propertyValue]}
       />
     );
   }

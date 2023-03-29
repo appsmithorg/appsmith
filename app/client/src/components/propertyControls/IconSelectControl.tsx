@@ -35,8 +35,8 @@ const IconSelectContainerStyles = createGlobalStyle<{
 
 const StyledButton = styled(Button)`
   box-shadow: none !important;
-  border: 1px solid ${Colors.GREY_5};
-  border-radius: 0;
+  border: 1px solid var(--ads-v2-color-gray-300);
+  border-radius: var(--ads-v2-border-radius);
   height: 36px;
   background-color: #ffffff !important;
   > span.bp3-icon-caret-down {
@@ -45,7 +45,7 @@ const StyledButton = styled(Button)`
 
   &:hover,
   &:focus {
-    border: 1.2px solid var(--appsmith-input-focus-border-color);
+    border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 `;
 
