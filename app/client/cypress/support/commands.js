@@ -19,7 +19,6 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
-import * as _ from "./Objects/ObjectsCore";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -30,6 +29,11 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+const propPane = ObjectsRegistry.PropertyPane;
+const agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -778,29 +782,32 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.canvas).click({ force: true });
 });
 
-Cypress.Commands.add("onClickActions", (forSuccess, forFailure, queryName) => {
-  cy.get(_.locators._actionCardByValue(queryName)).click();
+Cypress.Commands.add(
+  "onClickActions",
+  (forSuccess, forFailure, actionType, actionValue) => {
+    propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-  cy.get(_.locators._actionCallbacks).click();
+    cy.get(locators._actionCallbacks).click();
 
-  // add a success callback
-  cy.get(_.locators._actionAddCallback("success")).click().wait(500);
-  cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
-  _.agHelper.TypeText(
-    _.locators._actionSelectorFieldByLabel("Message"),
-    forSuccess,
-  );
-  cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    // add a success callback
+    cy.get(locators._actionAddCallback("success")).click().wait(500);
+    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    agHelper.TypeText(
+      locators._actionSelectorFieldByLabel("Message"),
+      forSuccess,
+    );
+    cy.get(`${locators._actionSelectorPopup} .t--close`).click();
 
-  // add a failure callback
-  cy.get(_.locators._actionAddCallback("failure")).click().wait(500);
-  cy.get(_.locators._dropDownValue("Show Alert")).click().wait(500);
-  _.agHelper.TypeText(
-    _.locators._actionSelectorFieldByLabel("Message"),
-    forFailure,
-  );
-  cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
-});
+    // add a failure callback
+    cy.get(locators._actionAddCallback("failure")).click().wait(500);
+    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    agHelper.TypeText(
+      locators._actionSelectorFieldByLabel("Message"),
+      forFailure,
+    );
+    cy.get(`${locators._actionSelectorPopup} .t--close`).click();
+  },
+);
 
 Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
@@ -1013,6 +1020,11 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     });
   });
+
+  cy.intercept("PUT", "/api/v1/admin/env", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("postEnv");
+
   cy.intercept("GET", "/settings/general").as("getGeneral");
 });
 

@@ -1,8 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-import { propPane } from "./Objects/ObjectsCore";
-
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const pages = require("../locators/Pages.json");
@@ -22,6 +20,7 @@ let pageidcopy = " ";
 
 const ee = ObjectsRegistry.EntityExplorer;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -1093,12 +1092,15 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
     .selectOnClickOption(QueryName);
 });
 
-Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
-  ObjectsRegistry.PropertyPane.AddAction("onClick");
-  cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Execute a query"))
-    .click()
-    .selectOnClickOption(ApiName);
-});
+Cypress.Commands.add(
+  "addAPIFromLightningMenu",
+  (ApiName, eventName = "onClick") => {
+    ObjectsRegistry.PropertyPane.AddAction(eventName);
+    cy.get(ObjectsRegistry.CommonLocators._dropDownValue("Execute a query"))
+      .click()
+      .selectOnClickOption(ApiName);
+  },
+);
 
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)

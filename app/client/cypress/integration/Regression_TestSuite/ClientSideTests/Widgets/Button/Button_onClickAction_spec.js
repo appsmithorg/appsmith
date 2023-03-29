@@ -49,9 +49,9 @@ describe("Button Widget Functionality", function () {
     cy.openPropertyPane("buttonwidget");
 
     // Adding the api in the onClickAction of the button widget.
-    cy.addAPIFromLightningMenu("buttonApi");
+    cy.addAPIFromLightningMenu("buttonApi", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "buttonApi.run");
+    cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
     cy.PublishtheApp();
     cy.get("body").then(($ele) => {
@@ -103,7 +103,7 @@ describe("Button Widget Functionality", function () {
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "Query1.run");
+    cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
     cy.PublishtheApp();
 
