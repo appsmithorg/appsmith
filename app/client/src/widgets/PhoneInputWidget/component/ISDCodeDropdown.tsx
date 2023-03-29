@@ -1,31 +1,76 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import type { DropdownOption } from "design-system-old";
-import { Dropdown } from "design-system-old";
+import { Dropdown, Icon, IconSize } from "design-system-old";
 import { countryToFlag } from "./utilities";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
+import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
-import { Button } from "design-system";
 
 type DropdownTriggerIconWrapperProp = {
   allowDialCodeChange: boolean;
   disabled?: boolean;
 };
 
-const DropdownTriggerIconWrapper = styled(
-  Button,
-)<DropdownTriggerIconWrapperProp>`
+const DropdownTriggerIconWrapper = styled.button<DropdownTriggerIconWrapperProp>`
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 14px;
+  line-height: ${(props) => (props.disabled ? 36 : 18)}px;
+  letter-spacing: -0.24px;
+  color: #090707;
+  cursor: pointer;
   position: relative;
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
+  ${(props) =>
+    props.disabled ? `background-color: var(--wds-color-bg-disabled);` : ""};
+  border-right: 1px solid var(--wds-color-border);
+  gap: 0.25rem;
   padding: 0 0.75rem;
   margin-right: 0.625rem;
+
+  &:disabled {
+    color: var(--wds-color-text-disabled);
+
+    .dropdown {
+      background: var(--wds-color-bg-disabled);
+
+      svg {
+        path {
+          fill: var(--wds-color-icon-disabled) !important;
+        }
+      }
+    }
+  }
+
+  &:focus {
+    background-color: ${Colors.GREY_1};
+
+    .dropdown {
+      background: ${Colors.GREY_1};
+    }
+  }
+
+  .dropdown {
+    svg {
+      width: 16px;
+      height: 16px;
+
+      path {
+        fill: var(--wds-color-icon) !important;
+      }
+    }
+  }
+
+  &:disabled {
+    border-right: 1px solid var(--wds-color-border-disabled);
+    background-color: var(--wds-color-bg-disabled);
+  }
 `;
 
 const FlagWrapper = styled.span`
@@ -35,6 +80,10 @@ const FlagWrapper = styled.span`
 `;
 
 const Code = styled.span``;
+
+const StyledIcon = styled(Icon)`
+  margin-left: 2px;
+`;
 
 const StyledDropdown = styled(Dropdown)`
   /*
@@ -198,8 +247,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         !props.allowDialCodeChange ? "country-type-trigger" : ""
       }`}
       data-tabbable={false}
-      isDisabled={props.disabled}
-      startIcon={props.allowDialCodeChange ? "down-arrow" : ""}
+      disabled={props.disabled}
       tabIndex={0}
       type="button"
     >
@@ -207,6 +255,13 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         {selectedCountry.value && countryToFlag(selectedCountry.value)}
       </FlagWrapper>
       <Code>{selectedCountry.id && selectedCountry.id}</Code>
+      {props.allowDialCodeChange && (
+        <StyledIcon
+          className="dropdown"
+          name="down-arrow"
+          size={IconSize.XXS}
+        />
+      )}
     </DropdownTriggerIconWrapper>
   );
   if (props.disabled || !props.allowDialCodeChange) {
