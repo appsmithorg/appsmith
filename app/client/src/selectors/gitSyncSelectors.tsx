@@ -4,7 +4,7 @@ import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-} from "./applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>

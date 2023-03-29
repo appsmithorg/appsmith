@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import type { GitApplicationMetadata } from "api/ApplicationApi";
+import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
 

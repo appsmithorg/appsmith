@@ -17,6 +17,16 @@ export type Workspace = {
   userPermissions?: string[];
 };
 
+export type WorkspaceUserRoles = {
+  id: string;
+  name: string;
+  description: string;
+  entityType: string;
+  entityName: string;
+  entityId: string;
+  autoCreated: boolean;
+};
+
 export type WorkspaceUser = {
   name: string;
   username: string;
@@ -26,12 +36,7 @@ export type WorkspaceUser = {
   isDeleting: boolean;
   isChangingRole: boolean;
   photoId?: string;
-  roles: {
-    id: string;
-    name: string;
-    description: string;
-    entityType: string;
-  }[];
+  roles: WorkspaceUserRoles[];
 };
 
 export type Workspaces = {

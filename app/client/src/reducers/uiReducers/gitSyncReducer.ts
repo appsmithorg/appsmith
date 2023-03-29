@@ -7,7 +7,7 @@ import {
 import type { GitConfig, MergeStatus } from "entities/GitSync";
 import { GitSyncModalTab } from "entities/GitSync";
 import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
-import type { PageDefaultMeta } from "api/ApplicationApi";
+import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
