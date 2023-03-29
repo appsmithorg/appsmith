@@ -22,6 +22,7 @@ import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
+  alignment: FlexVerticalAlignment;
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
@@ -82,7 +83,9 @@ export function FlexComponent(props: AutoLayoutProps) {
     width: props.componentWidth - WIDGET_PADDING * 2,
     height: props.componentHeight - WIDGET_PADDING * 2,
     margin: WIDGET_PADDING + "px",
-    transform: `translate3d(${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
+    transform: `translate3d(${
+      props.alignment === "end" ? "-" : ""
+    }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
   };
   const widgetDimensionsEditCss = {
     width: isResizing

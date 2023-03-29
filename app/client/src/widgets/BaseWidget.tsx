@@ -560,6 +560,7 @@ abstract class BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <FlexComponent
+        alignment={this.props.alignment}
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         direction={this.props.direction || LayoutDirection.Horizontal}
