@@ -513,9 +513,9 @@ function getPadding(canvas: FlattenedWidgetProps): number {
   }
 
   if (canvas.noPad) {
-    // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
+    padding -= WIDGET_PADDING;
   }
+
   return padding;
 }
 
