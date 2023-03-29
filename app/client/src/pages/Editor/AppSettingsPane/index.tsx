@@ -14,6 +14,7 @@ function AppSettingsPane() {
     if (document.getElementById("save-theme-modal")) return;
     if (document.getElementById("delete-theme-modal")) return;
     if (document.getElementById("manual-upgrades-modal")) return;
+    if (document.getElementById("confirm-fork-modal")) return;
     dispatch(closeAppSettingsPaneAction());
   });
 

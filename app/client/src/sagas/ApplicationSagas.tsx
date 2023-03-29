@@ -406,7 +406,7 @@ export function* updateApplicationSaga(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
           );
         }
-        if (request.forkingEnabled) {
+        if ("forkingEnabled" in request) {
           yield put(
             updateCurrentApplicationForkingEnabled(
               response.data.forkingEnabled,

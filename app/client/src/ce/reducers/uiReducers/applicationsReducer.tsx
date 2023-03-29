@@ -560,7 +560,7 @@ export const handlers = {
   },
   [ReduxActionTypes.CURRENT_APPLICATION_FORKING_ENABLED_UPDATE]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<AppEmbedSetting>,
+    action: ReduxAction<boolean>,
   ) => {
     return {
       ...state,
