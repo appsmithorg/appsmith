@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
@@ -44,6 +44,7 @@ import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
+import type { AppState } from "ce/reducers";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -73,6 +74,10 @@ export const useDynamicAppLayout = () => {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isMobile = useIsMobileDevice();
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  const [isCanvasResizing, setIsCanvasResizing] = useState<boolean>(false);
 
   // /**
   //  * calculates min height
@@ -234,17 +239,6 @@ export const useDynamicAppLayout = () => {
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
-    debounce(() => {
-      dispatch(
-        updateLayoutForMobileBreakpointAction(
-          MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
-            ? mainCanvasProps?.isMobile
-            : false,
-          calculatedWidth,
-        ),
-      );
-    }, 250)();
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
@@ -339,6 +333,22 @@ export const useDynamicAppLayout = () => {
       ),
     );
   }, [mainCanvasProps?.isMobile]);
+
+  useEffect(() => {
+    if (isAutoCanvasResizing) setIsCanvasResizing(true);
+    else if (isCanvasResizing) {
+      setIsCanvasResizing(false);
+      dispatch(
+        updateLayoutForMobileBreakpointAction(
+          MAIN_CONTAINER_WIDGET_ID,
+          appPositioningType === AppPositioningTypes.AUTO
+            ? mainCanvasProps?.isMobile
+            : false,
+          calculateCanvasWidth(),
+        ),
+      );
+    }
+  }, [isAutoCanvasResizing]);
 
   return isCanvasInitialized;
 };

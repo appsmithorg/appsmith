@@ -144,10 +144,13 @@ function CanvasContainer(props: CanvasContainerProps) {
   const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
 
   const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
+  const smallHeaderHeight = showCanvasTopSection
+    ? theme.smallHeaderHeight
+    : "0px";
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${theme.smallHeaderHeight} - ${bottomBarHeight})`;
-  const resizerTop = `calc(2rem + ${topMargin} + ${theme.smallHeaderHeight})`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight})`;
+  const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
       <Container

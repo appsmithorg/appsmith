@@ -22,7 +22,7 @@ export function setRightColumn(
   isMobile: boolean,
 ): any {
   if (val === null) return widget;
-  return isMobile && widget.mobileRightColumn !== undefined
+  return isMobile
     ? { ...widget, mobileRightColumn: val }
     : { ...widget, rightColumn: val };
 }
@@ -39,7 +39,7 @@ export function setLeftColumn(
   isMobile: boolean,
 ): any {
   if (val === null) return widget;
-  return isMobile && widget.mobileLeftColumn !== undefined
+  return isMobile
     ? { ...widget, mobileLeftColumn: val }
     : { ...widget, leftColumn: val };
 }
@@ -56,7 +56,7 @@ export function setTopRow(
   isMobile: boolean,
 ): any {
   if (val === null) return widget;
-  return isMobile && widget.mobileTopRow !== undefined
+  return isMobile
     ? { ...widget, mobileTopRow: val }
     : { ...widget, topRow: val };
 }
@@ -73,7 +73,7 @@ export function setBottomRow(
   isMobile: boolean,
 ): any {
   if (val === null) return widget;
-  return isMobile && widget.mobileBottomRow !== undefined
+  return isMobile
     ? { ...widget, mobileBottomRow: val }
     : { ...widget, bottomRow: val };
 }

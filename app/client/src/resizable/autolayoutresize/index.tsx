@@ -28,7 +28,6 @@ import {
 import type { DimensionUpdateProps, ResizableProps } from "resizable/common";
 import { getWidgets } from "sagas/selectors";
 import {
-  getCanvasWidth,
   getContainerOccupiedSpacesSelectorWhileResizing,
   getDimensionMap,
 } from "selectors/editorSelectors";
@@ -41,7 +40,6 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -55,7 +53,6 @@ export function ReflowResizable(props: ResizableProps) {
   const occupiedSpacesBySiblingWidgets = useSelector(
     getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
   );
-  const mainCanvasWidth = useSelector(getCanvasWidth);
   const checkForCollision = (widgetNewSize: {
     left: number;
     top: number;
@@ -303,8 +300,6 @@ export function ReflowResizable(props: ResizableProps) {
   }, [props.componentHeight, props.componentWidth, isResizing]);
 
   const handles = [];
-  const { minHeight: widgetMinHeight, minWidth: widgetMinWidth } =
-    getWidgetMinMaxDimensionsInPixel(widget, mainCanvasWidth);
   const resizedPositions = {
     left: widget[leftColumnMap],
     right: widget[rightColumnMap],
@@ -316,12 +311,6 @@ export function ReflowResizable(props: ResizableProps) {
   if (widget[leftColumnMap] !== 0 && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
-        if (
-          widgetMinWidth &&
-          props.componentWidth - x < widgetMinWidth &&
-          x > 0
-        )
-          return;
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
@@ -382,12 +371,6 @@ export function ReflowResizable(props: ResizableProps) {
   ) {
     handles.push({
       dragCallback: (x: number) => {
-        if (
-          widgetMinWidth &&
-          props.componentWidth + x < widgetMinWidth &&
-          x < 0
-        )
-          return;
         let dimensionUpdates = {
           reflectDimension: true,
           reflectPosition: false,
@@ -442,12 +425,6 @@ export function ReflowResizable(props: ResizableProps) {
   if (props.handles.bottom) {
     handles.push({
       dragCallback: (x: number, y: number) => {
-        if (
-          widgetMinHeight &&
-          props.componentHeight + y < widgetMinHeight &&
-          y < 0
-        )
-          return;
         const currentUpdatePositions = { ...updatedPositions.current };
         currentUpdatePositions.bottom =
           widget[bottomRowMap] + y / widget?.parentRowSpace;

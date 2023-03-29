@@ -56,8 +56,11 @@ export function CanvasSelectionArena({
   snapRowSpace: number;
 }) {
   const dispatch = useDispatch();
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const canvasPadding =
-    widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
+    !isAutoLayout && widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? theme.canvasBottomPadding
+      : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
@@ -156,7 +159,6 @@ export function CanvasSelectionArena({
     snapRows,
     canExtend,
   );
-  const isAutoLayout = useSelector(getIsAutoLayout);
   useEffect(() => {
     if (
       appMode === APP_MODE.EDIT &&

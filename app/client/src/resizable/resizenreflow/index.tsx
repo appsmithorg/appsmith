@@ -106,7 +106,11 @@ export function ReflowResizable(props: ResizableProps) {
       height: height - props.componentHeight,
       width: width - props.componentWidth,
     };
-    const updatedPositions = computeRowCols(delta, { x, y }, widget);
+    const updatedPositions = computeRowCols(
+      delta,
+      { x, y },
+      { ...widget, ...props.gridProps },
+    );
     const resizedPositions = {
       left: updatedPositions.leftColumn,
       right: updatedPositions.rightColumn,

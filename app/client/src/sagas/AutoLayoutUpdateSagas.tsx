@@ -50,6 +50,7 @@ import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
+import { getIsResizing } from "selectors/widgetSelectors";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -203,9 +204,10 @@ function* updateWidgetDimensionsSaga(
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsMobile);
+  const isResizing: boolean = yield select(getIsResizing);
 
   const widget = allWidgets[widgetId];
-  if (!widget) return;
+  if (!widget || isResizing) return;
 
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
     widget,
