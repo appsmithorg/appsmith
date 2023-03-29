@@ -7,6 +7,7 @@ const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const propPane = ObjectsRegistry.PropertyPane;
+const jsEditor = ObjectsRegistry.JSEditor;
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
@@ -54,6 +55,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
     // Adding the api in the onClickAction of the button widget.
+    cy.SearchEntityandOpen("Button1");
     cy.executeDbQuery("dropdownApi", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
@@ -172,6 +174,7 @@ describe("Dropdown Widget Functionality", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     // Dropdown On Option Change
+    jsEditor.DisableJSContext("onOptionChange");
     cy.getAlert("onOptionChange", "Option Changed");
     cy.PublishtheApp();
     // Change the Option
