@@ -35,14 +35,16 @@ const views = {
   ),
   [ViewTypes.TEXT_VIEW]: (props: TextViewProps) => <TextView {...props} />,
   [ViewTypes.TAB_VIEW]: (props: TabViewProps) => <TabView {...props} />,
-  [ViewTypes.NO_VIEW]: () => null,
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  [ViewTypes.NO_VIEW]: () => <></>,
 };
 
 export function Field(props: FieldProps) {
   const { field } = props;
   const fieldType = field.field;
   const fieldConfig = FIELD_CONFIG[fieldType];
-  if (!fieldConfig) return null;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  if (!fieldConfig) return <></>;
   let viewElement: JSX.Element | null = null;
   const view = fieldConfig.view && views[fieldConfig.view];
   const label = FIELD_CONFIG[fieldType].label(props);

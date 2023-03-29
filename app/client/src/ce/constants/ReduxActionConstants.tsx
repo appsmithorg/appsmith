@@ -3,7 +3,6 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
-  EvaluationVersion,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
 import type { ApplicationVersion } from "actions/applicationActions";
@@ -1080,7 +1079,6 @@ export interface ApplicationPayload {
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;
-  evaluationVersion?: EvaluationVersion;
 }
 
 export type WorkspaceDetails = {

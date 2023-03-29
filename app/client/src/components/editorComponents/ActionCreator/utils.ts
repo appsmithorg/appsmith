@@ -24,7 +24,6 @@ import type { TreeDropdownOption } from "design-system-old";
 import type { TActionBlock } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
-import type { EvaluationVersion } from "api/ApplicationApi";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -395,7 +394,6 @@ export const chainableFns: TActionBlock["actionType"][] = [
 export function actionToCode(
   action: TActionBlock,
   multipleActions = true,
-  evaluationVersion: EvaluationVersion,
 ): string {
   const {
     actionType,
@@ -444,7 +442,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "success",
       )
-      .map((callback) => actionToCode(callback, false, evaluationVersion));
+      .map((callback) => actionToCode(callback, false));
     const successCallbackCode = successCallbackCodes.join("");
 
     const thenCallbackCodes = successBlocks
@@ -452,7 +450,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "then",
       )
-      .map((callback) => actionToCode(callback, false, evaluationVersion));
+      .map((callback) => actionToCode(callback, false));
     const thenCallbackCode = thenCallbackCodes.join("");
 
     const errorCallbackCodes = errorBlocks
@@ -460,7 +458,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "failure",
       )
-      .map((callback) => actionToCode(callback, false, evaluationVersion));
+      .map((callback) => actionToCode(callback, false));
     const errorCallbackCode = errorCallbackCodes.join("");
 
     const catchCallbackCodes = errorBlocks
@@ -468,7 +466,7 @@ export function actionToCode(
         ({ actionType, type }) =>
           actionType !== AppsmithFunction.none && type === "catch",
       )
-      .map((callback) => actionToCode(callback, false, evaluationVersion));
+      .map((callback) => actionToCode(callback, false));
     const catchCallbackCode = catchCallbackCodes.join("");
 
     // Set callback function field only if there is a callback code
@@ -480,7 +478,7 @@ export function actionToCode(
               successParams ? successParams.join(",") : ""
             }) => { ${successCallbackCode} }`,
             0,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : code;
 
@@ -491,7 +489,7 @@ export function actionToCode(
             `(${
               successParams ? successParams.join(",") : ""
             }) => { ${thenCallbackCode} }`,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : withSuccessCallback;
 
@@ -504,7 +502,7 @@ export function actionToCode(
               errorParams ? errorParams.join(",") : ""
             }) => { ${errorCallbackCode} }`,
             1,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : withThenCallback;
 
@@ -515,7 +513,7 @@ export function actionToCode(
             `(${
               errorParams ? errorParams.join(",") : ""
             }) => { ${catchCallbackCode} }`,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : withErrorCallback;
 

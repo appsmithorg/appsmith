@@ -11,7 +11,6 @@ import type {
 import Fuse from "fuse.js";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import type { GitApplicationMetadata } from "api/ApplicationApi";
-import { DEFAULT_EVALUATION_VERSION } from "api/ApplicationApi";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 
@@ -216,7 +215,3 @@ export const getSidebarWidth = (state: AppState) => {
 
   return 0;
 };
-
-export const selectEvaluationVersion = (state: AppState) =>
-  state.ui.applications.currentApplication?.evaluationVersion ??
-  DEFAULT_EVALUATION_VERSION;
