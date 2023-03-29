@@ -4,7 +4,7 @@ import moment from "moment";
 import "@github/g-emoji-element";
 import { Colors } from "constants/Colors";
 import { Case, Classes, Text, TextType } from "design-system-old";
-import { Icon } from "design-system";
+import { Divider, Icon } from "design-system";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
@@ -29,13 +29,6 @@ const Tag = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: var(--appsmith-color-black);
-`;
-
-export const StyledSeparator = styled.div`
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.modal.separator};
-  opacity: 0.6;
-  height: 1px;
 `;
 
 const StyledDate = styled.div`
@@ -201,7 +194,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
           onClick={toggleCollapsedState}
         />
       )}
-      <StyledSeparator />
+      <Divider />
     </StyledContainer>
   ) : null;
 }
