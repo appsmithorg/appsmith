@@ -4,8 +4,8 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWithInputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
-agHelper = ObjectsRegistry.agHelper;
+let ee = ObjectsRegistry.EntityExplorer,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 before(() => {
   cy.addDsl(dsl);
