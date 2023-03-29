@@ -18,4 +18,10 @@ public interface Views {
      * Used with JsonView annotation to denote that a field should be exported when exporting the Domain/DTOs.
      */
     interface Export {}
+
+    interface Import extends Export {}
+
+    interface ImportPublished extends Import {}
+
+    interface ImportUnpublished extends Import {}
 }

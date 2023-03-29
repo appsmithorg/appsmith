@@ -7,6 +7,7 @@ import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
+
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -118,20 +119,20 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
         return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
     }
 
-    @Override
-    public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(String applicationId, String branchName, Boolean isViewMode) {
-        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
-                .map(jsLibList -> {
-                    jsLibList
-                            .forEach(jsLib -> {
-                                jsLib.setId(null);
-                                jsLib.setCreatedAt(null);
-                                jsLib.setUpdatedAt(null);
-                            });
+    // @Override
+    // public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(String applicationId, String branchName, Boolean isViewMode) {
+    //     return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
+    //             .map(jsLibList -> {
+    //                 jsLibList
+    //                         .forEach(jsLib -> {
+    //                             jsLib.setId(null);
+    //                             jsLib.setCreatedAt(null);
+    //                             jsLib.setUpdatedAt(null);
+    //                         });
 
-                    return jsLibList;
-                });
-    }
+    //                 return jsLibList;
+    //             });
+    // }
 
     private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(String applicationId, String branchName, boolean isViewMode) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)

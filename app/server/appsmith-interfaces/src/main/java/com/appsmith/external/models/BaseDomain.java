@@ -79,24 +79,4 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
-
-    // This field will be used to store the default/root resource IDs for branched resources generated for git
-    // connected applications and will be used to connect resources across the branches
-    @JsonView(Views.Internal.class)
-    DefaultResources defaultResources;
-
-    // This field will only be used for git related functionality to sync the action object across different instances.
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
-    String gitSyncId;
-
-    public void sanitiseToExportBaseObject() {
-        this.setDefaultResources(null);
-        this.setCreatedAt(null);
-        this.setUpdatedAt(null);
-        this.setUserPermissions(null);
-        this.setPolicies(null);
-        this.setCreatedBy(null);
-        this.setModifiedBy(null);
-    }
 }

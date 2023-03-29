@@ -19,8 +19,8 @@ public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
     Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
                                                       Boolean isViewMode);
 
-    Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(@NotNull String applicationId, String branchName,
-                                                               Boolean isViewMode);
+    //Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(@NotNull String applicationId, String branchName,
+    //                                                           Boolean isViewMode);
 
     Mono<Set<CustomJSLibApplicationDTO>> getAllJSLibApplicationDTOFromApplication(@NotNull String applicationId,
                                                                                   String branchName,

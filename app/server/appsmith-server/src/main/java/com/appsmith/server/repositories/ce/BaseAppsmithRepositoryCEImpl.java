@@ -531,17 +531,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return Mono.just(obj);
     }
 
-    @Deprecated
-    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
-    }
+    // @Deprecated
+    // public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+    //     return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+    // }
 
-    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
-        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
-    }
+    // public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+    //     final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+    //     Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+    //     Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+    //     return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    // }
 
     /**
      * 1. Get all the user groups associated with the user

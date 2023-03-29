@@ -624,12 +624,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+        return Mono.empty(); //return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+        return Mono.empty(); //repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
     @Override

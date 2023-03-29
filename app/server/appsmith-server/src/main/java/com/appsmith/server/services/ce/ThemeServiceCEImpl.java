@@ -113,6 +113,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
+    public Mono<Theme> getDefaultTheme() {
+        return getSystemTheme(Theme.DEFAULT_THEME_NAME);
+    }
+
+    @Override
     public Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource) {
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {

@@ -32,9 +32,5 @@ public interface AppsmithRepository<T> {
 
     Mono<T> setUserPermissionsInObject(T obj);
 
-    Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
-
-    Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
-
     Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username);
 }

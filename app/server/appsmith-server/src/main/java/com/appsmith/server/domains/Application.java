@@ -19,7 +19,6 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 public class Application extends BaseDomain {
 
     @NotNull
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String name;
 
     //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
@@ -56,7 +55,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean isPublic = false;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<ApplicationPage> pages;
 
     @JsonView(Views.Internal.class)
@@ -83,10 +82,10 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     ApplicationDetail publishedApplicationDetail;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String color;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String icon;
 
     @JsonView(Views.Public.class)
@@ -122,7 +121,7 @@ public class Application extends BaseDomain {
      * so that they can update their application.
      * Once updated, we should set applicationVersion to latest version as well.
      */
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Integer applicationVersion;
 
     /**
@@ -133,7 +132,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     EmbedSetting embedSetting;
 
     Boolean collapseInvisibleWidgets;
@@ -237,24 +236,6 @@ public class Application extends BaseDomain {
         }
     }
 
-    public void sanitiseToExportDBObject() {
-        this.setWorkspaceId(null);
-        this.setOrganizationId(null);
-        this.setModifiedBy(null);
-        this.setCreatedBy(null);
-        this.setLastDeployedAt(null);
-        this.setLastEditedAt(null);
-        this.setGitApplicationMetadata(null);
-        this.setEditModeThemeId(null);
-        this.setPublishedModeThemeId(null);
-        this.setClientSchemaVersion(null);
-        this.setServerSchemaVersion(null);
-        this.setIsManualUpdate(false);
-        this.sanitiseToExportBaseObject();
-        this.setDefaultPermissionGroup(null);
-        this.setPublishedCustomJSLibs(new HashSet<>());
-    }
-
     public List<ApplicationPage> getPages() {
         return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
     }
@@ -317,13 +298,10 @@ public class Application extends BaseDomain {
     @Data
     public static class EmbedSetting {
 
-        @JsonView(Views.Public.class)
         private String height;
 
-        @JsonView(Views.Public.class)
         private String width;
 
-        @JsonView(Views.Public.class)
         private Boolean showNavigationBar;
     }
 
@@ -332,31 +310,22 @@ public class Application extends BaseDomain {
      */
     @Data
     public static class NavigationSetting {
-        @JsonView(Views.Public.class)
         private Boolean showNavbar;
 
-        @JsonView(Views.Public.class)
         private String orientation;
 
-        @JsonView(Views.Public.class)
         private String navStyle;
 
-        @JsonView(Views.Public.class)
         private String position;
 
-        @JsonView(Views.Public.class)
         private String itemStyle;
 
-        @JsonView(Views.Public.class)
         private String colorStyle;
 
-        @JsonView(Views.Public.class)
         private String logoAssetId;
 
-        @JsonView(Views.Public.class)
         private String logoConfiguration;
 
-        @JsonView(Views.Public.class)
         private Boolean showSignIn;
     }
 

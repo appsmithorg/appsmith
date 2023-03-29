@@ -9,6 +9,8 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +22,7 @@ public class ApplicationController extends ApplicationControllerCE {
                                  ApplicationPageService applicationPageService,
                                  ApplicationFetcher applicationFetcher,
                                  ApplicationForkingService applicationForkingService,
-                                 ImportExportApplicationService importExportApplicationService,
+                                 @Qualifier("importExportServiceCEImplV2") ImportExportApplicationService importExportApplicationService,
                                  ThemeService themeService,
                                  ApplicationSnapshotService applicationSnapshotService) {
 

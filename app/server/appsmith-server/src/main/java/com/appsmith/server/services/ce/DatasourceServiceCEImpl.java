@@ -139,9 +139,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PLUGIN_ID));
         }
-        if (!StringUtils.hasLength(datasource.getGitSyncId())) {
-            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
-        }
 
         Mono<Datasource> datasourceMono =  pluginService.findById(datasource.getPluginId())
                 .flatMap(plugin -> {
@@ -350,9 +347,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> save(Datasource datasource) {
-        if (datasource.getGitSyncId() == null) {
-            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
-        }
         return repository.save(datasource);
     }
 
@@ -500,10 +494,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
-        datasourceList
-                .stream()
-                .filter(datasource -> datasource.getGitSyncId() == null)
-                .forEach(datasource -> datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
     }
 
