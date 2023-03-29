@@ -91,7 +91,7 @@ describe("Guided Tour", function () {
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Step 7: Execute a query onClick
-    cy.executeDbQuery("updateCustomerInfo");
+    cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
     cy.get(
       `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,

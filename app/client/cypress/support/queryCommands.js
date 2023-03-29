@@ -147,7 +147,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 
 Cypress.Commands.add("executeDbQuery", (queryName, eventName) => {
   PropertyPane.SelectPlatformFunction(eventName, "Execute a query");
-  cy.get(`single-select:contains(${queryName})`).click({ force: true });
+  cy.get(`.single-select:contains(${queryName})`).click({ force: true });
   // cy.get(widgetsPage.buttonOnClick)
   //   .get(commonlocators.dropdownSelectButton)
   //   .eq(0)
