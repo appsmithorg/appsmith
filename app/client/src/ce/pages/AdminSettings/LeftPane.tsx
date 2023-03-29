@@ -5,7 +5,7 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import type { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
-import { Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -114,9 +114,7 @@ export function Categories({
                   })
             }
           >
-            <div>
-              {config?.icon && <Icon name={config?.icon} size={IconSize.XL} />}
-            </div>
+            <div>{config?.icon && <Icon name={config?.icon} size="md" />}</div>
             <div>{config.title}</div>
           </StyledLink>
           {showSubCategory && (
@@ -163,7 +161,7 @@ export default function LeftPane() {
               to="/settings/access-control"
             >
               <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
+                <Icon name="lock-2-line" size="md" />
               </div>
               <div>Access Control</div>
             </StyledLink>
@@ -176,7 +174,7 @@ export default function LeftPane() {
               to="/settings/audit-logs"
             >
               <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
+                <Icon name="lock-2-line" size="md" />
               </div>
               <div>Audit logs</div>
             </StyledLink>
@@ -189,7 +187,7 @@ export default function LeftPane() {
               to="/settings/business-edition"
             >
               <div>
-                <Icon name="arrow-up-line" size={IconSize.XL} />
+                <Icon name="arrow-up-line" size="md" />
               </div>
               <div>{camelCase(createMessage(UPGRADE))}</div>
             </StyledLink>
