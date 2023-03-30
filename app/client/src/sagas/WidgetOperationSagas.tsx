@@ -261,7 +261,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
-    yield put(generateAutoHeightLayoutTreeAction(true, true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
