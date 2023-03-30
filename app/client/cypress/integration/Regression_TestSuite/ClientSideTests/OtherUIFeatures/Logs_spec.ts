@@ -252,6 +252,7 @@ describe("Debugger logs", function () {
 
     // Run function and verify logs are visible
     agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(logString);
   });
 

@@ -161,9 +161,7 @@ export class DebuggerHelper {
   }
 
   AssertErrorCount(count: number) {
-    count > 0
-      ? this.agHelper.GetNAssertContains(this.locators._errorCount, count)
-      : this.agHelper.AssertElementAbsence(this.locators._errorCount);
+    this.agHelper.GetNAssertContains(this.locators._errorCount, count);
   }
 
   ClearLogs() {
