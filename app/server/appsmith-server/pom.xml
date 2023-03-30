@@ -230,6 +230,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.72</version>
+        </dependency>
+
         <!-- For junit5 parameterised test support -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
