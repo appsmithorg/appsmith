@@ -113,8 +113,10 @@ describe("Git sync:", function () {
     // A switch here should not show a 404 page
     cy.switchGitBranch(parentBranchKey);
     // When entity not found, takes them to the home page
-    cy.get(`.t--entity .page`)
+    cy.get(`.t--entity.page`)
       .contains("Page1")
+      .closest(".t--entity")
+      .should("be.visible")
       .should("have.class", "activePage");
 
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
@@ -250,7 +252,11 @@ describe("Git sync:", function () {
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
-      cy.get(`.t--entity .page`).first().should("have.class", "activePage");
+      cy.get(`.t--entity.page`)
+        .contains("Page1")
+        .closest(".t--entity")
+        .should("be.visible")
+        .should("have.class", "activePage");
       cy.get(".t--canvas-artboard").should("be.visible");
     });
     cy.go("back");
