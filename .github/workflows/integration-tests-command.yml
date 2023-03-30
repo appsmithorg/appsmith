@@ -114,14 +114,6 @@ jobs:
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
-
-      # delete-artifact
-      - name: delete existing failed-spec-ci artifact
-        if: needs.ci-test.result != 'success'
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: failed-spec-ci
-          failOnError: false
           
       # In case for any ci job failure, create combined failed spec
       - name: "combine all specs for CI"

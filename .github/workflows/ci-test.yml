@@ -398,10 +398,11 @@ jobs:
         if: success()
         run: |
           rm -f ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          touch ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: failed-spec-ci
