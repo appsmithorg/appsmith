@@ -353,12 +353,11 @@ export function generateHighlightsForAlignment(data: {
       posY:
         lastChild === null
           ? offsetTop
-          : getTopRow(lastChild, isMobile) * lastChild?.parentRowSpace +
-            FLEXBOX_PADDING,
+          : getTopRow(lastChild, isMobile) * rowSpace + FLEXBOX_PADDING,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height:
         isMobile && lastChild !== null
-          ? getWidgetHeight(lastChild, isMobile) * lastChild.parentRowSpace
+          ? getWidgetHeight(lastChild, isMobile) * rowSpace
           : maxHeight,
       isVertical: true,
       canvasId,
