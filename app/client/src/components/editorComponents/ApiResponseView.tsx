@@ -297,7 +297,7 @@ export const ResponseTabErrorContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 8px 16px;
-  gap: 4px;
+  gap: 8px;
   max-height: 100%;
   overflow: auto;
   background: #fff8f8;
@@ -743,7 +743,7 @@ function ApiResponseView(props: Props) {
           className="close-debugger t--close-debugger"
           name="close-modal"
           onClick={onClose}
-          size={IconSize.MEDIUM}
+          size={IconSize.XL}
         />
       </TabbedViewWrapper>
     </ResponseContainer>

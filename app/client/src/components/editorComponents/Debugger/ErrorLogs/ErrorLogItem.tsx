@@ -65,6 +65,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     font-weight: 500;
     color: ${Colors.GRAY_500};
     cursor: default;
+    flex-shrink: 0;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
@@ -82,6 +83,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     color: ${(props) => props.theme.colors.debugger.error.type};
+    flex-shrink: 0;
   }
 
   .debugger-description {
@@ -125,6 +127,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     color: ${(props) => props.theme.colors.debugger.error.type};
     cursor: pointer;
     text-decoration-line: underline;
+    flex-shrink: 0;
   }
 `;
 
@@ -132,6 +135,7 @@ const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 `;
 
 const showToggleIcon = (e: Log) => {
@@ -223,9 +227,7 @@ function ErrorLogItem(props: LogItemProps) {
           if (collapsable) expandToggle();
         }}
       >
-        <FlexWrapper
-          style={{ display: "flex", alignItems: "center", gap: "4px" }}
-        >
+        <FlexWrapper>
           <Icon
             clickable={false}
             fillColor={

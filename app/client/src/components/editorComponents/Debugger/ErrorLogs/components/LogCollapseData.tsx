@@ -38,7 +38,6 @@ const MessageWrapper = styled.div`
 `;
 
 export const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[3]}px;
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
@@ -97,15 +96,15 @@ export default function LogCollapseData(props: any) {
               </>
             )}
           </MessageInfo>
+          {props.state && (
+            <JsonWrapper
+              className="t--debugger-log-state"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ReactJson src={props.state} {...reactJsonProps} />
+            </JsonWrapper>
+          )}
         </MessageWrapper>
-      )}
-      {props.state && (
-        <JsonWrapper
-          className="t--debugger-log-state"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ReactJson src={props.state} {...reactJsonProps} />
-        </JsonWrapper>
       )}
     </StyledCollapse>
   );

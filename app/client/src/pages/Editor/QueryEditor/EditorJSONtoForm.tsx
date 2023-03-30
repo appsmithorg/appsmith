@@ -1189,7 +1189,7 @@ export function EditorJSONtoForm(props: Props) {
                   className="close-debugger t--close-debugger"
                   name="close-modal"
                   onClick={onClose}
-                  size={IconSize.MEDIUM}
+                  size={IconSize.XL}
                 />
               </TabbedViewContainer>
             )}
