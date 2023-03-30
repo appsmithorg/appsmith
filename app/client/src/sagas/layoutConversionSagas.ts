@@ -17,7 +17,7 @@ import { createSnapshotSaga } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
-import { updateApplicationLayout } from "actions/applicationActions";
+import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 

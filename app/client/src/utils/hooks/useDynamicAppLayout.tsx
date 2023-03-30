@@ -39,7 +39,7 @@ import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";

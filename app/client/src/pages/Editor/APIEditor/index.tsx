@@ -12,7 +12,7 @@ import type {
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import _ from "lodash";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
