@@ -94,20 +94,23 @@ describe("Guided Tour", function () {
     cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
     cy.get(
-      `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,
-    )
-      .eq(0)
-      .click({ force: true })
-      .wait(500)
-      .get("ul.bp3-menu")
-      .children()
-      .contains("Execute a query")
+      _.propPane.SelectActionByTitleAndValue(
+        "Execute a query",
+        "updateCustomerInfo.run",
+      ),
+    ).click();
+
+    cy.get(_.locators._actionCallbacks).click();
+    cy.get(_.locators._actionAddCallback("success")).click().wait(500);
+    cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("getCustomers")
-      .click({ force: true });
+      .click({ force: true })
+      .wait(500);
+
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();

@@ -1064,17 +1064,16 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(".action-block-tree", 0);
 
     _.agHelper.ValidateCodeEditorContent(".text-view", "a");
-    _.agHelper.EnterActionValue(
-      "Text to be copied to clipboard",
+    _.agHelper.TypeText(
+      _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "line1{enter}line2{enter}line3",
-      false,
       0,
       true,
     );
     _.jsEditor.EnableJSContext("onClick");
     _.propPane.ValidatePropertyFieldValue(
       "onClick",
-      `{{copyToClipboard('line1\\nline2\\nline3');}}`,
+      `{{copyToClipboard('line1\\nline2\\nline3a');}}`,
     );
   });
 

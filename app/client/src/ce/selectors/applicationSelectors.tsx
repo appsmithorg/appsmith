@@ -10,7 +10,7 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
-import type { GitApplicationMetadata } from "api/ApplicationApi";
+import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 
@@ -22,8 +22,8 @@ const fuzzySearchOptions = {
   distance: 100,
 };
 
-const getApplicationsState = (state: AppState) => state.ui.applications;
-const getApplications = (state: AppState) =>
+export const getApplicationsState = (state: AppState) => state.ui.applications;
+export const getApplications = (state: AppState) =>
   state.ui.applications.applicationList;
 export const getCurrentApplication = (
   state: AppState,
