@@ -23,7 +23,7 @@ import store from "store";
 import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJsActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
-import { selectEvaluationVersion } from "selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();

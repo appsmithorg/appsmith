@@ -57,7 +57,7 @@ import {
   getEvaluationVersion,
 } from "./utils";
 import store from "store";
-import { selectEvaluationVersion } from "selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 const actionList: {
   label: string;

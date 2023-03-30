@@ -23,7 +23,7 @@ import { TabView } from "../viewComponents/TabView";
 import { FIELD_CONFIG } from "./FieldConfig";
 import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
 import { useSelector } from "react-redux";
-import { selectEvaluationVersion } from "selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
