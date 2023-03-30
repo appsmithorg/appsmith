@@ -359,11 +359,6 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 // error pages
 export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
-export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
-export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
-  "Appsmith server is unavailable";
-export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
-  "Please try again later";
 export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
 export const PAGE_SERVER_TIMEOUT_TITLE = () =>
   "Appsmith server is taking too long to respond";

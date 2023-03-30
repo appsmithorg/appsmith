@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import styled from "styled-components";
+import type { PageErrorMessageProps } from "./Components/PageErrorMessage";
+import { PageErrorMessage } from "./Components/PageErrorMessage";
 
 const ErrorIconContainer = styled.div`
   & {
@@ -19,9 +21,10 @@ type PageProps = {
   errorCode?: string | number;
   errorIcon?: React.ReactNode;
   title?: string;
-  description: string;
+  description?: string;
   cta?: React.ReactNode;
   flushErrorsAndRedirect?: any;
+  errorMessages?: PageErrorMessageProps[];
 };
 
 function Page(props: PageProps) {
@@ -50,6 +53,9 @@ function Page(props: PageProps) {
         <p className="text-3xl font-semibold t--error-page-title">{title}</p>
       )}
       {description && <p className="text-center">{description}</p>}
+      {props.errorMessages?.map((errorMessage, idx) => (
+        <PageErrorMessage data={errorMessage} key={idx} />
+      ))}
       {cta}
     </div>
   );
