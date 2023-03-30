@@ -15,7 +15,7 @@ import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
 
 import ConflictInfo from "../components/ConflictInfo";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import { Button } from "design-system";
 
 const StyledGitErrorPopup = styled.div`

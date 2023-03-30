@@ -29,6 +29,7 @@ import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
   getGitCommitAndPushError,
+  getGitDiscardError,
   getGitStatus,
   getIsCommitSuccessful,
   getIsCommittingInProgress,
@@ -41,11 +42,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import {
   clearCommitErrorState,
   clearCommitSuccessfulState,
+  clearDiscardErrorState,
   commitToRepoInit,
   discardChanges,
   fetchGitStatusInit,
@@ -74,6 +76,7 @@ import { changeInfoSinceLastCommit } from "../utils";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import PushFailedWarning from "../components/PushFailedWarning";
 import type { Theme } from "constants/DefaultTheme";
+import DiscardFailedWarning from "../components/DiscardChangesError";
 
 const Section = styled.div`
   margin-top: 0;
@@ -162,6 +165,7 @@ function Deploy() {
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
   const commitAndPushError = useSelector(getGitCommitAndPushError);
+  const discardError = useSelector(getGitDiscardError);
   const pullFailed = useSelector(getPullFailed);
   const commitInputRef = useRef<HTMLInputElement>(null);
   const upstreamErrorDocumentUrl = useSelector(getUpstreamErrorDocUrl);
@@ -273,6 +277,7 @@ function Deploy() {
     });
     setShowDiscardWarning(true);
     setShouldDiscard(true);
+    dispatch(clearDiscardErrorState());
   };
   const onDiscardChanges = () => {
     AnalyticsUtil.logEvent("GIT_DISCARD", {
@@ -290,6 +295,13 @@ function Deploy() {
     setShowDiscardWarning(false);
     setShouldDiscard(false);
   };
+
+  useEffect(() => {
+    if (discardError) {
+      setIsDiscarding(false);
+      setShouldDiscard(false);
+    }
+  }, [discardError]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
   useEffect(() => {
@@ -310,6 +322,10 @@ function Deploy() {
 
   function handleCommitAndPushErrorClose() {
     dispatch(clearCommitErrorState());
+  }
+
+  function handleDiscardErrorClose() {
+    dispatch(clearDiscardErrorState());
   }
 
   return (
@@ -433,13 +449,13 @@ function Deploy() {
             learnMoreLink={gitConflictDocumentUrl}
           />
         )}
+
         {commitAndPushError && (
           <PushFailedWarning
             closeHandler={handleCommitAndPushErrorClose}
             error={commitAndPushError}
           />
         )}
-
         {isCommitting && !isDiscarding && (
           <StatusbarWrapper>
             <Statusbar
@@ -449,6 +465,7 @@ function Deploy() {
             />
           </StatusbarWrapper>
         )}
+
         {isDiscarding && !isCommitting && (
           <StatusbarWrapper>
             <Statusbar
@@ -459,6 +476,13 @@ function Deploy() {
           </StatusbarWrapper>
         )}
       </Section>
+
+      {discardError && (
+        <DiscardFailedWarning
+          closeHandler={handleDiscardErrorClose}
+          error={discardError}
+        />
+      )}
 
       {showDiscardWarning && (
         <DiscardChangesWarning

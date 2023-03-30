@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateApplicationLayout } from "actions/applicationActions";
+import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { TooltipComponent } from "design-system-old";
 import type {
   AppLayoutConfig,

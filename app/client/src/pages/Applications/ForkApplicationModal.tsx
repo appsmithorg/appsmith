@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
+import {
+  getUserApplicationsWorkspaces,
+  getIsFetchingApplications,
+} from "@appsmith/selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { Dropdown } from "design-system-old";
 import { Button, Spinner } from "design-system";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
 import { Colors } from "constants/Colors";
 import {
@@ -18,7 +20,7 @@ import {
   FORK_APP_MODAL_LOADING_TITLE,
   FORK_APP_MODAL_SUCCESS_TITLE,
 } from "@appsmith/constants/messages";
-import { getAllApplications } from "actions/applicationActions";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import history from "utils/history";
 
 type ForkApplicationModalProps = {
