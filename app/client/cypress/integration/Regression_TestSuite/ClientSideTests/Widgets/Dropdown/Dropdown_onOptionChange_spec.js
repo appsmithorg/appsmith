@@ -54,10 +54,8 @@ describe("Dropdown Widget Functionality", function () {
     cy.reload();
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
-    // Adding the api in the onClickAction of the button widget.
-    cy.SearchEntityandOpen("Button1");
-    cy.executeDbQuery("dropdownApi", "onClick");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
+    cy.executeDbQuery("dropdownApi", "onOptionChange");
+    // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
 
     cy.PublishtheApp();
@@ -107,9 +105,9 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("selectwidget");
-    // Adding the query in the onClickAction of the button widget.
-    cy.executeDbQuery("Query1", "onClick");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
+    // Adding the query in the onOptionChangeAction of the dropdown widget.
+    cy.executeDbQuery("Query1", "onOptionChange");
+    // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
     cy.PublishtheApp();
