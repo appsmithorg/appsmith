@@ -198,20 +198,46 @@ Cypress.Commands.add("DeleteApp", (appName) => {
   cy.get(homePage.deleteApp).should("be.visible").click({ force: true });
 });
 
-Cypress.Commands.add("LogintoApp", (uname, pword) => {
+Cypress.Commands.add("GetUrlQueryParams", () => {
+  return cy.url().then((url) => {
+    const arr = url.split("?")[1]?.split("&");
+    const paramObj = {};
+    arr &&
+      arr.forEach((param) => {
+        const [key, value] = param.split("=");
+        paramObj[key] = value;
+      });
+    return cy.wrap(paramObj);
+  });
+});
+
+Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
   cy.wait("@postLogout");
+});
 
-  cy.visit("/user/login");
+Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
+  goToLoginPage && cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getMe");
   cy.wait(3000);
+});
+
+Cypress.Commands.add("LogintoApp", (uname, pword) => {
+  cy.LogOutUser();
+  cy.LoginUser(uname, pword);
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
+  initLocalstorage();
+});
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.LogOutUser();
+  cy.LoginUser(uname, pword);
   initLocalstorage();
 });
 
@@ -1260,9 +1286,9 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   //cy.wait(1000); //for toggles to settle
   cy.get(welcomePage.createButton).should("be.visible");
-  cy.get(welcomePage.createButton).trigger("mouseover").click();
-  //if seeing issue with above also, to try multiple click as below
-  //cy.get(welcomePage.createButton).click({ multiple: true });
+  //cy.get(welcomePage.createButton).trigger("mouseover").click();
+  //Seeing issue with above also, trying multiple click as below
+  cy.get(welcomePage.createButton).click({ multiple: true });
   cy.wait("@createSuperUser").then((interception) => {
     expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",
@@ -1948,21 +1974,6 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
   cy.wait(alias);
   cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
-});
-
-Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
-  cy.wait(1000); //waiting for window to load
-  cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-  cy.wait("@postLogout");
-
-  cy.visit("/user/login");
-  cy.get(loginPage.username).should("be.visible");
-  cy.get(loginPage.username).type(uname);
-  cy.get(loginPage.password).type(pword, { log: false });
-  cy.get(loginPage.submitBtn).click();
-  cy.wait("@getMe");
-  cy.wait(3000);
-  initLocalstorage();
 });
 
 Cypress.Commands.add(

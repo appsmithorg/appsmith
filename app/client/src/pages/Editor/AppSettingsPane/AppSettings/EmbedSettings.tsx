@@ -1,4 +1,4 @@
-import { changeAppViewAccessInit } from "actions/applicationActions";
+import { changeAppViewAccessInit } from "@appsmith/actions/applicationActions";
 import { TextType, Text, Switch, Case, Classes } from "design-system-old";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,7 +6,7 @@ import {
   getCurrentApplication,
   getIsChangingViewAccess,
   getIsFetchingApplications,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import SwitchWrapper from "../Components/SwitchWrapper";
 import styled from "styled-components";
