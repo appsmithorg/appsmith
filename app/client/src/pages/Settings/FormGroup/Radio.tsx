@@ -38,15 +38,15 @@ export type RadioProps = {
 };
 
 const StyledTag = styled(Tag)<{ selected?: boolean }>`
-  /* background-color: ${(props) =>
-    props.selected
-      ? "var(--ads-v2-color-bg-warning)"
-      : "var(--ads-v2-color-bg-information"};
-  color: ${(props) =>
-    props.selected
-      ? "var(--ads-v2-color-fg-warning)"
-      : "var(--ads-v2-color-fg-information)"}; */
+  background-color: ${(props) =>
+    props.selected ? "var(--ads-v2-color-bg-warning)" : "inital"};
   margin-left: 4px;
+  .ads-v2-text {
+    color: ${(props) =>
+      props.selected
+        ? "var(--ads-v2-color-fg-warning)"
+        : "var(--ads-v2-color-fg)"};
+  }
 `;
 
 const TooltipContent = styled.div`
