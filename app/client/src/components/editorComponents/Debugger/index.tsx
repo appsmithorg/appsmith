@@ -89,7 +89,7 @@ export function DebuggerTrigger() {
   const messageCounters = useSelector(getMessageCount);
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
-  totalMessageCount && dispatch(setErrorCount(totalMessageCount));
+  dispatch(setErrorCount(totalMessageCount));
 
   const onClick = (e: any) => {
     //Removed canavs condition
