@@ -420,7 +420,7 @@ public class GitFileUtils {
                 // With the file version v4 we have split the actions and metadata separately into two files
                 // So we need to set the body to the unpublished action
                 String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
-                if (actionBody != null && (actionBody.containsKey(keyName)) && StringUtils.isEmpty(actionBody.get(keyName))) {
+                if (actionBody != null && (actionBody.containsKey(keyName)) && !StringUtils.isEmpty(actionBody.get(keyName))) {
                     // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
                     // deserialized separately unlike the body which is stored as string in the db.
                     if (newAction.getPluginType().toString().equals("REMOTE")) {
