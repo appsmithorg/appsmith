@@ -210,7 +210,7 @@ export const createDummyJSCollectionActions = (
   workspaceId: string,
 ) => {
   const body =
-    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}";
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1 () {\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t},\n\tasync myFun2 () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}\n}";
 
   const actions = [
     {
@@ -219,7 +219,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "() => {\n\t\t//write code here\n\t}",
+        body: "function (){\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t}",
         isAsync: false,
         timeoutInMillisecond: 0,
         jsArguments: [],
@@ -232,7 +232,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "async () => {\n\t\t//use async-await or promises\n\t}",
+        body: "async function () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}",
         isAsync: true,
         timeoutInMillisecond: 0,
         jsArguments: [],

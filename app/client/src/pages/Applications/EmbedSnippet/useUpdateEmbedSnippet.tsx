@@ -8,10 +8,10 @@ import {
   AppsmithFrameAncestorsSetting,
   APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
 } from "@appsmith/pages/AdminSettings/config/general";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
-import { updateApplication } from "actions/applicationActions";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { cssDimensionValidator } from "./DimensionsInput";
 import {
