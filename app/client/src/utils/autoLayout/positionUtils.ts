@@ -93,7 +93,7 @@ export function updateWidgetPositions(
     const multiple = parent.parentRowSpace === 1 ? 2 : 1;
     const buffer = !!parent.tabsObj ? 3 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight !== height) {
+    if (parentHeight < height) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
