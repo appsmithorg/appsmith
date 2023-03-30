@@ -7,6 +7,8 @@ import type { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
+import type { APPSMITH_INTEGRATIONS } from "./constants";
+import type { Variants } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -15,6 +17,9 @@ export type SwitchType = {
   text: string;
   action: () => void;
 };
+
+export type ActionIntegrationType =
+  (typeof APPSMITH_INTEGRATIONS)[keyof typeof APPSMITH_INTEGRATIONS];
 
 export type ActionType =
   (typeof AppsmithFunction)[keyof typeof AppsmithFunction];
@@ -189,3 +194,5 @@ export type TActionBlock = {
   };
   type?: "success" | "failure" | "then" | "catch";
 };
+
+export type VariantType = keyof typeof Variants;

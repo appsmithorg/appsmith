@@ -1,6 +1,8 @@
 import {
   AppsmithFunction,
   DEFAULT_SELECTOR_VIEW_TEXT,
+  EMPTY_BINDING,
+  EMPTY_BINDING_WITH_EMPTY_OBJECT,
   FieldType,
   FILE_TYPE_OPTIONS,
   NAVIGATION_TARGET_FIELD_OPTIONS,
@@ -9,6 +11,7 @@ import {
 } from "../constants";
 import { ALERT_STYLE_OPTIONS } from "ce/constants/messages";
 import type {
+  ActionIntegrationType,
   ActionType,
   AppsmithFunctionConfigType,
   FieldProps,
@@ -40,7 +43,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     defaultText: DEFAULT_SELECTOR_VIEW_TEXT,
     exampleText: "",
     getter: (storedValue: string) => {
-      if (storedValue === "{{}}") {
+      if (storedValue === EMPTY_BINDING) {
         return AppsmithFunction.none;
       }
 
@@ -48,8 +51,8 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (option) => {
       const dropdownOption = option as TreeDropdownOption;
-      const type: ActionType =
-        dropdownOption.type || (dropdownOption.value as any);
+      const type: ActionType = (dropdownOption.type ||
+        dropdownOption.value) as ActionType;
       let value = dropdownOption.value;
       const defaultParams = FIELD_GROUP_CONFIG[type].defaultParams;
       switch (type) {
@@ -60,11 +63,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           break;
       }
       if (value === "none") return "";
-      // if (defaultArgs && defaultArgs.length)
-      //   return `{{${value}(${defaultArgs})}}`;
       if (defaultParams && defaultParams.length)
         return `{{${value}(${defaultParams})}}`;
-      if ([AppsmithFunction.integration].includes(type as any))
+      if (
+        [AppsmithFunction.integration].includes(type as ActionIntegrationType)
+      )
         return `{{${value}}}`;
       return `{{${value}()}}`;
     },
@@ -125,7 +128,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     options: () => null,
     getter: (value: any) => {
       const queryParams = textGetter(value, 1);
-      if (queryParams === "{{{}}}" || queryParams === "")
+      if (queryParams === EMPTY_BINDING_WITH_EMPTY_OBJECT || queryParams === "")
         return '{{\n{\n //"key": "value",\n}\n}}';
       return queryParams;
     },
@@ -157,7 +160,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         getEvaluationVersion(),
       );
       if (!isQueryParamsSet) {
-        currentValue = objectSetter("{{{}}}", currentValue, 1);
+        currentValue = objectSetter(
+          EMPTY_BINDING_WITH_EMPTY_OBJECT,
+          currentValue,
+          1,
+        );
       }
       return enumTypeSetter(option.value, currentValue, 2);
     },
@@ -227,7 +234,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.DOWNLOAD_DATA_FIELD]: {
     label: () => "Data to download",
     defaultText: "",
-    exampleText: "download('Image', 'img.png;, 'image/png')",
+    exampleText: "download('Image', 'img.png', 'image/png')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 0);
@@ -240,7 +247,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.DOWNLOAD_FILE_NAME_FIELD]: {
     label: () => "File name with extension",
     defaultText: "",
-    exampleText: "download('Image', 'img.png;, 'image/png')",
+    exampleText: "download('Image', 'img.png', 'image/png')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 1);
@@ -308,7 +315,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (value, currentValue) => {
       const isCallbackFunctionSet = Boolean(
-        callBackFieldGetter(currentValue, 0) !== "{{}}",
+        callBackFieldGetter(currentValue, 0) !== EMPTY_BINDING,
       );
       if (!isCallbackFunctionSet) {
         currentValue = callBackFieldSetter(
@@ -331,7 +338,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (value, currentValue) => {
       const isCallbackFunctionSet = Boolean(
-        callBackFieldGetter(currentValue, 0) !== "{{}}",
+        callBackFieldGetter(currentValue, 0) !== EMPTY_BINDING,
       );
       if (!isCallbackFunctionSet) {
         currentValue = callBackFieldSetter("", currentValue, 0);
@@ -428,7 +435,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
     label: () => "Type",
-    exampleText: "download('Image', 'img.png;, 'image/png')",
+    exampleText: "download('Image', 'img.png', 'image/png')",
     options: () => FILE_TYPE_OPTIONS,
     defaultText: "Select file type (optional)",
     getter: (value: any) => {

@@ -12,7 +12,7 @@ import { createModalAction } from "actions/widgetActions";
 import type { AppState } from "ce/reducers";
 import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "design-system-old";
-import { ENTITY_TYPE, Icon } from "design-system-old";
+import { Icon } from "design-system-old";
 import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
@@ -37,6 +37,7 @@ import {
 } from "selectors/widgetSelectors";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import {
+  APPSMITH_GLOBAL_FUNCTIONS,
   AppsmithFunction,
   AppsmithFunctionsWithFields,
   FieldType,
@@ -58,6 +59,11 @@ import {
 } from "./utils";
 import store from "store";
 import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
+import {
+  isAction,
+  isJSAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { WidgetEntity } from "../../../entities/DataTree/dataTreeFactory";
 
 const actionList: {
   label: string;
@@ -100,7 +106,7 @@ export function getFieldFromValue(
   const entity = dataTree && dataTree[entityProps.entityName];
 
   if (entity && "ENTITY_TYPE" in entity) {
-    if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+    if (isAction(entity)) {
       // get fields for API action
       return getActionEntityFields(
         fields,
@@ -113,7 +119,7 @@ export function getFieldFromValue(
       );
     }
 
-    if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
+    if (isJSAction(entity as WidgetEntity)) {
       // get fields for js action execution
       return getJsFunctionExecutionFields(
         fields,
@@ -280,7 +286,6 @@ function getJsFunctionExecutionFields(
       });
     });
   }
-  // }
   return fields;
 }
 
@@ -338,7 +343,7 @@ function getFieldsForSelectedAction(
      * if URL then this field will be URL_FIELD
      **/
     if (
-      functionMatch === "navigateTo" &&
+      functionMatch === APPSMITH_GLOBAL_FUNCTIONS.navigateTo &&
       activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
     ) {
       fields[2] = {
@@ -503,19 +508,6 @@ export function getJSOptions(
         (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
 
         if (jsObject) {
-          //don't remove this will be used soon
-          // const createJSFunction: TreeDropdownOption = {
-          //   label: "Create New JS Function",
-          //   value: "JSFunction",
-          //   id: "create",
-          //   icon: "plus",
-          //   className: "t--create-js-function-btn",
-          //   onSelect: () => {
-          //     history.push(
-          //       JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
-          //     );
-          //   },
-          // };
           jsObject.children = [];
 
           jsAction.config.actions.forEach((js: JSAction) => {

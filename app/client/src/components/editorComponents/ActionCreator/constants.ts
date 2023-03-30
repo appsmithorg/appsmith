@@ -87,6 +87,9 @@ export const DEFAULT_LABELS = [NEW_MODAL_LABEL, SELECT_OPTIONS_LABEL];
 
 export const DEFAULT_SELECTOR_VIEW_TEXT = "Select Action";
 
+export const EMPTY_BINDING = "{{}}";
+export const EMPTY_BINDING_WITH_EMPTY_OBJECT = "{{{}}}";
+
 export enum FieldType {
   PARAMS_FIELD = "PARAMS_FIELD",
   ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
@@ -124,3 +127,9 @@ export enum FieldType {
   CALLBACK_FUNCTION_API_AND_QUERY = "CALLBACK_FUNCTION_API_AND_QUERY",
   ADD_ACTION = "ADD_ACTION",
 }
+
+export const Variants = {
+  mainBlock: "mainBlock",
+  callbackBlock: "callbackBlock",
+  hoverBorder: "hoverBorder",
+};

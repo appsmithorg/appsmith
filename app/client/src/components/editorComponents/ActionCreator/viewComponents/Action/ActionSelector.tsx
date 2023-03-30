@@ -62,6 +62,25 @@ type TActionSelectorFormProps = {
   additionalAutoComplete?: AdditionalDynamicDataTree;
 };
 
+const pathClassList = [
+  "CodeMirror-hints",
+  "callback-collapse",
+  "bp3-overlay-backdrop",
+  "evaluated-value-popup",
+  "subtree-container",
+  "drag-handle-block",
+];
+
+const isClassPresentInList = (path: any, className: string) =>
+  path.classList?.contains(className);
+
+const isAddActionAndLabelPresentInPath = (path: any) => {
+  return (
+    isClassPresentInList(path, "add-action") &&
+    isClassPresentInList(path, "label")
+  );
+};
+
 function ActionSelectorForm(props: TActionSelectorFormProps) {
   const integrationOptions = useApisQueriesAndJsActionOptions(() => {
     return selectBlock("-1");
@@ -84,17 +103,12 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
   const handleOutsideClick = useCallback(
     (e) => {
       const paths = e.composedPath() || [];
-      //Figure out a better way here
       for (const path of paths) {
         if (
-          path.classList?.contains("CodeMirror-hints") ||
-          path.classList?.contains("callback-collapse") ||
-          (path.classList?.contains("add-action") &&
-            path.classList?.contains(label)) ||
-          path.classList?.contains("bp3-overlay-backdrop") ||
-          path.classList?.contains("evaluated-value-popup") ||
-          path.classList?.contains("subtree-container") ||
-          path.classList?.contains("drag-handle-block")
+          pathClassList.some((className) =>
+            isClassPresentInList(path, className),
+          ) ||
+          isAddActionAndLabelPresentInPath(path)
         ) {
           return;
         }

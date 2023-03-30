@@ -1,3 +1,5 @@
+import { EMPTY_BINDING_WITH_EMPTY_OBJECT } from "./constants";
+
 jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
   __esModule: true,
   default: "",
@@ -431,7 +433,7 @@ describe("Test textGetter", () => {
     {
       index: 1,
       input: "{{navigateTo('google.com', {}, NEW_WINDOW)}}",
-      expected: "{{{}}}",
+      expected: EMPTY_BINDING_WITH_EMPTY_OBJECT,
       argNum: 1,
     },
     {
@@ -521,7 +523,7 @@ describe("Test textGetter", () => {
     {
       index: 16,
       input: "{{navigateTo('Page1', {}, 'SAME_WINDOW');}}",
-      expected: "{{{}}}",
+      expected: EMPTY_BINDING_WITH_EMPTY_OBJECT,
       argNum: 1,
     },
   ];

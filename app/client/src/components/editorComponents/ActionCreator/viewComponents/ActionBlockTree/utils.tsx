@@ -11,11 +11,10 @@ import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
-function getIconForAction(
+function GetIconForAction(
   actionType: ActionTree["actionType"],
   code: string,
 ): React.FunctionComponent {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const actions = useSelector(getActionsForCurrentPage);
 
   switch (actionType) {
@@ -210,7 +209,7 @@ export function getActionInfo(
   actionType: ActionTree["actionType"],
   minimal = false,
 ) {
-  const Icon = getIconForAction(actionType, code);
+  const Icon = GetIconForAction(actionType, code);
 
   if (!actionType) {
     actionType = AppsmithFunction.none;

@@ -5,7 +5,7 @@ import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
-import type { TActionBlock } from "../../types";
+import type { TActionBlock, VariantType } from "../../types";
 import { chainableFns } from "../../utils";
 import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
@@ -23,7 +23,7 @@ export default function ActionTree(props: {
   className?: string;
   id: string;
   level: number;
-  variant?: string;
+  variant?: VariantType;
 }) {
   const { id } = props;
   const [actionBlock, setActionBlock] = React.useState(props.actionBlock);

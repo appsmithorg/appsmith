@@ -2,14 +2,14 @@ import clsx from "clsx";
 import React from "react";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
-import type { TActionBlock } from "../../types";
+import type { TActionBlock, VariantType } from "../../types";
 import { getActionInfo } from "../ActionBlockTree/utils";
 
 type TActionCardProps = {
   onSelect: () => void;
   selected: boolean;
   actionBlock: TActionBlock;
-  variant?: string;
+  variant?: VariantType;
   id: string;
   level: number;
 };
