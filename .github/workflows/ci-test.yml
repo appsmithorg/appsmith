@@ -393,6 +393,12 @@ jobs:
           cd ${{ github.workspace }}/app/client/cypress/
           find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/integration/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
+      # reset the failed_spec_ci file in case of success
+      - name: In case of test success reset the failed_spec_ci file
+        if: success()
+        run: |
+          rm -f ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: failure()

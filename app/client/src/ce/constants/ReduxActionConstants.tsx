@@ -4,8 +4,8 @@ import type {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
-} from "api/ApplicationApi";
-import type { ApplicationVersion } from "actions/applicationActions";
+} from "@appsmith/api/ApplicationApi";
+import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { NavigationSetting } from "constants/AppConstants";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {
@@ -30,6 +30,7 @@ export const ReduxActionTypes = {
   UNINSTALL_LIBRARY_SUCCESS: "UNINSTALL_LIBRARY_SUCCESS",
   GIT_DISCARD_CHANGES_SUCCESS: "GIT_DISCARD_CHANGES_SUCCESS",
   GIT_DISCARD_CHANGES: "GIT_DISCARD_CHANGES",
+  CLEAR_DISCARD_ERROR_STATE: "CLEAR_DISCARD_ERROR_STATE",
   DELETE_BRANCH_INIT: "DELETE_BRANCH_INIT",
   DELETING_BRANCH: "DELETING_BRANCH",
   DELETE_BRANCH_SUCCESS: "DELETE_BRANCH_SUCCESS",
