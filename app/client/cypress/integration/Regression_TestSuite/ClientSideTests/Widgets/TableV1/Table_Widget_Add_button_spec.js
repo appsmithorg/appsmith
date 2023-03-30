@@ -204,7 +204,7 @@ describe("Table Widget property pane feature validation", function () {
       })
       .wait(500);
     //  Add action to the menu Item
-    cy.getAlert("onClick", "Successful ".concat(testdata.currentRowEmail));
+    cy.getAlert("onItemClick", "Successful ".concat(testdata.currentRowEmail));
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
 
