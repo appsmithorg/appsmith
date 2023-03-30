@@ -37,7 +37,7 @@ export const StyledHeader = styled.div`
   line-height: 1.5;
   letter-spacing: -0.24px;
   margin: 8px 16px 8px;
-  color: var(--appsmith-color-black-900);
+  color: var(--ads-v2-color-fg);
   font-weight: 500;
 `;
 
@@ -64,7 +64,7 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
     color: ${(props) =>
       props.$active
         ? props.theme.colors.menuItem.hoverText
-        : props.theme.colors.menuItem.normalText};
+        : `var(--ads-v2-color-fg)`};
   }
   &:hover {
     text-decoration: none;

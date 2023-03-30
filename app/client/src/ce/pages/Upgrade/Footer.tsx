@@ -43,13 +43,15 @@ export function FooterComponent(props: FooterProps) {
       <div className="left">
         {showHeading && (
           <div className="heading-container">
-            <Text type={TextType.H1}>
+            <Text color="var(ads-v2-color-fg-emphasis)" type={TextType.H1}>
               {createMessage(AVAILABLE_ON_BUSINESS)}
             </Text>
           </div>
         )}
         <div className="text-container">
-          <Text type={TextType.P1}>{message}</Text>
+          <Text color="var(--ads-v2-color-fg)" type={TextType.P1}>
+            {message}
+          </Text>
         </div>
       </div>
       <div className="right">

@@ -15,10 +15,12 @@ export const SettingsHeader = styled.h2`
   font-weight: 500;
   text-transform: capitalize;
   margin-bottom: 0px;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 export const SettingsSubHeader = styled.div`
   font-size: 12px;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 export const SettingsFormWrapper = styled.div`
@@ -48,4 +50,5 @@ export const LoaderContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
+  align-items: center;
 `;

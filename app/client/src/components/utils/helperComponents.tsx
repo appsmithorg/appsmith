@@ -1,5 +1,5 @@
 import React from "react";
-import { SearchInput } from "design-system-old";
+import { SearchInput } from "design-system";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
@@ -27,19 +27,7 @@ export const StyledBackButton = styled(Button)`
 
 export const StyledSearchInput = styled(SearchInput)`
   > div {
-    border-radius: 1px;
-    border: 1px solid var(--appsmith-color-black-250);
-    color: var(--appsmith-color-black-700);
-    box-shadow: none;
     margin: 0 16px 0 0;
-
-    &:active,
-    &:hover,
-    &:focus {
-      border: 1px solid var(--appsmith-color-black-250);
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06),
-        0px 1px 3px rgba(0, 0, 0, 0.1);
-    }
   }
 `;
 

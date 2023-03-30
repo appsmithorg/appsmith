@@ -15,7 +15,7 @@ import {
   LEARN_MORE,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { CalloutV2 } from "design-system-old";
+import { Callout } from "design-system";
 import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
@@ -57,6 +57,7 @@ const GroupBody = styled.div`
   & .callout-link {
     > div {
       margin-top: 0px;
+      margin-bottom: 12px;
     }
   }
   &&&& {
@@ -162,27 +163,26 @@ export default function Group({
                     data-testid="admin-settings-group-link"
                     key={setting.name || setting.id}
                   >
-                    {setting.action ? (
-                      <CalloutV2
-                        actionLabel={createMessage(LEARN_MORE)}
-                        desc={createMessage(() => setting.label || "")}
-                        onClick={
-                          (() => {
-                            if (setting.action) {
-                              setting.action(calloutDispatch);
-                            }
-                          }) as unknown as React.MouseEvent<HTMLElement>
-                        }
-                        type={setting.calloutType || "Notify"}
-                      />
-                    ) : (
-                      <CalloutV2
-                        actionLabel={createMessage(LEARN_MORE)}
-                        desc={createMessage(() => setting.label || "")}
-                        type={setting.calloutType || "Notify"}
-                        url={setting.url}
-                      />
-                    )}
+                    <Callout
+                      kind="info"
+                      links={[
+                        {
+                          children: createMessage(LEARN_MORE),
+                          to: setting.url || "",
+                          ...(setting.action && {
+                            onClick: () => {
+                              if (setting.action) {
+                                setting.action(
+                                  calloutDispatch,
+                                ) as unknown as React.MouseEventHandler<HTMLElement>;
+                              }
+                            },
+                          }),
+                        },
+                      ]}
+                    >
+                      {createMessage(() => setting.label || "")}
+                    </Callout>
                   </div>
                 );
               case SettingTypes.TEXT:
@@ -220,7 +220,7 @@ export default function Group({
                     />
                   </div>
                 );
-              case SettingTypes.UNEDITABLEFIELD:
+              case SettingTypes.UNEDITABLEFIELD: //TODO: Need to create custom component
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}

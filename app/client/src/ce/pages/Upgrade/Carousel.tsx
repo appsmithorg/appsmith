@@ -146,7 +146,12 @@ export function CarouselComponent(props: CarouselProps) {
               </div>
               <div className="trigger-content">
                 <div className="trigger-heading">
-                  <Text type={TextType.H1}>{d.heading}</Text>
+                  <Text
+                    color="var(--ads-v2-color-fg-emphasis)"
+                    type={TextType.H1}
+                  >
+                    {d.heading}
+                  </Text>
                 </div>
                 {isActive(i) && (
                   <>
@@ -158,6 +163,7 @@ export function CarouselComponent(props: CarouselProps) {
                             key={`trigger-detail-${di}`}
                           >
                             <Text
+                              color="var(--ads-v2-color-fg)"
                               dangerouslySetInnerHTML={{ __html: detail }}
                               type={TextType.P1}
                             />

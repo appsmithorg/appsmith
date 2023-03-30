@@ -39,12 +39,12 @@ export const StyledLabel = styled.label`
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
   display: inline-block;
   ${getTypographyByKey("h5")}
-  color: ${(props) => props.theme.colors.textInput.normal.text};
+  color: var(--ads-v2-color-fg);
 `;
 
 export const StyledSubtext = styled.p`
   font-size: 12px;
-  color: ${Colors.GRAY};
+  color: var(--ads-v2-color-fg-muted);
 `;
 
 export const StyledAsterisk = styled.span`
@@ -58,6 +58,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={className}
       data-testid="admin-settings-form-group"
     >
+      {/*Since we have label in ds component */}
       {setting.label && (
         <StyledLabel data-testid="admin-settings-form-group-label">
           {createMessage(() => setting.label || "")}

@@ -26,13 +26,15 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  color: var(--ads-v2-color-fg);
   .help-icon {
     margin-left: 8px;
     cursor: pointer;
     svg {
       border-radius: 50%;
-      border: 1px solid ${Colors.GREY_7};
+      border: 1px solid var(--ads-v2-color-fg);
       padding: 1px;
+      fill: var(--ads-v2-color-fg);
     }
   }
 `;
@@ -44,6 +46,7 @@ export const HeaderSecondary = styled.h3`
   line-height: 24px;
   letter-spacing: -0.23999999463558197px;
   text-align: left;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 function CopyUrlForm(
@@ -84,7 +87,12 @@ function CopyUrlForm(
             openOnTargetFocus={false}
             position="right"
           >
-            <Icon className={"help-icon"} name="question-mark" size="sm" />
+            <Icon
+              className={"help-icon"}
+              color={Colors.GREY_7}
+              name="help"
+              size="md"
+            />
           </TooltipComponent>
         )}
       </HeaderWrapper>

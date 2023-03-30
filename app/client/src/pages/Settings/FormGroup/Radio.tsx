@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import React from "react";
 import type { OptionProps } from "design-system-old";
 import {
   IconWrapper,
-  Radio,
+  // Radio,
   Text,
   TextType,
-  Button,
   IconSize,
 } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
@@ -18,6 +18,7 @@ import { FieldError } from "design-system-old";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
+import { RadioGroup, Radio, Tag, Button } from "design-system";
 
 type RadioOption = {
   node?: ReactElement;
@@ -36,10 +37,15 @@ export type RadioProps = {
   options: RadioOption[];
 };
 
-const Badge = styled(Text)<{ selected?: boolean }>`
-  background-color: ${(props) =>
-    props.selected ? Colors.WARNING_ORANGE : Colors.SEA_SHELL};
-  padding: 1.5px 5px;
+const StyledTag = styled(Tag)<{ selected?: boolean }>`
+  /* background-color: ${(props) =>
+    props.selected
+      ? "var(--ads-v2-color-bg-warning)"
+      : "var(--ads-v2-color-bg-information"};
+  color: ${(props) =>
+    props.selected
+      ? "var(--ads-v2-color-fg-warning)"
+      : "var(--ads-v2-color-fg-information)"}; */
   margin-left: 4px;
 `;
 
@@ -56,18 +62,6 @@ const TooltipContent = styled.div`
 
   .tooltip-text {
     line-height: 1.17;
-  }
-`;
-
-const RadioWrapper = styled.div<{ index: number }>`
-  ${(props) =>
-    props.index > 0 &&
-    `
-    margin-top: 12.5px;
-  `}
-
-  .icon {
-    margin-left: 4px;
   }
 `;
 
@@ -89,10 +83,11 @@ function RadioFieldWrapper(
     input: Partial<WrappedFieldInputProps>;
   } & RadioProps,
 ) {
-  function onChangeHandler(e?: any) {
+  function onChangeHandler(value: string) {
+    setValue(value);
     componentProps.input.onChange &&
       componentProps.input.onChange({
-        value: e.target.value,
+        value,
         additionalData: componentProps.input.value.additionalData,
       });
   }
@@ -110,31 +105,26 @@ function RadioFieldWrapper(
       });
   }
 
+  const [value, setValue] = useState<string>("");
+
+  useEffect(() => {
+    setValue(componentProps.input.value.value);
+  }, [componentProps.input.value]);
+
   return (
-    <div>
-      {componentProps.options.map((item, index) => {
-        const isSelected = componentProps.input.value.value === item.value;
+    <RadioGroup onChange={onChangeHandler as any} value={value}>
+      {componentProps.options.map((item) => {
+        const isSelected = item.value === value;
 
         return (
-          <RadioWrapper index={index} key={item.value}>
-            <Radio>
+          <React.Fragment key={item.value}>
+            <Radio value={item.value}>
               {item.label}
-              <input
-                checked={isSelected}
-                onChange={onChangeHandler}
-                type="radio"
-                value={item.value}
-              />
-              <span className="checkbox" />
               <SuffixWrapper>
                 {item.badge && (
-                  <Badge
-                    color={isSelected ? Colors.WARNING_SOLID : Colors.GRAY_700}
-                    selected={isSelected}
-                    type={TextType.BUTTON_SMALL}
-                  >
+                  <StyledTag isClosable={false} selected={isSelected} size="sm">
                     {item.badge}
-                  </Badge>
+                  </StyledTag>
                 )}
                 {item.tooltip && (
                   <Popover2
@@ -142,13 +132,14 @@ function RadioFieldWrapper(
                       <TooltipContent>
                         <Text
                           className="tooltip-text"
-                          color={Colors.GREY_900}
+                          color="var(--ads-v2-color-fg)"
                           type={TextType.P3}
                         >
                           {item.tooltip.text}
                         </Text>
                         <Button
                           href={item.tooltip.link}
+                          renderAs="a"
                           size="sm"
                           target="_blank"
                         >
@@ -185,10 +176,10 @@ function RadioFieldWrapper(
                 )}
               </NodeWrapper>
             )}
-          </RadioWrapper>
+          </React.Fragment>
         );
       })}
-    </div>
+    </RadioGroup>
   );
 }
 

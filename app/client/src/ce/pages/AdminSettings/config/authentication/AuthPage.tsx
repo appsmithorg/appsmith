@@ -13,10 +13,9 @@ import {
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
 import type { CalloutType } from "design-system-old";
-import { CalloutV2 } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Callout, Icon } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -35,11 +34,13 @@ export const SettingsHeader = styled.h2`
   font-weight: 500;
   text-transform: capitalize;
   margin-bottom: 0;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 export const SettingsSubHeader = styled.div`
   font-size: 14px;
   margin-bottom: 0;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 const MethodCard = styled.div`
@@ -71,6 +72,7 @@ const MethodTitle = styled.div`
   display: flex;
   align-items: center;
   margin: 0 0 4px;
+  color: var(--ads-v2-color-fg);
 
   svg {
     width: 14px;
@@ -81,6 +83,7 @@ const MethodTitle = styled.div`
 const MethodDets = styled.div`
   font-size: 12px;
   line-height: 16px;
+  color: var(--ads-v2-color-fg);
 `;
 
 export type calloutType = "LINK" | "OTHER";
@@ -120,6 +123,10 @@ const Label = styled.span<{ business?: boolean }>`
   font-size: 12px;
 `;
 
+const StyledButton = styled(Button)`
+  width: 100px;
+`;
+
 export function ActionButton({ method }: { method: AuthMethodType }) {
   const history = useHistory();
   const { onUpgrade } = useOnUpgrade({
@@ -150,19 +157,19 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   };
 
   return (
-    <Button
+    <StyledButton
       className={`t--settings-sub-category-${
         method.needsUpgrade ? `upgrade-${method.category}` : method.category
       }`}
       data-cy="btn-auth-account"
       kind={method.isConnected ? "primary" : "secondary"}
       onClick={() => onClickHandler(method)}
-      size="md"
+      size="sm"
     >
       {createMessage(
         method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
       )}
-    </Button>
+    </StyledButton>
   );
 }
 
@@ -212,11 +219,17 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
                   {method.calloutBanner && (
-                    <CalloutV2
-                      actionLabel={method.calloutBanner.actionLabel}
-                      desc={method.calloutBanner.title}
-                      type={method.calloutBanner.type}
-                    />
+                    <Callout
+                      kind="info"
+                      links={[
+                        {
+                          children: method.calloutBanner.actionLabel,
+                          to: "",
+                        },
+                      ]}
+                    >
+                      {method.calloutBanner.title}
+                    </Callout>
                   )}
                 </MethodDetailsWrapper>
                 <ActionButton method={method} />

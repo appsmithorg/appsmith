@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import type { DebouncedFunc } from "lodash";
 import type { MenuItemProps } from "design-system-old";
-import { Menu, MenuItem, SearchVariant } from "design-system-old";
+import { Menu, MenuItem } from "design-system-old";
 import { Button } from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
@@ -119,8 +119,6 @@ export function SettingsPageHeader(props: PageHeaderProps) {
               data-testid={"t--search-input"}
               onChange={handleSearch}
               placeholder={searchPlaceholder}
-              variant={SearchVariant.BACKGROUND}
-              width={isMobile ? "100%" : "376px"}
             />
           )}
         </SearchWrapper>
