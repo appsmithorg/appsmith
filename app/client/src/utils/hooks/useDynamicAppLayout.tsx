@@ -45,6 +45,7 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import type { AppState } from "ce/reducers";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -347,6 +348,9 @@ export const useDynamicAppLayout = () => {
           calculateCanvasWidth(),
         ),
       );
+      dispatch({
+        type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+      });
     }
   }, [isAutoCanvasResizing]);
 
