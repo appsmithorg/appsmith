@@ -174,7 +174,7 @@ class ApiEditor extends React.Component<Props> {
       pluginId,
       plugins,
     } = this.props;
-    if (!this.props.pluginId && this.props.match.params.apiId) {
+    if (!pluginId && apiId) {
       return <EntityNotFoundPane />;
     }
     if (isCreating || !isEditorInitialized) {
