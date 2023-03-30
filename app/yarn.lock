@@ -8448,6 +8448,7 @@ __metadata:
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
     cypress-multi-reporters: ^1.2.4
+    cypress-network-idle: ^1.14.2
     cypress-real-events: ^1.7.1
     cypress-wait-until: ^1.7.2
     cypress-xpath: ^1.4.0
@@ -11693,6 +11694,13 @@ __metadata:
   peerDependencies:
     mocha: ">=3.1.2"
   checksum: 9bcc63f1bafa991d9eecca54bfc7bae8b564b73a7b28b48a5c3d75c297b3d661254ae2e803f4d8b7f9a0428a5258d416437fdf68729730b1acceb8533f582c4d
+  languageName: node
+  linkType: hard
+
+"cypress-network-idle@npm:^1.14.2":
+  version: 1.14.2
+  resolution: "cypress-network-idle@npm:1.14.2"
+  checksum: 3f4780a38713ac3b6a07d5a6f0bb524c336a88b82020e323c09ab745a22031c345556bfea34043e30e2a89a147ca14ebe2f950ffa43362150a385a9314eb1829
   languageName: node
   linkType: hard
 
@@ -29147,8 +29155,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^7.4.6":
-  version: 7.5.8
-  resolution: "ws@npm:7.5.8"
+  version: 7.5.9
+  resolution: "ws@npm:7.5.9"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ^5.0.2
@@ -29157,7 +29165,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 49479ccf3ddab6500c5906fbcc316e9c8cd44b0ffb3903a6c1caf9b38cb9e06691685722a4c642cfa7d4c6eb390424fc3142cd4f8b940cfc7a9ce9761b1cd65b
+  checksum: c3c100a181b731f40b7f2fddf004aa023f79d64f489706a28bc23ff88e87f6a64b3c6651fbec3a84a53960b75159574d7a7385709847a62ddb7ad6af76f49138
   languageName: node
   linkType: hard
 
