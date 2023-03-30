@@ -16,8 +16,8 @@ import styled from "styled-components";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import SwitchWrapper from "../../Components/SwitchWrapper";
 import { useDispatch, useSelector } from "react-redux";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
-import { updateApplication } from "actions/applicationActions";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
