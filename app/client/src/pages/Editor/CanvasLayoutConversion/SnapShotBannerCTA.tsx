@@ -54,6 +54,7 @@ export function SnapShotBannerCTA() {
       <FormDialogComponent
         Form={ConversionForm(useSnapShotForm)}
         canOutsideClickClose
+        isCloseButtonShown={false}
         onOpenOrClose={(isOpen: boolean) =>
           handleOnOpenOrClose(isOpen, CONVERSION_STATES.DISCARD_SNAPSHOT)
         }

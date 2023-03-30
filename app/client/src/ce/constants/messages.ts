@@ -1497,7 +1497,7 @@ export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "USE SNAPSHOT";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
-export const DISCARD_SNAPSHOT_HEADER = () => "Discarding A Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
   "Save a Snapshot of your Current Layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
@@ -1535,8 +1535,8 @@ export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
-export const USE_SNAPSHOT_CTA = () => "USE THE SNAPSHOT";
-export const DISCARD_SNAPSHOT_CTA = () => "DISCARD THE SNAPSHOT";
+export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
+export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
 export const MORE_DETAILS = () => "More details";
 export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
   "To resolve this error please:";

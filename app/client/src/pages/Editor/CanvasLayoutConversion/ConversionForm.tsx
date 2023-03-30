@@ -14,6 +14,7 @@ import {
   Spinner,
   TextType,
   Text,
+  Variant,
 } from "design-system-old";
 import { Colors } from "constants/Colors";
 import type { ConversionCompleteLayoutProps } from "./ConversionCompleteLayout";
@@ -34,7 +35,7 @@ export type ConversionProps = {
   cancelButtonText?: string;
   infoBlocks?: InfoBlockProps[];
   spinner?: string;
-  primaryButton?: { text: string; onClick: () => void };
+  primaryButton?: { text: string; onClick: () => void; variant?: Variant };
   secondaryButton?: { text: string; onClick: () => void };
   conversionComplete?: ConversionCompleteLayoutProps;
   collapsibleMessage?: {
@@ -213,6 +214,7 @@ export function ConversionForm<T>(
                 size={Size.large}
                 tag="button"
                 text={primaryButton.text}
+                variant={primaryButton.variant || Variant.info}
               />
             )}
           </div>
