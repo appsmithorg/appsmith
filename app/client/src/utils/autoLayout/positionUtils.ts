@@ -90,10 +90,12 @@ export function updateWidgetPositions(
     } else return widgets;
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
-    const multiple = parent.parentRowSpace === 1 ? 2 : 1;
-    const buffer = !!parent.tabsObj ? 3 : 0;
+    // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
+    // ToDo: use getCanvasHeightOffset to weigh in offset values as well.
+    const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight < height) {
+    const computedHeight = height + paddingBufferForCanvas;
+    if (parentHeight < computedHeight) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -103,7 +105,7 @@ export function updateWidgetPositions(
       const updatedParent = setDimensions(
         parent,
         parentTopRow,
-        parentTopRow + buffer + height * divisor + multiple * divisor,
+        parentTopRow + computedHeight * divisor,
         null,
         null,
         isMobile,
