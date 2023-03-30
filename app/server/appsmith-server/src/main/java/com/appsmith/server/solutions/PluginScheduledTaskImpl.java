@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ce.PluginScheduledTaskCEImpl;
@@ -14,8 +15,9 @@ public class PluginScheduledTaskImpl extends PluginScheduledTaskCEImpl implement
 
     public PluginScheduledTaskImpl(ConfigService configService,
                                    PluginService pluginService,
-                                   CloudServicesConfig cloudServicesConfig) {
+                                   CloudServicesConfig cloudServicesConfig,
+                                   CommonConfig commonConfig) {
 
-        super(configService, pluginService, cloudServicesConfig);
+        super(configService, pluginService, cloudServicesConfig, commonConfig);
     }
 }
