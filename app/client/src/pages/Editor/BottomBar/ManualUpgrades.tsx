@@ -1,7 +1,7 @@
 import {
   ApplicationVersion,
   updateApplication,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import {
   Button,
   Category,

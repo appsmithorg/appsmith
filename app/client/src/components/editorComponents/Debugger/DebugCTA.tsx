@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
