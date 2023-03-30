@@ -101,3 +101,11 @@ export const setResponsePaneScrollPosition = (payload: number) => {
     payload: { position: payload },
   };
 };
+
+//toggle expand error log item state.
+export const toggleExpandErrorLogItem = (id: string, isExpanded: boolean) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_EXPAND_ERROR_LOG_ITEM,
+    payload: { id, isExpanded },
+  };
+};

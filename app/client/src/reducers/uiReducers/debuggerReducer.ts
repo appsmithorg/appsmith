@@ -142,6 +142,18 @@ const debuggerReducer = createImmerReducer(initialState, {
       scrollPosition: position,
     };
   },
+  [ReduxActionTypes.TOGGLE_EXPAND_ERROR_LOG_ITEM]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<{ id: string; isExpanded: boolean }>,
+  ) => {
+    const { id, isExpanded } = action.payload;
+    const errors = JSON.parse(JSON.stringify(state.errors));
+    errors[id] = { ...errors[id], isExpanded };
+    return {
+      ...state,
+      errors,
+    };
+  },
 });
 
 export interface DebuggerReduxState {

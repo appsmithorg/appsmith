@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch } from "react-redux";
 import { get } from "lodash";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
@@ -16,6 +17,7 @@ import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment";
 import LogHelper from "./components/LogHelper";
+import { toggleExpandErrorLogItem } from "actions/debuggerActions";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -168,6 +170,7 @@ export const getLogItemProps = (e: Log) => {
     messages: e.messages,
     collapsable: showToggleIcon(e),
     pluginErrorDetails: e.pluginErrorDetails,
+    isExpanded: e.isExpanded,
   };
 };
 
@@ -188,30 +191,33 @@ export type LogItemProps = {
   source?: SourceEntity;
   messages?: Message[];
   pluginErrorDetails?: PluginErrorDetails;
+  isExpanded: boolean;
 };
 
 // Log item component
 function ErrorLogItem(props: LogItemProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
+  const dispatch = useDispatch();
   const expandToggle = () => {
-    //Add telemetry for expand.
-    if (!isOpen) {
-      AnalyticsUtil.logEvent("DEBUGGER_LOG_ITEM_EXPAND", {
-        errorType: props.logType,
-        errorSubType: props.messages && props.messages[0].message.name,
-        appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
-        downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
-      });
+    if (props.id) {
+      //Add telemetry for expand.
+      if (!props.isExpanded) {
+        AnalyticsUtil.logEvent("DEBUGGER_LOG_ITEM_EXPAND", {
+          errorType: props.logType,
+          errorSubType: props.messages && props.messages[0].message.name,
+          appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
+          downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
+        });
+      }
+      //update to redux store
+      dispatch(toggleExpandErrorLogItem(props.id, !props.isExpanded));
     }
-    setIsOpen(!isOpen);
   };
 
   const { collapsable } = props;
   const theme = useTheme();
 
   return (
-    <Wrapper className={props.severity} collapsed={!isOpen}>
+    <Wrapper className={props.severity} collapsed={!props.isExpanded}>
       <InnerWrapper
         onClick={() => {
           if (collapsable) expandToggle();
@@ -245,7 +251,7 @@ function ErrorLogItem(props: LogItemProps) {
               className={`${Classes.ICON} debugger-toggle`}
               clickable={collapsable}
               data-cy="t--debugger-toggle"
-              data-isOpen={isOpen}
+              data-isOpen={props.isExpanded}
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
               onClick={() => expandToggle()}
@@ -260,7 +266,7 @@ function ErrorLogItem(props: LogItemProps) {
         </FlexWrapper>
         {!(
           props.collapsable &&
-          isOpen &&
+          props.isExpanded &&
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
@@ -295,7 +301,9 @@ function ErrorLogItem(props: LogItemProps) {
             />
           )}
       </InnerWrapper>
-      {collapsable && isOpen && <LogCollapseData isOpen={isOpen} {...props} />}
+      {collapsable && props.isExpanded && (
+        <LogCollapseData isOpen={props.isExpanded} {...props} />
+      )}
     </Wrapper>
   );
 }

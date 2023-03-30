@@ -5,7 +5,6 @@ import { reduxForm } from "redux-form";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
-import { Colors } from "constants/Colors";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
@@ -50,16 +49,6 @@ const ApiHomePage = styled.div`
   .closeBtn {
     position: absolute;
     left: 70%;
-  }
-  .bp3-collapse-body {
-    position: absolute;
-    z-index: 99999;
-    background-color: ${Colors.WHITE};
-    border: 1px solid ${Colors.ALTO};
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    width: 100%;
-    padding: 20px;
   }
   .fontSize16 {
     font-size: 16px;
