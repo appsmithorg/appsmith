@@ -59,7 +59,6 @@ import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import Icon from "../../../widgets/TableWidgetV2/widget/propertyConfig/PanelConfig/Icon";
 
 const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
