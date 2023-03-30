@@ -103,7 +103,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "selectors/applicationSelectors";
+import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,

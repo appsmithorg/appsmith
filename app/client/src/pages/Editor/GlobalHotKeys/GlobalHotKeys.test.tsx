@@ -38,6 +38,7 @@ import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import * as widgetActions from "actions/widgetActions";
 import * as uiSelectors from "selectors/ui";
+import { NavigationMethod } from "../../../utils/history";
 
 jest.mock("constants/routes", () => {
   return {
@@ -152,7 +153,7 @@ describe("Canvas Hot Keys", () => {
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
         ["tabsWidgetId"],
-        undefined,
+        NavigationMethod.CanvasClick,
         undefined,
       );
       spyWidgetSelection.mockClear();
@@ -162,6 +163,8 @@ describe("Canvas Hot Keys", () => {
       fireEvent.click(artBoard);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.Empty,
+        [],
+        NavigationMethod.CanvasClick,
       );
       spyWidgetSelection.mockClear();
 
