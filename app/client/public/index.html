@@ -145,7 +145,14 @@
     });
 
     const registerPageServiceWorker = () => {
-      if ("serviceWorker" in navigator) {
+      if (
+        "serviceWorker" in navigator
+        // Disable the service worker in Cypress tests. We primarily do this to make
+        // the Performance/LinkRelPreload_Spec.js test work (as it collects URLs all network requests,
+        // and service worker requests fail it.) But, anecdotally, disabling the service worker
+        // also seems to make the tests a bit faster, as the network load is lower.
+        && !window.Cypress
+      ) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/pageService.js").catch(error => {
             console.error("Service Worker Registration failed: " + error);
