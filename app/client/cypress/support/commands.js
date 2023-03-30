@@ -439,9 +439,9 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).scrollIntoView({ easing: "linear" });
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .first()
+    .scrollIntoView({ easing: "linear" });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(500);
   cy.get(
