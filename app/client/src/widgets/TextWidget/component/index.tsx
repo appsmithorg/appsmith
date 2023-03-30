@@ -6,6 +6,7 @@ import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import type { TextSize } from "constants/WidgetConstants";
 import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
+import { Icon, IconSize } from "design-system-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
@@ -15,7 +16,6 @@ import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
-import { Button } from "design-system";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -82,6 +82,16 @@ export const TextContainer = styled.div`
       text-decoration: underline;
     }
   }
+`;
+
+const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
+  cursor: pointer;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: ${ELLIPSIS_HEIGHT}px;
+  background: ${(props) =>
+    props.backgroundColor ? props.backgroundColor : "transparent"};
 `;
 
 type StyledTextProps = React.PropsWithChildren<{
@@ -265,6 +275,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   render() {
     const {
+      accentColor,
       backgroundColor,
       disableLink,
       ellipsize,
@@ -274,6 +285,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       text,
       textAlign,
       textColor,
+      truncateButtonColor,
     } = this.props;
 
     return (
@@ -304,13 +316,13 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               />
             </StyledText>
             {this.state.isTruncated && (
-              <Button
+              <StyledIcon
+                backgroundColor={backgroundColor}
                 className="t--widget-textwidget-truncate"
-                isIconButton
-                kind="tertiary"
+                fillColor={truncateButtonColor || accentColor}
+                name="context-menu"
                 onClick={this.handleModelOpen}
-                size="sm"
-                startIcon="context-menu"
+                size={IconSize.XXXL}
               />
             )}
           </TextContainer>
@@ -329,13 +341,11 @@ class TextComponent extends React.Component<TextComponentProps, State> {
           <ModalContent backgroundColor={backgroundColor}>
             <Heading>
               <div className="title">Show More</div>
-              <Button
+              <Icon
                 className="icon"
-                isIconButton
-                kind="tertiary"
+                name="cross"
                 onClick={this.handleModelClose}
-                size="sm"
-                startIcon="cross"
+                size={IconSize.MEDIUM}
               />
             </Heading>
             <Content

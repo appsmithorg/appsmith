@@ -54,7 +54,7 @@ import {
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
 import type { JSAction } from "entities/JSCollection";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty, isUndefined } from "lodash";
 import {
@@ -74,7 +74,7 @@ import {
 import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "api/ApplicationApi";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";

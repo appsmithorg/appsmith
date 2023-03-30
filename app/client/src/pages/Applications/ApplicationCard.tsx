@@ -45,12 +45,12 @@ import { useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
-} from "api/ApplicationApi";
+} from "@appsmith/api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
@@ -59,6 +59,11 @@ import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { addItemsInContextMenu } from "@appsmith/utils";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -293,7 +298,12 @@ type ApplicationCardProps = {
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
   isMobile?: boolean;
-  hasCreateNewApplicationPermission?: boolean;
+  permissions?: {
+    hasCreateNewApplicationPermission?: boolean;
+    hasManageWorkspacePermissions?: boolean;
+    canInviteToWorkspace?: boolean;
+  };
+  workspaceId: string;
 };
 
 const ContextDropdownWrapper = styled.div``;
@@ -411,6 +421,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
+  const featureFlags = useSelector(selectFeatureFlags);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     theme.colors.appCardColors,
@@ -449,7 +460,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     }
     if (
       props.duplicate &&
-      props.hasCreateNewApplicationPermission &&
+      props.permissions?.hasCreateNewApplicationPermission &&
       hasEditPermission
     ) {
       moreActionItems.push({
@@ -476,7 +487,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--export-app",
       });
     }
-    setMoreActionItems(moreActionItems);
+    const updatedMoreActionItems: MenuItemProps[] = addItemsInContextMenu(
+      [
+        props.permissions?.hasManageWorkspacePermissions || false,
+        props.permissions?.canInviteToWorkspace || false,
+        !cloudHosting,
+        featureFlags.RBAC || false,
+      ],
+      history,
+      props.workspaceId,
+      moreActionItems,
+    );
+    setMoreActionItems(updatedMoreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -57,7 +57,7 @@ interface Props {
   description?: string;
   // TODO(Hetu): Fix the banned type here
   // eslint-disable-next-line @typescript-eslint/ban-types
-  rightIcon: Function;
+  rightIcon: React.ReactNode;
 }
 
 function HelperTooltip(props: Props) {
@@ -75,7 +75,8 @@ function HelperTooltip(props: Props) {
         usePortal
       >
         <IconContainer>
-          <props.rightIcon height={22} width={22} />
+          {/* <props.rightIcon height={22} width={22} /> */}
+          {props.rightIcon}
         </IconContainer>
       </Popover>
     </>

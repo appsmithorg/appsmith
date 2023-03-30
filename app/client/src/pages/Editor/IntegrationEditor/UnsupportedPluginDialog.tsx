@@ -1,7 +1,5 @@
 import React from "react";
-import { HelpIcons } from "icons/HelpIcons";
-import styled, { useTheme } from "styled-components";
-import type { Color } from "constants/Colors";
+import styled from "styled-components";
 import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
 import { Button, Icon } from "design-system";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
@@ -10,7 +8,6 @@ import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
-import type { Theme } from "constants/DefaultTheme";
 import { Divider } from "design-system";
 
 type Props = {
@@ -40,15 +37,6 @@ const HeaderRight = styled.div`
   display: flex;
 `;
 
-const CloseIconContainer = styled.div`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
-  }
-`;
-
 const ActionButtonWrapper = styled.div`
   display: flex;
   margin: 30px 0px 0px;
@@ -66,11 +54,7 @@ const Content = styled.div`
   margin: 8px 0px;
 `;
 
-const CloseIcon = HelpIcons.CLOSE_ICON;
-
 const Header = ({ onClose }: { onClose: () => void }) => {
-  const theme = useTheme() as Theme;
-
   return (
     <>
       <HeaderContents>
@@ -83,16 +67,14 @@ const Header = ({ onClose }: { onClose: () => void }) => {
           {UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING()}
         </Heading>
         <HeaderRight>
-          <CloseIconContainer
+          <Button
             data-cy="t--product-updates-close-btn"
+            isIconButton
+            kind="tertiary"
             onClick={onClose}
-          >
-            <CloseIcon
-              color={theme.colors.text.normal as Color}
-              height={20}
-              width={20}
-            />
-          </CloseIconContainer>
+            size="md"
+            startIcon="close-line"
+          />
         </HeaderRight>
       </HeaderContents>
       <div>

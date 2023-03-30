@@ -307,7 +307,7 @@ type Props = {
   label: string;
   // TODO(Hetu): Fix the banned type here
   // eslint-disable-next-line @typescript-eslint/ban-types
-  rightIcon?: Function;
+  rightIcon?: React.ReactNode;
   description?: string;
   actionConfig?: any;
   addOrDeleteFields?: boolean;

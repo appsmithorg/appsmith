@@ -9,16 +9,21 @@ import {
 } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
+  Icon,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
 } from "design-system-old";
 import { lightenColor } from "widgets/WidgetUtils";
 import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
-import { Icon } from "design-system";
 
-export const StyledIcon = styled(Icon)<{ isExpanded: boolean }>`
-  transform: rotate(${({ isExpanded }) => (isExpanded ? 0 : 270)}deg);
+export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
+  transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
@@ -606,7 +611,7 @@ export const TreeSelectContainer = styled.div<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input
+    here set height to auto and not 100% because the input 
     has fixed height and stretch the container.
   */
   ${({ labelPosition }) => {

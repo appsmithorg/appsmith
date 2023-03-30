@@ -2,7 +2,7 @@ import React from "react";
 import { Popover, PopoverInteractionKind } from "@blueprintjs/core";
 import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
-import { FormIcons } from "icons/FormIcons";
+import { Icon } from "design-system";
 
 const CredentialTooltipWrapper = styled.div`
   .credentialTooltipContainer {
@@ -108,12 +108,12 @@ function HelperTooltip(props: Props) {
             usePortal
           >
             <IconContainer style={{ display: "inline-block" }}>
-              <FormIcons.INFO_ICON
-                height={22}
+              <Icon
+                name="info"
+                size="md"
                 style={{
                   cursor: "pointer",
                 }}
-                width={22}
               />
             </IconContainer>
           </Popover>
