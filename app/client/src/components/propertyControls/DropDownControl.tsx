@@ -1,13 +1,25 @@
 import React from "react";
+import styled from "styled-components";
+import { Option, Select } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
+import { StyledDropDownContainer } from "./StyledControls";
 import type { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+
+const StyledSelect = styled(Select)`
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
+`;
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
@@ -90,28 +102,38 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     return (
       <StyledDropDownContainer ref={this.containerRef}>
-        <StyledDropDown
-          closeOnSpace={false}
-          dropdownHeight={this.props.dropdownHeight}
-          dropdownMaxHeight="200px"
-          enableSearch={this.props.enableSearch}
-          fillOptions
-          hideSubText={this.props.hideSubText}
+        <StyledSelect
+          // closeOnSpace={false}
+          // dropdownHeight={this.props.dropdownHeight}
+          // dropdownMaxHeight="200px"
           isMultiSelect={this.props.isMultiSelect}
+          // enableSearch={this.props.enableSearch}
+          // fillOptions
+          // hideSubText={this.props.hideSubText}
+          // @ts-expect-error: Type mismatch
           onSelect={this.onItemSelect}
-          optionWidth={
-            this.props.optionWidth ? this.props.optionWidth : "231px"
-          }
-          options={options}
+          // options={options}
+          // optionWidth={
+          //   this.props.optionWidth ? this.props.optionWidth : "231px"
+          // }
           placeholder={this.props.placeholderText}
           removeSelectedOption={this.onItemRemove}
-          searchAutoFocus
-          searchPlaceholder={this.props.searchPlaceholderText}
           selected={defaultSelected}
-          showEmptyOptions
-          showLabelOnly
-          width="100%"
-        />
+          // searchAutoFocus
+          // searchPlaceholder={this.props.searchPlaceholderText}
+          showSearch={this.props.enableSearch}
+          // showEmptyOptions
+          // showLabelOnly
+          // width="100%"
+        >
+          {options.map((option) => {
+            return (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            );
+          })}
+        </StyledSelect>
       </StyledDropDownContainer>
     );
   }

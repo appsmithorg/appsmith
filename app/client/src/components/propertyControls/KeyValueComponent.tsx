@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { ControlWrapper, StyledInputGroup } from "./StyledControls";
+import { ControlWrapper } from "./StyledControls";
+import type { TextInputProps } from "design-system-old";
+import { Button, Input } from "design-system";
 import type { DropDownOptionWithKey } from "./OptionControl";
 import type { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
-import { Button } from "design-system";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -188,25 +190,86 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             <StyledBox />
             <Button
               isIconButton
+              kind="tertiary"
               onClick={(e: React.MouseEvent) => {
                 deletePair(index, e.detail === 0);
               }}
               size="sm"
               startIcon="delete-bin-line"
+              style={{ width: "50px" }}
             />
           </ControlWrapper>
         );
       })}
 
-      <Button
-        className="t--property-control-options-add"
-        kind="secondary"
-        onClick={addPair}
-        size="md"
-        startIcon="plus"
-      >
-        {props.addLabel || "Option"}
-      </Button>
+      <div className="flex flex-row-reverse">
+        <Button
+          className="t--property-control-options-add"
+          kind="secondary"
+          onClick={addPair}
+          size="md"
+          startIcon="plus"
+        >
+          {props.addLabel || "Option"}
+        </Button>
+      </div>
     </>
   );
 }
+
+const InputGroup = styled(Input)`
+  > .ads-v2-input__input-section > div {
+    min-width: 0px;
+  }
+`;
+
+const StyledInputGroup = React.forwardRef((props: TextInputProps, ref) => {
+  let inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLInputElement>(null);
+  const { dispatchInteractionAnalyticsEvent } =
+    useInteractionAnalyticsEvent<HTMLInputElement>(false, wrapperRef);
+
+  if (ref) inputRef = ref as React.RefObject<HTMLInputElement>;
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === wrapperRef?.current) {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
+          inputRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (document.activeElement === inputRef?.current) {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
+          wrapperRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Tab":
+        if (document.activeElement === wrapperRef?.current) {
+          dispatchInteractionAnalyticsEvent({
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
+        }
+        break;
+    }
+  };
+
+  return (
+    <div ref={wrapperRef} tabIndex={0}>
+      <InputGroup ref={inputRef} {...props} size="md" tabIndex={-1} />
+    </div>
+  );
+});
+
+StyledInputGroup.displayName = "StyledInputGroup";

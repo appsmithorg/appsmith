@@ -19,9 +19,9 @@ const Label = styled.div`
 `;
 
 const SectionTitle = styled.span`
-  color: ${Colors.GRAY_800};
-  font-size: ${(props) => props.theme.fontSizes[3]}px;
-  font-weight: 500;
+  color: var(--ads-v2-color-gray-600);
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-bold);
   margin-right: 8px;
 `;
 

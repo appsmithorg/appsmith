@@ -11,7 +11,6 @@ import { VirtuosoGrid } from "react-virtuoso";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { TooltipComponent } from "design-system-old";
-import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";

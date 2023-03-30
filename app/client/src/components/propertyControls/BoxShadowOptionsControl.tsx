@@ -2,7 +2,8 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { ButtonGroup, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
+import { SegmentedControl } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import type { DSEventDetail } from "utils/AppsmithUtils";
@@ -16,7 +17,7 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
 }
 
 const options = Object.keys(boxShadowOptions).map((optionKey) => ({
-  icon: (
+  label: (
     <TooltipComponent
       content={optionKey}
       key={optionKey}
@@ -72,17 +73,18 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
 
   public render() {
     return (
-      <ButtonGroup
-        options={options}
-        ref={this.componentRef}
-        selectButton={(value, isUpdatedViaKeyboard = false) => {
+      <SegmentedControl
+        defaultValue={this.props.evaluatedValue || ""}
+        isFullWidth={false}
+        onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
             value,
             isUpdatedViaKeyboard,
           );
         }}
-        values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
+        options={options}
+        ref={this.componentRef}
       />
     );
   }

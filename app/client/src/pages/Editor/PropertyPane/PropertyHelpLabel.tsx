@@ -1,6 +1,13 @@
 import { TooltipComponent as Tooltip } from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
+import styled from "styled-components";
+
+const Label = styled.label`
+  color: var(--ads-v2-color-gray-600);
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-normal);
+`;
 
 type Props = {
   className?: string;
@@ -40,7 +47,7 @@ function PropertyHelpLabel(props: Props) {
           height: "22px",
         }}
       >
-        <label
+        <Label
           className={`t--property-control-label`}
           style={
             toolTipDefined
@@ -51,20 +58,20 @@ function PropertyHelpLabel(props: Props) {
           }
         >
           {props.label}
-        </label>
+        </Label>
         <span
           className={"underline"}
-          style={
-            toolTipDefined
-              ? {
-                  borderBottom: "1px dashed",
-                  width: "100%",
-                  display: "flex",
-                  position: "relative",
-                  top: "-3px",
-                }
-              : {}
-          }
+          // style={
+          //   toolTipDefined
+          //     ? {
+          //         borderBottom: "1px dashed",
+          //         width: "100%",
+          //         display: "flex",
+          //         position: "relative",
+          //         top: "-3px",
+          //       }
+          //     : {}
+          // }
         />
       </div>
     </Tooltip>

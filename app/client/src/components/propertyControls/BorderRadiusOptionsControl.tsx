@@ -22,7 +22,7 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 }
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
-  startIcon: (
+  label: (
     <TooltipComponent
       content={optionKey}
       key={optionKey}
@@ -81,6 +81,7 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
     return (
       <SegmentedControl
         defaultValue={this.props.evaluatedValue || ""}
+        isFullWidth={false}
         onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
@@ -89,7 +90,6 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
           );
         }}
         options={options}
-        //@ts-expect-error: Type mismatch
         ref={this.componentRef}
       />
     );
