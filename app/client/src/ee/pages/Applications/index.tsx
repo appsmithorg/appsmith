@@ -27,7 +27,7 @@ import {
   getIsDuplicatingApplication,
   getUserApplicationsWorkspacesList,
   getApplicationSearchKeyword,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 
