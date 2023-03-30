@@ -24,8 +24,6 @@ import type { TreeDropdownOption } from "design-system-old";
 import type { TActionBlock } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
-import store from "store";
-import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -70,17 +68,12 @@ export const argsStringToArray = (funcArgs: string): string[] => {
   return arr;
 };
 
-export function getEvaluationVersion() {
-  const state = store.getState();
-  return selectEvaluationVersion(state);
-}
-
 export const modalSetter = (changeValue: any, currentValue: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getCodeFromMoustache(currentValue);
   try {
-    return setModalName(requiredValue, changeValue, getEvaluationVersion());
+    return setModalName(requiredValue, changeValue, self.evaluationVersion);
   } catch (e) {
     // showError();
     throw e;
@@ -91,7 +84,7 @@ export const modalGetter = (value: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getCodeFromMoustache(value);
-  return getModalName(requiredValue, getEvaluationVersion());
+  return getModalName(requiredValue, self.evaluationVersion);
 };
 
 export const objectSetter = (
@@ -106,7 +99,7 @@ export const objectSetter = (
       requiredValue,
       changeValueWithoutBraces,
       argNum,
-      getEvaluationVersion(),
+      self.evaluationVersion,
     );
   } catch (e) {
     // showError();
@@ -128,7 +121,7 @@ export const textSetter = (
       requiredValue,
       changeValueWithoutBraces,
       argNum,
-      getEvaluationVersion(),
+      self.evaluationVersion,
     )}}}`;
   } catch (e) {
     return currentValue;
@@ -142,7 +135,7 @@ export const textGetter = (value: string, argNum: number): string => {
   return getTextArgumentAtPosition(
     requiredValue,
     argNum,
-    getEvaluationVersion(),
+    self.evaluationVersion,
   );
 };
 
@@ -161,7 +154,7 @@ export const enumTypeSetter = (
       requiredValue,
       changeValue,
       argNum,
-      getEvaluationVersion(),
+      self.evaluationVersion,
     );
   } catch (e) {
     return currentValue;
@@ -180,7 +173,7 @@ export const enumTypeGetter = (
     requiredValue,
     argNum,
     defaultValue,
-    getEvaluationVersion(),
+    self.evaluationVersion,
   );
 };
 
@@ -197,7 +190,7 @@ export const callBackFieldSetter = (
         requiredValue,
         requiredChangeValue,
         argNum,
-        getEvaluationVersion(),
+        self.evaluationVersion,
       ) || currentValue
     }}}`;
   } catch (e) {
@@ -212,7 +205,7 @@ export const callBackFieldGetter = (value: string, argNumber = 0) => {
   const funcExpr = getFuncExpressionAtPosition(
     requiredValue,
     argNumber,
-    getEvaluationVersion(),
+    self.evaluationVersion,
   );
   return `{{${funcExpr}}}`;
 };
@@ -283,7 +276,6 @@ export function codeToAction(
   strict = false,
 ): TActionBlock {
   const jsCode = getCodeFromMoustache(code);
-  const evaluationVersion = getEvaluationVersion();
 
   const selectedOption = getSelectedFieldFromValue(jsCode, fieldOptions);
 
@@ -301,53 +293,41 @@ export function codeToAction(
     const successCallback = getFuncExpressionAtPosition(
       jsCode,
       0,
-      evaluationVersion,
+      self.evaluationVersion,
     );
     const { catch: catchBlock, then: thenBlock } = getThenCatchBlocksFromQuery(
       code,
-      evaluationVersion,
+      self.evaluationVersion,
     );
 
-    const thenCallbackParams: string[] = getFunctionParams(
-      thenBlock,
-      evaluationVersion,
-    );
+    const thenCallbackParams: string[] = getFunctionParams(thenBlock);
     const thenCallbackBlocks = getFunctionBodyStatements(
       thenBlock,
-      evaluationVersion,
+      self.evaluationVersion,
     );
 
-    const catchCallbackParams: string[] = getFunctionParams(
-      catchBlock,
-      evaluationVersion,
-    );
+    const catchCallbackParams: string[] = getFunctionParams(catchBlock);
     const catchCallbackBlocks = getFunctionBodyStatements(
       catchBlock,
-      evaluationVersion,
+      self.evaluationVersion,
     );
 
-    const successCallbackParams: string[] = getFunctionParams(
-      successCallback,
-      evaluationVersion,
-    );
+    const successCallbackParams: string[] = getFunctionParams(successCallback);
     const successCallbackBlocks: string[] = getFunctionBodyStatements(
       successCallback,
-      evaluationVersion,
+      self.evaluationVersion,
     ).map((block: string) => block);
 
     const errorCallback = getFuncExpressionAtPosition(
       jsCode,
       1,
-      evaluationVersion,
+      self.evaluationVersion,
     );
 
-    const errorCallbackParams: string[] = getFunctionParams(
-      errorCallback,
-      evaluationVersion,
-    );
+    const errorCallbackParams: string[] = getFunctionParams(errorCallback);
     const errorCallbackBlocks = getFunctionBodyStatements(
       errorCallback,
-      evaluationVersion,
+      self.evaluationVersion,
     ).map((block: string) => block);
 
     return {
@@ -423,7 +403,6 @@ export function actionToCode(
   } = action;
 
   const actionFieldConfig = FIELD_GROUP_CONFIG[actionType];
-  const evaluationVersion = getEvaluationVersion();
 
   if (!actionFieldConfig) {
     return code;
@@ -438,13 +417,11 @@ export function actionToCode(
 
   if (chainableFns.includes(actionType as any) && multipleActions) {
     const existingSuccessCallback =
-      supportsCallback &&
-      getFuncExpressionAtPosition(code, 0, evaluationVersion);
+      supportsCallback && getFuncExpressionAtPosition(code, 0, 2);
     const existingErrorCallback =
-      supportsCallback &&
-      getFuncExpressionAtPosition(code, 1, evaluationVersion);
-    const thenBlockExists = checkIfCatchBlockExists(code, evaluationVersion);
-    const catchBlockExists = checkIfThenBlockExists(code, evaluationVersion);
+      supportsCallback && getFuncExpressionAtPosition(code, 1, 2);
+    const thenBlockExists = checkIfCatchBlockExists(code);
+    const catchBlockExists = checkIfThenBlockExists(code);
     if (actionType === AppsmithFunction.integration) {
       if (existingSuccessCallback || existingErrorCallback) {
         successBlocks.forEach((block) => {
@@ -501,7 +478,7 @@ export function actionToCode(
               successParams ? successParams.join(",") : ""
             }) => { ${successCallbackCode} }`,
             0,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : code;
 
@@ -512,7 +489,7 @@ export function actionToCode(
             `(${
               successParams ? successParams.join(",") : ""
             }) => { ${thenCallbackCode} }`,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : withSuccessCallback;
 
@@ -525,7 +502,7 @@ export function actionToCode(
               errorParams ? errorParams.join(",") : ""
             }) => { ${errorCallbackCode} }`,
             1,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : withThenCallback;
 
@@ -536,7 +513,7 @@ export function actionToCode(
             `(${
               errorParams ? errorParams.join(",") : ""
             }) => { ${catchCallbackCode} }`,
-            evaluationVersion,
+            self.evaluationVersion,
           )
         : withErrorCallback;
 
@@ -564,16 +541,11 @@ export function paramSetter(
   argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(currentValue);
   const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
-  return setQueryParam(
-    requiredValue,
-    changeValueWithoutBraces,
-    argNum,
-    getEvaluationVersion(),
-  );
+  return setQueryParam(requiredValue, changeValueWithoutBraces, argNum);
 }
 
 export function paramGetter(code: string, argNum?: number) {
   argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(code);
-  return getQueryParam(requiredValue, argNum, getEvaluationVersion());
+  return getQueryParam(requiredValue, argNum);
 }

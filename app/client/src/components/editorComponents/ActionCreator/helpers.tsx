@@ -55,10 +55,8 @@ import {
   callBackFieldGetter,
   callBackFieldSetter,
   getCodeFromMoustache,
-  getEvaluationVersion,
 } from "./utils";
 import store from "store";
-import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 import {
   isAction,
   isJSAction,
@@ -149,17 +147,16 @@ function getActionEntityFields(
   dataTree: DataTreeForActionCreator,
   isChainedAction = false,
 ) {
-  const evaluationVersion = getEvaluationVersion();
   const requiredValue = getCodeFromMoustache(value);
   const successFunction = getFuncExpressionAtPosition(
     requiredValue,
     0,
-    evaluationVersion,
+    self.evaluationVersion,
   );
   const errorFunction = getFuncExpressionAtPosition(
     requiredValue,
     1,
-    evaluationVersion,
+    self.evaluationVersion,
   );
   const isCallbackStyle = successFunction || errorFunction;
 
@@ -207,22 +204,14 @@ function getActionEntityFields(
         }
       } else {
         if (activeTabApiAndQueryCallback.id === "onSuccess") {
-          const modified = setThenBlockInQuery(
-            currentValue,
-            changeValue,
-            evaluationVersion,
-          );
+          const modified = setThenBlockInQuery(currentValue, changeValue, 2);
           if (modified) {
             return `{{${modified}}}`;
           } else {
             return currentValue;
           }
         } else {
-          const modified = setCatchBlockInQuery(
-            currentValue,
-            changeValue,
-            evaluationVersion,
-          );
+          const modified = setCatchBlockInQuery(currentValue, changeValue, 2);
           if (modified) {
             return `{{${modified}}}`;
           } else {
@@ -255,13 +244,9 @@ function getJsFunctionExecutionFields(
   value: string,
   collectionName: string,
 ) {
-  const state = store.getState();
-  const jsCollection = getJSCollectionFromName(state, collectionName);
-  const evaluationVersion = selectEvaluationVersion(state);
-
   const functionName = getFunctionNameFromJsObjectExpression(
     value,
-    evaluationVersion,
+    self.evaluationVersion,
   );
 
   fields.push({
@@ -269,6 +254,9 @@ function getJsFunctionExecutionFields(
     getParentValue,
     value,
   });
+
+  const state = store.getState();
+  const jsCollection = getJSCollectionFromName(state, collectionName);
 
   const action = jsCollection?.config.actions?.find(
     (action) => action.name === functionName,

@@ -28,7 +28,6 @@ import {
   objectSetter,
   paramSetter,
   getCodeFromMoustache,
-  getEvaluationVersion,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -47,7 +46,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         return AppsmithFunction.none;
       }
 
-      return getFunctionName(storedValue, getEvaluationVersion());
+      return getFunctionName(storedValue, self.evaluationVersion);
     },
     setter: (option) => {
       const dropdownOption = option as TreeDropdownOption;
@@ -157,7 +156,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       const isQueryParamsSet = checkIfArgumentExistAtPosition(
         getCodeFromMoustache(currentValue),
         1,
-        getEvaluationVersion(),
       );
       if (!isQueryParamsSet) {
         currentValue = objectSetter(
