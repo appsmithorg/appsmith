@@ -148,7 +148,7 @@ function getFixedCanvasWidget(
   if (
     !canvasWidget ||
     !canvasWidget.children ||
-    !canvasWidget.useAutoLayout ||
+    canvasWidget.positioning !== Positioning.Vertical ||
     !canvasWidget.flexLayers
   ) {
     if (

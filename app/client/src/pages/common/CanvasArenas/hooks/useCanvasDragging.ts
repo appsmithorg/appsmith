@@ -407,8 +407,8 @@ export const useCanvasDragging = (
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding:
-                useAutoLayout ||
-                (!dropDisabled &&
+                !dropDisabled &&
+                (useAutoLayout ||
                   noCollision(
                     { x: each.left, y: each.top },
                     snapColumnSpace,
