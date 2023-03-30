@@ -8,12 +8,12 @@ export function getOriginalValueFromProxy(obj: Record<string, unknown>) {
   return obj;
 }
 
-export function removeProxyObject(objOrArr: any) {
-  const newObjOrArr: any = getOriginalValueFromProxy(objOrArr);
+export function removeProxyObject(value: any) {
+  const newObjOrArr: any = getOriginalValueFromProxy(value);
   if (newObjOrArr && (isArray(newObjOrArr) || isTrueObject(newObjOrArr))) {
-    for (const key in objOrArr) {
+    for (const key in newObjOrArr) {
       // @ts-expect-error: type unknown
-      newObjOrArr[key] = removeProxyObject(objOrArr[key]);
+      newObjOrArr[key] = removeProxyObject(newObjOrArr[key]);
     }
   }
   return newObjOrArr;

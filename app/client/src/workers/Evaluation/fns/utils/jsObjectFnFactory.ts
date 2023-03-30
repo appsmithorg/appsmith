@@ -31,12 +31,12 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
     postJSFunctionExecutionLog,
   ],
 ) {
-  return (...args: P) => {
+  return function (this: unknown, ...args: P) {
     if (!ExecutionMetaData.getExecutionMetaData().enableJSFnPostProcessors) {
-      return fn(...args);
+      return fn.call(this, ...args);
     }
     try {
-      const result = fn(...args);
+      const result = fn.call(this, ...args);
       if (isPromise(result)) {
         result.then((res) => {
           postProcessors.forEach((p) => p(name, res));

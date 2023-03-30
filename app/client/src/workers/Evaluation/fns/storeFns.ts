@@ -1,5 +1,6 @@
 import set from "lodash/set";
 import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
+import { removeProxyObject } from "../JSObject/removeProxy";
 
 function storeFnDescriptor(key: string, value: string, persist = true) {
   return {
@@ -22,10 +23,11 @@ export async function storeValue(
   value: string,
   persist = true,
 ) {
-  set(this, ["appsmith", "store", key], value);
+  const valueToStore = removeProxyObject(value);
+  set(this, ["appsmith", "store", key], valueToStore);
   TriggerEmitter.emit(
     BatchKey.process_store_updates,
-    storeFnDescriptor(key, value, persist),
+    storeFnDescriptor(key, valueToStore, persist),
   );
   return {};
 }
