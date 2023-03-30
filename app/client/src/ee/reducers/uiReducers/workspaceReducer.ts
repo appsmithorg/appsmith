@@ -9,6 +9,7 @@ import type {
   Workspace,
   WorkspaceRole,
   WorkspaceUser,
+  WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 
@@ -51,12 +52,7 @@ const handlers = {
       userId: string;
       username: string;
       name: string;
-      roles: {
-        id: string;
-        name: string;
-        description: string;
-        entityType: string;
-      }[];
+      roles: WorkspaceUserRoles[];
       userGroupId?: string;
     }>,
   ) => {
