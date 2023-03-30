@@ -84,7 +84,7 @@ function CopyUrlForm(
             openOnTargetFocus={false}
             position="right"
           >
-            <Icon className={"help-icon"} name="question-mark-line" size="sm" />
+            <Icon className={"help-icon"} name="question-mark" size="sm" />
           </TooltipComponent>
         )}
       </HeaderWrapper>
