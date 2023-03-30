@@ -10321,17 +10321,17 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.0.52":
-  version "1.0.52"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.52.tgz#031b179a9b3689a081e29c3994b7296935fa3edb"
-  integrity sha512-iB20Dhq+BGS1vac18UtgC+mSLCAOGLH3FpVGMyfVuw+S2ZugqECnLSLmpPYGDN4Bx9ohWqYTR1CQoJgTK1kw1w==
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.1.tgz#39b01530658e5916b75ce804f34c5022982f7455"
+  integrity sha512-/r9GrbMof5OsbtET40W0t+iZZmYZyNwdhUSYwVplt4xo2QkjEVxJTBaRHxq9pS+ddgktWUzkLsLg/0w2jQgTpw==
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.1.tgz#48890cf23fdd0e9e98794896b3681da488c77f0c"
-  integrity sha512-3yzaNXjVhw44WpVJhiYHDyDWgoevd/F4wxSQyL1hyjajXJ4OOJ/9fVbUpG38tOakbWW9Lpv39J5LP9uGUlC9GA==
+"design-system@npm:@appsmithorg/design-system@2.1.2-alpha.1":
+  version "2.1.2-alpha.1"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.2-alpha.1.tgz#63702ed417bf154d304e61e128edeb763c3edfb6"
+  integrity sha512-UYGRpx6IU8p8Fb6MN6LNKN+WQF/5yGES42q3/tXd4Ddx5Do4yt/8azoskRlbLQaNkOeQEW5wBprqIKlXDjkN1w==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"

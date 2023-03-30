@@ -5,9 +5,9 @@ import { FilePickerV2, FileType, Toaster, Variant } from "design-system-old";
 import { Button } from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
 import { useDispatch, useSelector } from "react-redux";
-import { importApplication } from "actions/applicationActions";
+import { importApplication } from "@appsmith/actions/applicationActions";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
-import { getIsImportingApplication } from "selectors/applicationSelectors";
+import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 
 const ButtonWrapper = styled.div`
   display: flex;

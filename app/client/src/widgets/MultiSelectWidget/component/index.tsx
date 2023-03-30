@@ -14,13 +14,14 @@ import {
   MODAL_PORTAL_CLASSNAME,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
+import { Icon } from "design-system-old";
 import type { Alignment } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
+import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
-import { Icon } from "design-system";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -207,7 +208,13 @@ function MultiSelectComponent({
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
         getPopupContainer={getDropdownPosition}
-        inputIcon={<Icon className="dropdown-icon" name="dropdown" />}
+        inputIcon={
+          <Icon
+            className="dropdown-icon"
+            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+            name="dropdown"
+          />
+        }
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
@@ -221,7 +228,13 @@ function MultiSelectComponent({
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
-        removeIcon={<Icon className="remove-icon" name="close-x" />}
+        removeIcon={
+          <Icon
+            className="remove-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         showArrow
         value={value}
       />

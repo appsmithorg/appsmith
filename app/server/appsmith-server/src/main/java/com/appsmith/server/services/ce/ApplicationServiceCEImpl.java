@@ -773,6 +773,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
 
+                    branchedApplication.setUnpublishedApplicationDetail(ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail(), new ApplicationDetail()));
                     Application.NavigationSetting rootAppUnpublishedNavigationSetting = ObjectUtils.defaultIfNull(
                             branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
                             new Application.NavigationSetting()
@@ -820,7 +821,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId){
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
-
+                    branchedApplication.setUnpublishedApplicationDetail(ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail(), new ApplicationDetail()));
                     Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(), new Application.NavigationSetting());
 
                     String navLogoAssetId = ObjectUtils.defaultIfNull(unpublishedNavSetting.getLogoAssetId(), "");
