@@ -25,7 +25,7 @@ import type { TActionBlock } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
-import { selectEvaluationVersion } from "selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
