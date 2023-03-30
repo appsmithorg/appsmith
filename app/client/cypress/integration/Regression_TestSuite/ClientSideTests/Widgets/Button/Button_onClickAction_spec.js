@@ -102,7 +102,7 @@ describe("Button Widget Functionality", function () {
     cy.openPropertyPane("buttonwidget");
 
     // Adding the query in the onClickAction of the button widget.
-    cy.executeDbQuery("Query1", "onOptionChange");
+    cy.executeDbQuery("Query1", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
