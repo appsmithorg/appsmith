@@ -46,7 +46,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import {
   clearCommitErrorState,
