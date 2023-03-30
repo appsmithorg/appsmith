@@ -830,7 +830,7 @@ export function EditorJSONtoForm(props: Props) {
                 </ResponseTabErrorDefaultMessage>
                 {executedQueryData && executedQueryData.pluginErrorDetails && (
                   <>
-                    <div>
+                    <div data-cy="t--query-error">
                       {
                         executedQueryData.pluginErrorDetails
                           .downstreamErrorMessage
