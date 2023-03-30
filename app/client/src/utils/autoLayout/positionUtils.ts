@@ -29,6 +29,7 @@ import {
 } from "./flexWidgetUtils";
 import { getCanvasDimensions } from "./AutoLayoutUtils";
 import WidgetFactory from "utils/WidgetFactory";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 /**
  * Calculate widget position on canvas.
@@ -344,11 +345,13 @@ export function extractAlignmentInfo(
 
     // Make sure that the height of the widget that cannot be vertically resized is
     // set to the minimum height after converting from fixed to auto layout.
+    //but should not set for canvas type widgets
     if (
       firstTimeDSLUpdate &&
       isFillWidget &&
       disableResizeHandles?.vertical &&
-      minHeight
+      minHeight &&
+      !checkIsDropTarget(widget.type)
     ) {
       rows = Math.round(minHeight / rowSpace);
     }
