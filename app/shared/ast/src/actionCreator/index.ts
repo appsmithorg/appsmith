@@ -1121,9 +1121,9 @@ function findNodeWithCalleeAndProperty(ast: Node, callee?: Node, property?: stri
     })?.node;
 }
 
-export function getFunctionParams(code: string) {
+export function getFunctionParams(code: string, evaluationVersion: number) {
     try {
-        const sanitizedScript = sanitizeScript(code, 2);
+        const sanitizedScript = sanitizeScript(code, evaluationVersion);
         code = `let a = ${sanitizedScript.trim()}`;
         const ast = getAST(code, {
             locations: true,
@@ -1138,9 +1138,9 @@ export function getFunctionParams(code: string) {
     }
 }
 
-export function getQueryParam(code: string, number: number) {
+export function getQueryParam(code: string, number: number, evaluationVersion: number) {
     try {
-        const sanitizedScript = sanitizeScript(code, 2);
+        const sanitizedScript = sanitizeScript(code, evaluationVersion);
         const ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
@@ -1154,12 +1154,12 @@ export function getQueryParam(code: string, number: number) {
 
         const firstArg = args[0] || {};
         if(firstArg.type && !isTypeOfFunction(firstArg.type)) {
-            return getTextArgumentAtPosition(code, 0, 2);
+            return getTextArgumentAtPosition(code, 0, evaluationVersion);
         }
 
         const thirdArg = args[2] || {};
         if(thirdArg.type && !isTypeOfFunction(thirdArg.type)) {
-            return getTextArgumentAtPosition(code, 2, 2);
+            return getTextArgumentAtPosition(code, 2, evaluationVersion);
         }
         return `{{{}}}`;
     } catch(e) {
@@ -1167,9 +1167,9 @@ export function getQueryParam(code: string, number: number) {
     }
 }
 
-export function setQueryParam(code: string, value: string, position: number) {
+export function setQueryParam(code: string, value: string, position: number, evaluationVersion: number) {
     try {
-        const sanitizedScript = sanitizeScript(code, 2);
+        const sanitizedScript = sanitizeScript(code, evaluationVersion);
         const ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
@@ -1181,26 +1181,26 @@ export function setQueryParam(code: string, value: string, position: number) {
         if(position === 0) {
             rootCallExpression.arguments = [];
             code = generate(ast);
-            return setObjectAtPosition(code, value, position, 2); 
+            return setObjectAtPosition(code, value, position, evaluationVersion); 
         } else {
             const firstArg = rootCallExpression.arguments[0] || {};
             const secondArg = rootCallExpression.arguments[1] || {};
             if(firstArg && !isTypeOfFunction(firstArg.type)) {
-                code = setCallbackFunctionField(code, "() => {}", 0, 2);
+                code = setCallbackFunctionField(code, "() => {}", 0, evaluationVersion);
             }
             if(secondArg && !isTypeOfFunction(secondArg.type)) {
-                code = setCallbackFunctionField(code, "() => {}", 1, 2);
+                code = setCallbackFunctionField(code, "() => {}", 1, evaluationVersion);
             }
-            return setObjectAtPosition(code, value, 2, 2);
+            return setObjectAtPosition(code, value, 2, evaluationVersion);
         }
     } catch(e) {
         return code;
     }
 }
 
-export function checkIfThenBlockExists(code: string) {
+export function checkIfThenBlockExists(code: string, evaluationVersion: number) {
     try {
-        const sanitizedScript = sanitizeScript(code, 2);
+        const sanitizedScript = sanitizeScript(code, evaluationVersion);
         const ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
@@ -1218,9 +1218,9 @@ export function checkIfThenBlockExists(code: string) {
     }
 }
 
-export function checkIfCatchBlockExists(code: string) {
+export function checkIfCatchBlockExists(code: string, evaluationVersion: number) {
     try {
-        const sanitizedScript = sanitizeScript(code, 2);
+        const sanitizedScript = sanitizeScript(code, evaluationVersion);
         const ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
@@ -1238,9 +1238,9 @@ export function checkIfCatchBlockExists(code: string) {
     }
 }
 
-export function checkIfArgumentExistAtPosition(code: string, position: number) {
+export function checkIfArgumentExistAtPosition(code: string, position: number, evaluationVersion: number) {
     try {
-        const sanitizedScript = sanitizeScript(code, 2);
+        const sanitizedScript = sanitizeScript(code, evaluationVersion);
         const ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,

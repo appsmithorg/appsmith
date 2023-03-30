@@ -22,6 +22,8 @@ import { TextView } from "../viewComponents/TextView";
 import { TabView } from "../viewComponents/TabView";
 import { FIELD_CONFIG } from "./FieldConfig";
 import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
+import { useSelector } from "react-redux";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
@@ -43,6 +45,7 @@ export function Field(props: FieldProps) {
   const { field } = props;
   const fieldType = field.field;
   const fieldConfig = FIELD_CONFIG[fieldType];
+  const evaluationVersion = useSelector(selectEvaluationVersion);
   // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!fieldConfig) return <></>;
   let viewElement: JSX.Element | null = null;
@@ -83,7 +86,7 @@ export function Field(props: FieldProps) {
           let label = option?.label || displayValue;
 
           if (label === DEFAULT_SELECTOR_VIEW_TEXT && value) {
-            label = getFunctionName(value, self.evaluationVersion);
+            label = getFunctionName(value, evaluationVersion);
           }
 
           return label;
