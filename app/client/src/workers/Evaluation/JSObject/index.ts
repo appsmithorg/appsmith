@@ -19,7 +19,6 @@ import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import { klona } from "klona/full";
-import { removeProxyObject } from "./removeProxy";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 
@@ -294,19 +293,17 @@ export function updateEvalTreeWithJSCollectionState(
   const jsCollections = JSObjectCollection.getCurrentVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
-    const sanitizedState = removeProxyObject(variableState);
     if (!evalTree[jsObjectName]) {
       evalTree[jsObjectName] = merge(
         {},
         oldUnEvalTree[jsObjectName],
-        sanitizedState,
+        variableState,
       );
       continue;
     }
-
     evalTree[jsObjectName] = Object.assign(
       evalTree[jsObjectName],
-      sanitizedState,
+      variableState,
     );
   }
 }
@@ -328,7 +325,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
         jsObjectName,
         variableName,
       ]);
-      const value = klona(removeProxyObject(variableValue));
+      const value = klona(variableValue);
       JSObjectCollection.setVariableValue(
         value,
         `${jsObjectName}.${variableName}`,

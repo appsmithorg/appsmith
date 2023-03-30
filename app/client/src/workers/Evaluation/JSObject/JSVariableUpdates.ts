@@ -10,6 +10,7 @@ export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
   "DELETE" = "DELETE",
   "SET" = "SET",
+  "GET" = "GET",
 }
 
 export type Patch = {

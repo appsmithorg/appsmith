@@ -11,7 +11,6 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { removeProxyObject } from "./JSObject/removeProxy";
 
 export type EvalResult = {
   result: any;
@@ -291,7 +290,6 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
-      result = removeProxyObject(result);
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name
