@@ -30,6 +30,8 @@ import type {
 } from "utils/autoLayout/autoLayoutTypes";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { getCanvasWidth } from "selectors/editorSelectors";
+import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
+import { BlueprintOperationTypes } from "widgets/constants";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -45,11 +47,23 @@ function* addWidgetAndReorderSaga(
     actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
   const isMobile: boolean = yield select(getIsMobile);
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   try {
+    const newParams: { [key: string]: any } = yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
+      {
+        parentId,
+        widgetId: newWidget.newWidgetId,
+        widgets: allWidgets,
+        widgetType: newWidget.type,
+      },
+    );
+    const updatedParams: WidgetAddChild = { ...newWidget, ...newParams };
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
       {
-        ...newWidget,
+        ...updatedParams,
         widgetId: parentId,
       },
     );
