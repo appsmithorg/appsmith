@@ -384,7 +384,7 @@ export function getViewportClassName(viewportWidth: number) {
 }
 
 export function getFillWidgetLengthForLayer(
-  allFillWidgetsChildren: any,
+  layer: any,
   allWidgets: any,
   dimensionMap = DefaultDimensionMap,
 ): number | undefined {
@@ -393,7 +393,7 @@ export function getFillWidgetLengthForLayer(
     fillCount = 0;
   const { leftColumn: leftColumnMap, rightColumn: rightColumnMap } =
     dimensionMap;
-  for (const child of allFillWidgetsChildren) {
+  for (const child of layer.children) {
     const childWidget = allWidgets[child.id];
     if (!childWidget) {
       continue;
