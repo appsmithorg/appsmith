@@ -22,6 +22,7 @@ import { TextView } from "../viewComponents/TextView";
 import { TabView } from "../viewComponents/TabView";
 import { FIELD_CONFIG } from "./FieldConfig";
 import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
+import { getEvaluationVersion } from "../utils";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
@@ -83,7 +84,7 @@ export function Field(props: FieldProps) {
           let label = option?.label || displayValue;
 
           if (label === DEFAULT_SELECTOR_VIEW_TEXT && value) {
-            label = getFunctionName(value, self.evaluationVersion);
+            label = getFunctionName(value, getEvaluationVersion());
           }
 
           return label;

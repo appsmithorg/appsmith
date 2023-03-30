@@ -4,6 +4,8 @@ import type { ActionCreatorProps } from "./types";
 import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
+import { useSelector } from "react-redux";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 import { generateReactKey } from "../../../utils/generators";
 
 export const ActionCreatorContext = React.createContext<{
@@ -39,13 +41,14 @@ const ActionCreator = React.forwardRef(
 
     const updatedIdRef = useRef<string>("");
     const previousBlocks = useRef<string[]>([]);
+    const evaluationVersion = useSelector(selectEvaluationVersion);
 
     useEffect(() => {
       setActions((prev) => {
         const newActions: Record<string, string> = {};
         const newBlocks: string[] = getActionBlocks(
           getCodeFromMoustache(props.value),
-          self.evaluationVersion,
+          evaluationVersion,
         );
 
         let prevIdValuePairs = Object.entries(prev);

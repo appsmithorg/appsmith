@@ -23,6 +23,7 @@ import store from "store";
 import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJsActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -86,6 +87,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const actions = getActions(state);
     const jsActions = getJSCollections(state);
     const codeFromProperty = getCodeFromMoustache(value?.trim() || "");
+    const evaluationVersion = selectEvaluationVersion(state);
 
     const actionsArray: string[] = [];
     const jsActionsArray: string[] = [];
@@ -101,10 +103,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       }),
     );
 
-    const canTranslate = canTranslateToUI(
-      codeFromProperty,
-      self.evaluationVersion,
-    );
+    const canTranslate = canTranslateToUI(codeFromProperty, evaluationVersion);
 
     if (codeFromProperty.trim() && !canTranslate) {
       return false;
@@ -129,7 +128,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     );
 
     try {
-      const blocks = getActionBlocks(codeFromProperty, self.evaluationVersion);
+      const blocks = getActionBlocks(codeFromProperty, evaluationVersion);
       for (const block of blocks) {
         codeToAction(block, fieldOptions, true, true);
       }
