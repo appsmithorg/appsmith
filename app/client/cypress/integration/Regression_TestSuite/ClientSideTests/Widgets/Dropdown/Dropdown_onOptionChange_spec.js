@@ -5,9 +5,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const propPane = ObjectsRegistry.PropertyPane;
-const jsEditor = ObjectsRegistry.JSEditor;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
@@ -164,15 +162,17 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("selectwidget");
-    // Click on onOptionChange JS button
-    propPane.SelectPlatformFunction("onOptionChange", "No action");
+    // Clear the JS code
+    cy.get(_.locators._jsToggle("onoptionchange")).click();
+    _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
+    cy.get(_.locators._jsToggle("onoptionchange")).click();
   });
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     // Dropdown On Option Change
-    jsEditor.DisableJSContext("onOptionChange");
+    _.jsEditor.DisableJSContext("onOptionChange");
     cy.getAlert("onOptionChange", "Option Changed");
     cy.PublishtheApp();
     // Change the Option
