@@ -28,7 +28,7 @@ export interface LintTreeRequest {
   jsPropertiesState: TJSPropertiesState;
   configTree: ConfigTree;
   cloudHosting: boolean;
-  asyncJSFunctionsInSyncFields: DependencyMap;
+  asyncJSFunctionsInDataFields: DependencyMap;
 }
 
 export type LintWorkerRequest = WorkerRequest<
@@ -40,7 +40,7 @@ export type LintTreeSagaRequestData = {
   pathsToLint: string[];
   unevalTree: DataTree;
   jsPropertiesState: TJSPropertiesState;
-  asyncJSFunctionsInSyncFields: DependencyMap;
+  asyncJSFunctionsInDataFields: DependencyMap;
   configTree: ConfigTree;
 };
 
@@ -73,7 +73,7 @@ export interface getlintErrorsFromTreeProps {
   unEvalTree: DataTree;
   jsPropertiesState: TJSPropertiesState;
   cloudHosting: boolean;
-  asyncJSFunctionsInSyncFields: DependencyMap;
+  asyncJSFunctionsInDataFields: DependencyMap;
   configTree: ConfigTree;
 }
 
@@ -83,7 +83,7 @@ export interface getlintErrorsFromTreeResponse {
 }
 
 export interface initiateLintingProps {
-  asyncJSFunctionsInSyncFields: DependencyMap;
+  asyncJSFunctionsInDataFields: DependencyMap;
   lintOrder: string[];
   unevalTree: DataTree;
   requiresLinting: boolean;

@@ -266,11 +266,11 @@ const getLintErrorMessage = (
   reason: string,
   code: string,
   variables: string[],
-  isJsObject = false,
+  isJSObject = false,
 ): string => {
   switch (code) {
     case IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE: {
-      return getRefinedW117Error(variables[0], reason, isJsObject);
+      return getRefinedW117Error(variables[0], reason, isJSObject);
     }
     default: {
       return reason;
@@ -282,7 +282,7 @@ function convertJsHintErrorToAppsmithLintError(
   script: string,
   originalBinding: string,
   scriptPos: Position,
-  isJsObject = false,
+  isJSObject = false,
 ): LintError {
   const { a, b, c, code, d, evidence, reason } = jsHintError;
 
@@ -296,7 +296,7 @@ function convertJsHintErrorToAppsmithLintError(
     reason,
     code,
     [a, b, c, d],
-    isJsObject,
+    isJSObject,
   );
 
   return {
@@ -407,7 +407,7 @@ function getInvalidPropertyErrorsFromScript(
 }
 
 export function initiateLinting({
-  asyncJSFunctionsInSyncFields,
+  asyncJSFunctionsInDataFields,
   configTree,
   jsPropertiesState,
   lintOrder,
@@ -418,7 +418,7 @@ export function initiateLinting({
     pathsToLint: lintOrder,
     unevalTree,
     jsPropertiesState,
-    asyncJSFunctionsInSyncFields,
+    asyncJSFunctionsInDataFields,
     configTree,
   } as LintTreeSagaRequestData;
   if (!requiresLinting) return;
@@ -485,14 +485,14 @@ export function lintJSObjectProperty(
   jsPropertyFullName: string,
   jsObjectState: Record<string, TJSpropertyState>,
   data: { dataWithFunctions: DataTree; dataWithoutFunctions: DataTree },
-  asyncJSFunctionsInSyncFields: DependencyMap,
+  asyncJSFunctionsInDataFields: DependencyMap,
 ) {
   let lintErrors: LintError[] = [];
   const { propertyPath: jsPropertyName } =
     getEntityNameAndPropertyPath(jsPropertyFullName);
   const jsPropertyState = jsObjectState[jsPropertyName];
   const isAsyncJSFunctionBoundToSyncField =
-    asyncJSFunctionsInSyncFields.hasOwnProperty(jsPropertyFullName);
+    asyncJSFunctionsInDataFields.hasOwnProperty(jsPropertyFullName);
   const globalData = isAsyncJSFunctionBoundToSyncField
     ? data.dataWithoutFunctions
     : data.dataWithFunctions;
@@ -508,7 +508,7 @@ export function lintJSObjectProperty(
   if (isAsyncJSFunctionBoundToSyncField) {
     lintErrors.push(
       generateAsyncFunctionBoundToDataFieldCustomError(
-        asyncJSFunctionsInSyncFields[jsPropertyFullName],
+        asyncJSFunctionsInDataFields[jsPropertyFullName],
         jsPropertyState,
         jsPropertyFullName,
       ),

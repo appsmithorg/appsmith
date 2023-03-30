@@ -46,6 +46,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const {
     allActionValidationConfig,
+    appMode,
     forceEvaluation,
     metaWidgets,
     requiresLinting,
@@ -61,6 +62,7 @@ export default function (request: EvalWorkerSyncRequest) {
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
+      asyncJsFunctionInDataFields.initialize(appMode);
       replayMap = replayMap || {};
       replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
       dataTreeEvaluator = new DataTreeEvaluator(
@@ -89,7 +91,7 @@ export default function (request: EvalWorkerSyncRequest) {
         ),
         requiresLinting,
         jsPropertiesState: jsPropertiesState.getMap(),
-        asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
+        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
         configTree: dataTreeEvaluator.oldConfigTree,
       });
 
@@ -139,7 +141,7 @@ export default function (request: EvalWorkerSyncRequest) {
         ),
         requiresLinting,
         jsPropertiesState: jsPropertiesState.getMap(),
-        asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
+        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
         configTree: dataTreeEvaluator.oldConfigTree,
       });
 
@@ -183,7 +185,7 @@ export default function (request: EvalWorkerSyncRequest) {
         ),
         requiresLinting,
         jsPropertiesState: jsPropertiesState.getMap(),
-        asyncJSFunctionsInSyncFields: asyncJsFunctionInDataFields.getMap(),
+        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
         configTree: dataTreeEvaluator.oldConfigTree,
       });
       nonDynamicFieldValidationOrder =

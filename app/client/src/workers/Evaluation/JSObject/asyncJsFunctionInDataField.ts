@@ -2,6 +2,7 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { difference, get } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
@@ -18,6 +19,10 @@ import {
 
 class AsyncJsFunctionInDataField {
   private asyncFunctionsInDataFieldsMap: DependencyMap = {};
+  private isDisabled = true;
+  initialize(appMode: APP_MODE | undefined) {
+    this.isDisabled = !(appMode === APP_MODE.EDIT);
+  }
 
   update(
     fullPath: string,
@@ -25,17 +30,17 @@ class AsyncJsFunctionInDataField {
     unEvalDataTree: DataTree,
     configTree: ConfigTree,
   ) {
+    if (this.isDisabled) return [];
     const updatedAsyncJSFunctionsInMap = new Set<string>();
     // Only datafields can cause updates
     if (!isDataField(fullPath, configTree)) return [];
 
-    const asyncJSFunctionsInvokedInPath =
-      this.getAsyncJSFunctionInvocationsInPath(
-        referencesInPath,
-        unEvalDataTree,
-        configTree,
-        fullPath,
-      );
+    const asyncJSFunctionsInvokedInPath = getAsyncJSFunctionInvocationsInPath(
+      referencesInPath,
+      unEvalDataTree,
+      configTree,
+      fullPath,
+    );
 
     for (const asyncJSFunc of asyncJSFunctionsInvokedInPath) {
       updatedAsyncJSFunctionsInMap.add(asyncJSFunc);
@@ -51,6 +56,7 @@ class AsyncJsFunctionInDataField {
     unevalTree: DataTree,
     configTree: ConfigTree,
   ) {
+    if (this.isDisabled) return [];
     const updatedAsyncJSFunctionsInMap = new Set<string>();
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(deletedPath);
@@ -96,10 +102,11 @@ class AsyncJsFunctionInDataField {
     inverseDependencyMap: DependencyMap,
     configTree: ConfigTree,
   ) {
+    if (this.isDisabled) return [];
     const updatedAsyncJSFunctionsInMap = new Set<string>();
     if (isDataField(editedPath, configTree)) {
       const asyncJSFunctionInvocationsInPath =
-        this.getAsyncJSFunctionInvocationsInPath(
+        getAsyncJSFunctionInvocationsInPath(
           dependenciesInPath,
           unevalTree,
           configTree,
@@ -154,7 +161,7 @@ class AsyncJsFunctionInDataField {
           );
           for (const dataFieldPath of boundDataFields) {
             const asyncJSFunctionInvocationsInPath =
-              this.getAsyncJSFunctionInvocationsInPath(
+              getAsyncJSFunctionInvocationsInPath(
                 [editedPath],
                 unevalTree,
                 configTree,
@@ -176,28 +183,6 @@ class AsyncJsFunctionInDataField {
     return Array.from(updatedAsyncJSFunctionsInMap);
   }
 
-  getAsyncJSFunctionInvocationsInPath(
-    dependencies: string[],
-    unEvalTree: DataTree,
-    configTree: ConfigTree,
-    fullPath: string,
-  ) {
-    const asyncJSFunctions = new Set<string>();
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-    const entity = unEvalTree[entityName];
-    const unevalPropValue = get(entity, propertyPath);
-
-    dependencies.forEach((dependant) => {
-      if (
-        isAsyncJSFunction(configTree, dependant) &&
-        this.getFunctionInvocationRegex(dependant).test(unevalPropValue)
-      ) {
-        asyncJSFunctions.add(dependant);
-      }
-    });
-
-    return Array.from(asyncJSFunctions);
-  }
   getMap() {
     return this.asyncFunctionsInDataFieldsMap;
   }
@@ -214,12 +199,37 @@ class AsyncJsFunctionInDataField {
     });
     return hasAsyncFunctionInvocation;
   }
-  getFunctionInvocationRegex(funcName: string) {
-    return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
-  }
+
   clearMap() {
     this.asyncFunctionsInDataFieldsMap = {};
   }
+}
+
+function getAsyncJSFunctionInvocationsInPath(
+  dependencies: string[],
+  unEvalTree: DataTree,
+  configTree: ConfigTree,
+  fullPath: string,
+) {
+  const asyncJSFunctions = new Set<string>();
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const entity = unEvalTree[entityName];
+  const unevalPropValue = get(entity, propertyPath);
+
+  dependencies.forEach((dependant) => {
+    if (
+      isAsyncJSFunction(configTree, dependant) &&
+      getFunctionInvocationRegex(dependant).test(unevalPropValue)
+    ) {
+      asyncJSFunctions.add(dependant);
+    }
+  });
+
+  return Array.from(asyncJSFunctions);
+}
+
+function getFunctionInvocationRegex(funcName: string) {
+  return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
 }
 
 export const asyncJsFunctionInDataFields = new AsyncJsFunctionInDataField();

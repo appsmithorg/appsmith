@@ -16,7 +16,7 @@ import {
 } from "./utils";
 
 export function getlintErrorsFromTree({
-  asyncJSFunctionsInSyncFields,
+  asyncJSFunctionsInDataFields,
   cloudHosting,
   configTree,
   jsPropertiesState,
@@ -103,7 +103,7 @@ export function getlintErrorsFromTree({
             dataWithFunctions: evalContextWithFunctions,
             dataWithoutFunctions: evalContextWithoutFunctions,
           },
-          asyncJSFunctionsInSyncFields,
+          asyncJSFunctionsInDataFields,
         );
         const currentLintErrorsInBody = get(
           lintTreeErrors,

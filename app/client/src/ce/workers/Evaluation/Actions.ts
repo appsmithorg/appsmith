@@ -48,6 +48,7 @@ export const addDataTreeToContext = (args: {
 
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = entity;
+    if (!removeEntityFunctions && !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
       const func = entityFn.fn(entity, entityName);

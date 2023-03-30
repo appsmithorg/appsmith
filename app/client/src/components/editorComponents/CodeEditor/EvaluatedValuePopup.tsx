@@ -24,6 +24,7 @@ import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -36,6 +37,8 @@ import { setEvalPopupState } from "actions/editorContextActions";
 import { Link } from "react-router-dom";
 import { showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -246,7 +249,6 @@ interface Props {
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
   editorRef?: React.RefObject<HTMLDivElement>;
-  asyncFuncErrorRootCauseUrl?: string;
 }
 
 interface PopoverContentProps {
@@ -264,7 +266,6 @@ interface PopoverContentProps {
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
   editorRef?: React.RefObject<HTMLDivElement>;
-  asyncFuncErrorRootCauseUrl?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -485,12 +486,28 @@ function PopoverContent(props: PopoverContentProps) {
       ? popupContext.value
       : true,
   );
+  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
+    props;
+  const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
+  const JSFunctionInvocationError = errors.find(
+    ({ kind }) =>
+      kind &&
+      kind.category ===
+        PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD &&
+      kind.rootcause,
+  );
+  const errorNavigationUrl = useSelector((state: AppState) =>
+    getJSFunctionNavigationUrl(
+      state,
+      entityName,
+      JSFunctionInvocationError?.kind?.rootcause,
+    ),
+  );
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
-    props;
+
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
@@ -538,12 +555,12 @@ function PopoverContent(props: PopoverContentProps) {
             {getErrorMessage(error.errorMessage)}
           </span>
 
-          {props.asyncFuncErrorRootCauseUrl ? (
+          {errorNavigationUrl ? (
             <AsyncFunctionErrorView>
               <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
                 See Error ({modText()} D)
               </AsyncFunctionErrorLink>
-              <AsyncFunctionErrorLink to={props.asyncFuncErrorRootCauseUrl}>
+              <AsyncFunctionErrorLink to={errorNavigationUrl}>
                 View Source
               </AsyncFunctionErrorLink>
             </AsyncFunctionErrorView>
@@ -643,7 +660,6 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
-          asyncFuncErrorRootCauseUrl={props.asyncFuncErrorRootCauseUrl}
           dataTreePath={props.dataTreePath}
           editorRef={props?.editorRef}
           entity={props.entity}

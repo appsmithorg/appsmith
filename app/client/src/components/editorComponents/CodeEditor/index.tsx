@@ -78,7 +78,6 @@ import {
   getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
-  PropertyEvaluationErrorCategory,
 } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
@@ -1189,28 +1188,6 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
-  getAsyncFuncErrorRootCauseUrl(errors: EvaluationError[]) {
-    const asyncInvocationError = errors.find(
-      ({ kind }) =>
-        kind &&
-        kind.category ===
-          PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD &&
-        kind.rootcause,
-    );
-    if (!asyncInvocationError) return undefined;
-    const asyncInvocationErrorRootcause = asyncInvocationError.kind?.rootcause;
-
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      asyncInvocationErrorRootcause as string,
-    );
-    const jsObjectNavigationData = this.props.entitiesForNavigation[entityName];
-
-    const jsFuncNavigationData =
-      jsObjectNavigationData && jsObjectNavigationData.children[propertyPath];
-
-    return jsFuncNavigationData?.url;
-  }
-
   render() {
     const {
       border,
@@ -1288,9 +1265,6 @@ class CodeEditor extends Component<Props, State> {
         )}
 
         <EvaluatedValuePopup
-          asyncFuncErrorRootCauseUrl={this.getAsyncFuncErrorRootCauseUrl(
-            errors,
-          )}
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
           entity={entityInformation}

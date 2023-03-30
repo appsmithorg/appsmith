@@ -129,7 +129,7 @@ export interface createEvaluationContextArgs {
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
   /*
-   Whether to remove functions like "run", "clear" in from entities in evaluation context
+   Whether to remove functions like "run", "clear" from entities in global context
    use case => To show lint warning when Api.run is used in a function bound to a data field (Eg. Button.text)
    */
   removeEntityFunctions?: boolean;

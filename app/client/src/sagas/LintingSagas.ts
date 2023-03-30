@@ -86,7 +86,7 @@ function* getValidOldJSCollectionLintErrors(
 
 export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   const {
-    asyncJSFunctionsInSyncFields,
+    asyncJSFunctionsInDataFields,
     configTree,
     jsPropertiesState,
     pathsToLint,
@@ -102,7 +102,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
     jsPropertiesState,
     configTree,
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
-    asyncJSFunctionsInSyncFields,
+    asyncJSFunctionsInDataFields,
   };
 
   const { errors, updatedJSEntities }: LintTreeResponse = yield call(

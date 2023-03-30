@@ -70,7 +70,7 @@ function eventRequestHandler({
       };
       try {
         const {
-          asyncJSFunctionsInSyncFields,
+          asyncJSFunctionsInDataFields,
           cloudHosting,
           configTree,
           jsPropertiesState,
@@ -83,7 +83,7 @@ function eventRequestHandler({
             unEvalTree,
             jsPropertiesState,
             cloudHosting,
-            asyncJSFunctionsInSyncFields,
+            asyncJSFunctionsInDataFields,
             configTree,
           },
         );

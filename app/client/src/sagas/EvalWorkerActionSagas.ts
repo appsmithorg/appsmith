@@ -33,7 +33,7 @@ export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
   const {
-    asyncJSFunctionsInSyncFields,
+    asyncJSFunctionsInDataFields,
     configTree,
     jsPropertiesState,
     pathsToLint: lintOrder,
@@ -45,7 +45,7 @@ export function* lintTreeActionHandler(message: any) {
       pathsToLint: lintOrder,
       unevalTree,
       jsPropertiesState,
-      asyncJSFunctionsInSyncFields,
+      asyncJSFunctionsInDataFields,
       configTree,
     },
   });

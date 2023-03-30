@@ -29,7 +29,7 @@ class ErrorModifier {
       return {
         errorMessage,
         errorCategory:
-          PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
+          PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD,
       };
     }
 
@@ -49,7 +49,7 @@ class ErrorModifier {
             ),
           },
           errorCategory:
-            PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
+            PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD,
         };
       }
     }
@@ -65,7 +65,7 @@ class ErrorModifier {
         error.errorMessage.message = FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE;
         error.kind = {
           category:
-            PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD,
+            PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD,
           rootcause: asyncFunc,
         };
       }
@@ -123,6 +123,6 @@ export const getErrorMessageWithType = (error: Error) => {
 function isAsyncFunctionCalledInSyncFieldError(error: EvaluationError) {
   return (
     error.kind?.category ===
-    PropertyEvaluationErrorCategory.ASYNC_FUNCTION_INVOCATION_IN_DATA_FIELD
+    PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD
   );
 }
