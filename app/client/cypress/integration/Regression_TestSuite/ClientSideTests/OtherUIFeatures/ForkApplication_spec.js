@@ -4,7 +4,16 @@ import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
+import {
+  agHelper,
+  appSettings,
+  deployMode,
+  homePage as homePageHelper,
+  embedSettings,
+  inviteModal,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -99,8 +108,35 @@ describe("Fork application across workspaces", function () {
           cy.wait(10000);
           cy.get(applicationLocators.forkButton).first().click({ force: true });
           cy.get(homePage.forkAppWorkspaceButton).should("be.visible");
+          agHelper.GetNClick(locators._dialogCloseButton);
+          cy.LogOut();
+          cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+          _.homePage.CreateNewApplication();
         });
       });
+    });
+  });
+
+  it("Mark application as forkable", () => {
+    appSettings.OpenAppSettings();
+    appSettings.GoToEmbedSettings();
+    embedSettings.ToggleMarkForkable();
+
+    inviteModal.OpenShareModal();
+    homePageHelper.InviteUserToWorkspaceFromApp(
+      Cypress.env("TESTUSERNAME1"),
+      "App Viewer",
+    );
+    inviteModal.CloseModal();
+
+    deployMode.DeployApp();
+    cy.url().then((url) => {
+      forkableAppUrl = url;
+      cy.LogOut();
+      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+      cy.visit(forkableAppUrl);
+
+      agHelper.AssertElementVisible(applicationLocators.forkButton);
     });
   });
 });

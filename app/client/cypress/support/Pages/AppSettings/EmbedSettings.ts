@@ -11,6 +11,8 @@ export class EmbedSettings {
     _restrictedText: "Embedding restricted",
     _disabledText: "Embedding disabled",
     _showNavigationBar: "[data-cy='show-navigation-bar-toggle']",
+    _enableForking: "[data-cy='forking-enabled-toggle']",
+    _confirmForking: "[data-cy='allow-forking']",
     _controlIndicator: ".bp3-control-indicator",
   };
 
@@ -45,6 +47,24 @@ export class EmbedSettings {
           this.locators._showNavigationBar,
           this.locators._controlIndicator,
         );
+        this.agHelper.ValidateNetworkStatus("@updateApplication");
+      }
+    });
+  }
+
+  public ToggleMarkForkable(check: "true" | "false" = "true") {
+    const input = this.agHelper.GetElement(this.locators._enableForking);
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== check) {
+        this.agHelper.GetSiblingNClick(
+          this.locators._enableForking,
+          this.locators._controlIndicator,
+        );
+
+        if (check) {
+          this.agHelper.GetNClick(this.locators._confirmForking);
+        }
+
         this.agHelper.ValidateNetworkStatus("@updateApplication");
       }
     });

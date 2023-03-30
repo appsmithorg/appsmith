@@ -70,6 +70,7 @@ function ConfirmEnableForkingModal({
           />
           <Button
             category={Category.primary}
+            data-cy={"allow-forking"}
             onClick={onConfirm}
             size={Size.large}
             tag="button"
@@ -132,8 +133,8 @@ function MakeApplicationForkable({
             <Switch
               checked={!!application?.forkingEnabled}
               className="mb-0"
+              data-cy="forking-enabled-toggle"
               disabled={isFetchingApplication}
-              id="t--embed-settings-application-public"
               large
               onChange={onChangeInit}
             />
