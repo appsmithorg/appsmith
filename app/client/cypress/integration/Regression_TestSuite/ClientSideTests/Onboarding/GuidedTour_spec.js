@@ -93,14 +93,11 @@ describe("Guided Tour", function () {
     // Step 7: Execute a query onClick
     cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
-    cy.get(
-      _.propPane.SelectActionByTitleAndValue(
-        "Execute a query",
-        "updateCustomerInfo.run",
-      ),
-    ).click();
-
-    cy.get(_.locators._actionCallbacks).click();
+    _.propPane.SelectActionByTitleAndValue(
+      "Execute a query",
+      "updateCustomerInfo.run",
+    ),
+      cy.get(_.locators._actionCallbacks).click();
     cy.get(_.locators._actionAddCallback("success")).click().wait(500);
     cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
