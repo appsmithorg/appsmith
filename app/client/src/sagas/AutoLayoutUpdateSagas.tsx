@@ -51,6 +51,7 @@ import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -89,6 +90,7 @@ export function* updateLayoutForMobileCheckpoint(
       ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
     log.debug(
       "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
