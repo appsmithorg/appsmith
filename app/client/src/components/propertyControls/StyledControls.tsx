@@ -6,9 +6,8 @@ import type { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
-import { FormIcons } from "icons/FormIcons";
 import type { TextInputProps } from "design-system-old";
-import { Button, Dropdown, InputWrapper, TextInput } from "design-system-old";
+import { Dropdown, InputWrapper, TextInput } from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 import { Checkbox } from "design-system-old";
@@ -342,19 +341,6 @@ const CommonIconStyles = css`
   cursor: pointer;
   display: flex;
   align-items: center;
-`;
-
-export const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
-  ${CommonIconStyles}
-
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`

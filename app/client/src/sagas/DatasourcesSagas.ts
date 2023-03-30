@@ -37,6 +37,7 @@ import {
   getPluginPackageFromDatasourceId,
   getDatasources,
   getDatasourceActionRouteInfo,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -95,14 +96,14 @@ import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "selectors/applicationSelectors";
+import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -346,8 +347,11 @@ function* updateDatasourceSaga(
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
+        pluginName: plugin?.name || "",
+        pluginPackageName: plugin?.packageName || "",
       });
       Toaster.show({
         text: createMessage(DATASOURCE_UPDATE, response.data.name),
@@ -479,6 +483,7 @@ function* getOAuthAccessTokenSaga(
           type: ReduxActionTypes.SET_GSHEET_TOKEN,
           payload: {
             gsheetToken: response.data.token,
+            gsheetProjectID: response.data.projectID,
           },
         });
       } else {
@@ -1171,6 +1176,7 @@ function* filePickerActionCallbackSaga(
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
       payload: {
         gsheetToken: "",
+        gsheetProjectID: "",
       },
     });
 

@@ -196,16 +196,22 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         return Mono.zip(
                         ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
+                        ExchangeUtils.getUserAgentFromCurrentRequest(),
                         configService.getInstanceId()
                                 .defaultIfEmpty("unknown-instance-id")
                 ).map(tuple -> {
                     final String userIdFromClient = tuple.getT1();
-                    final String instanceId = tuple.getT2();
+                    final String userAgent = tuple.getT2();
+                    final String instanceId = tuple.getT3();
                     String userIdToSend = finalUserId;
                     if (FieldName.ANONYMOUS_USER.equals(finalUserId)) {
                         userIdToSend = StringUtils.defaultIfEmpty(userIdFromClient, FieldName.ANONYMOUS_USER);
                     }
-                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userIdToSend);
+                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event)
+                        .userId(userIdToSend)
+                        .context(Map.of(
+                            "userAgent", userAgent
+                        ));
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
                     analyticsProperties.put("version", projectProperties.getVersion());

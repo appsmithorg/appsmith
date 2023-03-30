@@ -194,7 +194,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     });
         } else {
-            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id " + page.getId()));
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, page.getId()));
         }
 
     }
@@ -1006,17 +1006,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
+                    application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
 
-                    if (application.getUnpublishedApplicationDetail() == null){
-                        application.setUnpublishedApplicationDetail(new ApplicationDetail());
-                    }
-
-                    if (application.getPublishedApplicationDetail() == null){
-                        application.setPublishedApplicationDetail(new ApplicationDetail());
-                    }
-
-                    application.getPublishedApplicationDetail().setAppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning());
-                    application.getPublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting());
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }

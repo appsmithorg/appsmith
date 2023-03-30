@@ -33,6 +33,13 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: true,
 };
 
+export const LOG_REDUX_ACTIONS = [
+  ReduxActionTypes.UPDATE_LAYOUT,
+  ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+  ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  ReduxActionTypes.CREATE_ACTION_SUCCESS,
+];
+
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
@@ -119,6 +126,10 @@ export function shouldLint(action: ReduxAction<unknown>) {
     );
   }
   return LINT_REDUX_ACTIONS[action.type];
+}
+
+export function shouldLog(action: ReduxAction<unknown>) {
+  return LOG_REDUX_ACTIONS.includes(action.type);
 }
 
 export const setEvaluatedTree = (

@@ -30,13 +30,13 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { updateApplication } from "actions/applicationActions";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
@@ -95,6 +95,7 @@ import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -255,6 +256,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
   const isMultiPane = useSelector(isMultiPaneActive);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const isPreviewingApp =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -348,8 +354,8 @@ export function EditorHeader(props: EditorHeaderProps) {
               className={classNames({
                 "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400":
                   true,
-                "-translate-x-full opacity-0": isPreviewMode,
-                "translate-x-0 opacity-100": !isPreviewMode,
+                "-translate-x-full opacity-0": isPreviewingApp,
+                "translate-x-0 opacity-100": !isPreviewingApp,
               })}
             >
               <TooltipComponent

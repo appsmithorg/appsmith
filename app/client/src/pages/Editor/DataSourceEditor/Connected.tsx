@@ -4,17 +4,16 @@ import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
 import { isNil } from "lodash";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
-import { Colors } from "constants/Colors";
-import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import RenderDatasourceInformation from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
+import { Icon } from "design-system";
 
 const ConnectedText = styled.div`
-  color: ${Colors.OXFORD_BLUE};
+  color: var(--ads-v2-color-fg);
   font-size: 17px;
   font-weight: bold;
   display: flex;
@@ -31,7 +30,7 @@ const Header = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
+  border-bottom: 1px solid var(--ads-v2-color-border);
   padding-top: 24px;
   padding-bottom: 24px;
 `;
@@ -74,10 +73,10 @@ function Connected({
       {showDatasourceSavedText && (
         <Header>
           <ConnectedText>
-            <HeaderIcons.SAVE_SUCCESS
-              color={Colors.GREEN}
-              height={30}
-              width={30}
+            <Icon
+              color="var(--ads-v2-color-fg-success)"
+              name="checkbox-circle-fill"
+              size="lg"
             />
             <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
           </ConnectedText>

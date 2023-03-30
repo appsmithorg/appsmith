@@ -5,7 +5,7 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button } from "design-system";
 import type { Message } from "entities/AppsmithConsole";
@@ -84,9 +84,9 @@ export function DebugButton(props: DebugButtonProps) {
   return (
     <Button
       className={props.className}
+      endIcon="bug"
       kind="error"
       onClick={props.onClick}
-      startIcon="bug"
     >
       Debug
     </Button>

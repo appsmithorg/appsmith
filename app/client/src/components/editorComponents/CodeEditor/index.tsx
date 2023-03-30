@@ -20,7 +20,6 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
-
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
@@ -56,8 +55,8 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
+import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
-  bindingMarker,
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
   PEEKABLE_ATTRIBUTE,
@@ -65,7 +64,7 @@ import {
   PEEKABLE_CH_START,
   PEEKABLE_LINE,
   PEEK_STYLE_PERSIST_CLASS,
-} from "components/editorComponents/CodeEditor/markHelpers";
+} from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -135,6 +134,7 @@ import {
   PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
+import ConfigTreeActions from "utils/configTree";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -510,11 +510,16 @@ class CodeEditor extends Component<Props, State> {
         this.setEditorInput("");
       }
 
-      CodeEditor.updateMarkings(
-        this.editor,
-        this.props.marking,
-        this.props.entitiesForNavigation,
-      );
+      if (
+        this.props.entitiesForNavigation !== prevProps.entitiesForNavigation ||
+        this.props.marking !== prevProps.marking
+      ) {
+        CodeEditor.updateMarkings(
+          this.editor,
+          this.props.marking,
+          this.props.entitiesForNavigation,
+        );
+      }
     });
   }
 
@@ -963,11 +968,13 @@ class CodeEditor extends Component<Props, State> {
       }
     }
 
-    if (this.editor) {
+    if (this.editor && changeObj) {
       CodeEditor.updateMarkings(
         this.editor,
         this.props.marking,
         this.props.entitiesForNavigation,
+        changeObj.from,
+        changeObj.to,
       );
     }
   };
@@ -998,7 +1005,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { dataTreePath, dynamicData, expected } = this.props;
+    const { dataTreePath, expected } = this.props;
+    const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
@@ -1007,7 +1015,7 @@ class CodeEditor extends Component<Props, State> {
       const { entityName, propertyPath } =
         getEntityNameAndPropertyPath(dataTreePath);
       entityInformation.entityName = entityName;
-      const entity = dynamicData[entityName];
+      const entity = configTree[entityName];
 
       if (entity) {
         if ("ENTITY_TYPE" in entity) {
@@ -1127,8 +1135,10 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
     entityNavigationData: EntityNavigationData,
+    from?: CodeMirror.Position,
+    to?: CodeMirror.Position,
   ) => {
-    marking.forEach((helper) => helper(editor, entityNavigationData));
+    marking.forEach((helper) => helper(editor, entityNavigationData, from, to));
   };
 
   updatePropertyValue(value: string, cursor?: number) {
@@ -1362,12 +1372,10 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
-  entitiesForNavigation: props.isJSObject
-    ? addThisReference(
-        getEntitiesForNavigation(state),
-        props.dataTreePath?.split(".")[0],
-      )
-    : getEntitiesForNavigation(state),
+  entitiesForNavigation: getEntitiesForNavigation(
+    state,
+    props.dataTreePath?.split(".")[0],
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1383,16 +1391,3 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
-
-const addThisReference = (
-  navigationData: EntityNavigationData,
-  entityName?: string,
-) => {
-  if (entityName && entityName in navigationData) {
-    return {
-      ...navigationData,
-      this: navigationData[entityName],
-    };
-  }
-  return navigationData;
-};

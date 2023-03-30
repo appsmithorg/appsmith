@@ -56,7 +56,7 @@ export const MoreMenuWrapper = styled.div`
   align-items: center;
   position: absolute;
   right: -6px;
-  top: 8px;
+  top: 3px;
 `;
 
 export const MoreOptionsContainer = styled.div`

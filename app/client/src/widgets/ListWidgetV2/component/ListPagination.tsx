@@ -1,7 +1,7 @@
 import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
-import { Button } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 
 const locale = {
   // Options.jsx
@@ -389,26 +389,16 @@ function ListPagination(props: ListPaginationProps) {
       disabled={props.disabled || props.isLoading}
       locale={locale}
       nextIcon={() => (
-        <Button
-          aria-label="next page"
-          className="rc-pagination-item-link"
-          isIconButton
-          kind="tertiary"
-          size="sm"
-          startIcon="right-arrow-2"
-        />
+        <button aria-label="next page" className="rc-pagination-item-link">
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
       )}
       onChange={props.onChange}
       pageSize={props.pageSize}
       prevIcon={() => (
-        <Button
-          aria-label="prev page"
-          className="rc-pagination-item-link"
-          isIconButton
-          kind="tertiary"
-          size="sm"
-          startIcon="left-arrow-2"
-        />
+        <button aria-label="prev page" className="rc-pagination-item-link">
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
       )}
       showTitle={false}
       total={props.total}
@@ -448,17 +438,16 @@ export function ServerSideListPagination(props: ServerSideListPaginationProps) {
         }`}
         title="Previous Page"
       >
-        <Button
+        <button
           area-label="prev page"
           className="rc-pagination-item-link"
-          isIconButton
-          kind="tertiary"
           onClick={() => {
             if (props.pageNo > 1) props.prevPageClick();
           }}
-          size="sm"
-          startIcon="left-arrow-2"
-        />
+          type="button"
+        >
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
       </li>
       <li
         className="rc-pagination-item rc-pagination-item-0 rc-pagination-item-active"
@@ -472,18 +461,16 @@ export function ServerSideListPagination(props: ServerSideListPaginationProps) {
         }`}
         title="Next Page"
       >
-        <Button
+        <button
           area-label="next page"
           className="rc-pagination-item-link"
-          isIconButton
-          kind="tertiary"
           onClick={() => {
             props.nextPageClick();
           }}
-          size="sm"
-          startIcon="right-arrow-2"
           type="button"
-        />
+        >
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
       </li>
     </PaginationWrapper>
   );

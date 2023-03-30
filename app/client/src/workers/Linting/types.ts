@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 
@@ -14,6 +14,7 @@ export interface LintTreeResponse {
 export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
+  configTree: ConfigTree;
   cloudHosting: boolean;
 }
 
@@ -25,4 +26,5 @@ export type LintWorkerRequest = WorkerRequest<
 export type LintTreeSagaRequestData = {
   pathsToLint: string[];
   unevalTree: DataTree;
+  configTree: ConfigTree;
 };

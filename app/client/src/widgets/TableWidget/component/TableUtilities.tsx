@@ -25,6 +25,8 @@ import {
 import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
+import { ControlIcons } from "icons/ControlIcons";
+
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import type { DropdownOption } from "widgets/DropdownWidget/constants";
@@ -46,7 +48,6 @@ import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
-import { Icon } from "design-system";
 
 export const renderCell = (
   value: any,
@@ -593,17 +594,29 @@ export const renderEmptyRows = (
   }
 };
 
-const AscendingIcon = styled(Icon)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
+  padding: 0;
   position: relative;
   top: 3px;
   cursor: pointer;
   transform: rotate(180deg);
+  && svg {
+    path {
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
+    }
+  }
 `;
 
-const DescendingIcon = styled(Icon)`
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
+  padding: 0;
   position: relative;
   top: 3px;
   cursor: pointer;
+  && svg {
+    path {
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
+    }
+  }
 `;
 
 export function TableHeaderCell(props: {
@@ -652,9 +665,9 @@ export function TableHeaderCell(props: {
       {props.isAscOrder !== undefined ? (
         <div>
           {props.isAscOrder ? (
-            <AscendingIcon name="sort-control" size="md" />
+            <AscendingIcon height={16} width={16} />
           ) : (
-            <DescendingIcon name="sort-control" size="md" />
+            <DescendingIcon height={16} width={16} />
           )}
         </div>
       ) : null}

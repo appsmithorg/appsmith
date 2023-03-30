@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
 import { TooltipComponent as Tooltip } from "design-system-old";
@@ -59,8 +59,9 @@ function BranchButton() {
         position="top-left"
       >
         <ButtonContainer
-          className="t--branch-button t--branch-button-currentBranch"
-          data-testid={"t--branch-button-container"}
+          className="t--branch-button "
+          data-testid={"t--branch-button-currentBranch"}
+          kind="secondary"
           ref={labelTarget}
           startIcon="git-branch"
         >

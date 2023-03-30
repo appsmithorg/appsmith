@@ -350,7 +350,7 @@ describe("meta widget reducer test", () => {
         type: ReduxActionTypes.INIT_CANVAS_LAYOUT,
         payload: {},
       }),
-    ).toEqual({});
+    ).toEqual(metaWidgetState);
   });
   it("MODIFY_META_WIDGETS", () => {
     expect(
