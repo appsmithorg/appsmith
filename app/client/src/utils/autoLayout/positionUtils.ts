@@ -686,6 +686,7 @@ export function getTotalRowsOfAllChildren(
   children: string[],
   isMobile: boolean,
 ): number {
+  if (!children || !children.length) return 0;
   let top = 10000,
     bottom = 0;
   for (const childId of children) {
