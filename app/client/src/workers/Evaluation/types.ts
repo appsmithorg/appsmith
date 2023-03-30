@@ -53,4 +53,5 @@ export interface EvalTreeResponseData {
   configTree: ConfigTree;
   staleMetaIds: string[];
   pathsToClearErrorsFor: any[];
+  isNewWidgetAdded: boolean;
 }
