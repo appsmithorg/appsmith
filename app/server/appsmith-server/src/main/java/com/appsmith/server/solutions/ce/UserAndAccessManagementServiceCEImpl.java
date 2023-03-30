@@ -177,7 +177,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     Map<String, Object> analyticsProperties = new HashMap<>();
                     long numberOfUsers = users.size();
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
-                    analyticsProperties.put(FieldName.NUMBER_OF_INVITED_USERS, numberOfUsers);
+                    analyticsProperties.put(FieldName.NUMBER_OF_USERS_INVITED, numberOfUsers);
                     eventData.put(FieldName.USER_EMAILS, invitedUsers);
                     Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.USER_EMAILS, invitedUsers);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);

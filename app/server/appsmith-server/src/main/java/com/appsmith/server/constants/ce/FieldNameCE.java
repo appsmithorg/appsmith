@@ -164,6 +164,6 @@ public class FieldNameCE {
     public static final String ANONYMOUS_USER_ID = "anonymousUserId";
     public static final String VIEW_MODE = "viewMode";
     public static final String USER_EMAILS = "userEmails";
-    public static final String NUMBER_OF_INVITED_USERS = "numberOfUsersInvited";
+    public static final String NUMBER_OF_USERS_INVITED = "numberOfUsersInvited";
 }
 
