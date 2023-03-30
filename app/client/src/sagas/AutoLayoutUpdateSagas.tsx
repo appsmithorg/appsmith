@@ -206,10 +206,10 @@ function* updateWidgetDimensionsSaga(
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsMobile);
-  const isResizing: boolean = yield select(getIsResizing);
+  const isWidgetResizing: boolean = yield select(getIsResizing);
 
   const widget = allWidgets[widgetId];
-  if (!widget || isResizing) return;
+  if (!widget) return;
 
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
     widget,
@@ -250,9 +250,11 @@ function* updateWidgetDimensionsSaga(
   }
 
   addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
-  yield put({
-    type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
-  });
+  if (!isWidgetResizing) {
+    yield put({
+      type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+    });
+  }
 }
 
 /**
@@ -261,6 +263,8 @@ function* updateWidgetDimensionsSaga(
  * It also updates the position of other affected widgets as well.
  */
 function* processAutoLayoutDimensionUpdatesSaga() {
+  if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
+
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsMobile);
