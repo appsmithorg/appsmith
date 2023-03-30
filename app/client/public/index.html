@@ -17,7 +17,12 @@
   </style>
   <%=
     (function () {
-      // Emit additional `link rel="preload"` tags for the edit mode and the view mode
+      // This code emits additional `link rel="preload"` tags for edit.html and view.html.
+      // This helps to load edit and view modes faster.
+      //
+      // If you code-split some code and need to preload it as well, here’s how to do that:
+      //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
+      //  2) Add the name into the `chunksToPreload` array below
       let chunksToPreload = [];
       if (htmlWebpackPlugin.options.appsmithHtmlTarget === 'edit-mode') {
         chunksToPreload = [
