@@ -5,7 +5,7 @@ import type { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
 import { getFunctionName, getFunctionArguments } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
-import { getCodeFromMoustache } from "../../utils";
+import { getCodeFromMoustache, getEvaluationVersion } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
@@ -71,7 +71,7 @@ function getIconForAction(
     case AppsmithFunction.integration:
       const functionName = getFunctionName(
         getCodeFromMoustache(code),
-        self.evaluationVersion,
+        getEvaluationVersion(),
       );
       const apiName = functionName.split(".")[0];
       const apiAction = actions.find(({ config }) => config.name === apiName);
@@ -130,19 +130,19 @@ function getActionHeading(
       if (minimal) {
         return getFunctionName(
           getCodeFromMoustache(code),
-          self.evaluationVersion,
+          getEvaluationVersion(),
         );
       } else {
         return (
-          getFunctionName(getCodeFromMoustache(code), self.evaluationVersion) +
-          `(${getFunctionArguments(code, self.evaluationVersion)})`
+          getFunctionName(getCodeFromMoustache(code), getEvaluationVersion()) +
+          `(${getFunctionArguments(code, getEvaluationVersion())})`
         );
       }
 
     case AppsmithFunction.integration:
       return getFunctionName(
         getCodeFromMoustache(code),
-        self.evaluationVersion,
+        getEvaluationVersion(),
       );
 
     case AppsmithFunction.showModal:

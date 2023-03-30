@@ -4,6 +4,8 @@ import type { ActionCreatorProps } from "./types";
 import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
+import { useSelector } from "react-redux";
+import { selectEvaluationVersion } from "selectors/applicationSelectors";
 
 function uuidv4() {
   return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
@@ -47,13 +49,14 @@ const ActionCreator = React.forwardRef(
 
     const updatedIdRef = useRef<string>("");
     const previousBlocks = useRef<string[]>([]);
+    const evaluationVersion = useSelector(selectEvaluationVersion);
 
     useEffect(() => {
       setActions((prev) => {
         const newActions: Record<string, string> = {};
         const newBlocks: string[] = getActionBlocks(
           getCodeFromMoustache(props.value),
-          self.evaluationVersion,
+          evaluationVersion,
         );
 
         let prevIdValuePairs = Object.entries(prev);
