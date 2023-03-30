@@ -52,7 +52,6 @@ import DataSourceList from "./ApiRightPane";
 import type { Datasource } from "entities/Datasource";
 import equal from "fast-deep-equal/es6";
 
-import { Colors } from "constants/Colors";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
@@ -99,11 +98,10 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
   .api-info-row {
-    svg {
-      fill: #ffffff;
-    }
+    // TODO: unclear what this is for
     .t--apiFormHttpMethod:hover {
-      background: ${Colors.CODE_GRAY};
+      background-color: aqua;
+      //background-color: var(--ads-v2-color-bg-subtle);
     }
   }
 `;
@@ -144,42 +142,12 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid var(--ads-v2-color-border);
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
     & > * {
       margin-right: 0px;
-    }
-  }
-
-  &&& {
-    ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.responseBody.bg};
-      li.react-tabs__tab--selected {
-        > div {
-          color: ${(props) => props.theme.colors.apiPane.closeIcon};
-        }
-      }
-    }
-    .react-tabs__tab-panel {
-      height: calc(100% - 36px);
-      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
-      .eye-on-off {
-        svg {
-          fill: ${(props) =>
-            props.theme.colors.apiPane.requestTree.header.icon};
-          &:hover {
-            fill: ${(props) =>
-              props.theme.colors.apiPane.requestTree.header.icon};
-          }
-          path {
-            fill: none;
-          }
-        }
-      }
     }
   }
 `;
@@ -284,9 +252,9 @@ const Flex = styled.div<{
   position: relative;
   min-height: 32px;
   height: auto;
-  border-color: #d3dee3;
-  border-bottom: 1px solid #e8e8e8;
-  color: #4b4848;
+  border-color: var(--ads-v2-color-border);
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  color: var(--ads-v2-color-fg);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -352,7 +320,7 @@ const FlexContainer = styled.div`
 
   .key-value {
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.apiPane.keyValueText};
+      color: var(--ads-v2-color-fg);
       padding: ${(props) => props.theme.spaces[2]}px 0px
         ${(props) => props.theme.spaces[2]}px
         ${(props) => props.theme.spaces[5]}px;
@@ -388,9 +356,6 @@ const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
   ${FormLabel} {
     width: 100%;
-  }
-  & svg {
-    cursor: pointer;
   }
 `;
 
