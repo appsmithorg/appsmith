@@ -4,14 +4,8 @@ import { Field, reduxForm } from "redux-form";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  Toaster,
-  TooltipComponent,
-  UneditableField,
-  Variant,
-} from "design-system-old";
-import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Toaster, UneditableField, Variant } from "design-system-old";
+import { Icon, Tooltip } from "design-system";
 
 const Wrapper = styled.div`
   margin: 24px 0;
@@ -30,12 +24,6 @@ const HeaderWrapper = styled.div`
   .help-icon {
     margin-left: 8px;
     cursor: pointer;
-    svg {
-      border-radius: 50%;
-      border: 1px solid var(--ads-v2-color-fg);
-      padding: 1px;
-      fill: var(--ads-v2-color-fg);
-    }
   }
 `;
 
@@ -79,21 +67,14 @@ function CopyUrlForm(
       <HeaderWrapper>
         <HeaderSecondary>{props.title}</HeaderSecondary>
         {props.tooltip && (
-          <TooltipComponent
-            autoFocus={false}
-            content={props.tooltip}
-            hoverOpenDelay={0}
-            minWidth={"180px"}
-            openOnTargetFocus={false}
-            position="right"
-          >
+          <Tooltip content={props.tooltip} placement="right" trigger="hover">
             <Icon
               className={"help-icon"}
-              color={Colors.GREY_7}
-              name="help"
-              size="md"
+              color="var(--ads-v2-color-fg)"
+              name="question-line"
+              size="lg"
             />
-          </TooltipComponent>
+          </Tooltip>
         )}
       </HeaderWrapper>
       <BodyContainer>
