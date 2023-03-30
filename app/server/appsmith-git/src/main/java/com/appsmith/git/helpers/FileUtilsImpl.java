@@ -414,7 +414,7 @@ public class FileUtilsImpl implements FileInterface {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
             // Body will be null if the action is of type JS
-            if (body != null) {
+            if (StringUtils.hasLength(body)) {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
                 writeStringToFile(body, bodyPath);
             }
