@@ -54,7 +54,7 @@ import { clearActionResponse } from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";

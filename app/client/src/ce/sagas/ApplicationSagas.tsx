@@ -28,12 +28,12 @@ import type {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   UpdateApplicationResponse,
-} from "api/ApplicationApi";
-import ApplicationApi from "api/ApplicationApi";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+} from "@appsmith/api/ApplicationApi";
+import ApplicationApi from "@appsmith/api/ApplicationApi";
+import { all, call, put, select } from "redux-saga/effects";
 
-import { validateResponse } from "./ErrorSagas";
-import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
+import { validateResponse } from "sagas/ErrorSagas";
+import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
@@ -52,7 +52,7 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateApplicationNavigationSettingAction,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
@@ -94,14 +94,14 @@ import {
   fetchDatasources,
   setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
-import { failFastApiCalls } from "./InitSagas";
+import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
-import { getDefaultPageId as selectDefaultPageId } from "./selectors";
+import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
-import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
@@ -125,7 +125,7 @@ export const getDefaultPageId = (
   return defaultPage ? defaultPage.id : undefined;
 };
 
-let windowReference: Window | null = null;
+export let windowReference: Window | null = null;
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -290,7 +290,7 @@ export function* fetchAppAndPagesSaga(
   }
 }
 
-function* handleFetchApplicationError(error: any) {
+export function* handleFetchApplicationError(error: any) {
   const currentUser: User = yield select(getCurrentUser);
   if (
     currentUser &&
@@ -347,7 +347,7 @@ export function* setDefaultApplicationPageSaga(
   }
 }
 
-function* updateApplicationLayoutSaga(
+export function* updateApplicationLayoutSaga(
   action: ReduxAction<UpdateApplicationRequest>,
 ) {
   try {
@@ -685,7 +685,7 @@ export function* forkApplicationSaga(
   }
 }
 
-function* showReconnectDatasourcesModalSaga(
+export function* showReconnectDatasourcesModalSaga(
   action: ReduxAction<{
     application: ApplicationResponsePayload;
     unConfiguredDatasourceList: Array<Datasource>;
@@ -773,7 +773,7 @@ export function* importApplicationSaga(
   }
 }
 
-function* fetchReleases() {
+export function* fetchReleases() {
   try {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getReleaseItems,
@@ -848,7 +848,9 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
   }
 }
 
-function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
+export function* initDatasourceConnectionDuringImport(
+  action: ReduxAction<string>,
+) {
   const workspaceId = action.payload;
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
@@ -882,49 +884,4 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
-}
-
-export default function* applicationSagas() {
-  yield all([
-    takeLatest(
-      ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-      publishApplicationSaga,
-    ),
-    takeLatest(ReduxActionTypes.UPDATE_APP_LAYOUT, updateApplicationLayoutSaga),
-    takeLatest(ReduxActionTypes.UPDATE_APPLICATION, updateApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
-      changeAppViewAccessSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.GET_ALL_APPLICATION_INIT,
-      getAllApplicationSaga,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchAppAndPagesSaga),
-    takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),
-    takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
-      setDefaultApplicationPageSaga,
-    ),
-    takeLatest(ReduxActionTypes.DELETE_APPLICATION_INIT, deleteApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
-      duplicateApplicationSaga,
-    ),
-    takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
-    takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
-    takeLatest(
-      ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
-      initDatasourceConnectionDuringImport,
-    ),
-    takeLatest(
-      ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
-      showReconnectDatasourcesModalSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
-      fetchUnconfiguredDatasourceList,
-    ),
-  ]);
 }

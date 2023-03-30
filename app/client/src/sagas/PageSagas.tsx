@@ -107,7 +107,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -659,6 +659,17 @@ export function* createPageSaga(
 export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
+
+    // Update page *needs* id to be there. We found certain scenarios
+    // where this was not happening and capturing the error to know gather
+    // more info: https://github.com/appsmithorg/appsmith/issues/16435
+    if (!request.id) {
+      Sentry.captureException(
+        new Error("Attempting to update page without page id"),
+      );
+      return;
+    }
+
     // to be done in backend
     request.customSlug = request.customSlug?.replaceAll(" ", "-");
 

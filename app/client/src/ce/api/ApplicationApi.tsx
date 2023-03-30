@@ -1,11 +1,11 @@
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { AppIconName } from "design-system-old";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
-import type { ApplicationVersion } from "actions/applicationActions";
+import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
 
@@ -215,7 +215,7 @@ export interface PageDefaultMeta {
   default: boolean;
 }
 
-class ApplicationApi extends Api {
+export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
     `/publish/${applicationId}`;
