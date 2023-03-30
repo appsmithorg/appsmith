@@ -77,7 +77,7 @@ export type LevelData = {
 };
 
 export type MetaWidgetCacheProps = {
-  entityDefinition: Record<string, string> | string;
+  entityDefinition: string;
   metaWidgetId: string;
   metaWidgetName: string;
   originalMetaWidgetId: string;
