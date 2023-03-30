@@ -93,45 +93,16 @@ describe("Test Top + Stacked navigation style", function () {
       .should("be.visible");
   });
 
-  it("4. The background of nav should be white since light color style is default", () => {
+  it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
+    // The background should be white since light color style is default
     cy.get(appNavigationLocators.topStacked).should(
       "have.css",
       "background-color",
       "rgb(255, 255, 255)",
     );
-  });
 
-  it("5. Application name, share button, edit button, and user dropdown should be available in the app header", () => {
-    cy.get(appNavigationLocators.applicationName).should("exist");
-    cy.get(appNavigationLocators.shareButton).should("exist");
-    cy.get(appNavigationLocators.editButton).should("exist");
-    cy.get(appNavigationLocators.userProfileDropdownButton).should("exist");
-  });
-
-  it("6. Share button should open the share modal", () => {
-    cy.get(
-      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
-    ).click();
-    cy.wait(1000);
-    cy.get(appNavigationLocators.modal).should("exist");
-    cy.get(appNavigationLocators.modalClose).first().click({ force: true });
-  });
-
-  it("7. Edit button should take us back to the editor", () => {
-    cy.get(
-      `${appNavigationLocators.header} ${appNavigationLocators.editButton}`,
-    ).click();
-    cy.get(commonLocators.canvas).should("exist");
-  });
-
-  it("8. Clicking on user profile button should open up the dropdown menu", () => {
-    deployMode.DeployApp();
-    cy.get(appNavigationLocators.userProfileDropdownButton).click();
-    cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
+    // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
-  });
-
-  it("9. Changing color style to theme should change navigation's background color", () => {
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     cy.get(
@@ -145,6 +116,36 @@ describe("Test Top + Stacked navigation style", function () {
       "background-color",
       "rgb(85, 61, 233)",
     );
+  });
+
+  it("5. Application name, share button, edit button, and user dropdown should be available in the app header", () => {
+    cy.get(appNavigationLocators.applicationName).should("exist");
+    cy.get(appNavigationLocators.shareButton).should("exist");
+    cy.get(appNavigationLocators.editButton).should("exist");
+    cy.get(appNavigationLocators.userProfileDropdownButton).should("exist");
+  });
+
+  it("6. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+    // Share
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    ).click();
+    cy.wait(1000);
+    cy.get(appNavigationLocators.modal).should("exist");
+    cy.get(appNavigationLocators.modalClose).first().click({ force: true });
+
+    // Edit
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.editButton}`,
+    ).click();
+    cy.get(commonLocators.canvas).should("exist");
+
+    // User profile dropdown
+    deployMode.DeployApp();
+    cy.get(appNavigationLocators.userProfileDropdownButton).click();
+    cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
+
+    // Back to editor
     deployMode.NavigateBacktoEditor();
   });
 });
