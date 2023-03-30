@@ -52,6 +52,7 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import type { AppState } from "ce/reducers";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -207,6 +208,9 @@ function* updateWidgetDimensionsSaga(
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsMobile);
   const isWidgetResizing: boolean = yield select(getIsResizing);
+  const isCanvasResizing: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
 
   const widget = allWidgets[widgetId];
   if (!widget) return;
@@ -250,7 +254,8 @@ function* updateWidgetDimensionsSaga(
   }
 
   addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
-  if (!isWidgetResizing) {
+
+  if (!isWidgetResizing && !isCanvasResizing) {
     yield put({
       type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
     });
