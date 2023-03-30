@@ -4,15 +4,7 @@ import type { ActionCreatorProps } from "./types";
 import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
-
-function uuidv4() {
-  return String(1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
-    (
-      c ^
-      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
-    ).toString(16),
-  );
-}
+import { generateReactKey } from "../../../utils/generators";
 
 export const ActionCreatorContext = React.createContext<{
   label: string;
@@ -37,7 +29,7 @@ const ActionCreator = React.forwardRef(
       const res = blocks.reduce(
         (acc: Record<string, string>, value: string) => ({
           ...acc,
-          [uuidv4()]: value,
+          [generateReactKey()]: value,
         }),
         {},
       );
@@ -100,7 +92,7 @@ const ActionCreator = React.forwardRef(
                 return;
               }
             }
-            newActions[uuidv4()] = block;
+            newActions[generateReactKey()] = block;
           }
         });
         previousBlocks.current = [...newBlocks];
@@ -180,7 +172,7 @@ const ActionCreator = React.forwardRef(
         return;
       }
       const newActions = { ...actions };
-      id.current = uuidv4();
+      id.current = generateReactKey();
       newActions[id.current] = "";
       setActions(newActions);
     }, [actions, save]);
