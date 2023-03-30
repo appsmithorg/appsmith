@@ -178,8 +178,14 @@ enum MODIFICATION_TYPE {
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
-const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentItemsView", "selectedItemView", "triggeredItemView"],
+/**
+ * When computing level_1.currentView.List2
+ */
+const BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA: Record<
+  string,
+  string[] | undefined
+> = {
+  LIST_WIDGET_V2: ["selectedItemView", "triggeredItemView", "currentItemsView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -598,7 +604,7 @@ class MetaWidgetGenerator {
       /**
        * If nestedViewIndex is present then it comes from the outermost listwidget
        * and that value should ideally be continued to the nested list widgets.
-       *  */
+       */
       metaWidget.nestedViewIndex = this.nestedViewIndex || viewIndex;
     }
 
@@ -762,7 +768,7 @@ class MetaWidgetGenerator {
     const entityDefinition = generateEntityDefinition
       ? currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type)
-      : {};
+      : "";
 
     return {
       entityDefinition,
@@ -846,7 +852,7 @@ class MetaWidgetGenerator {
     rowIndex: number,
     key: string,
   ) => {
-    const { metaWidgetId, widgetId } = metaWidget;
+    const { metaWidgetId, type, widgetId } = metaWidget;
     const currentViewData = this.getCurrentViewData();
     const shouldAddDataCacheToBinding = this.shouldAddDataCacheToBinding(
       metaWidgetId ?? widgetId,
@@ -892,7 +898,24 @@ class MetaWidgetGenerator {
           currentItem: currentViewData?.[0],
           // Uses any one of the row's container present on the List widget to
           // get the object of current row for autocomplete
-          currentView: `{{${metaContainerName}.data}}`,
+          // traverse this data and create a new object filtering out the blacklisted properties
+          currentView: `{{((data, blackListArr) => {
+              const newObj = {};
+
+              for (const key in data) {
+                if (data.hasOwnProperty(key) && typeof data[key] === 'object') {
+                  newObj[key] = Object.fromEntries(
+                    Object.entries(data[key]).filter(
+                      ([nestedKey]) => !blackListArr.includes(nestedKey)
+                    )
+                  );
+                }
+              }
+              return newObj;
+              })(${metaContainerName}.data, ${JSON.stringify(
+            BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+          )} )
+          }}`,
         },
       },
     };
@@ -1121,15 +1144,25 @@ class MetaWidgetGenerator {
       }
 
       if (dynamicPathType === DynamicPathType.CURRENT_VIEW) {
-        const { entityDefinition } =
+        const { entityDefinition, metaWidgetName, type } =
           lookupLevel?.currentRowCache?.[widgetName] || {};
 
         if (entityDefinition) {
+          let filteredEntityDefinition = entityDefinition;
+
+          if (BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type]) {
+            filteredEntityDefinition = this.getPropertiesOfWidget(
+              metaWidgetName,
+              type,
+              BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+            );
+          }
+
           levelProps[level] = {
             ...(levelProps[level] || {}),
             currentView: {
               ...(levelProps[level]?.currentView || {}),
-              [widgetName]: `{{{${entityDefinition}}}}`,
+              [widgetName]: `{{{${filteredEntityDefinition}}}}`,
             },
           };
 
@@ -1680,18 +1713,28 @@ class MetaWidgetGenerator {
     return metaWidgets;
   };
 
-  private getEntityDefinitionsFor = (widgetType: string) => {
+  private getEntityDefinitionsFor = (
+    widgetType: string,
+    blacklistedWidgetProperties?: string[],
+  ) => {
     const config = get(entityDefinitions, widgetType);
     const entityDefinition = typeof config === "function" ? config({}) : config;
     const blacklistedKeys = ["!doc", "!url"].concat(
-      BLACKLISTED_ENTITY_DEFINITION[widgetType] || [],
+      blacklistedWidgetProperties || [],
     );
 
     return Object.keys(omit(entityDefinition, blacklistedKeys));
   };
 
-  private getPropertiesOfWidget = (widgetName: string, widgetType: string) => {
-    const entityDefinitions = this.getEntityDefinitionsFor(widgetType);
+  private getPropertiesOfWidget = (
+    widgetName: string,
+    widgetType: string,
+    blacklistedWidgetProperties?: string[],
+  ) => {
+    const entityDefinitions = this.getEntityDefinitionsFor(
+      widgetType,
+      blacklistedWidgetProperties,
+    );
 
     return entityDefinitions
       .map((definition) => `${definition}: ${widgetName}.${definition}`)
@@ -1749,6 +1792,9 @@ class MetaWidgetGenerator {
     this.cachedItemKeys.curr = keys;
   };
 
+  /**
+   * This function is to update the cached list data(this.cachedKeyDataMap) with the updated data in this.data.
+   */
   shouldUpdateCachedKeyDataMap = () => {
     return Array.from(this.cachedItemKeys.curr).some((key) => {
       const isKeyInPrimaryKey = this.primaryKeys.includes(key);
