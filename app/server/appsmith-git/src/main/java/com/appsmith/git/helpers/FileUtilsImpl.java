@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
@@ -243,18 +244,28 @@ public class FileUtilsImpl implements FileInterface {
                     Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
 
                     Set<String> validPages = new HashSet<>();
+                    Set<String> validWidgets = new HashSet<>();
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
-
-                        //Map<String, Object> flattenedJson = JsonFlattener.flattenAsMap(new JSONObject(applicationGitReference.getPageDsl().get(pageName)).toString());
-                        JSONObject dsl = new JSONObject(applicationGitReference.getPageDsl().get(pageName));
-
-                        JSONObject normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
-
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveResource(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+
+                            JSONObject normalizedDSL = getNormalizedDSL(applicationGitReference.getPageDsl().get(pageName));
+                            JSONObject entities = new JSONObject(normalizedDSL.get("data").toString());
+                            JSONObject canvasWidgets = new JSONObject(entities.get("entities").toString());
+                            JSONObject widgetList = new JSONObject(canvasWidgets.get("canvasWidgets").toString());
+                            widgetList
+                                    .keySet()
+                                    .stream()
+                                    .forEach(stringObjectEntry -> {
+                                        String widgetName = new JSONObject(widgetList.get(stringObjectEntry).toString()).get("widgetName").toString();
+                                        saveWidgets(
+                                                new JSONObject(widgetList.get(stringObjectEntry).toString()),
+                                                widgetName,
+                                                pageSpecificDirectory.resolve(CommonConstants.WIDGETS));
+                                    });
                         }
                         validPages.add(pageName);
                     }
@@ -392,6 +403,15 @@ public class FileUtilsImpl implements FileInterface {
             log.debug(e.getMessage());
         }
         return false;
+    }
+
+    private void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
+        try {
+            Files.createDirectories(path);
+            writeStringToFile(sourceEntity.toString(4), path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
+        } catch (IOException e) {
+            log.debug("Error while writings widgets data to file, {}", e.getMessage());
+        }
     }
 
     /**
