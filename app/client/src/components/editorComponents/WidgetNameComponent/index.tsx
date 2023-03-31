@@ -8,7 +8,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
-  getIsAutoLayout,
+  // getIsAutoLayout,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -30,7 +30,7 @@ import {
   isResizingOrDragging,
   showWidgetAsSelected,
 } from "selectors/widgetSelectors";
-import { RESIZE_BORDER_BUFFER } from "resizable/common";
+// import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
@@ -39,20 +39,22 @@ const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
 
 const PositionStyle = styled.div<{
-  positionOffset: [number, number];
+  // positionOffset: [number, number];
   topRow: number;
 }>`
   position: absolute;
   display: flex;
   cursor: pointer;
-  top: ${(props) =>
-    props.topRow > 2
-      ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
-      : `calc(100% - ${1 + props.positionOffset[0]}px)`};
-  height: ${WidgetNameComponentHeight}px;
-  right: 0px;
+  top: -22px;
+  height: 22px;
   z-index: ${Layers.widgetName};
 `;
+// margin-left: ${(props) => props.positionOffset[1]}px;
+// top: ${(props) =>
+// props.topRow > 2
+// ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
+// : `calc(100% - ${1 + props.positionOffset[0]}px)`};
+// height: ${WidgetNameComponentHeight}px;
 
 const ControlGroup = styled.div`
   display: flex;
@@ -88,7 +90,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isAutoCanvasResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
-  const isAutoLayout = useSelector(getIsAutoLayout);
+  // const isAutoLayout = useSelector(getIsAutoLayout);
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
 
@@ -181,16 +183,16 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     showAsSelected,
   ]);
 
-  const getPositionOffset = (): [number, number] => {
-    return isAutoLayout
-      ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
-      : [0, -RESIZE_BORDER_BUFFER];
-  };
+  // const getPositionOffset = (): [number, number] => {
+  //   return isAutoLayout
+  //     ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
+  //     : [0, -RESIZE_BORDER_BUFFER];
+  // };
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
-  const positionOffset: [number, number] = useMemo(getPositionOffset, [
-    isAutoLayout,
-  ]);
+  // const positionOffset: [number, number] = useMemo(getPositionOffset, [
+  //   isAutoLayout,
+  // ]);
 
   // const positionStyle: CSSProperties = useMemo(() => {
   //   return {
@@ -213,7 +215,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
       id={"widget_name_" + props.widgetId}
-      positionOffset={positionOffset}
+      // positionOffset={positionOffset}
       topRow={props.topRow}
     >
       <ControlGroup>
