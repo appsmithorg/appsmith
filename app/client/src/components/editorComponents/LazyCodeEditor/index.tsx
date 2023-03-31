@@ -7,6 +7,7 @@ import CodeEditorFallback from "./CodeEditorFallback";
 import { Toaster, Variant } from "design-system-old";
 import { CODE_EDITOR_LOADING_ERROR } from "ce/constants/messages";
 import assertNever from "assert-never/index";
+import log from "loglevel";
 
 let CachedCodeEditor: typeof CodeEditor | null = null;
 
@@ -113,7 +114,7 @@ class LazyCodeEditorStateMachine {
           CachedCodeEditor = codeEditorModule.default;
           this.transition("LOADING_FINISHED");
         } catch (error) {
-          console.error(error);
+          log.error(error);
           Toaster.show({
             text: CODE_EDITOR_LOADING_ERROR((error as any).message),
             variant: Variant.danger,

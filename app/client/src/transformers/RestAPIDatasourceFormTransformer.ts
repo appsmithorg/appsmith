@@ -32,7 +32,8 @@ export const datasourceToFormValues = (
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
     "Y";
   const sessionSignatureKey = isSendSessionEnabled
-    ? _.get(datasource, "datasourceConfiguration.properties[1].value")!
+    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      _.get(datasource, "datasourceConfiguration.properties[1].value")!
     : "";
   return {
     datasourceId: datasource.id,
