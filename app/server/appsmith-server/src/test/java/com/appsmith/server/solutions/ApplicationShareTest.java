@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -46,9 +47,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
@@ -98,6 +101,8 @@ public class ApplicationShareTest {
     ApplicationService applicationService;
     @Autowired
     DatasourceService datasourceService;
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
     @Autowired
     LayoutActionService layoutActionService;
     @Autowired
@@ -1257,5 +1262,222 @@ public class ApplicationShareTest {
         PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
         assertThat(developerRole.getName()).startsWith(APPLICATION_DEVELOPER);
         assertThat(viewerRole.getName()).startsWith(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testApplicationNameUpdate_checkDefaultRoleNamesUpdated() {
+        String testName = "testApplicationNameUpdate_checkDefaultRoleNamesUpdated";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup devApplicationRole = applicationService
+                .createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+
+        String updatedApplicationName = testName + " - updated";
+        Application resource = new Application();
+        resource.setName(updatedApplicationName);
+
+        Application updatedApplication = applicationService.update(createdApplication.getId(), resource, null).block();
+        assertThat(updatedApplication).isNotNull();
+        assertThat(updatedApplication.getId()).isEqualTo(createdApplication.getId());
+        assertThat(updatedApplication.getName()).isEqualTo(updatedApplicationName);
+        PermissionGroup updatedDevApplicationRole = permissionGroupRepository.findById(devApplicationRole.getId()).block();
+        assertThat(updatedDevApplicationRole).isNotNull();
+        assertThat(updatedDevApplicationRole.getName())
+                .isEqualTo(APPLICATION_DEVELOPER + " - " + updatedApplicationName);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDefaultBranchedApplicationNameUpdate_checkDefaultRoleNamesUpdated() {
+        String testName = "testDefaultBranchedApplicationNameUpdate_checkDefaultRoleNamesUpdated";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("release");
+        gitData.setDefaultBranchName("release");
+        gitData.setRepoName("testRepo");
+        gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+        gitData.setRepoName("testRepo");
+        application.setGitApplicationMetadata(gitData);
+        Application createdApplication = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        PermissionGroup devApplicationRole = applicationService
+                .createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+
+        String updatedApplicationName = testName + " - updated";
+        Application resource = new Application();
+        resource.setName(updatedApplicationName);
+
+        Application updatedDefaultBranchedApplication = applicationService
+                .update(createdApplication.getId(), resource, "release").block();
+        assertThat(updatedDefaultBranchedApplication).isNotNull();
+        assertThat(updatedDefaultBranchedApplication.getId()).isEqualTo(createdApplication.getId());
+        assertThat(updatedDefaultBranchedApplication.getName()).isEqualTo(updatedApplicationName);
+        PermissionGroup updatedDevApplicationRole = permissionGroupRepository
+                .findById(devApplicationRole.getId()).block();
+        assertThat(updatedDevApplicationRole).isNotNull();
+        assertThat(updatedDevApplicationRole.getName())
+                .isEqualTo(APPLICATION_DEVELOPER + " - " + updatedApplicationName);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testBranchedApplicationNameUpdate_checkDefaultRoleNamesNotUpdated() {
+        String testName = "testBranchedApplicationNameUpdate_checkDefaultRoleNamesNotUpdated";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("release");
+        gitData.setDefaultBranchName("release");
+        gitData.setRepoName("testRepo");
+        gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+        gitData.setRepoName("testRepo");
+        application.setGitApplicationMetadata(gitData);
+        Application createdApplication = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        Application branchedApplication = importExportApplicationService
+                .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
+                .flatMap(applicationJson -> importExportApplicationService
+                        .importApplicationInWorkspace(createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
+                .flatMap(application1 -> {
+                    GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+                    gitData1.setBranchName("testBranch");
+                    gitData1.setDefaultBranchName("release");
+                    gitData1.setRepoName("testRepo");
+                    gitData1.setRemoteUrl("git@test.com:user/testRepo.git");
+                    gitData1.setRepoName("testRepo");
+                    gitData1.setDefaultApplicationId(createdApplication.getId());
+                    application1.setGitApplicationMetadata(gitData1);
+
+                    return applicationService.save(application1);
+                })
+                .block();
+        assertThat(branchedApplication).isNotNull();
+
+        PermissionGroup devApplicationRole = applicationService
+                .createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+
+        String updatedApplicationName = testName + " - updated";
+        Application resource = new Application();
+        resource.setName(updatedApplicationName);
+
+        Application updatedBranchedApplication = applicationService
+                .update(createdApplication.getId(), resource, "testBranch").block();
+        assertThat(updatedBranchedApplication).isNotNull();
+        assertThat(updatedBranchedApplication.getId()).isEqualTo(branchedApplication.getId());
+        assertThat(updatedBranchedApplication.getName()).isEqualTo(updatedApplicationName);
+        PermissionGroup notUpdatedDevApplicationRole = permissionGroupRepository
+                .findById(devApplicationRole.getId()).block();
+        assertThat(notUpdatedDevApplicationRole).isNotNull();
+        assertThat(notUpdatedDevApplicationRole.getName())
+                .isEqualTo(APPLICATION_DEVELOPER + " - " + createdApplication.getName());
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDeleteApplication_deleteDefaultApplicationRoles() {
+        String testName = "testDeleteApplication_deleteDefaultApplicationRoles";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        PermissionGroup devApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+        PermissionGroup viewApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+
+        Application deletedApplication = applicationPageService.deleteApplication(createdApplication.getId()).block();
+        assertThat(deletedApplication.getDeletedAt()).isBefore(Instant.now());
+        assertThat(deletedApplication.isDeleted()).isTrue();
+
+        List<PermissionGroup> defaultApplicationRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(createdApplication.getId(), Application.class.getSimpleName())
+                .collectList().block();
+        assertThat(defaultApplicationRoles).isEmpty();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testBranchedApplicationDelete_checkDefaultRoleExist() {
+        String testName = "testBranchedApplicationDelete_checkDefaultRoleExist";
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("release");
+        gitData.setDefaultBranchName("release");
+        gitData.setRepoName("testRepo");
+        gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+        gitData.setRepoName("testRepo");
+        application.setGitApplicationMetadata(gitData);
+        Application createdApplication = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        Application branchedApplication = importExportApplicationService
+                .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
+                .flatMap(applicationJson -> importExportApplicationService
+                        .importApplicationInWorkspace(createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
+                .flatMap(application1 -> {
+                    GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+                    gitData1.setBranchName("testBranch");
+                    gitData1.setDefaultBranchName("release");
+                    gitData1.setRepoName("testRepo");
+                    gitData1.setRemoteUrl("git@test.com:user/testRepo.git");
+                    gitData1.setRepoName("testRepo");
+                    gitData1.setDefaultApplicationId(createdApplication.getId());
+                    application1.setGitApplicationMetadata(gitData1);
+
+                    return applicationService.save(application1);
+                })
+                .block();
+        assertThat(branchedApplication).isNotNull();
+
+        PermissionGroup devApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+        PermissionGroup viewApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+
+        Application deletedApplication = applicationPageService.deleteApplication(branchedApplication.getId()).block();
+        List<PermissionGroup> defaultApplicationRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(createdApplication.getId(), Application.class.getSimpleName())
+                .collectList().block();
+        assertThat(defaultApplicationRoles).hasSize(2);
+        Set<String> defaultApplicationRoleIdSet = defaultApplicationRoles.stream().map(role -> role.getId()).collect(Collectors.toSet());
+        assertThat(defaultApplicationRoleIdSet).contains(devApplicationRole.getId());
+        assertThat(defaultApplicationRoleIdSet).contains(viewApplicationRole.getId());
     }
 }
