@@ -422,6 +422,25 @@ public class MySqlPluginTest {
                         .verifyComplete();
         }
 
+    @Test
+    public void testExecuteWithLongRunningQuery() {
+        Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT SLEEP(20);");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
+
         @Test
         public void testStaleConnectionCheck() {
                 ActionConfiguration actionConfiguration = new ActionConfiguration();
