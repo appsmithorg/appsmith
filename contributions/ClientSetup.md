@@ -62,7 +62,7 @@ sudo mv mkcert /usr/local/bin
 
    ```bash
    cd app/client
-   ./start-https.sh https://release.app.appsmith.com
+   ./start-https.sh
    ```
 
 ### Steps to build & run the code:
