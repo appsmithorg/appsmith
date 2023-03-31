@@ -1,6 +1,6 @@
 let appId;
 
-describe("1. Checks for analytics initialization", function () {
+describe("Checks for analytics for enableTelemtry", function () {
   before(() => {
     cy.visit("/applications");
     cy.get(".admin-settings-menu-option").click();
@@ -19,7 +19,7 @@ describe("1. Checks for analytics initialization", function () {
     cy.wait("@getGeneral").its("response.statusCode").should("eq", 200);
   });
 
-  it("Should check analytics is not initialised when enableTelemtry is false", function () {
+  it("1. Should check analytics is not initialised when enableTelemtry is false", function () {
     cy.visit("/applications");
     // cy.reload();
     // cy.wait(3000);

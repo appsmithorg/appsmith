@@ -183,6 +183,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   }
 
   if (error && error.crash) {
+    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
 

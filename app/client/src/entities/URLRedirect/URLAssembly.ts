@@ -1,4 +1,4 @@
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
