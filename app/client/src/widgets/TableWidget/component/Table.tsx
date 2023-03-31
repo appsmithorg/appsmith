@@ -1,12 +1,12 @@
 import React, { useRef } from "react";
 import { reduce } from "lodash";
+import type { Row } from "react-table";
 import {
   useTable,
   usePagination,
   useBlockLayout,
   useResizeColumns,
   useRowSelect,
-  Row,
 } from "react-table";
 import {
   TableWrapper,
@@ -21,17 +21,16 @@ import {
 } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
-import {
+import type {
   ReactTableColumnProps,
   ReactTableFilter,
-  TABLE_SIZES,
   CompactMode,
-  CompactModeTypes,
 } from "./Constants";
+import { TABLE_SIZES, CompactModeTypes } from "./Constants";
 import { Colors } from "constants/Colors";
 
 import { ScrollIndicator } from "design-system-old";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 
 interface TableProps {
@@ -108,8 +107,9 @@ export function Table(props: TableProps) {
       if (columnSizeMap[i] < 60) {
         columnSizeMap[i] = 60;
       } else if (columnSizeMap[i] === undefined) {
-        const columnCounts = props.columns.filter((column) => !column.isHidden)
-          .length;
+        const columnCounts = props.columns.filter(
+          (column) => !column.isHidden,
+        ).length;
         columnSizeMap[i] = props.width / columnCounts;
       }
     }
@@ -167,7 +167,7 @@ export function Table(props: TableProps) {
     // We are updating column size since the drag is complete when we are changing value of isResizing from true to false
     if (isResizingColumn.current) {
       //update isResizingColumn in next event loop so that dragEnd event does not trigger click event.
-      setTimeout(function() {
+      setTimeout(function () {
         isResizingColumn.current = false;
         handleResizeColumn(state.columnResizing.columnWidths);
       }, 0);

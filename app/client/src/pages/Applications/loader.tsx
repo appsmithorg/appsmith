@@ -18,10 +18,11 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     AnalyticsUtil.logEvent("APPLICATIONS_PAGE_LOAD");
-    retryPromise(() =>
-      import(
-        /* webpackChunkName: "applications" */ "@appsmith/pages/Applications/index"
-      ),
+    retryPromise(
+      () =>
+        import(
+          /* webpackChunkName: "applications" */ "@appsmith/pages/Applications/index"
+        ),
     ).then((module) => {
       this.setState({ Page: module.default });
     });

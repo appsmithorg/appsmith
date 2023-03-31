@@ -6,8 +6,8 @@ import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import type { CellAlignment } from "../Constants";
 import {
-  CellAlignment,
   HEADER_MENU_PORTAL_CLASS,
   JUSTIFY_CONTENT,
   MENU_CONTENT_CLASS,

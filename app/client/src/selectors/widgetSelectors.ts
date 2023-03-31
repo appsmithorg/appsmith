@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
-import { AppState } from "@appsmith/reducers";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -148,6 +148,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     getIsTableFilterPaneVisible,
     (state: AppState) => state.ui.widgetDragResize.isResizing,
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+    (state: AppState) => state.ui.canvasSelection.isDraggingForSelection,
     getAppMode,
     getIsAutoHeightWithLimitsChanging,
     (
@@ -155,12 +156,14 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
       isTableFilterPaneVisible,
       isResizing,
       isDragging,
+      isDraggingForSelection,
       appMode,
       isAutoHeightWithLimitsChanging,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
 
       return (
+        isDraggingForSelection ||
         isResizing ||
         isDragging ||
         appMode !== APP_MODE.EDIT ||
@@ -171,3 +174,13 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     },
   );
 };
+
+export const getSelectedWidgetAncestry = (state: AppState) =>
+  state.ui.widgetDragResize.selectedWidgetAncestry;
+
+export const getEntityExplorerWidgetsToExpand = createSelector(
+  getSelectedWidgetAncestry,
+  (selectedWidgetAncestry: string[]) => {
+    return selectedWidgetAncestry.slice(1);
+  },
+);

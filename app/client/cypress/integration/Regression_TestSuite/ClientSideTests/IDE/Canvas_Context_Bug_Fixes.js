@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/Bugs/CheckboxGroupInListWidgetDsl.json");
+const commonLocators = require("../../../../locators/commonlocators.json");
 
-describe("Canvas context Property Pane", function() {
+describe("Canvas context Property Pane", function () {
   it("Bug Fix: Unable to delete checkbox child when it is inside list widget #18191", () => {
     cy.addDsl(dsl);
     cy.openPropertyPane("checkboxgroupwidget");
@@ -19,6 +20,7 @@ describe("Canvas context Property Pane", function() {
       "have.length",
       2,
     );
+    cy.get(commonLocators.canvas).click({ force: true });
   });
 
   it("Bug Fix: widget explorer should automatically open on widget selection", () => {
@@ -29,9 +31,7 @@ describe("Canvas context Property Pane", function() {
       "not.exist",
     );
 
-    cy.get(".t--widget-imagewidget")
-      .eq(0)
-      .click();
+    cy.get(".t--widget-imagewidget").eq(0).click();
     //check if the entities are not expanded
     cy.get(`[data-guided-tour-id="explorer-entity-Image1"]`).should("exist");
   });

@@ -4,12 +4,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
-describe("Arango datasource test cases", function() {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
-  it("1. Create, test, save then delete a Arango datasource", function() {
+describe("Arango datasource test cases", function () {
+  it("1. Create, test, save then delete a Arango datasource", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("ArangoDB");
     agHelper.RenameWithInPane("ArangoWithnoTrailing", false);
@@ -21,7 +17,7 @@ describe("Arango datasource test cases", function() {
     dataSources.DeleteDatasouceFromActiveTab("ArangoWithnoTrailing");
   });
 
-  it("2. Create with trailing white spaces in host address and database name, test, save then delete a Arango datasource", function() {
+  it("2. Create with trailing white spaces in host address and database name, test, save then delete a Arango datasource", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("ArangoDB");
     agHelper.RenameWithInPane("ArangoWithTrailing", false);
@@ -32,10 +28,8 @@ describe("Arango datasource test cases", function() {
     cy.testSaveDatasource(false);
   });
 
-  it("3. Create a new query from the datasource editor", function() {
-    cy.get(datasource.createQuery)
-      .last()
-      .click();
+  it("3. Create a new query from the datasource editor", function () {
+    cy.get(datasource.createQuery).last().click();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",

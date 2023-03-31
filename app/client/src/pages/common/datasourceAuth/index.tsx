@@ -6,6 +6,7 @@ import {
   getEntities,
   getPluginNameFromId,
   getPluginTypeFromDatasourceId,
+  getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   testDatasource,
@@ -16,17 +17,15 @@ import {
   setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
+  filePickerCallbackAction,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import { AppState } from "@appsmith/reducers";
-import {
-  AuthType,
-  Datasource,
-  AuthenticationStatus,
-} from "entities/Datasource";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { AppState } from "@appsmith/reducers";
+import type { Datasource } from "entities/Datasource";
+import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
@@ -39,7 +38,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
-import { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import {
@@ -59,6 +58,8 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   datasourceDeleteTrigger: () => void;
+  gsheetToken?: string;
+  gsheetProjectID?: string;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -119,6 +120,8 @@ function DatasourceAuth({
   shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
+  gsheetToken,
+  gsheetProjectID,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -129,6 +132,9 @@ function DatasourceAuth({
   const applicationId = useSelector(getCurrentApplicationId);
   const pluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
+  );
+  const pluginPackageName = useSelector((state: AppState) =>
+    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
   );
 
   const datasourcePermissions = datasource.userPermissions || [];
@@ -148,8 +154,17 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const [scriptLoadedFlag] = useState<boolean>(
+    (window as any).googleAPIsLoaded,
+  );
+  const [pickerInitiated, setPickerInitiated] = useState<boolean>(false);
   const dsName = datasource?.name;
   const orgId = datasource?.workspaceId;
+
+  // objects gapi and google are set, when google apis script is loaded
+  const gapi: any = (window as any).gapi;
+  const google: any = (window as any).google;
 
   useEffect(() => {
     if (confirmDelete) {
@@ -248,6 +263,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      pluginName: pluginName || "",
+      pluginPackageName: pluginPackageName || "",
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
@@ -283,6 +300,53 @@ function DatasourceAuth({
         ),
       );
     }
+  };
+
+  useEffect(() => {
+    // This loads the picker object in gapi script
+    if (!!gsheetToken && !!gapi && !!gsheetProjectID) {
+      gapi.load("client:picker", async () => {
+        await gapi.client.load(
+          "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+        );
+        setPickerInitiated(true);
+      });
+    }
+  }, [scriptLoadedFlag, gsheetToken, gsheetProjectID]);
+
+  useEffect(() => {
+    if (
+      !!gsheetToken &&
+      scriptLoadedFlag &&
+      pickerInitiated &&
+      !!google &&
+      !!gsheetProjectID
+    ) {
+      createPicker(gsheetToken, gsheetProjectID);
+    }
+  }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
+
+  const createPicker = async (accessToken: string, projectID: string) => {
+    const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
+    view.setMimeTypes("application/vnd.google-apps.spreadsheet");
+    const picker = new google.picker.PickerBuilder()
+      .enableFeature(google.picker.Feature.NAV_HIDDEN)
+      .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+      .setAppId(projectID)
+      .setOAuthToken(accessToken)
+      .addView(view)
+      .setCallback(pickerCallback)
+      .build();
+    picker.setVisible(true);
+  };
+
+  const pickerCallback = async (data: any) => {
+    dispatch(
+      filePickerCallbackAction({
+        action: data.action,
+        datasourceId: datasourceId,
+      }),
+    );
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;

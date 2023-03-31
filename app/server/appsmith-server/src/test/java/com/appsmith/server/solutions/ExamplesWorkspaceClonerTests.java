@@ -40,6 +40,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
@@ -138,6 +139,9 @@ public class ExamplesWorkspaceClonerTests {
 
     @Autowired
     private LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    private PluginService pluginService;
 
     private static class WorkspaceData {
         Workspace workspace;
@@ -428,17 +432,22 @@ public class ExamplesWorkspaceClonerTests {
     public void cloneWorkspaceWithOnlyDatasources() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
-                        sessionUserService.getCurrentUser()
+                        sessionUserService.getCurrentUser(),
+                        pluginService.findByPackageName("restapi-plugin").map(Plugin::getId)
                 )
                 .flatMap(tuple -> {
                     final Workspace workspace = tuple.getT1();
-
+                    String pluginId = tuple.getT3();
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
                     ds1.setWorkspaceId(workspace.getId());
+                    ds1.setPluginId(pluginId);
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
                     datasourceConfiguration.setUrl("http://httpbin.org/get");
@@ -449,6 +458,7 @@ public class ExamplesWorkspaceClonerTests {
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
+                    ds2.setPluginId(pluginId);
                     ds2.setDatasourceConfiguration(new DatasourceConfiguration());
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
@@ -546,7 +556,8 @@ public class ExamplesWorkspaceClonerTests {
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
-                        sessionUserService.getCurrentUser()
+                        sessionUserService.getCurrentUser(),
+                        pluginService.findByPackageName("restapi-plugin").map(Plugin::getId)
                 )
                 .flatMap(tuple -> {
                     final Workspace workspace = tuple.getT1();
@@ -561,13 +572,19 @@ public class ExamplesWorkspaceClonerTests {
                     app2.setWorkspaceId(workspace.getId());
                     app2.setIsPublic(true);
 
+                    String pluginId = tuple.getT3();
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
                     ds1.setWorkspaceId(workspace.getId());
+                    ds1.setPluginId(pluginId);
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
                     ds2.setWorkspaceId(workspace.getId());
+                    ds2.setPluginId(pluginId);
+
+                    Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                            .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
 
                     return Mono
                             .zip(
@@ -845,7 +862,7 @@ public class ExamplesWorkspaceClonerTests {
                             new Property("custom auth param 2", "custom auth param value 2")
                     ));
                     auth.setIsAuthorized(true);
-                    auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null));
+                    auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null, ""));
                     dc.setAuthentication(auth);
 
                     final Datasource ds2 = new Datasource();

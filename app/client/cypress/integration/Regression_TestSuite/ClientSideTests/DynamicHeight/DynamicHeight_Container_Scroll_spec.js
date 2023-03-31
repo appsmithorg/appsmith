@@ -1,8 +1,8 @@
 const dsl = require("../../../../fixtures/dynamicHeightContainerScrolldsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Dynamic Height Width validation", function() {
-  it("Validate change with auto height width for widgets", function() {
+describe("Dynamic Height Width validation", function () {
+  it("Validate change with auto height width for widgets", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");

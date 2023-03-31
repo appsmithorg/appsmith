@@ -1,10 +1,10 @@
 import { createImmerReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   WorkspaceRole,
   Workspace,
   WorkspaceUser,
@@ -73,14 +73,17 @@ export const handlers = {
       userId: string;
       username: string;
       name: string;
-      permissionGroupId: string;
-      permissionGroupName: string;
+      roles: {
+        id: string;
+        name: string;
+        description: string;
+        entityType: string;
+      }[];
     }>,
   ) => {
     draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
       if (user.username === action.payload.username) {
-        user.permissionGroupId = action.payload.permissionGroupId;
-        user.permissionGroupName = action.payload.permissionGroupName;
+        user.roles = action.payload.roles;
         user.isChangingRole = false;
       }
     });
