@@ -1,10 +1,15 @@
 import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
 
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
-export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
+
+// cloudHosting used in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
   "Appsmith server unavailable";
+
 export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
   "Please try again later";
+
 export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
   cloudHosting: boolean,
 ): PageErrorMessageProps[] => {
