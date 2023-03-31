@@ -88,7 +88,7 @@ export function* updateLayoutForMobileCheckpoint(
 
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
-      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
+      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -191,7 +191,7 @@ let autoLayoutWidgetDimensionUpdateBatch: Record<
   { width: number; height: number }
 > = {};
 
-function addWidgetToAutoLayoutDimensionUpdateBatch(
+function batchWidgetDimensionsUpdateForAutoLayout(
   widgetId: string,
   width: number,
   height: number,
@@ -253,7 +253,7 @@ function* updateWidgetDimensionsSaga(
     width = widgetMinMaxDimensions.maxWidth;
   }
 
-  addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
+  batchWidgetDimensionsUpdateForAutoLayout(widgetId, width, height);
 
   if (!isWidgetResizing && !isCanvasResizing) {
     yield put({

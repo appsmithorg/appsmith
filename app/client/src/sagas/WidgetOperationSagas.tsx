@@ -216,13 +216,15 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileBottomRow,
     };
 
-    // Keeps track of user defined widget width in terms of percentage
-    if (isMobile) {
-      widget.mobileWidthInPercentage =
-        (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
-    } else {
-      widget.widthInPercentage =
-        (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      // Keeps track of user defined widget width in terms of percentage
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+      }
     }
 
     const movedWidgets: {
@@ -261,6 +263,12 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
+
+    // Widget resize based auto-height is only required for fixed-layout
+    // Auto-layout has UPDATE_WIDGET_DIMENSIONS to handle auto height
+    if (appPositioningType !== AppPositioningTypes.AUTO) {
+      yield put(generateAutoHeightLayoutTreeAction(true, true));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
