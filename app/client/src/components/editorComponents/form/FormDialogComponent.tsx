@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import React, { useState, useEffect } from "react";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { useDispatch } from "react-redux";
-import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { setShowAppInviteUsersDialog } from "@appsmith/actions/applicationActions";
 import type { TabProp, IconName } from "design-system-old";
 import {
   DialogComponent as Dialog,
