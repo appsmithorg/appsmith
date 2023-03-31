@@ -12,7 +12,7 @@ import type {
 import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
-import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJSFunctionInDataField";
+import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJSFunctionBoundToDataField";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";

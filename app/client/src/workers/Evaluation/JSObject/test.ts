@@ -5,7 +5,7 @@ import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from ".";
 import {
   AsyncJsFunctionInDataField,
   isFunctionInvoked,
-} from "./asyncJSFunctionInDataField";
+} from "./asyncJSFunctionBoundToDataField";
 
 const mockDataTree = {
   unevalTree: {

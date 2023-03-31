@@ -21,7 +21,7 @@ import type {
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import { jsPropertiesState } from "../JSObject/jsPropertiesState";
-import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionInDataField";
+import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";

@@ -39,7 +39,7 @@ import {
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { difference, isEmpty, set, uniq } from "lodash";
 import { isWidgetActionOrJsObject } from "../DataTreeEvaluator/utils";
-import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJSFunctionInDataField";
+import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJSFunctionBoundToDataField";
 
 interface CreateDependencyMap {
   dependencyMap: DependencyMap;
