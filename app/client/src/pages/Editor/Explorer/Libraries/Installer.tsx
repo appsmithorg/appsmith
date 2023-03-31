@@ -417,7 +417,11 @@ export function Installer(props: { left: number }) {
   );
 
   return !isOpen ? null : (
-    <Wrapper className="bp3-popover" left={left} ref={installerRef}>
+    <Wrapper
+      className={`bp3-popover ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      left={left}
+      ref={installerRef}
+    >
       <div className="installation-header">
         <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
