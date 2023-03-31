@@ -123,4 +123,4 @@ function ActionItem(props: ActionItemProps) {
   }
 }
 
-export default ActionItem;
+export default React.memo(ActionItem);

@@ -109,5 +109,5 @@ function TableFilters(props: TableFilterProps) {
     </>
   );
 }
-
-export default TableFilters;
+const TableFiltersMemoised = React.memo(TableFilters);
+export default TableFiltersMemoised;

@@ -21,6 +21,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
 import SettingsControl, { Activities } from "./SettingsControl";
+import { NavigationMethod } from "utils/history";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -115,7 +116,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
+      selectWidget &&
+        selectWidget(
+          SelectionRequestType.One,
+          [props.widgetId],
+          NavigationMethod.CanvasClick,
+        );
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,

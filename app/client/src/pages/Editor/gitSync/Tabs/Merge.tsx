@@ -15,7 +15,7 @@ import {
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
