@@ -1,13 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { PluginType } from "entities/Action";
 import styled from "styled-components";
-import {
-  Button,
-  Classes,
-  IconPositions,
-  Toaster,
-  Variant,
-} from "design-system-old";
+import { Button, Classes, IconPositions } from "design-system-old";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
@@ -22,6 +16,7 @@ import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
+import { toast } from "design-system";
 
 const ActionButton = styled(Button)`
   padding: 10px 10px;
@@ -69,9 +64,8 @@ function NewActionButton(props: NewActionButtonProps) {
           !datasource.datasourceConfiguration ||
           !datasource.datasourceConfiguration.url)
       ) {
-        Toaster.show({
-          text: ERROR_ADD_API_INVALID_URL(),
-          variant: Variant.danger,
+        toast.show(ERROR_ADD_API_INVALID_URL(), {
+          kind: "error",
         });
         return;
       }

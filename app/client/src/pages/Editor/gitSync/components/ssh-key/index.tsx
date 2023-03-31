@@ -5,15 +5,7 @@ import {
   SSH_KEY_GENERATED,
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
-import {
-  Icon,
-  IconSize,
-  Menu,
-  Toaster,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
+import { Icon, IconSize, Menu, Text, TextType } from "design-system-old";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -33,6 +25,7 @@ import { supportedKeyTypeList } from "./SupportedKeyTypeList";
 import getNotificationBanner from "./getNotificationBanner";
 import { getConfirmMenuItem } from "./getConfirmMenuItem";
 import { getMenuItems } from "./getMenuItems";
+import { toast } from "design-system";
 import type { SSHKeyType } from "actions/gitSyncActions";
 
 type KeysProps = {
@@ -82,9 +75,8 @@ function Keys(props: KeysProps) {
     setShowConfirmation(false);
     setIsMenuOpen(false);
     setShowKeyGeneratedMessage(true);
-    Toaster.show({
-      text: createMessage(SSH_KEY_GENERATED),
-      variant: Variant.success,
+    toast.show(createMessage(SSH_KEY_GENERATED), {
+      kind: "success",
     });
   }, [newKeyType]);
   return (

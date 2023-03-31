@@ -14,7 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant } from "design-system-old";
+import { Button, Category, Variant } from "design-system-old";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -57,6 +57,7 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { toast } from "design-system";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 
@@ -276,9 +277,8 @@ class DatasourceRestAPIEditor extends React.Component<
       !datasource.datasourceConfiguration ||
       !datasource.datasourceConfiguration.url
     ) {
-      Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
-        variant: Variant.danger,
+      toast.show("Unable to create API. Try adding a url to the datasource", {
+        kind: "error",
       });
       return;
     }

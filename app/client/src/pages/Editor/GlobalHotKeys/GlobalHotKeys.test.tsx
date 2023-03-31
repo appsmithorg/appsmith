@@ -1,5 +1,4 @@
 import React from "react";
-import { Slide } from "react-toastify";
 
 import {
   createMessage,
@@ -7,8 +6,8 @@ import {
 } from "@appsmith/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
+import { Toast } from "design-system";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { StyledToastContainer } from "design-system-old";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
@@ -732,14 +731,7 @@ describe("cmd + s hotkey", () => {
   it("Should render toast message", async () => {
     const component = render(
       <>
-        <StyledToastContainer
-          autoClose={5000}
-          closeButton={false}
-          draggable={false}
-          hideProgressBar
-          pauseOnHover={false}
-          transition={Slide}
-        />
+        <Toast />
         <GlobalHotKeys
           getMousePosition={() => {
             return { x: 0, y: 0 };

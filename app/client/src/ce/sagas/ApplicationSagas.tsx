@@ -60,7 +60,6 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
 import type {
   Workspace,
@@ -107,6 +106,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
+import { toast } from "design-system";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -272,9 +272,8 @@ export function* fetchAppAndPagesSaga(
       });
 
       if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
-        Toaster.show({
-          text: createMessage(DISCARD_SUCCESS),
-          variant: Variant.success,
+        toast.show(createMessage(DISCARD_SUCCESS), {
+          kind: "success",
         });
         localStorage.setItem("GIT_DISCARD_CHANGES", "");
       }
@@ -431,9 +430,7 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    Toaster.show({
-      text: createMessage(DELETING_APPLICATION),
-    });
+    toast.show(createMessage(DELETING_APPLICATION));
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
@@ -461,9 +458,7 @@ export function* duplicateApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    Toaster.show({
-      text: createMessage(DUPLICATING_APPLICATION),
-    });
+    toast.show(createMessage(DUPLICATING_APPLICATION));
     const request: DuplicateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.duplicateApplication,
@@ -756,9 +751,8 @@ export function* importApplicationSaga(
 
           if (guidedTour) return;
 
-          Toaster.show({
-            text: "Application imported successfully",
-            variant: Variant.success,
+          toast.show("Application imported successfully", {
+            kind: "success",
           });
         }
       }

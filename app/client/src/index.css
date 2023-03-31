@@ -53,20 +53,6 @@ div.bp3-popover-arrow {
   display: none;
 }
 
-.Toastify__toast {
-  padding: 0 !important;
-  border-radius: 4px !important;
-  box-shadow: none !important;
-}
-
-.Toastify__toast-body {
-  margin: 0 !important;
-}
-
-.Toastify__progress-bar--default {
-  background: rgb(3, 179, 101) !important;
-}
-
 .t--editor-appname-menu-portal {
   z-index: 9 !important;
 }

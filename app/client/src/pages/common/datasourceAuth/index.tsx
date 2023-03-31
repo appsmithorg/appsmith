@@ -31,7 +31,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Category, Toaster, Variant } from "design-system-old";
+import { Category, Variant } from "design-system-old";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -45,6 +45,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { toast } from "design-system";
 
 interface Props {
   datasource: Datasource;
@@ -185,14 +186,13 @@ function DatasourceAuth({
         !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const variant = Variant.danger;
 
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
-          Toaster.show({ text: display_message || message, variant });
+          toast.show(display_message || message, { kind: "error" });
           const oAuthStatus = status;
           AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
             dsName,

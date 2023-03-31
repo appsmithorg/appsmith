@@ -17,7 +17,6 @@ import {
   Category,
   notEmptyValidator,
   Size,
-  Toaster,
   Text,
   TextInput,
   TextType,
@@ -32,6 +31,7 @@ import {
   fetchGlobalGitConfigInit,
   updateGlobalGitConfigInit,
 } from "actions/gitSyncActions";
+import { toast } from "design-system";
 
 export default function GitConfig() {
   const dispatch = useDispatch();
@@ -70,9 +70,7 @@ export default function GitConfig() {
       setAreFormValuesUpdated(false);
       dispatch(updateGlobalGitConfigInit({ authorName, authorEmail }));
     } else {
-      Toaster.show({
-        text: "Please enter valid user details",
-      });
+      toast.show("Please enter valid user details");
     }
   };
 
