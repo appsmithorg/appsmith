@@ -162,16 +162,15 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("selectwidget");
-    // Clear the JS code
-    _.jsEditor.EnableJSContext("onOptionChange");
-    cy.get(_.locators._jsToggle("onoptionchange")).click();
-    _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
-    cy.get(_.locators._jsToggle("onoptionchange")).click();
   });
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
+    // Clear the JS code
+    _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
+    cy.get(_.locators._jsToggle("onoptionchange")).click();
+
     // Dropdown On Option Change
     _.jsEditor.DisableJSContext("onOptionChange");
     cy.getAlert("onOptionChange", "Option Changed");
