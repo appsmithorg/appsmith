@@ -163,6 +163,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("selectwidget");
     // Clear the JS code
+    _.jsEditor.EnableJSContext("onOptionChange");
     cy.get(_.locators._jsToggle("onoptionchange")).click();
     _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
     cy.get(_.locators._jsToggle("onoptionchange")).click();
