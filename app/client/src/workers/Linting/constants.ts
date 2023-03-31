@@ -39,13 +39,13 @@ export const WARNING_LINT_ERRORS = {
   W098: "'{a}' is defined but never used.",
   W014: "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
   ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD:
-    "Cannot execute async code on functions bound to sync fields",
+    "Cannot execute async code on functions bound to data fields",
 };
 
 export function asyncActionInSyncFieldLintMessage(isJsObject = false) {
   return isJsObject
-    ? `Cannot execute async code on functions bound to sync fields`
-    : `Sync fields cannot execute async code`;
+    ? `Cannot execute async code on functions bound to data fields`
+    : `Data fields cannot execute async code`;
 }
 
 /** These errors should be overlooked
@@ -84,10 +84,10 @@ export const CUSTOM_LINT_ERRORS: Record<
     const hasMultipleBindings = dataFieldBindings.length > 1;
     const bindings = dataFieldBindings.join(" , ");
     return isMarkedAsync
-      ? `Cannot bind async functions to sync fields. Convert this to a sync function or remove references to "${fullName}" on the following sync ${
+      ? `Cannot bind async functions to data fields. Convert this to a sync function or remove references to "${fullName}" on the following data ${
           hasMultipleBindings ? "fields" : "field"
         }: ${bindings}`
-      : `Functions bound to sync fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following sync ${
+      : `Functions bound to data fields cannot execute async code. Remove async statements highlighted below or remove references to "${fullName}" on the following data ${
           hasMultipleBindings ? "fields" : "field"
         }: ${bindings}`;
   },
