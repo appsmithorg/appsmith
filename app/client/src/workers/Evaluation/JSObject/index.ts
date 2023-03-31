@@ -18,7 +18,6 @@ import {
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
-import { klona } from "klona/full";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 
@@ -325,7 +324,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
         jsObjectName,
         variableName,
       ]);
-      const value = klona(variableValue);
+      const value = variableValue;
       JSObjectCollection.setVariableValue(
         value,
         `${jsObjectName}.${variableName}`,
