@@ -15,9 +15,8 @@ import type { DragStart, DropResult } from "react-beautiful-dnd";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { ControlIcons } from "icons/ControlIcons";
+import { Icon } from "design-system";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -439,9 +438,9 @@ class EditorSidebar extends React.Component<Props, State> {
                                         ]}
                                         selectedValue=""
                                         toggle={
-                                          <ControlIcons.MORE_HORIZONTAL_CONTROL
-                                            height={theme.fontSizes[4]}
-                                            width={theme.fontSizes[4]}
+                                          <Icon
+                                            name="more-horizontal-control"
+                                            size="md"
                                           />
                                         }
                                       />

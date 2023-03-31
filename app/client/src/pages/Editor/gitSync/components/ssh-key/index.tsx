@@ -5,7 +5,7 @@ import {
   SSH_KEY_GENERATED,
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
-import { Icon, IconSize, Menu, Text, TextType } from "design-system-old";
+import { Menu, Text, TextType } from "design-system-old";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -25,7 +25,7 @@ import { supportedKeyTypeList } from "./SupportedKeyTypeList";
 import getNotificationBanner from "./getNotificationBanner";
 import { getConfirmMenuItem } from "./getConfirmMenuItem";
 import { getMenuItems } from "./getMenuItems";
-import { toast } from "design-system";
+import { Button, toast } from "design-system";
 import type { SSHKeyType } from "actions/gitSyncActions";
 
 type KeysProps = {
@@ -111,16 +111,16 @@ function Keys(props: KeysProps) {
             position={Position.BOTTOM}
             target={
               <MoreOptionsContainer>
-                <Icon
-                  fillColor={Colors.DARK_GRAY}
-                  hoverFillColor={Colors.GRAY_900}
-                  name="more-2-fill"
+                <Button
+                  isIconButton
+                  kind="tertiary"
                   onClick={() => {
                     AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_MORE_CLICK");
                     setShowConfirmation(false);
                     setIsMenuOpen(!isMenuOpen);
                   }}
-                  size={IconSize.XXXXL}
+                  size="sm"
+                  startIcon="more-2-fill"
                 />
               </MoreOptionsContainer>
             }

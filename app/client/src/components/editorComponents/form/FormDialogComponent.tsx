@@ -3,18 +3,17 @@ import React, { useState, useEffect } from "react";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "@appsmith/actions/applicationActions";
-import type { TabProp, IconName } from "design-system-old";
+import type { TabProp } from "design-system-old";
 import {
   DialogComponent as Dialog,
   TabComponent,
   Text,
   TextType,
-  Icon,
-  IconSize,
 } from "design-system-old";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+import { Icon } from "design-system";
 
 const LabelText = styled(Text)`
   font-size: 14px;
@@ -54,7 +53,7 @@ type FormDialogComponentProps = {
   setMaxWidth?: boolean;
   applicationId?: string;
   headerIcon?: {
-    name: IconName;
+    name: string;
     fillColor?: string;
     hoverColor?: string;
     bgColor?: string;
@@ -157,12 +156,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
               className="t--close-form-dialog"
               onClick={onCloseHandler}
             >
-              <Icon
-                fillColor={Colors.SCORPION}
-                hoverFillColor={Colors.GREY_900}
-                name="close-modal"
-                size={IconSize.XXXXL}
-              />
+              <Icon name="close-modal" size="lg" />
             </TabCloseBtnContainer>
           )}
           {props.message && (

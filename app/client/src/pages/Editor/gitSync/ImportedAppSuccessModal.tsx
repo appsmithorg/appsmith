@@ -8,9 +8,8 @@ import {
   APPLICATION_IMPORT_SUCCESS,
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import { Icon } from "design-system-old";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Button, Category, Size } from "design-system-old";
+import { Button, Icon } from "design-system";
 import type { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
@@ -49,10 +48,6 @@ const ActionButtonWrapper = styled.div`
   bottom: 0px;
 `;
 
-const ActionButton = styled(Button)`
-  margin-right: 16px;
-`;
-
 function ImportedApplicationSuccessModal() {
   const importedAppSuccess = localStorage.getItem("importApplicationSuccess");
   // const isOpen = importedAppSuccess === "true";
@@ -77,7 +72,7 @@ function ImportedApplicationSuccessModal() {
     >
       <Container>
         <BodyContainer>
-          <Icon fillColor={Colors.GREEN_1} name="oval-check-fill" />
+          <Icon color="var(--ads-v2-color-fg-success)" name="oval-check-fill" />
           <Text
             color={Colors.BLACK}
             style={{ marginTop: 64 }}
@@ -97,15 +92,14 @@ function ImportedApplicationSuccessModal() {
             {createMessage(APPLICATION_IMPORT_SUCCESS_DESCRIPTION)}
           </Text>
           <ActionButtonWrapper>
-            <ActionButton
-              category={Category.primary}
+            <Button
               className="t--import-success-modal-got-it"
               onClick={() => {
                 onClose();
               }}
-              size={Size.medium}
-              text="GOT IT"
-            />
+            >
+              Got it
+            </Button>
           </ActionButtonWrapper>
         </BodyContainer>
       </Container>

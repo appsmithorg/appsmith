@@ -1,14 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Size,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,
@@ -24,12 +17,6 @@ const StyledDialog = styled(Dialog)`
 
 const LeftContainer = styled.div`
   text-align: left;
-`;
-
-const ImportButton = styled(Button)<{ disabled?: boolean }>`
-  height: 30px;
-  width: 81px;
-  pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
 `;
 
 const ButtonWrapper = styled.div`
@@ -73,23 +60,23 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           {DELETE_CONFIRMATION_MODAL_SUBTITLE(name || username)}
         </Text>
         <ButtonWrapper>
-          <ImportButton
-            category={Category.secondary}
+          <Button
             className=".button-item"
+            kind="error"
             onClick={onClose}
-            size={Size.large}
-            text={"CANCEL"}
-            variant={Variant.danger}
-          />
-          <ImportButton
+            size="md"
+          >
+            Cancel
+          </Button>
+          <Button
             className=".button-item"
-            cypressSelector={"t--workspace-leave-button"}
             isLoading={isDeletingUser}
+            kind="error"
             onClick={onConfirm}
-            size={Size.large}
-            text={"REMOVE"}
-            variant={Variant.danger}
-          />
+            size="md"
+          >
+            Remove
+          </Button>
         </ButtonWrapper>
       </LeftContainer>
     </StyledDialog>

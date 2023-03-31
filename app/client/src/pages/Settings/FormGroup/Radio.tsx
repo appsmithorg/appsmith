@@ -7,7 +7,6 @@ import {
   Text,
   TextType,
   Button,
-  Size,
   IconSize,
 } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
@@ -149,13 +148,12 @@ function RadioFieldWrapper(
                           {item.tooltip.text}
                         </Text>
                         <Button
-                          fill={false}
                           href={item.tooltip.link}
-                          isLink
-                          size={Size.xxs}
+                          size="sm"
                           target="_blank"
-                          text={item.tooltip.linkText}
-                        />
+                        >
+                          {item.tooltip.linkText}
+                        </Button>
                       </TooltipContent>
                     }
                     position={Position.RIGHT}

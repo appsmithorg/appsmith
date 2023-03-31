@@ -16,20 +16,15 @@ import {
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import {
-  Button,
-  Category,
   getTypographyByKey,
-  Icon,
-  IconSize,
   LabelContainer,
   ScrollIndicator,
-  Size,
   Text,
   TextInput,
   TextType,
   TooltipComponent as Tooltip,
-  Variant,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -380,11 +375,7 @@ function Deploy() {
         <Space size={11} />
         {pullRequired && !isConflicting && (
           <InfoWrapper>
-            <Icon
-              fillColor={Colors.YELLOW_LIGHT}
-              name="info"
-              size={IconSize.XXXL}
-            />
+            <Icon color={Colors.YELLOW_LIGHT} name="info" size="lg" />
             <div style={{ display: "block" }}>
               <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
                 {createMessage(GIT_UPSTREAM_CHANGES)}
@@ -408,11 +399,9 @@ function Deploy() {
               className="t--pull-button"
               isLoading={isPullingProgress}
               onClick={handlePull}
-              size={Size.large}
-              tag="button"
-              text={createMessage(PULL_CHANGES)}
-              width="max-content"
-            />
+            >
+              {createMessage(PULL_CHANGES)}
+            </Button>
           )}
 
           {showCommitButton && (
@@ -424,37 +413,32 @@ function Deploy() {
             >
               <Button
                 className="t--commit-button"
-                disabled={commitButtonDisabled}
+                isDisabled={commitButtonDisabled}
                 isLoading={commitButtonLoading}
                 onClick={() => handleCommit(true)}
-                size={Size.large}
-                tag="button"
-                text={commitButtonText}
-                width="max-content"
-              />
+              >
+                {commitButtonText}
+              </Button>
             </Tooltip>
           )}
           {showDiscardChangesButton && (
             <Button
-              category={Category.secondary}
               className="t--discard-button discard-changes-link"
-              disabled={!showDiscardChangesButton}
+              isDisabled={!showDiscardChangesButton}
               isLoading={
                 isPullingProgress ||
                 isFetchingGitStatus ||
                 isCommittingInProgress
               }
+              kind="error"
               onClick={() =>
                 shouldDiscard ? onDiscardChanges() : onDiscardInit()
               }
-              size={Size.large}
-              text={
-                showDiscardWarning
-                  ? createMessage(ARE_YOU_SURE)
-                  : createMessage(DISCARD_CHANGES)
-              }
-              variant={Variant.danger}
-            />
+            >
+              {showDiscardWarning
+                ? createMessage(ARE_YOU_SURE)
+                : createMessage(DISCARD_CHANGES)}
+            </Button>
           )}
         </ActionsContainer>
         {isConflicting && (

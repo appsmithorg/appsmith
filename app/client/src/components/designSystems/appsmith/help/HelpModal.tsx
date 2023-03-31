@@ -8,7 +8,6 @@ import {
 } from "actions/helpActions";
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
-import { HelpIcons } from "icons/HelpIcons";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
@@ -25,6 +24,7 @@ import {
   HELP_RESOURCE_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Icon } from "design-system";
 
 const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -60,9 +60,6 @@ const MODAL_WIDTH = HELP_MODAL_WIDTH;
 const MODAL_HEIGHT = HELP_MODAL_HEIGHT;
 const MODAL_BOTTOM_DISTANCE = 100;
 const MODAL_RIGHT_DISTANCE = 27;
-
-const HelpIcon = HelpIcons.HELP_ICON;
-const CloseIcon = HelpIcons.CLOSE_ICON;
 
 type Props = {
   isHelpModalOpen: boolean;
@@ -151,9 +148,9 @@ class HelpModal extends React.Component<Props> {
               position="left"
             >
               {isHelpModalOpen ? (
-                <CloseIcon height={50} width={50} />
+                <Icon name="close-line" size="lg" />
               ) : (
-                <HelpIcon height={50} width={50} />
+                <Icon name="question-mark" size="lg" />
               )}
             </TooltipComponent>
           </HelpButton>

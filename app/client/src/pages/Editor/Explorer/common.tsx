@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system-old";
 import Entity from "./Entity";
+import { Button } from "design-system";
 
 const ECContainer = styled.div`
   display: flex;
@@ -19,22 +19,8 @@ const ECMainText = styled.span`
   color: ${Colors.DOVE_GRAY2};
 `;
 
-const ECAddButton = styled.div`
-  display: flex;
-  font-size: 11px;
-  color: ${Colors.CHARCOAL};
-  font-weight: 600;
-  padding: 4px;
+const ECAddButton = styled(Button)`
   margin-left: -4px;
-  cursor: pointer;
-
-  svg {
-    margin-right: 4px;
-  }
-
-  &:hover {
-    background-color: ${Colors.GEYSER_LIGHT};
-  }
 `;
 
 export function EmptyComponent(props: {
@@ -47,8 +33,11 @@ export function EmptyComponent(props: {
     <ECContainer>
       <ECMainText>{props.mainText}</ECMainText>
       {showAddCta && (
-        <ECAddButton onClick={props.addFunction}>
-          <Icon fillColor={Colors.CHARCOAL} name="plus" />
+        <ECAddButton
+          kind="tertiary"
+          onClick={props.addFunction}
+          startIcon="plus"
+        >
           {props.addBtnText && props.addBtnText}
         </ECAddButton>
       )}

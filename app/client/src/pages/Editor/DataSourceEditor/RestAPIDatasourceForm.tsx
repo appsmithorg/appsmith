@@ -14,7 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Variant } from "design-system-old";
+import { Button, toast } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -41,7 +41,7 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { Callout } from "design-system-old";
+import { Callout, Variant } from "design-system-old";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -57,7 +57,6 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { toast } from "design-system";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 
@@ -103,19 +102,6 @@ type Props = DatasourceRestApiEditorProps &
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
-`;
-
-const StyledButton = styled(Button)`
-  &&&& {
-    width: 87px;
-    height: 32px;
-  }
-`;
-
-const AuthorizeButton = styled(StyledButton)`
-  &&&& {
-    width: 180px;
-  }
 `;
 
 class DatasourceRestAPIEditor extends React.Component<
@@ -416,10 +402,9 @@ class DatasourceRestAPIEditor extends React.Component<
           _.get(authentication, "grantType") ===
             GrantType.AuthorizationCode && (
             <FormInputContainer>
-              <AuthorizeButton
-                category={Category.primary}
+              <Button
                 className="t--save-and-authorize-datasource"
-                disabled={this.validate()}
+                isDisabled={this.validate()}
                 isLoading={isSaving}
                 onClick={() =>
                   this.save(
@@ -430,12 +415,9 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
-                tag="button"
-                text={
-                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
-                }
-                variant={Variant.success}
-              />
+              >
+                {isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
+              </Button>
             </FormInputContainer>
           )}
       </>

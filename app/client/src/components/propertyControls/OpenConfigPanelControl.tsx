@@ -1,9 +1,8 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
-import { Category, Size } from "design-system-old";
+import { Button } from "design-system";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -16,11 +15,6 @@ const Wrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const OpenNextPannelButton = styled(StyledPropertyPaneButton)`
-  justify-content: center;
-  flex-grow: 1;
 `;
 
 class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
@@ -44,17 +38,15 @@ class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
     return (
       <Wrapper>
         <StyledPropertyPaneButtonWrapper>
-          <OpenNextPannelButton
-            category={Category.secondary}
+          <Button
             className={`t--${widgetName}-open-next-panel-button`}
-            icon={icon}
-            iconPosition="right"
+            endIcon={icon}
+            kind="secondary"
             onClick={this.openConfigPanel}
-            size={Size.medium}
-            tag="button"
-            text={label}
-            type="button"
-          />
+            size="md"
+          >
+            {label}
+          </Button>
         </StyledPropertyPaneButtonWrapper>
       </Wrapper>
     );

@@ -32,17 +32,14 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import {
-  Button,
   Callout,
-  Category,
   Classes,
-  Icon,
-  Size,
   TAB_MIN_HEIGHT,
   Text,
   TextType,
   Variant,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -177,11 +174,6 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
-export const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 8px;
-`;
-
 const HelpSection = styled.div`
   padding-bottom: 5px;
   padding-top: 10px;
@@ -191,10 +183,6 @@ const ResponseBodyContainer = styled.div`
   overflow-y: auto;
   height: 100%;
   display: grid;
-`;
-
-export const CancelRequestButton = styled(Button)`
-  margin-top: 10px;
 `;
 
 export const LoadingOverlayContainer = styled.div`
@@ -458,15 +446,14 @@ function ApiResponseView(props: Props) {
                 <Icon name="no-response" />
                 <Text type={TextType.P1}>
                   {EMPTY_RESPONSE_FIRST_HALF()}
-                  <InlineButton
-                    disabled={disabled}
+                  <Button
+                    isDisabled={disabled}
                     isLoading={isRunning}
                     onClick={onRunClick}
-                    size={Size.medium}
-                    tag="button"
-                    text="Run"
-                    type="button"
-                  />
+                    size="md"
+                  >
+                    Run
+                  </Button>
                   {EMPTY_RESPONSE_LAST_HALF()}
                 </Text>
               </NoResponseContainer>
@@ -523,14 +510,9 @@ function ApiResponseView(props: Props) {
                 <Icon name="no-response" />
                 <Text type={TextType.P1}>
                   {EMPTY_RESPONSE_FIRST_HALF()}
-                  <InlineButton
-                    isLoading={isRunning}
-                    onClick={onRunClick}
-                    size={Size.medium}
-                    tag="button"
-                    text="Run"
-                    type="button"
-                  />
+                  <Button isLoading={isRunning} onClick={onRunClick} size="md">
+                    Run
+                  </Button>
                   {EMPTY_RESPONSE_LAST_HALF()}
                 </Text>
               </NoResponseContainer>
@@ -587,17 +569,16 @@ function ApiResponseView(props: Props) {
               <Text textAlign={"center"} type={TextType.P1}>
                 {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
               </Text>
-              <CancelRequestButton
-                category={Category.secondary}
+              <Button
                 className={`t--cancel-action-button`}
+                kind="secondary"
                 onClick={() => {
                   handleCancelActionExecution();
                 }}
-                size={Size.medium}
-                tag="button"
-                text="Cancel Request"
-                type="button"
-              />
+                size="md"
+              >
+                Cancel Request
+              </Button>
             </div>
           </LoadingOverlayContainer>
         </>

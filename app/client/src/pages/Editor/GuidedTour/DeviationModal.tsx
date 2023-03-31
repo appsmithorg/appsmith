@@ -4,7 +4,8 @@ import {
   toggleShowDeviationDialog,
   toggleShowEndTourDialog,
 } from "actions/onboardingActions";
-import { Button, Category, DialogComponent, Size } from "design-system-old";
+import { DialogComponent } from "design-system-old";
+import { Button } from "design-system";
 import {
   CANCEL_DIALOG,
   createMessage,
@@ -85,21 +86,12 @@ function GuidedTourDialog() {
         <b>Welcome Tour</b> at the bottom left of the home page
       </span>
       <ButtonsWrapper>
-        <Button
-          category={Category.secondary}
-          className="cancel"
-          onClick={onClose}
-          size={Size.large}
-          tag="button"
-          text={createMessage(CANCEL_DIALOG)}
-        />
-        <Button
-          className="end"
-          onClick={endTour}
-          size={Size.large}
-          tag="button"
-          text={createMessage(END_CONFIRMATION)}
-        />
+        <Button className="cancel" kind="secondary" onClick={onClose}>
+          {createMessage(CANCEL_DIALOG)}
+        </Button>
+        <Button className="end" onClick={endTour}>
+          {createMessage(END_CONFIRMATION)}
+        </Button>
       </ButtonsWrapper>
     </DialogComponent>
   );

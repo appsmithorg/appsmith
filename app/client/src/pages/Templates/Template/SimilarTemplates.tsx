@@ -4,7 +4,8 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { FontWeight, TextType, Text, Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
+import { FontWeight, TextType, Text } from "design-system-old";
 import React from "react";
 import type { MasonryProps } from "react-masonry-css";
 import Masonry from "react-masonry-css";
@@ -65,7 +66,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
           </Text>
           <BackButtonWrapper onClick={props.onBackPress}>
             <Text type={TextType.P4}>{createMessage(VIEW_ALL_TEMPLATES)}</Text>
-            <Icon name="view-all" size={IconSize.XL} />
+            <Icon name="view-all" size="md" />
           </BackButtonWrapper>
         </SimilarTemplatesTitleWrapper>
         <Masonry

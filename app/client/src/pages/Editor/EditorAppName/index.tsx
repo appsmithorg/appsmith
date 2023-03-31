@@ -8,17 +8,13 @@ import type {
   CommonComponentProps,
   EditInteractionKind,
 } from "design-system-old";
-import {
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  SavingState,
-} from "design-system-old";
+import { getTypographyByKey, SavingState } from "design-system-old";
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 import { toast } from "design-system";
 import type { Theme } from "constants/DefaultTheme";
+import { Icon } from "design-system";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -230,9 +226,8 @@ export function EditorAppName(props: EditorAppNameProps) {
         />
         {!isEditing && (
           <StyledIcon
-            fillColor={theme.colors.navigationMenu.contentActive}
             name={isPopoverOpen ? "expand-less" : "down-arrow"}
-            size={IconSize.LARGE}
+            size="md"
           />
         )}
       </Container>

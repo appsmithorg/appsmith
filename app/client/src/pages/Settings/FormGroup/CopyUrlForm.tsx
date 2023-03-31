@@ -1,15 +1,12 @@
 import React, { useEffect } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Field, reduxForm } from "redux-form";
-import { HelpIcons } from "icons/HelpIcons";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TooltipComponent, UneditableField } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { toast } from "design-system";
-
-const HelpIcon = HelpIcons.HELP_ICON;
+import { Icon, toast } from "design-system";
 
 const Wrapper = styled.div`
   margin: 24px 0;
@@ -81,12 +78,7 @@ function CopyUrlForm(
             openOnTargetFocus={false}
             position="right"
           >
-            <HelpIcon
-              className={"help-icon"}
-              color={Colors.GREY_7}
-              height={13}
-              width={13}
-            />
+            <Icon className={"help-icon"} name="question-mark" size="sm" />
           </TooltipComponent>
         )}
       </HeaderWrapper>

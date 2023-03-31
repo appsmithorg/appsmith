@@ -23,8 +23,6 @@ import {
   DialogComponent as Dialog,
   FilePickerV2,
   FileType,
-  Icon,
-  IconSize,
   Text,
   TextType,
 } from "design-system-old";
@@ -36,6 +34,7 @@ import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
+import { Icon } from "design-system";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -214,7 +213,7 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   const title = createMessage(IMPORT_APP_FROM_GIT_TITLE);
   return (
     <CardWrapper onClick={onClick}>
-      <Icon fillColor={Colors.GREY_800} name={"fork"} size={IconSize.XL} />
+      <Icon name={"fork"} size="md" />
       <Text
         color={Colors.OXFORD_BLUE}
         style={{ marginBottom: theme.spaces[4] }}
@@ -337,7 +336,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       {importingApplication && (
         <Row className="t-import-app-progress-wrapper">
           <StatusbarWrapper className="t--importing-app-statusbar">
-            <Icon fillColor={Colors.GREY_800} name="file-line" />
+            <Icon name="file-line" size="md" />
             <Text className="importing-app-name" type={TextType.P2}>
               {appFileToBeUploaded?.file?.name || "filename.json"}
             </Text>

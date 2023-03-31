@@ -13,14 +13,12 @@ import {
 } from "@appsmith/constants/messages";
 import { Classes } from "@blueprintjs/core";
 import {
-  Button,
-  Category,
   notEmptyValidator,
-  Size,
   Text,
   TextInput,
   TextType,
 } from "design-system-old";
+import { Button, toast } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { emailValidator } from "design-system-old";
 import {
@@ -31,7 +29,6 @@ import {
   fetchGlobalGitConfigInit,
   updateGlobalGitConfigInit,
 } from "actions/gitSyncActions";
-import { toast } from "design-system";
 
 export default function GitConfig() {
   const dispatch = useDispatch();
@@ -120,14 +117,13 @@ export default function GitConfig() {
       <FieldWrapper>
         <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
           <Button
-            category={Category.primary}
-            disabled={isSubmitDisabled}
+            isDisabled={isSubmitDisabled}
             isLoading={isFetching}
             onClick={updateConfig}
-            size={Size.medium}
-            tag="button"
-            text={createMessage(SUBMIT)}
-          />
+            size="md"
+          >
+            {createMessage(SUBMIT)}
+          </Button>
         </div>
       </FieldWrapper>
     </Wrapper>

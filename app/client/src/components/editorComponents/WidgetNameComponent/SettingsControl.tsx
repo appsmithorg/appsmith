@@ -1,12 +1,11 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system-old";
-import { ControlIcons } from "icons/ControlIcons";
 import type { CSSProperties } from "react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { Icon } from "design-system";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,
@@ -46,13 +45,6 @@ const WidgetName = styled.span`
 `;
 
 const StyledErrorIcon = styled(Icon)`
-  &:hover {
-    svg {
-      path {
-        fill: ${Colors.WHITE};
-      }
-    }
-  }
   margin-right: ${(props) => props.theme.spaces[1]}px;
 `;
 
@@ -62,9 +54,6 @@ type SettingsControlProps = {
   name: string;
   errorCount: number;
 };
-
-const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
-const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 const getStyles = (
   activity: Activities,
@@ -105,7 +94,8 @@ const getStyles = (
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const settingsIcon = (
-    <SettingsIcon
+    // TODO (tanvi): What color does black pearl translate to?
+    <Icon
       color={
         !!props.errorCount
           ? Colors.WHITE
@@ -113,17 +103,11 @@ export function SettingsControl(props: SettingsControlProps) {
           ? Colors.BLACK_PEARL
           : Colors.WHITE
       }
-      height={14}
-      width={12}
+      name="settings-control"
+      size="md"
     />
   );
-  const errorIcon = (
-    <StyledErrorIcon
-      fillColor={Colors.WHITE}
-      name="warning"
-      size={IconSize.SMALL}
-    />
-  );
+  const errorIcon = <StyledErrorIcon name="warning" size="sm" />;
 
   return (
     <StyledTooltip
@@ -147,9 +131,7 @@ export function SettingsControl(props: SettingsControlProps) {
             <span className="t--widget-error-count">{props.errorCount}</span>
           </>
         )}
-        {isSnipingMode && (
-          <BindDataIcon color={Colors.WHITE} height={16} width={12} />
-        )}
+        {isSnipingMode && <Icon name="bind-data-control" size="md" />}
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>

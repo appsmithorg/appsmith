@@ -10,7 +10,6 @@ import noop from "lodash/noop";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { getJSEntityName } from "./helpers";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system-old";
 import { Intent, Position } from "@blueprintjs/core";
 import {
   CONTEXT_COPY,
@@ -27,6 +26,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateJSCollectionBody } from "../../../../actions/jsPaneActions";
 import type { IconName } from "@blueprintjs/icons";
+import { Icon } from "design-system";
 
 type EntityContextMenuProps = {
   id: string;
@@ -218,7 +218,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           className={props.className}
           isOpen={isMenuOpen}
         >
-          <Icon name="context-menu" size={IconSize.XXXL} />
+          <Icon name="context-menu" size="lg" />
         </MoreActionablesContainer>
       }
     />

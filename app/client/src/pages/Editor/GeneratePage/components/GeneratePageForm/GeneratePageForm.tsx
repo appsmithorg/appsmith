@@ -24,18 +24,15 @@ import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
 import type {
   DropdownOption,
-  IconName,
   RenderDropdownOptionType,
 } from "design-system-old";
 import {
-  Button,
-  Category,
   Dropdown,
   getTypographyByKey,
   IconSize,
-  Size,
   TooltipComponent as Tooltip,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -64,7 +61,6 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
-import { Icon } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -108,16 +104,6 @@ const FormWrapper = styled.div`
   align-items: center;
 `;
 
-const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${getTypographyByKey("btnLarge")};
-  color: ${Colors.DOVE_GRAY2};
-  margin: 10px 0px;
-`;
-
-const EditDatasourceButton = styled(Button)`
-  margin-top: 30px;
-`;
-
 const DescWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -141,8 +127,8 @@ const Row = styled.p`
 
 // Constants
 
-const datasourceIcon: IconName = "tables";
-const columnIcon: IconName = "column";
+const datasourceIcon = "tables";
+const columnIcon = "column";
 
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
@@ -161,16 +147,15 @@ function GeneratePageSubmitBtn({
   disabled: boolean;
 }) {
   return showSubmitButton ? (
-    <FormSubmitButton
-      category={Category.secondary}
+    <Button
       data-cy="t--generate-page-form-submit"
-      disabled={disabled}
+      isDisabled={disabled}
       isLoading={isLoading}
+      kind="secondary"
       onClick={() => !disabled && onSubmit()}
-      size={Size.large}
-      text="Generate Page"
-      type="button"
-    />
+    >
+      Generate Page
+    </Button>
   ) : null;
 }
 
@@ -666,13 +651,9 @@ function GeneratePageForm() {
           </SelectWrapper>
         ) : null}
         {showEditDatasourceBtn && (
-          <EditDatasourceButton
-            category={Category.secondary}
-            onClick={goToEditDatasource}
-            size={Size.medium}
-            text="Edit Datasource"
-            type="button"
-          />
+          <Button kind="secondary" onClick={goToEditDatasource}>
+            Edit Datasource
+          </Button>
         )}
         {!isGoogleSheetPlugin ? (
           <>
@@ -691,12 +672,7 @@ function GeneratePageForm() {
                       hoverOpenDelay={200}
                     >
                       <RoundBg>
-                        <Icon
-                          fillColor={Colors.WHITE}
-                          hoverFillColor={Colors.WHITE}
-                          name="help"
-                          size={IconSize.XXS}
-                        />
+                        <Icon name="help" size="sm" />
                       </RoundBg>
                     </Tooltip>
                   </TooltipWrapper>

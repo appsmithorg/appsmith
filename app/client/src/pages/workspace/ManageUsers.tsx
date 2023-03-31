@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import history from "utils/history";
-import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "design-system-old";
 import { useLocation } from "react-router-dom";
+import { Icon } from "design-system";
 
+// TODO (tanvi): replace with Link
 const StyledManageUsers = styled("a")`
   margin-top: 12px;
   display: inline-flex;
@@ -41,6 +43,7 @@ function ManageUsers({ workspaceId }: { workspaceId: string }) {
   const pathRegex = /(?:\/workspace\/)\w+(?:\/settings)/;
 
   return !pathRegex.test(currentPath) ? (
+    // TODO (tanvi): replace with link
     <StyledManageUsers
       className="manageUsers"
       onClick={() => {
@@ -48,7 +51,7 @@ function ManageUsers({ workspaceId }: { workspaceId: string }) {
       }}
     >
       <Text type={TextType.H6}>MANAGE USERS</Text>
-      <Icon name="manage" size={IconSize.XS} />
+      <Icon name="manage" size="sm" />
     </StyledManageUsers>
   ) : null;
 }

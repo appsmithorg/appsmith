@@ -1,6 +1,6 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { Button } from "design-system-old";
+import { Button } from "design-system";
 import {
   ONBOARDING_TASK_DATASOURCE_BODY,
   ONBOARDING_TASK_DATASOURCE_HEADER,
@@ -77,12 +77,6 @@ const TaskButtonWrapper = styled.div`
   margin-top: 30px;
 `;
 
-const StyledButton = styled(Button)`
-  width: 208px;
-  margin: 0 auto;
-  height: 38px;
-`;
-
 const Taskfootnote = styled.p`
   margin-top: 30px;
   & span {
@@ -122,7 +116,7 @@ export default function OnboardingTasks() {
           {createMessage(ONBOARDING_TASK_DATASOURCE_BODY)}
         </TaskSubText>
         <TaskButtonWrapper>
-          <StyledButton
+          <Button
             className="t--tasks-datasource-button"
             data-testid="onboarding-tasks-datasource-button"
             onClick={() => {
@@ -136,10 +130,9 @@ export default function OnboardingTasks() {
                 }),
               );
             }}
-            tag="button"
-            text={createMessage(ONBOARDING_TASK_DATASOURCE_BUTTON)}
-            type="button"
-          />
+          >
+            {createMessage(ONBOARDING_TASK_DATASOURCE_BUTTON)}
+          </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
@@ -174,7 +167,7 @@ export default function OnboardingTasks() {
         </TaskHeader>
         <TaskSubText>{createMessage(ONBOARDING_TASK_QUERY_BODY)}</TaskSubText>
         <TaskButtonWrapper>
-          <StyledButton
+          <Button
             className="t--tasks-action-button"
             data-testid="onboarding-tasks-action-button"
             onClick={() => {
@@ -188,10 +181,9 @@ export default function OnboardingTasks() {
                 }),
               );
             }}
-            tag="button"
-            text={createMessage(ONBOARDING_TASK_QUERY_BUTTON)}
-            type="button"
-          />
+          >
+            {createMessage(ONBOARDING_TASK_QUERY_BUTTON)}
+          </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
@@ -225,7 +217,7 @@ export default function OnboardingTasks() {
         </TaskHeader>
         <TaskSubText>{createMessage(ONBOARDING_TASK_WIDGET_BODY)}</TaskSubText>
         <TaskButtonWrapper>
-          <StyledButton
+          <Button
             className="t--tasks-widget-button"
             data-testid="onboarding-tasks-widget-button"
             onClick={() => {
@@ -235,10 +227,9 @@ export default function OnboardingTasks() {
               dispatch(toggleInOnboardingWidgetSelection(true));
               dispatch(forceOpenWidgetPanel(true));
             }}
-            tag="button"
-            text={createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}
-            type="button"
-          />
+          >
+            {createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}
+          </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;

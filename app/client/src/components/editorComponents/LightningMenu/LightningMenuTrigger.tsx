@@ -7,8 +7,8 @@ import {
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system-old";
 import { TooltipComponent as Tooltip } from "design-system-old";
+import { Icon } from "design-system";
 
 const LightningIconWrapper = styled.span<{
   background: string;
@@ -91,7 +91,7 @@ export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
         openOnTargetFocus={false}
         position="left"
       >
-        <Icon name="lightning" size={IconSize.LARGE} />
+        <Icon name="lightning" size="md" />
       </Tooltip>
     </LightningIconWrapper>
   );

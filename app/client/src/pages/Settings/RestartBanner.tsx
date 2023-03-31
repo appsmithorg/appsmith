@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  Button,
-  Category,
-  hexToRgba,
-  Icon,
-  IconSize,
-  Size,
-} from "design-system-old";
+import { hexToRgba } from "design-system-old";
+import { Button, Spinner } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -108,16 +102,6 @@ const AppIconWrapper = styled.div`
   }
 `;
 
-const StyledLoader = styled(Icon)`
-  animation: spin 2s linear infinite;
-  margin-right: 12px;
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
 const RestartMessage = styled.p``;
 
 function Header() {
@@ -129,11 +113,7 @@ function Header() {
           <AppIcon name="server-line" />
         </AppIconWrapper>
       ) : (
-        <StyledLoader
-          fillColor={Colors.PRIMARY_ORANGE}
-          name="loader"
-          size={IconSize.XXXL}
-        />
+        <Spinner size="lg" />
       )}
       <Heading>
         {isRestartFailed
@@ -162,12 +142,12 @@ export default function RestartBanner() {
         </RestartMessageWrapper>
         {isRestartFailed && (
           <Button
-            category={Category.primary}
             data-cy="btn-refresh"
             onClick={() => dispatch(retryServerRestart())}
-            size={Size.large}
-            text={createMessage(RETRY_BUTTON)}
-          />
+            size="md"
+          >
+            {createMessage(RETRY_BUTTON)}
+          </Button>
         )}
       </RestartContainer>
     </RestartBannerWrapper>

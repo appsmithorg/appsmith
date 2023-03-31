@@ -21,10 +21,10 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
+import { Icon } from "design-system";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);

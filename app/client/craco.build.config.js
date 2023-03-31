@@ -15,7 +15,7 @@ plugins.push(
     swSrc: "./src/serviceWorker.js",
     mode: "development",
     swDest: "./pageService.js",
-    maximumFileSizeToCacheInBytes: 13 * 1024 * 1024,
+    maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
   }),
 );
 

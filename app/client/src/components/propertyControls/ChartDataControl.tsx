@@ -3,8 +3,7 @@ import { get, isString } from "lodash";
 import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
-import { FormIcons } from "icons/FormIcons";
+import { ControlWrapper } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -12,7 +11,7 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Size, Category } from "design-system-old";
+import { Button } from "design-system";
 import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
@@ -48,17 +47,11 @@ const StyledDynamicInput = styled.div`
   }
 `;
 
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
+const StyledDeleteButton = styled(Button)`
   padding: 0;
   position: relative;
   margin-left: 15px;
   cursor: pointer;
-
-  &&& svg {
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.jsIconBg};
-    }
-  }
 `;
 
 const ActionHolder = styled.div`
@@ -129,12 +122,14 @@ function DataControlComponent(props: RenderComponentProps) {
       <ActionHolder>
         <StyledLabel>Series Title</StyledLabel>
         {length > 1 && (
-          <StyledDeleteIcon
-            height={20}
+          <StyledDeleteButton
+            isIconButton
+            kind="tertiary"
             onClick={() => {
               deleteOption(index);
             }}
-            width={20}
+            size="md"
+            startIcon="delete-bin-line"
           />
         )}
       </ActionHolder>
@@ -271,15 +266,14 @@ class ChartDataControl extends BaseControl<ControlProps> {
           })}
         </Wrapper>
 
-        <StyledPropertyPaneButton
-          category={Category.secondary}
-          icon="plus"
+        <Button
+          kind="secondary"
           onClick={this.addOption}
-          size={Size.medium}
-          tag="button"
-          text="Add Series"
-          type="button"
-        />
+          size="md"
+          startIcon="plus"
+        >
+          Add Series
+        </Button>
       </>
     );
   }

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
+import { Icon } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -141,7 +142,7 @@ export function Change(props: Partial<GitStatusProps>) {
 
   return (
     <Wrapper>
-      <Icon name={iconName} size={IconSize.XXL} />
+      <Icon name={iconName} size="md" />
       <Text type={TextType.P3}>{message}</Text>
     </Wrapper>
   );

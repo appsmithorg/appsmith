@@ -8,10 +8,8 @@ import _ from "lodash";
 import type { CommonComponentProps } from "design-system-old";
 import { getTypographyByKey } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { HeaderIcons } from "icons/HeaderIcons";
 import { MenuDivider } from "design-system-old";
-
-const ShareIcon = HeaderIcons.SHARE;
+import { Icon } from "design-system";
 
 export enum MenuTypes {
   MENU = "menu",
@@ -112,9 +110,7 @@ export function NavigationMenuItem({
 
   const labelElement =
     menuItemData.labelElement ||
-    (isOpensNewWindow && (
-      <ShareIcon color={"#4b4848"} height={12} width={12} />
-    ));
+    (isOpensNewWindow && <Icon name="share" size="sm" />);
 
   const handleClick = (e: React.SyntheticEvent) => {
     setIsPopoverOpen(false);

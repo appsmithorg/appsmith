@@ -5,7 +5,7 @@ import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { createMessage } from "@appsmith//constants/messages";
 import { StyledLabel } from "./Common";
 import Group from "./group";
-import { Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 
 const AccordionWrapper = styled.div`
   margin-top: 40px;
@@ -66,10 +66,7 @@ export default function Accordion({
         <AccordionHeader onClick={() => setIsOpen(!isOpen)}>
           <span>{createMessage(() => label)}</span>
           <Line />
-          <Icon
-            name={isOpen ? "expand-less" : "expand-more"}
-            size={IconSize.XXL}
-          />
+          <Icon name={isOpen ? "expand-less" : "expand-more"} size="md" />
         </AccordionHeader>
       )}
       {isOpen && (
