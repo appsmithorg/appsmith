@@ -34,6 +34,7 @@ import "./themeCommands";
 import "./AdminSettingsCommands";
 import "./RBACCommands";
 import "./LicenseCommands";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
@@ -101,7 +102,7 @@ before(function () {
   */
   cy.visit("/applications");
   cy.wait(2000);
-  if (Cypress.env("Edition") === 1) {
+  if (CURRENT_REPO === REPO.EE) {
     cy.url().then((url) => {
       if (url.indexOf("/license") > -1) {
         cy.validateLicense();
