@@ -11,7 +11,7 @@ import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
 } from "actions/pageActions";
-import type { FetchApplicationResponse } from "./ApplicationApi";
+import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
 
 export type FetchPageRequest = {
   id: string;

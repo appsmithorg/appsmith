@@ -147,12 +147,20 @@ export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
-export const INVITE_USERS_SUBMIT_SUCCESS = () =>
-  `The users have been invited successfully`;
-export const INVITE_USER_SUBMIT_SUCCESS = () =>
-  `The user has been invited successfully`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The users have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
+export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+  "Users will have access to all applications in this workspace";
+export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
+  "Users will only have access to this application";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
@@ -1497,7 +1505,7 @@ export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "USE SNAPSHOT";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
-export const DISCARD_SNAPSHOT_HEADER = () => "Discarding A Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
   "Save a Snapshot of your Current Layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
@@ -1535,8 +1543,8 @@ export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
-export const USE_SNAPSHOT_CTA = () => "USE THE SNAPSHOT";
-export const DISCARD_SNAPSHOT_CTA = () => "DISCARD THE SNAPSHOT";
+export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
+export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
 export const MORE_DETAILS = () => "More details";
 export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
   "To resolve this error please:";

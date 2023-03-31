@@ -29,6 +29,7 @@ import {
 } from "./flexWidgetUtils";
 import { getCanvasDimensions } from "./AutoLayoutUtils";
 import WidgetFactory from "utils/WidgetFactory";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 /**
  * Calculate widget position on canvas.
@@ -90,8 +91,12 @@ export function updateWidgetPositions(
     } else return widgets;
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
+    // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
+    // ToDo: use getCanvasHeightOffset to weigh in offset values as well.
+    const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight < height) {
+    const computedHeight = height + paddingBufferForCanvas;
+    if (parentHeight < computedHeight) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -101,7 +106,7 @@ export function updateWidgetPositions(
       const updatedParent = setDimensions(
         parent,
         parentTopRow,
-        parentTopRow + height * divisor + 1 * divisor,
+        parentTopRow + computedHeight * divisor,
         null,
         null,
         isMobile,
@@ -324,23 +329,31 @@ export function extractAlignmentInfo(
     // For hug widgets with horizontal resizing enabled,
     // make sure the width is not getting greater than user defined width
     if (!isFillWidget && !disableResizeHandles?.horizontal) {
-      if (widget.widthInPercentage) {
-        const userDefinedWidth = widget.widthInPercentage * mainCanvasWidth;
-        if (columns * columnSpace > userDefinedWidth) {
-          columns = (widget.widthInPercentage * mainCanvasWidth) / columnSpace;
-        }
+      if (!isMobile && widget.widthInPercentage) {
+        columns = Math.round(
+          (widget.widthInPercentage * mainCanvasWidth) / columnSpace,
+        );
+      } else if (isMobile && widget.mobileWidthInPercentage) {
+        columns = Math.round(
+          (widget.mobileWidthInPercentage * mainCanvasWidth) / columnSpace,
+        );
       } else if (firstTimeDSLUpdate) {
+        // Sets the widthInPercentage & mobileWidthInPercentage value after conversion
         widget.widthInPercentage = (columns * columnSpace) / mainCanvasWidth;
+        widget.mobileWidthInPercentage =
+          (columns * columnSpace) / mainCanvasWidth;
       }
     }
 
     // Make sure that the height of the widget that cannot be vertically resized is
     // set to the minimum height after converting from fixed to auto layout.
+    //but should not set for canvas type widgets
     if (
       firstTimeDSLUpdate &&
       isFillWidget &&
       disableResizeHandles?.vertical &&
-      minHeight
+      minHeight &&
+      !checkIsDropTarget(widget.type)
     ) {
       rows = Math.round(minHeight / rowSpace);
     }
@@ -348,6 +361,11 @@ export function extractAlignmentInfo(
     // If the widget's width is less than its min width, then calculate the number of columns based on min width.
     if (minWidth && columns * columnSpace < minWidth) {
       columns = minWidth / columnSpace;
+    }
+
+    // If the widget's width is less than its min height, then calculate the number of rows based on min height.
+    if (minHeight && rows * rowSpace < minHeight) {
+      rows = minHeight / rowSpace;
     }
 
     // Store the min columns and rows information of each fill widget.
@@ -671,6 +689,7 @@ export function getTotalRowsOfAllChildren(
   children: string[],
   isMobile: boolean,
 ): number {
+  if (!children || !children.length) return 0;
   let top = 10000,
     bottom = 0;
   for (const childId of children) {

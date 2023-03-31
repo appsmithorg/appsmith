@@ -116,7 +116,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -139,7 +139,6 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import type { PageDefaultMeta } from "api/ApplicationApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
@@ -226,11 +225,11 @@ export function* refreshTheApp() {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
     const defaultPageId: string = yield select(getDefaultPageId);
-    const pagesList: PageDefaultMeta[] = yield select(getPageList);
+    const pagesList: Page[] = yield select(getPageList);
     const gitBranch: string = yield select(getCurrentGitBranch);
 
     const isCurrentPageIdInList =
-      pagesList.filter((page) => page.id === currentPageId).length > 0;
+      pagesList.filter((page) => page.pageId === currentPageId).length > 0;
 
     if (isCurrentPageIdInList) {
       location.reload();
@@ -771,6 +770,17 @@ export function* createPageSaga(
 export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
+
+    // Update page *needs* id to be there. We found certain scenarios
+    // where this was not happening and capturing the error to know gather
+    // more info: https://github.com/appsmithorg/appsmith/issues/16435
+    if (!request.id) {
+      Sentry.captureException(
+        new Error("Attempting to update page without page id"),
+      );
+      return;
+    }
+
     // to be done in backend
     request.customSlug = request.customSlug?.replaceAll(" ", "-");
 

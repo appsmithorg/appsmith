@@ -51,13 +51,13 @@ const Canvas = (props: CanvasProps) => {
   const focusRef = useWidgetFocus();
 
   const marginHorizontalClass = props.isAutoLayout ? `mx-0` : `mx-auto`;
-
+  const paddingBottomClass = props.isAutoLayout ? "" : "pb-52";
   try {
     return (
       <Container
         $isAutoLayout={!!props.isAutoLayout}
         background={backgroundForCanvas}
-        className={`relative t--canvas-artboard pb-52 ${marginHorizontalClass} ${getViewportClassName(
+        className={`relative t--canvas-artboard ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
           canvasWidth,
         )}`}
         data-testid="t--canvas-artboard"

@@ -23,7 +23,7 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 
-export function ConversionButton() {
+function ConversionButton() {
   const isAutoLayout = getIsAutoLayout(store.getState());
   const dispatch = useDispatch();
 
@@ -78,4 +78,4 @@ export function ConversionButton() {
 
 ConversionButton.displayName = "ConversionButton";
 
-export default Sentry.withProfiler(ConversionButton);
+export default React.memo(Sentry.withProfiler(ConversionButton));

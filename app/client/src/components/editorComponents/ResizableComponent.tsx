@@ -55,6 +55,7 @@ import {
   TopRightHandleStyles,
   VisibilityContainer,
 } from "./ResizeStyledComponents";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -225,6 +226,12 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Put it later in the stack so that other updates like click, are not propagated to the parent container
     setTimeout(() => {
       setIsResizing && setIsResizing(false);
+
+      if (isAutoLayout) {
+        dispatch({
+          type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+        });
+      }
     }, 0);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget

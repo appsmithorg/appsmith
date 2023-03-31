@@ -384,7 +384,7 @@ export function getViewportClassName(viewportWidth: number) {
 }
 
 export function getFillWidgetLengthForLayer(
-  allFillWidgetsChildren: any,
+  layer: any,
   allWidgets: any,
   dimensionMap = DefaultDimensionMap,
 ): number | undefined {
@@ -393,7 +393,7 @@ export function getFillWidgetLengthForLayer(
     fillCount = 0;
   const { leftColumn: leftColumnMap, rightColumn: rightColumnMap } =
     dimensionMap;
-  for (const child of allFillWidgetsChildren) {
+  for (const child of layer.children) {
     const childWidget = allWidgets[child.id];
     if (!childWidget) {
       continue;
@@ -513,9 +513,9 @@ function getPadding(canvas: FlattenedWidgetProps): number {
   }
 
   if (canvas.noPad) {
-    // Widgets like ListWidget choose to have no container padding so will only have widget padding
-    padding = WIDGET_PADDING * 2;
+    padding -= WIDGET_PADDING;
   }
+
   return padding;
 }
 

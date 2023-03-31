@@ -18,7 +18,7 @@ import * as Sentry from "@sentry/react";
 import {
   getAllApplications,
   setShowAppInviteUsersDialog,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";

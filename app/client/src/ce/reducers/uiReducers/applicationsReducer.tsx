@@ -19,7 +19,7 @@ import type {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
-} from "api/ApplicationApi";
+} from "@appsmith/api/ApplicationApi";
 import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";

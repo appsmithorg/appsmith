@@ -22,7 +22,6 @@ const AutoLayoutCanvasResizer = styled.div`
   background: #d9d9d9;
   align-items: center;
   justify-content: flex-start;
-  z-index: 2;
   margin-left: 2px;
   transition: width 300ms ease;
   transition: background 300ms ease;

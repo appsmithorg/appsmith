@@ -3,6 +3,7 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import type { RenderMode, WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
@@ -22,6 +23,7 @@ import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
+  alignment: FlexVerticalAlignment;
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
@@ -66,6 +68,13 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
+  const wrappedChildren = (children: ReactNode) =>
+    props.renderMode === RenderModes.PAGE ? (
+      <div className="w-full h-full">{children}</div>
+    ) : (
+      children
+    );
+
   const className = useMemo(
     () =>
       `auto-layout-parent-${props.parentId} auto-layout-child-${
@@ -82,7 +91,9 @@ export function FlexComponent(props: AutoLayoutProps) {
     width: props.componentWidth - WIDGET_PADDING * 2,
     height: props.componentHeight - WIDGET_PADDING * 2,
     margin: WIDGET_PADDING + "px",
-    transform: `translate3d(${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
+    transform: `translate3d(${
+      props.alignment === "end" ? "-" : ""
+    }${WIDGET_PADDING}px, ${WIDGET_PADDING}px, 0px)`,
   };
   const widgetDimensionsEditCss = {
     width: isResizing
@@ -129,7 +140,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       onClickCapture={onClickFn}
       style={flexComponentStyle}
     >
-      {props.children}
+      {wrappedChildren(props.children)}
     </FlexWidget>
   );
 }

@@ -20,8 +20,6 @@ import {
 } from "utils/autoLayout/flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 
-const nonFlexLayerWidgets = ["MODAL_WIDGET"];
-
 const deletedResponsiveProperties = [
   "mobileLeftColumn",
   "mobileRightColumn",
@@ -150,9 +148,28 @@ function getFixedCanvasWidget(
   if (
     !canvasWidget ||
     !canvasWidget.children ||
-    !canvasWidget.useAutoLayout ||
+    canvasWidget.positioning !== Positioning.Vertical ||
     !canvasWidget.flexLayers
   ) {
+    if (
+      canvasWidget &&
+      canvasWidget.children &&
+      canvasWidget.children.length > 0
+    ) {
+      //even if it is not autoLayout, remove all the unwanted props from it's children
+      for (const childId of canvasWidget.children) {
+        const currWidget = { ...widgets[childId] };
+
+        if (!currWidget) continue;
+
+        for (const responsiveProperty of deletedResponsiveProperties) {
+          delete currWidget[responsiveProperty];
+        }
+
+        widgets[childId] = { ...currWidget };
+      }
+    }
+
     return widgets;
   }
 
@@ -223,10 +240,6 @@ function processCanvasChildren(
 
   for (const childId of canvasWidget.children || []) {
     const currWidget = currWidgets[childId];
-
-    if (nonFlexLayerWidgets.includes(currWidget.type)) {
-      continue;
-    }
 
     const leftColumn = getLeftColumn(currWidget, false);
     let rightColumn = getRightColumn(currWidget, false);

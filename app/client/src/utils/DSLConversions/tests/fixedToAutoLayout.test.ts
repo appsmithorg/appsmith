@@ -8,6 +8,17 @@ import {
   processGroupedWidgets,
 } from "../fixedToAutoLayout";
 
+jest.mock("utils/WidgetFactory", () => ({
+  widgetConfigMap: {
+    get: jest.fn(() => {
+      /**/
+    }),
+  },
+  getWidgetAutoLayoutConfig: jest.fn(() => {
+    /**/
+  }),
+}));
+
 describe("test fixed to Auto Conversion methods", () => {
   const childWidgets = [
     {
@@ -275,12 +286,15 @@ describe("test fixed to Auto Conversion methods", () => {
       bottomRow: 50,
       children: [
         {
-          bottomRow: 390,
+          bottomRow: 100,
           children: [
             {
+              alignment: "start",
               bottomRow: 5,
+              flexVerticalAlignment: "start",
               leftColumn: 1.5,
               parentId: "lwl0t7o358",
+              responsiveBehavior: "hug",
               rightColumn: 25.5,
               topRow: 1,
               type: "TEXT_WIDGET",
@@ -288,30 +302,61 @@ describe("test fixed to Auto Conversion methods", () => {
               widgetName: "Text1",
             },
             {
+              alignment: "end",
               bottomRow: 37,
+              flexVerticalAlignment: "start",
+              leftColumn: 30,
+              parentId: "lwl0t7o358",
+              responsiveBehavior: "hug",
+              rightColumn: 46,
+              topRow: 33,
+              type: "BUTTON_WIDGET",
+              widgetName: "Button5",
+            },
+            {
+              alignment: "end",
+              bottomRow: 37,
+              flexVerticalAlignment: "start",
               leftColumn: 46,
               parentId: "lwl0t7o358",
+              responsiveBehavior: "hug",
               rightColumn: 62,
               topRow: 33,
               type: "BUTTON_WIDGET",
               widgetId: "7dnsyyas3b",
               widgetName: "Button4",
             },
+          ],
+          flexLayers: [
             {
-              bottomRow: 37,
-              leftColumn: 30,
-              parentId: "lwl0t7o358",
-              rightColumn: 46,
-              topRow: 33,
-              type: "BUTTON_WIDGET",
-              widgetName: "Button5",
+              children: [
+                {
+                  align: "start",
+                  id: "y1u22x7gj9",
+                },
+              ],
+            },
+            {
+              children: [
+                {
+                  align: "end",
+                  id: undefined,
+                },
+                {
+                  align: "end",
+                  id: "7dnsyyas3b",
+                },
+              ],
             },
           ],
           leftColumn: 0,
-          minHeight: 390,
+          minHeight: 100,
           parentId: "quvrkp960y",
+          positioning: "vertical",
+          responsiveBehavior: "fill",
           topRow: 0,
           type: "CANVAS_WIDGET",
+          useAutoLayout: true,
           widgetId: "lwl0t7o358",
           widgetName: "Canvas1",
         },
@@ -319,7 +364,6 @@ describe("test fixed to Auto Conversion methods", () => {
       flexVerticalAlignment: "start",
       leftColumn: 2,
       parentId: "0",
-      positioning: "fixed",
       responsiveBehavior: "hug",
       rightColumn: 26,
       topRow: 11,
@@ -542,7 +586,7 @@ describe("test fixed to Auto Conversion methods", () => {
       leftColumn: 9,
       parentId: "0",
       parentRowSpace: 10,
-      positioning: "fixed",
+      responsiveBehavior: "hug",
       rightColumn: 33,
       topRow: 16,
       type: "MODAL_WIDGET",
@@ -618,6 +662,14 @@ describe("test fixed to Auto Conversion methods", () => {
           {
             align: "end",
             id: undefined,
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            align: "center",
+            id: "tf847brtfd",
           },
         ],
       },

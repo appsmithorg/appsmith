@@ -13,7 +13,7 @@ import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetCon
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type {
   OccupiedSpace,
   WidgetSpace,
@@ -73,6 +73,47 @@ export const getProviderCategories = (state: AppState) =>
 
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+export const getDimensionMap = (state: AppState) => {
+  return state.ui.mainCanvas?.isMobile
+    ? {
+        leftColumn: "mobileLeftColumn",
+        rightColumn: "mobileRightColumn",
+        topRow: "mobileTopRow",
+        bottomRow: "mobileBottomRow",
+      }
+    : DefaultDimensionMap;
+};
+
+export const getWidgetsForBreakpoint = createSelector(
+  getDimensionMap,
+  getWidgets,
+  (
+    dimensionMap: any,
+    widgets: CanvasWidgetsReduxState,
+  ): CanvasWidgetsReduxState => {
+    const dimensions = Object.keys(dimensionMap);
+    const proxyHandler = {
+      get(target: any, prop: any) {
+        if (dimensions.includes(prop)) {
+          const actualMap = dimensionMap[prop];
+          if (!!target[actualMap]) {
+            return target[actualMap];
+          }
+        }
+        return Reflect.get(target, prop);
+      },
+    };
+    return Object.keys(widgets).reduce((allWidgets, each) => {
+      const widget = { ...allWidgets[each] };
+      const proxyWidget = new Proxy(widget, proxyHandler);
+      allWidgets = {
+        ...allWidgets,
+        [each]: proxyWidget,
+      };
+      return allWidgets;
+    }, widgets);
+  },
+);
 
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
@@ -494,17 +535,6 @@ const getOccupiedSpacesForContainer = (
   });
 };
 
-export const getDimensionMap = (state: AppState) => {
-  return state.ui.mainCanvas?.isMobile
-    ? {
-        leftColumn: "mobileLeftColumn",
-        rightColumn: "mobileRightColumn",
-        topRow: "mobileTopRow",
-        bottomRow: "mobileBottomRow",
-      }
-    : DefaultDimensionMap;
-};
-
 const getWidgetSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
@@ -623,7 +653,7 @@ export const getOccupiedSpaces = createSelector(
 );
 
 export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
-  getWidgets,
+  getWidgetsForBreakpoint,
   (
     widgets: CanvasWidgetsReduxState,
   ): {
