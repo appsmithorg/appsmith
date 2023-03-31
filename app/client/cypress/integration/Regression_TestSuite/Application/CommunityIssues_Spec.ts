@@ -132,7 +132,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad();
   });
 
-  it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
+  it("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
     ee.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default Search Text", "Bug", false);
     propPane.TypeTextIntoField("Default Search Text", "Bug");
@@ -166,7 +166,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad();
   });
 
-  it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
+  it("6. Validate Search table with Client Side Search enabled & disabled", () => {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("enableclientsidesearch", "checked");
 
