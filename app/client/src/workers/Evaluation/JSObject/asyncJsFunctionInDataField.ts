@@ -4,8 +4,9 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "entities/App";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { difference, get } from "lodash";
+import { difference, get, isString } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
   isDataField,
@@ -17,11 +18,12 @@ import {
   updateMap,
 } from "workers/common/DependencyMap/utils";
 
-class AsyncJsFunctionInDataField {
+export class AsyncJsFunctionInDataField {
   private asyncFunctionsInDataFieldsMap: DependencyMap = {};
   private isDisabled = true;
   initialize(appMode: APP_MODE | undefined) {
     this.isDisabled = !(appMode === APP_MODE.EDIT);
+    this.asyncFunctionsInDataFieldsMap = {};
   }
 
   update(
@@ -199,10 +201,6 @@ class AsyncJsFunctionInDataField {
     });
     return hasAsyncFunctionInvocation;
   }
-
-  clearMap() {
-    this.asyncFunctionsInDataFieldsMap = {};
-  }
 }
 
 function getAsyncJSFunctionInvocationsInPath(
@@ -211,7 +209,7 @@ function getAsyncJSFunctionInvocationsInPath(
   configTree: ConfigTree,
   fullPath: string,
 ) {
-  const asyncJSFunctions = new Set<string>();
+  const invokedAsyncJSFunctions = new Set<string>();
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
   const entity = unEvalTree[entityName];
   const unevalPropValue = get(entity, propertyPath);
@@ -219,17 +217,31 @@ function getAsyncJSFunctionInvocationsInPath(
   dependencies.forEach((dependant) => {
     if (
       isAsyncJSFunction(configTree, dependant) &&
-      getFunctionInvocationRegex(dependant).test(unevalPropValue)
+      isFunctionInvoked(dependant, unevalPropValue)
     ) {
-      asyncJSFunctions.add(dependant);
+      invokedAsyncJSFunctions.add(dependant);
     }
   });
 
-  return Array.from(asyncJSFunctions);
+  return Array.from(invokedAsyncJSFunctions);
 }
 
 function getFunctionInvocationRegex(funcName: string) {
   return new RegExp(`${funcName}[.call | .apply]*\s*\\(.*?\\)`, "g");
+}
+
+export function isFunctionInvoked(
+  functionName: string,
+  unevalPropValue: unknown,
+) {
+  if (!isString(unevalPropValue)) return false;
+  const { jsSnippets } = getDynamicBindings(unevalPropValue);
+  for (const jsSnippet of jsSnippets) {
+    if (!jsSnippet.includes(functionName)) continue;
+    const isInvoked = getFunctionInvocationRegex(functionName).test(jsSnippet);
+    if (isInvoked) return true;
+  }
+  return false;
 }
 
 export const asyncJsFunctionInDataFields = new AsyncJsFunctionInDataField();
