@@ -168,7 +168,6 @@ describe("Dropdown Widget Functionality", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     // Clear the JS code
-    cy.get(_.locators._jsToggle("onoptionchange")).click();
     _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
     cy.get(_.locators._jsToggle("onoptionchange")).click();
 
