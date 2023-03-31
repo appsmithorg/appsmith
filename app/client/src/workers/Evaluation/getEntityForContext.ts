@@ -1,7 +1,7 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import JSObjectCollection from "./JSObject/Collection";
-import JSProxy from "./JSObject/JSVariableProxy";
+import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import type { JSActionEntity } from "entities/DataTree/types";
 
@@ -57,7 +57,7 @@ export function getEntityForEvalContext(
           return Object.assign({}, jsObjectForEval, fns);
         }
 
-        jsObjectForEval = JSProxy.create(entity, entityName, jsObjectForEval);
+        jsObjectForEval = JSFactory.create(entityName, jsObjectForEval);
         return Object.assign(jsObjectForEval, fns);
       }
     }

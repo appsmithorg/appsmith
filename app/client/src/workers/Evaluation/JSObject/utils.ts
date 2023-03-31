@@ -2,6 +2,7 @@ import type {
   ConfigTree,
   DataTree,
   AppsmithEntity,
+  DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -256,6 +257,19 @@ export function isJSObjectFunction(
     return entityConfig.meta.hasOwnProperty(key);
   }
   return false;
+}
+
+export function isJSObjectVariable(
+  jsObjectName: string,
+  key: string,
+  configTree: ConfigTree,
+) {
+  const entityConfig = configTree[jsObjectName] as JSActionEntityConfig;
+  const entity = configTree[jsObjectName];
+  const variables = entityConfig.variables;
+  return (
+    isJSAction(entity as unknown as DataTreeEntity) && variables.includes(key)
+  );
 }
 
 export function getAppMode(dataTree: DataTree) {

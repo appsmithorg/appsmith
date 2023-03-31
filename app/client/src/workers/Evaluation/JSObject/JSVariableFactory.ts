@@ -2,17 +2,11 @@ import JSVariableUpdates, { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 
-type ProxiedJSObject = JSActionEntity & {
-  $isProxy: boolean;
-  $targetValue: JSActionEntity;
-};
-
-class JSProxy {
+class JSFactory {
   static create(
-    jsObject: JSActionEntity,
     jsObjectName: string,
     varState: Record<string, unknown> = {},
-  ): ProxiedJSObject {
+  ): JSActionEntity {
     const newJSObject: any = {};
 
     const variables = Object.entries(varState);
@@ -30,6 +24,7 @@ class JSProxy {
           JSVariableUpdates.add({
             path: `${jsObjectName}.${varName}`,
             method: PatchType.SET,
+            value,
           });
           varState[varName] = value;
         },
@@ -49,4 +44,4 @@ class JSProxy {
   }
 }
 
-export default JSProxy;
+export default JSFactory;

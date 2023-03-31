@@ -332,7 +332,6 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       );
       /* 
       JSobject variable values are picked from evalProps until the unevalValue is not modified.
-
       Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
       */
       set(

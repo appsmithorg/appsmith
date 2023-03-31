@@ -81,23 +81,15 @@ describe("Mutation", () => {
       enableJSVarUpdateTracking: false,
     });
 
-    expect(JSVariableUpdates.getAll()).toEqual([
-      { path: "JSObject1.var", method: "SET", value: { b: { a: [2] } } },
-      { path: "JSObject1.var.b", method: "SET", value: { a: [2] } },
-      { path: "JSObject1.var.b.a", method: "SET", value: [2] },
-      {
-        path: "JSObject1.var.b.a",
-        method: "PROTOTYPE_METHOD_CALL",
-        value: [].push,
-      },
-      {
+    expect(JSVariableUpdates.getMap()).toEqual({
+      "JSObject1.var": { path: "JSObject1.var", method: "GET" },
+      "JSObject1.var2": {
         path: "JSObject1.var2",
-        method: "PROTOTYPE_METHOD_CALL",
-        value: new Set().add,
+        method: "GET",
       },
-    ]);
+    });
 
-    const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getAll());
+    const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getMap());
 
     expect(modifiedVariablesList).toEqual([
       ["JSObject1", "var"],
