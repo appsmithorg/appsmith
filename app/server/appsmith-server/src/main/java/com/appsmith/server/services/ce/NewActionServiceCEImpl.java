@@ -113,8 +113,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
@@ -1085,104 +1083,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
         final AtomicLong totalReadableByteCount = new AtomicLong(0);
         final ExecuteActionDTO dto = new ExecuteActionDTO();
-        return partFlux
-                .groupBy(part -> {
-                    // TODO : Switch this out to a tuple like representation of the Appsmith header and the key
-                    // We're grouping parts by the type of processing required
-                    // Expected types: META, VALUE, BLOB
-                    return part.name();
-                })
-                .flatMap(groupedPartsFlux -> {
-                    String key = groupedPartsFlux.key();
-                    // TODO : Switch this out to use combo above
-                    return switch (key) {
-                        case "executeActionDTO" ->
-                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
-                        case "parameterMap" ->
-                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
-                        case "k0" ->
-                                groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
-                        default ->
-                                this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
-                    };
-                })
+        return this.parsePartsAndGetParamsFlux(partFlux, totalReadableByteCount, dto)
                 .collectList()
-                .flatMap(params -> {
-                    if (dto.getActionId() == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
-                    }
-
-                    dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
-
-                    final Set<String> visitedBindings = new HashSet<>();
-                    /*
-                        Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
-                        along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
-                        Ref: https://github.com/appsmithorg/appsmith/issues/16722
-                     */
-                    params.forEach(
-                            param -> {
-                                String pseudoBindingName = param.getPseudoBindingName();
-                                String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
-                                param.setKey(bindingValue);
-                                visitedBindings.add(bindingValue);
-                                // if the type is not an array e.g. "k1": "string" or "k1": "boolean"
-                                ParamProperty paramProperty = dto.getParamProperties().get(pseudoBindingName);
-                                if (paramProperty != null) {
-                                    Object datatype = paramProperty.getDatatype();
-                                    if (datatype instanceof String) {
-                                        param.setClientDataType(ClientDataType.valueOf(String.valueOf(datatype).toUpperCase()));
-                                    } else if (datatype instanceof LinkedHashMap) {
-                                        // if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
-                                        LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
-                                                (LinkedHashMap<String, ArrayList>) datatype;
-                                        Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet()
-                                                .stream()
-                                                .findFirst();
-                                        if (firstKeyOpt.isPresent()) {
-                                            String firstKey = firstKeyOpt.get();
-                                            param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
-                                            List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
-                                            List<ClientDataType> dataTypesOfArrayElements =
-                                                    individualTypes.stream()
-                                                            .map(it -> ClientDataType.valueOf(String.valueOf(it)
-                                                                    .toUpperCase()))
-                                                            .collect(Collectors.toList());
-                                            param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
-                                        }
-                                    }
-
-                                    // Check if this param has blobUrlPaths
-                                    if (paramProperty.getBlobIdentifiers() != null && !paramProperty.getBlobIdentifiers().isEmpty()) {
-                                        // If it does, trigger the replacement logic for each of these urlPaths
-                                        String replacedValue = this.replaceBlobValuesInParam(
-                                                param.getValue(),
-                                                paramProperty.getBlobIdentifiers(),
-                                                dto.getBlobValuesMap());
-                                        // And then update the value for this param
-                                        param.setValue(replacedValue);
-                                    }
-                                }
-
-                            }
-                    );
-
-                    // In case there are parameters that did not receive a value in the multipart request,
-                    // initialize these bindings with empty strings
-                    if (dto.getParameterMap() != null) {
-                        dto.getParameterMap()
-                                .keySet()
-                                .stream()
-                                .forEach(parameter -> {
-                                    if (!visitedBindings.contains(parameter)) {
-                                        Param newParam = new Param(parameter, "");
-                                        params.add(newParam);
-                                    }
-                                });
-                    }
-                    dto.setParams(params);
-                    return Mono.just(dto);
-                })
+                .flatMap(params -> this.enrichExecutionParam(totalReadableByteCount, dto, params))
                 .name(ACTION_EXECUTION_REQUEST_PARSING)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -2315,8 +2218,126 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return analyticsProperties;
     }
 
-    @Override
-    public Mono<Void> parseExecuteActionPart(Part part, ExecuteActionDTO dto) {
+    /**
+     * This method attempts to parse all incoming parts by type, in parallel
+     * The expectation is that each part gets processed by the time this flux ends,
+     * and the DTO is updated accordingly
+     *
+     * @param partFlux               Raw flux of parts as received in the execution request
+     * @param totalReadableByteCount An atomic type to store the total execution request size as and when we parse them
+     * @param dto                    The ExecuteActionDTO object to store all results in
+     * @return
+     */
+    protected Flux<Param> parsePartsAndGetParamsFlux(Flux<Part> partFlux, AtomicLong totalReadableByteCount, ExecuteActionDTO dto) {
+        return partFlux
+                .groupBy(part -> {
+                    // TODO : Switch this out to a tuple like representation of the Appsmith header and the key
+                    // We're grouping parts by the type of processing required
+                    // Expected types: META, VALUE, BLOB
+                    return part.name();
+                })
+                .flatMap(groupedPartsFlux -> {
+                    String key = groupedPartsFlux.key();
+                    // TODO : Switch this out to use combo above
+                    return switch (key) {
+                        case "executeActionDTO" ->
+                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
+                        case "parameterMap" ->
+                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
+                        case "k0" ->
+                                groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
+                        default ->
+                                this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
+                    };
+                });
+    }
+
+    protected Mono<ExecuteActionDTO> enrichExecutionParam(AtomicLong totalReadableByteCount, ExecuteActionDTO dto, List<Param> params) {
+        if (dto.getActionId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
+        }
+
+        dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
+
+        final Set<String> visitedBindings = new HashSet<>();
+        /*
+            Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
+            along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
+            Ref: https://github.com/appsmithorg/appsmith/issues/16722
+         */
+        params.forEach(
+                param -> {
+                    String pseudoBindingName = param.getPseudoBindingName();
+                    String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
+                    param.setKey(bindingValue);
+                    visitedBindings.add(bindingValue);
+                    // if the type is not an array e.g. "k1": "string" or "k1": "boolean"
+                    ParamProperty paramProperty = dto.getParamProperties().get(pseudoBindingName);
+                    if (paramProperty != null) {
+                        this.calculateExecutionParamDatatype(param, paramProperty);
+
+                        this.substituteBlobValuesInParam(dto, param, paramProperty);
+                    }
+
+                }
+        );
+
+        // In case there are parameters that did not receive a value in the multipart request,
+        // initialize these bindings with empty strings
+        if (dto.getParameterMap() != null) {
+            dto.getParameterMap()
+                    .keySet()
+                    .stream()
+                    .forEach(parameter -> {
+                        if (!visitedBindings.contains(parameter)) {
+                            Param newParam = new Param(parameter, "");
+                            params.add(newParam);
+                        }
+                    });
+        }
+        dto.setParams(params);
+        return Mono.just(dto);
+    }
+
+    private void substituteBlobValuesInParam(ExecuteActionDTO dto, Param param, ParamProperty paramProperty) {
+        // Check if this param has blobUrlPaths
+        if (paramProperty.getBlobIdentifiers() != null && !paramProperty.getBlobIdentifiers().isEmpty()) {
+            // If it does, trigger the replacement logic for each of these urlPaths
+            String replacedValue = this.replaceBlobValuesInParam(
+                    param.getValue(),
+                    paramProperty.getBlobIdentifiers(),
+                    dto.getBlobValuesMap());
+            // And then update the value for this param
+            param.setValue(replacedValue);
+        }
+    }
+
+    private void calculateExecutionParamDatatype(Param param, ParamProperty paramProperty) {
+        Object datatype = paramProperty.getDatatype();
+        if (datatype instanceof String) {
+            param.setClientDataType(ClientDataType.valueOf(String.valueOf(datatype).toUpperCase()));
+        } else if (datatype instanceof LinkedHashMap) {
+            // if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
+            LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
+                    (LinkedHashMap<String, ArrayList>) datatype;
+            Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet()
+                    .stream()
+                    .findFirst();
+            if (firstKeyOpt.isPresent()) {
+                String firstKey = firstKeyOpt.get();
+                param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
+                List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
+                List<ClientDataType> dataTypesOfArrayElements =
+                        individualTypes.stream()
+                                .map(it -> ClientDataType.valueOf(String.valueOf(it)
+                                        .toUpperCase()))
+                                .collect(Collectors.toList());
+                param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
+            }
+        }
+    }
+
+    protected Mono<Void> parseExecuteActionPart(Part part, ExecuteActionDTO dto) {
         return DataBufferUtils
                 .join(part.content())
                 .flatMap(executeActionDTOBuffer -> {
@@ -2339,8 +2360,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    @Override
-    public Mono<Void> parseExecuteParameterMapPart(Part part, ExecuteActionDTO dto) {
+    protected Mono<Void> parseExecuteParameterMapPart(Part part, ExecuteActionDTO dto) {
         return DataBufferUtils
                 .join(part.content())
                 .flatMap(parameterMapBuffer -> {
@@ -2360,8 +2380,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    @Override
-    public Mono<Param> parseExecuteParameter(Part part, AtomicLong totalReadableByteCount) {
+    protected Mono<Param> parseExecuteParameter(Part part, AtomicLong totalReadableByteCount) {
         final Param param = new Param();
         param.setPseudoBindingName(part.name());
         return DataBufferUtils
@@ -2376,8 +2395,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    @Override
-    public Mono<Void> parseExecuteBlobs(Flux<Part> partsFlux, ExecuteActionDTO dto, AtomicLong totalReadableByteCount) {
+    protected Mono<Void> parseExecuteBlobs(Flux<Part> partsFlux, ExecuteActionDTO dto, AtomicLong totalReadableByteCount) {
         Map<String, String> blobMap = new HashMap<>();
         dto.setBlobValuesMap(blobMap);
 
@@ -2397,8 +2415,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .then();
     }
 
-    @Override
-    public String replaceBlobValuesInParam(String value, List<String> blobIdentifiers, Map<String, String> blobValuesMap) {
+    protected String replaceBlobValuesInParam(String value, List<String> blobIdentifiers, Map<String, String> blobValuesMap) {
         // If there is no blobId reference against this param, return as is
         if (blobIdentifiers == null || blobIdentifiers.isEmpty()) {
             return value;
@@ -2406,13 +2423,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // Otherwise, for each such blobId reference, replace the reference with the actual value from the blobMap
         for (String blobId : blobIdentifiers) {
-            Pattern blobIdPattern = Pattern.compile(blobId, Pattern.LITERAL);
-            Matcher matcher = blobIdPattern.matcher(value);
-
-            if (matcher.find()) {
-                // TODO : Why in the world am I having to do this?
-                value = matcher.replaceAll(StringEscapeUtils.escapeJava(StringEscapeUtils.escapeJava(blobValuesMap.get(blobId))));
-            }
+            value = value.replace(blobId, StringEscapeUtils.escapeJava(blobValuesMap.get(blobId)));
         }
 
         return value;
