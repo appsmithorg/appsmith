@@ -1040,14 +1040,6 @@ function* executePluginActionSaga(
   }
 }
 
-function* executeUpdateJSCollectionSaga(
-  action: ReduxAction<Record<string, JSUpdate>>,
-) {
-  const payload: Record<string, JSUpdate> = action.payload;
-
-  yield call(makeUpdateJSCollection, payload);
-}
-
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1059,9 +1051,6 @@ export function* watchPluginActionExecutionSagas() {
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.EXECUTE_JS_UPDATES,
-      executeUpdateJSCollectionSaga,
-    ),
+    takeLatest(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }

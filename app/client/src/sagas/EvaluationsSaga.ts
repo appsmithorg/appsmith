@@ -233,9 +233,7 @@ export function* evaluateTreeSaga(
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
 
-    if (jsUpdates) {
-      postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
-    }
+    postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
 
     yield fork(
       logSuccessfulBindings,
