@@ -189,6 +189,17 @@ export class PropertyPane {
     cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
+  public SelectJSFunctionToExecuteInExistingActionBlock(
+    jsName: string,
+    funcName: string,
+  ) {
+    cy.get(".t--action-selector-popup .bp3-button").click({ force: true });
+    cy.get(this.locator._dropDownValue("Execute a JS function")).click();
+    cy.get(this.locator._dropDownValue(jsName)).click();
+    cy.get(this.locator._dropDownValue(funcName)).click();
+    this.agHelper.AssertAutoSave();
+  }
+
   public SelectJSFunctionToExecute(
     eventName: string,
     jsName: string,
