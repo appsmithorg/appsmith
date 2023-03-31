@@ -57,7 +57,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     // click on selet a role
     _.agHelper.Sleep(2000);
-    cy.xpath(HomePage.selectRole).click();
+    _.agHelper.GetNClick(HomePage.selectRole);
     cy.get(".t--dropdown-option")
       .should("have.length", 1)
       .and("contain.text", `App Viewer`);
@@ -87,16 +87,16 @@ describe("Create new workspace and invite user & validate all roles", () => {
     );
     _.homePage.FilterApplication(appid, workspaceId);
     cy.get(_.homePage._applicationCard).first().trigger("mouseover");
-    cy.get(_.homePage._appHoverIcon("edit")).should("exist");
+    _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
 
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.Sleep(2000);
-    cy.xpath(HomePage.selectRole).click();
+    _.agHelper.GetNClick(HomePage.selectRole);
     cy.get(".t--dropdown-option")
       .should("have.length", 2)
       .and("contain.text", `App Viewer`, `Developer`);
     _.agHelper.GetNClick(HomePage.closeBtn);
-    cy.get(_.homePage._appHoverIcon("edit")).first().click({ force: true });
+    _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
 
     _.homePage.Signout();
   });
@@ -128,17 +128,17 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.Sleep();
     _.homePage.FilterApplication(appid, workspaceId);
     cy.get(_.homePage._applicationCard).first().trigger("mouseover");
-    cy.get(_.homePage._appHoverIcon("edit")).should("exist");
+    _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
 
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.Sleep(2000);
-    cy.xpath(HomePage.selectRole).click();
+    _.agHelper.GetNClick(HomePage.selectRole);
     cy.get(".t--dropdown-option")
       .should("have.length", 3)
       .should("contain.text", `App Viewer`, `Developer`);
     cy.get(".t--dropdown-option").should("contain.text", `Administrator`);
     _.agHelper.GetNClick(HomePage.closeBtn);
-    cy.get(_.homePage._appHoverIcon("edit")).first().click({ force: true });
+    _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
 
     _.homePage.Signout();
   });
@@ -160,7 +160,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
-    cy.get("[nam='arrow-right-s-fill']").should("not.exist");
+    _.agHelper.AssertElementAbsence("[nam='arrow-right-s-fill']");
     _.homePage.NavigateToHome();
   });
 

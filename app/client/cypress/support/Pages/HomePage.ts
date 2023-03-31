@@ -407,6 +407,14 @@ export class HomePage {
     cy.contains(successMessage);
   }
 
+  public InviteUserToApplication(email: string, role: string) {
+    if (CURRENT_REPO === REPO.CE) {
+      this.InviteUserToWorkspaceFromApp(email, role);
+    } else {
+      this.InviteUserToApplicationFromApp(email, role);
+    }
+  }
+
   public DeleteWorkspace(workspaceNameToDelete: string) {
     cy.get(this._homeIcon).click();
     this.agHelper.GetNClick(

@@ -31,27 +31,16 @@ describe("Create new workspace and share with a user", function () {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      if (CURRENT_REPO === REPO.CE) {
-        HomePage.InviteUserToWorkspaceFromApp(
-          Cypress.env("TESTUSERNAME1"),
-          "App Viewer",
-        );
-      } else {
-        HomePage.InviteUserToApplicationFromApp(
-          Cypress.env("TESTUSERNAME1"),
-          "App Viewer",
-        );
-      }
+      HomePage.InviteUserToApplication(
+        Cypress.env("TESTUSERNAME1"),
+        "App Viewer",
+      );
     });
     cy.LogOut();
   });
 
   it("2. login as Invited user and then validate viewer privilage", function () {
-    if (CURRENT_REPO === REPO.CE) {
-      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    } else {
-      cy.LoginUser(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    }
+    cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
