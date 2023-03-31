@@ -10,11 +10,16 @@ import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";
+import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];
 
-const useResentEntities = () => {
+const useResentEntities = (): Array<
+  DataTreeEntityObject & {
+    entityType: FocusEntity;
+  }
+> => {
   const widgetsMap = useSelector(getAllWidgetsMap);
   const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
