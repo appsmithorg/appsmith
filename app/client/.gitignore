@@ -50,3 +50,6 @@ TODO
 /nginx
 
 /public/static/wds/
+
+storybook-static
+stats.json

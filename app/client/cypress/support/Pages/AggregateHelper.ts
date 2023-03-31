@@ -821,7 +821,7 @@ export class AggregateHelper {
         input.setValue(value);
         this.Sleep(200);
       });
-    this.Sleep(500);//for value set to settle
+    this.Sleep(500); //for value set to settle
   }
 
   public UpdateInput(selector: string, value: string) {
@@ -838,6 +838,15 @@ export class AggregateHelper {
     //   ins.val(value).trigger('change');
     //   this.Sleep(200);
     // });
+  }
+
+  public UpdateTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .invoke("val", value)
+      .trigger("input");
+    this.Sleep(500); //for value set to settle
   }
 
   public UpdateInputValue(selector: string, value: string) {

@@ -4,6 +4,7 @@ const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 describe("Git discard changes:", function () {
   let datasourceName;
@@ -16,41 +17,16 @@ describe("Git discard changes:", function () {
 
   it("1. Create an app with Query1 and JSObject1, connect it to git", () => {
     // Create new postgres datasource
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.fillPostgresDatasourceForm();
 
-    cy.testSaveDatasource();
-
-    // go back to active ds list
-    _.dataSources.NavigateToActiveTab();
-
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-
-      cy.get(datasource.datasourceCard)
-        .contains(datasourceName)
-        .scrollIntoView()
-        .should("be.visible")
-        .closest(datasource.datasourceCard)
-        .within(() => {
-          cy.get(datasource.createQuery).click();
-        });
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
+      _.dataSources.CreateQueryAfterDSSaved(
+        "SELECT * FROM users ORDER BY id LIMIT 10;",
+        query1,
+      );
+      _.dataSources.RunQuery();
     });
-    // Create new postgres query
-    cy.get(queryLocators.queryNameField).type(`${query1}`);
-    cy.get(queryLocators.switch).last().click({ force: true });
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
-    cy.WaitAutoSave();
-    cy.runQuery();
 
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.wait(1000);
@@ -223,6 +199,50 @@ describe("Git discard changes:", function () {
     cy.gitDiscardChanges();
     cy.wait(5000);
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
+  });
+
+  it("9. On discard failure an error message should be show and user should be able to discard again", () => {
+    cy.Createpage(page3);
+
+    _.agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
+    _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
+    cy.intercept("PUT", "/api/v1/git/discard/app/*", {
+      body: {
+        responseMeta: {
+          status: 500,
+          success: false,
+          error: {
+            code: 5000,
+            message:
+              "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
+            errorType: "INTERNAL_ERROR",
+          },
+        },
+      },
+      delay: 1000,
+    });
+
+    _.agHelper
+      .GetElement(gitSyncLocators.discardChanges)
+      .children()
+      .should("have.text", "Discard changes");
+    _.agHelper.GetNClick(gitSyncLocators.discardChanges);
+    _.agHelper.AssertContains(
+      Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
+    );
+    _.agHelper
+      .GetElement(gitSyncLocators.discardChanges)
+      .children()
+      .should("have.text", "Are you sure?");
+    _.agHelper.GetNClick(gitSyncLocators.discardChanges);
+    _.agHelper.AssertContains(
+      Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
+    );
+    cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
+    _.agHelper.Sleep(2000);
+
+    _.agHelper.AssertElementVisible("[data-cy='discard-error']");
+    _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
   });
 
   after(() => {

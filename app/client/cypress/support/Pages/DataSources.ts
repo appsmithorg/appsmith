@@ -9,6 +9,7 @@ const DataSourceKVP = {
   UnAuthenticatedGraphQL: "GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
+  Arango: "ArangoDB",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -108,6 +109,7 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
   private _createBlankGraphQL = ".t--createBlankApiGraphqlCard";
+  private _createBlankCurl = ".t--createBlankCurlCard";
   private _graphQLHeaderKey = "input[name='headers[0].key']";
   private _graphQLHeaderValue = "input[name='headers[0].value']";
   _graphqlQueryEditor = ".t--graphql-query-editor";
@@ -143,6 +145,16 @@ export class DataSources {
   private _suggestedWidget = (widgetType: string) =>
     ".t--suggested-widget-" + widgetType + "";
 
+  private _curlTextArea =
+    "//label[text()='Paste CURL Code Here']/parent::form/div";
+  _allQueriesforDB = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
+  _noSchemaAvailable = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-cy=authType]";
@@ -427,6 +439,42 @@ export class DataSources {
     this.agHelper.Sleep();
   }
 
+  public FillArangoDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["arango-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["arango-port"].toString(),
+    );
+    //Validating db name is _system, currently unable to create DB via curl in Arango
+    this.agHelper
+      .GetText(this._databaseName, "val")
+      .then(($dbName) => expect($dbName).to.eq("_system"));
+    this.ExpandSectionByName(this._sectionAuthentication);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["arango-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["arango-password"],
+    );
+  }
+
+  public FillCurlNImport(value: string) {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._createBlankCurl);
+    this.ImportCurlNRun(value);
+  }
+
+  public ImportCurlNRun(value: string) {
+    this.agHelper.UpdateTextArea(this._curlTextArea, value);
+    this.agHelper.ClickButton("Import");
+    this.apiPage.RunAPI();
+  }
+
   public FillFirestoreDSForm() {
     cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
       datasourceFormData["database-url"],
@@ -648,12 +696,16 @@ export class DataSources {
   }
 
   RunQuery({
-    toValidateResponse = true,
     expectedStatus = true,
+    toValidateResponse = true,
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     if (toValidateResponse) {
+      this.agHelper.AssertElementAbsence(
+        this.locator._cancelActionExecution,
+        10000,
+      ); //For the run to give response
       this.agHelper.Sleep();
       this.agHelper.ValidateNetworkExecutionSuccess(
         "@postExecute",
@@ -742,7 +794,8 @@ export class DataSources {
       | "MySql"
       | "UnAuthenticatedGraphQL"
       | "MsSql"
-      | "Airtable",
+      | "Airtable"
+      | "Arango",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -763,6 +816,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
           this.FillMsSqlDSForm();
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
+        else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
