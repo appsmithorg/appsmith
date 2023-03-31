@@ -1063,7 +1063,7 @@ Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
     .click({ force: true });
   cy.get(
     `${ObjectsRegistry.CommonLocators._actionSelectorPopup} .t--close`,
-  ).click();
+  ).click({ force: true });
 });
 
 Cypress.Commands.add("togglebar", (value) => {
