@@ -211,7 +211,7 @@ function JSResponseView(props: Props) {
   const filteredErrors = useSelector(getFilteredErrors);
   let errorMessage = createMessage(
     JS_ACTION_EXECUTION_ERROR,
-    `${jsObject.name}.${currentFunction?.name}`,
+    `${jsObject.name}.${currentFunction ? currentFunction.name : ""}`,
   );
   let errorType = "ValidationError";
 

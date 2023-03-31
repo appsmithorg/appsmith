@@ -438,7 +438,6 @@ describe("Debugger logs", function () {
     });
 
     ee.SelectEntityByName("Page1", "Pages");
-    agHelper.GetNClick(".t--debugger");
     agHelper.GetNClick(locator._errorTab);
 
     debuggerHelper.ClicklogEntityLink(0);
