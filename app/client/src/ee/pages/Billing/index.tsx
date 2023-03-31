@@ -31,7 +31,7 @@ import {
   getDateString,
   goToCustomerPortal,
 } from "@appsmith/utils/billingUtils";
-import { BillingDashboardCard, CTAButtonType } from "./types";
+import type { BillingDashboardCard, CTAButtonType } from "./types";
 import { StatusBadge, Status } from "./StatusBadge";
 import {
   getLicenseKey,

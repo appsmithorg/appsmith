@@ -5,7 +5,8 @@ import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget, { JSONFormWidgetProps } from "./widget";
+import type { JSONFormWidgetProps } from "./widget";
+import Widget from "./widget";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,

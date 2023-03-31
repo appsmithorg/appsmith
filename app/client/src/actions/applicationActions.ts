@@ -1,15 +1,16 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   AppEmbedSetting,
   ApplicationResponsePayload,
 } from "api/ApplicationApi";
-import {
+import type {
   UpdateApplicationPayload,
   ImportApplicationRequest,
   FetchApplicationPayload,
 } from "api/ApplicationApi";
-import { AppIconName } from "design-system-old";
-import { Datasource } from "entities/Datasource";
+import type { NavigationSetting } from "constants/AppConstants";
+import type { AppIconName } from "design-system-old";
+import type { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
   DEFAULT = 1,
@@ -90,6 +91,15 @@ export const updateCurrentApplicationEmbedSetting = (
   return {
     type: ReduxActionTypes.CURRENT_APPLICATION_EMBED_SETTING_UPDATE,
     payload: embedSetting,
+  };
+};
+
+export const updateApplicationNavigationSettingAction = (
+  navigationSetting: NavigationSetting,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_NAVIGATION_SETTING,
+    payload: navigationSetting,
   };
 };
 
@@ -184,5 +194,10 @@ export const showReconnectDatasourceModal = (payload: {
   pageId?: string;
 }) => ({
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
+  payload,
+});
+
+export const setIsAppSidebarPinned = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_APP_SIDEBAR_PINNED,
   payload,
 });

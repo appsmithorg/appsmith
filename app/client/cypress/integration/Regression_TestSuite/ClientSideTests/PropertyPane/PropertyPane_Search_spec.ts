@@ -4,14 +4,14 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Property Pane Search", function() {
+describe("Property Pane Search", function () {
   before(() => {
     cy.fixture("swtchTableV2Dsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
   });
 
-  it("1. Verify if the search Input is getting focused when a widget is selected", function() {
+  it("1. Verify if the search Input is getting focused when a widget is selected", function () {
     ee.SelectEntityByName("Table1", "Widgets");
 
     // Initially the search input will only be soft focused
@@ -38,7 +38,7 @@ describe("Property Pane Search", function() {
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
   });
 
-  it("2. Search for Properties", function() {
+  it("2. Search for Properties", function () {
     // Search for a property inside content tab
     propPane.Search("visible");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
@@ -60,7 +60,7 @@ describe("Property Pane Search", function() {
     propPane.AssertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
   });
 
-  it("3. Search for Sections", function() {
+  it("3. Search for Sections", function () {
     // Search for a section inside content tab
     propPane.Search("general");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT");
@@ -73,7 +73,7 @@ describe("Property Pane Search", function() {
     propPane.Search("");
   });
 
-  it("4. Search for Properties inside a panel", function() {
+  it("4. Search for Properties inside a panel", function () {
     propPane.OpenTableColumnSettings("name");
 
     // Search for a property inside content tab
@@ -85,7 +85,7 @@ describe("Property Pane Search", function() {
     propPane.AssertIfPropertyOrSectionExists("color", "STYLE", "textcolor");
   });
 
-  it("5. Search for Sections inside a panel", function() {
+  it("5. Search for Sections inside a panel", function () {
     // Search for a section inside content tab
     propPane.Search("DATA");
     propPane.AssertIfPropertyOrSectionExists("data", "CONTENT");
@@ -95,7 +95,7 @@ describe("Property Pane Search", function() {
     propPane.AssertIfPropertyOrSectionExists("color", "STYLE");
   });
 
-  it("6. Search for gibberish and verify if empty results message is shown", function() {
+  it("6. Search for gibberish and verify if empty results message is shown", function () {
     // Searching Gibberish inside a panel
     propPane.Search("pigglywiggly");
     agHelper.AssertElementExist(propPane._propertyPaneEmptySearchResult);
@@ -106,7 +106,7 @@ describe("Property Pane Search", function() {
     agHelper.AssertElementExist(propPane._propertyPaneEmptySearchResult);
   });
 
-  it("7. Verify behaviour with Dynamically hidden properties inside search results", function() {
+  it("7. Verify behaviour with Dynamically hidden properties inside search results", function () {
     // Search for a Section with Dynamically hidden properties
     propPane.Search("pagination");
     propPane.AssertIfPropertyOrSectionExists("pagination", "CONTENT");
@@ -125,13 +125,13 @@ describe("Property Pane Search", function() {
     agHelper.AssertElementAbsence(".t--property-control-onpagechange");
   });
 
-  it("8. Verify the search works even if the section is collapsed initially", function() {
+  it("8. Verify the search works even if the section is collapsed initially", function () {
     ee.SelectEntityByName("Switch1", "Widgets");
     // Collapse All the sections both in CONTENT and STYLE tabs
     propPane.ToggleSection("label");
     propPane.ToggleSection("general");
     propPane.ToggleSection("events");
-    propPane.moveToStyleTab();
+    propPane.MoveToTab("STYLE");
     propPane.ToggleSection("labelstyles");
     propPane.ToggleSection("color");
 
@@ -153,7 +153,7 @@ describe("Property Pane Search", function() {
     );
   });
 
-  it("9. Verify the search input clears when another widget is selected", function() {
+  it("9. Verify the search input clears when another widget is selected", function () {
     propPane.Search("visible");
     propPane.AssertSearchInputValue("visible");
 
@@ -162,7 +162,7 @@ describe("Property Pane Search", function() {
   });
 
   // Ensuring a bug won't come back
-  it("10. Verify searching for properties inside the same section one after the other works", function() {
+  it("10. Verify searching for properties inside the same section one after the other works", function () {
     // Search for a property
     propPane.Search("onsort");
     propPane.AssertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");

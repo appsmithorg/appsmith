@@ -1,8 +1,8 @@
 export * from "ce/sagas/tenantSagas";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
@@ -14,11 +14,14 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse, APIResponseError } from "api/ApiResponses";
 import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
-import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
+import type {
+  TenantReduxState,
+  License,
+} from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
 import {
@@ -41,6 +44,8 @@ import {
 } from "@appsmith/constants/messages";
 import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -65,10 +70,17 @@ export function* fetchCurrentTenantConfigSaga(): any {
       });
     }
   } catch (error) {
+    const errorObj = error as APIResponseError;
     yield put({
       type: ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR,
       payload: {
-        error,
+        errorObj,
+      },
+    });
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: errorObj?.code ?? ERROR_CODES.SERVER_ERROR,
       },
     });
   }
@@ -104,10 +116,19 @@ export function* startLicenseStatusCheckSaga() {
         }
       }
     } catch (error) {
+      const errorObj = error as APIResponseError;
+
       yield put({
         type: ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR,
         payload: {
-          error,
+          errorObj,
+        },
+      });
+
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: errorObj?.code ?? ERROR_CODES.SERVER_ERROR,
         },
       });
     }
@@ -135,11 +156,14 @@ export function* validateLicenseSaga(
     const license = response?.data?.tenantConfiguration?.license;
     if (isValidResponse) {
       if (license?.active) {
+        if (license?.type === LICENSE_TYPE.TRIAL) {
+          localStorage.setItem("showLicenseBanner", JSON.stringify(true));
+          yield put(setBEBanner(true));
+        } else {
+          localStorage.removeItem("showLicenseBanner");
+          yield put(setBEBanner(false));
+        }
         if (shouldRedirectOnUpdate) {
-          if (license?.type === "TRIAL") {
-            localStorage.setItem("showLicenseBanner", JSON.stringify(true));
-            yield put(setBEBanner(true));
-          }
           window.location.assign(redirectUrl);
         }
         if (shouldEnableFirstTimeUserOnboarding) {
@@ -217,6 +241,7 @@ export function* initLicenseStatusCheckSaga(): unknown {
     url.pathname.includes(PAGE_NOT_FOUND_URL);
 
   if (!skipLicenseCheck) {
+    yield delay(60 * 60 * 1000);
     const task = yield fork(startLicenseStatusCheckSaga);
     yield take(ReduxActionTypes.STOP_LICENSE_STATUS_CHECK);
     yield cancel(task);

@@ -7,7 +7,7 @@ import { Router, Switch } from "react-router-dom";
 import ErrorPage from "pages/common/ErrorPage";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
@@ -17,9 +17,9 @@ import {
   getCurrentUserLoading,
   selectFeatureFlags,
 } from "selectors/usersSelectors";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import FeatureFlags from "entities/FeatureFlags";
+import type FeatureFlags from "entities/FeatureFlags";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
@@ -77,7 +77,7 @@ function AppRouter(props: {
         });
       }
     }
-  }, [tenantIsLoading]);
+  }, [tenantIsLoading, currentUserIsLoading]);
 
   if (tenantIsLoading || currentUserIsLoading) return null;
 

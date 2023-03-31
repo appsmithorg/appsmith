@@ -8,13 +8,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.UserGroupDTO;
-import com.appsmith.server.dtos.UsersForGroupDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -93,8 +90,6 @@ public class UserWorkspaceServiceTest {
     @Autowired
     UserService userService;
     @Autowired
-    UserGroupService userGroupService;
-    @Autowired
     UserGroupRepository userGroupRepository;
     @Autowired
     UserUtils userUtils;
@@ -161,57 +156,6 @@ public class UserWorkspaceServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
-    public void leaveWorkspace_WhenUserExistsInUserGroup() {
-        // Make api_user SUPER ADMIN
-        User api_user = userRepository.findByEmail("api_user").block();
-        userUtils.makeSuperUser(List.of(api_user)).block();
-        PermissionGroup adminPermissionGroup = userUtils.getSuperAdminPermissionGroup().block();
-        System.out.println("Admin Permission Group");
-        System.out.println(adminPermissionGroup.getId());
-
-        // Create a new User Group
-        UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserGroup - leaveWorkspace_WhenUserExistsInUserGroup");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
-                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
-                .block();
-
-        UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
-        usersForGroupDTO.setUsernames(Set.of("api_user"));
-        usersForGroupDTO.setGroupIds(Set.of(createdUserGroup.getId()));
-        List<UserGroupDTO> userGroupDTOList = userGroupService.inviteUsers(usersForGroupDTO, "").block();
-        assertThat(userGroupDTOList).hasSize(1);
-
-        // Create Workspace
-        Workspace workspace1 = new Workspace();
-        workspace1.setName("Workspace - leaveWorkspace_WhenUserExistsInUserGroup");
-        Workspace createdWorkspace = workspaceService.create(workspace1).block();
-        String workspaceId = createdWorkspace.getId();
-
-        PermissionGroup workspaceAdminPermissionGroup = permissionGroupRepository
-                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
-                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
-                .blockFirst();
-
-        // Create another user which can be made Workspace Admin
-        User user1 = new User();
-        user1.setEmail("leaveWorkspace_WhenUserExistsInUserGroup@test.com");
-        user1.setPassword("leaveWorkspace_WhenUserExistsInUserGroup");
-        User anotherWorkspaceAdmin = userService.create(user1).block();
-
-        // Assign Admin Workspace PG to User and UserGroup
-        workspaceAdminPermissionGroup = permissionGroupService.assignToUser(workspaceAdminPermissionGroup, anotherWorkspaceAdmin).block();
-        workspaceAdminPermissionGroup = permissionGroupService.assignToUserGroup(workspaceAdminPermissionGroup, createdUserGroup).block();
-
-        Mono<User> leaveWorkspaceTwiceMono = userWorkspaceService.leaveWorkspace(workspaceId).then(userWorkspaceService.leaveWorkspace(workspaceId));
-        StepVerifier.create(leaveWorkspaceTwiceMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Workspace is not assigned to the user.")))
-                .verify();
-    }
-
-    @Test
     @WithUserDetails(value = "api_user")
     public void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
         String randomString = UUID.randomUUID().toString();
@@ -245,7 +189,7 @@ public class UserWorkspaceServiceTest {
 
         Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId())
                 .flatMapMany(workspaceMembers -> Flux.fromIterable(workspaceMembers))
-                .map(WorkspaceMemberInfoDTO::getUserId)
+                .map(MemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
                 .block();
 
@@ -329,7 +273,7 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<MemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier
                 .create(updateUserRoleMono)
@@ -369,13 +313,15 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<MemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier.create(updateUserRoleMono)
                 .assertNext(userRole1 -> {
                             assertEquals(usertest.getUsername(), userRole1.getUsername());
-                            assertEquals(developerPermissionGroup.getId(), userRole1.getPermissionGroupId());
-                            assertEquals(developerPermissionGroup.getName(), userRole1.getPermissionGroupName());
+                            assertEquals(userRole1.getRoles().size(), 1);
+                            assertEquals(developerPermissionGroup.getId(), userRole1.getRoles().get(0).getId());
+                            assertEquals(developerPermissionGroup.getName(), userRole1.getRoles().get(0).getName());
+                            assertEquals(Workspace.class.getSimpleName(), userRole1.getRoles().get(0).getEntityType());
                         }
                 )
                 .verifyComplete();

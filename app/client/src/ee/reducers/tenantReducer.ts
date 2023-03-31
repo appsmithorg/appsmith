@@ -1,19 +1,20 @@
 export * from "ce/reducers/tenantReducer";
+import type { TenantReduxState } from "ce/reducers/tenantReducer";
 import {
-  TenantReduxState,
   handlers as CE_Handlers,
   initialState as CE_InitialState,
 } from "ce/reducers/tenantReducer";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import {
   cachedTenantConfigParsed,
   createBrandColorsFromPrimaryColor,
 } from "utils/BrandingUtils";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 
 export interface License {
   active: boolean;
@@ -61,8 +62,13 @@ export const handlers = {
       ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
       license: {
-        showBEBanner: parsed,
+        ...state.tenantConfiguration?.license,
         ...action.payload.tenantConfiguration?.license,
+        showBEBanner:
+          action.payload.tenantConfiguration?.license?.type ===
+          LICENSE_TYPE.TRIAL
+            ? parsed
+            : false,
       },
     },
     isLoading: false,
@@ -87,6 +93,7 @@ export const handlers = {
     tenantConfiguration: {
       ...state.tenantConfiguration,
       license: {
+        ...state.tenantConfiguration?.license,
         ...action.payload.tenantConfiguration?.license,
         invalidLicenseKeyError: false,
         validatingLicense: false,

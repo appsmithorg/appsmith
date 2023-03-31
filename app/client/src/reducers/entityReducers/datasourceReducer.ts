@@ -1,10 +1,10 @@
 import { createReducer } from "utils/ReducerUtils";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
-  ReduxAction,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   Datasource,
   DatasourceStructure,
   MockDatasource,
@@ -26,6 +26,8 @@ export interface DatasourceDataState {
   unconfiguredList: Datasource[];
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
+  gsheetToken: string;
+  gsheetProjectID: string;
 }
 
 const initialState: DatasourceDataState = {
@@ -43,6 +45,8 @@ const initialState: DatasourceDataState = {
   unconfiguredList: [],
   isDatasourceBeingSaved: false,
   isDatasourceBeingSavedFromPopup: false,
+  gsheetToken: "",
+  gsheetProjectID: "",
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -453,6 +457,16 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       isDatasourceBeingSavedFromPopup: action.payload.isDSSavedFromPopup,
+    };
+  },
+  [ReduxActionTypes.SET_GSHEET_TOKEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ gsheetToken: string; gsheetProjectID: string }>,
+  ) => {
+    return {
+      ...state,
+      gsheetToken: action.payload.gsheetToken,
+      gsheetProjectID: action.payload.gsheetProjectID,
     };
   },
 });

@@ -33,6 +33,7 @@ import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties"
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 type Props = {
   width: number;
@@ -49,6 +50,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const isMultiPane = useSelector(isMultiPaneActive);
   if (isMultiPane) pinned = false;
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const isPreviewingApp =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
@@ -145,16 +151,22 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       type: ReduxActionTypes.SET_ENTITY_INFO,
       payload: { show: false },
     });
-  }, [resizerLeft, pinned, isPreviewMode]);
+  }, [
+    resizerLeft,
+    pinned,
+    isPreviewMode,
+    isAppSettingsPaneWithNavigationTabOpen,
+  ]);
 
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
-        relative: pinned && !isPreviewMode,
-        "-translate-x-full": (!pinned && !active) || isPreviewMode,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]:
+          true,
+        relative: pinned && !isPreviewingApp,
+        "-translate-x-full": (!pinned && !active) || isPreviewingApp,
         "shadow-xl": !pinned,
-        fixed: !pinned || isPreviewMode,
+        fixed: !pinned || isPreviewingApp,
       })}
       id={SIDEBAR_ID}
     >
@@ -183,12 +195,13 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         onTouchStart={resizer.onTouchStart}
         style={{
           left: resizerLeft,
-          display: isPreviewMode ? "none" : "initial",
+          display: isPreviewingApp ? "none" : "initial",
         }}
       >
         <div
           className={classNames({
-            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center": true,
+            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center":
+              true,
             "bg-blue-500": resizer.resizing,
           })}
         >

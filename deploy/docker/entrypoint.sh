@@ -3,6 +3,22 @@
 set -e
 set -o xtrace
 
+if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
+  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  curl \
+    --user "$APPSMITH_SEGMENT_CE_KEY:" \
+    --header 'Content-Type: application/json' \
+    --data '{
+      "userId":"'"$ip"'",
+      "event":"Instance Start",
+      "properties": {
+        "ip": "'"$ip"'"
+      }
+    }' \
+    https://api.segment.io/v1/track \
+    || true
+fi
+
 stacks_path=/appsmith-stacks
 
 function get_maximum_heap() {
@@ -195,7 +211,7 @@ init_replica_set() {
     else
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                             *\033[0m"
-      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has `readWrite` role.      *\033[0m"
+      echo -e "\033[0;31m*      Please ensure the credentials provided for MongoDB, has 'readWrite' role.      *\033[0m"
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       exit 1
     fi

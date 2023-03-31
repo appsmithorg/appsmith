@@ -1,8 +1,8 @@
 import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import { Action } from "entities/Action";
-import { WidgetProps } from "widgets/BaseWidget";
-import { Severity } from "entities/AppsmithConsole";
+import type { Action } from "entities/Action";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -10,7 +10,10 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -192,10 +195,7 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-export const isPathDynamicTrigger = (
-  widget: WidgetProps,
-  path: string,
-): boolean => {
+export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   if (
     widget &&
     widget.dynamicTriggerPathList &&
@@ -306,9 +306,8 @@ const getNestedEvalPath = (
   fullPath = true,
   isPopulated = false,
 ) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
   const nestedPath = isPopulated
     ? `${pathType}.${propertyPath}`
     : `${pathType}.['${propertyPath}']`;
@@ -533,8 +532,11 @@ export function getEntityId(entity: DataTreeEntity) {
   if (isJSAction(entity)) return entity.actionId;
 }
 
-export function getEntityName(entity: DataTreeEntity) {
-  if (isAction(entity)) return entity.name;
+export function getEntityName(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+) {
+  if (isAction(entity)) return entityConfig.name;
   if (isWidget(entity)) return entity.widgetName;
-  if (isJSAction(entity)) return entity.name;
+  if (isJSAction(entity)) return entityConfig.name;
 }

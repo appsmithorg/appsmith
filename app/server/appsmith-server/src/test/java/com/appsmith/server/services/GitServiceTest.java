@@ -10,10 +10,11 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -60,9 +61,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.internal.stubbing.answers.AnswersWithDelay;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -2266,7 +2264,8 @@ public class GitServiceTest {
 
                     Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
                     appNavigationSetting.setOrientation("top");
-                    branchedApplication.setNavigationSetting(appNavigationSetting);
+                    branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+                    branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication->
@@ -2284,8 +2283,8 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2343,9 +2342,9 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2407,10 +2406,10 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -3164,7 +3163,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true);
+        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
         StepVerifier
                 .create(applicationMono)
@@ -3204,7 +3203,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("fetched"));
 
         gitService
-                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true)
+                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofNanos(100))
                 .subscribe();
 

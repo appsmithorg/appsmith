@@ -69,7 +69,7 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, AppsmithErrorCode.JSON_PROCESSING_ERROR.getCode(), "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, "Json processing error", ErrorType.INTERNAL_ERROR, null),
     INVALID_CREDENTIALS(200, AppsmithErrorCode.INVALID_CREDENTIALS.getCode(), "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, "Invalid credentials", ErrorType.AUTHENTICATION_ERROR, null),
     UNAUTHORIZED_ACCESS(403, AppsmithErrorCode.UNAUTHORIZED_ACCESS.getCode(), "Unauthorized access", AppsmithErrorAction.DEFAULT, "Unauthorized access", ErrorType.AUTHENTICATION_ERROR, null),
-    DUPLICATE_KEY(409, AppsmithErrorCode.DUPLICATE_KEY.getCode(), "Unexpected state: Duplicate key error. Message: {0}. Please reach out to Appsmith customer support to report this",
+    DUPLICATE_KEY(409, AppsmithErrorCode.DUPLICATE_KEY.getCode(), "Duplicate key error: An object with the name {0} already exists. Please use a different name or reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_SIGNUP(409, AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(), "There is already an account registered with this email {0}. Please sign in instead.",
             AppsmithErrorAction.DEFAULT, "Account already exists with this email", ErrorType.BAD_REQUEST, null),
@@ -157,6 +157,9 @@ public enum AppsmithError {
     SESSION_BAD_STATE(500, AppsmithErrorCode.SESSION_BAD_STATE.getCode(), "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, "Invalid user session", ErrorType.INTERNAL_ERROR, null),
     INVALID_LICENSE_KEY_ENTERED(400, AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(), "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, "Invalid license key", ErrorType.ARGUMENT_ERROR, null),
     GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.", AppsmithErrorAction.DEFAULT, "Git repo is locked", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
+    CSRF_TOKEN_INVALID(403, AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(), "CSRF token missing/invalid. Please try again.", AppsmithErrorAction.DEFAULT, "CSRF token missing/invalid", ErrorType.BAD_REQUEST, null),
+
+    // EE-only errors below this line:
     APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(403, AppsmithErrorCode.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getCode(), "Unable to clone application. You don''t have required permissions for {0}: {1}",
             AppsmithErrorAction.DEFAULT, "Cloning application failed", ErrorType.INTERNAL_ERROR, null),
 

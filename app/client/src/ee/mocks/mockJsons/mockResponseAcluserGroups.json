@@ -16,10 +16,7 @@
         "Administrator",
         "App Viewer"
       ],
-      "roles": [
-        "HR_Appsmith",
-        "devops_design"
-      ],
+      "roles": ["HR_Appsmith", "devops_design"],
       "users": []
     },
     {
@@ -34,10 +31,7 @@
         "Administrator",
         "App Viewer"
       ],
-      "roles": [
-        "devops_eng_nov",
-        "marketing_nov"
-      ],
+      "roles": ["devops_eng_nov", "marketing_nov"],
       "users": [
         {
           "isChangingRole": false,
@@ -69,10 +63,7 @@
         "devops_eng_nov",
         "marketing_nov"
       ],
-      "roles": [
-        "Administrator",
-        "App Viewer"
-      ],
+      "roles": ["Administrator", "App Viewer"],
       "users": [
         {
           "isChangingRole": false,
@@ -104,10 +95,7 @@
         "Administrator",
         "App Viewer"
       ],
-      "roles": [
-        "devops_design",
-        "devops_eng_nov"
-      ],
+      "roles": ["devops_design", "devops_eng_nov"],
       "users": [
         {
           "isChangingRole": false,
@@ -140,9 +128,7 @@
         "marketing_nov",
         "App Viewer"
       ],
-      "roles": [
-        "Administrator"
-      ],
+      "roles": ["Administrator"],
       "allUsers": [
         {
           "isChangingRole": false,
@@ -175,9 +161,7 @@
         "marketing_nov",
         "Administrator"
       ],
-      "roles": [
-        "App Viewer"
-      ],
+      "roles": ["App Viewer"],
       "users": [
         {
           "isChangingRole": false,

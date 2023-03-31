@@ -1,12 +1,10 @@
 import React from "react";
 import { Checkbox } from "design-system-old";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
-import {
-  Field,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ControlType } from "constants/PropertyControlConstants";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 import styled from "styled-components";
 
 const StyledCheckbox = styled(Checkbox)``;

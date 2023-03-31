@@ -1,17 +1,12 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import {
-  Icon,
-  IconSize,
-  MenuItem,
-  MenuItemProps,
-  Menu,
-  Table,
-} from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
+import { Icon, IconSize, MenuItem, Menu, Table } from "design-system-old";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-import { ListingProps, ListingType } from "./types";
+import type { ListingProps } from "./types";
+import { ListingType } from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,

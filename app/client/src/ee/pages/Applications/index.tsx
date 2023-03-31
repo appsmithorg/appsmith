@@ -14,7 +14,7 @@ import { resetEditorRequest } from "actions/initActions";
 import { setHeaderMeta } from "actions/themeActions";
 import { createMessage, SEARCH_APPS } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import SubHeader from "pages/common/SubHeader";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";

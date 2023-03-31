@@ -1,42 +1,30 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import {
-  setSelectedWidgets,
-  WidgetSelectionRequestPayload,
-} from "actions/widgetSelectionActions";
+import type { WidgetSelectionRequestPayload } from "actions/widgetSelectionActions";
+import { setSelectedWidgets } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppState } from "@appsmith/reducers";
-import { closeAllModals, showModal } from "actions/widgetActions";
-import history, { NavigationMethod } from "utils/history";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { showModal } from "actions/widgetActions";
+import type { NavigationMethod } from "utils/history";
+import history from "utils/history";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
+  getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { builderURL, widgetURL } from "RouteBuilder";
-import {
-  getAppMode,
-  getCanvasWidgets,
-  getParentModalId,
-} from "selectors/entitiesSelector";
+import { getAppMode, getCanvasWidgets } from "selectors/entitiesSelector";
+import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   assertParentId,
   isInvalidSelectionRequest,
@@ -45,7 +33,6 @@ import {
   SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
-  SetSelectionResult,
   setWidgetAncestry,
   shiftSelectWidgets,
   unselectWidget,
@@ -168,11 +155,8 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       }
     }
 
-    if (parentId && newSelection.length === 1) {
-      yield call(setWidgetAncestry, parentId, allWidgets);
-    }
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
-      yield call(focusOnWidgetSaga, setSelectedWidgets(newSelection));
+      yield put(setSelectedWidgets(newSelection));
       return;
     }
     yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
@@ -220,22 +204,31 @@ function* appendSelectedWidgetToUrlSaga(
   }
 }
 
-function* canPerformSelectionSaga(saga: any, action: any) {
-  const isDragging: boolean = yield select(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-  if (!isDragging) {
-    yield fork(saga, action);
+function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
+  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+  const isPageFetching: boolean = yield select(getIsFetchingPage);
+  const appMode: APP_MODE = yield select(getAppMode);
+  const viewMode = appMode === APP_MODE.PUBLISHED;
+  if (!isEditorInitialized && !viewMode) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
+  if (isPageFetching) {
+    yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+  }
+  yield call(saga, action);
+}
+
+function* handleWidgetSelectionSaga(
+  action: ReduxAction<{ widgetIds: string[] }>,
+) {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
+  yield call(focusOnWidgetSaga, action);
+  yield call(openOrCloseModalSaga, action);
 }
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length !== 1) return;
-
-  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  if (!isEditorInitialized) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
 
   const selectedWidget = action.payload.widgetIds[0];
 
@@ -248,33 +241,14 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
 
   if (widgetIsModal) {
     yield put(showModal(selectedWidget));
-    return;
   }
-
-  const widgetMap: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widget = widgetMap[selectedWidget];
-
-  if (widget && widget.parentId) {
-    const parentModalId = getParentModalId(widget, widgetMap);
-    const widgetInModal = modalWidgetIds.includes(parentModalId);
-    if (widgetInModal) {
-      yield put(showModal(parentModalId));
-      return;
-    }
-  }
-
-  yield put(closeAllModals());
 }
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length > 1) return;
   const widgetId = action.payload.widgetIds[0];
-  const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  if (!isEditorInitialized) {
-    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-  }
-  const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
+    const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
     quickScrollToWidget(widgetId, allWidgets);
   }
 }
@@ -284,9 +258,8 @@ export function* widgetSelectionSagas() {
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
     takeLatest(
       ReduxActionTypes.SET_SELECTED_WIDGETS,
-      canPerformSelectionSaga,
-      openOrCloseModalSaga,
+      waitForInitialization,
+      handleWidgetSelectionSaga,
     ),
-    takeLatest(ReduxActionTypes.SET_SELECTED_WIDGETS, focusOnWidgetSaga),
   ]);
 }

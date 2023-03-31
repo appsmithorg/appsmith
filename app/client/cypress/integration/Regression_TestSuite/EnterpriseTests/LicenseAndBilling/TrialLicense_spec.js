@@ -1,7 +1,7 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 
-describe("Trial License", function() {
+describe("Trial License", function () {
   before(() => {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
@@ -19,7 +19,7 @@ describe("Trial License", function() {
     cy.wait(2000);
     cy.closeWelcomeBanner();
   });
-  it("1. should show warning banner and upgrade CTA on left pane on Homepage", function() {
+  it("1. should show warning banner and upgrade CTA on left pane on Homepage", function () {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "TRIAL",

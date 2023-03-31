@@ -1,6 +1,6 @@
 import React from "react";
-import { ReactNode } from "react";
-import { Dispatch } from "redux";
+import type { ReactNode } from "react";
+import type { Dispatch } from "redux";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {
@@ -9,7 +9,7 @@ import {
   forceShowContent,
   focusWidget,
 } from "actions/onboardingActions";
-import { IconName } from "design-system-old";
+import type { IconName } from "design-system-old";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";

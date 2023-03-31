@@ -80,4 +80,15 @@ public class FieldName extends FieldNameCE {
     public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
     public static final String NUMBER_OF_ASSIGNED_USER_GROUPS = "numberOfAssignedGroups";
     public static final String NUMBER_OF_UNASSIGNED_USER_GROUPS = "numberOfUnassignedGroups";
+    /**
+     * Below are the Constants which are used for initialising values in Default Application Roles.
+     * Note: If at any point, we need to add Application details such as Application name, please add them using
+     * placeholder to the Descriptions.
+     */
+    public static final String APPLICATION_DEVELOPER = "Developer";
+    public static final String APPLICATION_VIEWER = "App Viewer";
+    public static final String APPLICATION_DEVELOPER_DESCRIPTION = "Can edit and view this application along with " +
+            "inviting other users to edit and view it";
+    public static final String APPLICATION_VIEWER_DESCRIPTION = "Can view this application and invite other users to " +
+            "view it";
 }

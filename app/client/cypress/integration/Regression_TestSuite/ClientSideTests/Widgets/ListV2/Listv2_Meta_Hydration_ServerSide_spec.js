@@ -74,9 +74,26 @@ function testJsontextClear(endp) {
     .type(`{${modifierKey}}{del}`, { force: true });
 }
 
+function verifyMultiDropdownValuesCount(count, page = 1) {
+  cy.get(".rc-select-selection-overflow").then(($ele) => {
+    if (
+      $ele.find(".rc-select-selection-overflow-item .remove-icon").length ==
+      count
+    ) {
+      cy.reload();
+      if (page == 2) {
+        //   Go to next page
+        cy.get(commonlocators.listPaginateNextButton).click({
+          force: true,
+        });
+      }
+    }
+  });
+}
+
 describe("List widget v2 - meta hydration tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl(dsl);
   });
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
@@ -108,9 +125,7 @@ describe("List widget v2 - meta hydration tests", () => {
     cy.get(queryLocators.queryNameField).type("Query1");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();
@@ -152,6 +167,7 @@ describe("List widget v2 - meta hydration tests", () => {
       "have.length",
       3,
     );
+    verifyMultiDropdownValuesCount(6);
   });
 
   it("2. using server side data", () => {
@@ -187,7 +203,7 @@ describe("List widget v2 - meta hydration tests", () => {
         )
         .should("have.length", 3),
     );
-
+    verifyMultiDropdownValuesCount(6, 2);
     //   SecondPage
     //   First Row
     cy.get(`${widgetSelector("List1")}`).scrollIntoView();

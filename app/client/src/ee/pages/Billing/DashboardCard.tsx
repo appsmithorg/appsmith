@@ -8,7 +8,7 @@ import {
   IconBadge,
   StyledCard,
 } from "./styles";
-import { BillingDashboardCard } from "./types";
+import type { BillingDashboardCard } from "./types";
 
 export function DashboardCard(props: BillingDashboardCard) {
   const { action, content, icon, subtitle, title } = props;

@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -25,7 +26,7 @@ export class HomePage {
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    Cypress.env("Edition") === 0
+    CURRENT_REPO === REPO.CE
       ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
       : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
@@ -38,6 +39,7 @@ export class HomePage {
   _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";
+  public _closeBtn = ".bp3-dialog-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
   private _homeIcon = ".t--appsmith-logo";
@@ -86,6 +88,10 @@ export class HomePage {
     "//span[text()='" + action + "']/ancestor::a";
   private _homeTab = ".t--apps-tab";
   private _templatesTab = ".t--templates-tab";
+  private _workSpaceByName = (wsName: string) =>
+    "//div[contains(@class, 't--applications-container')]//span[text()='" +
+    wsName +
+    "']";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -112,23 +118,19 @@ export class HomePage {
       });
   }
 
-  public RenameWorkspace(workspaceName: string, newWorkspaceName: string) {
-    cy.get(this._appContainer)
-      .contains(workspaceName)
+  public RenameWorkspace(oldName: string, newWorkspaceName: string) {
+    cy.xpath(this._workSpaceByName(oldName))
+      .last()
       .closest(this._workspaceCompleteSection)
-      .find(this._workspaceName)
+      .scrollIntoView()
       .find(this._optionsIcon)
       .click({ force: true });
     cy.get(this._renameWorkspaceInput)
       .should("be.visible")
-      .type(newWorkspaceName.concat("{enter}"));
+      .type(newWorkspaceName.concat("{enter}"), { delay: 0 });
     this.agHelper.Sleep(2000);
-    cy.wait("@updateWorkspace").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.contains(newWorkspaceName);
+    this, this.agHelper.ValidateNetworkStatus("@updateWorkspace");
+    this.agHelper.AssertContains(newWorkspaceName);
   }
 
   //Maps to CheckShareIcon in command.js
@@ -152,12 +154,8 @@ export class HomePage {
     this.StubPostHeaderReq();
     this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
-    cy.xpath(this._email)
-      .click({ force: true })
-      .type(email);
-    cy.xpath(this._selectRole)
-      .first()
-      .click({ force: true });
+    cy.xpath(this._email).click({ force: true }).type(email);
+    cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
     cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");
@@ -173,15 +171,13 @@ export class HomePage {
     text: string,
   ) {
     const errorMessage =
-      Cypress.env("Edition") === 0
+      CURRENT_REPO === REPO.CE
         ? "Invalid email address(es) found"
         : "Invalid email address(es) or group(s) found";
     this.StubPostHeaderReq();
     this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
-    cy.xpath(this._email)
-      .click({ force: true })
-      .type(text);
+    cy.xpath(this._email).click({ force: true }).type(text);
     this.agHelper.ClickButton("Invite");
     cy.contains(text, { matchCase: false });
     cy.contains(errorMessage, { matchCase: false });
@@ -202,9 +198,7 @@ export class HomePage {
   }
 
   public CreateNewApplication() {
-    cy.get(this._homePageAppCreateBtn)
-      .first()
-      .click({ force: true });
+    cy.get(this._homePageAppCreateBtn).first().click({ force: true });
     this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
   }
@@ -241,7 +235,13 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
-    cy.request("POST", "/api/v1/logout");
+    cy.request({
+      method: "POST",
+      url: "/api/v1/logout",
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    });
     this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -259,14 +259,10 @@ export class HomePage {
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.window()
-      .its("store")
-      .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     cy.visit("/user/login");
-    cy.get(this._username)
-      .should("be.visible")
-      .type(uname);
+    cy.get(this._username).should("be.visible").type(uname);
     cy.get(this._password).type(pswd, { log: false });
     cy.get(this._submitBtn).click();
     cy.wait("@getMe");
@@ -281,17 +277,12 @@ export class HomePage {
     cy.get(this._searchInput).type(appName);
     this.agHelper.Sleep(2000);
     cy.get(this._appContainer).contains(workspaceId);
-    cy.xpath(this.locator._spanButton("Share"))
-      .first()
-      .should("be.visible");
+    cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
   }
 
   //Maps to launchApp in command.js
   public LaunchAppFromAppHover() {
-    cy.get(this._appHoverIcon("view"))
-      .should("be.visible")
-      .first()
-      .click();
+    cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     cy.get(this.locator._loading).should("not.exist");
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
@@ -316,9 +307,7 @@ export class HomePage {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(this._deleteUser(email))
-      .last()
-      .click({ force: true });
+    cy.get(this._deleteUser(email)).last().click({ force: true });
     cy.get(this._leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(this._leaveWorkspaceConfirmButton).click({ force: true });
     this.NavigateToHome();
@@ -336,9 +325,7 @@ export class HomePage {
       .find(this._optionsIcon)
       .click({ force: true });
 
-    cy.xpath(this._visibleTextSpan("Members"))
-      .last()
-      .click({ force: true });
+    cy.xpath(this._visibleTextSpan("Members")).last().click({ force: true });
     cy.wait("@getMembers").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -384,12 +371,8 @@ export class HomePage {
   public InviteUserToWorkspaceFromApp(email: string, role: string) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();
-    cy.xpath(this._email)
-      .click({ force: true })
-      .type(email);
-    cy.xpath(this._selectRole)
-      .first()
-      .click({ force: true });
+    cy.xpath(this._email).click({ force: true }).type(email);
+    cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
     cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");
@@ -445,9 +428,7 @@ export class HomePage {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
-    cy.get(this._optionsIcon)
-      .first()
-      .click({ force: true });
+    cy.get(this._optionsIcon).first().click({ force: true });
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
     cy.wait("@leaveWorkspaceApiCall").should(

@@ -21,14 +21,16 @@ describe("List widget V2 PropertyPane", () => {
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
+    cy.wait(2000); //for the deployed page to load fully
     cy.get(widgetsPage.listWidgetv2).should("be.visible");
     cy.get(publishPage.backToEditor).click({
       force: true,
     });
   });
 
-  it("2. Toggle JS - Validate isVisible", function() {
+  it("2. Toggle JS - Validate isVisible", function () {
     // Open Property pane
+    cy.get(widgetsPage.listWidgetv2).should("be.visible");
     cy.openPropertyPane("listwidgetv2");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
@@ -46,7 +48,7 @@ describe("List widget V2 PropertyPane", () => {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("3. Renaming the widget from Property pane and Entity explorer ", function() {
+  it("3. Renaming the widget from Property pane and Entity explorer ", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -70,7 +72,7 @@ describe("List widget V2 PropertyPane", () => {
     );
   });
 
-  it("4. Item Spacing Validation ", function() {
+  it("4. Item Spacing Validation ", function () {
     cy.openPropertyPane("listwidgetv2");
     cy.get(commonlocators.PropertyPaneSearchInput).type("item spacing");
     cy.testJsontext("itemspacing\\(px\\)", "-1");

@@ -131,9 +131,7 @@ describe("Audit logs", () => {
       .find(locators.EventFilterDropdownBlueprintPortal)
       .find(locators.OptionsWrapper)
       .then(($x) => {
-        cy.wrap($x)
-          .children()
-          .should("have.length", 2);
+        cy.wrap($x).children().should("have.length", 2);
         const [search, optionsContainer] = $x.children();
         cy.wrap(search).should("be.visible");
         cy.wrap(optionsContainer).should("be.visible");
@@ -154,9 +152,7 @@ describe("Audit logs", () => {
         cy.wrap(search)
           .clear()
           .then(() => {
-            cy.wrap(optionsContainer)
-              .children()
-              .should("exist");
+            cy.wrap(optionsContainer).children().should("exist");
           });
 
         cy.wrap(search)
@@ -226,9 +222,7 @@ describe("Audit logs", () => {
           });
       });
 
-    cy.get(locators.ClearButton)
-      .should("be.visible")
-      .click();
+    cy.get(locators.ClearButton).should("be.visible").click();
 
     cy.url()
       .should("not.include", "emails=")
@@ -298,9 +292,7 @@ describe("Audit logs", () => {
       });
     });
     cy.visit("/settings/audit-logs").then(() => {
-      cy.get(locators.EventFilterContainer)
-        .should("be.visible")
-        .click();
+      cy.get(locators.EventFilterContainer).should("be.visible").click();
       /* Starting with Event Dropdown */
       cy.get(locators.OpenBlueprintPortal)
         .find(locators.EventFilterDropdownBlueprintPortal)
@@ -348,9 +340,7 @@ describe("Audit logs", () => {
 
                       cy.url().should("include", "events=workspace.deleted");
 
-                      cy.get(locators.ClearButton)
-                        .should("be.visible")
-                        .click();
+                      cy.get(locators.ClearButton).should("be.visible").click();
 
                       cy.url()
                         .should("not.include", "emails=")

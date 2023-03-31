@@ -6,6 +6,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -46,6 +47,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -292,7 +294,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                             .collect(Collectors.toList());
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds);
 
                     updateObj.set(path, assignedToGroupIds);
                     return Mono.zip(
@@ -467,5 +469,23 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     });
         }
         return Mono.just(directAssignedUserIds);
+    }
+
+    @Override
+    public Mono<Void> deleteWithoutPermission(String id) {
+        Mono<Void> deleteRoleMono = super.deleteWithoutPermission(id).cache();
+        Mono<PermissionGroup> roleMono = repository.findById(id);
+        /*
+         * bulkUnassignFromUserGroupsWithoutPermission is being used here, because in addition to unassigning user
+         * groups, it will clean cache for users who have access to this role, via user group.
+         */
+        return roleMono
+                .flatMap(role -> bulkUnassignFromUserGroupsWithoutPermission(role, role.getAssignedToGroupIds()))
+                .then(deleteRoleMono);
+    }
+
+    @Override
+    public Flux<PermissionGroup> getAllDefaultRolesForApplication(Application application, Optional<AclPermission> aclPermission) {
+        return repository.findByDefaultApplicationId(application.getId(), aclPermission);
     }
 }

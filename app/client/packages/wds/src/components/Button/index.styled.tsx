@@ -7,7 +7,7 @@ import {
   darkenColor,
   parseColor,
 } from "../../utils/colors";
-import { ButtonProps } from "./Button";
+import type { ButtonProps } from "./Button";
 
 /**
  * creates locally scoped css variables to be used in variants styles
@@ -188,10 +188,8 @@ export const StyledButton = styled.button<ButtonProps>`
   &:is([data-disabled]),
   &:is(:disabled) {
     pointer-events: none;
-    background: var(--wds-v2-color-bg-disabled);
-    color: var(--wds-v2-color-text-disabled);
+    opacity: 0.5;
     box-shadow: none;
     background-image: none;
-    border-color: transparent;
   }
 `;

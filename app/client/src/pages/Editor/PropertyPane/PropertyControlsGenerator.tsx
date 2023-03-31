@@ -1,14 +1,14 @@
-import { IPanelProps } from "@blueprintjs/core";
-import {
+import type { IPanelProps } from "@blueprintjs/core";
+import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import { EmptySearchResult } from "./EmptySearchResult";
@@ -16,10 +16,8 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { searchPropertyPaneConfig } from "./propertyPaneSearch";
 import { evaluateHiddenProperty } from "./helpers";
-import {
-  EnhancementFns,
-  getWidgetEnhancementSelector,
-} from "selectors/widgetEnhancementSelectors";
+import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
+import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import equal from "fast-deep-equal/es6";
 
 export type PropertyControlsGeneratorProps = {
@@ -42,7 +40,8 @@ const generatePropertyControl = (
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
     if ((config as PropertyPaneSectionConfig).sectionName) {
-      const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
+      const sectionConfig: PropertyPaneSectionConfig =
+        config as PropertyPaneSectionConfig;
       return (
         <Boxed
           key={config.id + props.id}

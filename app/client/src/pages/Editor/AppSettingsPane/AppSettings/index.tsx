@@ -1,15 +1,17 @@
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
-import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
+import type { SectionHeaderProps } from "./SectionHeader";
+import SectionHeader from "./SectionHeader";
 import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
+  APP_NAVIGATION_SETTING,
   createMessage,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
@@ -23,11 +25,15 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
+import NavigationSettings from "./NavigationSettings";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export enum AppSettingsTabs {
   General,
   Embed,
   Theme,
+  Navigation,
   Page,
 }
 
@@ -56,6 +62,7 @@ const ThemeContentWrapper = styled.div`
 function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
+  const dispatch = useDispatch();
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -76,6 +83,17 @@ function AppSettings() {
     }
   }, [selectedTab.page?.pageId, pages]);
 
+  useEffect(() => {
+    dispatch(
+      updateAppSettingsPaneSelectedTabAction({
+        isOpen: true,
+        context: {
+          type: selectedTab.type,
+        },
+      }),
+    );
+  }, [selectedTab]);
+
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {
       id: "t--general-settings-header",
@@ -84,6 +102,9 @@ function AppSettings() {
       name: createMessage(GENERAL_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.General });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "General",
+        });
       },
       subText: createMessage(GENERAL_SETTINGS_SECTION_HEADER_DESC),
     },
@@ -94,6 +115,9 @@ function AppSettings() {
       name: createMessage(IN_APP_EMBED_SETTING.sectionHeader),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Embed });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Embed",
+        });
       },
       subText: createMessage(IN_APP_EMBED_SETTING.sectionHeaderDesc),
     },
@@ -104,8 +128,24 @@ function AppSettings() {
       name: createMessage(THEME_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Theme });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Theme",
+        });
       },
       subText: createMessage(THEME_SETTINGS_SECTION_HEADER_DESC),
+    },
+    {
+      id: "t--navigation-settings-header",
+      icon: "hamburger",
+      isSelected: selectedTab.type === AppSettingsTabs.Navigation,
+      name: createMessage(APP_NAVIGATION_SETTING.sectionHeader),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Navigation });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Navigation",
+        });
+      },
+      subText: createMessage(APP_NAVIGATION_SETTING.sectionHeaderDesc),
     },
   ];
 
@@ -172,6 +212,8 @@ function AppSettings() {
               );
             case AppSettingsTabs.Embed:
               return <EmbedSettings />;
+            case AppSettingsTabs.Navigation:
+              return <NavigationSettings />;
           }
         })()}
       </SectionContent>

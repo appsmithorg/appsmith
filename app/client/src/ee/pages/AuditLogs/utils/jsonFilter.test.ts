@@ -1,9 +1,9 @@
 import { getJsonFilterData } from "./jsonFilter";
-import { AuditLogType } from "../types";
+import type { AuditLogType } from "../types";
 
-describe("audit-logs/utils/jsonFilter", function() {
+describe("audit-logs/utils/jsonFilter", function () {
   describe("getJsonFilterData", () => {
-    it("returns three json filters", function() {
+    it("returns three json filters", function () {
       const input = {
         event: "application.imported",
         timestamp: "01/09/2022, 16:29:59",
@@ -27,7 +27,7 @@ describe("audit-logs/utils/jsonFilter", function() {
           appsmithVersion: "UNKNOWN",
         },
       };
-      const actual = getJsonFilterData((input as unknown) as AuditLogType);
+      const actual = getJsonFilterData(input as unknown as AuditLogType);
       const expected = [
         { key: "event", value: "application.imported" },
         {
@@ -39,7 +39,7 @@ describe("audit-logs/utils/jsonFilter", function() {
       expect(actual).toEqual(expected);
     });
 
-    it("returns only email and event json filters", function() {
+    it("returns only email and event json filters", function () {
       const input = {
         event: "application.imported",
         timestamp: "01/09/2022, 16:29:59",
@@ -51,7 +51,7 @@ describe("audit-logs/utils/jsonFilter", function() {
           name: "tester@appsmith.com",
         },
       };
-      const actual = getJsonFilterData((input as unknown) as AuditLogType);
+      const actual = getJsonFilterData(input as unknown as AuditLogType);
       const expected = [
         { key: "event", value: "application.imported" },
         {
@@ -73,13 +73,13 @@ describe("audit-logs/utils/jsonFilter", function() {
           name: "tester@appsmith.com",
         },
       };
-      const actual = getJsonFilterData((input as unknown) as AuditLogType);
+      const actual = getJsonFilterData(input as unknown as AuditLogType);
       const expected: any[] = [];
       expect(actual).toEqual(expected);
     });
-    it("returns no json filters", function() {
+    it("returns no json filters", function () {
       const input = {};
-      const actual = getJsonFilterData((input as unknown) as AuditLogType);
+      const actual = getJsonFilterData(input as unknown as AuditLogType);
       const expected: { key: string; value: string }[] = [];
       expect(actual).toEqual(expected);
     });

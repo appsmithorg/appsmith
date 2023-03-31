@@ -430,10 +430,7 @@ export default {
       startsWith: (a, b) => {
         try {
           return (
-            a
-              .toString()
-              .toLowerCase()
-              .indexOf(b.toString().toLowerCase()) === 0
+            a.toString().toLowerCase().indexOf(b.toString().toLowerCase()) === 0
           );
         } catch (e) {
           return false;

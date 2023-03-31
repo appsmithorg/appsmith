@@ -1,7 +1,7 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 
-describe("Enterprise License Origin", function() {
-  it("1. Should not show License & Billing tab in admin settings", function() {
+describe("Enterprise License Origin", function () {
+  it("1. Should not show License & Billing tab in admin settings", function () {
     const expiry =
       (new Date("25 Feb 2023").getTime() + 2 * 24 * 60 * 60 * 1000) / 1000;
     cy.interceptLicenseApi({

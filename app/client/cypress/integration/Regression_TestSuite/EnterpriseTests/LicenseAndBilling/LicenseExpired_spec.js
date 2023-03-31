@@ -1,8 +1,8 @@
 import locators from "../../../../locators/AdminsSettings";
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
 
-describe("License expired", function() {
-  it("1. should show ADMIN license expiry page", function() {
+describe("License expired", function () {
+  it("1. should show ADMIN license expiry page", function () {
     cy.interceptLicenseApi({
       licenseStatus: "EXPIRED",
       licenseType: "PAID",
@@ -50,7 +50,7 @@ describe("License expired", function() {
     cy.wait(1000);
     cy.url().should("contain", "/login");
   });
-  it("2. should show NON ADMIN license expiry page", function() {
+  it("2. should show NON ADMIN license expiry page", function () {
     cy.interceptLicenseApi({
       licenseStatus: "EXPIRED",
       licenseType: "PAID",
@@ -64,6 +64,13 @@ describe("License expired", function() {
       "have.text",
       "You currently do not have an Active Subscription. Please contact your instance administrator to activate the instance.",
     );
-    cy.LogOut();
+    cy.get(locators.appsmithHeader).should("be.visible");
+    cy.get(locators.appsmithHeader).within(() => {
+      cy.get(".t--profile-menu-icon").click();
+    });
+    cy.wait(1000);
+    cy.get(".t--logout-icon").click();
+    cy.wait(1000);
+    cy.url().should("contain", "/login");
   });
 });

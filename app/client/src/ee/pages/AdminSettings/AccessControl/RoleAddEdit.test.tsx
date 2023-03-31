@@ -4,9 +4,9 @@ import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { RoleAddEdit } from "./RoleAddEdit";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import { defaultUserResponse, response1 } from "./mocks/mockRoleTreeResponse";
-import { BaseAclProps, RoleEditProps } from "./types";
+import type { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
-import { MenuItemProps } from "design-system-old";
+import type { MenuItemProps } from "design-system-old";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockGetRolePermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
@@ -203,9 +203,8 @@ describe("<RoleAddEdit />", () => {
   it("should show hover state using hashtable", async () => {
     const { getAllByTestId, queryAllByTestId } = renderComponent();
     const elId = "633ae5bf174013666db972c2_Create";
-    const hoverCheckboxEl = getAllByTestId(elId)?.[0].getElementsByTagName(
-      "div",
-    );
+    const hoverCheckboxEl =
+      getAllByTestId(elId)?.[0].getElementsByTagName("div");
     const rightArrows = document.getElementsByName("right-arrow-2");
     rightArrows[0].click();
     const hoverEls: HTMLElement[] = [];
