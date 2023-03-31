@@ -10,7 +10,6 @@ import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { toast } from "design-system";
-import { getAppMode } from "../../selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {
   setCanvasDebuggerSelectedTab,
@@ -18,6 +17,7 @@ import {
 } from "../../actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
 import store from "store";
+import { getAppMode } from "ce/selectors/applicationSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
