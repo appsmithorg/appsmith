@@ -15,6 +15,8 @@ const renderComponent = (
   const showError = componentProps.meta.touched && !componentProps.meta.active;
   return (
     <Input
+      {...componentProps.input}
+      {...componentProps}
       errorMessage={
         !componentProps.hideErrorMessage &&
         showError &&
@@ -22,8 +24,6 @@ const renderComponent = (
       }
       renderAs={"input"}
       size="md"
-      {...componentProps}
-      {...componentProps.input}
     />
   );
 };
