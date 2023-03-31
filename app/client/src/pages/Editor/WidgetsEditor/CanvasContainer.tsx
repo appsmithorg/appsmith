@@ -156,7 +156,7 @@ function CanvasContainer(props: CanvasContainerProps) {
       <Container
         $isAutoLayout={isAutoLayout}
         background={
-          isPreviewMode
+          isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
             ? selectedTheme.properties.colors.backgroundColor
             : "initial"
         }
