@@ -156,7 +156,7 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   cy.moveToStyleTab();
   cy.get(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
-  cy.get(".bp3-overlay-backdrop").click({ force: true });
+  cy.get(".bp3-overlay-backdrop").last().click({ force: true });
 });
 
 Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
