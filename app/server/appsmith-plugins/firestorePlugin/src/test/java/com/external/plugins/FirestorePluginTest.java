@@ -646,6 +646,29 @@ public class FirestorePluginTest {
     }
 
     @Test
+    public void testTestDatasource_withInvalidProjectId() {
+
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Firestore firestoreConnection1 = FirestoreOptions.newBuilder()
+                .setHost(emulator.getEmulatorEndpoint())
+                .setCredentials(NoCredentials.getInstance())
+                .setRetrySettings(ServiceOptions.getNoRetrySettings())
+                .setProjectId("test-project-invalid")
+                .build()
+                .getService();
+        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection1));
+        final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+                    assertFalse(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testGetDocumentsInCollectionOrdering() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 

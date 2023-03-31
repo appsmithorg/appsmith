@@ -16,6 +16,7 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -24,6 +25,7 @@ import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -902,11 +904,27 @@ public class FirestorePlugin extends BasePlugin {
                         try {
                             return FirebaseApp.getInstance(projectId);
                         } catch (IllegalStateException e) {
-                            return FirebaseApp.initializeApp(options, projectId);
+                            return FirebaseApp.initializeApp(options,projectId);
                         }
                     })
                     .map(FirestoreClient::getFirestore)
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration){
+
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> {
+                        try {
+                            connection.listCollections();
+                        } catch (FirestoreException e){
+                            log.debug("Invalid datasource configuration : {}",e.getMessage());
+                            return Mono.just(new DatasourceTestResult(FirestoreErrorMessages.
+                                    DS_VALIDATION_FAILED_FOR_PROJECT_ID));
+                        }
+                        return Mono.just(new DatasourceTestResult());
+                    });
         }
 
         @Override
