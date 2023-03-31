@@ -192,6 +192,9 @@ export const editorContextReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (state: EditorContextState) => {
     state.entityCollapsibleFields[entitySections["Queries/JS"]] = true;
   },
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (state: EditorContextState) => {
+    state.entityCollapsibleFields[entitySections["Queries/JS"]] = true;
+  },
   [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: (state: EditorContextState) => {
     state.entityCollapsibleFields[entitySections["Queries/JS"]] = true;
   },
