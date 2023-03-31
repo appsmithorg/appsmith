@@ -111,7 +111,7 @@ describe("Fork application across workspaces", function () {
           agHelper.GetNClick(locators._dialogCloseButton);
           cy.LogOut();
           cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-          _.homePage.CreateNewApplication();
+          homePageHelper.CreateNewApplication();
         });
       });
     });
