@@ -10,8 +10,6 @@ import {
 } from "actions/pluginActionActions";
 
 import { useNewActionName } from "./helpers";
-import styled from "styled-components";
-import { Classes } from "design-system-old";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
@@ -41,43 +39,6 @@ type EntityContextMenuProps = {
   isChangePermitted?: boolean;
   isDeletePermitted?: boolean;
 };
-
-export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
-  width: 34px;
-  height: 30px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-
-  &&&& span {
-    width: auto;
-  }
-
-  .${Classes.ICON} {
-    fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.normal};
-  }
-
-  ${(props) =>
-    props.isOpen
-      ? `
-		background-color: ${props.theme.colors.treeDropdown.targetBg};
-
-    &&&& .${Classes.ICON} {
-      fill: ${props.theme.colors.treeDropdown.targetIcon.hover};
-    }
-	`
-      : null}
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
-
-    &&&& .${Classes.ICON} {
-      fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.hover};
-    }
-  }
-`;
 
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
@@ -137,14 +98,12 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
       open={isMenuOpen}
     >
       <MenuTrigger>
-        <MoreActionablesContainer className={props.className}>
-          <Button
-            isIconButton
-            kind="tertiary"
-            size="sm"
-            startIcon="context-menu"
-          />
-        </MoreActionablesContainer>
+        <Button
+          isIconButton
+          kind="tertiary"
+          size="md"
+          startIcon="context-menu"
+        />
       </MenuTrigger>
       <MenuContent loop style={{ zIndex: 100 }} width="200px">
         {isChangePermitted && (
