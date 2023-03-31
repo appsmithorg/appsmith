@@ -698,6 +698,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             <BoundaryContainer
               data-replay-id={btoa("actionConfiguration.httpMethod")}
             >
+              {/* TODO: Use select here internally */}
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
                 disabled={!isChangePermitted}

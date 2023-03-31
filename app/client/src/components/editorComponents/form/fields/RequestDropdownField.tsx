@@ -22,6 +22,7 @@ interface RequestDropdownProps {
 const renderComponent = (
   componentProps: WrappedFieldProps & RequestDropdownProps,
 ) => {
+  // TODO (tanvi): Use select from ds here
   return <DropdownFieldWrapper {...componentProps} />;
 };
 
