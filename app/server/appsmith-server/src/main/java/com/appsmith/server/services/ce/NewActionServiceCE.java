@@ -1,12 +1,13 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
@@ -110,4 +112,14 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
+
+    Mono<Void> parseExecuteActionPart(Part part, ExecuteActionDTO executeActionDTO);
+
+    Mono<Void> parseExecuteParameterMapPart(Part part, ExecuteActionDTO dto);
+
+    Mono<Param> parseExecuteParameter(Part part, AtomicLong totalReadableByteCount);
+
+    Mono<Void> parseExecuteBlobs(Flux<Part> partsFlux, ExecuteActionDTO dto, AtomicLong totalReadableByteCount);
+
+    String replaceBlobValuesInParam(String value, List<String> blobIdentifiers, Map<String, String> blobValuesMap);
 }

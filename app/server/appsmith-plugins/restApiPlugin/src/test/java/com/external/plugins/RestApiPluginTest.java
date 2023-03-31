@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ParamProperty;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
@@ -159,9 +160,9 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter","abc 11"),
-                new Property("pageSize","1"),
-                new Property("page","3")
+                new Property("mock_filter", "abc 11"),
+                new Property("pageSize", "1"),
+                new Property("page", "3")
         );
 
         ActionConfiguration actionConfig = new ActionConfiguration();
@@ -179,9 +180,9 @@ public class RestApiPluginTest {
 
         actionConfig.setEncodeParamsToggle(true);
 
-        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
 
-        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+        actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
@@ -223,9 +224,9 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter","abc 11"),
-                new Property("pageSize","1"),
-                new Property("page","3")
+                new Property("mock_filter", "abc 11"),
+                new Property("pageSize", "1"),
+                new Property("page", "3")
         );
 
         ActionConfiguration actionConfig = new ActionConfiguration();
@@ -243,9 +244,9 @@ public class RestApiPluginTest {
 
         actionConfig.setEncodeParamsToggle(true);
 
-        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
 
-        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+        actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
@@ -286,9 +287,9 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter","abc 11"),
-                new Property("pageSize","1"),
-                new Property("page","3")
+                new Property("mock_filter", "abc 11"),
+                new Property("pageSize", "1"),
+                new Property("page", "3")
         );
 
         ActionConfiguration actionConfig = new ActionConfiguration();
@@ -306,9 +307,9 @@ public class RestApiPluginTest {
 
         actionConfig.setEncodeParamsToggle(true);
 
-        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
 
-        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+        actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
@@ -349,9 +350,9 @@ public class RestApiPluginTest {
         final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("mock_filter","abc 11"),
-                new Property("pageSize","1"),
-                new Property("page","3")
+                new Property("mock_filter", "abc 11"),
+                new Property("pageSize", "1"),
+                new Property("page", "3")
         );
 
         ActionConfiguration actionConfig = new ActionConfiguration();
@@ -369,9 +370,9 @@ public class RestApiPluginTest {
 
         actionConfig.setEncodeParamsToggle(true);
 
-        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
 
-        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+        actionConfig.setFormData(Collections.singletonMap("apiContentType", "none"));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
 
@@ -490,15 +491,17 @@ public class RestApiPluginTest {
         param.setPseudoBindingName("k0");
 
         executeActionDTO.setParams(Collections.singletonList(param));
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
-        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
-        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
+        ParamProperty paramProperty = new ParamProperty();
+        paramProperty.setDatatype("string");
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0", paramProperty));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text", "k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0", "Input1.text"));
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("https://postman-echo.com/get");
 
         final List<Property> headers = List.of(
-                new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
+                new Property("content-type", MediaType.TEXT_PLAIN_VALUE));
 
         final List<Property> queryParameters = List.of();
 
@@ -513,13 +516,13 @@ public class RestApiPluginTest {
 
         actionConfiguration.setEncodeParamsToggle(true);
 
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
 
         actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
 
-        String[] requestBodyList = {"abc is equals to {{Input1.text}}","{ \"abc\": {{Input1.text}} }",""};
+        String[] requestBodyList = {"abc is equals to {{Input1.text}}", "{ \"abc\": {{Input1.text}} }", ""};
 
-        String[] finalRequestBodyList = {"abc is equals to \"123\"","{ \"abc\": \"123\" }",""};
+        String[] finalRequestBodyList = {"abc is equals to \"123\"", "{ \"abc\": \"123\" }", ""};
 
         for (int requestBodyIndex = 0; requestBodyIndex < requestBodyList.length; requestBodyIndex++) {
 
@@ -543,7 +546,7 @@ public class RestApiPluginTest {
                             index++;
                             actualRequestBody.append(ans.asText());
                         }
-                        assertEquals(finalRequestBodyList[currentIndex],actualRequestBody.toString());
+                        assertEquals(finalRequestBodyList[currentIndex], actualRequestBody.toString());
                         final ActionExecutionRequest request = result.getRequest();
                         assertEquals(HttpMethod.GET, request.getHttpMethod());
                     })
@@ -876,7 +879,7 @@ public class RestApiPluginTest {
                 new Property("content-type", "application/json"),
                 new Property(HttpHeaders.AUTHORIZATION, "auth-value")
         ));
-        actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type","application/json")));
+        actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
 
         String requestBody = "{\"key\":\"value\"}";
@@ -1539,7 +1542,7 @@ public class RestApiPluginTest {
         assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode).distinct().count() == RestApiPluginError.values().length);
 
         assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
+                .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
                 .collect(Collectors.toList()).size() == 0);
 
     }
