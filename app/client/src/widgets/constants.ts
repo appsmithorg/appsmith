@@ -17,7 +17,7 @@ import type { WidgetProps } from "./BaseWidget";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
-  configuration: (props: WidgetProps) => Record<string, string | number>;
+  configuration: (props: any) => Record<string, string | number>;
 };
 
 type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
