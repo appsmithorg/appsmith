@@ -106,6 +106,30 @@ export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
   };
 };
 
+export const fetchGheetSpreadsheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+  payload,
+});
+
+export const fetchGheetSheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+  payload,
+});
+
+export const fetchGheetColumns = (payload: {
+  datasourceId: string;
+  data: Record<string, unknown>;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_COLUMNS,
+  payload,
+});
+
 export const expandDatasourceEntity = (id: string) => {
   return {
     type: ReduxActionTypes.EXPAND_DATASOURCE_ENTITY,

@@ -373,6 +373,17 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   },
 );
 
+export const getPluginIdPackageNamesMap = createSelector(
+  getPlugins,
+  (plugins) => {
+    return plugins.reduce((obj: Record<string, string>, plugin) => {
+      obj[plugin.id] = plugin.packageName;
+
+      return obj;
+    }, {});
+  },
+);
+
 export const getActionsForCurrentPage = createSelector(
   getCurrentPageId,
   getActions,

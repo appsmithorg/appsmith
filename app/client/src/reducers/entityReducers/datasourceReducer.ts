@@ -10,6 +10,8 @@ import type {
   MockDatasource,
 } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { DropdownOption } from "design-system-old";
+import produce from "immer";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -28,6 +30,14 @@ export interface DatasourceDataState {
   isDatasourceBeingSavedFromPopup: boolean;
   gsheetToken: string;
   gsheetProjectID: string;
+  gsheetStructure: {
+    spreadsheets: Record<string, DropdownOption[]>;
+    sheets: Record<string, DropdownOption[]>;
+    columns: Record<string, DropdownOption[]>;
+    isFetchingSpreadsheets: boolean;
+    isFetchingSheets: boolean;
+    isFetchingColumns: boolean;
+  };
 }
 
 const initialState: DatasourceDataState = {
@@ -47,6 +57,14 @@ const initialState: DatasourceDataState = {
   isDatasourceBeingSavedFromPopup: false,
   gsheetToken: "",
   gsheetProjectID: "",
+  gsheetStructure: {
+    spreadsheets: {},
+    sheets: {},
+    columns: {},
+    isFetchingSpreadsheets: false,
+    isFetchingSheets: false,
+    isFetchingColumns: false,
+  },
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -469,6 +487,96 @@ const datasourceReducer = createReducer(initialState, {
       gsheetProjectID: action.payload.gsheetProjectID,
     };
   },
+  [ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS]: (
+    state: DatasourceDataState,
+  ) => ({
+    ...state,
+    gsheetStructure: {
+      ...state.gsheetStructure,
+      isFetchingSpreadsheets: true,
+    },
+  }),
+  [ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ id: string; data: DropdownOption[] }>,
+  ) => {
+    return produce(state, (draftState) => {
+      draftState.gsheetStructure.spreadsheets[action.payload.id] =
+        action.payload.data;
+      draftState.gsheetStructure.isFetchingSpreadsheets = false;
+    });
+  },
+  [ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_FAILURE]: (
+    state: DatasourceDataState,
+  ) => ({
+    ...state,
+    gsheetStructure: {
+      ...state.gsheetStructure,
+      isFetchingSpreadsheets: false,
+    },
+  }),
+  [ReduxActionTypes.FETCH_GSHEET_SHEETS]: (state: DatasourceDataState) => ({
+    ...state,
+    gsheetStructure: {
+      ...state.gsheetStructure,
+      isFetchingSheets: true,
+    },
+  }),
+  [ReduxActionTypes.FETCH_GSHEET_SHEETS_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ id: string; data: DropdownOption[] }>,
+  ) => {
+    return produce(state, (draftState) => {
+      draftState.gsheetStructure.sheets[action.payload.id] =
+        action.payload.data;
+      draftState.gsheetStructure.isFetchingSheets = false;
+    });
+  },
+  [ReduxActionTypes.FETCH_GSHEET_SHEETS_FAILURE]: (
+    state: DatasourceDataState,
+  ) => ({
+    ...state,
+    gsheetStructure: {
+      ...state.gsheetStructure,
+      isFetchingSheets: false,
+    },
+  }),
+  [ReduxActionTypes.FETCH_GSHEET_COLUMNS]: (state: DatasourceDataState) => ({
+    ...state,
+    gsheetStructure: {
+      ...state.gsheetStructure,
+      isFetchingColumns: true,
+    },
+  }),
+  [ReduxActionTypes.FETCH_GSHEET_COLUMNS_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ id: string; data: DropdownOption[] }>,
+  ) => {
+    return produce(state, (draftState) => {
+      draftState.gsheetStructure.columns[action.payload.id] =
+        action.payload.data;
+      draftState.gsheetStructure.isFetchingColumns = false;
+    });
+  },
+  [ReduxActionTypes.FETCH_GSHEET_COLUMNS_FAILURE]: (
+    state: DatasourceDataState,
+  ) => ({
+    ...state,
+    gsheetStructure: {
+      ...state.gsheetStructure,
+      isFetchingColumns: false,
+    },
+  }),
 });
 
 export default datasourceReducer;
+
+/* 
+
+spreadsheets: Record<string, DropdownOption[]>;
+sheets: Record<string, DropdownOption[]>;
+columns: Record<string, DropdownOption[]>;
+isFetchingSpreadsheets: boolean;
+isFetchingSheets: boolean;
+isFetchingColumns: boolean;
+*/
