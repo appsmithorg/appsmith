@@ -39,6 +39,7 @@ const ShareToggle = styled.div`
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
   ${({ canInviteToApplication }) =>
     canInviteToApplication ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
+  margin-top: 12px;
 `;
 
 function AppInviteUsersForm(props: any) {
