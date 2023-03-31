@@ -608,6 +608,7 @@ function* runActionSaga(
         "statusCode",
         `${clientDefinedErrorMetadata?.statusCode || ""}`,
       );
+      set(payload, "request", {});
       set(
         payload,
         "pluginErrorDetails",
