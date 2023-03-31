@@ -107,6 +107,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -2231,23 +2232,28 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Flux<Param> parsePartsAndGetParamsFlux(Flux<Part> partFlux, AtomicLong totalReadableByteCount, ExecuteActionDTO dto) {
         return partFlux
                 .groupBy(part -> {
-                    // TODO : Switch this out to a tuple like representation of the Appsmith header and the key
                     // We're grouping parts by the type of processing required
-                    // Expected types: META, VALUE, BLOB
-                    return part.name();
+                    // Expected types: meta, value, blob
+                    return List.of(Objects.requireNonNull(part.headers().get("x-appsmith-type")).get(0), part.name());
                 })
                 .flatMap(groupedPartsFlux -> {
-                    String key = groupedPartsFlux.key();
-                    // TODO : Switch this out to use combo above
-                    return switch (key) {
-                        case "executeActionDTO" ->
-                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
-                        case "parameterMap" ->
-                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
-                        case "k0" ->
+                    List<String> key = groupedPartsFlux.key();
+                    return switch (key.get(0)) {
+                        case "value" ->
                                 groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
-                        default ->
+                        case "blob" ->
                                 this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
+                        case "meta" -> {
+                            if (key.get(1).equals("executeActionDTO")) {
+                                yield groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
+                            } else if (key.get(1).equals("parameterMap")) {
+                                yield groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
+                            } else {
+                                yield Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found."));
+                            }
+                        }
+                        default ->
+                                Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found."));
                     };
                 });
     }
