@@ -28,6 +28,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentAppPositioningType,
+  getIsAutoLayout,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
@@ -64,7 +65,8 @@ export function* updateLayoutForMobileCheckpoint(
 ) {
   try {
     const start = performance.now();
-
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    if (!isAutoLayout) return;
     //Do not recalculate columns and update layout while converting layout
     const isCurrentlyConvertingLayout: boolean = yield select(
       getIsCurrentlyConvertingLayout,

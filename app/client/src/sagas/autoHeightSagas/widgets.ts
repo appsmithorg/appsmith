@@ -45,6 +45,7 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import {
   getDimensionMap,
+  getIsAutoLayout,
   getWidgetsForBreakpoint,
 } from "selectors/editorSelectors";
 
@@ -588,38 +589,43 @@ export function* updateWidgetAutoHeightSaga(
   log.debug("Auto height: Widgets to update:", { widgetsToUpdate });
 
   if (Object.keys(widgetsToUpdate).length > 0) {
-    // Enhance widget updates based on breakpoint
-    const dimensionMap: {
-      leftColumn: string;
-      rightColumn: string;
-      topRow: string;
-      bottomRow: string;
-    } = yield select(getDimensionMap);
-    const dimensions = Object.keys(dimensionMap);
-    const enhancedWidegtUpdates = Object.keys(widgetsToUpdate).reduce(
-      (allWidgetsToUpdate, updatingWidget) => {
-        const widget = widgetsToUpdate[updatingWidget];
-        const enhancedUpdates = widget.map((eachUpdate) => {
-          if (dimensions.includes(eachUpdate.propertyPath)) {
-            eachUpdate.propertyPath = (dimensionMap as any)[
-              eachUpdate.propertyPath
-            ];
-          }
-          return eachUpdate;
-        });
-        return {
-          ...allWidgetsToUpdate,
-          [updatingWidget]: enhancedUpdates,
-        };
-      },
-      widgetsToUpdate,
-    );
+    let enhancedWidgetUpdates = widgetsToUpdate;
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    if (isAutoLayout) {
+      // Enhance widget updates based on breakpoint
+      const dimensionMap: {
+        leftColumn: string;
+        rightColumn: string;
+        topRow: string;
+        bottomRow: string;
+      } = yield select(getDimensionMap);
+      const dimensions = Object.keys(dimensionMap);
+      enhancedWidgetUpdates = Object.keys(widgetsToUpdate).reduce(
+        (allWidgetsToUpdate, updatingWidget) => {
+          const widget = widgetsToUpdate[updatingWidget];
+          const enhancedUpdates = widget.map((eachUpdate) => {
+            if (dimensions.includes(eachUpdate.propertyPath)) {
+              eachUpdate.propertyPath = (dimensionMap as any)[
+                eachUpdate.propertyPath
+              ];
+            }
+            return eachUpdate;
+          });
+          return {
+            ...allWidgetsToUpdate,
+            [updatingWidget]: enhancedUpdates,
+          };
+        },
+        widgetsToUpdate,
+      );
+    }
+
     if (!action?.payload) {
       // Push all updates to the CanvasWidgetsReducer.
       // Note that we're not calling `UPDATE_LAYOUT`
       // as we don't need to trigger an eval
       yield put(
-        updateMultipleWidgetPropertiesAction(enhancedWidegtUpdates, shouldEval),
+        updateMultipleWidgetPropertiesAction(enhancedWidgetUpdates, shouldEval),
       );
       resetAutoHeightUpdateQueue();
       yield put(
@@ -631,7 +637,7 @@ export function* updateWidgetAutoHeightSaga(
       );
     }
     directlyMutateDOMNodes(
-      enhancedWidegtUpdates as Record<
+      enhancedWidgetUpdates as Record<
         string,
         Array<{ propertyPath: string; propertyValue: number }>
       >,

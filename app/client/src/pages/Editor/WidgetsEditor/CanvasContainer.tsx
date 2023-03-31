@@ -146,17 +146,19 @@ function CanvasContainer(props: CanvasContainerProps) {
   const smallHeaderHeight = showCanvasTopSection
     ? theme.smallHeaderHeight
     : "0px";
-  const scrollBarHeight = isPreviewMode ? "10px" : "40px";
+  const scrollBarHeight =
+    isPreviewMode || isPreviewingNavigation ? "10px" : "40px";
+  const navHeight = isPreviewingNavigation ? 0 : navigationHeight;
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
-  const heightWithTopMargin = `calc(100vh - 2rem - ${navigationHeight} - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight})`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navHeight}px)`;
   const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
       <Container
         $isAutoLayout={isAutoLayout}
         background={
-          isPreviewMode
+          isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
             ? selectedTheme.properties.colors.backgroundColor
             : "initial"
         }
