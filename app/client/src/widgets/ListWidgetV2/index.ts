@@ -368,6 +368,7 @@ export const CONFIG = {
                 bottomRow: 6,
                 leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
                 rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+                widthInPercentage: 16 / GridDefaults.DEFAULT_GRID_COLUMNS,
               },
             });
           },
@@ -469,7 +470,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "280px",
-            maxWidth: "300px",
+            minHeight: "300px",
           };
         },
       },

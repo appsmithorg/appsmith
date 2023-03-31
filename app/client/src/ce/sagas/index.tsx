@@ -7,7 +7,7 @@ import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import { watchActionSagas } from "sagas/ActionSagas";
 import apiPaneSagas from "sagas/ApiPaneSagas";
-import applicationSagas from "sagas/ApplicationSagas";
+import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";

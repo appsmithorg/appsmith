@@ -1,10 +1,10 @@
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
-import type { ReactNode } from "react";
-import React, { useEffect, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { ResizeWrapper } from "resizable/common";
+import { getWrapperStyle, ResizeWrapper } from "resizable/common";
 import type { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -290,6 +290,16 @@ export const Resizable = function Resizable(props: ResizableProps) {
       },
     );
   };
+  const onResizeStopCallback = useCallback(onResizeStop, [
+    props.onStop,
+    newDimensions,
+  ]);
+
+  const onResizeStart = () => {
+    togglePointerEvents(false);
+    props.onStart();
+  };
+  const onResizeStartCallback = useCallback(onResizeStart, [props.onStart]);
   const showResizeBoundary = props.enableHorizontalResize;
   const renderHandles = handles.map((handle, index) => {
     const disableDot =
@@ -306,15 +316,17 @@ export const Resizable = function Resizable(props: ResizableProps) {
         disableDot={disableDot}
         isHovered={showResizeBoundary}
         key={index}
-        onStart={() => {
-          togglePointerEvents(false);
-          props.onStart();
-        }}
-        onStop={onResizeStop}
+        onStart={onResizeStartCallback}
+        onStop={onResizeStopCallback}
         snapGrid={props.snapGrid}
       />
     );
   });
+  const resizeWrapperStyle: CSSProperties = getWrapperStyle(
+    false,
+    showResizeBoundary,
+    showResizeBoundary,
+  );
 
   return (
     <Spring
@@ -338,9 +350,7 @@ export const Resizable = function Resizable(props: ResizableProps) {
         <ResizeWrapper
           $prevents={pointerEvents}
           className={props.className}
-          isHovered={showResizeBoundary}
-          showBoundaries={showResizeBoundary}
-          style={_props}
+          style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}
           {props.enableHorizontalResize && renderHandles}

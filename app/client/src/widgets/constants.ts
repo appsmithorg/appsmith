@@ -73,6 +73,7 @@ export enum BlueprintOperationTypes {
   BEFORE_DROP = "BEFORE_DROP",
   BEFORE_PASTE = "BEFORE_PASTE",
   BEFORE_ADD = "BEFORE_ADD",
+  UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {

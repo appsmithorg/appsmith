@@ -47,12 +47,17 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
     const modalWidgetId = generateReactKey();
-    const props: WidgetAddChild = {
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const newWidget: WidgetAddChild = {
       widgetId: MAIN_CONTAINER_WIDGET_ID,
       widgetName: action.payload.modalName,
       type: WidgetTypes.MODAL_WIDGET,
@@ -65,10 +70,35 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       rows: 0,
       tabId: "",
     };
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: props,
-    });
+
+    if (isAutoLayout) {
+      const dropPayload = {
+        alignment: FlexLayerAlignment.Center,
+        index: 0,
+        isNewLayer: true,
+        layerIndex: 0,
+        rowIndex: 0,
+      };
+      newWidget.props = {
+        alignment: FlexLayerAlignment.Center,
+      };
+
+      yield put({
+        type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+        payload: {
+          dropPayload,
+          newWidget,
+          parentId: MAIN_CONTAINER_WIDGET_ID,
+          direction: LayoutDirection.Vertical,
+          addToBottom: true,
+        },
+      });
+    } else {
+      yield put({
+        type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+        payload: newWidget,
+      });
+    }
   } catch (error) {
     log.error(error);
     yield put({

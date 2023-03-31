@@ -560,6 +560,7 @@ abstract class BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <FlexComponent
+        alignment={this.props.alignment}
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         direction={this.props.direction || LayoutDirection.Horizontal}
@@ -812,6 +813,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   flexVerticalAlignment?: FlexVerticalAlignment;
   appPositioningType?: AppPositioningTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
+  mobileWidthInPercentage?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {

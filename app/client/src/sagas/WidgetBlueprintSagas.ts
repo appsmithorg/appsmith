@@ -81,6 +81,7 @@ export type BlueprintBeforeOperationsFn = (
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
   parentId: string,
+  isAutoLayout?: boolean,
 ) => void;
 
 export type BlueprintOperationFunction =
@@ -255,10 +256,12 @@ export function* executeWidgetBlueprintBeforeOperations(
     | BlueprintOperationTypes.BEFORE_ADD
     | BlueprintOperationTypes.BEFORE_DROP
     | BlueprintOperationTypes.BEFORE_PASTE
+    | BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD
   >,
   params: ExecuteWidgetBlueprintBeforeOperationsParams,
 ) {
   const { parentId, widgetId, widgets, widgetType } = params;
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   const blueprintOperations: BlueprintOperation[] =
     WidgetFactory.widgetConfigMap.get(widgetType)?.blueprint?.operations ?? [];
 
@@ -267,9 +270,10 @@ export function* executeWidgetBlueprintBeforeOperations(
   );
 
   if (beforeAddOperation)
-    (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
+    return (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
       widgets,
       widgetId,
       parentId,
+      isAutoLayout,
     );
 }

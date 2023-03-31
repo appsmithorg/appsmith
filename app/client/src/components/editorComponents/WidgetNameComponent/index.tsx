@@ -1,7 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import type { WidgetType } from "constants/WidgetConstants";
-import React from "react";
+import React, { useMemo } from "react";
 // import type { CSSProperties } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -27,10 +27,13 @@ import {
   isCurrentWidgetActiveInPropertyPane,
   isCurrentWidgetFocused,
   isMultiSelectedWidget,
+  isResizingOrDragging,
   showWidgetAsSelected,
 } from "selectors/widgetSelectors";
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { Layers } from "constants/Layers";
+import memoize from "micro-memoize";
+import { NavigationMethod } from "utils/history";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -90,12 +93,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const { selectWidget } = useWidgetSelection();
 
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
 
   const shouldHideErrors = useSelector(hideErrors);
 
@@ -106,7 +103,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isCurrentWidgetActiveInPropertyPane(props.widgetId),
   );
 
-  const togglePropertyEditor = (e: any) => {
+  const togglePropertyEditor = memoize((e: any) => {
     if (isSnipingMode) {
       dispatch(
         bindDataToWidget({
@@ -126,7 +123,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
+      selectWidget &&
+        selectWidget(
+          SelectionRequestType.One,
+          [props.widgetId],
+          NavigationMethod.CanvasClick,
+        );
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
@@ -136,23 +138,23 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
 
     e.preventDefault();
     e.stopPropagation();
-  };
+  });
   const showAsSelected = useSelector(showWidgetAsSelected(props.widgetId));
 
   const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
   // True when any widget is dragging or resizing, including this one
-  const isResizingOrDragging = !!isResizing || !!isDragging;
+  const resizingOrDragging = useSelector(isResizingOrDragging);
   const shouldShowWidgetName = () => {
     return (
       !isAutoCanvasResizing &&
-      !isResizingOrDragging &&
+      !resizingOrDragging &&
       !isPreviewMode &&
       !isAppSettingsPaneWithNavigationTabOpen &&
       !isMultiSelected &&
       (isSnipingMode
         ? isFocused
         : props.showControls ||
-          ((isFocused || showAsSelected) && !isDragging && !isResizing))
+          ((isFocused || showAsSelected) && !resizingOrDragging))
     );
   };
 
@@ -160,20 +162,35 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
   // with sniping mode.
   const showWidgetName = shouldShowWidgetName();
+  const isModalWidget = props.type === WidgetTypes.MODAL_WIDGET;
+  const getCurrentActivity = () => {
+    let activity =
+      props.type === WidgetTypes.MODAL_WIDGET
+        ? Activities.HOVERING
+        : Activities.NONE;
+    if (isFocused) activity = Activities.HOVERING;
+    if (showAsSelected) activity = Activities.SELECTED;
+    if (showAsSelected && isActiveInPropertyPane) activity = Activities.ACTIVE;
+    return activity;
+  };
 
-  let currentActivity =
-    props.type === WidgetTypes.MODAL_WIDGET
-      ? Activities.HOVERING
-      : Activities.NONE;
-  if (isFocused) currentActivity = Activities.HOVERING;
-  if (showAsSelected) currentActivity = Activities.SELECTED;
-  if (showAsSelected && isActiveInPropertyPane)
-    currentActivity = Activities.ACTIVE;
+  const currentActivity = useMemo(getCurrentActivity, [
+    isActiveInPropertyPane,
+    isFocused,
+    isModalWidget,
+    showAsSelected,
+  ]);
+
+  const getPositionOffset = (): [number, number] => {
+    return isAutoLayout
+      ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
+      : [0, -RESIZE_BORDER_BUFFER];
+  };
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
-  const positionOffset: [number, number] = isAutoLayout
-    ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
-    : [0, -RESIZE_BORDER_BUFFER];
+  const positionOffset: [number, number] = useMemo(getPositionOffset, [
+    isAutoLayout,
+  ]);
 
   // const positionStyle: CSSProperties = useMemo(() => {
   //   return {

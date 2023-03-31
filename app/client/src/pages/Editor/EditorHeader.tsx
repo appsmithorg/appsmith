@@ -33,13 +33,13 @@ import DeployLinkButtonDialog from "components/designSystems/appsmith/header/Dep
 import {
   setShowAppInviteUsersDialog,
   updateApplication,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";

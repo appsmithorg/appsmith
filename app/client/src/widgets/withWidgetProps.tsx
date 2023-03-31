@@ -87,6 +87,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
     const isMobile = useSelector(getIsMobile);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
+    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -197,10 +198,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
       if (defaultAutoLayoutWidgets.includes(props.type)) {
-        widgetProps.positioning =
-          appPositioningType === AppPositioningTypes.AUTO
-            ? Positioning.Vertical
-            : Positioning.Fixed;
+        widgetProps.positioning = isAutoLayout
+          ? Positioning.Vertical
+          : Positioning.Fixed;
       }
 
       widgetProps.children = children;

@@ -148,11 +148,9 @@ export const useAutoToFixedLayoutFlow = (
       },
     },
     [CONVERSION_STATES.SNAPSHOT_SPINNER]: {
-      cancelButtonText: createMessage(CANCEL_DIALOG),
       spinner: createMessage(CREATE_SNAPSHOT),
     },
     [CONVERSION_STATES.CONVERSION_SPINNER]: {
-      cancelButtonText: createMessage(CANCEL_DIALOG),
       spinner: createMessage(CONVERTING_APP),
     },
     ...commonConversionFlows(dispatch, onCancel),

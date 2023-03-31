@@ -22,6 +22,7 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import ContainerWidget from "widgets/ContainerWidget/widget";
 import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -88,7 +89,12 @@ class CanvasWidget extends ContainerWidget {
     props: ContainerWidgetProps<WidgetProps>,
   ): JSX.Element {
     const direction = this.getDirection();
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.appPositioningType === AppPositioningTypes.AUTO,
+    );
     return (
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
@@ -161,7 +167,12 @@ class CanvasWidget extends ContainerWidget {
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(this.props.bottomRow);
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.appPositioningType === AppPositioningTypes.AUTO,
+    );
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",

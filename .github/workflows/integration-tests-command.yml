@@ -127,8 +127,9 @@ jobs:
       - name: "combine all specs for CI"
         if: needs.ci-test.result != 'success'
         run: |
-          rm -f ~/combined_failed_spec_ci
-          cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
+          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
+          cat ~/failed_spec_ci/failed_spec_ci*
+          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
 
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI

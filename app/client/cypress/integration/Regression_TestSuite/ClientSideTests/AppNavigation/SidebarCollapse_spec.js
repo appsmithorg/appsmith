@@ -17,12 +17,12 @@ describe("Test Sidebar Collapse", function () {
     cy.get(appNavigationLocators.sidebarCollapseButton).should("exist");
   });
 
-  it("2. Sidebar should collapse on click of collapse button", () => {
+  it("3. Sidebar should collapse and open on click of collapse button again", () => {
+    // Collapse
     cy.get(appNavigationLocators.sidebarCollapseButton).click({ force: true });
     cy.get(appNavigationLocators.sidebar).should("not.have.class", "is-open");
-  });
 
-  it("3. Sidebar should open on click of collapse button again", () => {
+    // Open
     cy.get(appNavigationLocators.sidebarCollapseButton).click({ force: true });
     cy.get(appNavigationLocators.sidebar).should("have.class", "is-open");
     // Back to editor
