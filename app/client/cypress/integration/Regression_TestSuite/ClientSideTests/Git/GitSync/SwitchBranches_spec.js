@@ -119,6 +119,9 @@ describe("Git sync:", function () {
       .should("be.visible")
       .should("have.class", "activePage");
 
+    cy.GlobalSearchEntity("ParentPage1");
+    cy.contains("ParentPage1").click();
+
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
@@ -259,7 +262,6 @@ describe("Git sync:", function () {
         .should("have.class", "activePage");
       cy.get(".t--canvas-artboard").should("be.visible");
     });
-    cy.go("back");
     cy.reload();
   });
 
