@@ -138,6 +138,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 onClick={() => {
                   this.props.setDatasourceViewMode(false);
                 }}
+                size="md"
               >
                 Edit
               </Button>
