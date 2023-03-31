@@ -160,11 +160,11 @@ class CheckboxGroupWidget extends BaseWidget<
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "left-align",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "right-align",
                 value: Alignment.RIGHT,
               },
             ],
@@ -371,11 +371,11 @@ class CheckboxGroupWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "layout-line",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "layout-line",
                 value: "ITALIC",
               },
             ],

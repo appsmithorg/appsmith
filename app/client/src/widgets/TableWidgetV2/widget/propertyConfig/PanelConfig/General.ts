@@ -152,15 +152,15 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       options: [
         {
-          icon: "VERTICAL_LEFT",
+          startIcon: "arrow-left-s-line",
           value: StickyType.LEFT,
         },
         {
-          icon: "COLUMN_UNFREEZE",
+          startIcon: "arrow-left-s-line",
           value: StickyType.NONE,
         },
         {
-          icon: "VERTICAL_RIGHT",
+          startIcon: "arrow-left-s-right",
           value: StickyType.RIGHT,
         },
       ],

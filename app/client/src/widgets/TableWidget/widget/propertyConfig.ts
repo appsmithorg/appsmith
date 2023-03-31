@@ -585,15 +585,15 @@ export default [
                   controlType: "ICON_TABS",
                   options: [
                     {
-                      icon: "LEFT_ALIGN",
+                      startIcon: "arrow-left-s-line",
                       value: "LEFT",
                     },
                     {
-                      icon: "CENTER_ALIGN",
+                      startIcon: "arrow-left-s-line",
                       value: "CENTER",
                     },
                     {
-                      icon: "RIGHT_ALIGN",
+                      startIcon: "arrow-right-s-line",
                       value: "RIGHT",
                     },
                   ],
@@ -702,18 +702,31 @@ export default [
                   controlType: "ICON_TABS",
                   options: [
                     {
-                      icon: "VERTICAL_TOP",
+                      startIcon: "arrow-left-s-line",
                       value: "TOP",
                     },
                     {
-                      icon: "VERTICAL_CENTER",
+                      startIcon: "arrow-right-s-line",
                       value: "CENTER",
                     },
                     {
-                      icon: "VERTICAL_BOTTOM",
+                      startIcon: "arrow-right-s-line",
                       value: "BOTTOM",
                     },
                   ],
+                  //   {
+                  //     icon: "VERTICAL_TOP",
+                  //     value: "TOP",
+                  //   },
+                  //   {
+                  //     icon: "VERTICAL_CENTER",
+                  //     value: "CENTER",
+                  //   },
+                  //   {
+                  //     icon: "VERTICAL_BOTTOM",
+                  //     value: "BOTTOM",
+                  //   },
+                  // ],
                   defaultValue: "CENTER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -1743,15 +1756,15 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            icon: "VERTICAL_TOP",
+            startIcon: "arrow-left-s-line",
             value: "TOP",
           },
           {
-            icon: "VERTICAL_CENTER",
+            startIcon: "arrow-right-s-line",
             value: "CENTER",
           },
           {
-            icon: "VERTICAL_BOTTOM",
+            startIcon: "arrow-right-s-line",
             value: "BOTTOM",
           },
         ],

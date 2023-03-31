@@ -1,17 +1,20 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 
+import { Input } from "design-system";
 import _ from "lodash";
 import {
   StyledDragIcon,
-  StyledOptionControlInputGroup,
+  // StyledOptionControlInputGroup,
   StyledCheckbox,
   StyledActionContainer,
   StyledPinIcon,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
+import type { TextInputProps } from "design-system-old";
 import { CheckboxType } from "design-system-old";
 import { Button } from "design-system";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -154,7 +157,7 @@ export function DraggableListCard(props: RenderComponentProps) {
         <StyledDragIcon name="drag-control" size="md" />
       )}
 
-      <StyledOptionControlInputGroup
+      <StyledInputGroup
         autoFocus={index === focusedIndex}
         className={
           props.item.isDuplicateLabel ? `t--has-duplicate-label-${index}` : ""
@@ -221,3 +224,60 @@ export function DraggableListCard(props: RenderComponentProps) {
     </ItemWrapper>
   );
 }
+
+const StyledInput = styled(Input)`
+  input {
+    padding-left: 20px;
+  }
+`;
+
+const StyledInputGroup = React.forwardRef((props: TextInputProps, ref) => {
+  let inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLInputElement>(null);
+  const { dispatchInteractionAnalyticsEvent } =
+    useInteractionAnalyticsEvent<HTMLInputElement>(false, wrapperRef);
+
+  if (ref) inputRef = ref as React.RefObject<HTMLInputElement>;
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === wrapperRef?.current) {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
+          inputRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (document.activeElement === inputRef?.current) {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
+          wrapperRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Tab":
+        if (document.activeElement === wrapperRef?.current) {
+          dispatchInteractionAnalyticsEvent({
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
+        }
+        break;
+    }
+  };
+
+  return (
+    <div className="w-full" ref={wrapperRef} tabIndex={0}>
+      <StyledInput ref={inputRef} {...props} size="md" tabIndex={-1} />
+    </div>
+  );
+});
+
+StyledInputGroup.displayName = "StyledInputGroup";

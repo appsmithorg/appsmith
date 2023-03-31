@@ -296,15 +296,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             fullWidth: true,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "left-align",
                 value: "LEFT",
               },
               {
-                icon: "CENTER_ALIGN",
+                startIcon: "left-align",
                 value: "CENTER",
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "right-align",
                 value: "RIGHT",
               },
             ],
@@ -321,11 +321,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "layout-line",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "layout-line",
                 value: "ITALIC",
               },
             ],

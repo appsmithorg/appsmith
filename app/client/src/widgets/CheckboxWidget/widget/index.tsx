@@ -6,7 +6,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { AlignWidgetTypes } from "widgets/constants";
+import { Alignment } from "@blueprintjs/core";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -52,12 +52,12 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isTriggerProperty: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
-                value: AlignWidgetTypes.LEFT,
+                startIcon: "arrow-left-s-line",
+                value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
-                value: AlignWidgetTypes.RIGHT,
+                startIcon: "arrow-right-s-line",
+                value: Alignment.RIGHT,
               },
             ],
             validation: { type: ValidationTypes.TEXT },
@@ -213,11 +213,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "layout-line",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "layout-line",
                 value: "ITALIC",
               },
             ],
@@ -349,7 +349,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   isRequired?: boolean;
   accentColor: string;
   borderRadius: string;
-  alignWidget: AlignWidgetTypes;
+  alignWidget: Alignment;
   labelPosition: LabelPosition;
   labelTextColor?: string;
   labelTextSize?: string;

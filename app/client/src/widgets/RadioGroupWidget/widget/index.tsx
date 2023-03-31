@@ -460,11 +460,11 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "layout-line",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "layout-line",
                 value: "ITALIC",
               },
             ],
@@ -488,11 +488,11 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isTriggerProperty: false,
             options: [
               {
-                label: "Left",
+                startIcon: "arrow-left-s-line",
                 value: Alignment.LEFT,
               },
               {
-                label: "Right",
+                startIcon: "arrow-right-s-line",
                 value: Alignment.RIGHT,
               },
             ],

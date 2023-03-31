@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ButtonGroupOption } from "design-system-old";
-import { ButtonGroup } from "design-system-old";
+import { SegmentedControl } from "design-system";
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -67,13 +67,16 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   };
 
   render() {
-    const { options, propertyValue } = this.props;
     return (
-      <ButtonGroup
-        options={options}
+      <SegmentedControl
+        defaultValue={
+          this.props.propertyValue ? this.props.propertyValue.split(",") : []
+        }
+        isFullWidth={false}
+        // @ts-expect-error: Type mismatch
+        onChange={this.selectButton}
+        options={this.props.options}
         ref={this.componentRef}
-        selectButton={this.selectButton}
-        values={propertyValue ? propertyValue.split(",") : []}
       />
     );
   }

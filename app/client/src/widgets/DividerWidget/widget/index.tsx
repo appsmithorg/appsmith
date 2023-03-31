@@ -180,16 +180,16 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             fullWidth: true,
             options: [
               {
-                icon: "DIVIDER_CAP_LEFT",
+                startIcon: "layout-line",
                 value: -1,
               },
               {
-                icon: "DIVIDER_CAP_ALL",
+                startIcon: "layout-line",
                 value: 0,
                 width: 48,
               },
               {
-                icon: "DIVIDER_CAP_RIGHT",
+                startIcon: "layout-line",
                 value: 1,
               },
             ],

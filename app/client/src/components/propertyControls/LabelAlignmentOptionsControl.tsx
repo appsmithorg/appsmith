@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
+import { SegmentedControl } from "design-system";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ButtonGroupOption } from "design-system-old";
-import { ButtonGroup } from "design-system-old";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -13,15 +13,11 @@ import {
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-const ControlContainer = styled.div`
-  & > div:last-child {
-    display: flex;
-    & > div {
-      flex: 1;
-    }
+const StyledSegmentedControl = styled(SegmentedControl)`
+  > .ads-v2-segmented-control__segments-container {
+    flex: 1 1 0%;
   }
 `;
-
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;
   options: ButtonGroupOption[];
@@ -69,15 +65,24 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
   public render() {
     const { options, propertyValue } = this.props;
     return (
-      <ControlContainer>
-        <ButtonGroup
-          options={options}
-          ref={this.componentRef}
-          selectButton={this.handleAlign}
-          values={[propertyValue || Alignment.LEFT]}
-        />
-      </ControlContainer>
+      <StyledSegmentedControl
+        defaultValue={propertyValue || Alignment.LEFT}
+        // @ts-expect-error: type mismatch
+        onChange={this.handleAlign}
+        options={options}
+        ref={this.componentRef}
+      />
     );
+    // return (
+    //   // <ControlContainer>
+    //   //   <ButtonGroup
+    //   //     options={options}
+    //   //     ref={this.componentRef}
+    //   //     selectButton={this.handleAlign}
+    //   //     values={[propertyValue || Alignment.LEFT]}
+    //   //   />
+    //   // </ControlContainer>
+    // );
   }
 
   private handleAlign(align: string, isUpdatedViaKeyboard = false) {

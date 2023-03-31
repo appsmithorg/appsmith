@@ -31,11 +31,11 @@ export default [
         fullWidth: true,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "left-align",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "right-align",
             value: "right",
           },
         ],

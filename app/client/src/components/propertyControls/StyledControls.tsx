@@ -332,6 +332,7 @@ export const StyledOptionControlInputGroup = styled(StyledInputGroup)<{
 export const StyledActionContainer = styled.div`
   position: absolute;
   right: 0px;
+  margin-right: 10px;
   display: flex;
 `;
 

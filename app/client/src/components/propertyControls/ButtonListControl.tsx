@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+// import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
@@ -12,18 +12,18 @@ import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
-const StyledPropertyPaneButtonWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 10px;
-`;
+// const StyledPropertyPaneButtonWrapper = styled.div`
+//   display: flex;
+//   width: 100%;
+//   justify-content: center;
+//   margin-top: 10px;
+// `;
 
-const ButtonListWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
+// const ButtonListWrapper = styled.div`
+//   width: 100%;
+//   display: flex;
+//   flex-direction: column;
+// `;
 
 type State = {
   focusedIndex: number | null;
@@ -87,7 +87,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
 
   render() {
     return (
-      <ButtonListWrapper>
+      <div className="flex flex-col">
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
@@ -108,7 +108,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <StyledPropertyPaneButtonWrapper>
+        <div className="flex justify-center mt-2.5">
           <Button
             kind="secondary"
             onClick={this.addOption}
@@ -117,8 +117,8 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           >
             Add new Button
           </Button>
-        </StyledPropertyPaneButtonWrapper>
-      </ButtonListWrapper>
+        </div>
+      </div>
     );
   }
 
