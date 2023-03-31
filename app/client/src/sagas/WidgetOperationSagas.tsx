@@ -216,13 +216,15 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileBottomRow,
     };
 
-    // Keeps track of user defined widget width in terms of percentage
-    if (isMobile) {
-      widget.mobileWidthInPercentage =
-        (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
-    } else {
-      widget.widthInPercentage =
-        (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      // Keeps track of user defined widget width in terms of percentage
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+      }
     }
 
     const movedWidgets: {
