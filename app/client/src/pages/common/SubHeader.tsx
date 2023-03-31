@@ -6,7 +6,7 @@ import styled from "styled-components";
 import _, { noop } from "lodash";
 import { Button, SearchInput, SearchVariant, Size } from "design-system-old";
 import { useSelector } from "react-redux";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 

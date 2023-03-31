@@ -494,8 +494,9 @@ public class GitExecutorImpl implements GitExecutor {
                 for (String x : modifiedAssets) {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
-                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/") && !x.endsWith(".json")) {
-                        String queryName = x.substring(x.lastIndexOf("/") + 1);
+                    } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
+                        String queryName = x.split(GitDirectories.ACTION_DIRECTORY + "/")[1];
+                        queryName = queryName.substring(0, queryName.indexOf("/"));
                         String pageName = x.split("/")[1];
                         if (!queriesModified.contains(pageName + queryName)) {
                             queriesModified.add(pageName + queryName);

@@ -3,7 +3,6 @@ import Entity, { EntityClassNames } from "../Entity";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
@@ -16,6 +15,7 @@ import { useLocation } from "react-router";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { NavigationMethod } from "utils/history";
+import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -72,9 +72,7 @@ export type WidgetEntityProps = {
 };
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
-  const widgetsToExpand = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
-  );
+  const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 

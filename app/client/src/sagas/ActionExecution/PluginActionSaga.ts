@@ -7,7 +7,7 @@ import {
   updateAction,
 } from "actions/pluginActionActions";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import type { JSUpdate } from "utils/JSPaneUtils";
+
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -35,7 +35,7 @@ import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
