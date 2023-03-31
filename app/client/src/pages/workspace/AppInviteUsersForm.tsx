@@ -27,6 +27,7 @@ import {
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -35,9 +36,9 @@ const ShareToggle = styled.div`
   height: 23px;
 `;
 
-const BottomContainer = styled.div<{ canInviteToWorkspace?: boolean }>`
-  ${({ canInviteToWorkspace }) =>
-    canInviteToWorkspace ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
+const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
+  ${({ canInviteToApplication }) =>
+    canInviteToApplication ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
 `;
 
 function AppInviteUsersForm(props: any) {
@@ -56,9 +57,9 @@ function AppInviteUsersForm(props: any) {
   const currentWorkspace = useWorkspace(currentWorkspaceId);
   const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
-  const canInviteToWorkspace = isPermitted(
+  const canInviteToApplication = hasInviteUserToApplicationPermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+    userAppPermissions,
   );
   const canShareWithPublic = isPermitted(
     userAppPermissions,
@@ -96,14 +97,14 @@ function AppInviteUsersForm(props: any) {
   }, [defaultPageId]);
 
   useEffect(() => {
-    if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToWorkspace) {
+    if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToApplication) {
       fetchCurrentWorkspace(props.workspaceId);
     }
   }, [props.workspaceId, fetchCurrentWorkspace, currentUser?.name]);
 
   return (
     <>
-      {canInviteToWorkspace && (
+      {canInviteToApplication && (
         <WorkspaceInviteUsersForm
           applicationId={applicationId}
           isApplicationInvite
@@ -112,10 +113,8 @@ function AppInviteUsersForm(props: any) {
         />
       )}
       <BottomContainer
-        canInviteToWorkspace={canInviteToWorkspace}
-        className={`flex space-between ${
-          canInviteToWorkspace ? "mt-6 pt-5" : ""
-        }`}
+        canInviteToApplication={canInviteToApplication}
+        className={`flex space-between ${canInviteToApplication ? "pt-5" : ""}`}
       >
         <div
           className="flex gap-1.5 cursor-pointer"

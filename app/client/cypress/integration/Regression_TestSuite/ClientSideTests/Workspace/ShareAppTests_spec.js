@@ -1,5 +1,6 @@
 /// <reference types="Cypress" />
 
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
@@ -30,21 +31,34 @@ describe("Create new workspace and share with a user", function () {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToWorkspaceFromApp(
-        Cypress.env("TESTUSERNAME1"),
-        "App Viewer",
-      );
+      if (CURRENT_REPO === REPO.CE) {
+        HomePage.InviteUserToWorkspaceFromApp(
+          Cypress.env("TESTUSERNAME1"),
+          "App Viewer",
+        );
+      } else {
+        HomePage.InviteUserToApplicationFromApp(
+          Cypress.env("TESTUSERNAME1"),
+          "App Viewer",
+        );
+      }
     });
     cy.LogOut();
   });
 
   it("2. login as Invited user and then validate viewer privilage", function () {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    if (CURRENT_REPO === REPO.CE) {
+      cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    } else {
+      cy.LoginUser(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    }
     cy.get(homePage.searchInput).type(appid);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceId);
-    cy.xpath(homePage.ShareBtn).first().should("be.visible");
+    if (CURRENT_REPO === REPO.CE) {
+      cy.xpath(homePage.ShareBtn).first().should("be.visible");
+    }
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appid);
