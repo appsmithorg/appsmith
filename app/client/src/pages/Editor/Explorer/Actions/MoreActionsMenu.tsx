@@ -9,13 +9,9 @@ import {
   deleteAction,
 } from "actions/pluginActionActions";
 
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
-import { noop } from "lodash";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import { Classes } from "design-system-old";
-import { Intent, Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
@@ -25,8 +21,17 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
-import type { IconName } from "@blueprintjs/icons";
-import { Icon } from "design-system";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
+} from "design-system";
+import { useToggle } from "@mantine/hooks";
 
 type EntityContextMenuProps = {
   id: string;
@@ -75,7 +80,7 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
 `;
 
 export function MoreActionsMenu(props: EntityContextMenuProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -125,92 +130,89 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     }));
   });
 
-  const options = [
-    ...(isChangePermitted
-      ? [
-          {
-            icon: "duplicate" as IconName,
-            value: "copy",
-            onSelect: noop,
-            label: createMessage(CONTEXT_COPY),
-            children: menuPages.map((page) => {
-              return {
-                ...page,
-                onSelect: () => copyActionToPage(props.id, props.name, page.id),
-              };
-            }),
-          },
-        ]
-      : []),
-    ...(isChangePermitted
-      ? [
-          {
-            icon: "swap-horizontal" as IconName,
-            value: "move",
-            onSelect: noop,
-            label: createMessage(CONTEXT_MOVE),
-            children:
-              menuPages.length > 1
-                ? menuPages
-                    .filter((page) => page.id !== props.pageId) // Remove current page from the list
-                    .map((page) => {
-                      return {
-                        ...page,
-                        onSelect: () =>
-                          moveActionToPage(props.id, props.name, page.id),
-                      };
-                    })
-                : [
-                    {
-                      value: "No Pages",
-                      onSelect: noop,
-                      label: "No Pages",
-                    },
-                  ],
-          },
-        ]
-      : []),
-    ...(isDeletePermitted
-      ? [
-          {
-            confirmDelete: confirmDelete,
-            icon: "trash" as IconName,
-            value: "delete",
-            onSelect: () => {
+  return isChangePermitted || isDeletePermitted ? (
+    <Menu
+      className={props.className}
+      onOpenChange={() => toggleMenuOpen()}
+      open={isMenuOpen}
+    >
+      <MenuTrigger>
+        <MoreActionablesContainer className={props.className}>
+          <Button
+            isIconButton
+            kind="tertiary"
+            size="sm"
+            startIcon="context-menu"
+          />
+        </MoreActionablesContainer>
+      </MenuTrigger>
+      <MenuContent loop style={{ zIndex: 100 }} width="200px">
+        {isChangePermitted && (
+          <MenuSub>
+            <MenuSubTrigger startIcon="duplicate">
+              {createMessage(CONTEXT_COPY)}
+            </MenuSubTrigger>
+            <MenuSubContent>
+              {menuPages.map((page) => {
+                return (
+                  <MenuItem
+                    key={page.id}
+                    onSelect={() =>
+                      copyActionToPage(props.id, props.name, page.id)
+                    }
+                  >
+                    {page.label}
+                  </MenuItem>
+                );
+              })}
+            </MenuSubContent>
+          </MenuSub>
+        )}
+        {isChangePermitted && (
+          <MenuSub>
+            <MenuSubTrigger startIcon="swap-horizontal">
+              {createMessage(CONTEXT_MOVE)}
+            </MenuSubTrigger>
+            <MenuSubContent>
+              {/* Isn't it better ux to perform this check outside the menu and then simply not show the option?*/}
+              {menuPages.length > 1 ? (
+                menuPages
+                  .filter((page) => page.id !== props.pageId) // Remove current page from the list
+                  .map((page) => {
+                    return (
+                      <MenuItem
+                        key={page.id}
+                        onSelect={() =>
+                          moveActionToPage(props.id, props.name, page.id)
+                        }
+                      >
+                        {page.label}
+                      </MenuItem>
+                    );
+                  })
+              ) : (
+                <MenuItem key="no-pages">No Pages</MenuItem>
+              )}
+            </MenuSubContent>
+          </MenuSub>
+        )}
+        {isDeletePermitted && (
+          <MenuItem
+            className="t--apiFormDeleteBtn"
+            onSelect={() => {
               confirmDelete
                 ? deleteActionFromPage(props.id, props.name)
                 : setConfirmDelete(true);
-            },
-            label: confirmDelete
+            }}
+            startIcon="trash"
+          >
+            {confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)
-              : createMessage(CONTEXT_DELETE),
-            intent: Intent.DANGER,
-            className: "t--apiFormDeleteBtn",
-          },
-        ]
-      : []),
-  ];
-
-  return options.length > 0 ? (
-    <TreeDropdown
-      className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
-      onSelect={noop}
-      optionTree={options}
-      position={Position.LEFT_TOP}
-      selectedValue=""
-      setConfirmDelete={setConfirmDelete}
-      toggle={
-        <MoreActionablesContainer
-          className={props.className}
-          isOpen={isMenuOpen}
-        >
-          <Icon name="context-menu" size="lg" />
-        </MoreActionablesContainer>
-      }
-    />
+              : createMessage(CONTEXT_DELETE)}
+          </MenuItem>
+        )}
+      </MenuContent>
+    </Menu>
   ) : null;
 }
 
