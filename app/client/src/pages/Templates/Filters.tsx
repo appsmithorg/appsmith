@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { Collapse } from "@blueprintjs/core";
-import { Checkbox, Text, TextType } from "design-system-old";
+// import { Collapse } from "@blueprintjs/core";
+import { Checkbox, Text } from "design-system";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
@@ -11,7 +11,7 @@ import {
 } from "selectors/templatesSelectors";
 import { thinScrollbar } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
+// import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -32,9 +32,6 @@ const FilterWrapper = styled.div`
 const FilterItemWrapper = styled.div<{ selected: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11] - 10}px `};
-  .filter input + span {
-    ${(props) => !props.selected && `border: 1.8px solid ${Colors.GRAY_400};`}
-  }
 `;
 
 const StyledFilterCategory = styled(Text)`
@@ -45,8 +42,9 @@ const StyledFilterCategory = styled(Text)`
 
   &.title {
     margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;
-    display: inline-block;
-    text-transform: uppercase;
+    color: var(--ads-v2-color-fg-emphasis);
+    // display: inline-block;
+    // text-transform: uppercase;
     // font-size: 14px;
   }
 `;
@@ -92,11 +90,13 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
     <FilterItemWrapper selected={selected}>
       <Checkbox
         // backgroundColor={Colors.GREY_900}
-        className="filter"
-        isDefaultChecked={selected}
-        label={item.label}
-        onCheckChange={onClick}
-      />
+        // className="filter"
+        defaultSelected={selected}
+        onChange={onClick}
+        value={item.label}
+      >
+        {item.label}
+      </Checkbox>
     </FilterItemWrapper>
   );
 }
@@ -134,7 +134,7 @@ function FilterCategory({
 
   return (
     <FilterCategoryWrapper>
-      <StyledFilterCategory type={TextType.P4}>
+      <StyledFilterCategory kind="body-m" renderAs="h4">
         {`${label} `}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
@@ -149,7 +149,7 @@ function FilterCategory({
             />
           );
         })}
-        <Collapse isOpen>
+        <>
           {filterList.slice(FILTERS_TO_SHOW).map((filter) => {
             return (
               <FilterItem
@@ -160,7 +160,7 @@ function FilterCategory({
               />
             );
           })}
-        </Collapse>
+        </>
         {/* We will be adding this back later */}
         {/* {!!filterList.slice(FILTERS_TO_SHOW).length && (
           <Text
@@ -187,7 +187,7 @@ function Filters() {
 
   return (
     <div>
-      <StyledFilterCategory className={"title"} type={TextType.SIDE_HEAD}>
+      <StyledFilterCategory className={"title"} kind="heading-s" renderAs="h3">
         {createMessage(FILTERS)}
       </StyledFilterCategory>
       <FilterWrapper className="filter-wrapper">

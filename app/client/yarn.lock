@@ -4096,9 +4096,9 @@
     "@babel/runtime" "^7.13.10"
 
 "@rc-component/portal@^1.1.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@rc-component/portal/-/portal-1.1.1.tgz#1a30ffe51c240b54360cba8e8bfc5d1f559325c4"
-  integrity sha512-m8w3dFXX0H6UkJ4wtfrSwhe2/6M08uz24HHrF8pWfAXPwA9hwCuTE5per/C86KwNLouRpwFGcr7LfpHaa1F38g==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@rc-component/portal/-/portal-1.1.0.tgz#6b94450d2c2b00d50b141bd7a0be23bd96503dbe"
+  integrity sha512-tbXM9SB1r5FOuZjRCljERFByFiEUcMmCWMXLog/NmgCzlAzreXyf23Vei3ZpSMxSMavzPnhCovfZjZdmxS3d1w==
   dependencies:
     "@babel/runtime" "^7.18.0"
     classnames "^2.3.2"

@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Wrapper,
-  FieldWrapper,
-  LabelWrapper,
-  Loader,
-} from "./StyledComponents";
+import { Wrapper, FieldWrapper, Loader } from "./StyledComponents";
 import {
   createMessage,
   AUTHOR_EMAIL,
@@ -12,13 +7,7 @@ import {
   SUBMIT,
 } from "@appsmith/constants/messages";
 import { Classes } from "@blueprintjs/core";
-import {
-  notEmptyValidator,
-  Text,
-  TextInput,
-  TextType,
-} from "design-system-old";
-import { Button, toast } from "design-system";
+import { Button, Input, toast } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { emailValidator } from "design-system-old";
 import {
@@ -79,39 +68,37 @@ export default function GitConfig() {
   return (
     <Wrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>{createMessage(AUTHOR_NAME)}</Text>
-        </LabelWrapper>
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
-          <div style={{ flex: 1 }}>
-            <TextInput
-              cypressSelector="t--git-author-name"
-              defaultValue={authorName}
-              fill={false}
-              onChange={setAuthorName}
-              placeholder={createMessage(AUTHOR_NAME)}
-              validator={notEmptyValidator}
-            />
-          </div>
+          <Input
+            data-test-id="t--git-author-name"
+            isRequired
+            label={createMessage(AUTHOR_NAME)}
+            labelPosition="top"
+            onChange={setAuthorName}
+            placeholder={createMessage(AUTHOR_NAME)}
+            renderAs="input"
+            size="md"
+            type="text"
+            value={authorName}
+          />
         )}
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>{createMessage(AUTHOR_EMAIL)}</Text>
-        </LabelWrapper>
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
-          <div style={{ flex: 1 }}>
-            <TextInput
-              cypressSelector="t--git-author-email"
-              defaultValue={authorEmail}
-              fill={false}
-              onChange={setAuthorEmail}
-              placeholder={createMessage(AUTHOR_EMAIL)}
-              validator={emailValidator}
-            />
-          </div>
+          <Input
+            data-test-id="t--git-author-email"
+            isRequired
+            label={createMessage(AUTHOR_EMAIL)}
+            labelPosition="top"
+            onChange={setAuthorEmail}
+            placeholder={createMessage(AUTHOR_EMAIL)}
+            renderAs="input"
+            size="md"
+            type="text"
+            value={authorEmail}
+          />
         )}
       </FieldWrapper>
       <FieldWrapper>
