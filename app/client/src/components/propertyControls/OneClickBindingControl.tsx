@@ -1,3 +1,4 @@
+import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -12,7 +13,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   }
 
   public render() {
-    return null;
+    return <WidgetQueryGeneratorForm />;
   }
 }
 

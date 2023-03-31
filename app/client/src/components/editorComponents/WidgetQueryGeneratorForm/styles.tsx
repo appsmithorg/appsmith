@@ -6,7 +6,7 @@ export const Wrapper = styled.div``;
 
 export const SelectWrapper = styled.div`
   display: inline-block;
-  margin: 10px;
+  margin: 5px 0 10px;
   max-width: ${DROPDOWN_TRIGGER_DIMENSION.WIDTH};
   width: 100%;
 `;

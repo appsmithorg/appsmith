@@ -28,12 +28,11 @@ function DatasourceDropdown() {
 
   return (
     <SelectWrapper className="space-y-2">
-      <Label>Select a source</Label>
       <Dropdown
         dropdownMaxHeight={DROPDOWN_DIMENSION.HEIGHT}
-        height={DROPDOWN_DIMENSION.HEIGHT}
+        height={DROPDOWN_TRIGGER_DIMENSION.HEIGHT}
         onSelect={onSelect}
-        optionWidth={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
+        optionWidth={DROPDOWN_DIMENSION.WIDTH}
         options={options}
         renderOption={({
           isHighlighted,

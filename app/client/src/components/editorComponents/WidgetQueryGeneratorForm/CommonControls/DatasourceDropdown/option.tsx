@@ -106,6 +106,7 @@ function DataSourceOption({
 
   const isSupportedForTemplate = (dropdownOption as DropdownOption).data
     .isSupportedForTemplate;
+
   const isNotSupportedDatasource =
     !isSupportedForTemplate && !isSelectedNode && !isConnectNewDataSourceBtn;
 

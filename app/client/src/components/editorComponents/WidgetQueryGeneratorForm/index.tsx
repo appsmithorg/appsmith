@@ -20,22 +20,24 @@ type QueryGeneratorFormContextType = {
   updateConfig: (propertyName: string, value: unknown) => void;
 };
 
+const DEFAULT_CONFIG_VALUE = {
+  datasource: DEFAULT_DROPDOWN_OPTION,
+  table: DEFAULT_DROPDOWN_OPTION,
+  column: DEFAULT_DROPDOWN_OPTION,
+  sheet: DEFAULT_DROPDOWN_OPTION,
+  tableHeaderIndex: 1,
+};
+
 const DEFAULT_CONTEXT_VALUE = {
-  config: {
-    datasource: DEFAULT_DROPDOWN_OPTION,
-    table: DEFAULT_DROPDOWN_OPTION,
-    column: DEFAULT_DROPDOWN_OPTION,
-    sheet: DEFAULT_DROPDOWN_OPTION,
-    tableHeaderIndex: 1,
-  },
+  config: DEFAULT_CONFIG_VALUE,
   updateConfig: noop,
 };
 
 export const QueryGeneratorFormContext =
   React.createContext<QueryGeneratorFormContextType>(DEFAULT_CONTEXT_VALUE);
 
-function QueryGeneratorForm(props: QueryGeneratorFromProps) {
-  const [config, setConfig] = useState(DEFAULT_CONTEXT_VALUE);
+function WidgetQueryGeneratorForm(props: QueryGeneratorFromProps) {
+  const [config, setConfig] = useState(DEFAULT_CONFIG_VALUE);
 
   const updateConfig = useCallback(
     (propertyName, value) => {
@@ -66,4 +68,4 @@ function QueryGeneratorForm(props: QueryGeneratorFromProps) {
   );
 }
 
-export default QueryGeneratorForm;
+export default WidgetQueryGeneratorForm;

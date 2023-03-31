@@ -59,6 +59,7 @@ import type { MenuButtonDynamicItemsControlProps } from "components/propertyCont
 import MenuButtonDynamicItemsControl from "components/propertyControls/MenuButtonDynamicItemsControl";
 import type { ListComputeControlProps } from "./ListComputeControl";
 import ListComputeControl from "./ListComputeControl";
+import OneClickBindingControl from "./OneClickBindingControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -101,6 +102,7 @@ export const PropertyControls = {
   TableInlineEditValidationControl,
   TableInlineEditValidPropertyControl,
   ListComputeControl,
+  OneClickBindingControl,
 };
 
 export type PropertyControlPropsType =

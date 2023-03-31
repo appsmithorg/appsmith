@@ -67,10 +67,10 @@ export function useTableOrSpreadsheet() {
       options = (selectedDatasourceStructure?.tables as DropdownOption[]) || [];
     }
 
-    return options.map(({ name }) => ({
-      id: name,
-      label: name,
-      value: name,
+    return options.map(({ label }) => ({
+      id: label,
+      label: label,
+      value: label,
       icon: "tables",
       iconSize: IconSize.LARGE,
       iconColor: Colors.BURNING_ORANGE,

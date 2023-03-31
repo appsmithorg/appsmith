@@ -15,6 +15,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import {
   getDatasources,
   getPluginIdPackageNamesMap,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { CONNECT_NEW_DATASOURCE_OPTION } from ".";
@@ -25,7 +26,7 @@ export function useDatasource() {
 
   const dispatch = useDispatch();
 
-  const plugins = useSelector(getPluginIdPackageNamesMap);
+  const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
 
   const datasources: Datasource[] = useSelector(getDatasources);
 
@@ -39,6 +40,7 @@ export function useDatasource() {
         data: {
           pluginId,
           isValid,
+          plugingPackageName: pluginsPackageNamesMap[pluginId],
         },
       })),
     ];
@@ -58,7 +60,7 @@ export function useDatasource() {
         updateConfig("datasource", dataSourceObj);
 
         if (dataSourceObj.id) {
-          switch (plugins[pluginId]) {
+          switch (pluginsPackageNamesMap[pluginId]) {
             case PluginPackageName.GOOGLE_SHEETS:
               dispatch(
                 fetchGheetSpreadsheets({
