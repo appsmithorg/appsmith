@@ -19,6 +19,7 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -230,8 +231,10 @@ Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.LogOutUser();
   cy.LoginUser(uname, pword);
-  cy.get(".t--applications-container .createnew").should("be.visible");
-  cy.get(".t--applications-container .createnew").should("be.enabled");
+  if (CURRENT_REPO === REPO.CE) {
+    cy.get(".t--applications-container .createnew").should("be.visible");
+    cy.get(".t--applications-container .createnew").should("be.enabled");
+  }
   initLocalstorage();
 });
 
