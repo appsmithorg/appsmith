@@ -56,7 +56,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   return (
     <div
-      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
+      className={`flex flex-col  overflow-hidden ${isActive ? "" : "hidden"}`}
     >
       <div className="sticky top-0 bg-gray-50 px-3">
         <SearchInput
@@ -71,7 +71,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         />
       </div>
       <div
-        className="flex-grow px-3 overflow-y-scroll"
+        className="flex-grow px-3 mt-3 overflow-y-scroll"
         data-cy="widget-sidebar-scrollable-wrapper"
       >
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">

@@ -18,6 +18,7 @@ const StyledSegmentedControl = styled(SegmentedControl)`
     flex: 1 1 0%;
   }
 `;
+
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;
   options: ButtonGroupOption[];

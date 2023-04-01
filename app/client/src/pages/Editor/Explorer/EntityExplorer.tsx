@@ -2,7 +2,7 @@ import type { MutableRefObject } from "react";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
-import Search from "./ExplorerSearch";
+import { SearchInput } from "design-system";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {
@@ -98,34 +98,18 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
-  /**
-   * filter entitites
-   */
-  const search = (e: any) => {
-    setSearchKeyword(e.target.value);
-  };
-
-  const clearSearchInput = () => {
-    if (searchInputRef.current) {
-      searchInputRef.current.value = "";
-    }
-
-    setSearchKeyword("");
-  };
-
   return (
     <Wrapper
-      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+      className={`t--entity-explorer-wrapper relative overflow-y-auto px-3 ${
         isActive ? "" : "hidden"
       }`}
       ref={explorerRef}
     >
-      {/* SEARCH */}
-      <Search
-        clear={clearSearchInput}
+      <SearchInput
+        // @ts-expect-error: id not available
         id={SEARCH_ENTITY}
         isHidden
-        onChange={search}
+        onChange={(value: string) => setSearchKeyword(value)}
         ref={searchInputRef}
       />
       <ExplorerWidgetGroup
