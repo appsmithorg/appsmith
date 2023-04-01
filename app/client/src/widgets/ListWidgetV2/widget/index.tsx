@@ -1049,6 +1049,7 @@ class ListWidget extends BaseWidget<
     const parentHasControl = (target.parentElement as HTMLLabelElement).control;
     const hasLink = (target as HTMLAnchorElement).href;
 
+    //Should we call it when the input or button is disabled?
     return !(isInput || hasControl || parentHasControl || hasLink);
   };
 
