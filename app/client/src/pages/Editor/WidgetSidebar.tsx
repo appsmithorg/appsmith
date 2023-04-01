@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
-import ExplorerSearch from "./Explorer/ExplorerSearch";
+import { SearchInput } from "design-system";
+
+import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
 import {
   createMessage,
@@ -16,10 +18,8 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
-
-  useEffect(() => {
-    fuse = new Fuse(cards, {
+  const fuse = useMemo(() => {
+    const options = {
       keys: [
         {
           name: "displayName",
@@ -32,7 +32,9 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
       ],
       threshold: 0.2,
       distance: 100,
-    });
+    };
+
+    return new Fuse(cards, options);
   }, [cards]);
 
   const filterCards = (keyword: string) => {
@@ -48,35 +50,26 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     if (isActive) searchInputRef.current?.focus();
   }, [isActive]);
 
-  /**
-   * filter widgets
-   */
-  const search = debounce((e: any) => {
-    filterCards(e.target.value.toLowerCase());
+  const search = debounce((value: string) => {
+    filterCards(value.toLowerCase());
   }, 300);
-
-  /**
-   * clear the search input
-   */
-  const clearSearchInput = () => {
-    if (searchInputRef.current) {
-      searchInputRef.current.value = "";
-    }
-    filterCards("");
-    searchInputRef.current?.focus();
-  };
 
   return (
     <div
       className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
     >
-      <ExplorerSearch
-        autoFocus
-        clear={clearSearchInput}
-        onChange={search}
-        placeholder="Search widgets..."
-        ref={searchInputRef}
-      />
+      <div className="sticky top-0 bg-gray-50 px-3">
+        <SearchInput
+          // @ts-expect-error: autoComplete not available
+          autoComplete="off"
+          autoFocus
+          id={ENTITY_EXPLORER_SEARCH_ID}
+          onChange={search}
+          placeholder="Search Widgets"
+          ref={searchInputRef}
+          type="text"
+        />
+      </div>
       <div
         className="flex-grow px-3 overflow-y-scroll"
         data-cy="widget-sidebar-scrollable-wrapper"

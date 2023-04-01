@@ -14,7 +14,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
-import ColorStyleIcon from "./ColorStyleIcon";
+// import ColorStyleIcon from "./ColorStyleIcon";
 import SwitchSetting from "./SwitchSetting";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import equal from "fast-deep-equal";
@@ -150,12 +150,12 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
                 value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-                // icon: <NavOrientationTopIcon />,
+                // startIcon:<NavOrientationTopIcon />,
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
                 value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-                // icon: <NavOrientationSideIcon />,
+                // startIcon:<NavOrientationSideIcon />,
               },
             ]}
             updateSetting={updateSetting}
@@ -176,7 +176,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
-                  // icon: <NavStyleStackedIcon />,
+                  // startIcon:<NavStyleStackedIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -184,7 +184,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
-                  // icon: <NavStyleInlineIcon />,
+                  // startIcon:<NavStyleInlineIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.SIDE,
@@ -192,7 +192,7 @@ function NavigationSettings() {
                 {
                   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
                   value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
-                  // icon: <NavStyleSidebarIcon />,
+                  // startIcon:<NavStyleSidebarIcon />,
                   hidden:
                     navigationSetting?.orientation ===
                     NAVIGATION_SETTINGS.ORIENTATION.TOP,
@@ -205,7 +205,7 @@ function NavigationSettings() {
                 // {
                 //   label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL),
                 //   value: NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
-                //   icon: <NavStyleMinimalIcon />,
+                //   startIcon:<NavStyleMinimalIcon />,
                 //   hidden:
                 //     navigationSetting?.orientation ===
                 //     NAVIGATION_SETTINGS.ORIENTATION.TOP,
@@ -228,12 +228,12 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.POSITION.STATIC),
                 value: NAVIGATION_SETTINGS.POSITION.STATIC,
-                icon: <NavPositionStaticIcon />,
+                startIcon:<NavPositionStaticIcon />,
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.POSITION.STICKY),
                 value: NAVIGATION_SETTINGS.POSITION.STICKY,
-                icon: <NavPositionStickyIcon />,
+                startIcon:<NavPositionStickyIcon />,
               },
             ]}
             updateSetting={updateSetting}
@@ -284,20 +284,22 @@ function NavigationSettings() {
               {
                 label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
-                icon: (
-                  <ColorStyleIcon
-                    colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
-                  />
-                ),
+                startIcon: "layout-line",
+                // startIcon: (
+                //   <ColorStyleIcon
+                //     colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
+                //   />
+                // ),
               },
               {
                 label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME),
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
-                icon: (
-                  <ColorStyleIcon
-                    colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
-                  />
-                ),
+                startIcon: "layout-line",
+                // startIcon: (
+                //   <ColorStyleIcon
+                //     colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
+                //   />
+                // ),
               },
             ]}
             updateSetting={updateSetting}

@@ -7,7 +7,8 @@ import {
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "design-system-old";
-import { TextInput, IconSelector, Text, TextType } from "design-system-old";
+import { Input } from "design-system";
+import { IconSelector, Text, TextType } from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -73,7 +74,7 @@ function GeneralSettings() {
 
   return (
     <>
-      <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text>
+      {/* <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text> */}
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
@@ -81,11 +82,12 @@ function GeneralSettings() {
         })}
       >
         {isSavingAppName && <TextLoaderIcon />}
-        <TextInput
+        <Input
           defaultValue={applicationName}
-          fill
+          // @ts-expect-error: Type mismatch
           id="t--general-settings-app-name"
           // undefined sent implicitly - parameter "icon"
+          label={GENERAL_SETTINGS_APP_NAME_LABEL()}
           onBlur={() => updateAppSettings()}
           onChange={(value: string) =>
             !isSavingAppName && setApplicationName(value)
@@ -97,7 +99,8 @@ function GeneralSettings() {
             }
           }}
           placeholder="App name"
-          type="input"
+          size="md"
+          type="text"
           validator={(value: string) => {
             let result: { isValid: boolean; message?: string } = {
               isValid: true,

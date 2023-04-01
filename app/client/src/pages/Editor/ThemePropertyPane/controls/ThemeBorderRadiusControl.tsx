@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
 
 import type { AppTheme } from "entities/AppTheming";
-import { ButtonGroup, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
+import { SegmentedControl } from "design-system";
 
 interface ThemeBorderRadiusControlProps {
   options: {
@@ -21,13 +22,13 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
    * changes the border in theme
    */
   const onChangeBorder = useCallback(
-    (optionKey: string) => {
+    (value: string) => {
       updateTheme({
         ...theme,
         properties: {
           ...theme.properties,
           borderRadius: {
-            [sectionName]: options[optionKey],
+            [sectionName]: options[value],
           },
         },
       });
@@ -36,11 +37,11 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
   );
 
   const selectedOptionKey = selectedOption
-    ? [invertedBorderRadiusOptions[selectedOption]]
-    : [];
+    ? invertedBorderRadiusOptions[selectedOption]
+    : "";
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
-    icon: (
+    label: (
       <TooltipComponent
         content={optionKey}
         key={optionKey}
@@ -56,10 +57,12 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
   }));
 
   return (
-    <ButtonGroup
+    <SegmentedControl
+      defaultValue={selectedOptionKey}
+      isFullWidth={false}
+      // @ts-expect-error: Type mismatch
+      onChange={onChangeBorder}
       options={buttonGroupOptions}
-      selectButton={onChangeBorder}
-      values={selectedOptionKey}
     />
   );
 }

@@ -18,8 +18,9 @@ import {
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
-import { Text, TextInput, TextType } from "design-system-old";
-import AdsSwitch from "design-system-old/build/Switch";
+import { Input, Switch } from "design-system";
+// import { Text, TextType } from "design-system-old";
+// import AdsSwitch from "design-system-old/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
@@ -36,7 +37,7 @@ import { getUrlPreview } from "../Utils";
 import type { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
-import SwitchWrapper from "../Components/SwitchWrapper";
+// import SwitchWrapper from "../Components/SwitchWrapper";
 
 const UrlPreviewWrapper = styled.div`
   height: 54px;
@@ -173,7 +174,7 @@ function PageSettings(props: { page: Page }) {
 
   return (
     <>
-      <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text>
+      {/* <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text> */}
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
@@ -181,11 +182,13 @@ function PageSettings(props: { page: Page }) {
         })}
       >
         {isPageNameSaving && <TextLoaderIcon />}
-        <TextInput
+        <Input
           defaultValue={pageName}
-          disabled={!canManagePages}
-          fill
+          // @ts-expect-error: Input id prop is not available
           id="t--page-settings-name"
+          isDisabled={!canManagePages}
+          // fill
+          label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
           onBlur={savePageName}
           onChange={(value: string) =>
             setPageName(resolveAsSpaceChar(value, 30))
@@ -196,7 +199,8 @@ function PageSettings(props: { page: Page }) {
             }
           }}
           placeholder="Page name"
-          type="input"
+          size="md"
+          type="text"
           validator={(value: string) => {
             let result: { isValid: boolean; message?: string } = {
               isValid: true,
@@ -222,7 +226,7 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text>
+      {/* <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text> */}
       {appNeedsUpdate && (
         <div
           className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px]`}
@@ -246,11 +250,13 @@ function PageSettings(props: { page: Page }) {
         })}
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
-        <TextInput
+        <Input
           defaultValue={customSlug}
-          disabled={!canManagePages}
-          fill
+          // @ts-expect-error: Input id prop is not available
           id="t--page-settings-custom-slug"
+          // fill
+          isDisabled={!canManagePages}
+          label={PAGE_SETTINGS_PAGE_URL_LABEL()}
           onBlur={saveCustomSlug}
           onChange={(value: string) =>
             value.length > 0
@@ -264,7 +270,8 @@ function PageSettings(props: { page: Page }) {
           }}
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
-          type="input"
+          size="md"
+          type="text"
           value={customSlug}
         />
       </div>
@@ -307,31 +314,38 @@ function PageSettings(props: { page: Page }) {
       )}
 
       <div className="flex justify-between content-center pb-2">
-        <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+        <Switch
+          className="mb-0"
+          id="t--page-settings-show-nav-control"
+          isDisabled={isShownSaving || !canManagePages}
+          isSelected={isShown}
+          onChange={() => {
+            setIsShown(!isShown);
+            saveIsShown(!isShown);
+          }}
+        >
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SHOW_PAGE_NAV()}
             lineHeight="1.17"
             maxWidth="217px"
             tooltip={PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP()}
           />
-        </div>
-        <SwitchWrapper>
-          <AdsSwitch
-            checked={isShown}
-            className="mb-0"
-            disabled={isShownSaving || !canManagePages}
-            id="t--page-settings-show-nav-control"
-            large
-            onChange={() => {
-              setIsShown(!isShown);
-              saveIsShown(!isShown);
-            }}
-          />
-        </SwitchWrapper>
+        </Switch>
       </div>
 
       <div className="flex justify-between content-center">
-        <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+        <Switch
+          className="mb-0"
+          id="t--page-settings-home-page-control"
+          isDisabled={isDefaultSaving || page.isDefault || !canManagePages}
+          isSelected={isDefault}
+          onChange={() => {
+            if (!canManagePages) return;
+            setIsDefault(!isDefault);
+            setIsDefaultSaving(true);
+            dispatch(setPageAsDefault(page.pageId, applicationId));
+          }}
+        >
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
             lineHeight="1.17"
@@ -342,22 +356,7 @@ function PageSettings(props: { page: Page }) {
                 : PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE()
             }
           />
-        </div>
-        <SwitchWrapper>
-          <AdsSwitch
-            checked={isDefault}
-            className="mb-0"
-            disabled={isDefaultSaving || page.isDefault || !canManagePages}
-            id="t--page-settings-home-page-control"
-            large
-            onChange={() => {
-              if (!canManagePages) return;
-              setIsDefault(!isDefault);
-              setIsDefaultSaving(true);
-              dispatch(setPageAsDefault(page.pageId, applicationId));
-            }}
-          />
-        </SwitchWrapper>
+        </Switch>
       </div>
     </>
   );

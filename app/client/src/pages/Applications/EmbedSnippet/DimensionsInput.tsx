@@ -1,15 +1,14 @@
-import { TextInput } from "design-system-old";
 import React from "react";
+import { Input } from "design-system";
 import styled from "styled-components";
 
-const Wrapper = styled.div`
-  .prefix {
-    top: 0.4px;
-    position: relative;
+const StyledInput = styled(Input)`
+  > .ads-v2-input__input-section > div {
+    min-width: 0px;
   }
+
   input {
-    text-align: right;
-    padding-left: 2px;
+    width: 100px;
   }
 `;
 
@@ -33,16 +32,17 @@ export function cssDimensionValidator(value: string) {
 
 function DimensionsInput(props: DimensionsInputProp) {
   return (
-    <Wrapper className={`t--${props.prefix}-dimension`}>
-      <TextInput
-        height={"28px"}
+    <div className={`t--${props.prefix}-dimension`}>
+      <StyledInput
         onChange={props.onChange}
-        prefix={props.prefix}
-        validator={cssDimensionValidator}
+        renderAs="input"
+        size="md"
+        startIcon="layout-line"
+        // prefix={props.prefix}
+        // validator={cssDimensionValidator}
         value={props.value}
-        width={"90px"}
       />
-    </Wrapper>
+    </div>
   );
 }
 

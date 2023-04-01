@@ -1,5 +1,6 @@
 import { changeAppViewAccessInit } from "@appsmith/actions/applicationActions";
-import { TextType, Text, Switch, Case, Classes } from "design-system-old";
+import { TextType, Text, Case, Classes } from "design-system-old";
+import { Switch } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -8,7 +9,6 @@ import {
   getIsFetchingApplications,
 } from "@appsmith/selectors/applicationSelectors";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import SwitchWrapper from "../Components/SwitchWrapper";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
@@ -70,30 +70,27 @@ function EmbedSettings() {
           </div>
           <div className="px-4">
             <div className="flex justify-between content-center pb-4">
-              <StyledPropertyHelpLabel
-                label={createMessage(MAKE_APPLICATION_PUBLIC)}
-                lineHeight="1.17"
-                maxWidth="270px"
-                tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
-              />
-              <SwitchWrapper>
-                <Switch
-                  checked={application?.isPublic}
-                  className="mb-0"
-                  disabled={isFetchingApplication || isChangingViewAccess}
-                  id="t--embed-settings-application-public"
-                  large
-                  onChange={() =>
-                    application &&
-                    dispatch(
-                      changeAppViewAccessInit(
-                        application?.id,
-                        !application?.isPublic,
-                      ),
-                    )
-                  }
+              <Switch
+                id="t--embed-settings-application-public"
+                isDisabled={isFetchingApplication || isChangingViewAccess}
+                isSelected={application?.isPublic}
+                onChange={() =>
+                  application &&
+                  dispatch(
+                    changeAppViewAccessInit(
+                      application?.id,
+                      !application?.isPublic,
+                    ),
+                  )
+                }
+              >
+                <StyledPropertyHelpLabel
+                  label={createMessage(MAKE_APPLICATION_PUBLIC)}
+                  lineHeight="1.17"
+                  maxWidth="270px"
+                  tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
                 />
-              </SwitchWrapper>
+              </Switch>
             </div>
           </div>
           <div
@@ -140,23 +137,18 @@ function EmbedSettings() {
       )}
 
       <div className="px-4 flex justify-between items-center pb-2">
-        <Text type={TextType.P1}>
+        <Switch
+          data-cy="show-navigation-bar-toggle"
+          defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
+          onChange={() =>
+            embedSnippet.onChange({
+              showNavigationBar:
+                !embedSnippet.currentEmbedSetting?.showNavigationBar,
+            })
+          }
+        >
           {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-        </Text>
-        <SwitchWrapper>
-          <Switch
-            className="mb-0"
-            data-cy="show-navigation-bar-toggle"
-            defaultChecked={embedSnippet.currentEmbedSetting?.showNavigationBar}
-            large
-            onChange={() =>
-              embedSnippet.onChange({
-                showNavigationBar:
-                  !embedSnippet.currentEmbedSetting?.showNavigationBar,
-              })
-            }
-          />
-        </SwitchWrapper>
+        </Switch>
       </div>
 
       <div className="px-4">

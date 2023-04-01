@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
 import type { AppTheme } from "entities/AppTheming";
-import { ButtonGroup, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { invertedBoxShadowOptions } from "constants/ThemeConstants";
+import { SegmentedControl } from "design-system";
 
 interface ThemeBoxShadowControlProps {
   options: {
@@ -37,11 +38,11 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
   );
 
   const selectedOptionKey = selectedOption
-    ? [invertedBoxShadowOptions[selectedOption]]
-    : [];
+    ? invertedBoxShadowOptions[selectedOption]
+    : "";
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
-    icon: (
+    label: (
       <TooltipComponent
         content={optionKey}
         key={optionKey}
@@ -61,10 +62,12 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
   }));
 
   return (
-    <ButtonGroup
+    <SegmentedControl
+      defaultValue={selectedOptionKey}
+      isFullWidth={false}
+      // @ts-expect-error: Type mismatch
+      onChange={onChangeShadow}
       options={buttonGroupOptions}
-      selectButton={onChangeShadow}
-      values={selectedOptionKey}
     />
   );
 }

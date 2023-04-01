@@ -16,6 +16,7 @@ type Props = {
   theme?: EditorTheme;
   maxWidth?: string;
   lineHeight?: string;
+  onClick?: () => void;
 };
 
 function PropertyHelpLabel(props: Props) {
@@ -43,19 +44,16 @@ function PropertyHelpLabel(props: Props) {
       position="top"
     >
       <div
+        onClick={props.onClick}
         style={{
           height: "22px",
         }}
       >
         <Label
           className={`t--property-control-label`}
-          style={
-            toolTipDefined
-              ? {
-                  cursor: "help",
-                }
-              : {}
-          }
+          style={{
+            cursor: toolTipDefined ? "help" : "default",
+          }}
         >
           {props.label}
         </Label>
