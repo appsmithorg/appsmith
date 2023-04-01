@@ -47,6 +47,7 @@ import {
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { importRemixIcon } from "design-system-old";
 
 const SaveSuccessIcon = importRemixIcon(
