@@ -196,7 +196,8 @@ function RecorderLeft(props: RecorderLeftProps) {
     status,
   } = props;
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event.stopPropagation();
     onClick();
   };
 
@@ -231,9 +232,12 @@ export interface PlayerButtonProps {
 }
 
 function PlayerButton(props: PlayerButtonProps) {
-  const { intent, onClick } = props;
+  const onClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event.stopPropagation();
+    props.onClick();
+  };
 
-  switch (intent) {
+  switch (props.intent) {
     case PlayerButtonIntentTypes.PLAY:
       return (
         <Button
