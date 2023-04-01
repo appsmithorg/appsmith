@@ -1040,6 +1040,18 @@ class ListWidget extends BaseWidget<
     );
   };
 
+  shouldCallOnItemClick = (e: React.MouseEvent<HTMLElement>) => {
+    const target = e.target as HTMLElement;
+
+    const isInput = target.tagName === "INPUT";
+
+    const hasControl = (target as HTMLLabelElement).control;
+    const parentHasControl = (target.parentElement as HTMLLabelElement).control;
+    const hasLink = (target as HTMLAnchorElement).href;
+
+    return !(isInput || hasControl || parentHasControl || hasLink);
+  };
+
   /**
    * Note: Do not use this.props inside the renderChildren method if the expectation is that
    * the renderChildren would re-render when the particular prop changes.
@@ -1073,8 +1085,9 @@ class ListWidget extends BaseWidget<
               focused,
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
-                e.stopPropagation();
-                this.onItemClick(rowIndex);
+                if (this.shouldCallOnItemClick(e)) {
+                  this.onItemClick(rowIndex);
+                }
               },
               onClickCapture: () => {
                 this.onItemClickCapture(rowIndex);
