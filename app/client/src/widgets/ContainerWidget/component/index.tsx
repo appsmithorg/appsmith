@@ -111,6 +111,25 @@ function ContainerComponentWrapper(
     [props.onClickCapture],
   );
 
+  const onClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      const isTargetMainCanvas =
+        (e.target as HTMLDivElement).parentElement?.dataset.widgetid === "0";
+      const widgetType = el.getAttribute("type");
+      const isContainerWidget = widgetType === "CONTAINER_WIDGET";
+      const widgetId = el.dataset.widgetid;
+      const isMainCanvas = widgetId === "0";
+
+      if ((isContainerWidget || isMainCanvas) && !isTargetMainCanvas) {
+        // This is to prevent every click/Resize from propagating outside it's bounding container.
+        e.stopPropagation();
+      }
+      props.onClick?.(e);
+    },
+    [props.onClick],
+  );
+
   return (
     <StyledContainerComponent
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
@@ -122,7 +141,7 @@ function ContainerComponentWrapper(
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
-      onClick={props.onClick}
+      onClick={onClick}
       onClickCapture={props.onClickCapture}
       onMouseOver={onMouseOver}
       ref={containerRef}

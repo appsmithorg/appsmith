@@ -267,7 +267,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     isResizing,
   ]);
 
-  const handleFocus = (e: any) => {
+  const handleFocus = () => {
     // Making sure that we don't deselect the widget
     // after we are done dragging the limits in auto height with limits
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
@@ -277,7 +277,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         showPropertyPane && showPropertyPane();
       }
     }
-    e.preventDefault();
   };
 
   // Get the height for the drop target
