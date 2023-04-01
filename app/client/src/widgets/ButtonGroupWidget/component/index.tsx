@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { sortBy } from "lodash";
+import { isEmpty, sortBy } from "lodash";
 import {
   Alignment,
   Icon,
@@ -370,7 +370,10 @@ function PopoverContent(props: PopoverContentProps) {
             <Icon color={iconColor} icon={iconName} />
           ) : null
         }
-        onClick={() => onItemClicked(onClick, buttonId)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onItemClicked(onClick, buttonId);
+        }}
         text={label}
         textColor={textColor}
       />
@@ -561,6 +564,7 @@ class ButtonGroupComponent extends React.Component<
             return (
               <MenuButtonWrapper
                 key={button.id}
+                onClick={(e) => !isEmpty(menuItems) && e.stopPropagation()}
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
@@ -631,7 +635,10 @@ class ButtonGroupComponent extends React.Component<
               disabled={isButtonDisabled}
               key={button.id}
               loading={!!loadedBtnId}
-              onClick={() => {
+              onClick={(e) => {
+                if (button.onClick) {
+                  e.stopPropagation();
+                }
                 this.onButtonClick(button.onClick, button.id);
               }}
               renderMode={this.props.renderMode}
@@ -645,7 +652,12 @@ class ButtonGroupComponent extends React.Component<
                 iconAlign={button.iconAlign}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
-                onClick={() => this.onButtonClick(button.onClick, button.id)}
+                onClick={(e) => {
+                  if (button.onClick) {
+                    e.stopPropagation();
+                  }
+                  this.onButtonClick(button.onClick, button.id);
+                }}
               >
                 <StyledButtonContent
                   iconAlign={button.iconAlign || "left"}
