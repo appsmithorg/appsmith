@@ -1,6 +1,16 @@
 import { Node } from "acorn";
-import { ancestor } from "acorn-walk";
-import { getAST, isPropertyNode, isTypeOfFunction } from "../index";
+import { simple } from "acorn-walk";
+import {
+  getAST,
+  IdentifierNode,
+  isExportDefaultDeclarationNode,
+  isObjectExpression,
+  isPropertyNode,
+  isTypeOfFunction,
+  LiteralNode,
+  NodeWithLocation,
+  PropertyNode,
+} from "../index";
 import { generate } from "astring";
 import {
   getFunctionalParamsFromNode,
@@ -67,55 +77,64 @@ export const parseJSObject = (code: string) => {
     return { parsedObject: result, success: false };
   }
 
-  ancestor(ast, {
-    Property(node, ancestors: Node[]) {
-      // We are only interested in identifiers at this depth (exported object keys)
-      const depth = ancestors.length - 3;
+  const parsedObjectProperties = new Set<TParsedJSProperty>();
+  let JSObjectProperties: NodeWithLocation<PropertyNode>[] = [];
+
+  simple(ast, {
+    ExportDefaultDeclaration(node, ancestors: Node[]) {
       if (
-        isPropertyNode(node) &&
-        node.loc &&
-        node.key.loc &&
-        ancestors[depth] &&
-        ancestors[depth].type === NodeTypes.ExportDefaultDeclaration
-      ) {
-        let property: TParsedJSProperty = {
-          key: generate(node.key),
-          value: generate(node.value),
-          rawContent: extractContentByPosition(code, {
-            from: {
-              line: node.loc.start.line - 1,
-              ch: node.loc.start.column,
-            },
-            to: {
-              line: node.loc.end.line - 1,
-              ch: node.loc.end.column - 1,
-            },
-          }),
-          type: node.value.type,
-          position: {
-            startLine: node.loc.start.line,
-            startColumn: node.loc.start.column,
-            endLine: node.loc.end.line,
-            endColumn: node.loc.end.column,
-            keyStartLine: node.key.loc.start.line,
-            keyEndLine: node.key.loc.end.line,
-            keyStartColumn: node.key.loc.start.column,
-            keyEndColumn: node.key.loc.end.column,
-          },
-        };
-        if (isPropertyAFunctionNode(node.value)) {
-          // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
-          // currently we don't consume it anywhere hence avoiding to calculate that.
-          const params = getFunctionalParamsFromNode(node.value);
-          property = {
-            ...property,
-            arguments: [...params],
-            isMarkedAsync: node.value.async,
-          };
-        }
-        result.push(property);
-      }
+        !isExportDefaultDeclarationNode(node) ||
+        !isObjectExpression(node.declaration)
+      )
+        return;
+      JSObjectProperties = node.declaration
+        .properties as NodeWithLocation<PropertyNode>[];
     },
   });
-  return { parsedObject: result, success: true };
+
+  JSObjectProperties.forEach((node) => {
+    const propertyKey = node.key as NodeWithLocation<
+      LiteralNode | IdentifierNode
+    >;
+    let property: TParsedJSProperty = {
+      key: generate(node.key),
+      value: generate(node.value),
+      rawContent: extractContentByPosition(code, {
+        from: {
+          line: node.loc.start.line - 1,
+          ch: node.loc.start.column,
+        },
+        to: {
+          line: node.loc.end.line - 1,
+          ch: node.loc.end.column - 1,
+        },
+      }),
+      type: node.value.type,
+      position: {
+        startLine: node.loc.start.line,
+        startColumn: node.loc.start.column,
+        endLine: node.loc.end.line,
+        endColumn: node.loc.end.column,
+        keyStartLine: propertyKey.loc.start.line,
+        keyEndLine: propertyKey.loc.end.line,
+        keyStartColumn: propertyKey.loc.start.column,
+        keyEndColumn: propertyKey.loc.end.column,
+      },
+    };
+
+    if (isPropertyAFunctionNode(node.value)) {
+      // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
+      // currently we don't consume it anywhere hence avoiding to calculate that.
+      const params = getFunctionalParamsFromNode(node.value);
+      property = {
+        ...property,
+        arguments: [...params],
+        isMarkedAsync: node.value.async,
+      };
+    }
+
+    parsedObjectProperties.add(property);
+  });
+
+  return { parsedObject: [...parsedObjectProperties], success: true };
 };

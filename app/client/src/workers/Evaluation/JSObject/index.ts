@@ -18,6 +18,7 @@ import {
 import { functionDeterminer } from "../functionDeterminer";
 import { jsPropertiesState } from "./jsPropertiesState";
 import type { JSActionEntity } from "entities/DataTree/types";
+import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -91,7 +92,10 @@ export function saveResolvedFunctionsAndJSUpdates(
       const parseStartTime = performance.now();
       const { parsedObject, success } = parseJSObject(entity.body);
       const parseEndTime = performance.now();
-      const JSObjectASTParseTime = parseEndTime - parseStartTime;
+      const JSObjectASTParseTime = getFixedTimeDifference(
+        parseEndTime,
+        parseStartTime,
+      );
       dataTreeEvalRef.logs.push({
         JSObjectName: entityName,
         JSObjectASTParseTime,

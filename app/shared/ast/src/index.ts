@@ -36,7 +36,7 @@ interface MemberExpressionNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
-interface IdentifierNode extends Node {
+export interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
   name: string;
 }
@@ -89,7 +89,7 @@ interface AssignmentPatternNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#literal
-interface LiteralNode extends Node {
+export interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
 }
@@ -109,8 +109,12 @@ export interface PropertyNode extends Node {
   kind: "init" | "get" | "set";
 }
 
+export interface ExportDefaultDeclarationNode extends Node {
+  declaration: Node;
+}
+
 // Node with location details
-type NodeWithLocation<NodeType> = NodeType & {
+export type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
 };
 
@@ -163,6 +167,12 @@ export const isLiteralNode = (node: Node): node is LiteralNode => {
 
 export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
+};
+
+export const isExportDefaultDeclarationNode = (
+  node: Node,
+): node is ExportDefaultDeclarationNode => {
+  return node.type === NodeTypes.ExportDefaultDeclaration;
 };
 
 export const isPropertyAFunctionNode = (
