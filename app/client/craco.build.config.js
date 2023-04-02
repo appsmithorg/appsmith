@@ -16,6 +16,7 @@ plugins.push(
     mode: "development",
     swDest: "./pageService.js",
     maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
+    exclude: [/\.map$/, /^manifest.*\.js$/, /index\.html/],
   }),
 );
 
