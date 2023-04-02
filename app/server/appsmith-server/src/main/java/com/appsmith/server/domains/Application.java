@@ -88,7 +88,7 @@ public class Application extends BaseDomain {
     @JsonView({Views.Public.class, Views.Export.class})
     String icon;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     private String slug;
 
     @JsonView(Views.Internal.class)
@@ -111,7 +111,7 @@ public class Application extends BaseDomain {
     Instant lastDeployedAt; // when this application was last deployed
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Integer evaluationVersion;
 
     /**

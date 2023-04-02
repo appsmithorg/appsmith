@@ -1,20 +1,8 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BasicAuth;
-import com.appsmith.external.models.BearerTokenAuth;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DecryptedSensitiveFields;
-import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -22,16 +10,12 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
-import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -39,11 +23,6 @@ import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
-import com.appsmith.server.helpers.PluginUtils;
-import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -70,17 +49,28 @@ import com.appsmith.server.solutions.DomainPermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -88,30 +78,27 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static java.lang.Boolean.TRUE;
+
+import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -283,12 +270,12 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param pages list of pages
      * @return set of modified page uids
      */
-    public Set<String> getUpdatedPagesForApplication(Application application, List<NewPage> pages) {
+    public Set<String> getUpdatedPagesForApplication(Application application, List<NewPage> pages, ResourceModes resourceMode) {
         // TODO make this function generic
         return pages
                 .stream()
                 .filter(page -> isResourceUpdatedAfterLastCommit(application, page) && page.getPublishedPage().getName() != null)
-                .map(page -> page.getPublishedPage().getName())
+                .map(page -> selectPage(page, resourceMode).getName())
                 .collect(Collectors.toSet());
     }
 
@@ -298,11 +285,11 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param actions list of actions
      * @return set of modified action names
      */
-    public Set<String> getUpdatedActionsForApplication(Application application, List<NewAction> actions) {
+    public Set<String> getUpdatedActionsForApplication(Application application, List<NewAction> actions, ResourceModes resourceMode) {
         return actions
                 .stream()
                 .filter(action -> isResourceUpdatedAfterLastCommit(application, action))
-                .map(action -> action.getPublishedAction().getName() + NAME_SEPARATOR + action.getPublishedAction().getPageId())
+                .map(action -> selectAction(action, resourceMode).getName() + NAME_SEPARATOR + selectAction(action, resourceMode).getPageId())
                 .collect(Collectors.toSet());
     }
 
@@ -323,11 +310,11 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param actionCollections list of action collections
      * @return set of updated collection names
      */
-    public Set<String> getUpdatedActionCollectionsForApplication(Application application, List<ActionCollection> actionCollections) {
+    public Set<String> getUpdatedActionCollectionsForApplication(Application application, List<ActionCollection> actionCollections, ResourceModes resourceMode) {
         return actionCollections
                 .stream()
                 .filter(actionCollection -> isResourceUpdatedAfterLastCommit(application, actionCollection))
-                .map(actionCollection -> actionCollection.getPublishedCollection().getPageId() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getName())
+                .map(actionCollection -> selectCollection(actionCollection, resourceMode).getPageId() + NAME_SEPARATOR + selectCollection(actionCollection, resourceMode).getName())
                 .collect(Collectors.toSet());
     }
 
@@ -396,13 +383,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param page page object
      * @return Mono of NewPage
      */
-    public Mono<NewPage> processPageForExport(NewPage page) {
-        PageDTO publishedPageDTO = page.getPublishedPage();
-        if (!CollectionUtils.isEmpty(publishedPageDTO.getLayouts())) {
-            publishedPageDTO.getLayouts().forEach(layout -> {
-                layout.setId(publishedPageDTO.getName());
-            });
-        }
+    public Mono<NewPage> processPageForExport(NewPage page, ResourceModes resourceMode) {
         return Mono.just(page);
     }
 
@@ -415,32 +396,32 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         return Mono.just(application);
     }
 
-    /**
-     * This function checks whether the page is published or not
-     * @param page page object
-     * @return true if page is published, false otherwise
-     */
-    public boolean isPagePublished(NewPage page) {
-        return page.getPublishedPage() != null;
-    }
+    // /**
+    //  * This function checks whether the page is published or not
+    //  * @param page page object
+    //  * @return true if page is published, false otherwise
+    //  */
+    // public boolean isPagePublished(NewPage page) {
+    //     return page.getPublishedPage() != null;
+    // }
 
-    /**
-     * This function checks whether the action is published or not
-     * @param action action object
-     * @return true if action is published, false otherwise
-     */
-    public boolean isActionPublished(NewAction action) {
-        return action.getPublishedAction() != null;
-    }
+    // /**
+    //  * This function checks whether the action is published or not
+    //  * @param action action object
+    //  * @return true if action is published, false otherwise
+    //  */
+    // public boolean isActionPublished(NewAction action) {
+    //     return action.getPublishedAction() == null || action.getPublishedAction().getDeletedAt() != null;
+    // }
 
-    /**
-     * This function checks whether the action collection is published or not
-     * @param application application object
-     * @return true if action is published, false otherwise
-     */
-    public boolean isActionCollectionPublished(ActionCollection actionCollection) {
-        return actionCollection.getPublishedCollection() != null;
-    }
+    // /**
+    //  * This function checks whether the action collection is published or not
+    //  * @param application application object
+    //  * @return true if action is published, false otherwise
+    //  */
+    // public boolean isActionCollectionPublished(ActionCollection actionCollection) {
+    //     return actionCollection.getPublishedCollection() != null;
+    // }
 
     /**
      * This function exports all the pages of the given application
@@ -449,8 +430,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @return Flux of NewPage
      */
     public Flux<NewPage> fetchPagesForApplication(Application application, SerialiseApplicationObjective serialiseFor) {
-        Optional<AclPermission> optionalPermission = getResourceAccessPermissionForObjective(application, serialiseFor, applicationPermission);
-        return newPageRepository.findByApplicationId(application.getId(), optionalPermission);
+        Optional<AclPermission> optionalPermission = getResourceAccessPermissionForObjective(application, serialiseFor, pagePermission);
+        return newPageRepository.findByApplicationId(application.getId(), optionalPermission).log();
     }
 
     /**
@@ -458,9 +439,13 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param pages list of pages
      * @return map of page id to name
      */
-    Map<String, String> calculatePageIdToNameMap(List<NewPage> pages) {
+    Map<String, String> calculatePageIdToNameMap(List<NewPage> pages, ResourceModes resourceMode) {
         return pages.stream()
-                .map(page -> page.getPublishedPage())
+                .map(page -> {
+                    PageDTO pageDTO = selectPage(page, resourceMode);
+                    pageDTO.setId(page.getId());
+                    return pageDTO;
+                })
                 .collect(Collectors.toMap(PageDTO::getId, PageDTO::getName));
     }
 
@@ -489,8 +474,13 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param actionCollections list of action collections
      * @return map of action collection id to name
      */
-    Map<String, String> calculateActionCollectionIdToNameMap(List<ActionCollectionDTO> actionCollections) {
+    Map<String, String> calculateActionCollectionIdToNameMap(List<ActionCollection> actionCollections, ResourceModes resourceMode) {
         return actionCollections.stream()
+                .map(actionCollection -> {
+                    ActionCollectionDTO actionCollectionDTO = selectCollection(actionCollection, resourceMode);
+                    actionCollectionDTO.setId(actionCollection.getId());
+                    return actionCollectionDTO;
+                })
                 .collect(Collectors.toMap(ActionCollectionDTO::getId, ActionCollectionDTO::getName));
     }
 
@@ -502,32 +492,34 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
      * @param plugins list of plugins
      * @param datasources list of datasources
      */
-    public void fixReferencesForExport(List<NewPage> pages, List<ActionCollectionDTO> actionCollections, List<ActionDTO> actions, List<Plugin> plugins, List<Datasource> datasources) {
+    public void fixReferencesForExport(Application application, List<NewPage> pages, List<ActionCollection> actionCollections, List<NewAction> actions, List<Plugin> plugins, List<Datasource> datasources, ResourceModes resourceMode) {
         // Calculate pageId to name map
-        Map<String, String> pageIdToNameMap = calculatePageIdToNameMap(pages.stream().collect(Collectors.toList()));
+        Map<String, String> pageIdToNameMap = calculatePageIdToNameMap(pages.stream().collect(Collectors.toList()), resourceMode);
         // Calculate pluginId to name map
         Map<String, String> pluginIdToNameMap = calculatePluginIdToNameMap(plugins);
         // Calculate collectionId to name map
-        Map<String, String> actionCollectionIdToNameMap = calculateActionCollectionIdToNameMap(actionCollections);
+        Map<String, String> actionCollectionIdToNameMap = calculateActionCollectionIdToNameMap(actionCollections, resourceMode);
         // Calculate datasourceId to name map
         Map<String, String> datasourceIdToNameMap = calculateDatasourceIdToNameMap(datasources);
 
         // Fix references for action collections
         actionCollections.stream()
                 .forEach(actionCollection -> {
-                    actionCollection.setPageId(pageIdToNameMap.get(actionCollection.getPageId()));
-                    actionCollection.setPluginId(pluginIdToNameMap.get(actionCollection.getPluginId()));
+                    ActionCollectionDTO actionCollectionDTO = selectCollection(actionCollection, resourceMode);
+                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId()));
+                    actionCollectionDTO.setPluginId(pluginIdToNameMap.get(actionCollectionDTO.getPluginId()));
                 });
         
         // Fix references for actions
         actions.stream()
                 .forEach(action -> {
-                    action.setPageId(pageIdToNameMap.get(action.getPageId()));
-                    if (!StringUtils.isEmpty(action.getCollectionId())
-                            && actionCollectionIdToNameMap.containsKey(action.getCollectionId())) {
-                                action.setCollectionId(actionCollectionIdToNameMap.get(action.getCollectionId()));
+                    ActionDTO actionDTO = selectAction(action, resourceMode);
+                    actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId()));
+                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())
+                            && actionCollectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                actionDTO.setCollectionId(actionCollectionIdToNameMap.get(actionDTO.getCollectionId()));
                     }
-                    Datasource ds = action.getDatasource();
+                    Datasource ds = actionDTO.getDatasource();
                     if(ds != null) {
                         if(ds.getId() != null) {
                             ds.setId(datasourceIdToNameMap.get(ds.getId()));
@@ -537,6 +529,20 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         }
                     }
                 });
+
+        application.getPages()
+                .forEach(page -> {
+                    page.setId(pageIdToNameMap.get(page.getId()));
+                });
+
+        pages.forEach(page -> {
+            PageDTO pageDTO = selectPage(page, resourceMode);
+            if (!CollectionUtils.isEmpty(pageDTO.getLayouts())) {
+                pageDTO.getLayouts().forEach(layout -> {
+                    layout.setId(pageDTO.getName());
+                });
+            }
+        });
     }
 
     /**
@@ -549,13 +555,68 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         return Optional.ofNullable(plugin.getPluginName()).orElse(plugin.getPackageName());
     }
 
+    boolean isPageDeleted(PageDTO page) {
+        return page == null || page.getDeletedAt() != null;
+    }
+
+    boolean isCollectionDeleted(ActionCollectionDTO collection) {
+        return collection == null || collection.getDeletedAt() != null;
+    }
+
+    boolean isActionDeleted(ActionDTO action) {
+        return action == null || action.getDeletedAt() != null;
+    }
+
+    boolean shouldIncludePage(NewPage page, ResourceModes resourceMode) {
+        log.debug("Checking if page should be included in export. Page: {}, resourceMode: {}", page, resourceMode);
+        return !isPageDeleted(selectPage(page, resourceMode));
+    }
+
+    boolean shouldIncludeCollection(ActionCollection collection, ResourceModes resourceMode) {
+        return !isCollectionDeleted(selectCollection(collection, resourceMode));
+    }
+
+    boolean shouldIncludeAction(NewAction action, ResourceModes resourceMode) {
+        return !isActionDeleted(selectAction(action, resourceMode));
+    }
+
+    PageDTO selectPage(NewPage page, ResourceModes resourceMode) {
+        if(resourceMode == EDIT) {
+            return page.getUnpublishedPage();
+        } if(resourceMode == VIEW) {
+            return page.getPublishedPage();
+        } else {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resourceMode");
+        }
+    }
+
+    ActionCollectionDTO selectCollection(ActionCollection collection, ResourceModes resourceMode) {
+        if(resourceMode == EDIT) {
+            return collection.getUnpublishedCollection();
+        } if(resourceMode == VIEW) {
+            return collection.getPublishedCollection();
+        } else {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resourceMode");
+        }
+    }
+
+    ActionDTO selectAction(NewAction action, ResourceModes resourceMode) {
+        if(resourceMode == EDIT) {
+            return action.getUnpublishedAction();
+        } if(resourceMode == VIEW) {
+            return action.getPublishedAction();
+        } else {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resourceMode");
+        }
+    }
+
     /**
      * This function will give the application resource to rebuild the application in import application flow
      *
      * @param applicationId which needs to be exported
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor, ResourceModes resourceMode) {
 
         // Start the stopwatch to log the execution time
         // Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
@@ -578,10 +639,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 .flatMap(this::processApplicationForExport)
                 .cache();
 
-        Mono<Theme> defaultThemeMono = themeService.getDefaultTheme()
-                .flatMap(this::processThemeForExport)
-                .cache();
-
         /**
          * Since we are exporting for git, we only consider unpublished JS libraries
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
@@ -600,22 +657,21 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
         Flux<NewPage> pagesFlux = applicationMono
                 .flatMapMany(application -> fetchPagesForApplication(application, serialiseFor))
-                // Filter out pages which are not published
-                .filter(this::isPagePublished)
-                .flatMap(this::processPageForExport)
+                // Filter out pages which are deleted or does not exist
+                .filter(page -> shouldIncludePage(page, resourceMode))
                 .cache();
 
         Flux<ActionCollection> actionCollectionFlux = applicationMono
                 .flatMapMany(application -> fetchCollectionsForApplication(application, serialiseFor))
-                // Filter out action collections which are not published
-                .filter(this::isActionCollectionPublished)
+                // Filter out action collections which are deleted or does not exist
+                .filter(collection -> shouldIncludeCollection(collection, resourceMode))
                 .flatMap(this::processActionCollectionForExport)
                 .cache();
 
         Flux<NewAction> actionFlux = applicationMono
                 .flatMapMany(application -> fetchActionsForApplication(application, serialiseFor))
-                // Filter out actions which are not published
-                .filter(this::isActionPublished)
+                // Filter out actions which are deleted or does not exist
+                .filter(action -> shouldIncludeAction(action, resourceMode))
                 .flatMap(this::processActionForExport)
                 .cache();
         
@@ -670,26 +726,18 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                     // Populate pages
                     applicationJson.setPageList(pages);
-                    updatedResources.put(FieldName.PAGE_LIST, getUpdatedPagesForApplication(application, pages));
+                    updatedResources.put(FieldName.PAGE_LIST, getUpdatedPagesForApplication(application, pages, resourceMode));
 
                     // Populate action collections
                     applicationJson.setActionCollectionList(actionCollections);
-                    updatedResources.put(FieldName.ACTION_COLLECTION_LIST, getUpdatedActionCollectionsForApplication(application, actionCollections));
+                    updatedResources.put(FieldName.ACTION_COLLECTION_LIST, getUpdatedActionCollectionsForApplication(application, actionCollections, resourceMode));
 
                     // Populate actions
                     applicationJson.setActionList(actions);
-                    updatedResources.put(FieldName.ACTION_LIST, getUpdatedActionsForApplication(application, actions));
+                    updatedResources.put(FieldName.ACTION_LIST, getUpdatedActionsForApplication(application, actions, resourceMode));
 
                     // Fix references
-                    List<ActionCollectionDTO> actionCollectionDTOs = actionCollections.stream()
-                            .map(ActionCollection::getPublishedCollection)
-                            .collect(Collectors.toList());
-
-                    List<ActionDTO> actionDTOs = actions.stream()
-                            .map(NewAction::getPublishedAction)
-                            .collect(Collectors.toList());
-
-                    fixReferencesForExport(pages, actionCollectionDTOs, actionDTOs, plugins, datasources);
+                    fixReferencesForExport(application, pages, actionCollections, actions, plugins, datasources, resourceMode);
 
                     applicationJson.setUpdatedResources(updatedResources);
 
@@ -724,19 +772,76 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     //     }
     // }
 
+    public static class JSONObjectSerializer extends StdSerializer<JSONObject> {
+
+        public JSONObjectSerializer() {
+            this(null);
+        }
+      
+        public JSONObjectSerializer(Class<JSONObject> t) {
+            super(t);
+        }
+
+        @Override
+        public void serialize(JSONObject value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+            generator.writeStartObject();
+            for (Object key : value.keySet()) {
+                log.debug("key: {}, value: {}", key, value.get(key));
+                generator.writeObjectField((String) key,  value.get(key));
+            }
+            generator.writeEndObject();
+        }
+    }
+
+    public static class JSONObjectDeserializer extends JsonDeserializer<JSONObject> {
+
+        @Override
+        public JSONObject deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+            JSONObject jsonObject = new JSONObject();
+            JsonNode node = parser.getCodec().readTree(parser);
+            Iterator<Entry<String, JsonNode>> fields = node.fields();
+            while (fields.hasNext()) {
+                Entry<String, JsonNode> field = fields.next();
+                String key = field.getKey();
+                JsonNode value = field.getValue();
+                if (value.isObject()) {
+                    jsonObject.put(key, deserialize(parser, context));
+                } else if (value.isArray()) {
+                    JSONArray jsonArray = new JSONArray();
+                    for (JsonNode jsonNode : (ArrayNode) value) {
+                        if (jsonNode.isObject()) {
+                            jsonArray.add(deserialize(parser, context));
+                        } else {
+                            jsonArray.add(jsonNode.asText());
+                        }
+                    }
+                    jsonObject.put(key, jsonArray);
+                } else {
+                    jsonObject.put(key, value.asText());
+                }
+            }
+            return jsonObject;
+        }
+    }
+    
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
         return this.exportApplicationById(applicationId, branchName)
                 .map(applicationJson -> {
                     ObjectMapper mapper = new ObjectMapper();
+                    mapper.setSerializationInclusion(Include.NON_NULL);
+                    SimpleModule module = new SimpleModule();
+                    module.addSerializer(JSONObject.class, new JSONObjectSerializer());
+                    module.addDeserializer(JSONObject.class, new JSONObjectDeserializer());
+                    mapper.registerModule(module);
                     String stringifiedFile = "";
                     try {
-                        stringifiedFile = mapper.writerWithView(Views.Export.class).writeValueAsString(applicationJson);
+                        stringifiedFile = mapper.writerWithView(Views.ExportUnpublished.class).writeValueAsString(applicationJson);
                     } catch (JsonProcessingException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     String applicationName = applicationJson.getExportedApplication().getName();
-                    Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
+                    
                     HttpHeaders responseHeaders = new HttpHeaders();
                     ContentDisposition contentDisposition = ContentDisposition
                             .builder("attachment")
@@ -746,7 +851,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
                     ExportFileDTO exportFileDTO = new ExportFileDTO();
-                    exportFileDTO.setApplicationResource(jsonObject);
+                    exportFileDTO.setApplicationResource(stringifiedFile);
                     exportFileDTO.setHttpHeaders(responseHeaders);
                     return exportFileDTO;
                 });
@@ -848,6 +953,161 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             Application application) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getApplicationImportDTO'");
+    }
+
+    //  /**
+    //  * This function will take the application reference object to hydrate the application in mongoDB
+    //  *
+    //  * @param workspaceId     workspace to which application is going to be stored
+    //  * @param applicationJson application resource which contains necessary information to import the application
+    //  * @param applicationId   application which needs to be saved with the updated resources
+    //  * @param branchName      name of the branch of application with applicationId
+    //  * @param appendToApp     whether applicationJson will be appended to the existing app or not
+    //  * @return Updated application
+    //  */
+    // private Mono<Application> importApplicationInWorkspace(String workspaceId,
+    //                                                        ApplicationJson applicationJson,
+    //                                                        String applicationId,
+    //                                                        String branchName,
+    //                                                        boolean appendToApp,
+    //                                                        boolean isGitSync) {
+    //     /*
+    //         1. Migrate resource to latest schema
+    //         2. Fetch workspace by id
+    //         3. Extract datasources and update plugin information
+    //         4. Create new datasource if same datasource is not present
+    //         5. Extract and save application
+    //         6. Extract and save pages in the application
+    //         7. Extract and save actions in the application
+    //      */
+
+
+    //      Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
+    //      Mono<Application> applicationMono = fetchApplication(applicationId, serialiseFor)
+    //              .flatMap(this::processApplicationForExport)
+    //              .cache();
+ 
+    //      /**
+    //       * Since we are exporting for git, we only consider unpublished JS libraries
+    //       * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
+    //       */
+    //      Flux<CustomJSLib> allCustomJSLibListFlux = applicationMono
+    //              .flatMapMany(application -> getAllCustomJSLibsForApplication(application))
+    //              .cache();
+ 
+    //      Mono<Theme> editModeThemeMono = applicationMono
+    //              .flatMap(application -> getApplicationEditModeThemeOrDefault(application))
+    //              .flatMap(this::processThemeForExport);
+ 
+    //      Mono<Theme> publishedThemeMono = applicationMono
+    //              .flatMap(application -> getAplicationPublishedThemeOrDefault(application))
+    //              .flatMap(this::processThemeForExport);
+ 
+    //      Flux<NewPage> pagesFlux = applicationMono
+    //              .flatMapMany(application -> fetchPagesForApplication(application, serialiseFor))
+    //              // Filter out pages which are not published
+    //              .filter(this::isPagePublished)
+    //              .flatMap(this::processPageForExport)
+    //              .cache();
+ 
+    //      Flux<ActionCollection> actionCollectionFlux = applicationMono
+    //              .flatMapMany(application -> fetchCollectionsForApplication(application, serialiseFor))
+    //              // Filter out action collections which are not published
+    //              .filter(this::isActionCollectionPublished)
+    //              .flatMap(this::processActionCollectionForExport)
+    //              .cache();
+ 
+    //      Flux<NewAction> actionFlux = applicationMono
+    //              .flatMapMany(application -> fetchActionsForApplication(application, serialiseFor))
+    //              // Filter out actions which are not published
+    //              .filter(this::isActionPublished)
+    //              .flatMap(this::processActionForExport)
+    //              .cache();
+         
+    //      Flux<Plugin> pluginFlux = pluginRepository.findAll();
+ 
+    //      Flux<Datasource> datasourceFlux = applicationMono
+    //              .flatMapMany(application -> fetchDatasourcesForWorkspace(application, serialiseFor))
+    //              .flatMap(this::processDatasourceForExport)
+    //              .cache();
+ 
+    //      return Mono.zip(
+    //              allCustomJSLibListFlux.collectList(),
+    //              pluginFlux.collectList(),
+    //              editModeThemeMono,
+    //              publishedThemeMono,
+    //              applicationMono,
+    //              pagesFlux.collectList(),
+    //              actionCollectionFlux.collectList(),
+    //              Mono.zip(
+    //                      actionFlux.collectList(),
+    //                      datasourceFlux.collectList())
+    //              )
+    //              .map(tuple -> {
+    //                  List<CustomJSLib> allCustomJSLibs = tuple.getT1();
+    //                  List<Plugin> plugins = tuple.getT2();
+    //                  Theme editModeTheme = tuple.getT3();
+    //                  Theme publishedTheme = tuple.getT4();
+    //                  Application application = tuple.getT5();
+    //                  List<NewPage> pages = tuple.getT6();
+    //                  List<ActionCollection> actionCollections = tuple.getT7();
+    //                  List<NewAction> actions = tuple.getT8().getT1();
+    //                  List<Datasource> datasources = tuple.getT8().getT2();
+ 
+    //                  Map<String, Set<String>> updatedResources = new HashMap<>();
+                     
+    //                  ApplicationJson applicationJson = new ApplicationJson();
+ 
+    //                  // Set json schema version which will be used to check the compatibility while importing the JSON
+    //                  applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+    //                  applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+ 
+    //                  // Populate custom JS libs
+    //                  applicationJson.setCustomJSLibList(allCustomJSLibs);
+    //                  updatedResources.put(FieldName.CUSTOM_JS_LIB_LIST, getUpdatedCustomJSLibsForApplication(application, allCustomJSLibs));
+ 
+    //                  // Populate themes
+    //                  applicationJson.setEditModeTheme(editModeTheme);
+    //                  applicationJson.setPublishedTheme(publishedTheme);
+ 
+    //                  // Populate application
+    //                  applicationJson.setExportedApplication(application);
+ 
+    //                  // Populate pages
+    //                  applicationJson.setPageList(pages);
+    //                  updatedResources.put(FieldName.PAGE_LIST, getUpdatedPagesForApplication(application, pages));
+ 
+    //                  // Populate action collections
+    //                  applicationJson.setActionCollectionList(actionCollections);
+    //                  updatedResources.put(FieldName.ACTION_COLLECTION_LIST, getUpdatedActionCollectionsForApplication(application, actionCollections));
+ 
+    //                  // Populate actions
+    //                  applicationJson.setActionList(actions);
+    //                  updatedResources.put(FieldName.ACTION_LIST, getUpdatedActionsForApplication(application, actions));
+ 
+    //                  // Fix references
+    //                  List<ActionCollectionDTO> actionCollectionDTOs = actionCollections.stream()
+    //                          .map(ActionCollection::getPublishedCollection)
+    //                          .collect(Collectors.toList());
+ 
+    //                  List<ActionDTO> actionDTOs = actions.stream()
+    //                          .map(NewAction::getPublishedAction)
+    //                          .collect(Collectors.toList());
+ 
+    //                  fixReferencesForExport(pages, actionCollectionDTOs, actionDTOs, plugins, datasources);
+ 
+    //                  applicationJson.setUpdatedResources(updatedResources);
+ 
+    //                  return applicationJson;
+    //              });
+    // }
+
+    @Override
+    public Mono<ApplicationJson> exportApplicationById(String applicationId,
+            SerialiseApplicationObjective serialiseFor) {
+        
+        return exportApplicationById(applicationId, serialiseFor, VIEW);
     }
 
     // /**

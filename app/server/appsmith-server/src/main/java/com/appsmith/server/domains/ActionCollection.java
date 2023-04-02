@@ -43,19 +43,19 @@ public class ActionCollection extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     ActionCollectionDTO publishedCollection;
 
-    @JsonView(Views.Export.class)
+    @JsonView(Views.ExportPublished.class)
     @JsonProperty("collection")
     public ActionCollectionDTO getPublishedCollection() {
         return publishedCollection;
     }
 
-    @JsonView(Views.ImportPublished.class)
+    @JsonView(Views.ExportUnpublished.class)
     @JsonProperty("collection")
-    public void setPublishedCollection(ActionCollectionDTO publishedCollection) {
-        this.publishedCollection = publishedCollection;
+    public ActionCollectionDTO getUnpublishedCollection() {
+        return unpublishedCollection;
     }
 
-    @JsonView(Views.ImportUnpublished.class)
+    @JsonView(Views.Import.class)
     @JsonProperty("collection")
     public void setUnpublishedCollection(ActionCollectionDTO unpublishedCollection) {
         this.unpublishedCollection = unpublishedCollection;

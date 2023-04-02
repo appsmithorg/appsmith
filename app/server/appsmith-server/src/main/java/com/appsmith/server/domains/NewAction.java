@@ -52,21 +52,21 @@ public class NewAction extends BranchAwareDomain {
 
     ActionDTO publishedAction;
 
-    @JsonView(Views.Export.class)
+    @JsonView(Views.ExportPublished.class)
     @JsonProperty("action")
     public ActionDTO getPublishedAction() {
         return publishedAction;
     }
 
-    @JsonView(Views.ImportPublished.class)
+    @JsonView(Views.ExportUnpublished.class)
     @JsonProperty("action")
-    public void setPublishedAction(ActionDTO publishedAction) {
-        this.publishedAction = publishedAction;
+    public ActionDTO getUnpublishedAction() {
+        return unpublishedAction;
     }
 
-    @JsonView(Views.ImportUnpublished.class)
+    @JsonView(Views.Import.class)
     @JsonProperty("action")
-    public void setUnpublishedAction(ActionDTO unpublishedAction) {
+    public void setUnublishedAction(ActionDTO unpublishedAction) {
         this.unpublishedAction = unpublishedAction;
     }
 }
