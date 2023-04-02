@@ -12,6 +12,8 @@
 
 # production
 /build
+# used to pack build artifacts in CI
+build.tar
 
 # misc
 .DS_Store
