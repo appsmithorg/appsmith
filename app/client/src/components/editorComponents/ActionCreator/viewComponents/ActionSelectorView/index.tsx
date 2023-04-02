@@ -66,6 +66,38 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
     debouncedSetSearchText(searchText);
   }, [searchText]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setTimeout(() => {
+      function onIntersection(entries: IntersectionObserverEntry[]) {
+        entries.forEach((entry) => {
+          const childSubmenu = entry.target.querySelector(".bp3-overlay");
+          if (childSubmenu) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            childSubmenu.style.visibility = entry.isIntersecting
+              ? "visible"
+              : "hidden";
+          }
+        });
+      }
+
+      const menuElements = document.querySelectorAll(
+        ".action-selector-dropdown li.bp3-submenu",
+      );
+
+      menuElements.forEach((el) => {
+        const observer = new IntersectionObserver(onIntersection, {
+          root: document.querySelector(".action-selector-dropdown .bp3-menu"),
+          threshold: 0,
+        });
+
+        observer.observe(el);
+      });
+    }, 100);
+  }, [isOpen]);
+
   const filteredOptions = useMemo(() => {
     if (!debouncedValue) return options;
     const optionsToFilter =
