@@ -8,7 +8,7 @@ import {
   functionParam,
 } from "../index";
 import { SourceType, NodeTypes } from "../../index";
-import { attachComments } from "astravel";
+import { attachComments } from "escodegen";
 import { extractContentByPosition } from "../utils";
 
 const jsObjectVariableName =
@@ -55,8 +55,14 @@ export const parseJSObject = (code: string) => {
   const result: TParsedJSProperty[] = [];
   try {
     const comments: any = [];
-    ast = getAST(code, { sourceType: SourceType.module, onComment: comments });
-    attachComments(ast, comments);
+    const token: any = [];
+    ast = getAST(code, {
+      sourceType: SourceType.module,
+      onComment: comments,
+      onToken: token,
+      ranges: true,
+    });
+    attachComments(ast, comments, token);
   } catch (e) {
     return { parsedObject: result, success: false };
   }
@@ -104,7 +110,7 @@ export const parseJSObject = (code: string) => {
           property = {
             ...property,
             arguments: [...params],
-            isMarkedAsync: node.value.async
+            isMarkedAsync: node.value.async,
           };
         }
         result.push(property);
