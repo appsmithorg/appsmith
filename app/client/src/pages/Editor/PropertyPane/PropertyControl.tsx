@@ -743,6 +743,7 @@ const PropertyControl = memo((props: Props) => {
               <>
                 <TooltipComponent
                   content="Value deviated from theme"
+                  modifiers={{ preventOverflow: { enabled: true } }}
                   openOnTargetFocus={false}
                 >
                   <div className="w-2 h-2 rounded-full bg-primary-500" />
