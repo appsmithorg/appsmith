@@ -69,6 +69,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    // Add timeout, to make sure the menu is rendered
     setTimeout(() => {
       function onIntersection(entries: IntersectionObserverEntry[]) {
         entries.forEach((entry) => {
