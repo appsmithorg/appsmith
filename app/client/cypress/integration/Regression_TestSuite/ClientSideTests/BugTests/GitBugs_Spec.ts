@@ -42,15 +42,14 @@ describe("Git Bugs", function () {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    _.propPane.UpdatePropertyFieldValue(
+    _.propPane.EnterJSContext(
       "onClick",
-      "{{navigateTo('', {testQP: 'Yes'}, 'SAME_WINDOW')}}",
+      "{{navigateTo('Page2', {testQP: 'Yes'}, 'SAME_WINDOW')}}",
+      true,
+      true,
     );
+    _.jsEditor.DisableJSContext("onClick");
     _.agHelper.Sleep(500);
-    // cy.get(".t--open-dropdown-Select-Page").click();
-    // cy.get(locators._dropDownValue("Page2")).click();
-    // _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(
