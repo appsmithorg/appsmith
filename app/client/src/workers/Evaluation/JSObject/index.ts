@@ -82,12 +82,12 @@ export function saveResolvedFunctionsAndJSUpdates(
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
+  jsPropertiesState.delete(entityName);
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
     try {
       delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
       delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
-      jsPropertiesState.delete(entityName);
       const parseStartTime = performance.now();
       const { parsedObject, success } = parseJSObject(entity.body);
       const parseEndTime = performance.now();

@@ -30,6 +30,8 @@ export const lintOptions = (globalData: Record<string, boolean>) =>
   } as LintOptions);
 export const JS_OBJECT_START_STATEMENT = "export default";
 export const INVALID_JSOBJECT_START_STATEMENT = `JSObject must start with '${JS_OBJECT_START_STATEMENT}'`;
+export const INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE =
+  "INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE";
 // https://github.com/jshint/jshint/blob/d3d84ae1695359aef077ddb143f4be98001343b4/src/messages.js#L204
 export const IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE = "W117";
 

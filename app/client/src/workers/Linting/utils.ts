@@ -43,6 +43,7 @@ import {
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   IGNORED_LINT_ERRORS,
   INVALID_JSOBJECT_START_STATEMENT,
+  INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
   JS_OBJECT_START_STATEMENT,
   lintOptions,
   SUPPORTED_WEB_APIS,
@@ -76,30 +77,6 @@ export function lintBindingPath({
   globalData,
 }: lintBindingPathProps) {
   let lintErrors: LintError[] = [];
-
-  if (isJSAction(entity)) {
-    if (!entity.body) return lintErrors;
-    if (!entity.body.startsWith(JS_OBJECT_START_STATEMENT)) {
-      return lintErrors.concat([
-        {
-          errorType: PropertyEvaluationErrorType.LINT,
-          errorSegment: "",
-          originalBinding: entity.body,
-          line: 0,
-          ch: 0,
-          code: entity.body,
-          variables: [],
-          raw: entity.body,
-          errorMessage: {
-            name: "LintingError",
-            message: INVALID_JSOBJECT_START_STATEMENT,
-          },
-          severity: Severity.ERROR,
-        },
-      ]);
-    }
-  }
-
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   // Get the {{binding}} bound values
   const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -519,17 +496,34 @@ export function lintJSObjectBody(
   globalData: DataTree,
 ): LintError[] {
   const jsObject = globalData[jsObjectName];
-  const jsbody = getJSToLint(
-    jsObject,
-    (jsObject as unknown as JSActionEntity).body,
-    "body",
-  );
+  const rawJSObjectbody = (jsObject as unknown as JSActionEntity).body;
+  if (!rawJSObjectbody) return [];
+  if (!rawJSObjectbody.startsWith(JS_OBJECT_START_STATEMENT)) {
+    return [
+      {
+        errorType: PropertyEvaluationErrorType.LINT,
+        errorSegment: "",
+        originalBinding: rawJSObjectbody,
+        line: 0,
+        ch: 0,
+        code: INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
+        variables: [],
+        raw: rawJSObjectbody,
+        errorMessage: {
+          name: "LintingError",
+          message: INVALID_JSOBJECT_START_STATEMENT,
+        },
+        severity: Severity.ERROR,
+      },
+    ];
+  }
   const scriptType = getScriptType(false, false);
-  const scriptToLint = getScriptToEval(jsbody, scriptType);
+  const jsbodyToLint = getJSToLint(jsObject, rawJSObjectbody, "body"); // remove "export default"
+  const scriptToLint = getScriptToEval(jsbodyToLint, scriptType);
   return getLintingErrors({
     script: scriptToLint,
     data: globalData,
-    originalBinding: jsbody,
+    originalBinding: jsbodyToLint,
     scriptType,
   });
 }
