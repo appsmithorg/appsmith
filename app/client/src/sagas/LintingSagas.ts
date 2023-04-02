@@ -51,13 +51,13 @@ function* getValidOldJSCollectionLintErrors(
     const oldJsBodyLintErrors: LintError[] = yield select((state: AppState) =>
       get(state.linting.errors, jsObjectBodyPath, []),
     );
-    const newJsBodyLintErrors = get(
+    const newJSBodyLintErrors = get(
       errors,
       jsObjectBodyPath,
       [] as LintError[],
     );
 
-    const newJsBodyLintErrorsOriginalPaths = newJsBodyLintErrors.reduce(
+    const newJSBodyLintErrorsOriginalPaths = newJSBodyLintErrors.reduce(
       (paths, currentError) => {
         if (currentError.originalPath)
           return union(paths, [currentError.originalPath]);
@@ -73,11 +73,11 @@ function* getValidOldJSCollectionLintErrors(
       (lintError) =>
         lintError.originalPath &&
         lintError.originalPath in jsObjectProperties &&
-        !(lintError.originalPath in newJsBodyLintErrorsOriginalPaths),
+        !(lintError.originalPath in newJSBodyLintErrorsOriginalPaths),
     );
     const updatedLintErrors = [
       ...filteredOldJsObjectBodyLintErrors,
-      ...newJsBodyLintErrors,
+      ...newJSBodyLintErrors,
     ];
     set(updatedJSCollectionLintErrors, jsObjectBodyPath, updatedLintErrors);
   }

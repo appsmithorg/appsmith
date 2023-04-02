@@ -67,6 +67,7 @@ import type {
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { JSActionEntity } from "entities/DataTree/types";
+import { globalData } from "./globalData";
 
 export function lintBindingPath({
   dynamicBinding,
@@ -484,7 +485,6 @@ export function lintJSProperty(
 export function lintJSObjectProperty(
   jsPropertyFullName: string,
   jsObjectState: Record<string, TJSpropertyState>,
-  data: { dataWithFunctions: DataTree; dataWithoutFunctions: DataTree },
   asyncJSFunctionsInDataFields: DependencyMap,
 ) {
   let lintErrors: LintError[] = [];
@@ -493,14 +493,11 @@ export function lintJSObjectProperty(
   const jsPropertyState = jsObjectState[jsPropertyName];
   const isAsyncJSFunctionBoundToSyncField =
     asyncJSFunctionsInDataFields.hasOwnProperty(jsPropertyFullName);
-  const globalData = isAsyncJSFunctionBoundToSyncField
-    ? data.dataWithoutFunctions
-    : data.dataWithFunctions;
 
   const jsPropertyLintErrors = lintJSProperty(
     jsPropertyFullName,
     jsPropertyState,
-    globalData,
+    globalData.getGlobalData(!isAsyncJSFunctionBoundToSyncField),
   );
   lintErrors = lintErrors.concat(jsPropertyLintErrors);
 
