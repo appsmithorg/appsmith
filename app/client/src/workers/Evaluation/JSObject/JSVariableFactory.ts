@@ -12,13 +12,14 @@ class JSFactory {
     const variables = Object.entries(varState);
 
     for (const [varName, varValue] of variables) {
+      let variable = varValue;
       Object.defineProperty(newJSObject, varName, {
         get() {
           JSVariableUpdates.add({
             path: `${jsObjectName}.${varName}`,
             method: PatchType.GET,
           });
-          return varState[varName];
+          return variable;
         },
         set(value) {
           JSVariableUpdates.add({
@@ -26,7 +27,7 @@ class JSFactory {
             method: PatchType.SET,
             value,
           });
-          varState[varName] = value;
+          variable = value;
         },
       });
 

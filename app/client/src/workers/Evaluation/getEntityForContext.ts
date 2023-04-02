@@ -41,8 +41,7 @@ export function getEntityForEvalContext(
         const jsObjectName = entityName;
         const jsObject = entity;
 
-        let jsObjectForEval =
-          JSObjectCollection.getCurrentVariableState(entityName);
+        let jsObjectForEval = JSObjectCollection.getVariableState(entityName);
 
         const fns = getJSFunctionsForEntity({
           jsObjectName,
@@ -51,10 +50,6 @@ export function getEntityForEvalContext(
 
         if (!jsObjectForEval) {
           return Object.assign({}, jsObject, fns);
-        }
-
-        if (self.$isDataField) {
-          return Object.assign({}, jsObjectForEval, fns);
         }
 
         jsObjectForEval = JSFactory.create(entityName, jsObjectForEval);

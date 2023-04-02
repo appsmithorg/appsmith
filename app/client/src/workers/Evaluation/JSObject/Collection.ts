@@ -1,4 +1,5 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { klona } from "klona/full";
 import { get, set } from "lodash";
 
 export type VariableState = Record<string, Record<string, any>>;
@@ -66,10 +67,10 @@ export default class JSObjectCollection {
     this.variableState = variableState;
   }
 
-  static getCurrentVariableState(
+  static getVariableState(
     JSObjectName?: string,
   ): VariableState | Record<string, any> {
-    if (!JSObjectName || !this.variableState) return this.variableState;
+    if (!JSObjectName || !this.variableState) return klona(this.variableState);
     return this.variableState[JSObjectName];
   }
 

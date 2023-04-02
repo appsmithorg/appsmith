@@ -289,7 +289,7 @@ export function updateEvalTreeWithJSCollectionState(
   oldUnEvalTree: DataTree,
 ) {
   // loop through jsCollectionState and set all values to evalTree
-  const jsCollections = JSObjectCollection.getCurrentVariableState();
+  const jsCollections = JSObjectCollection.getVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
     if (!evalTree[jsObjectName]) {
@@ -308,9 +308,6 @@ export function updateEvalTreeWithJSCollectionState(
 }
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
-  ExecutionMetaData.setExecutionMetaData({
-    enableJSVarUpdateTracking: false,
-  });
   const currentEvalContext = self;
 
   if (!dataTreeEvaluator) return;
@@ -343,7 +340,4 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       );
     }
   }
-  ExecutionMetaData.setExecutionMetaData({
-    enableJSVarUpdateTracking: true,
-  });
 }
