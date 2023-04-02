@@ -267,15 +267,12 @@ function GlobalSearch() {
   const recentEntityIds = recentEntities
     .map((r) => getEntityId(r))
     .filter(Boolean);
-  const recentEntityIndex = useCallback(
-    (entity) => {
-      if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
-      const id =
-        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
-      return recentEntityIds.indexOf(id);
-    },
-    [recentEntities],
-  );
+  const recentEntityIndex = (entity: any) => {
+    if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
+    const id =
+      entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+    return recentEntityIds.indexOf(id);
+  };
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
