@@ -109,6 +109,9 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
