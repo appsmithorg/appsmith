@@ -16,7 +16,16 @@ plugins.push(
     mode: "development",
     swDest: "./pageService.js",
     maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
-    exclude: [/\.map$/, /^manifest.*\.js$/, /index\.html/],
+    exclude: [
+      /\.map$/,
+      /^manifest.*\.js$/,
+      /index\.html/,
+      // Don’t cache LICENSE.txt files emitted by CRA
+      // when a chunk includes some license comments
+      /LICENSE\.txt/,
+    ],
+    // Don’t cache-bust JS and CSS chunks
+    dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
   }),
 );
 
