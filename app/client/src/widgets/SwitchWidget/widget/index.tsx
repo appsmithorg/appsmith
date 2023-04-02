@@ -55,11 +55,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isTriggerProperty: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "arrow-left-s-line",
                 value: AlignWidgetTypes.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "arrow-right-s-line",
                 value: AlignWidgetTypes.RIGHT,
               },
             ],

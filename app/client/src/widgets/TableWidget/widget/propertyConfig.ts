@@ -1732,15 +1732,15 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            icon: "LEFT_ALIGN",
+            startIcon: "arrow-left-s-line",
             value: "LEFT",
           },
           {
-            icon: "CENTER_ALIGN",
+            icon: "arrow-left-s-line",
             value: "CENTER",
           },
           {
-            icon: "RIGHT_ALIGN",
+            startIcon: "arrow-right-s-line",
             value: "RIGHT",
           },
         ],

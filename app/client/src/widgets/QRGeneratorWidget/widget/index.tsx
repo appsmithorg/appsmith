@@ -293,15 +293,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "arrow-left-s-line",
                 value: "LEFT",
               },
               {
-                icon: "CENTER_ALIGN",
+                startIcon: "arrow-right-s-line",
                 value: "CENTER",
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "arrow-right-s-line",
                 value: "RIGHT",
               },
             ],
@@ -574,15 +574,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "arrow-left-s-line",
                 value: "LEFT",
               },
               {
-                icon: "CENTER_ALIGN",
+                startIcon: "arrow-right-s-line",
                 value: "CENTER",
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "arrow-right-s-line",
                 value: "RIGHT",
               },
             ],
