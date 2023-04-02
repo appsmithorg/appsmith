@@ -17,7 +17,7 @@ export const Wrapper = styled.div`
     props.theme.homePage.leftPane.leftPadding}px;
   padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
   overflow-y: auto;
-  border-right: 1px solid var(--appsmith-color-black-200);
+  border-right: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
 
   &::-webkit-scrollbar {
@@ -26,7 +26,7 @@ export const Wrapper = styled.div`
 `;
 
 export const HeaderContainer = styled.div`
-  border-top: 1px solid var(--appsmith-color-black-200);
+  border-top: 1px solid var(--ads-v2-color-border);
   padding: 20px 0;
   margin: 0 12px;
 `;
@@ -47,14 +47,15 @@ export const CategoryList = styled.ul`
 `;
 
 export const CategoryItem = styled.li`
-  width: 90%;
+  /* width: 90%; */
 `;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
   padding: 8px 16px;
+  border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
-    props.$active ? props.theme.colors.menuItem.hoverBg : ""};
+    props.$active ? `var(--ads-v2-color-bg-muted)` : ""};
   font-weight: ${(props) => (props.$active ? 500 : 400)};
   text-transform: capitalize;
   display: flex;
@@ -68,8 +69,8 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   }
   &:hover {
     text-decoration: none;
-    background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
-    color: ${(props) => props.theme.colors.menuItem.hoverText};
+    background-color: var(--ads-v2-color-bg-muted);
+    /* color: ${(props) => props.theme.colors.menuItem.hoverText}; */
   }
 
   & div {
