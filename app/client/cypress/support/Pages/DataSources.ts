@@ -496,9 +496,14 @@ export class DataSources {
       datasourceFormData["firestore-projectID"],
     );
     cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
+      let ServiceAccCreds = JSON.parse(
+        JSON.stringify(json.serviceAccCredentials),
+      );
+      ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
+      //cy.log("ServiceAccCreds is "+ JSON.stringify(ServiceAccCreds));
       this.agHelper.UpdateFieldLongInput(
         this.locator._inputFieldByName("Service Account Credentials"),
-        JSON.stringify(json.serviceAccCredentials),
+        JSON.stringify(ServiceAccCreds),
       );
     });
   }
