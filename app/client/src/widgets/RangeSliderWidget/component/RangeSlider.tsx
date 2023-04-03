@@ -329,6 +329,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         {...delegated}
         disabled={disabled}
         labelPosition={labelPosition}
+        onClick={(e) => e.stopPropagation()}
         onKeyDownCapture={handleTrackKeydownCapture}
         onMouseDownCapture={handleTrackMouseDownCapture}
         onMouseUpCapture={() => {
