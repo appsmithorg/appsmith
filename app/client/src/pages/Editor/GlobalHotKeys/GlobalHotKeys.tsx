@@ -29,7 +29,6 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster, Variant } from "design-system-old";
 
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
@@ -47,6 +46,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -336,9 +336,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Save progress"
           onKeyDown={() => {
-            Toaster.show({
-              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
-              variant: Variant.info,
+            toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
+              kind: "info",
             });
           }}
           preventDefault

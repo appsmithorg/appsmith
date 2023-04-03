@@ -40,7 +40,7 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -94,9 +94,8 @@ export function* addApiToPageSaga(
         pageName: page?.pageName,
         source: payload.source,
       });
-      Toaster.show({
-        text: createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name),
-        variant: Variant.success,
+      toast.show(createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name), {
+        kind: "success",
       });
       yield put({
         type: ReduxActionTypes.ADD_API_TO_PAGE_SUCCESS,

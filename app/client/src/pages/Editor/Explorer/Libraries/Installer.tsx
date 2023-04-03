@@ -12,10 +12,8 @@ import {
   Text,
   TextInput,
   TextType,
-  Toaster,
-  Variant,
 } from "design-system-old";
-import { Button, Icon, Spinner } from "design-system";
+import { Button, Icon, Spinner, toast } from "design-system";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -348,13 +346,15 @@ export function Installer(props: { left: number }) {
 
       const libInstalled = installedLibraries.find((lib) => lib.url === url);
       if (libInstalled) {
-        Toaster.show({
-          text: createMessage(
+        toast.show(
+          createMessage(
             customJSLibraryMessages.INSTALLED_ALREADY,
             libInstalled.accessor[0] || "",
           ),
-          variant: Variant.info,
-        });
+          {
+            kind: "info",
+          },
+        );
         return;
       }
       dispatch(

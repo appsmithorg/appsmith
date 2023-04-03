@@ -14,14 +14,13 @@ import {
 import { Classes } from "@blueprintjs/core";
 import {
   notEmptyValidator,
-  Toaster,
   Text,
   TextInput,
   TextType,
+  emailValidator,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, toast } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
-import { emailValidator } from "design-system-old";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
@@ -68,9 +67,7 @@ export default function GitConfig() {
       setAreFormValuesUpdated(false);
       dispatch(updateGlobalGitConfigInit({ authorName, authorEmail }));
     } else {
-      Toaster.show({
-        text: "Please enter valid user details",
-      });
+      toast.show("Please enter valid user details");
     }
   };
 

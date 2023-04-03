@@ -14,8 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster, Variant } from "design-system-old";
-import { Button } from "design-system";
+import { Button, toast } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -42,7 +41,7 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { Callout } from "design-system-old";
+import { Callout, Variant } from "design-system-old";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -264,9 +263,8 @@ class DatasourceRestAPIEditor extends React.Component<
       !datasource.datasourceConfiguration ||
       !datasource.datasourceConfiguration.url
     ) {
-      Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
-        variant: Variant.danger,
+      toast.show("Unable to create API. Try adding a url to the datasource", {
+        kind: "error",
       });
       return;
     }
