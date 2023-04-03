@@ -1,5 +1,5 @@
-import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
-import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import type { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 export type WidgetType = FactoryWidgetType;
 
@@ -11,7 +11,7 @@ export const PositionTypes: { [id: string]: string } = {
   ABSOLUTE: "ABSOLUTE",
   CONTAINER_DIRECTION: "CONTAINER_DIRECTION",
 };
-export type PositionType = typeof PositionTypes[keyof typeof PositionTypes];
+export type PositionType = (typeof PositionTypes)[keyof typeof PositionTypes];
 
 export type CSSUnit =
   | "px"
@@ -151,6 +151,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   children: true,
   requiresFlatWidgetChildren: true,
   hasMetaWidgets: true,
+  isMetaWidget: true,
   parentId: true,
   referencedWidgetId: true,
   topRow: true,
@@ -189,3 +190,5 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
 };
+
+export const FLEXBOX_PADDING = 4;

@@ -4,8 +4,9 @@ import { connect, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { AppState } from "@appsmith/reducers";
-import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
+import type { AppState } from "@appsmith/reducers";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import { Colors } from "constants/Colors";
@@ -14,6 +15,10 @@ import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { get } from "lodash";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;
@@ -52,6 +57,16 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   if (redirectUrl != null) {
     loginUrl += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const navColorStyle =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
 
   return (
     <StyledPageHeader>
@@ -83,7 +98,9 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
           ) : (
             <ProfileDropdown
               name={user.name}
+              navColorStyle={navColorStyle}
               photoId={user?.photoId}
+              primaryColor={primaryColor}
               userName={user.username}
             />
           )}

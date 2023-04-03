@@ -1,0 +1,107 @@
+<!-- Button.stories.mdx -->
+
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+
+import { Button } from "./";
+
+<Meta
+  title="WDS/Button"
+  component={Button}
+  parameters={{
+    height: 32,
+    width: 180,
+  }}
+  argTypes={{
+    children: {
+      name: "children",
+      description: "Text shown by button",
+      defaultValue: "Button",
+      control: {
+        type: "text",
+      },
+      table: {
+        type: {
+          summary: "The label contents",
+          detail: "Text displayed by the Badge",
+        },
+      },
+    },
+  }}
+/>
+
+export const Template = (args, { globals: { fontFamily } }) => (
+  <Button {...args} fontFamily={fontFamily} />
+);
+
+# Button
+
+A button is a clickable element that is used to trigger an action.
+
+<Canvas>
+  <Story name="Default">{Template.bind({})}</Story>
+</Canvas>
+
+# Variants
+
+There are 4 variants of the button component.
+
+<Canvas>
+  <Story
+    name="Filled Variant"
+    args={{
+      children: "Filled",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Outline Variant"
+    args={{
+      variant: "outline",
+      children: "Outline",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Light Variant"
+    args={{
+      variant: "light",
+      children: "Light",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Subtle Variant"
+    args={{
+      variant: "subtle",
+      children: "Subtle",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+# States
+
+<Canvas>
+  <Story
+    name="Disabled State"
+    args={{
+      isDisabled: true,
+      children: "Disabled",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Loading State"
+    args={{
+      isLoading: true,
+      children: "Loading",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>

@@ -1,23 +1,27 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
+import Debugger from "components/editorComponents/Debugger";
 
 import {
   getCurrentPageId,
   getCurrentPageName,
-  getIsFetchingPage,
+  previewModeSelector,
 } from "selectors/editorSelectors";
-import PageTabs from "./PageTabs";
+import NavigationPreview from "./NavigationPreview";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import CanvasContainer from "./CanvasContainer";
-import { quickScrollToWidget } from "utils/helpers";
-import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  getAppMode,
+  getAppSidebarPinned,
+  getCurrentApplication,
+  getSidebarWidth,
+} from "@appsmith/selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
@@ -27,24 +31,61 @@ import {
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
-import PropertyPaneContainer from "./PropertyPaneContainer";
+import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import {
+  getAppSettingsPaneContext,
+  getIsAppSettingsPaneWithNavigationTabOpen,
+} from "selectors/appSettingsPaneSelectors";
+import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
+import PropertyPaneContainer from "./PropertyPaneContainer";
+import classNames from "classnames";
+import { APP_MODE } from "entities/App";
+import useGoogleFont from "utils/hooks/useGoogleFont";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
-/* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
-  const canvasWidgets = useSelector(getCanvasWidgets);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
+  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const navigationPreviewRef = useRef(null);
+  const [navigationHeight, setNavigationHeight] = useState(0);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const appMode = useSelector(getAppMode);
+  const isPublished = appMode === APP_MODE.PUBLISHED;
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
+
+  useEffect(() => {
+    if (navigationPreviewRef?.current) {
+      const { offsetHeight } = navigationPreviewRef.current;
+
+      setNavigationHeight(offsetHeight);
+    } else {
+      setNavigationHeight(0);
+    }
+  }, [
+    navigationPreviewRef,
+    isPreviewMode,
+    appSettingsPaneContext?.type,
+    currentApplicationDetails?.applicationDetail?.navigationSetting,
+  ]);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -61,18 +102,6 @@ function WidgetsEditor() {
       });
     }
   }, [currentPageName, currentPageId]);
-
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
@@ -112,8 +141,20 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
-  PerformanceTracker.stopTracking();
+  const showNavigation = () => {
+    if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
+      return (
+        <NavigationPreview
+          isAppSettingsPaneWithNavigationTabOpen={
+            isAppSettingsPaneWithNavigationTabOpen
+          }
+          ref={navigationPreviewRef}
+        />
+      );
+    }
+  };
 
+  PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
       {showOnboardingTasks ? (
@@ -125,18 +166,51 @@ function WidgetsEditor() {
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
               <div
-                className="relative flex flex-row w-full overflow-hidden"
+                className={classNames({
+                  "relative flex flex-row w-full overflow-hidden": true,
+                })}
                 data-testid="widgets-editor"
                 draggable
+                id="widgets-editor"
                 onClick={handleWrapperClick}
                 onDragStart={onDragStart}
+                style={{
+                  fontFamily: fontFamily,
+                }}
               >
-                <PageTabs />
-                <CanvasContainer />
+                {showNavigation()}
+
+                <PageViewContainer
+                  hasPinnedSidebar={
+                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                      ? currentApplicationDetails?.applicationDetail
+                          ?.navigationSetting?.orientation ===
+                          NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+                        isAppSidebarPinned
+                      : false
+                  }
+                  isPreviewMode={isPreviewMode}
+                  isPublished={isPublished}
+                  sidebarWidth={
+                    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+                      ? sidebarWidth
+                      : 0
+                  }
+                >
+                  <CanvasContainer
+                    isAppSettingsPaneWithNavigationTabOpen={
+                      AppSettingsTabs.Navigation ===
+                      appSettingsPaneContext?.type
+                    }
+                    navigationHeight={navigationHeight}
+                  />
+                </PageViewContainer>
+
                 <CrudInfoModal />
                 <Debugger />
               </div>
             </div>
+
             {!isMultiPane && <PropertyPaneContainer />}
           </div>
         </>

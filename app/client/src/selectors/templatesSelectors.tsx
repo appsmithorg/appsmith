@@ -1,11 +1,11 @@
-import { FilterKeys, Template } from "api/TemplatesApi";
+import type { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getWorkspaceCreateApplication } from "./applicationSelectors";
+import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
-import { Filter } from "pages/Templates/Filters";
+import type { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],

@@ -2,7 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import {
   RenderModes,
   TextSizes,
@@ -10,7 +10,7 @@ import {
 } from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import {
   borderRadiusUtility,
@@ -23,6 +23,7 @@ import {
   sanitizeKey,
   shouldUpdateWidgetHeightAutomatically,
   isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
 } from "./WidgetUtils";
@@ -452,7 +453,7 @@ describe("composePropertyUpdateHook", () => {
 
     expect(
       composePropertyUpdateHook(
-        (input as unknown) as composePropertyUpdateHookInputType,
+        input as unknown as composePropertyUpdateHookInputType,
       )(null, "", null),
     ).toEqual(expected);
   });
@@ -464,7 +465,7 @@ describe("composePropertyUpdateHook", () => {
 
     expect(
       composePropertyUpdateHook(
-        (input as unknown) as composePropertyUpdateHookInputType,
+        input as unknown as composePropertyUpdateHookInputType,
       )(null, "", null),
     ).toEqual(expected);
   });
@@ -499,7 +500,7 @@ describe("Auto Height Utils", () => {
       dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
     };
 
-    const result = isAutoHeightEnabledForWidget(props, true);
+    const result = isAutoHeightEnabledForWidgetWithLimits(props);
     expect(result).toBe(true);
   });
   it("should return false if withLimits is true and widget has AUTO_HEIGHT", () => {
@@ -508,7 +509,7 @@ describe("Auto Height Utils", () => {
       dynamicHeight: "AUTO_HEIGHT",
     };
 
-    const result = isAutoHeightEnabledForWidget(props, true);
+    const result = isAutoHeightEnabledForWidgetWithLimits(props);
     expect(result).toBe(false);
   });
   it("should return true if withLimits is false and widget has AUTO_HEIGHT", () => {
@@ -517,7 +518,7 @@ describe("Auto Height Utils", () => {
       dynamicHeight: "AUTO_HEIGHT",
     };
 
-    const result = isAutoHeightEnabledForWidget(props, false);
+    const result = isAutoHeightEnabledForWidget(props);
     expect(result).toBe(true);
   });
 
@@ -527,7 +528,7 @@ describe("Auto Height Utils", () => {
       dynamicHeight: "FIXED",
     };
 
-    const result = isAutoHeightEnabledForWidget(props, false);
+    const result = isAutoHeightEnabledForWidget(props);
     expect(result).toBe(false);
   });
   it("should return false withLimits is true and widget has FIXED", () => {
@@ -536,7 +537,7 @@ describe("Auto Height Utils", () => {
       dynamicHeight: "FIXED",
     };
 
-    const result = isAutoHeightEnabledForWidget(props, true);
+    const result = isAutoHeightEnabledForWidgetWithLimits(props);
     expect(result).toBe(false);
   });
   it("should return 9000 if widget has AUTO_HEIGHT", () => {

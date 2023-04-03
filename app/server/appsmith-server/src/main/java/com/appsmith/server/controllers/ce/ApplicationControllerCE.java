@@ -1,26 +1,31 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import jakarta.validation.Valid;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -44,7 +49,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -56,6 +60,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
     private final ThemeService themeService;
+    private final ApplicationSnapshotService applicationSnapshotService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -63,15 +68,19 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService, ThemeService themeService) {
+            ImportExportApplicationService importExportApplicationService,
+            ThemeService themeService,
+            ApplicationSnapshotService applicationSnapshotService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
         this.themeService = themeService;
+        this.applicationSnapshotService = applicationSnapshotService;
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(@Valid @RequestBody Application resource,
@@ -85,6 +94,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/publish/{defaultApplicationId}")
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String defaultApplicationId,
                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -92,6 +102,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
     public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String defaultApplicationId,
                                                       @PathVariable String defaultPageId,
@@ -100,6 +111,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/reorder")
     public Mono<ResponseDTO<ApplicationPagesDTO>> reorderPage(
             @PathVariable String defaultApplicationId,
@@ -111,6 +123,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @Override
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Application>> delete(@PathVariable String id,
                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -119,6 +132,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by workspace");
@@ -126,13 +140,15 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
-    @GetMapping("/releaseItems")
+    @JsonView(Views.Public.class)
+    @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
         return applicationFetcher.getReleaseItems()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping("/{defaultApplicationId}/changeAccess")
     public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String defaultApplicationId,
                                                            @RequestBody ApplicationAccessDTO applicationAccessDTO,
@@ -142,6 +158,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/clone/{applicationId}")
     public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String applicationId,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -149,6 +166,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/view/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String defaultApplicationId,
                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -156,6 +174,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
     public Mono<ResponseDTO<Application>> forkApplication(
             @PathVariable String defaultApplicationId,
@@ -165,6 +184,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<Object>> getApplicationFile(@PathVariable String id,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -178,6 +198,45 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 });
     }
 
+    @JsonView(Views.Public.class)
+    @PostMapping("/snapshot/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Boolean>> createSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.createApplicationSnapshot(id, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/snapshot/{id}")
+    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.getWithoutDataByApplicationId(id, branchName)
+                .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping("/snapshot/{id}")
+    public Mono<ResponseDTO<Boolean>> deleteSnapshotWithoutApplicationJson(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to delete snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.deleteSnapshot(id, branchName)
+                .map(isDeleted -> new ResponseDTO<>(HttpStatus.OK.value(), isDeleted, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/snapshot/{id}/restore")
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
+
+        return applicationSnapshotService.restoreSnapshot(id, branchName)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+    }
+
+
+    @JsonView(Views.Public.class)
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
                                                                              @PathVariable String workspaceId) {
@@ -187,6 +246,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/ssh-keypair/{applicationId}")
     public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId,
                                                          @RequestParam(required = false) String keyType) {
@@ -194,6 +254,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/ssh-keypair/{applicationId}")
     public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
@@ -201,6 +262,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @Override
+    @JsonView(Views.Public.class)
     @PutMapping("/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> update(@PathVariable String defaultApplicationId,
                                                  @RequestBody Application resource,
@@ -210,18 +272,21 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @JsonView(Views.Public.class)
     @PatchMapping("{applicationId}/themes/{themeId}")
     public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return themeService.changeCurrentTheme(themeId, applicationId, branchName)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/import/{workspaceId}/datasources")
     public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
         return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, workspaceId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping(value = "/{defaultApplicationId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<Application>> uploadAppNavigationLogo(@PathVariable String defaultApplicationId,
                                                                   @RequestPart("file") Mono<Part> fileMono,
@@ -231,6 +296,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{defaultApplicationId}/logo")
     public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName){
@@ -241,6 +307,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     // !! This API endpoint should not be exposed !!
     @Override
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<Application>>> getAll(@RequestParam MultiValueMap<String, String> params,
                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

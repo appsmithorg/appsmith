@@ -1,4 +1,4 @@
-import { AppsmithUIConfigs } from "./types";
+import type { AppsmithUIConfigs } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
@@ -45,6 +45,8 @@ export interface INJECTED_CONFIGS {
   supportEmail: string;
   hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
+  pricingUrl: string;
+  customerPortalUrl: string;
 }
 
 const capitalizeText = (text: string) => {
@@ -121,6 +123,8 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       .APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX
       ? process.env.APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX.length > 0
       : false,
+    pricingUrl: process.env.REACT_APP_PRICING_URL || "",
+    customerPortalUrl: process.env.REACT_APP_CUSTOMER_PORTAL_URL || "",
   };
 };
 
@@ -257,5 +261,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||
       APPSMITH_FEATURE_CONFIGS.disableIframeWidgetSandbox,
+    pricingUrl: ENV_CONFIG.pricingUrl || APPSMITH_FEATURE_CONFIGS.pricingUrl,
+    customerPortalUrl:
+      ENV_CONFIG.customerPortalUrl ||
+      APPSMITH_FEATURE_CONFIGS.customerPortalUrl,
   };
 };

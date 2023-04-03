@@ -1,8 +1,8 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
-import { GitConfig } from "entities/GitSync";
-import ApplicationApi from "./ApplicationApi";
+import type { ApiResponse } from "./ApiResponses";
+import type { GitConfig } from "entities/GitSync";
+import ApplicationApi from "@appsmith/api/ApplicationApi";
 
 export type CommitPayload = {
   applicationId: string;
@@ -172,10 +172,8 @@ class GitSyncAPI extends Api {
     });
   }
 
-  static discardChanges(applicationId: string, doPull: boolean) {
-    return Api.put(
-      `${GitSyncAPI.baseURL}/discard/app/${applicationId}?doPull=${doPull}`,
-    );
+  static discardChanges(applicationId: string) {
+    return Api.put(`${GitSyncAPI.baseURL}/discard/app/${applicationId}`);
   }
 }
 

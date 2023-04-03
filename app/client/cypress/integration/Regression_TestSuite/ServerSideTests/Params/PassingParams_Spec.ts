@@ -1,35 +1,25 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let jsName: any, dsName: any;
-let agHelper = ObjectsRegistry.AggregateHelper,
-  dataSources = ObjectsRegistry.DataSources,
-  jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators,
-  ee = ObjectsRegistry.EntityExplorer,
-  table = ObjectsRegistry.Table,
-  apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
     cy.fixture("paramsDsl").then((val: any) => {
-      agHelper.AddDsl(val);
+      _.agHelper.AddDsl(val);
     });
   });
 
-  it("1. With Optional chaining : {{ this?.params?.condition }}", function() {
-    dataSources.CreateDataSource("Postgres");
+  it("1. With Optional chaining : {{ this?.params?.condition }}", function () {
+    _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.CreateNewQueryInDS(
-        dsName,
+      _.dataSources.CreateQueryAfterDSSaved(
         "SELECT * FROM public.users where id = {{this?.params?.condition || '1=1'}} order by id",
         "ParamsTest",
       );
     });
 
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       'ParamsTest.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
       {
         paste: true,
@@ -39,193 +29,201 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       },
     );
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      propPane.SelectJSFunctionToExecute("onClick", jsName as string, "myFun1");
+      _.propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsName as string,
+        "myFun1",
+      );
     });
-    ee.SelectEntityByName("Table1");
-    propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
+    _.entityExplorer.SelectEntityByName("Table1");
+    _.propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
 
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    apiPage.ToggleOnPageLoadRun(false); //Bug 12476
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.apiPage.ToggleOnPageLoadRun(false); //Bug 12476
 
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("7");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 3000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("7");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("9");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("9");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("7");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("7");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("4. With Optional chaining : {{ this?.params.condition }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("4. With Optional chaining : {{ this?.params.condition }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this?.params.condition || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("9");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("9");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("7");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("7");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("9");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("9");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("7. With No Optional chaining : {{ this.params.condition }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("7. With No Optional chaining : {{ this.params.condition }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this.params.condition || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("7");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("7");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("8");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("8");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
 
-  it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.SelectDropDown("9");
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.SelectDropDown("9");
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
 
-  it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
     );
 
-    deployMode.DeployApp(locator._spanButton("Submit"));
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     //Verifh when No selected option passed
-    cy.xpath(
-      locator._selectWidgetDropdownInDeployed("selectwidget"),
-    ).within(() => cy.get(locator._crossBtn).click());
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    cy.xpath(_.locators._selectWidgetDropdownInDeployed("selectwidget")).within(
+      () => cy.get(_.locators._crossBtn).click(),
+    );
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
 
-  it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function() {
-    deployMode.NavigateBacktoEditor();
-    ee.SelectEntityByName("ParamsTest", "Queries/JS");
-    dataSources.EnterQuery(
+  it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function () {
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
+    _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
     );
-    deployMode.DeployApp(locator._spanButton("Submit"));
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    _.deployMode.DeployApp(_.locators._spanButton("Submit"));
+    _.agHelper.ClickButton("Submit");
+    _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
 
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
-    deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("ParamsTest", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deleteAction", 200);
-    ee.ActionContextMenuByEntityName(
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "ParamsTest",
+      "Delete",
+      "Are you sure?",
+    );
+    _.agHelper.ValidateNetworkStatus("@deleteAction", 200);
+    _.entityExplorer.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
       "Are you sure?",
       true,
     );
     // //Bug 12532
-    // ee.ExpandCollapseEntity('Datasources')
-    // ee.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
-    // agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    // _.entityExplorer.ExpandCollapseEntity('Datasources')
+    // _.entityExplorer.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
+    // _.agHelper.ValidateNetworkStatus("@deleteAction", 200)
   });
 });

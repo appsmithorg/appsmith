@@ -16,7 +16,7 @@ import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
@@ -28,7 +28,7 @@ import {
   getMergeError,
   getMergeStatus,
 } from "selectors/gitSyncSelectors";
-import { DropdownOptions } from "../../GeneratePage/components/constants";
+import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   fetchBranchesInit,
   fetchGitStatusInit,
@@ -47,7 +47,7 @@ import SuccessTick from "pages/common/SuccessTick";
 import { Button, Case, Size, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
   display: flex;
@@ -93,9 +93,8 @@ export default function Merge() {
   // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
   const isMerging = useSelector(getIsMergeInProgress);
-  const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] = useState(
-    false,
-  );
+  const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] =
+    useState(false);
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
     label: DEFAULT_OPTION,

@@ -8,13 +8,14 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { MenuItemProps, TabComponent, TabProp } from "design-system-old";
+import type { MenuItemProps, TabProp } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
-import { getAllApplications } from "actions/applicationActions";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
@@ -29,8 +30,10 @@ import {
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
+  SEARCH_USERS,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -108,6 +111,17 @@ export default function Settings() {
   };
 
   useEffect(() => {
+    const hasManageWorkspacePermissions = isPermitted(
+      currentWorkspace?.userPermissions,
+      PERMISSION_TYPE.MANAGE_WORKSPACE,
+    );
+    const canInviteToWorkspace = isPermitted(
+      currentWorkspace?.userPermissions,
+      PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+    );
+    if (!hasManageWorkspacePermissions || !canInviteToWorkspace) {
+      history.replace(APPLICATIONS_URL);
+    }
     if (currentWorkspace) {
       setPageTitle(`${currentWorkspace?.name}`);
     }
@@ -195,7 +209,7 @@ export default function Settings() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search"
+            searchPlaceholder={createMessage(SEARCH_USERS, cloudHosting)}
             showMoreOptions={false}
             showSearchNButton={isMembersPage}
             title={pageTitle}

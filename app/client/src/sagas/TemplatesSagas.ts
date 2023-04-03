@@ -1,17 +1,20 @@
-import {
+import type {
   ApplicationPayload,
   ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call, select, take } from "redux-saga/effects";
-import TemplatesAPI, {
+import type {
   ImportTemplateResponse,
   FetchTemplateResponse,
   TemplateFiltersResponse,
 } from "api/TemplatesApi";
+import TemplatesAPI from "api/TemplatesApi";
 import history from "utils/history";
-import { getDefaultPageId } from "./ApplicationSagas";
+import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import {
   getAllTemplates,
   setTemplateNotificationSeenAction,
@@ -25,7 +28,10 @@ import { validateResponse } from "./ErrorSagas";
 import { builderURL } from "RouteBuilder";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { fetchApplication } from "actions/applicationActions";
+import {
+  fetchApplication,
+  showReconnectDatasourceModal,
+} from "@appsmith/actions/applicationActions";
 import { APP_MODE } from "entities/App";
 import {
   executePageLoadActions,
@@ -37,7 +43,6 @@ import { Toaster, Variant } from "design-system-old";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
-import { showReconnectDatasourceModal } from "actions/applicationActions";
 import { getAllPageIds } from "./selectors";
 import { fetchPageDSLSaga } from "sagas/PageSagas";
 

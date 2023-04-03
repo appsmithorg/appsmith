@@ -4,18 +4,18 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/layoutdsl.json");
 
-describe("Tab widget test", function() {
+describe("Tab widget test", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("1. Tab Widget Functionality Test", function() {
+  it("1. Tab Widget Functionality Test", function () {
     cy.openPropertyPane("tabswidget");
     /**
      * @param{Text} Random Text
      * @param{TabWidget}Mouseover
      * @param{TabPre Css} Assertion
      */
-    cy.widgetText("tab", Layoutpage.tabWidget, Layoutpage.tabInput);
+    cy.widgetText("tab", Layoutpage.tabWidget, widgetsPage.widgetNameSpan);
     /**
      * @param{IndexValue} Provide input Index Value
      * @param{Text} Provide Index Text Value
@@ -34,9 +34,7 @@ describe("Tab widget test", function() {
     cy.xpath(Layoutpage.deleteTab.replace("tabName", "Day")).click({
       force: true,
     });
-    cy.get(Layoutpage.tabWidget)
-      .contains("Day")
-      .should("not.exist");
+    cy.get(Layoutpage.tabWidget).contains("Day").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     /**
@@ -49,59 +47,47 @@ describe("Tab widget test", function() {
     cy.assertPageSave();
     cy.PublishtheApp();
   });
-  it("2. Tab Widget Functionality To Select Tabs", function() {
+  it("2. Tab Widget Functionality To Select Tabs", function () {
     cy.get(publish.tabWidget)
       .contains(this.data.tabName)
       .click({ force: true })
       .should("have.class", "is-selected");
     cy.get(publish.backToEditor).click();
   });
-  it("3. Tab Widget Functionality To Unchecked Visible Widget", function() {
+  it("3. Tab Widget Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.tabWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it("4. Tab Widget Functionality To Check Visible Widget", function() {
+  it("4. Tab Widget Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("tabswidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.tabWidget).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
-  it("5. Tab Widget Functionality To Check tab invisiblity", function() {
+  it("5. Tab Widget Functionality To Check tab invisiblity", function () {
     cy.openPropertyPane("tabswidget");
     cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
       force: true,
     });
-    cy.get(Layoutpage.tabVisibility)
-      .first()
-      .click({ force: true });
-    cy.get(Layoutpage.tabWidget)
-      .contains("Tab 1")
-      .should("not.exist");
+    cy.get(Layoutpage.tabVisibility).first().click({ force: true });
+    cy.get(Layoutpage.tabWidget).contains("Tab 1").should("not.exist");
     cy.PublishtheApp();
-    cy.get(publish.tabWidget)
-      .contains("Tab 1")
-      .should("not.exist");
+    cy.get(publish.tabWidget).contains("Tab 1").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it("6. Tab Widget Functionality To Check tab visibility", function() {
+  it("6. Tab Widget Functionality To Check tab visibility", function () {
     cy.openPropertyPane("tabswidget");
     cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
       force: true,
     });
-    cy.get(Layoutpage.tabVisibility)
-      .first()
-      .click({ force: true });
-    cy.get(Layoutpage.tabWidget)
-      .contains("Tab 1")
-      .should("be.visible");
+    cy.get(Layoutpage.tabVisibility).first().click({ force: true });
+    cy.get(Layoutpage.tabWidget).contains("Tab 1").should("be.visible");
     cy.PublishtheApp();
-    cy.get(publish.tabWidget)
-      .contains("Tab 1")
-      .should("be.visible");
+    cy.get(publish.tabWidget).contains("Tab 1").should("be.visible");
     cy.get(publish.backToEditor).click();
   });
   /* Test to be revisted as the undo action is inconsistent in automation
@@ -129,7 +115,7 @@ describe("Tab widget test", function() {
       .should("be.visible");
   });
   */
-  it("8. Tabs widget should have navigation arrows if tabs don't fit", function() {
+  it("8. Tabs widget should have navigation arrows if tabs don't fit", function () {
     const rightNavButtonSelector =
       Layoutpage.tabWidget + " .scroll-nav-right-button";
     const leftNavButtonSelector =
@@ -147,23 +133,19 @@ describe("Tab widget test", function() {
     // Should show off left navigation arrow
     cy.get(rightNavButtonSelector).should("exist");
   });
-  it("9. Tab Widget Functionality To Check Default Tab selected After Selected Tab Delete", function() {
+  it("9. Tab Widget Functionality To Check Default Tab selected After Selected Tab Delete", function () {
     cy.testJsontext("defaulttab", "Tab 2");
     cy.tabVerify(3, "Tab3-for-testing-scroll-navigation-controls");
     cy.get(Layoutpage.tabWidget)
       .contains("Tab3-for-testing-scroll-navigation-controls")
       .should("have.class", "is-selected");
-    cy.get(Layoutpage.tabDelete)
-      .eq(3)
-      .click({ force: true });
+    cy.get(Layoutpage.tabDelete).eq(3).click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 2")
       .should("have.class", "is-selected");
   });
-  it("10. Tab Widget Functionality To Check First Tab Selected After Selected Tab(Default one) Delete", function() {
-    cy.get(Layoutpage.tabDelete)
-      .eq(2)
-      .click({ force: true });
+  it("10. Tab Widget Functionality To Check First Tab Selected After Selected Tab(Default one) Delete", function () {
+    cy.get(Layoutpage.tabDelete).eq(2).click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Aditya")
       .should("have.class", "is-selected");
@@ -176,9 +158,7 @@ describe("Tab widget test", function() {
     cy.get(Layoutpage.tabNumber).should("have.text", "3 tabs");
   });
   it("13. Validates Total Number Of Tabs Displayed In The Property Pane After Deleting A Tab", () => {
-    cy.get(Layoutpage.tabDelete)
-      .eq(1)
-      .click({ force: true });
+    cy.get(Layoutpage.tabDelete).eq(1).click({ force: true });
     cy.get(Layoutpage.tabNumber).should("have.text", "2 tabs");
   });
 });

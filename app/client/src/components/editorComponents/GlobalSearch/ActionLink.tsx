@@ -3,8 +3,8 @@ import { Icon, IconSize } from "design-system-old";
 import { useContext } from "react";
 import styled, { useTheme } from "styled-components";
 import SearchContext from "./GlobalSearchContext";
-import { SearchItem } from "./utils";
-import { Theme } from "constants/DefaultTheme";
+import type { SearchItem } from "./utils";
+import type { Theme } from "constants/DefaultTheme";
 
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};

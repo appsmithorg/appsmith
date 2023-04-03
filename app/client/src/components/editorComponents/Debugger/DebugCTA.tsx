@@ -5,7 +5,7 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
@@ -15,12 +15,12 @@ import {
   IconSize,
   Variant,
 } from "design-system-old";
-import { Message } from "entities/AppsmithConsole";
+import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
-import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const EVDebugButton = styled.button`
   ${getTypographyByKey("btnSmall")};

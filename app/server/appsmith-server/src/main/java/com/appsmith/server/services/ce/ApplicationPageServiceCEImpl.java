@@ -11,6 +11,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -193,7 +194,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     });
         } else {
-            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id " + page.getId()));
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, page.getId()));
         }
 
     }
@@ -801,6 +802,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
+                            .flatMap(application -> publish(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
@@ -1004,8 +1006,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-                    application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
-                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
+                    application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
+
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }

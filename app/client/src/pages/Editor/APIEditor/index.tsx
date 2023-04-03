@@ -4,15 +4,15 @@ import { submit } from "redux-form";
 import RestApiEditorForm from "./RestAPIForm";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import { deleteAction, runAction } from "actions/pluginActionActions";
-import { PaginationField } from "api/ActionAPI";
-import { AppState } from "@appsmith/reducers";
-import { RouteComponentProps } from "react-router";
-import {
+import type { PaginationField } from "api/ActionAPI";
+import type { AppState } from "@appsmith/reducers";
+import type { RouteComponentProps } from "react-router";
+import type {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import _ from "lodash";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getActionById,
@@ -20,16 +20,13 @@ import {
   getCurrentPageName,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { Plugin } from "api/PluginApi";
-import {
-  Action,
-  PaginationType,
-  PluginPackageName,
-  RapidApiAction,
-} from "entities/Action";
+import type { Plugin } from "api/PluginApi";
+import type { Action, PaginationType, RapidApiAction } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import styled, { CSSProperties } from "styled-components";
+import type { CSSProperties } from "styled-components";
+import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
 import PerformanceTracker, {
@@ -37,7 +34,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   getPageList,
   getPlugins,

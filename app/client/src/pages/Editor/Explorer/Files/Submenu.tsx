@@ -17,7 +17,7 @@ import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import classNames from "classnames";
 import keyBy from "lodash/keyBy";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -148,7 +148,9 @@ export default function ExplorerSubMenu({
           handleSubmitKey={handleSelect}
           handleUpKey={handleUpKey}
         >
-          <SubMenuContainer className="bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all">
+          <SubMenuContainer
+            className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+          >
             <div className="px-4 py-2 text-sm font-medium text-gray">
               Create New
             </div>
@@ -184,7 +186,8 @@ export default function ExplorerSubMenu({
                 return (
                   <div
                     className={classNames({
-                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation": true,
+                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation":
+                        true,
                       "cursor-pointer":
                         item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
                       active:

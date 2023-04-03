@@ -1,6 +1,6 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import { User } from "constants/userConstants";
+import type { User } from "constants/userConstants";
 
 const { disableLoginForm } = getAppsmithConfigs();
 

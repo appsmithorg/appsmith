@@ -1,12 +1,9 @@
-import React from "react";
-
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ButtonColumnActions,
-  EditableCellActions,
-} from "widgets/TableWidgetV2/constants";
+import React, { memo } from "react";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { Button } from "./Button";
-import { BaseCellComponentProps } from "../Constants";
+import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 
 type RenderEditActionsProps = BaseCellComponentProps & {
@@ -20,7 +17,7 @@ type RenderEditActionsProps = BaseCellComponentProps & {
   onDiscard: () => void;
 };
 
-export function EditActionCell(props: RenderEditActionsProps) {
+function EditActionCellComponent(props: RenderEditActionsProps) {
   const {
     allowCellWrapping,
     cellBackground,
@@ -93,3 +90,4 @@ export function EditActionCell(props: RenderEditActionsProps) {
     </CellWrapper>
   );
 }
+export const EditActionCell = memo(EditActionCellComponent);

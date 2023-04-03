@@ -90,7 +90,8 @@ export default {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: true,
-          additionalAutoComplete: getSourceDataAndCaluclateKeysForEventAutoComplete,
+          additionalAutoComplete:
+            getSourceDataAndCaluclateKeysForEventAutoComplete,
           evaluatedDependencies: ["primaryColumns"],
         },
       ],

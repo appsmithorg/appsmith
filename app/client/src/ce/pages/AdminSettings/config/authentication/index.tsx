@@ -4,20 +4,25 @@ import {
   GOOGLE_SIGNUP_SETUP_DOC,
   SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingSubCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { AuthMethodType, AuthPage } from "./AuthPage";
+import type { AuthMethodType } from "./AuthPage";
+import { AuthPage } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import {
+  JS_ORIGIN_URI_FORM,
+  REDIRECT_URL_FORM,
+} from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
 import { getThirdPartyAuths } from "../../../../selectors/tenantSelectors";
 
@@ -76,6 +81,32 @@ const GoogleAuth: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GOOGLE_SIGNUP_SETUP_DOC,
+    },
+    {
+      id: "APPSMITH_OAUTH2_GOOGLE_JS_ORIGIN_URL",
+      category: SettingCategories.GOOGLE_AUTH,
+      subCategory: SettingSubCategories.GOOGLE,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "JavaScript Origin URL",
+      formName: JS_ORIGIN_URI_FORM,
+      fieldName: "js-origin-url-form",
+      value: "",
+      tooltip:
+        "This URL will be used while configuring the Google OAuth Client ID's authorized JavaScript origins",
+      helpText: "Paste this URL in your Google developer console.",
+    },
+    {
+      id: "APPSMITH_OAUTH2_GOOGLE_REDIRECT_URL",
+      category: SettingCategories.GOOGLE_AUTH,
+      subCategory: SettingSubCategories.GOOGLE,
+      controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Redirect URL",
+      formName: REDIRECT_URL_FORM,
+      fieldName: "redirect-url-form",
+      value: "/login/oauth2/code/google",
+      tooltip:
+        "This URL will be used while configuring the Google OAuth Client ID's authorized Redirect URIs",
+      helpText: "Paste this URL in your Google developer console.",
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
@@ -204,12 +235,10 @@ const AuthMethods = [
 
 function AuthMain() {
   const socialLoginList = useSelector(getThirdPartyAuths);
-  GoogleAuth.isConnected = GoogleAuthCallout.isConnected = socialLoginList.includes(
-    "google",
-  );
-  GithubAuth.isConnected = GithubAuthCallout.isConnected = socialLoginList.includes(
-    "github",
-  );
+  GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
+    socialLoginList.includes("google");
+  GithubAuth.isConnected = GithubAuthCallout.isConnected =
+    socialLoginList.includes("github");
   return <AuthPage authMethods={AuthMethods} />;
 }
 

@@ -1,25 +1,29 @@
-import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
-import React from "react";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type React from "react";
+import type {
+  WidgetBuilder,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { RenderMode } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import type { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
-import { WidgetFeatures } from "./WidgetFeatures";
+import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { CanvasWidgetStructure } from "widgets/constants";
 import {
   addPropertyConfigIds,
+  addSearchConfigToPanelConfig,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
-  addSearchConfigToPanelConfig,
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
-import { CanvasWidgetStructure } from "widgets/constants";
-import { Stylesheet } from "entities/AppTheming";
+import type { WidgetFeatures } from "./WidgetFeatures";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type WidgetType = typeof WidgetFactory.widgetTypes[number];
+export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
 
 export enum NonSerialisableWidgetConfigs {
   CANVAS_HEIGHT_OFFSET = "canvasHeightOffset",
@@ -34,14 +38,10 @@ class WidgetFactory {
     WidgetType,
     WidgetDerivedPropertyType
   > = new Map();
-  static derivedPropertiesMap: Map<
-    WidgetType,
-    DerivedPropertiesMap
-  > = new Map();
-  static defaultPropertiesMap: Map<
-    WidgetType,
-    Record<string, string>
-  > = new Map();
+  static derivedPropertiesMap: Map<WidgetType, DerivedPropertiesMap> =
+    new Map();
+  static defaultPropertiesMap: Map<WidgetType, Record<string, string>> =
+    new Map();
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,

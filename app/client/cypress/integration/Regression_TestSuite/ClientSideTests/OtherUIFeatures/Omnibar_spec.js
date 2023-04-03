@@ -13,7 +13,7 @@ describe("Omnibar functionality test cases", () => {
     cy.addDsl(dsl);
   });
 
-  it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function() {
+  it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
     cy.xpath('//span[text()="Learn more"]').click();
     cy.get(locators._omnibarDescription).scrollTo("top");
@@ -21,7 +21,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get("body").click(0, 0);
   });
 
-  it("2.Verify omnibar is present across all pages and validate its fields", function() {
+  it("2.Verify omnibar is present across all pages and validate its fields", function () {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
       .should("have.css", "background-color", "rgba(0, 0, 0, 0)");
@@ -56,14 +56,10 @@ describe("Omnibar functionality test cases", () => {
     cy.get("body").type("{esc}");
   });
 
-  it("3. Verify when user clicks on a debugging error, related documentation should open in omnibar", function() {
+  it("3. Verify when user clicks on a debugging error, related documentation should open in omnibar", function () {
     // click on debugger icon
-    cy.get(commonlocators.debugger)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(commonlocators.errorTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
+    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.wait(1000);
     // click on open documention from error tab
     cy.get(commonlocators.debuggerContextMenu).click({ multiple: true });
@@ -80,62 +76,42 @@ describe("Omnibar functionality test cases", () => {
     // cy.get(omnibar.globalSearchClose).click();
   });
 
-  it("4. Verify Create New section and its data, also create a new api, new js object and new cURL import from omnibar ", function() {
+  it("4. Verify Create New section and its data, also create a new api, new js object and new cURL import from omnibar ", function () {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
     );
-    cy.get(omnibar.categoryTitle)
-      .eq(1)
-      .click();
+    cy.get(omnibar.categoryTitle).eq(1).click();
     // create new api, js object and cURL import from omnibar
-    cy.get(omnibar.createNew)
-      .eq(0)
-      .should("have.text", "New Blank API");
+    cy.get(omnibar.createNew).eq(0).should("have.text", "New Blank API");
 
     // 2 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew)
-      .eq(2)
-      .should("have.text", "New JS Object");
+    cy.get(omnibar.createNew).eq(2).should("have.text", "New JS Object");
     // 3 is the index value of the Curl import in omnibar ui
-    cy.get(omnibar.createNew)
-      .eq(3)
-      .should("have.text", "New cURL Import");
-    cy.get(omnibar.createNew)
-      .eq(0)
-      .click();
+    cy.get(omnibar.createNew).eq(3).should("have.text", "New cURL Import");
+    cy.get(omnibar.createNew).eq(0).click();
     cy.wait(1000);
     cy.wait("@createNewApi");
     cy.renameWithInPane(apiName);
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle)
-      .eq(1)
-      .click();
+    cy.get(omnibar.categoryTitle).eq(1).click();
     // 2 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew)
-      .eq(2)
-      .click();
+    cy.get(omnibar.createNew).eq(2).click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
-    cy.get(".t--js-action-name-edit-field")
-      .type(jsObjectName)
-      .wait(1000);
+    cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle)
-      .eq(1)
-      .click();
+    cy.get(omnibar.categoryTitle).eq(1).click();
     cy.wait(1000);
     // 3 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew)
-      .eq(3)
-      .click();
+    cy.get(omnibar.createNew).eq(3).click();
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
 
-  it("5. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab", function() {
+  it("5. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab", function () {
     // typing a random string in search bar
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.wait(1000);
@@ -157,45 +133,43 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(2000);
   });
 
-  it("6. Verify Navigate section shows recently opened widgets and datasources", function() {
+  it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
     cy.get(".bp3-icon-chevron-left").click({ force: true });
     cy.openPropertyPane("buttonwidget");
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle)
-      .eq(0)
-      .click();
+    cy.get(omnibar.categoryTitle).eq(0).click();
     // verify recently opened items with their subtext i.e page name
     cy.xpath(omnibar.recentlyopenItem)
       .eq(0)
-      .should("have.text", "Page1");
-    cy.xpath(omnibar.recentlyopenItem)
-      .eq(1)
-      .should("have.text", "Audio1")
-      .next()
-      .should("have.text", "Page1");
-    cy.xpath(omnibar.recentlyopenItem)
-      .eq(2)
       .should("have.text", "Button1")
       .next()
       .should("have.text", "Page1");
+
     cy.xpath(omnibar.recentlyopenItem)
-      .eq(3)
+      .eq(1)
       .should("have.text", "Omnibar2")
       .next()
       .should("have.text", "Page1");
+
     cy.xpath(omnibar.recentlyopenItem)
-      .eq(4)
+      .eq(2)
       .should("have.text", "Omnibar1")
       .next()
       .should("have.text", "Page1");
+
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(3)
+      .should("have.text", "Audio1")
+      .next()
+      .should("have.text", "Page1");
+
+    cy.xpath(omnibar.recentlyopenItem).eq(4).should("have.text", "Page1");
   });
 
-  it("7. Verify documentation should open in new tab, on clicking open documentation", function() {
+  it("7. Verify documentation should open in new tab, on clicking open documentation", function () {
     //cy.get(omnibar.category).click()
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle)
-      .eq(3)
-      .click({ force: true });
+    cy.get(omnibar.categoryTitle).eq(3).click({ force: true });
     cy.get(omnibar.openDocumentationLink)
       .invoke("removeAttr", "target")
       .click()

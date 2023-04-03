@@ -35,9 +35,7 @@ export class InviteModal {
     this.OpenShareModal();
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
-    cy.get(this.locators._previewEmbed)
-      .invoke("removeAttr", "target")
-      .click();
+    cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
     if (toShowNavBar === "true") {
       this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
       this.deployPage.NavigateBacktoEditor();

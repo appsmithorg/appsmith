@@ -1,13 +1,10 @@
 import React, { useContext, useMemo } from "react";
 
-import {
-  EditorContext,
-  EditorContextType,
-} from "components/editorComponents/EditorContextProvider";
+import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 
-type MetaWidgetContextProviderProps = React.PropsWithChildren<
-  EditorContextType
->;
+type MetaWidgetContextProviderProps =
+  React.PropsWithChildren<EditorContextType>;
 // TODO (Ashit) - Add test for this provider
 // test to always returning the exact number of functions defined in the EditorContextProvider
 // so that when a new function is introduced there, one does not misses adding it here as well.
@@ -30,6 +27,9 @@ function MetaWidgetContextProvider({
   const updateWidgetProperty =
     metaEditorContextProps.updateWidgetProperty ??
     editorContextProps.updateWidgetProperty;
+  const syncBatchUpdateWidgetMetaProperties =
+    metaEditorContextProps.syncBatchUpdateWidgetMetaProperties ??
+    editorContextProps.syncBatchUpdateWidgetMetaProperties;
   const syncUpdateWidgetMetaProperty =
     metaEditorContextProps.syncUpdateWidgetMetaProperty ??
     editorContextProps.syncUpdateWidgetMetaProperty;
@@ -80,6 +80,7 @@ function MetaWidgetContextProvider({
       getWidgetCache,
       deleteMetaWidgets,
       updateMetaWidgetProperty,
+      syncBatchUpdateWidgetMetaProperties,
     }),
     [
       executeAction,
@@ -96,6 +97,7 @@ function MetaWidgetContextProvider({
       getWidgetCache,
       deleteMetaWidgets,
       updateMetaWidgetProperty,
+      syncBatchUpdateWidgetMetaProperties,
     ],
   );
 

@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { ButtonVariant } from "components/constants";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { ButtonVariant } from "components/constants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { buttonHoverActiveStyles } from "./utils";
 
 /*

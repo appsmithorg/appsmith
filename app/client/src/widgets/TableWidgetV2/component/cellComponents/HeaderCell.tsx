@@ -1,4 +1,10 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useState,
+  memo,
+} from "react";
 import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
 import Check from "remixicon-react/CheckFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
@@ -6,8 +12,8 @@ import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import type { CellAlignment } from "../Constants";
 import {
-  CellAlignment,
   HEADER_MENU_PORTAL_CLASS,
   JUSTIFY_CONTENT,
   MENU_CONTENT_CLASS,
@@ -112,13 +118,15 @@ function Title(props: TitleProps) {
 
 const ICON_SIZE = 16;
 
-export function HeaderCell(props: {
+type HeaderProps = {
   canFreezeColumn?: boolean;
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  handleReorderColumn: (columnOrder: string[]) => void;
+  columnOrder?: string[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
@@ -128,7 +136,22 @@ export function HeaderCell(props: {
   widgetId: string;
   stickyRightModifier: string;
   multiRowSelection?: boolean;
-}) {
+  onDrag: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnter: (
+    e: React.DragEvent<HTMLDivElement>,
+    destinationIndex: number,
+  ) => void;
+  onDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
+  onDrop: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
+  onDragEnd: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver: (
+    e: React.DragEvent<HTMLDivElement>,
+    destinationIndex: number,
+  ) => void;
+};
+
+const HeaderCellComponent = (props: HeaderProps) => {
   const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -166,6 +189,47 @@ export function HeaderCell(props: {
       );
   };
 
+  const onDragStart = useCallback(
+    (e) => {
+      props.onDragStart(e, props.columnIndex);
+    },
+    [props.columnIndex, props.onDragStart],
+  );
+  const onDragEnter = useCallback(
+    (e) => {
+      if (props.column.sticky === StickyType.NONE && !props.isHidden) {
+        props.onDragEnter(e, props.columnIndex);
+      }
+    },
+    [props.onDragEnter, props.column.sticky, props.columnIndex, props.isHidden],
+  );
+
+  const onDragLeave = useCallback(
+    (e) => {
+      if (props.column.sticky === StickyType.NONE && !props.isHidden) {
+        props.onDragLeave(e);
+      }
+    },
+    [props.onDragLeave, props.column.sticky, props.isHidden],
+  );
+
+  const onDragOver = useCallback(
+    (e) => {
+      // Below condition will disable the ability to drop a column on a frozen column
+      if (props.column.sticky === StickyType.NONE && !props.isHidden) {
+        props.onDragOver(e, props.columnIndex);
+      }
+    },
+    [props.onDragOver, props.column.sticky, props.columnIndex, props.isHidden],
+  );
+
+  const onDrop = useCallback(
+    (e) => {
+      props.onDrop(e, props.columnIndex);
+    },
+    [props.onDrop, props.columnIndex],
+  );
+
   return (
     <div
       {...headerProps}
@@ -174,7 +238,18 @@ export function HeaderCell(props: {
     >
       <div
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        draggable={
+          (props.column.sticky === StickyType.NONE && !props.isHidden) ||
+          undefined
+        }
         onClick={!disableSort && props ? handleSortColumn : undefined}
+        onDrag={props.onDrag}
+        onDragEnd={props.onDragEnd}
+        onDragEnter={onDragEnter}
+        onDragLeave={onDragLeave}
+        onDragOver={onDragOver}
+        onDragStart={onDragStart}
+        onDrop={onDrop}
       >
         <ColumnNameContainer
           horizontalAlignment={column.columnProperties.horizontalAlignment}
@@ -265,4 +340,5 @@ export function HeaderCell(props: {
       />
     </div>
   );
-}
+};
+export const HeaderCell = memo(HeaderCellComponent);
