@@ -7,7 +7,7 @@ import {
   PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES,
   PAGE_SERVER_UNAVAILABLE_ERROR_CODE,
   PAGE_SERVER_UNAVAILABLE_TITLE,
-} from "@appsmith/constants/errorMessages/5xx";
+} from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "ce/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
