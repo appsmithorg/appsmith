@@ -97,7 +97,10 @@ import {
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference } from "./utils";
+import {
+  addRootcauseToAsyncInvocationErrors,
+  getFixedTimeDifference,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -1064,7 +1067,7 @@ export default class DataTreeEvaluator {
             });
           }
 
-          const result = this.evaluateDynamicBoundValue(
+          const { errors: evalErrors, result } = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
             resolvedFunctions,
@@ -1072,16 +1075,20 @@ export default class DataTreeEvaluator {
             contextData,
             callBackData,
           );
-          if (fullPropertyPath && result.errors.length) {
+          if (fullPropertyPath && evalErrors.length) {
             addErrorToEntityProperty({
-              errors: result.errors,
+              errors: addRootcauseToAsyncInvocationErrors(
+                fullPropertyPath,
+                configTree,
+                evalErrors,
+              ),
               evalProps: this.evalProps,
               fullPropertyPath,
               dataTree: data,
               configTree,
             });
           }
-          return result.result;
+          return result;
         } else {
           return stringSegments[index];
         }
