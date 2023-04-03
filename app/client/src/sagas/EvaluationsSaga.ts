@@ -165,6 +165,7 @@ export function* evaluateTreeSaga(
     requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
     metaWidgets,
+    appMode,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
