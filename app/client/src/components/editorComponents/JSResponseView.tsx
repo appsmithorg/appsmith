@@ -4,6 +4,7 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
 import styled from "styled-components";
+import { every, includes } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type { JSEditorRouteParams } from "constants/routes";
 import {
@@ -58,7 +59,7 @@ import {
 } from "./ApiResponseView";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const ResponseContainer = styled.div`
@@ -156,6 +157,7 @@ interface ReduxStateProps {
   responses: Record<string, any>;
   isExecuting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
+  seletedJsObject?: JSCollectionData;
 }
 
 type Props = ReduxStateProps &
@@ -180,6 +182,7 @@ function JSResponseView(props: Props) {
     jsObject,
     onButtonClick,
     responses,
+    seletedJsObject,
   } = props;
   const [responseStatus, setResponseStatus] = useState<JSResponseState>(
     JSResponseState.NoResponse,
@@ -221,12 +224,19 @@ function JSResponseView(props: Props) {
     name: "",
     id: "",
   };
-  if (props.currentFunction) {
-    try {
-      const errorObject =
-        filteredErrors[
-          props.currentFunction?.collectionId + "-" + props.currentFunction?.id
-        ];
+  try {
+    let errorObject: Log | undefined;
+    every(filteredErrors, (error) => {
+      if (
+        includes(error.id, seletedJsObject?.config.id) ||
+        includes(error.id, seletedJsObject?.config.id + "body")
+      ) {
+        errorObject = error;
+        return false;
+      }
+      return true;
+    });
+    if (errorObject) {
       if (errorObject.source) {
         // update action source.
         actionSource = errorObject.source;
@@ -239,8 +249,8 @@ function JSResponseView(props: Props) {
           errorObject.messages[0].message.message;
         errorType = errorObject.messages[0].message.name;
       }
-    } catch (e) {}
-  }
+    }
+  } catch (e) {}
   const tabs = [
     {
       key: "response",
@@ -250,7 +260,9 @@ function JSResponseView(props: Props) {
           {(hasExecutionParseErrors || hasJSObjectParseError) && (
             <ResponseTabErrorContainer>
               <ResponseTabErrorContent>
-                <div>{errorMessage}</div>
+                <div className="t--js-response-parse-error-call-out">
+                  {errorMessage}
+                </div>
 
                 <LogHelper
                   logType={LOG_TYPE.EVAL_ERROR}
@@ -390,6 +402,7 @@ const mapStateToProps = (
     responses,
     isExecuting,
     isDirty,
+    seletedJsObject,
   };
 };
 

@@ -1,3 +1,4 @@
+import { put } from "redux-saga/effects";
 import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -8,6 +9,8 @@ import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
@@ -40,6 +43,9 @@ export function* logLatestLintPropertyErrors({
       errorsToRemove.push({ id: debuggerKey });
       continue;
     }
+
+    yield put(showDebugger(true));
+    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
 
     errorsToAdd.push({
       payload: {
