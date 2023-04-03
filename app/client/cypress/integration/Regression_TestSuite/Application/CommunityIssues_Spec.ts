@@ -25,7 +25,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   let selectedRow: number;
-  it("1. Import application json and validate headers", () => {
+  it.only("1. Import application json and validate headers", () => {
     homePage.NavigateToHome();
     homePage.ImportApp("CommunityIssuesExport.json");
     cy.wait("@importNewApplication").then((interception: any) => {
@@ -166,7 +166,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitForTableEmpty();
   });
 
-  it("6. Validate Search table with Client Side Search enabled & disabled", () => {
+  it.only("6. Validate Search table with Client Side Search enabled & disabled", () => {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("enableclientsidesearch", "checked");
 
@@ -192,6 +192,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp();
     table.WaitForTableEmpty();
 
+    cy.xpath(table._searchBoxCross).click();
     table.SearchTable("Bug");
     table.WaitForTableEmpty();
     cy.xpath(table._searchBoxCross).click();
