@@ -28,13 +28,12 @@ export const fetchWithRetry = (config: {
     })
     .catch(() => {
       if (config.retries > 0) {
-        setTimeout(
-          fetchWithRetry,
-          config.retryTimeout,
-          config.url,
-          config.payload,
-          config.retries - 1,
-        );
+        setTimeout(fetchWithRetry, config.retryTimeout, {
+          url: config.url,
+          payload: config.payload,
+          retries: config.retries - 1,
+          retryTimeout: config.retryTimeout,
+        });
       } else throw noop;
     });
 };
