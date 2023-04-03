@@ -12,7 +12,6 @@ import {
 import "instantsearch.css/themes/algolia.css";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -21,7 +20,7 @@ import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
 } from "actions/helpActions";
-import { Icon } from "@blueprintjs/core";
+import { Icon } from "design-system";
 import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
@@ -35,13 +34,7 @@ const { algolia, appVersion, cloudHosting, intercomAppID } =
   getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
-const OenLinkIcon = HelpIcons.OPEN_LINK;
-const DocumentIcon = HelpIcons.DOCUMENT;
-const GithubIcon = HelpIcons.GITHUB;
-const ChatIcon = HelpIcons.CHAT;
-const DiscordIcon = HelpIcons.DISCORD;
-
-const StyledOpenLinkIcon = styled(OenLinkIcon)<{ color?: string }>`
+const StyledOpenLinkIcon = styled(Icon)<{ color?: string }>`
   position: absolute;
   right: 14px;
   top: 1px;
@@ -50,21 +43,21 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)<{ color?: string }>`
   display: none;
 `;
 
-const StyledDocumentIcon = styled(DocumentIcon)`
+const StyledDocumentIcon = styled(Icon)`
   margin-left: 14px;
   margin-right: 10.8px;
   margin-top: 1px;
   position: absolute;
 `;
 
-const StyledGithubIcon = styled(GithubIcon)`
+const StyledGithubIcon = styled(Icon)`
   margin-left: 14px;
   margin-right: 10.8px;
   margin-top: 1px;
   position: absolute;
 `;
 
-const StyledChatIcon = styled(ChatIcon)`
+const StyledChatIcon = styled(Icon)`
   &&& {
     margin-left: 14px;
     margin-right: 10.8px;
@@ -73,7 +66,7 @@ const StyledChatIcon = styled(ChatIcon)`
   }
 `;
 
-const StyledDiscordIcon = styled(DiscordIcon)`
+const StyledDiscordIcon = styled(Icon)`
   &&& {
     margin-left: 12px;
     margin-right: 10.8px;
@@ -91,11 +84,11 @@ function Hit(props: { hit: { path: string } }) {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon color="#4b4848" height={14} width={11.2} />
+        <StyledDocumentIcon name="file-text-fill" size="sm" />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
-          color={"#4b4848"}
+          name="share-box-line"
         />
       </div>
     </div>
@@ -126,9 +119,8 @@ function DefaultHelpMenuItem(props: {
           <span className="ais-Highlight">{props.item.label}</span>
           <StyledOpenLinkIcon
             className="t--docOpenLink open-link"
-            color={"#4b4848"}
-            height={12}
-            width={12}
+            name="share-box-line"
+            size="sm"
           />
         </div>
       </div>
@@ -322,17 +314,17 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon color="#4b4848" height={14} width={14} />,
+    icon: <StyledDocumentIcon name="file-text-fill" size="sm" />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon color="#4b4848" height={14} width={14} />,
+    icon: <StyledGithubIcon name="github-fill" size="sm" />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledDiscordIcon color="#4b4848" height={14} width={14} />,
+    icon: <StyledDiscordIcon name="discord-fill" size="sm" />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
@@ -340,7 +332,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
-    icon: <StyledChatIcon color="#4b4848" height={14} width={14} />,
+    icon: <StyledChatIcon name="message-line" size="sm" />,
     label: "Chat with us",
     id: "intercom-trigger",
   });
@@ -379,9 +371,9 @@ class DocumentationSearch extends React.Component<Props, State> {
           <Icon
             className="t--docsMinimize"
             color="white"
-            icon="minus"
-            iconSize={14}
+            name="subtract"
             onClick={this.handleClose}
+            size="sm"
             style={{
               position: "absolute",
               top: 6,

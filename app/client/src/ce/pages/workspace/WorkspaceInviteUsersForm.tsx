@@ -43,17 +43,8 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOption, TextProps } from "design-system-old";
-import {
-  Button,
-  Classes,
-  Callout,
-  Size,
-  Text,
-  TextType,
-  Variant,
-  Icon,
-  IconSize,
-} from "design-system-old";
+import { Classes, Callout, Text, TextType, Variant } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -223,7 +214,7 @@ export const LabelText = styled(Text)`
   display: flex;
   font-weight: var(--ads-font-weight-normal);
 
-  .cs-icon {
+  .ads-v2-icon {
     margin-right: 8px;
   }
 `;
@@ -502,18 +493,17 @@ function WorkspaceInviteUsersForm(props: any) {
             />
           </div>
           <Button
+            UNSAFE_width={InviteButtonWidth}
             className="t--invite-user-btn"
             disabled={!valid}
             isLoading={submitting && !(submitFailed && !anyTouched)}
-            size={Size.large}
-            tag="button"
-            text="Invite"
-            variant={Variant.info}
-            width={InviteButtonWidth}
-          />
+            size="sm"
+          >
+            Invite
+          </Button>
         </StyledInviteFieldGroup>
         <LabelText type={TextType.P0}>
-          <Icon name="user-3-line" size={IconSize.MEDIUM} />
+          <Icon name="user-3-line" size="md" />
           {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
         </LabelText>
         {isLoading ? (

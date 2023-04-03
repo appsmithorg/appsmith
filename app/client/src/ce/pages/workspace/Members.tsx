@@ -553,7 +553,7 @@ export default function MemberSettings(props: PageProps) {
                     />
                   )}
                   <DeleteIcon
-                    className="t--deleteUser"
+                    className="t--deleteUserAbxc"
                     data-cy="t--deleteUser"
                     kind="tertiary"
                     onClick={() => {
@@ -564,7 +564,7 @@ export default function MemberSettings(props: PageProps) {
                       );
                     }}
                     size="sm"
-                    startIcon="trash-outline"
+                    startIcon="delete-bin-line"
                   />
                 </UserCard>
               );
