@@ -370,8 +370,7 @@ function PopoverContent(props: PopoverContentProps) {
             <Icon color={iconColor} icon={iconName} />
           ) : null
         }
-        onClick={(e) => {
-          e.stopPropagation();
+        onClick={() => {
           onItemClicked(onClick, buttonId);
         }}
         text={label}
@@ -652,10 +651,7 @@ class ButtonGroupComponent extends React.Component<
                 iconAlign={button.iconAlign}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
-                onClick={(e) => {
-                  if (button.onClick) {
-                    e.stopPropagation();
-                  }
+                onClick={() => {
                   this.onButtonClick(button.onClick, button.id);
                 }}
               >
