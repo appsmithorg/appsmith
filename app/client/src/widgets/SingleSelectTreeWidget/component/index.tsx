@@ -270,7 +270,11 @@ function SingleSelectTreeComponent({
           width={labelWidth}
         />
       )}
-      <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
+      <InputContainer
+        compactMode={compactMode}
+        labelPosition={labelPosition}
+        onClick={(e) => e.stopPropagation()}
+      >
         <TreeSelect
           allowClear={allowClearMemo}
           animation="slide-up"

@@ -316,7 +316,11 @@ function MultiSelectComponent({
           width={labelWidth}
         />
       )}
-      <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
+      <InputContainer
+        compactMode={compactMode}
+        labelPosition={labelPosition}
+        onClick={(e) => e.stopPropagation()}
+      >
         <Select
           animation="slide-up"
           choiceTransitionName="rc-select-selection__choice-zoom"

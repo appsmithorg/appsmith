@@ -258,7 +258,11 @@ function MultiTreeSelectComponent({
           width={labelWidth}
         />
       )}
-      <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
+      <InputContainer
+        compactMode={compactMode}
+        labelPosition={labelPosition}
+        onClick={(e) => e.stopPropagation()}
+      >
         <TreeSelect
           allowClear={allowClear}
           animation="slide-up"
