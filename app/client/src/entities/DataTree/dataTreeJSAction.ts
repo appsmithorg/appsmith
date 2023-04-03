@@ -20,7 +20,7 @@ export const generateDataTreeJSAction = (
   dynamicBindingPathList.push({ key: "body" });
 
   const removeThisReference =
-    evaluationVersion >= 3
+    evaluationVersion > 2
       ? js.config.body
       : js.config.body.replace(reg, `${js.config.name}.`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;

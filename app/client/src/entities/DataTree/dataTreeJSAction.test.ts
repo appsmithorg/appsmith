@@ -202,7 +202,7 @@ describe("generateDataTreeJSAction", () => {
         myVar2: "SMART_SUBSTITUTE",
       },
     };
-    const resultData = generateDataTreeJSAction(jsCollection);
+    const resultData = generateDataTreeJSAction(jsCollection, 2);
     expect(resultData.unEvalEntity).toStrictEqual(expectedData);
     expect(resultData.configEntity).toStrictEqual(expectedConfig);
   });
@@ -406,7 +406,7 @@ describe("generateDataTreeJSAction", () => {
       },
     };
 
-    const result = generateDataTreeJSAction(jsCollection);
+    const result = generateDataTreeJSAction(jsCollection, 2);
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });
