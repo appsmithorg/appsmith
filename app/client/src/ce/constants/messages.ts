@@ -1,3 +1,5 @@
+import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
+
 export function createMessage(
   format: (...strArgs: any[]) => string,
   ...args: any[]
@@ -379,8 +381,6 @@ export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
 export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
 export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
   "This is embarrassing, please contact Appsmith support for help";
-
-import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
 
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 
