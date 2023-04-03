@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
@@ -16,6 +17,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -33,6 +35,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -69,6 +72,9 @@ public class UserGroupServiceTest {
     WorkspaceService workspaceService;
     @Autowired
     UserGroupRepository userGroupRepository;
+
+    @Autowired
+    UserDataService userDataService;
 
     User api_user = null;
     User admin_user = null;
@@ -781,5 +787,39 @@ public class UserGroupServiceTest {
         assertThat(updatedUserGroup.getRoles()).hasSize(1);
         assertThat(updatedUserGroup.getRoles().get(0).getUserPermissions()).isNotEmpty();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetUserGroup_assertPhotoIdForUser() {
+        String testName = "testGetUserGroup_assertPhotoIdForUser";
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        userGroup.setDescription(testName);
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+        assertThat(createdUserGroup.getId()).isNotNull();
+
+        User user1 = new User();
+        user1.setEmail(testName);
+        user1.setPassword(testName);
+        User createdUser1 = userService.userCreate(user1, false).block();
+        UserData userData1 = userDataService.getForUser(createdUser1).block();
+        userData1.setProfilePhotoAssetId(testName);
+        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+
+        // First add the user to toRemove user group
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdUserGroup.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of(createdUser1.getUsername()));
+        userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block();
+
+        UserGroupDTO userGroupDTO = userGroupService.getGroupById(createdUserGroup.getId()).block();
+        List<UserCompactDTO> users = userGroupDTO.getUsers();
+        Optional<UserCompactDTO> user = users.stream().filter(_user -> createdUser1.getId().equals(_user.getId())).findFirst();
+        assertThat(user.isPresent()).isTrue();
+        assertThat(user.get().getPhotoId()).isEqualTo(testName);
     }
 }

@@ -9,6 +9,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
@@ -20,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import jakarta.validation.Validator;
 import org.modelmapper.ModelMapper;
@@ -29,6 +31,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -68,6 +71,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     private final ModelMapper modelMapper;
     private final PermissionGroupUtils permissionGroupUtils;
+    private final UserDataRepository userDataRepository;
 
     public UserGroupServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -81,7 +85,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 PermissionGroupService permissionGroupService,
                                 UserService userService,
                                 ModelMapper modelMapper,
-                                PermissionGroupUtils permissionGroupUtils) {
+                                PermissionGroupUtils permissionGroupUtils,
+                                UserDataRepository userDataRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
@@ -90,6 +95,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.permissionGroupUtils = permissionGroupUtils;
+        this.userDataRepository = userDataRepository;
     }
 
     @Override
@@ -169,12 +175,27 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .flatMap(userGroup -> {
 
                     Mono<List<PermissionGroupInfoDTO>> groupRolesMono = getRoleDTOsForTheGroup(id);
-                    Mono<List<UserCompactDTO>> usersMono = getUsersCompactForTheGroup(userGroup);
+                    Mono<List<UserCompactDTO>> usersMono = getUsersCompactForTheGroup(userGroup).cache();
+                    Mono<Map<String, UserData>> userIdUserDataMapMono = usersMono
+                            .flatMap(users -> {
+                                List<String> userIds = users.stream()
+                                        .map(UserCompactDTO::getId).toList();
+                                return userDataRepository.findPhotoAssetsByUserIds(userIds)
+                                        .collectMap(UserData::getUserId);
+                            });
 
-                    return Mono.zip(groupRolesMono, usersMono)
+                    return Mono.zip(groupRolesMono, usersMono, userIdUserDataMapMono)
                             .flatMap(tuple -> {
                                 List<PermissionGroupInfoDTO> rolesInfoList = tuple.getT1();
                                 List<UserCompactDTO> usersList = tuple.getT2();
+                                Map<String, UserData> userIdUserDataMap = tuple.getT3();
+                                usersList.forEach(user -> {
+                                    String userId = user.getId();
+                                    if (userIdUserDataMap.containsKey(userId)
+                                            && StringUtils.hasLength(userIdUserDataMap.get(userId).getProfilePhotoAssetId())) {
+                                        user.setPhotoId(userIdUserDataMap.get(userId).getProfilePhotoAssetId());
+                                    }
+                                });
                                 return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
                             });
                 });
