@@ -33,7 +33,7 @@ const regexMap = {
 
 //////////////////////////////////////////////////////////
 // Note: if you need to filter out some files from precaching,
-// do that in InjectManifest plugin options
+// do that in InjectManifest’s `exclude` plugin options
 const toPrecache = self.__WB_MANIFEST;
 
 const isChromium =

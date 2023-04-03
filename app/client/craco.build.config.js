@@ -17,8 +17,12 @@ plugins.push(
     swDest: "./pageService.js",
     maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
     exclude: [
+      // Don’t cache source maps and PWA manifests.
+      // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
+      // so we need to specify them explicitly if we’re extending this array.)
       /\.map$/,
       /^manifest.*\.js$/,
+      // Don’t cache the root html file
       /index\.html/,
       // Don’t cache LICENSE.txt files emitted by CRA
       // when a chunk includes some license comments
