@@ -33,6 +33,7 @@ import {
   SEARCH_USERS,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -110,6 +111,17 @@ export default function Settings() {
   };
 
   useEffect(() => {
+    const hasManageWorkspacePermissions = isPermitted(
+      currentWorkspace?.userPermissions,
+      PERMISSION_TYPE.MANAGE_WORKSPACE,
+    );
+    const canInviteToWorkspace = isPermitted(
+      currentWorkspace?.userPermissions,
+      PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+    );
+    if (!hasManageWorkspacePermissions || !canInviteToWorkspace) {
+      history.replace(APPLICATIONS_URL);
+    }
     if (currentWorkspace) {
       setPageTitle(`${currentWorkspace?.name}`);
     }
