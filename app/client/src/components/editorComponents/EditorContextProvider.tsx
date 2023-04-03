@@ -17,8 +17,10 @@ import {
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 
+import type { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 import {
   resetChildrenMetaProperty,
+  syncBatchUpdateWidgetMetaProperties,
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
@@ -69,6 +71,9 @@ export type EditorContextType<TCache = unknown> = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  syncBatchUpdateWidgetMetaProperties?: (
+    batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
+  ) => void;
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
   checkContainersForAutoHeight?: () => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
@@ -102,6 +107,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "setWidgetCache",
   "updateMetaWidgetProperty",
   "syncUpdateWidgetMetaProperty",
+  "syncBatchUpdateWidgetMetaProperties",
   "triggerEvalOnMetaUpdate",
   "updateWidgetAutoHeight",
   "checkContainersForAutoHeight",
@@ -191,6 +197,9 @@ const mapDispatchToProps = {
     propertyName: string,
     propertyValue: any,
   ) => syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
+  syncBatchUpdateWidgetMetaProperties: (
+    batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
+  ) => syncBatchUpdateWidgetMetaProperties(batchMetaUpdates),
   resetChildrenMetaProperty,
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,

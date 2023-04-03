@@ -63,7 +63,7 @@ import {
   updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 
-import { showReconnectDatasourceModal } from "actions/applicationActions";
+import { showReconnectDatasourceModal } from "@appsmith/actions/applicationActions";
 
 import type { ApiResponse } from "api/ApiResponses";
 import type { GitConfig } from "entities/GitSync";
@@ -73,7 +73,7 @@ import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
   getWorkspaceIdForImport,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import {
   createMessage,
   DELETE_BRANCH_SUCCESS,
@@ -81,7 +81,7 @@ import {
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import type { GitApplicationMetadata } from "api/ApplicationApi";
+import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";

@@ -5,6 +5,7 @@ import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import ServerTimeout from "pages/common/ErrorPages/ServerTimeout";
 import ServerUnavailable from "pages/common/ErrorPages/ServerUnavailable";
 import ClientError from "pages/common/ErrorPages/ClientError";
+import GenericError from "./ErrorPages/GenericError";
 
 interface ErrorPageProps {
   code: ERROR_CODES;
@@ -23,7 +24,7 @@ function ErrorPage(props: ErrorPageProps) {
     case ERROR_CODES.FAILED_TO_CORRECT_BINDING:
       return <ClientError />;
     default:
-      return <ServerUnavailable />;
+      return <GenericError errorCode={code} />;
   }
 }
 

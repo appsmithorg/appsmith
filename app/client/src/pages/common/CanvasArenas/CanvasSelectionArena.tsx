@@ -14,7 +14,7 @@ import { throttle } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import {
