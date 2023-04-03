@@ -8,8 +8,7 @@ import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
-
-export type EvaluationVersion = number;
+import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
 
 export interface PublishApplicationRequest {
   applicationId: string;

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvalContext } from "workers/Evaluation/evaluate";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import { set } from "lodash";
 import {
@@ -9,6 +8,7 @@ import {
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
 import { klona } from "klona/full";
+import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in

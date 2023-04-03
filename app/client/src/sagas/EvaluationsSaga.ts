@@ -74,7 +74,6 @@ import {
 import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -107,6 +106,7 @@ import type {
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ce/configs";
+import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
