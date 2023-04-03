@@ -24,8 +24,7 @@ describe("Navigate To feature", () => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
-    propPane.AddAction("onClick");
-    cy.get(locator._dropDownValue("Navigate to")).click();
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
     cy.get(".t--open-dropdown-Select-Page").click();
     agHelper.AssertElementLength(".bp3-menu-item", 2);
     cy.get(locator._dropDownValue("Page2")).click();
@@ -54,8 +53,7 @@ describe("Navigate To feature", () => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
-    propPane.AddAction("onClick");
-    cy.get(locator._dropDownValue("Navigate to")).click();
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
     cy.get("#switcher--url").click();
     cy.get("label")
       .contains("Enter URL")
@@ -74,8 +72,7 @@ describe("Navigate To feature", () => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
-    propPane.AddAction("onClick");
-    cy.get(locator._dropDownValue("Navigate to")).click();
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
     cy.get("#switcher--url").click();
     cy.get("label")
       .contains("Enter URL")

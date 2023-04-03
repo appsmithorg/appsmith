@@ -17,8 +17,7 @@ describe("UI to Code", () => {
   });
 
   it("1. adds an action", () => {
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Show Alert")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -34,8 +33,7 @@ describe("UI to Code", () => {
 
   it("2. adds multiple actions", () => {
     // Add first action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Show Alert")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -43,8 +41,7 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Add second action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click({ force: true });
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
     cy.get(_.locators._openNavigationTab("url")).click();
     _.agHelper.TypeText(
@@ -60,8 +57,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Store value")).click();
+    _.propPane.UpdatePropertyFieldValue("onClick", "Store value");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Key"),
       "secret-key",
@@ -73,8 +69,7 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Add fourth action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Copy to clipboard")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "text to copy",
@@ -125,8 +120,7 @@ describe("UI to Code", () => {
 
   it("3. works with undo using cmd+z", () => {
     // Add first action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Show Alert")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -134,8 +128,7 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Add second action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click({ force: true });
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
     cy.get(_.locators._openNavigationTab("url")).click();
     _.agHelper.TypeText(
@@ -151,8 +144,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Store value")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Store value");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Key"),
       "secret-key",
@@ -164,8 +156,7 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Add fourth action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Copy to clipboard")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "text to copy",
@@ -214,8 +205,7 @@ describe("UI to Code", () => {
 
   it("4. works with redo using cmd+y", () => {
     // Add first action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Show Alert")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -223,8 +213,7 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Add second action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Navigate to")).click({ force: true });
+    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
     cy.get(_.locators._openNavigationTab("url")).click();
     _.agHelper.TypeText(
@@ -240,8 +229,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Store value")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Store value");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Key"),
       "secret-key",
@@ -253,8 +241,7 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
 
     // Add fourth action
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Copy to clipboard")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "text to copy",
@@ -307,8 +294,7 @@ describe("UI to Code", () => {
   });
 
   it("5. can add success and error callbacks", () => {
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Show Alert")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -445,8 +431,7 @@ describe("UI to Code", () => {
   });
 
   it("9. correctly configures a setInterval action", () => {
-    _.propPane.AddAction("onClick");
-    cy.get(_.locators._dropDownValue("Set interval")).click();
+    _.propPane.SelectPlatformFunction("onClick", "Set interval");
 
     cy.get(
       _.jsEditor._lineinPropertyPaneJsEditor(
