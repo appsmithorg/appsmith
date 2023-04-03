@@ -42,7 +42,6 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
         return requiredArgument;
     }
 
-    // attach comments to ast
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
     const node = findRootCallExpression(astWithComments);
@@ -903,9 +902,6 @@ export function setThenBlockInQuery(
             onComment: commentArray,
         });
         const thenBlockNodeWithComments = attachCommentsToAst(thenBlockNode, commentArray);
-
-        // @ts-ignore
-        // const thenCallExpressionNode = findNodeAt(astWithComments, undefined, undefined, (type, node) => type === NodeTypes.CallExpression && node?.callee?.property?.name === "then");
 
         if (thenCallExpressionInGivenQuery) {
             // @ts-ignore

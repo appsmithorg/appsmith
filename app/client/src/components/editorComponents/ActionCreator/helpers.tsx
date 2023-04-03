@@ -63,7 +63,7 @@ import {
   isAction,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { WidgetEntity } from "../../../entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "../../../entities/DataTree/dataTreeFactory";
 
 const actionList: {
   label: string;
@@ -119,9 +119,9 @@ export function getFieldFromValue(
       );
     }
 
-    if (isJSAction(entity as WidgetEntity)) {
+    if (isJSAction(entity as DataTreeEntity)) {
       // get fields for js action execution
-      return getJsFunctionExecutionFields(
+      return getJSFunctionExecutionFields(
         fields,
         getParentValue as (changeValue: string) => string,
         value,
@@ -249,7 +249,7 @@ function getActionEntityFields(
   return fields;
 }
 
-function getJsFunctionExecutionFields(
+function getJSFunctionExecutionFields(
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
@@ -386,7 +386,7 @@ export function useModalDropdownList(handleClose: () => void) {
   return finalList;
 }
 
-export function getApiQueriesAndJsActionOptionsWithChildren(
+export function getApiQueriesAndJSActionOptionsWithChildren(
   pageId: string,
   plugins: any,
   actions: ActionDataState,
@@ -550,7 +550,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   // this function gets all the Queries/API's/JS objects and attaches it to actionList
-  return getApiQueriesAndJsActionOptionsWithChildren(
+  return getApiQueriesAndJSActionOptionsWithChildren(
     pageId,
     pluginGroups,
     actions,
