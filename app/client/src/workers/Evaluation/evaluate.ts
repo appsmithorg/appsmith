@@ -143,7 +143,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   ///// Adding callback data
   EVAL_CONTEXT.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
-  EVAL_CONTEXT.THIS_CONTEXT = context?.thisContext || {};
+  EVAL_CONTEXT.THIS_CONTEXT = context?.thisContext || self;
 
   if (context?.globalContext) {
     Object.assign(EVAL_CONTEXT, context.globalContext);
