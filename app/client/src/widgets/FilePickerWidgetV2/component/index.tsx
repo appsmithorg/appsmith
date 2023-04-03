@@ -16,7 +16,8 @@ function FilePickerComponent(props: FilePickerComponentProps) {
   /**
    * opens modal
    */
-  const openModal = () => {
+  const openModal = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event.stopPropagation();
     props.uppy.getPlugin("Dashboard").openModal();
   };
 
