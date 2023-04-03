@@ -29,6 +29,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     private Instant cacheExpiryTime = null;
 
     public Mono<List<ReleaseNode>> getReleaseNodes() {
+        // Moving the release notes fetch method to helper classes to have custom implementation for business edition
         return releaseNotesUtils.getReleaseNodes(releaseNodesCache, cacheExpiryTime);
     }
 
