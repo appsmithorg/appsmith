@@ -346,7 +346,6 @@ public class MySqlPlugin extends BasePlugin {
                     },
                     Connection::close
             )
-            .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
             .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
             .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
             .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException())
@@ -628,7 +627,6 @@ public class MySqlPlugin extends BasePlugin {
                     },
                     Connection::close
                     )
-                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
                     .subscribeOn(scheduler);
