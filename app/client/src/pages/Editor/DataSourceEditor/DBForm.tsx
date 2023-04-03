@@ -67,6 +67,10 @@ const CollapsibleWrapper = styled.div`
   width: max-content;
 `;
 
+export const FormBodyContainer = styled.div`
+  flex: 8 8 80%;
+`;
+
 class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
@@ -121,9 +125,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         onSubmit={(e) => {
           e.preventDefault();
         }}
+        style={{ height: "100%", display: "flex", flexDirection: "column" }}
       >
         {!this.props.hiddenHeader && (
-          <Header>
+          <Header style={{ flex: "1 1 10%" }}>
             <FormTitleContainer>
               <PluginImage alt="Datasource" src={this.props.pluginImage} />
               <FormTitle
@@ -153,31 +158,34 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               variant={Variant.warning}
             />
           ))}
-        {!this.props.hiddenHeader &&
-          cloudHosting &&
-          pluginType === PluginType.DB &&
-          !viewMode && (
-            <CollapsibleWrapper>
-              <CollapsibleHelp>
-                <span>{`Whitelist the IP ${convertArrayToSentence(
-                  APPSMITH_IP_ADDRESSES,
-                )}  on your database instance to connect to it. `}</span>
-                <a onClick={this.openOmnibarReadMore}>
-                  {"Learn more "}
-                  <StyledOpenDocsIcon icon="document-open" />
-                </a>
-              </CollapsibleHelp>
-            </CollapsibleWrapper>
+
+        <FormBodyContainer>
+          {!this.props.hiddenHeader &&
+            cloudHosting &&
+            pluginType === PluginType.DB &&
+            !viewMode && (
+              <CollapsibleWrapper>
+                <CollapsibleHelp>
+                  <span>{`Whitelist the IP ${convertArrayToSentence(
+                    APPSMITH_IP_ADDRESSES,
+                  )}  on your database instance to connect to it. `}</span>
+                  <a onClick={this.openOmnibarReadMore}>
+                    {"Learn more "}
+                    <StyledOpenDocsIcon icon="document-open" />
+                  </a>
+                </CollapsibleHelp>
+              </CollapsibleWrapper>
+            )}
+          {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
+            <>
+              {!_.isNil(sections)
+                ? _.map(sections, this.renderMainSection)
+                : undefined}
+              {""}
+            </>
           )}
-        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
-          <>
-            {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
-              : undefined}
-            {""}
-          </>
-        )}
-        {viewMode && <Connected />}
+          {viewMode && <Connected />}
+        </FormBodyContainer>
         {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth

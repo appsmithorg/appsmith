@@ -45,6 +45,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import Divider from "components/editorComponents/Divider";
 
 interface Props {
   datasource: Datasource;
@@ -105,6 +106,23 @@ const StyledAuthMessage = styled.div`
   &:after {
     content: " *";
     color: inherit;
+  }
+`;
+
+const BottomActionsContainer = styled.div`
+  flex: 1 1 10%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const StyledDivider = styled(Divider)`
+  border-bottom-color: #dfdfdf;
+  width: 100vw;
+  margin-bottom: 16px !important;
+
+  &&&&&& {
+    margin: 0 -20px -20px -20px;
   }
 `;
 
@@ -386,8 +404,8 @@ function DatasourceAuth({
           onClick={handleDatasourceTest}
           size="medium"
           tag="button"
-          text="Test"
-          variant={Variant.success}
+          text="Test Configuration"
+          variant={Variant.info}
         />
       ),
       [DatasourceButtonType.SAVE]: (
@@ -404,7 +422,7 @@ function DatasourceAuth({
           size="medium"
           tag="button"
           text="Save"
-          variant={Variant.success}
+          variant={Variant.info}
         />
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
@@ -420,7 +438,7 @@ function DatasourceAuth({
           size="medium"
           tag="button"
           text="Save and Authorize"
-          variant={Variant.success}
+          variant={Variant.info}
         />
       ),
     }[buttonType];
@@ -434,11 +452,14 @@ function DatasourceAuth({
           <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
         )}
       {shouldRender && (
-        <SaveButtonContainer>
-          {datasourceButtonConfiguration?.map((btnConfig) =>
-            datasourceButtonsComponentMap(btnConfig),
-          )}
-        </SaveButtonContainer>
+        <BottomActionsContainer>
+          <StyledDivider />
+          <SaveButtonContainer>
+            {datasourceButtonConfiguration?.map((btnConfig) =>
+              datasourceButtonsComponentMap(btnConfig),
+            )}
+          </SaveButtonContainer>
+        </BottomActionsContainer>
       )}
     </>
   );

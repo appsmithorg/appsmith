@@ -59,6 +59,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
+import { FormBodyContainer } from "./DBForm";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -341,6 +342,7 @@ class DatasourceRestAPIEditor extends React.Component<
             onSubmit={(e) => {
               e.preventDefault();
             }}
+            style={{ height: "100%", display: "flex", flexDirection: "column" }}
           >
             {this.renderHeader()}
             {this.renderEditor()}
@@ -374,7 +376,7 @@ class DatasourceRestAPIEditor extends React.Component<
       datasource?.userPermissions || [],
     );
     return !hiddenHeader ? (
-      <Header>
+      <Header style={{ flex: "1 1 10%" }}>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={pluginImage} />
           <FormTitle
@@ -399,7 +401,7 @@ class DatasourceRestAPIEditor extends React.Component<
     const { authentication } = formData;
 
     return (
-      <>
+      <FormBodyContainer>
         {messages &&
           messages.map((msg, i) => (
             <Callout fill key={i} text={msg} variant={Variant.warning} />
@@ -435,7 +437,7 @@ class DatasourceRestAPIEditor extends React.Component<
               />
             </FormInputContainer>
           )}
-      </>
+      </FormBodyContainer>
     );
   };
 

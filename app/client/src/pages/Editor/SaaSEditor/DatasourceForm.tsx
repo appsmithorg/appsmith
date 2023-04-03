@@ -63,6 +63,7 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { FormBodyContainer } from "../DataSourceEditor/DBForm";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -289,9 +290,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onSubmit={(e) => {
             e.preventDefault();
           }}
+          style={{ height: "100%", display: "flex", flexDirection: "column" }}
         >
           {!hiddenHeader && (
-            <Header>
+            <Header style={{ flex: "1 1 10%" }}>
               <FormTitleContainer>
                 <PluginImage alt="Datasource" src={this.props.pluginImage} />
                 <FormTitle
@@ -337,39 +339,41 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               )}
             </Header>
           )}
-          {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
-            <>
-              {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
-                <AuthMessage
-                  datasource={datasource}
-                  description={GSHEET_AUTHORIZATION_ERROR}
-                  pageId={pageId}
-                  style={{
-                    paddingTop: "24px",
-                  }}
-                />
-              ) : null}
-              {!_.isNil(sections)
-                ? _.map(sections, this.renderMainSection)
-                : null}
-              {""}
-            </>
-          )}
-          {viewMode && (
-            <Connected
-              errorComponent={
-                datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+          <FormBodyContainer>
+            {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
+              <>
+                {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
                   <AuthMessage
-                    actionType="authorize"
                     datasource={datasource}
                     description={GSHEET_AUTHORIZATION_ERROR}
                     pageId={pageId}
+                    style={{
+                      paddingTop: "24px",
+                    }}
                   />
-                ) : null
-              }
-              showDatasourceSavedText={!isGoogleSheetPlugin}
-            />
-          )}
+                ) : null}
+                {!_.isNil(sections)
+                  ? _.map(sections, this.renderMainSection)
+                  : null}
+                {""}
+              </>
+            )}
+            {viewMode && (
+              <Connected
+                errorComponent={
+                  datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+                    <AuthMessage
+                      actionType="authorize"
+                      datasource={datasource}
+                      description={GSHEET_AUTHORIZATION_ERROR}
+                      pageId={pageId}
+                    />
+                  ) : null
+                }
+                showDatasourceSavedText={!isGoogleSheetPlugin}
+              />
+            )}
+          </FormBodyContainer>
           {/* Render datasource form call-to-actions */}
           {datasource && (
             <DatasourceAuth
