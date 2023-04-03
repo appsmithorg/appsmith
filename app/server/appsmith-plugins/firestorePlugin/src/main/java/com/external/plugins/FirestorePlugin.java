@@ -904,7 +904,7 @@ public class FirestorePlugin extends BasePlugin {
                         try {
                             return FirebaseApp.getInstance(projectId);
                         } catch (IllegalStateException e) {
-                            return FirebaseApp.initializeApp(options,projectId);
+                            return FirebaseApp.initializeApp(options, projectId);
                         }
                     })
                     .map(FirestoreClient::getFirestore)
@@ -919,9 +919,17 @@ public class FirestorePlugin extends BasePlugin {
                         try {
                             connection.listCollections();
                         } catch (FirestoreException e){
-                            log.debug("Invalid datasource configuration : {}",e.getMessage());
+                            log.debug("Invalid datasource configuration : {}", e.getMessage());
+                            if(e.getMessage().contains("Metadata operations require admin authentication")){
+                                String metaDataAccessMissingMessage = "Unable to validate ProjectID, provided service " +
+                                        "account doesn't has access to metadata";
+                                DatasourceTestResult datasourceTestResult = new DatasourceTestResult();
+                                datasourceTestResult.setMessages(new HashSet<>(Collections.singletonList(
+                                        metaDataAccessMissingMessage)));
+                                return Mono.just(datasourceTestResult);
+                            }
                             return Mono.just(new DatasourceTestResult(FirestoreErrorMessages.
-                                    DS_VALIDATION_FAILED_FOR_PROJECT_ID));
+                                    DS_CONNECTION_FAILED_FOR_PROJECT_ID));
                         }
                         return Mono.just(new DatasourceTestResult());
                     });

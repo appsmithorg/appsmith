@@ -28,6 +28,10 @@ import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.GeoPoint;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.internal.EmulatorCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -629,7 +633,7 @@ public class FirestorePluginTest {
     }
 
     @Test
-    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+    public void testDatasource_withCorrectCredentials_returnsWithoutInvalids() {
 
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
 
@@ -646,17 +650,39 @@ public class FirestorePluginTest {
     }
 
     @Test
-    public void testTestDatasource_withInvalidProjectId() {
+    public void testDatasource_withValidProjectId_WithoutMetaDataAccess() {
 
+        //This test validates the Firestore connection, not the ProjectId given by the user
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
-        Firestore firestoreConnection1 = FirestoreOptions.newBuilder()
-                .setHost(emulator.getEmulatorEndpoint())
-                .setCredentials(NoCredentials.getInstance())
-                .setRetrySettings(ServiceOptions.getNoRetrySettings())
+        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection));
+        final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                    assertFalse(datasourceTestResult.getMessages().isEmpty());
+                    assertTrue(datasourceTestResult.getMessages().stream().anyMatch(s -> s.equals("Unable to validate " +
+                            "ProjectID, provided service account doesn't has access to metadata")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasource_withInvalidProjectId_WithMetaDataAccess() {
+
+        //This validates firestore connection and the ProjectId given by the user
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+
+        FirebaseOptions firebaseOptions = FirebaseOptions.builder()
                 .setProjectId("test-project-invalid")
-                .build()
-                .getService();
-        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection1));
+                .setDatabaseUrl(emulator.getEmulatorEndpoint())
+                .setCredentials(new EmulatorCredentials())
+                .build();
+        FirebaseApp.initializeApp(firebaseOptions);
+        Firestore firestore = FirestoreClient.getFirestore();
+        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestore));
         final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
 
         StepVerifier.create(testDatasourceMono)
@@ -664,6 +690,8 @@ public class FirestorePluginTest {
                     assertNotNull(datasourceTestResult);
                     assertFalse(datasourceTestResult.isSuccess());
                     assertFalse(datasourceTestResult.getInvalids().isEmpty());
+                    assertTrue(datasourceTestResult.getInvalids().stream().anyMatch(s -> s.equals(
+                            FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID)));
                 })
                 .verifyComplete();
     }

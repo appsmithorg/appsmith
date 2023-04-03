@@ -58,6 +58,9 @@ public class FirestoreErrorMessages {
 
     public static final String WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG = "Unable to parse condition value as a JSON list.";
 
+    public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID = "Unable to connect to the database, No database found for the given ProjectID.";
+
+
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.
@@ -66,8 +69,6 @@ public class FirestoreErrorMessages {
 
     public static final String DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG = "Validation failed for field 'Service Account Credentials'. Please check the " +
             "value provided in the 'Service Account Credentials' field.";
-
-    public static final String DS_VALIDATION_FAILED_FOR_PROJECT_ID = "Invalid project id, no database found for given project id";
     public static final String DS_MISSING_PROJECT_ID_AND_CLIENTJSON_ERROR_MSG = "Missing ProjectID and ClientJSON in datasource.";
 
     public static final String DS_MISSING_PROJECT_ID_ERROR_MSG = "Missing ProjectID in datasource.";
