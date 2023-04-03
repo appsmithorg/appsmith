@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.configurations.ce.InstanceConfigCE;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.ApplicationPageService;
@@ -14,11 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -56,7 +53,7 @@ public class ExampleApplicationsAreMarked {
     private ConfigService configService;
 
     @SpyBean
-    private InstanceConfig instanceConfig;
+    private InstanceConfigCE instanceConfig;
 
     @Test
     @WithUserDetails(value = "api_user")
