@@ -24,9 +24,10 @@ const NEXT_POSITION = 1;
 
 export const getTextArgumentAtPosition = (value: string, argNum: number, evaluationVersion: number): string => {
     // Takes a function string and returns the text argument at argNum position
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let requiredArgument: any = "";
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -37,17 +38,17 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid return a blank string
         return requiredArgument;
     }
 
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     const node = findRootCallExpression(astWithComments);
 
-    if(node && isCallExpressionNode(node)) {
+    if (node && isCallExpressionNode(node)) {
         let argument = node.arguments[argNum];
         // return appropriate values based on the type of node
         switch (argument?.type) {
@@ -65,12 +66,12 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                 break;
             case NodeTypes.BinaryExpression:
                 // this is cases where we have string concatenation
-                requiredArgument = `{{${generate(argument,  {comments: true}).trim()}}}`;
+                requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
                 break;
             default:
                 requiredArgument = argument ? `{{${generate(argument, {comments: true}).trim()}}}` : "";
                 break;
-        } 
+        }
     }
 
     return requiredArgument;
@@ -79,9 +80,10 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
 export const setTextArgumentAtPosition = (currentValue: string, changeValue: any, argNum: number, evaluationVersion: number): string => {
     // Takes a function string and a value to be changed at a particular position
     // it returns the replaced function string with current value at argNum position
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     const rawValue = typeof changeValue === "string" ? String.raw`"${changeValue}"` : String.raw`${changeValue}`;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
@@ -99,17 +101,16 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
         });
         // clone ast to avoid mutating original ast
         ast = klona(__ast);
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid return original string
         throw error;
     }
 
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     const node = findRootCallExpression(astWithComments);
 
-    if(node && isCallExpressionNode(node)) {
+    if (node && isCallExpressionNode(node)) {
         const startPosition = node.callee.end + NEXT_POSITION;
         node.arguments = node.arguments || [];
         node.arguments[argNum] = {
@@ -120,7 +121,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
             // add 2 for quotes
             end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
         };
-        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`; 
+        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
     }
 
     return changedValue;
@@ -129,11 +130,12 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
 export const setCallbackFunctionField = (currentValue: string, changeValue: string, argNum: number, evaluationVersion: number): string => {
     // Takes a function string and a callback function to be changed at a particular position
     // it returns the replaced function string with current callback at argNum position
-    let ast: Node = { end: 0, start: 0, type: "" };
-    let changeValueAst: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
+    let changeValueAst: Node = {end: 0, start: 0, type: ""};
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
+    let changeValueAstWithComments, currentValueAstWithComments;
     let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode | BlockStatementNode | LiteralNode;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
@@ -152,16 +154,15 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: changedValueCommentArray,
         });
+        // attach comments to ast
+        // clone ast to avoid mutating original ast
+        changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
+        currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
+
     } catch (error) {
         // if ast is invalid throw error
         throw error;
     }
-
-    // attach comments to ast
-    // clone ast to avoid mutating original ast
-    const changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
-    const currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
-
     const changeValueNodeFound = findNodeAt(changeValueAstWithComments, 0, undefined, (type) => type === "Program");
 
     if (changeValueNodeFound) {
@@ -172,8 +173,8 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 
     const found = findNodeAt(currentValueAstWithComments, 0, undefined, (type, node) => isCallExpressionNode(node));
     // @ts-ignore
-    if(found) {
-        const { node } = found;
+    if (found) {
+        const {node} = found;
         // When there is an argument after the specified argument number, then only add empty string literal
         // @ts-ignore
         if (changeValue === "" && node.arguments[argNum + 1]) {
@@ -187,7 +188,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
         }
 
         // @ts-ignore
-        if(node.arguments[argNum]) {
+        if (node.arguments[argNum]) {
             // @ts-ignore
             node.arguments[argNum] = requiredNode;
         } else {
@@ -199,7 +200,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 
         try {
             getAST(changedValue);
-        } catch(e) {
+        } catch (e) {
             throw e;
         }
 
@@ -211,13 +212,14 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 export const setObjectAtPosition = (currentValue: string, changeValue: any, argNum: number, evaluationVersion: number): string => {
     // Takes a function string and an object to be changed at a particular position
     // it returns the replaced function string with the object at argNum position
-    if(typeof changeValue !== "string" || changeValue === '' || changeValue.trim() === '') {
+    if (typeof changeValue !== "string" || changeValue === '' || changeValue.trim() === '') {
         changeValue = '{}'
     }
     changeValue = changeValue.trim();
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -229,16 +231,16 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
         });
         // clone ast to avoid mutating original ast
         ast = klona(__ast);
+
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid throw error
         throw error;
     }
 
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     const node = findRootCallExpression(astWithComments);
-    if(node && isCallExpressionNode(node)) {
+    if (node && isCallExpressionNode(node)) {
         const startPosition = node.callee.end + NEXT_POSITION;
         node.arguments[argNum] = {
             type: NodeTypes.Literal,
@@ -251,7 +253,7 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
         changedValue = generate(astWithComments, {comments: true}).trim();
         try {
             getAST(changedValue);
-        } catch(e) {
+        } catch (e) {
             throw e;
         }
     }
@@ -262,9 +264,10 @@ export const setObjectAtPosition = (currentValue: string, changeValue: any, argN
 export const getEnumArgumentAtPosition = (value: string, argNum: number, defaultValue: string, evaluationVersion: number): string => {
     // Takes a function string and return enum argument at a particular position
     // enum argument -> this is for selectors
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let requiredArgument: string = defaultValue;
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -275,26 +278,26 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid return default value
         return defaultValue;
     }
 
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     // Api1.run(() => { showAlert("", () => { showAlert("") }) })
 
     const node = findRootCallExpression(astWithComments);
 
-    if(node && isCallExpressionNode(node)) {
+    if (node && isCallExpressionNode(node)) {
         if (node.arguments[argNum]) {
             let argument = node.arguments[argNum];
             switch (argument?.type) {
                 case NodeTypes.Literal:
                     requiredArgument = argument.raw as string;
             }
-        } 
+        }
     }
 
     return requiredArgument;
@@ -304,9 +307,10 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     // Takes a function string and an enum argument to be changed at a particular position
     // it returns the replaced function string with enum arg at argNum position
     // enum arg -> selectors
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -318,6 +322,9 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
         });
         // clone ast to avoid mutating original ast
         ast = klona(__ast);
+
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid throw error
         throw error;
@@ -325,18 +332,14 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
 
     try {
         getAST(changeValue);
-    } catch(e) {
+    } catch (e) {
         return currentValue;
     }
-
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     const node = findRootCallExpression(astWithComments);
 
-    if(node && isCallExpressionNode(node)) {
-                       // add 1 to get the starting position of the next
-                // node to ending position of previous
+    if (node && isCallExpressionNode(node)) {
+        // add 1 to get the starting position of the next
+        // node to ending position of previous
         const startPosition = node.callee.end + NEXT_POSITION;
         node.arguments[argNum] = {
             type: NodeTypes.Literal,
@@ -346,7 +349,7 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
             // add 2 for quotes
             end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
         };
-        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`; 
+        changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
     }
 
     return changedValue;
@@ -354,9 +357,10 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
 
 export const getModalName = (value: string, evaluationVersion: number): string => {
     // Takes a function string and returns modal name at a particular position
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let modalName: string = "none";
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -367,22 +371,21 @@ export const getModalName = (value: string, evaluationVersion: number): string =
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid return modal name
         return modalName;
     }
 
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     const node = findRootCallExpression(astWithComments);
 
-    if(node && isCallExpressionNode(node)) {
+    if (node && isCallExpressionNode(node)) {
         let argument = node.arguments[0];
-        switch (argument?.type){
+        switch (argument?.type) {
             case NodeTypes.Literal:
                 modalName = argument.value as string;
-        } 
+        }
     }
 
     return modalName;
@@ -390,9 +393,10 @@ export const getModalName = (value: string, evaluationVersion: number): string =
 
 export const setModalName = (currentValue: string, changeValue: string, evaluationVersion: number) => {
     // takes function string as input and sets modal name at particular position
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -404,13 +408,13 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
         });
         // clone ast to avoid mutating original ast
         ast = klona(__ast);
+
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid throw error
         throw error;
     }
-
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     const node = findRootCallExpression(astWithComments);
     if (node && isCallExpressionNode(node)) {
@@ -433,7 +437,7 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
 
 export const getFuncExpressionAtPosition = (value: string, argNum: number, evaluationVersion: number): string => {
     // takes a function string and returns the function expression at the position
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let requiredArgument: string = "() => {}";
     let commentArray: Array<Comment> = [];
     try {
@@ -474,9 +478,10 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
 
 export const getFunction = (value: string, evaluationVersion: number): string => {
     // returns the function name from the function expression
-    let ast: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
     let requiredFunction: string = "";
     let commentArray: Array<Comment> = [];
+    let astWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -487,14 +492,13 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: commentArray,
         });
+
+        // attach comments to ast
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         // if ast is invalid return the original function
         return requiredFunction;
     }
-
-    // attach comments to ast
-    const astWithComments = attachCommentsToAst(ast, commentArray);
-
     const node = findRootCallExpression(astWithComments);
 
     if (node && isCallExpressionNode(node)) {
@@ -508,8 +512,8 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
 export const replaceActionInQuery = (query: string, changeAction: string, argNum: number, evaluationVersion: number) => {
     // takes a query in this format -> Api.run( () => {}, () => {})
     // takes an action and its position and replaces it
-    let ast: Node = { end: 0, start: 0, type: "" };
-    let changeActionAst: Node = { end: 0, start: 0, type: "" };
+    let ast: Node = {end: 0, start: 0, type: ""};
+    let changeActionAst: Node = {end: 0, start: 0, type: ""};
     let requiredNode: ArrowFunctionExpressionNode = {
         end: 0,
         start: 0,
@@ -520,6 +524,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     let requiredQuery: string = "";
     let commentArray: Array<Comment> = [];
     let changeActionCommentArray: Array<Comment> = [];
+    let astWithComments: any, changeActionAstWithComments;
     try {
         // sanitize to remove unnecessary characters which might lead to invalid ast
         const sanitizedScript = sanitizeScript(query, evaluationVersion);
@@ -537,16 +542,15 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
             // collect all comments as they are not part of the ast, we will attach them back on line 46
             onComment: changeActionCommentArray,
         });
+
+        // attach comments to ast
+        // clone ast to avoid mutating original ast
+        astWithComments = klona(attachCommentsToAst(ast, commentArray));
+        changeActionAstWithComments = klona(attachCommentsToAst(changeActionAst, changeActionCommentArray));
     } catch (error) {
         // if ast is invalid throw error
         throw error;
     }
-
-    // attach comments to ast
-    // clone ast to avoid mutating original ast
-    const astWithComments = klona(attachCommentsToAst(ast, commentArray));
-    const changeActionAstWithComments = klona(attachCommentsToAst(changeActionAst, changeActionCommentArray));
-
 
     simple(changeActionAstWithComments, {
         ArrowFunctionExpression(node) {
@@ -583,6 +587,7 @@ export function getActionBlocks(
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let actionBlocks: Array<string> = [];
+    let astWithComments;
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -590,10 +595,10 @@ export function getActionBlocks(
             ranges: true,
             onComment: commentArray,
         });
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         return actionBlocks;
     }
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     astWithComments.body.forEach((node: Node) => {
         actionBlocks.push(generate(node, {comments: true}).trim());
@@ -612,6 +617,7 @@ export function canTranslateToUI(
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let canTranslate = true;
+    let astWithComments;
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -619,10 +625,10 @@ export function canTranslateToUI(
             ranges: true,
             onComment: commentArray,
         });
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         return false;
     }
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         ConditionalExpression(node) {
@@ -701,6 +707,7 @@ export function getMainAction(value: string, evaluationVersion: number): string 
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let mainAction: string = "";
+    let astWithComments;
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -708,10 +715,10 @@ export function getMainAction(value: string, evaluationVersion: number): string 
             ranges: true,
             onComment: commentArray,
         });
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         return mainAction;
     }
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         ExpressionStatement(node) {
@@ -743,11 +750,11 @@ export function getFunctionName(value: string, evaluationVersion: number): strin
             ranges: true,
             onComment: commentArray,
         });
-    const astWithComments = attachCommentsToAst(ast, commentArray);
+        const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    const firstCallExpressionNode = findRootCallExpression(astWithComments);
+        const firstCallExpressionNode = findRootCallExpression(astWithComments);
 
-    return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : ""; 
+        return firstCallExpressionNode ? generate(firstCallExpressionNode?.callee, {comments: true}) : "";
 
     } catch (error) {
         return functionName;
@@ -995,6 +1002,7 @@ export function getFunctionArguments(value: string, evaluationVersion: number): 
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let argumentsArray: Array<any> = [];
+    let astWithComments;
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -1002,10 +1010,10 @@ export function getFunctionArguments(value: string, evaluationVersion: number): 
             ranges: true,
             onComment: commentArray,
         });
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         return "";
     }
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     const rootCallExpression = findRootCallExpression(astWithComments);
 
@@ -1022,6 +1030,7 @@ export function getFunctionNameFromJsObjectExpression(value: string, evaluationV
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let functionName: string = "";
+    let astWithComments;
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -1029,10 +1038,10 @@ export function getFunctionNameFromJsObjectExpression(value: string, evaluationV
             ranges: true,
             onComment: commentArray,
         });
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         return functionName;
     }
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     const rootCallExpression = findRootCallExpression(astWithComments);
 
@@ -1052,6 +1061,7 @@ export function getCallExpressions(value: string, evaluationVersion: number): Ar
     let ast: Node = { end: 0, start: 0, type: "" };
     let commentArray: Array<Comment> = [];
     let callExpressions: Array<any> = [];
+    let astWithComments;
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -1059,10 +1069,10 @@ export function getCallExpressions(value: string, evaluationVersion: number): Ar
             ranges: true,
             onComment: commentArray,
         });
+        astWithComments = attachCommentsToAst(ast, commentArray);
     } catch (error) {
         return callExpressions;
     }
-    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
