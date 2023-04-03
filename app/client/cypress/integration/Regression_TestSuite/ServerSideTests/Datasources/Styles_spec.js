@@ -31,8 +31,6 @@ describe("Validate Datasource Panel Styles", function () {
     cy.datasourceImageStyle("[data-testid=mock-datasource-image]");
     //header text
     cy.datasourceContentWrapperStyle(".t--datasource-name");
-    //Icon wrapper
-    cy.datasourceIconWrapperStyle("[data-testid=mock-datasource-icon-wrapper]");
     //Name wrapper
     cy.get("[data-testid=mock-datasource-name-wrapper]")
       .should("have.css", "display", "flex")

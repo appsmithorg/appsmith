@@ -50,7 +50,8 @@ class AppErrorBoundary extends Component {
               Please try again using the button below. <br />
               If the issue persists, please contact us
             </p>
-            <Button kind="tertiary" onClick={() => window.location.reload()}>
+            <br />
+            <Button onClick={() => window.location.reload()} size="md">
               Retry
             </Button>
           </div>
