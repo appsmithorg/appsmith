@@ -10,6 +10,7 @@ const DataSourceKVP = {
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
   Arango: "ArangoDB",
+  Firestore: "Firestore",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -176,6 +177,16 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
   public _urlInputControl = "input[name='url']";
+  _nestedWhereClauseKey = (index: number) =>
+    ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
+    index +
+    "\\]\\.key";
+  _nestedWhereClauseValue = (index: number) =>
+    ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
+    index +
+    "\\]\\.value";
+  _whereDelete = (index: number) =>
+    "[data-cy='t--where-clause-delete-[" + index + "]']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -476,15 +487,20 @@ export class DataSources {
   }
 
   public FillFirestoreDSForm() {
-    cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
-      datasourceFormData["database-url"],
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Database URL"),
+      datasourceFormData["firestore-database-url"],
     );
-    cy.xpath(this.locator._inputFieldByName("Project Id") + "//input").type(
-      datasourceFormData.projectID,
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Project Id"),
+      datasourceFormData["firestore-projectID"],
     );
-    cy.xpath(
-      this.locator._inputFieldByName("Service Account Credentials") + "//input",
-    ).type(datasourceFormData["serviceAccCredentials"]);
+    cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
+      this.agHelper.UpdateFieldLongInput(
+        this.locator._inputFieldByName("Service Account Credentials"),
+        JSON.stringify(json.serviceAccCredentials),
+      );
+    });
   }
 
   public FillUnAuthenticatedGraphQLDSForm() {
@@ -795,7 +811,8 @@ export class DataSources {
       | "UnAuthenticatedGraphQL"
       | "MsSql"
       | "Airtable"
-      | "Arango",
+      | "Arango"
+      | "Firestore",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -817,6 +834,8 @@ export class DataSources {
           this.FillMsSqlDSForm();
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
         else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
+        else if (DataSourceKVP[dsType] == "Firestore")
+          this.FillFirestoreDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
