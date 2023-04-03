@@ -1029,6 +1029,8 @@ public class PostgresPlugin extends BasePlugin {
          */
         urlBuilder.append("?stringtype=unspecified");
 
+        urlBuilder.append("&ApplicationName=Appsmith%20JDBC%20Driver");
+
         /*
          * - Ideally, it is never expected to be null because the SSL dropdown is set to
          * a initial value.
