@@ -14,6 +14,8 @@ class JSFactory {
     for (const [varName, varValue] of variables) {
       let variable = varValue;
       Object.defineProperty(newJSObject, varName, {
+        enumerable: true,
+        configurable: true,
         get() {
           JSVariableUpdates.add({
             path: `${jsObjectName}.${varName}`,
@@ -34,6 +36,7 @@ class JSFactory {
       ExecutionMetaData.setExecutionMetaData({
         enableJSVarUpdateTracking: false,
       });
+
       newJSObject[varName] = varValue;
 
       ExecutionMetaData.setExecutionMetaData({

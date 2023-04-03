@@ -63,10 +63,6 @@ export default class JSObjectCollection {
     this.variableState[entityName] = newVarState;
   }
 
-  static setVariableState(variableState: VariableState) {
-    this.variableState = variableState;
-  }
-
   static getVariableState(
     JSObjectName?: string,
   ): VariableState | Record<string, any> {

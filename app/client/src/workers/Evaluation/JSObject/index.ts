@@ -317,6 +317,8 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
     const [jsObjectName, variableName] = fullPathArray;
     const entity = evalTree[jsObjectName];
     if (jsObjectName && variableName && isJSAction(entity)) {
+      if (!(jsObjectName in currentEvalContext)) continue;
+
       const variableValue = get(currentEvalContext, [
         jsObjectName,
         variableName,
