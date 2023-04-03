@@ -4,9 +4,9 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
-  "Found an async invocation during evaluation. Sync fields cannot execute asynchronous code.";
+  "Found an async invocation during evaluation. Data fields cannot execute asynchronous code.";
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
-  "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
+  "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 class ErrorModifier {
   private errorNamesToScan = ["ReferenceError", "TypeError"];
   // Note all regex below groups the async function name
@@ -77,7 +77,7 @@ class ErrorModifier {
 export const errorModifier = new ErrorModifier();
 
 const FOUND_PROMISE_IN_SYNC_EVAL_MESSAGE =
-  "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
+  "Found a Promise() during evaluation. Data fields cannot execute asynchronous code.";
 
 export class FoundPromiseInSyncEvalError extends Error {
   constructor() {
@@ -92,7 +92,7 @@ export class ActionCalledInSyncFieldError extends Error {
     super(actionName);
 
     if (!actionName) {
-      this.message = "Async function called in a sync field";
+      this.message = "Async function called in a data field";
       return;
     }
 

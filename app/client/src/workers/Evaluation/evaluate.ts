@@ -290,8 +290,8 @@ export default function evaluateSync(
       result = indirectEval(script);
       if (result instanceof Promise) {
         /**
-         * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
-         * NOTE: Awaiting for promise will make sync field evaluation slower.
+         * If a promise is returned in data field then show the error to help understand data field doesn't await to resolve promise.
+         * NOTE: Awaiting for promise will make data field evaluation slower.
          */
         throw new FoundPromiseInSyncEvalError();
       }

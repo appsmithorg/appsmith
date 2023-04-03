@@ -415,7 +415,7 @@ export function getRefinedW117Error(
   if (undefinedVar === "await") {
     return "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?";
   }
-  // Handle case where platform functions are used in sync fields
+  // Handle case where platform functions are used in data fields
   if (APPSMITH_GLOBAL_FUNCTIONS.hasOwnProperty(undefinedVar)) {
     return asyncActionInSyncFieldLintMessage(isJsObject);
   }
@@ -478,7 +478,7 @@ export function lintJSObjectProperty(
   );
   lintErrors = lintErrors.concat(jsPropertyLintErrors);
 
-  // if function is async, and bound to a sync field, then add custom lint error
+  // if function is async, and bound to a data field, then add custom lint error
   if (isAsyncJSFunctionBoundToSyncField) {
     lintErrors.push(
       generateAsyncFunctionBoundToDataFieldCustomError(

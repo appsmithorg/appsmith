@@ -124,7 +124,7 @@ describe("Test error modifier", () => {
     errorModifier.updateAsyncFunctions(dataTree);
   });
 
-  it("TypeError for defined Api in sync field ", () => {
+  it("TypeError for defined Api in data field ", () => {
     const error = new Error();
     error.name = "TypeError";
     error.message = "Api2.run is not a function";
@@ -132,11 +132,11 @@ describe("Test error modifier", () => {
     expect(result).toEqual({
       name: "ValidationError",
       message:
-        "Found a reference to Api2.run() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
+        "Found a reference to Api2.run() during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to Api2.run() and try again.",
     });
   });
 
-  it("TypeError for undefined Api in sync field ", () => {
+  it("TypeError for undefined Api in data field ", () => {
     const error = new Error();
     error.name = "TypeError";
     error.message = "Api1.run is not a function";
@@ -147,7 +147,7 @@ describe("Test error modifier", () => {
     });
   });
 
-  it("ReferenceError for platform function in sync field", () => {
+  it("ReferenceError for platform function in data field", () => {
     const error = new Error();
     error.name = "ReferenceError";
     error.message = "storeValue is not defined";
@@ -155,11 +155,11 @@ describe("Test error modifier", () => {
     expect(result).toEqual({
       name: "ValidationError",
       message:
-        "Found a reference to storeValue() during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
+        "Found a reference to storeValue() during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to storeValue() and try again.",
     });
   });
 
-  it("ReferenceError for undefined function in sync field", () => {
+  it("ReferenceError for undefined function in data field", () => {
     const error = new Error();
     error.name = "ReferenceError";
     error.message = "storeValue2 is not defined";
