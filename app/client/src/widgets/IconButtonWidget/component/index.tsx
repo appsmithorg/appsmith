@@ -275,8 +275,11 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       hasOnClickAction={hasOnClickAction}
-      onClick={() => {
+      onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (isDisabled) return;
+        if (hasOnClickAction) {
+          e.stopPropagation();
+        }
         onClick();
       }}
       renderMode={renderMode}
