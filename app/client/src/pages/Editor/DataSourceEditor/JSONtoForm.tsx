@@ -55,6 +55,12 @@ export const FormContainerBody = styled.div`
   .t--section-general {
     padding: 0 20px;
   }
+  .api-datasource-content-container {
+    flex-direction: column;
+  }
+  form {
+    height: 100%;
+  }
 `;
 
 export const FormTitleContainer = styled.div`
