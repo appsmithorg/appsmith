@@ -55,7 +55,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.initialMetaState = fromPairs(
-        Object.values(metaProperties).map((key, value) => {
+        Object.entries(metaProperties).map((key, value) => {
           return [key, this.props[value]];
         }),
       );
