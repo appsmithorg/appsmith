@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class PluginUtilsImpl extends PluginUtilsCEImpl implements PluginUtils {
 
-    public PluginUtilsImpl(ConfigService configService, PluginService pluginService, CloudServicesConfig cloudServicesConfig) {
+    public PluginUtilsImpl(ConfigService configService,
+                           PluginService pluginService,
+                           CloudServicesConfig cloudServicesConfig) {
+
         super(configService, pluginService, cloudServicesConfig);
     }
 
