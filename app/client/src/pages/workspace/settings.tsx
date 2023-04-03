@@ -121,8 +121,8 @@ export default function Settings() {
 
   useEffect(() => {
     if (
-      !(hasManageWorkspacePermissions && isMemberofTheWorkspace) &&
-      currentTab === TABS.MEMBERS
+      (!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+      (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)
     ) {
       history.replace(APPLICATIONS_URL);
     }
