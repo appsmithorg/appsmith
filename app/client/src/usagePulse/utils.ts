@@ -5,7 +5,7 @@ import nanoid from "nanoid";
 import { getAppMode } from "selectors/entitiesSelector";
 import store from "store";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { FALLBACK_KEY } from "./constants";
+import { FALLBACK_KEY } from "@appsmith/constants/UsagePulse";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {
