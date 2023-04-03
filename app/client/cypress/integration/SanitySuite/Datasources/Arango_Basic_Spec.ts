@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 let dsName: any,
   collectionName = "countries_places_to_visit";
