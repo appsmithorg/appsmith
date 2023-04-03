@@ -201,6 +201,13 @@ describe("Validate Firestore DS", () => {
       directInput: false,
       inputFieldName: "Collection Name",
     });
+
+    _.agHelper.EnterValue('["population"]', {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Order By",
+    });
+
     _.dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
