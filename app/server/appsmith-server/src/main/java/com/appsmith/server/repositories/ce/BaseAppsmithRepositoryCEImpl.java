@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUser;
@@ -531,13 +532,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return Mono.just(obj);
     }
 
+    // This method is deprecated because we're going to remove GitSyncId from the BranchAwareDomain object.
+    // It'll be removed in any of the next few releases.
     @Deprecated
     public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
         return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
     }
 
+    // This method is deprecated because we're going to remove GitSyncId from the BranchAwareDomain object.
+    // It'll be removed in any of the next few releases.
+    @Deprecated
     public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);

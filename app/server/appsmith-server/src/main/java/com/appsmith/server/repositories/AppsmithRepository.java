@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Sort;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,8 +31,26 @@ public interface AppsmithRepository<T> {
 
     Mono<T> setUserPermissionsInObject(T obj);
 
+    /**
+     * This method is deprecated because we're going to remove GitSyncId from the BranchAwareDomain object.
+     * It'll be removed in any of the next few releases.
+     * @param defaultApplicationId
+     * @param gitSyncId
+     * @param permission
+     * @return
+     */
+    @Deprecated
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
 
+    /**
+     * This method is deprecated because we're going to remove GitSyncId from the BranchAwareDomain object.
+     * It'll be removed in any of the next few releases.
+     * @param defaultApplicationId
+     * @param gitSyncId
+     * @param permission
+     * @return
+     */
+    @Deprecated
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
     Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username);
