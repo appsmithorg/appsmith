@@ -22,7 +22,7 @@ import type {
   WidgetConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
-import type { EvaluationVersion } from "ce/api/ApplicationApi";
+import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
