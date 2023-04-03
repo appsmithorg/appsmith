@@ -160,7 +160,7 @@ export default {
           value: StickyType.NONE,
         },
         {
-          startIcon: "arrow-left-s-right",
+          startIcon: "arrow-right-s-line",
           value: StickyType.RIGHT,
         },
       ],
