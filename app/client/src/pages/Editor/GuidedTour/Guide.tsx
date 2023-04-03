@@ -3,7 +3,8 @@ import {
   showInfoMessage,
   toggleLoader,
 } from "actions/onboardingActions";
-import { Button, getTypographyByKey, Icon, IconSize } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -106,10 +107,6 @@ const ContentWrapper = styled.div`
 `;
 
 const GuideButton = styled(Button)<{ isVisible?: boolean }>`
-  padding: ${(props) => props.theme.spaces[0]}px
-    ${(props) => props.theme.spaces[6]}px;
-  height: 38px;
-  ${getTypographyByKey("btnMedium")};
   visibility: ${({ isVisible = true }) => (isVisible ? "visible" : "hidden")};
 `;
 
@@ -260,9 +257,9 @@ function InitialContent() {
           isLoading={isLoading}
           isVisible={!queryAction?.isLoading && !!queryAction?.data}
           onClick={setupFirstStep}
-          tag="button"
-          text={createMessage(BUTTON_TEXT)}
-        />
+        >
+          {createMessage(BUTTON_TEXT)}
+        </GuideButton>
       </ContentWrapper>
       <Hint>
         <span className="hint-text">
@@ -332,9 +329,9 @@ function GuideStepsContent(props: {
               <GuideButton
                 className="t--hint-button"
                 onClick={hintButtonOnClick}
-                tag="button"
-                text={createMessage(PROCEED)}
-              />
+              >
+                {createMessage(PROCEED)}
+              </GuideButton>
             )}
           </HintTextWrapper>
           {isArray(hintSteps) &&
@@ -346,9 +343,11 @@ function GuideStepsContent(props: {
               return (
                 <div className={className} key={step?.toString()}>
                   <Icon
-                    fillColor={completed ? "#03B365" : "#716E6E"}
+                    color={
+                      completed ? "var(--ads-v2-color-fg-success)" : "inherit"
+                    }
                     name={completed ? "oval-check-fill" : "oval-check"}
-                    size={IconSize.XXL}
+                    size="md"
                   />
                   <span className="hint-steps-text">{hintSteps[index]}</span>
                 </div>
@@ -426,9 +425,9 @@ function CompletionContent(props: CompletionContentProps) {
               className="t--success-button"
               isVisible={showSuccessButton}
               onClick={onSuccessButtonClick}
-              tag="button"
-              text={success?.buttonText ?? createMessage(CONTINUE)}
-            />
+            >
+              {success?.buttonText ?? createMessage(CONTINUE)}
+            </GuideButton>
           </div>
         </div>
       </SuccessMessageWrapper>
@@ -437,15 +436,15 @@ function CompletionContent(props: CompletionContentProps) {
     return (
       <SuccessMessageWrapper>
         <div className="wrapper info-wrapper">
-          <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXXXL} />
-
-          <Description className="info">{info?.text}</Description>
-          <GuideButton
-            className="t--info-button"
-            onClick={onInfoButtonClick}
-            tag="button"
-            text={info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
+          <Icon
+            color="var(--ads-v2-color-fg-information)"
+            name={info?.icon}
+            size="lg"
           />
+          <Description className="info">{info?.text}</Description>
+          <GuideButton className="t--info-button" onClick={onInfoButtonClick}>
+            {info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
+          </GuideButton>
         </div>
       </SuccessMessageWrapper>
     );

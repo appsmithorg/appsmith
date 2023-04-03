@@ -3,9 +3,7 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
-import { Colors } from "constants/Colors";
-import type { IconName } from "design-system-old";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
 import type {
   AppLayoutConfig,
   SupportedLayouts,
@@ -14,11 +12,12 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
+import { Icon } from "design-system";
 
 interface AppsmithLayoutConfigOption {
   name: string;
   type: SupportedLayouts;
-  icon?: IconName;
+  icon?: string;
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {
@@ -127,6 +126,7 @@ export function MainContainerLayoutControl() {
                 index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
               }
             >
+              {/* TODO (tanvi): Is this a toggle button? */}
               <button
                 className={classNames({
                   "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200":
@@ -142,11 +142,7 @@ export function MainContainerLayoutControl() {
                 ref={(input) => buttonRefs.push(input)}
                 tabIndex={index === focusedIndex ? 0 : -1}
               >
-                <Icon
-                  fillColor={Colors.BLACK}
-                  name={layoutOption.icon}
-                  size={layoutOption.iconSize || IconSize.MEDIUM}
-                />
+                <Icon name={layoutOption.icon} size="md" />
               </button>
             </TooltipComponent>
           );

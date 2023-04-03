@@ -2,7 +2,8 @@ import {
   createMessage,
   TEMPLATES_BACK_BUTTON,
 } from "@appsmith/constants/messages";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
+import { Text, TextType } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 
@@ -13,13 +14,6 @@ const BackButtonWrapper = styled.div<{ width?: number; hidden?: boolean }>`
   gap: ${(props) => props.theme.spaces[2]}px;
   ${(props) => props.width && `width: ${props.width};`}
   ${(props) => props.hidden && "visibility: hidden;"}
-`;
-
-const CloseIcon = styled(Icon)`
-  svg {
-    height: 24px;
-    width: 24px;
-  }
 `;
 
 const HeaderWrapper = styled.div`
@@ -42,10 +36,16 @@ function TemplateModalHeader(props: TemplateModalHeaderProps) {
         hidden={props.hideBackButton}
         onClick={props.onBackPress}
       >
-        <Icon name="view-less" size={IconSize.XL} />
+        <Icon name="view-less" size="md" />
         <Text type={TextType.P4}>{createMessage(TEMPLATES_BACK_BUTTON)}</Text>
       </BackButtonWrapper>
-      <CloseIcon name="close-x" onClick={props.onClose} />
+      <Button
+        isIconButton
+        kind="tertiary"
+        onClick={props.onClose}
+        size="sm"
+        startIcon="close-x"
+      />
     </HeaderWrapper>
   );
 }

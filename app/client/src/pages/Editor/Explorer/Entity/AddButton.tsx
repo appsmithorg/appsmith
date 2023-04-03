@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import { ControlIcons } from "icons/ControlIcons";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import { Colors } from "constants/Colors";
+import { Icon } from "design-system";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&& {
@@ -25,8 +25,6 @@ const Wrapper = styled(EntityTogglesWrapper)`
   }
 `;
 
-const PlusIcon = ControlIcons.INCREASE_CONTROL_V2;
-
 export const EntityAddButton = (props: {
   onClick?: () => void;
   className?: string;
@@ -39,7 +37,7 @@ export const EntityAddButton = (props: {
   else {
     return (
       <Wrapper className={props.className} onClick={handleClick}>
-        <PlusIcon height={16} width={16} />
+        <Icon name="increase-control-v2" size="md" />
       </Wrapper>
     );
   }

@@ -1,26 +1,11 @@
 import React from "react";
 import { createMessage } from "@appsmith/constants/messages";
-import { Button, Category } from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
 
 const StyledButton = styled(Button)`
-  height: 24px;
   display: inline-block;
   margin-right: 16px;
-`;
-
-const StyledSaveButton = styled(StyledButton)`
-  width: 128px;
-  height: 38px;
-
-  & .cs-spinner {
-    top: 11px;
-  }
-`;
-
-const StyledClearButton = styled(StyledButton)`
-  width: 68px;
-  height: 38px;
 `;
 
 const SettingsButtonWrapper = styled.div`
@@ -52,23 +37,22 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
 
   return (
     <SettingsButtonWrapper>
-      <StyledSaveButton
-        category={Category.primary}
+      <StyledButton
         className="t--admin-settings-save-button"
-        disabled={Object.keys(settings).length == 0 || !valid}
+        isDisabled={Object.keys(settings).length == 0 || !valid}
         isLoading={isSaving}
         onClick={onSave}
-        tag="button"
-        text={createMessage(() => "Save & Restart")}
-      />
-      <StyledClearButton
-        category={Category.secondary}
+      >
+        {createMessage(() => "Save & Restart")}
+      </StyledButton>
+      <StyledButton
         className="t--admin-settings-reset-button"
-        disabled={Object.keys(settings).length == 0}
+        isDisabled={Object.keys(settings).length == 0}
+        kind="secondary"
         onClick={onClear}
-        tag="button"
-        text={createMessage(() => "Reset")}
-      />
+      >
+        {createMessage(() => "Reset")}
+      </StyledButton>
     </SettingsButtonWrapper>
   );
 };

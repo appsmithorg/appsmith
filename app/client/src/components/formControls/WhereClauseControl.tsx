@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Icon, IconSize } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import type { ControlProps } from "./BaseControl";
@@ -11,6 +10,7 @@ import { WhereClauseSubComponent } from "./utils";
 import { TooltipComponent as Tooltip } from "design-system-old";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Colors } from "constants/Colors";
+import { Button } from "design-system";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -75,17 +75,13 @@ const LogicalFieldValue: any = styled.p<{
 `;
 
 // Component for the delete Icon
-const CenteredIcon = styled(Icon)<{
+const CenteredIconButton = styled(Button)<{
   alignSelf?: string;
   top?: string;
 }>`
   position: relative;
   align-self: ${(props) => (props.alignSelf ? props.alignSelf : "center")};
   top: ${(props) => (props.top ? props.top : "0px")};
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
 `;
 
 // We are setting a background color for the last two nested levels
@@ -177,7 +173,7 @@ const ConditionBox = styled.div<{ size?: string }>`
       grid-column-start: 1;
     }
     // The fourth element i.e the close button will be placed in the second row
-    // to have it center aligned 
+    // to have it center aligned
     & :nth-child(4) {
       grid-column-start: 2;
       grid-row-start: 2;
@@ -208,24 +204,9 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
 `;
 
 // The final button to add more filters/ filter groups
-const AddMoreAction = styled.div<{ isDisabled?: boolean; size?: string }>`
-  cursor: pointer;
+const AddMoreAction = styled(Button)`
   display: flex;
   align-items: center;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 14px;
-  letter-spacing: 0.6px;
-  color: ${(props) =>
-    props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
-
-  // Hide the "ADD GROUP CONDITION" text when in small space and is disabled
-  ${(props) =>
-    props.size === "small" &&
-    props.isDisabled &&
-    `
-    display: none;
-  `}
 `;
 
 const GroupConditionBox = styled.div<{ size: string }>`
@@ -317,15 +298,16 @@ function ConditionComponent(props: any, index: number) {
         formName={props.formName}
       />
       {/* Component to render the delete icon */}
-      <CenteredIcon
-        cypressSelector={`t--where-clause-delete-[${index}]`}
-        name="cross"
+      <CenteredIconButton
+        data-cy={`t--where-clause-delete-[${index}]`}
+        isIconButton
+        kind="tertiary"
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.SMALL}
-        top="-1px"
+        size="sm"
+        startIcon="cross"
       />
     </ConditionBox>
   );
@@ -431,15 +413,15 @@ function ConditionBlock(props: any) {
                     }}
                     rerenderOnEveryChange={false}
                   />
-                  <CenteredIcon
+                  <CenteredIconButton
                     alignSelf={"start"}
-                    cypressSelector={`t--where-clause-delete-[${index}]`}
-                    name="cross"
+                    data-cy={`t--where-clause-delete-[${index}]`}
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onDeletePressed(index);
                     }}
-                    size={IconSize.SMALL}
+                    size="sm"
+                    startIcon="cross"
                     top={"24px"}
                   />
                 </GroupConditionBox>
@@ -463,6 +445,7 @@ function ConditionBlock(props: any) {
       <ActionBox marginLeft={`${DropdownWidth + Margin}px`} size={size}>
         <AddMoreAction
           className={`t--where-add-condition[${props?.currentNestingLevel}]`}
+          kind="tertiary"
           onClick={
             () =>
               props.fields.push({
@@ -470,10 +453,10 @@ function ConditionBlock(props: any) {
                 condition: props.comparisonTypes[0].value,
                 value: "",
               })
-            // Add empty and key and value as it will required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
+            // Add empty and key and value as it will be required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
           }
+          startIcon="add-more-fill"
         >
-          <Icon name="add-more-fill" size={IconSize.XL} />
           <span style={{ marginLeft: "8px" }}>Add Condition</span>
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
@@ -490,6 +473,7 @@ function ConditionBlock(props: any) {
           <AddMoreAction
             className={`t--where-add-group-condition[${props?.currentNestingLevel}]`}
             isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
+            kind="tertiary"
             onClick={() => {
               if (props.currentNestingLevel < props.nestedLevels) {
                 props.fields.push({
@@ -503,8 +487,8 @@ function ConditionBlock(props: any) {
               }
             }}
             size={size}
+            startIcon="add-more-fill"
           >
-            <Icon name="add-more-fill" size={IconSize.XL} />
             <span style={{ marginLeft: "8px" }}>Add Group Condition</span>
           </AddMoreAction>
         </StyledTooltip>

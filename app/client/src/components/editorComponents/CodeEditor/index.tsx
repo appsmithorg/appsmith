@@ -68,7 +68,8 @@ import {
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button, ScrollIndicator } from "design-system-old";
+import { ScrollIndicator } from "design-system-old";
+import { Button } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -1259,9 +1260,9 @@ class CodeEditor extends Component<Props, State> {
               this.updatePropertyValue(newValue, newValue.length);
             }}
             tabIndex={-1}
-            tag="button"
-            text="/"
-          />
+          >
+            /
+          </Button>
         )}
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}

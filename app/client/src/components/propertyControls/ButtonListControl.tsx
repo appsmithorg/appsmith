@@ -2,13 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Category, Size } from "design-system-old";
+import { Button } from "design-system";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
@@ -24,11 +23,6 @@ const ButtonListWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const AddNewButton = styled(StyledPropertyPaneButton)`
-  justify-content: center;
-  flex-grow: 1;
 `;
 
 type State = {
@@ -115,15 +109,14 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
-          <AddNewButton
-            category={Category.secondary}
-            icon="plus"
+          <Button
+            kind="secondary"
             onClick={this.addOption}
-            size={Size.medium}
-            tag="button"
-            text="Add new Button"
-            type="button"
-          />
+            size="md"
+            startIcon="plus"
+          >
+            Add new Button
+          </Button>
         </StyledPropertyPaneButtonWrapper>
       </ButtonListWrapper>
     );

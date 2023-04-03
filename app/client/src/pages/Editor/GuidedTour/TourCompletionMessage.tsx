@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import {
-  Button,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Size,
-} from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon } from "design-system";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
@@ -25,7 +20,6 @@ import {
   RATING_TEXT,
   RATING_TITLE,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -131,17 +125,16 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={Colors.GREY_7}
                   name="star-line"
-                  size={IconSize.XXXXL}
+                  size="lg"
                 />
               }
               fullSymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#FFCB45"}
+                  color={"var(--ads-v2-color-fg-warning)"}
                   name="star-fill"
-                  size={IconSize.XXXXL}
+                  size="lg"
                 />
               }
               onChange={onValueChanged}
@@ -158,14 +151,9 @@ function CongratulationsView() {
             <Title>{createMessage(END_TITLE)}</Title>
             <Description>{createMessage(END_DESCRIPTION)}</Description>
           </div>
-          <Button
-            className="t--start-building"
-            height="38"
-            onClick={hideMessage}
-            size={Size.large}
-            tag="button"
-            text={createMessage(END_BUTTON_TEXT)}
-          />
+          <Button className="t--start-building" onClick={hideMessage}>
+            {createMessage(END_BUTTON_TEXT)}
+          </Button>
         </Wrapper>
       </Container>
     );

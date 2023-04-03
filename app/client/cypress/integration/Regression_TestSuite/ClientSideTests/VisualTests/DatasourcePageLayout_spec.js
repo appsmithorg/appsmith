@@ -1,5 +1,3 @@
-import homePage from "../../../../locators/HomePage";
-import explorer from "../../../../locators/explorerlocators.json";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const postgres = "PostgreSQL";
 const mongo = "MongoDB";

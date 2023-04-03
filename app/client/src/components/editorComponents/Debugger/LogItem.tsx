@@ -1,21 +1,16 @@
 import { Collapse } from "@blueprintjs/core";
-import { get } from "lodash";
 import { isString } from "lodash";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import type { PropsWithChildren } from "react";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import type { IconName } from "design-system-old";
 import {
-  AppIcon,
   Classes,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TooltipComponent,
@@ -26,7 +21,7 @@ import {
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
-import type { Theme } from "constants/DefaultTheme";
+import { Button, Icon } from "design-system";
 import moment from "moment";
 
 const InnerWrapper = styled.div`
@@ -157,15 +152,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const StyledSearchIcon = styled(AppIcon)`
-  height: 14px;
-  width: 14px;
-  svg {
-    height: 14px;
-    width: 14px;
-  }
-`;
-
 const ContextWrapper = styled.div`
   height: 14px;
   display: flex;
@@ -185,6 +171,10 @@ const JsonWrapper = styled.div`
 type StyledCollapseProps = PropsWithChildren<{
   category: LOG_CATEGORY;
 }>;
+
+const StyledButton = styled(Button)<{ isVisible: boolean }>`
+  visibility: ${(props) => (props.isVisible ? "visible" : "hidden")};
+`;
 
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   margin-top: ${(props) =>
@@ -224,7 +214,7 @@ const showToggleIcon = (e: Log) => {
 
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: getLogIcon(e) as IconName,
+    icon: getLogIcon(e) as string,
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -243,7 +233,7 @@ export const getLogItemProps = (e: Log) => {
 
 type LogItemProps = {
   collapsable?: boolean;
-  icon: IconName;
+  icon: string;
   timestamp: string;
   label: string;
   timeTaken: string;
@@ -279,7 +269,6 @@ function LogItem(props: LogItemProps) {
 
   const messages = props.messages || [];
   const { collapsable } = props;
-  const theme = useTheme() as Theme;
   return (
     <Wrapper
       className={props.severity}
@@ -289,15 +278,12 @@ function LogItem(props: LogItemProps) {
       }}
     >
       <InnerWrapper>
-        <Icon
-          clickable={collapsable}
-          fillColor={
-            props.severity === Severity.ERROR
-              ? get(theme, "colors.debugger.error.hoverIconColor")
-              : ""
-          }
-          name={props.icon}
-          size={IconSize.XL}
+        <Button
+          isDisabled={collapsable}
+          isIconButton
+          kind={props.severity === Severity.ERROR ? "error" : "tertiary"}
+          size="md"
+          startIcon={props.icon}
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.severity === Severity.ERROR
@@ -305,14 +291,15 @@ function LogItem(props: LogItemProps) {
             : props.timestamp}
         </span>
 
-        <Icon
+        <StyledButton
           className={`${Classes.ICON} debugger-toggle`}
-          clickable={collapsable}
-          fillColor={get(theme, "colors.debugger.jsonIcon")}
-          invisible={!collapsable}
+          isDisabled={collapsable}
+          isIconButton
+          isVisible={!collapsable}
+          kind="tertiary"
           name={"expand-more"}
           onClick={() => setIsOpen(!isOpen)}
-          size={IconSize.XL}
+          size="md"
         />
         {!(
           props.collapsable &&
@@ -355,10 +342,10 @@ function LogItem(props: LogItemProps) {
                       minimal
                       position="bottom-left"
                     >
-                      <StyledSearchIcon
+                      <Icon
                         className={`${Classes.ICON}`}
                         name={"help"}
-                        size={IconSize.SMALL}
+                        size="sm"
                       />
                     </TooltipComponent>
                   </ContextualMenu>

@@ -12,22 +12,17 @@ import { useDispatch, useSelector } from "react-redux";
 import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
-  Button,
-  Category,
   DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Size,
   Toaster,
   Text,
   TextType,
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 
-import styled, { useTheme } from "styled-components";
-import { get } from "lodash";
+import styled from "styled-components";
 import { Title } from "./components/StyledComponents";
 import {
   createMessage,
@@ -67,7 +62,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
-import type { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 765px;
@@ -210,13 +204,11 @@ const Message = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const CloseBtnContainer = styled.div`
+const CloseButton = styled(Button)`
   position: absolute;
   right: ${(props) => props.theme.spaces[1]}px;
   top: ${(props) => -props.theme.spaces[4]}px;
-
   padding: ${(props) => props.theme.spaces[1]}px;
-  border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
 const SkipToAppButtonWrapper = styled.div`
@@ -280,7 +272,6 @@ function SuccessMessages() {
 }
 
 function ReconnectDatasourceModal() {
-  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);
@@ -600,30 +591,29 @@ function ReconnectDatasourceModal() {
             position="bottom-right"
           >
             <Button
-              category={Category.secondary}
               className="t--skip-to-application-btn"
               href={appURL}
+              kind="secondary"
               onClick={() => {
                 AnalyticsUtil.logEvent(
                   "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                 );
                 localStorage.setItem("importedAppPendingInfo", "null");
               }}
-              size={Size.medium}
-              text={createMessage(SKIP_TO_APPLICATION)}
-            />
+              renderAs="a"
+            >
+              {createMessage(SKIP_TO_APPLICATION)}
+            </Button>
           </TooltipComponent>
         </SkipToAppButtonWrapper>
-        <CloseBtnContainer
+        <CloseButton
           className="t--reconnect-close-btn"
+          isIconButton
+          kind="tertiary"
           onClick={handleClose}
-        >
-          <Icon
-            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-            name="close-modal"
-            size={IconSize.XXXXL}
-          />
-        </CloseBtnContainer>
+          size="sm"
+          startIcon="close-modal"
+        />
       </Container>
     </Dialog>
   );

@@ -24,15 +24,13 @@ import {
   EntityIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import type { AppState } from "@appsmith/reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-
-const DocumentIcon = HelpIcons.DOCUMENT;
+import { Icon } from "design-system";
 
 const overflowCSS = css`
   overflow: hidden;
@@ -122,14 +120,7 @@ const ItemTitle = styled.div`
   }
 `;
 
-const StyledDocumentIcon = styled(DocumentIcon)<{ isActiveItem: boolean }>`
-  && svg {
-    width: 14px;
-    height: 14px;
-    path {
-      fill: #716e6e !important;
-    }
-  }
+const StyledDocumentIcon = styled(Icon)`
   display: flex;
 `;
 
@@ -143,7 +134,7 @@ const TextWrapper = styled.div`
 function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
   return (
     <>
-      <StyledDocumentIcon isActiveItem={props.isActiveItem} />
+      <StyledDocumentIcon name="file-text-fill" />
       <ItemTitle>
         <span>
           <AlgoliaHighlight attribute="title" hit={props.item} />

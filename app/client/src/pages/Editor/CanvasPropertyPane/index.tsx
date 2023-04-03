@@ -4,7 +4,8 @@ import React from "react";
 import { useDispatch } from "react-redux";
 
 import { PopoverPosition } from "@blueprintjs/core";
-import { Button, Category, Size, TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "design-system-old";
+import { Button } from "design-system";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppPositionTypeControl } from "../AppPositionTypeControl";
@@ -32,13 +33,13 @@ export function CanvasPropertyPane() {
             position={PopoverPosition.BOTTOM}
           >
             <Button
-              category={Category.secondary}
-              fill
-              id="t--app-settings-cta"
+              className="t--app-settings-cta"
+              kind="secondary"
               onClick={openAppSettingsPane}
-              size={Size.medium}
-              text="App Settings"
-            />
+              size="md"
+            >
+              App Settings
+            </Button>
           </TooltipComponent>
         </div>
       </div>

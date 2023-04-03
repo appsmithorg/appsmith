@@ -6,10 +6,10 @@ import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import { Colors } from "constants/Colors";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
-import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { Icon } from "design-system";
 
 const Container = styled.div`
   width: 100%;
@@ -30,12 +30,7 @@ export default function BottomBar(props: { className?: string }) {
       <QuickGitActions />
       <div className="flex justify-between items-center gap-1">
         <ManualUpgrades showTooltip>
-          <Icon
-            className="t--upgrade"
-            fillColor={Colors.SCORPION}
-            name="upgrade"
-            size={IconSize.XXXL}
-          />
+          <Icon className="t--upgrade" name="upgrade" size="lg" />
         </ManualUpgrades>
         <HelpButton />
         <DebuggerTrigger />

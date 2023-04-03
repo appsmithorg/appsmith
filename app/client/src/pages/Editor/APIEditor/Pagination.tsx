@@ -5,14 +5,8 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import {
-  Button,
-  Category,
-  Classes,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes, Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import {
   CodeEditorBorder,
   EditorTheme,
@@ -198,17 +192,15 @@ export default function Pagination(props: PaginationProps) {
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.secondary}
                     className="t--apiFormPaginationPrevTest"
-                    height="auto"
+                    kind="secondary"
                     onClick={() => {
                       props.onTestClick("PREV");
                     }}
-                    size={Size.medium}
-                    tag="button"
-                    text={"Test"}
-                    type="button"
-                  />
+                    size="md"
+                  >
+                    Test
+                  </Button>
                 </PaginationFieldWrapper>
                 <Step type={TextType.P1}>Next url</Step>
                 <PaginationFieldWrapper
@@ -225,17 +217,15 @@ export default function Pagination(props: PaginationProps) {
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.secondary}
                     className="t--apiFormPaginationNextTest"
-                    height="auto"
+                    kind="secondary"
                     onClick={() => {
                       props.onTestClick("NEXT");
                     }}
-                    size={Size.medium}
-                    tag="button"
-                    text={"Test"}
-                    type="button"
-                  />
+                    size="md"
+                  >
+                    Test
+                  </Button>
                 </PaginationFieldWrapper>
               </div>
               <GifContainer>

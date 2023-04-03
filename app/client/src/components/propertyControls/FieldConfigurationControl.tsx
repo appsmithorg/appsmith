@@ -12,10 +12,9 @@ import SchemaParser, {
 } from "widgets/JSONFormWidget/schemaParser";
 import type { Schema } from "widgets/JSONFormWidget/constants";
 import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
-import { Category, Size } from "design-system-old";
+import { Button } from "design-system";
 import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
@@ -34,16 +33,6 @@ const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const AddFieldButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
 `;
 
 const DEFAULT_FIELD_NAME = "customField";
@@ -199,16 +188,15 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     const schemaItems = Object.values(schema);
 
     const addNewFieldButton = (
-      <AddFieldButton
-        category={Category.secondary}
+      <Button
         className="t--add-column-btn"
-        icon="plus"
+        kind="secondary"
         onClick={this.addNewField}
-        size={Size.medium}
-        tag="button"
-        text="Add a new field"
-        type="button"
-      />
+        size="md"
+        startIcon="plus"
+      >
+        Add a new field
+      </Button>
     );
 
     if (isEmpty(schema)) {

@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
-import { Button, Category, getTypographyByKey, Size } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
+import { Button } from "design-system";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -83,21 +84,12 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   return (
     <StyledDiv className="t--propertypane-connect-cta">
       Data Required
-      <Button
-        category={Category.primary}
-        onClick={onClick}
-        size={Size.large}
-        tabIndex={0}
-        tag="button"
-        text="CONNECT DATA"
-      />
-      <Button
-        category={Category.secondary}
-        onClick={openHelpModal}
-        tabIndex={0}
-        tag="button"
-        text="Learn more"
-      />
+      <Button onClick={onClick} size="md" tabIndex={0}>
+        Connect Data
+      </Button>
+      <Button kind="secondary" onClick={openHelpModal} tabIndex={0}>
+        Learn more
+      </Button>
     </StyledDiv>
   );
 }

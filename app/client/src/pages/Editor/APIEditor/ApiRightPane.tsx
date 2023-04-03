@@ -3,8 +3,6 @@ import styled from "styled-components";
 import {
   Classes,
   FontWeight,
-  Icon,
-  IconSize,
   TabComponent,
   Text,
   TextType,
@@ -24,6 +22,7 @@ import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
+import { Button } from "design-system";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -271,8 +270,9 @@ function ApiRightPane(props: any) {
                                   <p>In use</p>
                                 </SelectedDatasourceInfoContainer>
                               )}
-                              <Icon
-                                name="edit"
+                              <Button
+                                isIconButton
+                                kind="tertiary"
                                 onClick={(e: React.MouseEvent) => {
                                   e.stopPropagation();
                                   history.push(
@@ -283,7 +283,8 @@ function ApiRightPane(props: any) {
                                     }),
                                   );
                                 }}
-                                size={IconSize.LARGE}
+                                size="sm"
+                                startIcon="edit"
                               />
                             </IconContainer>
                           </DataSourceNameContainer>

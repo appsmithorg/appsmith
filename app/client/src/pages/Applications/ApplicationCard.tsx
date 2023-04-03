@@ -24,16 +24,11 @@ import { noop, omit } from "lodash";
 import type { AppIconName, MenuItemProps } from "design-system-old";
 import {
   AppIcon,
-  Button,
-  Category,
   Classes as CsClasses,
   ColorSelector,
   EditableText,
   EditInteractionKind,
-  IconPositions,
-  Icon,
   IconSelector,
-  IconSize,
   Menu,
   MenuDivider,
   MenuItem,
@@ -45,6 +40,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
@@ -227,15 +223,6 @@ const ApplicationImage = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    & {
-      .control {
-        button {
-          span {
-            font-weight: ${(props) => props.theme.fontWeights[3]};
-          }
-        }
-      }
-    }
   }
 `;
 
@@ -318,10 +305,6 @@ type ApplicationCardProps = {
   };
   workspaceId: string;
 };
-
-const EditButton = styled(Button)`
-  margin-bottom: 0;
-`;
 
 const ContextDropdownWrapper = styled.div``;
 
@@ -421,7 +404,7 @@ function GitConnectedBadge() {
         content={createMessage(CONNECTED_TO_GIT)}
         maxWidth="400px"
       >
-        <Icon fillColor={Colors.GREY_7} name="fork" size={IconSize.XXL} />
+        <Icon name="fork" size="md" />
       </TooltipComponent>
     </StyledGitConnectedBadge>
   );
@@ -444,7 +427,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
     theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
-
   const [showOverlay, setShowOverlay] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
@@ -617,6 +599,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setMoreActionItems(moreActionItems);
     }
   };
+
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
@@ -655,12 +638,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon
-              fillColor={isMenuOpen ? "#000" : "#8a8a8a"}
-              hoverFillColor="#000"
-              name="context-menu"
-              size={IconSize.XXXL}
-            />
+            <Icon name="context-menu" size="lg" />
           </MoreOptionsContainer>
         }
       >
@@ -865,29 +843,27 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <ApplicationImage className="image-container">
                 <Control className="control">
                   {hasEditPermission && !isMenuOpen && (
-                    <EditButton
+                    <Button
                       className="t--application-edit-link"
-                      fill
                       href={editModeURL}
-                      icon={"edit"}
-                      iconPosition={IconPositions.left}
                       onClick={editApp}
-                      size={Size.medium}
-                      text="Edit"
-                    />
+                      size="md"
+                      startIcon={"edit"}
+                    >
+                      Edit
+                    </Button>
                   )}
                   {!isMenuOpen && (
                     <Button
-                      category={Category.secondary}
                       className="t--application-view-link"
-                      fill
                       href={viewModeURL}
-                      icon={"rocket"}
-                      iconPosition={IconPositions.left}
+                      kind="secondary"
                       onClick={launchApp}
-                      size={Size.medium}
-                      text="Launch"
-                    />
+                      size="md"
+                      startIcon={"rocket"}
+                    >
+                      Launch
+                    </Button>
                   )}
                 </Control>
               </ApplicationImage>

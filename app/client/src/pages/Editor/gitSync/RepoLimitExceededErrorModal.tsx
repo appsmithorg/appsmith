@@ -10,16 +10,8 @@ import {
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
 import styled, { useTheme } from "styled-components";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -35,7 +27,6 @@ import {
   REVOKE_EXISTING_REPOSITORIES,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
-import { get } from "lodash";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,
@@ -62,7 +53,7 @@ const BodyContainer = styled.div`
   height: 100%;
 `;
 
-const CloseBtnContainer = styled.div`
+const CloseButton = styled(Button)`
   position: absolute;
   right: 0;
   top: 0;
@@ -209,9 +200,9 @@ function RepoLimitExceededErrorModal() {
             }}
           >
             <Icon
-              fillColor={Colors.YELLOW_LIGHT}
+              color="var(--ads-v2-color-fg-warning)"
               name="warning-line"
-              size={IconSize.XXXL}
+              size="lg"
             />
             <div style={{ display: "block" }}>
               <Text
@@ -225,18 +216,17 @@ function RepoLimitExceededErrorModal() {
           </InfoWrapper>
           <ButtonContainer>
             <Button
-              category={Category.secondary}
               className="t--contact-sales-button"
+              kind="secondary"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
                   source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                 });
                 openIntercom();
               }}
-              size={Size.large}
-              tag="button"
-              text={createMessage(CONTACT_SUPPORT)}
-            />
+            >
+              {createMessage(CONTACT_SUPPORT)}
+            </Button>
           </ButtonContainer>
           <div style={{ marginTop: theme.spaces[15] }}>
             <Text color={Colors.BLACK} type={TextType.H1}>
@@ -250,9 +240,9 @@ function RepoLimitExceededErrorModal() {
           </div>
           <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>
             <Icon
-              fillColor={Colors.CRIMSON}
+              color="var(--ads-v2-color-fg-error)"
               name="warning-line"
-              size={IconSize.XXXL}
+              size="lg"
             />
             <div style={{ display: "block" }}>
               <Text
@@ -305,13 +295,13 @@ function RepoLimitExceededErrorModal() {
             })}
           </AppListContainer>
         </BodyContainer>
-        <CloseBtnContainer onClick={onClose}>
-          <Icon
-            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-            name="close-modal"
-            size={IconSize.XXXXL}
-          />
-        </CloseBtnContainer>
+        <CloseButton
+          isIconButton
+          kind="tertiary"
+          onClick={onClose}
+          size="sm"
+          startIcon="close-modal"
+        />
       </Container>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { Button } from "design-system";
 import styled from "styled-components";
 import {
   getMenuContainerBackgroundColor,
@@ -37,23 +38,14 @@ export const Container = styled.div<{
   }
 `;
 
-export const ScrollBtnContainer = styled.div<{
+export const ScrollBtnContainer = styled(Button)<{
   visible: boolean;
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   cursor: pointer;
   display: flex;
   position: absolute;
   height: 100%;
   padding: 0 10px;
-
-  & > span {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-    position: relative;
-    z-index: 1;
-  }
 
   ${(props) =>
     props.visible

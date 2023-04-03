@@ -8,15 +8,8 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "@appsmith/constants/messages";
-import {
-  Button,
-  Category,
-  Size,
-  Text,
-  TextType,
-  Icon,
-  IconSize,
-} from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`
@@ -24,7 +17,7 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const OpenRepoButton = styled(Button)`
+const StyledButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -45,7 +38,7 @@ export default function ConflictInfo({
   return (
     <ConflictInfoContainer data-testid="t--conflict-info-container">
       <InfoWrapper data-testid="t--conflict-info-error-warning" isError>
-        <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+        <Icon color={Colors.CRIMSON} name="info" size="lg" />
         <div style={{ display: "block" }}>
           <Text color={Colors.CRIMSON} type={TextType.P3}>
             {createMessage(GIT_CONFLICTING_INFO)}
@@ -58,16 +51,13 @@ export default function ConflictInfo({
         </div>
       </InfoWrapper>
       <Row>
-        <OpenRepoButton
-          category={Category.secondary}
+        <StyledButton
           className="t--commit-button"
           href={browserSupportedRemoteUrl}
-          size={Size.large}
-          tag="a"
-          target="_blank"
-          text={createMessage(OPEN_REPO)}
-          width="max-content"
-        />
+          kind="secondary"
+        >
+          {createMessage(OPEN_REPO)}
+        </StyledButton>
       </Row>
     </ConflictInfoContainer>
   );

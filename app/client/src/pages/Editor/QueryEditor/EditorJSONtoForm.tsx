@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import type { InjectedFormProps } from "redux-form";
-import { Icon, Tag } from "@blueprintjs/core";
+import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
 import type {
   MenuListComponentProps,
@@ -23,21 +23,16 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
 import {
-  Button,
   Callout,
-  Category,
   Classes,
-  Icon as AdsIcon,
-  IconSize,
   SearchSnippet,
-  Size,
-  Spinner,
   TabComponent,
   Text,
   TextType,
   TooltipComponent,
   Variant,
 } from "design-system-old";
+import { Button, Icon, Spinner } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -102,8 +97,6 @@ import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationR
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   responseTabComponent,
-  InlineButton,
-  CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
 } from "components/editorComponents/ApiResponseView";
@@ -367,14 +360,13 @@ const Container = styled.div`
   .selected-value {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: no-wrap;
+    white-space: nowrap;
     margin-left: 6px;
   }
 `;
 
-const StyledSpinner = styled.div`
+const StyledSpinner = styled(Spinner)`
   display: flex;
-  padding: 5px;
   height: 2vw;
   align-items: center;
   justify-content: space-between;
@@ -567,7 +559,7 @@ export function EditorJSONtoForm(props: Props) {
         <components.MenuList {...props}>{props.children}</components.MenuList>
         {canCreateDatasource ? (
           <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-            <Icon className="createIcon" icon="plus" iconSize={11} />
+            <Icon className="createIcon" name="plus" size="sm" />
             {createMessage(CREATE_NEW_DATASOURCE)}
           </CreateDatasource>
         ) : null}
@@ -631,12 +623,7 @@ export function EditorJSONtoForm(props: Props) {
             return renderEachConfigV2(formName, config, idx);
           });
         } else {
-          return (
-            <StyledSpinner>
-              <Spinner size={IconSize.LARGE} />
-              <p>Loading..</p>
-            </StyledSpinner>
-          );
+          return <StyledSpinner size="md" />;
         }
       } else {
         return editorConfig.map(renderEachConfig(formName));
@@ -817,7 +804,10 @@ export function EditorJSONtoForm(props: Props) {
         <ResponseContentWrapper>
           {error && (
             <ErrorContainer>
-              <AdsIcon keepColors name="warning-triangle" />
+              <Icon
+                color="var(--ads-v2-color-fg-warning)"
+                name="warning-triangle"
+              />
               <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
                 {createMessage(EXPECTED_ERROR)}
               </Text>
@@ -871,18 +861,17 @@ export function EditorJSONtoForm(props: Props) {
             )}
           {!output && !error && (
             <NoResponseContainer>
-              <AdsIcon name="no-response" />
+              <Icon name="no-response" />
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
-                <InlineButton
-                  disabled={!isExecutePermitted}
+                <Button
+                  isDisabled={!isExecutePermitted}
                   isLoading={isRunning}
                   onClick={responeTabOnRunClick}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
+                  size="md"
+                >
+                  Run
+                </Button>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF)}
               </Text>
             </NoResponseContainer>
@@ -1002,14 +991,13 @@ export function EditorJSONtoForm(props: Props) {
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
-              disabled={!isExecutePermitted}
+              isDisabled={!isExecutePermitted}
               isLoading={isRunning}
               onClick={onRunClick}
-              size={Size.medium}
-              tag="button"
-              text="Run"
-              type="button"
-            />
+              size="md"
+            >
+              Run
+            </Button>
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
@@ -1022,20 +1010,17 @@ export function EditorJSONtoForm(props: Props) {
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span
+                    <Button
                       className="t--datasource-documentation-link"
+                      kind="tertiary"
                       onClick={(e: React.MouseEvent) =>
                         handleDocumentationClick(e)
                       }
+                      size="sm"
+                      startIcon="book-line"
                     >
-                      <AdsIcon
-                        keepColors
-                        name="book-line"
-                        size={IconSize.XXXL}
-                      />
-                      &nbsp;
                       {createMessage(DOCUMENTATION)}
-                    </span>
+                    </Button>
                   </TooltipComponent>
                 </DocumentationLink>
               )}
@@ -1122,17 +1107,16 @@ export function EditorJSONtoForm(props: Props) {
                       <Text textAlign={"center"} type={TextType.P1}>
                         {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
                       </Text>
-                      <CancelRequestButton
-                        category={Category.secondary}
+                      <Button
                         className={`t--cancel-action-button`}
+                        kind="secondary"
                         onClick={() => {
                           handleCancelActionExecution();
                         }}
-                        size={Size.medium}
-                        tag="button"
-                        text="Cancel Request"
-                        type="button"
-                      />
+                        size="md"
+                      >
+                        Cancel Request
+                      </Button>
                     </div>
                   </LoadingOverlayContainer>
                 </>

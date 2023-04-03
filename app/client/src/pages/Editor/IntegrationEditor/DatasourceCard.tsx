@@ -15,14 +15,8 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import {
-  Button,
-  Category,
-  Icon,
-  IconSize,
-  Menu,
-  MenuItem,
-} from "design-system-old";
+import { Menu, MenuItem } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -96,18 +90,6 @@ const DatasourceIconWrapper = styled.div`
   background: ${Colors.GREY_2};
   display: flex;
   align-items: center;
-`;
-
-const GenerateTemplateOrReconnect = styled(Button)`
-  padding: 10px 10px;
-  font-size: 12px;
-
-  &&&& {
-    height: 36px;
-    max-width: 200px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
 `;
 
 const DatasourceName = styled.span`
@@ -323,24 +305,23 @@ function DatasourceCard(props: DatasourceCardProps) {
           <ButtonsWrapper className="action-wrapper">
             {(!datasource.isConfigured || supportTemplateGeneration) &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
-                <GenerateTemplateOrReconnect
-                  category={Category.secondary}
+                <Button
                   className={
                     datasource.isConfigured
                       ? "t--generate-template"
                       : "t--reconnect-btn"
                   }
+                  kind="secondary"
                   onClick={
                     datasource.isConfigured
-                      ? routeToGeneratePage
+                      ? () => routeToGeneratePage
                       : editDatasource
                   }
-                  text={
-                    datasource.isConfigured
-                      ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
-                      : createMessage(RECONNECT_BUTTON_TEXT)
-                  }
-                />
+                >
+                  {datasource.isConfigured
+                    ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
+                    : createMessage(RECONNECT_BUTTON_TEXT)}
+                </Button>
               )}
             {datasource.isConfigured && (
               <NewActionButton
@@ -365,13 +346,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   position={Position.BOTTOM_RIGHT}
                   target={
                     <MoreOptionsContainer>
-                      <Icon
-                        fillColor={
-                          datasource.isConfigured ? Colors.GREY_8 : Colors.GRAY2
-                        }
-                        name="comment-context-menu"
-                        size={IconSize.XXXL}
-                      />
+                      <Icon name="comment-context-menu" size="lg" />
                     </MoreOptionsContainer>
                   }
                 >

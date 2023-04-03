@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup as StyledFormGroup } from "design-system-old";
+import { Button } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
   WELCOME_FORM_ROLE_FIELD_NAME,
@@ -27,9 +28,6 @@ const ActionContainer = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  width: 136px;
-  height: 38px;
-  font-size: 13px;
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -49,8 +47,9 @@ export function SuperUserForm(props: UserFormProps) {
       <StyledButton
         className="t--welcome-form-get-started"
         onClick={() => props.onGetStarted && props.onGetStarted()}
-        text={createMessage(WELCOME_ACTION)}
-      />
+      >
+        {createMessage(WELCOME_ACTION)}
+      </StyledButton>
     </ActionContainer>
   );
 }
@@ -117,7 +116,7 @@ function NonSuperUser(
       <ActionContainer>
         <StyledButton
           className="t--get-started-button"
-          disabled={props.invalid}
+          isDisabled={props.invalid}
           onClick={() =>
             !props.invalid && // temp fix - design system needs to be fixed for disabling click
             props.onGetStarted &&
@@ -126,8 +125,9 @@ function NonSuperUser(
               props.useCase,
             )
           }
-          text={createMessage(WELCOME_ACTION)}
-        />
+        >
+          {createMessage(WELCOME_ACTION)}
+        </StyledButton>
       </ActionContainer>
     </StyledNonSuperUserForm>
   );

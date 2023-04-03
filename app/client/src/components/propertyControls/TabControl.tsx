@@ -1,7 +1,6 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import type {
   BaseItemProps,
@@ -13,11 +12,11 @@ import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
 import * as Sentry from "@sentry/react";
-import { Category, Size } from "design-system-old";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import { Button } from "design-system";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -50,16 +49,15 @@ function AddTabButtonComponent({ widgetId }: any) {
   };
   return (
     <StyledPropertyPaneButtonWrapper>
-      <StyledPropertyPaneButton
-        category={Category.secondary}
+      <Button
         className="t--add-tab-btn"
-        icon="plus"
+        kind="secondary"
         onClick={addOption}
-        size={Size.medium}
-        tag="button"
-        text="Add a Tab"
-        type="button"
-      />
+        size="md"
+        startIcon="plus"
+      >
+        Add a Tab
+      </Button>
     </StyledPropertyPaneButtonWrapper>
   );
 }

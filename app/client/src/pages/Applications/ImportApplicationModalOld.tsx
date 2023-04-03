@@ -1,25 +1,13 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import type { SetProgress } from "design-system-old";
-import {
-  Button,
-  FilePickerV2,
-  FileType,
-  Size,
-  Toaster,
-  Variant,
-} from "design-system-old";
+import { FilePickerV2, FileType, Toaster, Variant } from "design-system-old";
+import { Button } from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
 import { useDispatch, useSelector } from "react-redux";
 import { importApplication } from "@appsmith/actions/applicationActions";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
 import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
-
-const ImportButton = styled(Button)<{ disabled?: boolean }>`
-  height: 30px;
-  width: 81px;
-  pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
-`;
 
 const ButtonWrapper = styled.div`
   display: flex;
@@ -103,15 +91,15 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         />
       </FilePickerWrapper>
       <ButtonWrapper>
-        <ImportButton
-          // category={ButtonCategory.secondary}
-          cypressSelector={"t--workspace-import-app-button"}
-          disabled={!appFileToBeUploaded}
+        <Button
+          className={"t--workspace-import-app-button"}
+          isDisabled={!appFileToBeUploaded}
           isLoading={importingApplication}
           onClick={onImportApplication}
-          size={Size.large}
-          text={"IMPORT"}
-        />
+          size="md"
+        >
+          IMPORT
+        </Button>
       </ButtonWrapper>
     </StyledDialog>
   );

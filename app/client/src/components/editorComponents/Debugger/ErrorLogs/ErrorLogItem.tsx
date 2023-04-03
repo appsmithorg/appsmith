@@ -1,15 +1,10 @@
 import React, { useState } from "react";
-import { get } from "lodash";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
-import styled, { useTheme } from "styled-components";
-import type { IconName } from "design-system-old";
+import styled from "styled-components";
 import {
-  AppIcon,
   Classes,
   getTypographyByKey,
-  Icon,
-  IconSize,
   Text,
   TextType,
   TooltipComponent,
@@ -29,6 +24,7 @@ import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment";
+import { Button, Icon } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -139,15 +135,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const StyledSearchIcon = styled(AppIcon)`
-  height: 16px;
-  width: 16px;
-  svg {
-    height: 16px;
-    width: 16px;
-  }
-`;
-
 const ContextWrapper = styled.div`
   height: 14px;
   display: flex;
@@ -180,7 +167,7 @@ const getUpdateTimestamp = (state?: Record<string, any>) => {
 // returns required parameters for log item
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: getLogIcon(e) as IconName,
+    icon: getLogIcon(e) as string,
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -201,7 +188,7 @@ export const getLogItemProps = (e: Log) => {
 
 export type LogItemProps = {
   collapsable?: boolean;
-  icon: IconName;
+  icon: string;
   timestamp: string;
   label: string;
   timeTaken: string;
@@ -245,7 +232,6 @@ function ErrorLogItem(props: LogItemProps) {
   };
 
   const { collapsable } = props;
-  const theme = useTheme();
 
   return (
     <Wrapper className={props.severity} collapsed={!isOpen}>
@@ -258,14 +244,13 @@ function ErrorLogItem(props: LogItemProps) {
           style={{ display: "flex", alignItems: "center", gap: "4px" }}
         >
           <Icon
-            clickable={false}
-            fillColor={
+            color={
               props.severity === Severity.ERROR
-                ? get(theme, "colors.debugger.error.hoverIconColor")
-                : ""
+                ? "var(--ads-v2-color-fg-on-error)"
+                : "inherit"
             }
             name={props.icon}
-            size={IconSize.XL}
+            size="md"
           />
 
           {props.logType &&
@@ -278,15 +263,14 @@ function ErrorLogItem(props: LogItemProps) {
               />
             )}
           {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
-            <Icon
+            <Button
               className={`${Classes.ICON} debugger-toggle`}
-              clickable={collapsable}
               data-cy="t--debugger-toggle"
               data-isOpen={isOpen}
-              fillColor={get(theme, "colors.debugger.collapseIcon")}
-              name={"expand-more"}
+              isDisabled={!collapsable}
+              kind="tertiary"
               onClick={() => expandToggle()}
-              size={IconSize.XL}
+              startIcon={"expand-more"}
             />
           )}
           <div className={`debugger-error-type`}>
@@ -343,11 +327,7 @@ function ErrorLogItem(props: LogItemProps) {
                   minimal
                   position="bottom-right"
                 >
-                  <StyledSearchIcon
-                    className={`${Classes.ICON}`}
-                    name={"help"}
-                    size={IconSize.SMALL}
-                  />
+                  <Icon className={`${Classes.ICON}`} name={"help"} size="sm" />
                 </TooltipComponent>
               </ContextualMenu>
             </ContextWrapper>

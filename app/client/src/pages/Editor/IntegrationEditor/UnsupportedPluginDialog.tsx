@@ -1,25 +1,13 @@
 import React from "react";
-import { HelpIcons } from "icons/HelpIcons";
-import styled, { useTheme } from "styled-components";
-import type { Color } from "constants/Colors";
-import {
-  Button,
-  Category,
-  DialogComponent as Dialog,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
-import type { IconProps } from "constants/IconConstants";
+import styled from "styled-components";
+import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
+import { Button, Icon } from "design-system";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
-import type { Theme } from "constants/DefaultTheme";
 
 type Props = {
   isModalOpen: boolean;
@@ -48,15 +36,6 @@ const HeaderRight = styled.div`
   display: flex;
 `;
 
-const CloseIconContainer = styled.div`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
-  }
-`;
-
 const ActionButtonWrapper = styled.div`
   display: flex;
   margin: 30px 0px 0px;
@@ -69,24 +48,8 @@ export const StyledSeparator = styled.div`
   height: 1px;
 `;
 
-const StyledIcon = styled(Icon)<IconProps>`
+const StyledIcon = styled(Icon)`
   margin: 0px 8px;
-  svg {
-    .triangle {
-      fill: #efa903;
-    }
-    .symbol {
-      fill: #ffffff;
-    }
-  }
-  &:hover {
-    .triangle {
-      fill: #efa903;
-    }
-    .symbol {
-      fill: #ffffff;
-    }
-  }
 `;
 
 const ActionButton = styled(Button)`
@@ -97,34 +60,27 @@ const Content = styled.div`
   margin: 8px 0px;
 `;
 
-const CloseIcon = HelpIcons.CLOSE_ICON;
-
 const Header = ({ onClose }: { onClose: () => void }) => {
-  const theme = useTheme() as Theme;
-
   return (
     <>
       <HeaderContents>
         <Heading>
           <StyledIcon
             className="default_cursor"
-            clickable={false}
             name="warning-triangle"
-            size={IconSize.XL}
+            size="md"
           />
           {UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING()}
         </Heading>
         <HeaderRight>
-          <CloseIconContainer
+          <Button
             data-cy="t--product-updates-close-btn"
+            isIconButton
+            kind="tertiary"
             onClick={onClose}
-          >
-            <CloseIcon
-              color={theme.colors.text.normal as Color}
-              height={20}
-              width={20}
-            />
-          </CloseIconContainer>
+            size="md"
+            startIcon="close-line"
+          />
         </HeaderRight>
       </HeaderContents>
       <div>
@@ -158,24 +114,25 @@ function UnsupportedPluginDialog(props: Props) {
 
       <ActionButtonWrapper>
         <ActionButton
-          category={Category.secondary}
+          kind="secondary"
           onClick={() => {
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION");
             handleClose();
           }}
-          size={Size.medium}
-          text="BACK"
-        />
+          size="md"
+        >
+          Back
+        </ActionButton>
         <ActionButton
-          category={Category.primary}
           onClick={() => {
             handleClose();
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_CONTINUE_ACTION");
             onContinue();
           }}
-          size={Size.medium}
-          text="CONTINUE BUILDING"
-        />
+          size="md"
+        >
+          Continue Building
+        </ActionButton>
       </ActionButtonWrapper>
     </Dialog>
   );

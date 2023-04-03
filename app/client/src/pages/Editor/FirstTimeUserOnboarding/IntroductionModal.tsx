@@ -1,5 +1,5 @@
-import { Icon, Overlay } from "@blueprintjs/core";
-import { Button, Category, Size } from "design-system-old";
+import { Overlay } from "@blueprintjs/core";
+import { Button } from "design-system";
 import {
   HOW_APPSMITH_WORKS,
   BUILD_MY_FIRST_APP,
@@ -109,11 +109,7 @@ const ModalFooterText = styled.span`
   letter-spacing: -0.24px;
 `;
 
-const StyledButton = styled(Button)`
-  display: inline-block;
-`;
-
-const StyledClose = styled(Icon)`
+const StyledCloseButton = styled(Button)`
   position: absolute;
   top: 20px;
   right: 20px;
@@ -143,12 +139,11 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
     <Overlay hasBackdrop isOpen transitionDuration={25} usePortal>
       <Wrapper className="t--onboarding-introduction-modal">
         <CenteredContainer>
-          <StyledClose
+          <StyledCloseButton
             className="t--how-appsmith-works-modal-close"
-            color="#919397"
-            icon="cross"
-            iconSize={16}
+            isIconButton
             onClick={onBuildApp}
+            startIcon="cross"
           />
           <ModalHeaderWrapper className="t--how-appsmith-works-modal-header">
             <ModalHeader>{createMessage(WELCOME_TO_APPSMITH)}</ModalHeader>
@@ -212,22 +207,19 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
               {createMessage(ONBOARDING_INTRO_FOOTER)}
             </ModalFooterText>
             <div>
-              <StyledButton
-                category={Category.secondary}
+              <Button
                 className="t--introduction-modal-welcome-tour-button my-6"
+                kind="secondary"
                 onClick={() => triggerWelcomeTour(dispatch)}
-                size={Size.large}
-                tag="button"
-                text={createMessage(START_TUTORIAL)}
-              />
-              <StyledButton
-                category={Category.primary}
+              >
+                {createMessage(START_TUTORIAL)}
+              </Button>
+              <Button
                 className="t--introduction-modal-build-button my-6 ml-5"
                 onClick={onBuildApp}
-                size={Size.large}
-                tag="button"
-                text={createMessage(BUILD_MY_FIRST_APP)}
-              />
+              >
+                {createMessage(BUILD_MY_FIRST_APP)}
+              </Button>
             </div>
           </ModalFooter>
         </CenteredContainer>

@@ -1,6 +1,6 @@
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import React from "react";
-import { Button, Category } from "design-system-old";
+import { Button } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
@@ -14,9 +14,7 @@ const ButtonWrapper = styled.div`
 `;
 
 export const StyledButton = styled(Button)`
-  height: 30px;
   display: inline-block;
-  padding: 7px 16px;
 `;
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
@@ -28,18 +26,17 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
     <FormGroup setting={setting}>
       <ButtonWrapper>
         <StyledButton
-          category={Category.secondary}
           data-testid="admin-settings-button"
-          disabled={setting.isDisabled && setting.isDisabled(settings)}
+          isDisabled={setting.isDisabled && setting.isDisabled(settings)}
+          kind="secondary"
           onClick={() => {
             if (setting.action) {
               setting.action(dispatch, settings);
             }
           }}
-          tag="button"
-          text={setting.text}
-          type="button"
-        />
+        >
+          {setting.text}
+        </StyledButton>
       </ButtonWrapper>
     </FormGroup>
   );

@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
 import type { ControlProps } from "./BaseControl";
+import { Button } from "design-system";
 
-const CenteredIcon = styled(Icon)`
+const CenteredIcon = styled(Button)`
   margin-top: 26px;
   &.hide {
     opacity: 0;
@@ -86,12 +87,14 @@ function NestedComponents(props: any) {
                 );
               })}
               <CenteredIcon
-                name="delete"
+                isIconButton
+                kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   props.fields.remove(index);
                 }}
-                size={IconSize.XXL}
+                size="sm"
+                startIcon="delete"
               />
             </SecondaryBox>
           );
