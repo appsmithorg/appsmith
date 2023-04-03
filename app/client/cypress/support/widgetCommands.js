@@ -833,33 +833,6 @@ Cypress.Commands.add("addAction", (value, property) => {
   cy.enterActionValue(value, property);
 });
 
-// Cypress.Commands.add("addEvent", (value, selector) => {
-//   cy.get(selector + " " + commonlocators.dropdownSelectButton)
-//     .last()
-//     .click();
-//   cy.get(commonlocators.chooseAction)
-//     .children()
-//     .contains("Show message")
-//     .click();
-//   cy.enterEventValue(value);
-// });
-
-// Cypress.Commands.add("onTableAction", (value, value1, value2) => {
-//   cy.get(commonlocators.dropdownSelectButton).eq(value).click();
-//   cy.get(commonlocators.chooseAction)
-//     .children()
-//     .contains("Show message")
-//     .click();
-//   cy.testJsontext(value1, value2);
-// });
-
-// Cypress.Commands.add("selectShowMsg", () => {
-//   cy.get(commonlocators.chooseAction)
-//     .children()
-//     .contains("Show message")
-//     .click();
-// });
-
 // Cypress.Commands.add("addSuccessMessage", (value) => {
 //   cy.get(commonlocators.chooseMsgType).last().click({ force: true });
 //   cy.get(commonlocators.chooseAction).children().contains("Success").click();
@@ -1074,20 +1047,6 @@ Cypress.Commands.add("togglebar", (value) => {
 Cypress.Commands.add("togglebarDisable", (value) => {
   cy.get(value).uncheck({ force: true }).should("not.checked");
 });
-
-// Cypress.Commands.add(
-//   "getAlert",
-//   (alertcss, propertyControl = commonlocators.dropdownSelectButton) => {
-//     cy.get(propertyControl).first().click({ force: true });
-//     cy.get(widgetsPage.menubar).contains("Show message").click({ force: true });
-//
-//     cy.get(alertcss).click({ force: true }).type("hello");
-//     cy.get(".t--open-dropdown-Select-type").click({ force: true });
-//     cy.get(".bp3-popover-content .bp3-menu li")
-//       .contains("Success")
-//       .click({ force: true });
-//   },
-// );
 
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
