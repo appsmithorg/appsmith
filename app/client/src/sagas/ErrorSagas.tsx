@@ -32,6 +32,7 @@ import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
 import { toast } from "design-system";
+import type { PluginErrorDetails } from "api/ActionAPI";
 
 /**
  * making with error message with action name
@@ -126,6 +127,28 @@ export function getResponseErrorMessage(response: ApiResponse) {
   return response.responseMeta.error
     ? response.responseMeta.error.message
     : undefined;
+}
+
+type ClientDefinedErrorMetadata = {
+  clientDefinedError: boolean;
+  statusCode: string;
+  message: string;
+  pluginErrorDetails: PluginErrorDetails;
+};
+
+export function extractClientDefinedErrorMetadata(
+  err: any,
+): ClientDefinedErrorMetadata | undefined {
+  if (err?.clientDefinedError && err?.response) {
+    return {
+      clientDefinedError: err?.clientDefinedError,
+      statusCode: err?.statusCode,
+      message: err?.message,
+      pluginErrorDetails: err?.pluginErrorDetails,
+    };
+  } else {
+    return undefined;
+  }
 }
 
 type ErrorPayloadType = {

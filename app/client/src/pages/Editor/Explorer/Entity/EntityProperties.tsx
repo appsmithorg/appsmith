@@ -21,6 +21,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button } from "design-system";
+import { EntityClassNames } from ".";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
@@ -212,6 +213,7 @@ export function EntityProperties() {
         "absolute bp3-popover overflow-y-auto overflow-x-hidden bg-white pb-4 flex flex-col justify-center z-10 delay-150 transition-all":
           true,
         "-left-100": !show,
+        [EntityClassNames.CONTEXT_MENU_CONTENT]: true,
       })}
       ref={ref}
     >
