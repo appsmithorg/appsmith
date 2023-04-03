@@ -231,10 +231,12 @@ Lets build great software together.
 [![vivonk](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/25587962?v=4&w=50&h=50&mask=circle)](https://github.com/vivonk)
 [![kocharrahul7](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20532920?v=4&w=50&h=50&mask=circle)](https://github.com/kocharrahul7)
 [![AS-Laguna](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/101155659?v=4&w=50&h=50&mask=circle)](https://github.com/AS-Laguna)
+[![jacquesikot](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/40626453?v=4&w=50&h=50&mask=circle)](https://github.com/jacquesikot)
 [![rajatagrawal](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1189106?v=4&w=50&h=50&mask=circle)](https://github.com/rajatagrawal)
 [![RakshaKShetty](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/45958978?v=4&w=50&h=50&mask=circle)](https://github.com/RakshaKShetty)
 [![Rishabhkaul](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1650391?v=4&w=50&h=50&mask=circle)](https://github.com/Rishabhkaul)
 [![rohan-arthur](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/94514895?v=4&w=50&h=50&mask=circle)](https://github.com/rohan-arthur)
+[![sanveer-osahan](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/28753975?v=4&w=50&h=50&mask=circle)](https://github.com/sanveer-osahan)
 [![tejasahluwalia](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/39881648?v=4&w=50&h=50&mask=circle)](https://github.com/tejasahluwalia)
 [![dilippitchika](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/19730984?v=4&w=50&h=50&mask=circle)](https://github.com/dilippitchika)
 [![ichik](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/80973?v=4&w=50&h=50&mask=circle)](https://github.com/ichik)
@@ -252,11 +254,9 @@ Lets build great software together.
 [![riteshkew](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20280935?v=4&w=50&h=50&mask=circle)](https://github.com/riteshkew)
 [![GreenFlux](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/24459976?v=4&w=50&h=50&mask=circle)](https://github.com/GreenFlux)
 [![dipyamanbiswas07](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/26247571?v=4&w=50&h=50&mask=circle)](https://github.com/dipyamanbiswas07)
-[![sanveer-osahan](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/28753975?v=4&w=50&h=50&mask=circle)](https://github.com/sanveer-osahan)
 [![danciaclara](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/32227135?v=4&w=50&h=50&mask=circle)](https://github.com/danciaclara)
 [![Debsourabh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/34486435?v=4&w=50&h=50&mask=circle)](https://github.com/Debsourabh)
 [![shadabbuchh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/39921438?v=4&w=50&h=50&mask=circle)](https://github.com/shadabbuchh)
-[![jacquesikot](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/40626453?v=4&w=50&h=50&mask=circle)](https://github.com/jacquesikot)
 [![harshilp24](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/43263619?v=4&w=50&h=50&mask=circle)](https://github.com/harshilp24)
 [![spark-c](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/51402465?v=4&w=50&h=50&mask=circle)](https://github.com/spark-c)
 [![Vidushi-Gupta](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/55969597?v=4&w=50&h=50&mask=circle)](https://github.com/Vidushi-Gupta)
@@ -434,7 +434,7 @@ Lets build great software together.
 [![nzidol](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13618973?v=4&w=50&h=50&mask=circle)](https://github.com/nzidol)
 [![onifs10](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48095055?v=4&w=50&h=50&mask=circle)](https://github.com/onifs10)
 [![ps-xaf](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/4478450?v=4&w=50&h=50&mask=circle)](https://github.com/ps-xaf)
-
+[![nikhil-babar](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/115392530?v=4&w=50&h=50&mask=circle)](https://github.com/nikhil-babar)
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
