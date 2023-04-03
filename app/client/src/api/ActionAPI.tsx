@@ -196,6 +196,7 @@ class ActionAPI extends API {
       headers: {
         accept: "application/json",
         "Content-Type": "multipart/form-data",
+        Expect: "100-continue",
       },
       cancelToken: ActionAPI.abortActionExecutionTokenSource.token,
     });
