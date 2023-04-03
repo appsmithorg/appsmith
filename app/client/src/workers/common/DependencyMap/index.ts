@@ -97,8 +97,13 @@ export function createDependencyMap(
   });
 
   Object.keys(dependencyMap).forEach((key) => {
+    const { entityName } = getEntityNameAndPropertyPath(key);
     const { errors, invalidReferences, validReferences } =
-      extractInfoFromBindings(dependencyMap[key], dataTreeEvalRef.allKeys);
+      extractInfoFromBindings(
+        dependencyMap[key],
+        dataTreeEvalRef.allKeys,
+        entityName,
+      );
     dependencyMap[key] = validReferences;
     // To keep invalidReferencesMap as minimal as possible, only paths with invalid references
     // are stored.
@@ -112,10 +117,12 @@ export function createDependencyMap(
 
   // extract references from bindings in trigger fields
   Object.keys(triggerFieldDependencyMap).forEach((key) => {
+    const { entityName } = getEntityNameAndPropertyPath(key);
     const { errors, invalidReferences, validReferences } =
       extractInfoFromBindings(
         triggerFieldDependencyMap[key],
         dataTreeEvalRef.allKeys,
+        entityName,
       );
     triggerFieldDependencyMap[key] = validReferences;
     // To keep invalidReferencesMap as minimal as possible, only paths with invalid references
@@ -184,7 +191,15 @@ export const updateDependencyMap = ({
   // This is needed for NEW and DELETE events below.
   // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
   // TODO: Optimise by only getting paths of changed node
-  allKeys = getAllPaths(unEvalDataTree);
+  allKeys = getAllPaths({
+    ...unEvalDataTree,
+    this: Object.keys(unEvalDataTree)
+      .filter((key) => isJSAction(unEvalDataTree[key]))
+      .reduce((acc, key) => {
+        acc = { ...acc, ...unEvalDataTree[key] };
+        return acc;
+      }, {} as any),
+  });
   // Transform the diff library events to Appsmith evaluator events
 
   translatedDiffs.forEach((dataTreeDiff) => {
@@ -226,7 +241,11 @@ export const updateDependencyMap = ({
                       errors: extractDependencyErrors,
                       invalidReferences,
                       validReferences,
-                    } = extractInfoFromBindings(entityDependencies, allKeys);
+                    } = extractInfoFromBindings(
+                      entityDependencies,
+                      allKeys,
+                      entityName,
+                    );
                     // Update dependencyMap
                     updateMap(dependencyMap, entityDependent, validReferences);
                     // Update invalidReferencesMap
@@ -305,7 +324,11 @@ export const updateDependencyMap = ({
                   errors: extractDependencyErrors,
                   invalidReferences,
                   validReferences,
-                } = extractInfoFromBindings(entityPathDependencies, allKeys);
+                } = extractInfoFromBindings(
+                  entityPathDependencies,
+                  allKeys,
+                  entityName,
+                );
                 // Update trigger dependencyMap
                 updateMap(
                   triggerFieldDependencyMap,
@@ -329,7 +352,11 @@ export const updateDependencyMap = ({
                   errors: extractDependencyErrors,
                   invalidReferences,
                   validReferences,
-                } = extractInfoFromBindings(entityPathDependencies, allKeys);
+                } = extractInfoFromBindings(
+                  entityPathDependencies,
+                  allKeys,
+                  entityName,
+                );
                 // Update dependencyMap
                 updateMap(dependencyMap, fullPropertyPath, validReferences);
                 // Update invalidReferencesMap
@@ -612,7 +639,7 @@ export const updateDependencyMap = ({
                 errors: extractDependencyErrors,
                 invalidReferences,
                 validReferences,
-              } = extractInfoFromBindings(correctSnippets, allKeys);
+              } = extractInfoFromBindings(correctSnippets, allKeys, entityName);
               updateMap(
                 invalidReferencesMap,
                 fullPropertyPath,

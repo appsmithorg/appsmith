@@ -22,6 +22,7 @@ import type {
   WidgetConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
+import type { EvaluationVersion } from "ce/api/ApplicationApi";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -76,6 +77,7 @@ type DataTreeSeed = {
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
+  evaluationVersion: EvaluationVersion;
 };
 
 export type DataTreeEntityConfig =
@@ -97,6 +99,7 @@ export class DataTreeFactory {
     actions,
     appData,
     editorConfigs,
+    evaluationVersion,
     jsActions,
     metaWidgets,
     pageList,
@@ -126,7 +129,10 @@ export class DataTreeFactory {
     const startJsActions = performance.now();
 
     jsActions.forEach((js) => {
-      const { configEntity, unEvalEntity } = generateDataTreeJSAction(js);
+      const { configEntity, unEvalEntity } = generateDataTreeJSAction(
+        js,
+        evaluationVersion,
+      );
       dataTree[js.config.name] = unEvalEntity;
       configTree[js.config.name] = configEntity;
     });

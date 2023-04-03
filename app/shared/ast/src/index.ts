@@ -71,6 +71,10 @@ interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
 }
 
+interface ThisExpression extends Expression {
+  type: NodeTypes.ThisExpression;
+}
+
 interface ArrowFunctionExpressionNode extends Expression, Function {
   type: NodeTypes.ArrowFunctionExpression;
 }
@@ -123,6 +127,10 @@ type EntityRefactorResponse = {
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
 };
+
+export const isThisExpression = (node: Node): node is ThisExpression => {
+  return node.type === NodeTypes.ThisExpression;
+}
 
 const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
@@ -419,6 +427,8 @@ const constructFinalMemberExpIdentifier = (
   const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
     return `${node.object.name}${propertyAccessor}${child}`;
+  } else if(isThisExpression(node.object)) {
+    return `this${propertyAccessor}${child}`;
   } else {
     const propertyAccessor = getPropertyAccessor(node.property);
     const nestedChild = `${propertyAccessor}${child}`;
@@ -662,6 +672,15 @@ const ancestorWalk = (ast: Node): NodeList => {
         ...getFunctionalParamNamesFromNode(node),
       ]);
     },
+    ThisExpression(node: Node, ancestors) {
+      const parent = ancestors[ancestors.length - 2];
+      if (isMemberExpressionNode(parent)) {
+        const memberExpIdentifier = constructFinalMemberExpIdentifier(
+          parent,
+        );
+        references.add(memberExpIdentifier);
+      }
+    }
   });
   return {
     references,

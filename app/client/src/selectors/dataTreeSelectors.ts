@@ -22,6 +22,7 @@ import { get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
+import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -34,6 +35,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
+  selectEvaluationVersion,
   (
     actions,
     jsActions,
@@ -45,6 +47,7 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
+    evaluationVersion,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -58,6 +61,7 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
+      evaluationVersion,
     });
   },
 );

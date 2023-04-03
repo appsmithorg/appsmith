@@ -3,10 +3,14 @@ import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer"
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { MetaArgs } from "./types";
+import type { EvaluationVersion } from "ce/api/ApplicationApi";
 
 const reg = /this\./g;
 
-export const generateDataTreeJSAction = (js: JSCollectionData): any => {
+export const generateDataTreeJSAction = (
+  js: JSCollectionData,
+  evaluationVersion: EvaluationVersion,
+): any => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -15,7 +19,10 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
 
-  const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
+  const removeThisReference =
+    evaluationVersion >= 3
+      ? js.config.body
+      : js.config.body.replace(reg, `${js.config.name}.`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {

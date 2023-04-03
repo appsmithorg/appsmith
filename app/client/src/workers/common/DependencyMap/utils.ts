@@ -51,13 +51,19 @@ import type {
 export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
+  thisIdentifier?: string,
 ): { validReferences: string[]; invalidReferences: string[] } => {
+  const disallowedIdentifiers = {
+    ...invalidEntityIdentifiers,
+    ...libraryReservedIdentifiers,
+  };
+  delete disallowedIdentifiers["this"];
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
-    { ...invalidEntityIdentifiers, ...libraryReservedIdentifiers },
+    disallowedIdentifiers,
   );
-  return extractInfoFromReferences(references, allPaths);
+  return extractInfoFromReferences(references, allPaths, thisIdentifier);
 };
 
 /** This function extracts validReferences and invalidReferences from an Array of Identifiers
@@ -74,6 +80,7 @@ export const extractInfoFromBinding = (
 export const extractInfoFromReferences = (
   references: string[],
   allPaths: Record<string, true>,
+  thisIdentifier?: string,
 ): {
   validReferences: string[];
   invalidReferences: string[];
@@ -83,7 +90,11 @@ export const extractInfoFromReferences = (
   references.forEach((reference: string) => {
     // If the identifier exists directly, add it and return
     if (allPaths.hasOwnProperty(reference)) {
-      validReferences.add(reference);
+      if (thisIdentifier && reference.startsWith("this."))
+        validReferences.add(thisIdentifier + reference.substring(4));
+      else {
+        validReferences.add(reference);
+      }
       return;
     }
     const subpaths = toPath(reference);
@@ -115,6 +126,7 @@ interface BindingsInfo {
 export const extractInfoFromBindings = (
   bindings: string[],
   allPaths: Record<string, true>,
+  thisIdentifier?: string,
 ) => {
   return bindings.reduce(
     (bindingsInfo: BindingsInfo, binding) => {
@@ -122,6 +134,7 @@ export const extractInfoFromBindings = (
         const { invalidReferences, validReferences } = extractInfoFromBinding(
           binding,
           allPaths,
+          thisIdentifier,
         );
         return {
           ...bindingsInfo,

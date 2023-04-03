@@ -220,7 +220,15 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
     // set All keys
-    this.allKeys = getAllPaths(localUnEvalTree);
+    this.allKeys = getAllPaths({
+      ...localUnEvalTree,
+      this: Object.keys(localUnEvalTree)
+        .filter((key) => isJSAction(localUnEvalTree[key]))
+        .reduce((acc, key) => {
+          acc = { ...acc, ...localUnEvalTree[key] };
+          return acc;
+        }, {} as any),
+    });
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();

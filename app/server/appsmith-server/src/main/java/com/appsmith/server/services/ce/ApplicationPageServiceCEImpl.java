@@ -100,7 +100,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ActionPermission actionPermission;
 
 
-    public static final Integer EVALUATION_VERSION = 2;
+    public static final Integer EVALUATION_VERSION = 3;
 
 
     public Mono<PageDTO> createPage(PageDTO page) {
