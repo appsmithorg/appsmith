@@ -46,6 +46,10 @@ export const clearCommitErrorState = () => ({
   type: ReduxActionTypes.CLEAR_COMMIT_ERROR_STATE,
 });
 
+export const clearDiscardErrorState = () => ({
+  type: ReduxActionTypes.CLEAR_DISCARD_ERROR_STATE,
+});
+
 export type ConnectToGitResponse = {
   gitApplicationMetadata: GitApplicationMetadata;
 };

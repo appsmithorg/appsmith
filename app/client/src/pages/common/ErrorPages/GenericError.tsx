@@ -1,7 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { Button, Size } from "design-system-old";
-import { flushErrors } from "actions/errorActions";
 
 import Page from "./Page";
 import {
@@ -9,10 +7,11 @@ import {
   PAGE_CLIENT_ERROR_DESCRIPTION,
   PAGE_CLIENT_ERROR_TITLE,
 } from "@appsmith/constants/messages";
+import { flushErrors } from "actions/errorActions";
+import { useDispatch } from "react-redux";
 
-function ClientError() {
+function GenericError(props: { errorCode?: string }) {
   const dispatch = useDispatch();
-
   return (
     <Page
       cta={
@@ -30,9 +29,10 @@ function ClientError() {
         />
       }
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}
+      errorCode={props.errorCode}
       title={createMessage(PAGE_CLIENT_ERROR_TITLE)}
     />
   );
 }
 
-export default ClientError;
+export default GenericError;

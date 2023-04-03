@@ -74,6 +74,9 @@ export const getGitMergeError = (state: AppState) =>
 export const getGitCommitAndPushError = (state: AppState) =>
   state.ui.gitSync.commitAndPushError?.error;
 
+export const getGitDiscardError = (state: AppState) =>
+  state.ui.gitSync.discardError?.error;
+
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
 
