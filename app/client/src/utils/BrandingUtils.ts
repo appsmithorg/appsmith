@@ -14,6 +14,7 @@ const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#D7D7D7";
 export const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
+export const APPSMITH_BRAND_BG_COLOR = "#F8F9FA";
 export const APPSMITH_BRAND_FAVICON_URL =
   "https://assets.appsmith.com/appsmith-favicon-orange.ico";
 export const APPSMITH_BRAND_LOGO_URL =
@@ -46,7 +47,7 @@ export function createBrandColorsFromPrimaryColor(
 
   // if the primary color is appsmith orange, use gray shade for the bg color
   if (brand === APPSMITH_BRAND_PRIMARY_COLOR) {
-    bgColor = "#F8F9FA";
+    bgColor = APPSMITH_BRAND_BG_COLOR;
   }
 
   const disabledColor = `#${tinycolor(
