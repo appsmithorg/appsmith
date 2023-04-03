@@ -4,7 +4,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
-  "Found an async invocation during evaluation. Data fields cannot execute asynchronous code.";
+  "Found an action invocation during evaluation. Data fields cannot execute actions.";
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 class ErrorModifier {
