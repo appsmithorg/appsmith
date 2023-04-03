@@ -16,7 +16,6 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   addNewLayer,
   createFlexLayer,
@@ -29,7 +28,10 @@ import type {
   FlexLayer,
 } from "utils/autoLayout/autoLayoutTypes";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
-import { getCanvasWidth } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
 
@@ -46,7 +48,7 @@ function* addWidgetAndReorderSaga(
   const { addToBottom, direction, dropPayload, newWidget, parentId } =
     actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   try {
     const newParams: { [key: string]: any } = yield call(
@@ -132,7 +134,7 @@ function* autoLayoutReorderSaga(
 
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const isMobile: boolean = yield select(getIsMobile);
+    const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,

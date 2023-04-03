@@ -39,6 +39,7 @@ import {
   getCurrentAppPositioningType,
   getCurrentPageId,
   getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
@@ -168,7 +169,6 @@ import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
 import { LayoutDirection } from "utils/autoLayout/constants";
@@ -182,7 +182,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       getWidget,
       resizeAction.payload.widgetId,
     );
-    const isMobile: boolean = yield select(getIsMobile);
+    const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
     const widgets = { ...stateWidgets };
     let widget = { ...stateWidget };
     const {
@@ -1390,7 +1390,7 @@ function* pasteWidgetSaga(
   const selectedWidget: FlattenedWidgetProps<undefined> =
     yield getSelectedWidgetWhenPasting();
 
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
