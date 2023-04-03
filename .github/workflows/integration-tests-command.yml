@@ -166,6 +166,9 @@ jobs:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+             <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Identified Flaky tests</a>
+
+            
 
       # Update check run called "ci-test-result"
       - name: Mark ci-test-result job as complete
