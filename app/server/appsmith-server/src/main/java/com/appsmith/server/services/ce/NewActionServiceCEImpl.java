@@ -107,13 +107,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
@@ -2230,28 +2231,36 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return
      */
     protected Flux<Param> parsePartsAndGetParamsFlux(Flux<Part> partFlux, AtomicLong totalReadableByteCount, ExecuteActionDTO dto) {
+        List<Pattern> patternList = new ArrayList<>();
+        patternList.add(Pattern.compile("k\\d+"));
+        patternList.add(Pattern.compile("blob:[\\d-]+"));
+        patternList.add(Pattern.compile("executeActionDTO"));
+        patternList.add(Pattern.compile("parameterMap"));
+
         return partFlux
                 .groupBy(part -> {
                     // We're grouping parts by the type of processing required
                     // Expected types: meta, value, blob
-                    return List.of(Objects.requireNonNull(part.headers().get("x-appsmith-type")).get(0), part.name());
+
+                    for (Pattern pattern : patternList) {
+                        Matcher matcher = pattern.matcher(part.name());
+                        if (matcher.find()) {
+                            return pattern.pattern();
+                        }
+                    }
+                    return part.name();
                 })
                 .flatMap(groupedPartsFlux -> {
-                    List<String> key = groupedPartsFlux.key();
-                    return switch (key.get(0)) {
-                        case "value" ->
+                    String key = groupedPartsFlux.key();
+                    return switch (key) {
+                        case "k\\d+" ->
                                 groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
-                        case "blob" ->
+                        case "blob:[\\d-]=" ->
                                 this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
-                        case "meta" -> {
-                            if (key.get(1).equals("executeActionDTO")) {
-                                yield groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
-                            } else if (key.get(1).equals("parameterMap")) {
-                                yield groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
-                            } else {
-                                yield Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found."));
-                            }
-                        }
+                        case "executeActionDTO" ->
+                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
+                        case "parameterMap" ->
+                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
                         default ->
                                 Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found."));
                     };
