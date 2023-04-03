@@ -81,6 +81,7 @@ export class Table {
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
   private _searchText = "input[type='search']";
+  private _publishSearchInput = ".t--search-input";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
   _addIcon = "button span[icon='add']";
@@ -347,7 +348,7 @@ export class Table {
   }
 
   public SearchTable(searchTxt: string, index = 0) {
-    cy.get(this._searchText).eq(index).type(searchTxt);
+    cy.get(this._publishSearchInput).first().type(searchTxt);
   }
 
   public RemoveSearchTextNVerify(

@@ -159,11 +159,11 @@ describe("AForce - Community Issues page validations", function () {
     table.AssertSearchText("Epic");
     table.WaitForTableEmpty();
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitForTableEmpty();
 
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.RemoveText("defaultsearchtext");
-    table.WaitUntilTableLoad();
+    table.WaitForTableEmpty();
   });
 
   it("6. Validate Search table with Client Side Search enabled & disabled", () => {
@@ -186,10 +186,13 @@ describe("AForce - Community Issues page validations", function () {
 
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
+    propPane.TypeTextIntoField("Default Search Text", "Epic");
+    propPane.SelectPropertiesDropDown("onSearchTextChanged", "No action");
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad();
+    table.WaitForTableEmpty();
 
+    propPane.RemoveText("defaultsearchtext");
     table.SearchTable("Bug");
     table.WaitForTableEmpty();
     cy.xpath(table._searchBoxCross).click();
@@ -199,7 +202,7 @@ describe("AForce - Community Issues page validations", function () {
     cy.xpath(table._searchBoxCross).click();
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitForTableEmpty();
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "On");
   });
