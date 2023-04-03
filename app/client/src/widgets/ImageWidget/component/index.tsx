@@ -242,6 +242,9 @@ class ImageComponent extends React.Component<
                   {...this.props}
                   data-testid="styledImage"
                   onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    if (this.props.onClick) {
+                      event.stopPropagation();
+                    }
                     if (!this.isPanning) {
                       if (isZoomingIn) {
                         zoomIn(event);
