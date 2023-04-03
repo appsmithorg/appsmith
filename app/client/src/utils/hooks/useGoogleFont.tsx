@@ -22,7 +22,7 @@ function useGoogleFont(fontFamily = DEFAULT_FONT_NAME) {
       return "inherit";
     }
 
-    return fontFamily;
+    return `${fontFamily}, sans-serif`;
   }, [fontFamily]);
 
   return fontFamilyName;

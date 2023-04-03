@@ -168,7 +168,7 @@ function AppViewer(props: Props) {
       });
     }
 
-    document.body.style.fontFamily = appFontFamily;
+    document.body.style.fontFamily = `${appFontFamily}, sans-serif`;
 
     return function reset() {
       document.body.style.fontFamily = "inherit";
