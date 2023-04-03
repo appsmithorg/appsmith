@@ -346,10 +346,7 @@ class DatasourceRestAPIEditor extends React.Component<
             {this.renderEditor()}
             <DatasourceAuth
               datasource={datasource}
-              datasourceButtonConfiguration={[
-                DatasourceButtonType.DELETE,
-                DatasourceButtonType.SAVE,
-              ]}
+              datasourceButtonConfiguration={[DatasourceButtonType.SAVE]}
               datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={this.getSanitizedFormData}
