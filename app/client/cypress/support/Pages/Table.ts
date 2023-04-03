@@ -348,6 +348,7 @@ export class Table {
   }
 
   public SearchTable(searchTxt: string, index = 0) {
+    this.propPane.RemoveText(this._publishSearchInput); //to clear search text
     cy.get(this._publishSearchInput).first().type(searchTxt);
   }
 

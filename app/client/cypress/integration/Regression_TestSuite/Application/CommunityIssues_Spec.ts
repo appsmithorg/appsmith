@@ -192,7 +192,6 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp();
     table.WaitForTableEmpty();
 
-    propPane.RemoveText("defaultsearchtext");
     table.SearchTable("Bug");
     table.WaitForTableEmpty();
     cy.xpath(table._searchBoxCross).click();
