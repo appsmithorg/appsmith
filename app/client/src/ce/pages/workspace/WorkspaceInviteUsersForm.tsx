@@ -203,9 +203,10 @@ export const MailConfigContainer = styled.div`
   padding: 24px 4px;
   padding-bottom: 0;
   align-items: center;
-
-  > div {
-    margin: 8px 0;
+  && > span {
+    color: ${(props) => props.theme.colors.modal.email.message};
+    font-weight: 500;
+    font-size: 14px;
   }
 `;
 
@@ -517,7 +518,7 @@ function WorkspaceInviteUsersForm(props: any) {
             {allUsers.length === 0 && (
               <MailConfigContainer>
                 <NoEmailConfigImage />
-                <div>{createMessage(NO_USERS_INVITED)}</div>
+                <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>
             )}
             {!disableUserList && (
