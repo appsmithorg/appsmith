@@ -440,3 +440,15 @@ export function updateMap(
     map[path] = updatedEntries;
   }
 }
+
+export function mockThisKeyword(unEvalDataTree: DataTree) {
+  return {
+    ...unEvalDataTree,
+    this: Object.keys(unEvalDataTree)
+      .filter((key) => isJSAction(unEvalDataTree[key]))
+      .reduce((acc, key) => {
+        acc = { ...acc, ...unEvalDataTree[key] };
+        return acc;
+      }, {} as any),
+  };
+}

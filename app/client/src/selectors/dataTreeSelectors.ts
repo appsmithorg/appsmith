@@ -22,7 +22,7 @@ import { get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
-import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,

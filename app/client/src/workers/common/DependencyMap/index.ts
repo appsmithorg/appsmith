@@ -34,6 +34,7 @@ import {
   listEntityPathDependencies,
   listTriggerFieldDependencies,
   listValidationDependencies,
+  mockThisKeyword,
   updateMap,
 } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -191,15 +192,7 @@ export const updateDependencyMap = ({
   // This is needed for NEW and DELETE events below.
   // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
   // TODO: Optimise by only getting paths of changed node
-  allKeys = getAllPaths({
-    ...unEvalDataTree,
-    this: Object.keys(unEvalDataTree)
-      .filter((key) => isJSAction(unEvalDataTree[key]))
-      .reduce((acc, key) => {
-        acc = { ...acc, ...unEvalDataTree[key] };
-        return acc;
-      }, {} as any),
-  });
+  allKeys = getAllPaths(mockThisKeyword(unEvalDataTree));
   // Transform the diff library events to Appsmith evaluator events
 
   translatedDiffs.forEach((dataTreeDiff) => {

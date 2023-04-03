@@ -10,7 +10,6 @@ import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
 
 export type EvaluationVersion = number;
-export const DEFAULT_EVALUATION_VERSION = 3;
 
 export interface PublishApplicationRequest {
   applicationId: string;
