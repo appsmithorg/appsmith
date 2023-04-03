@@ -10,7 +10,7 @@ import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { toast } from "design-system";
-import { getAppMode } from "../../selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {
   setCanvasDebuggerSelectedTab,
