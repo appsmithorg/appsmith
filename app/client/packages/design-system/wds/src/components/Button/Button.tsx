@@ -31,7 +31,6 @@ export const WdsButton = forwardRef(
       isFitContainer = false,
       isLoading,
       variant = "primary",
-      ...rest
     } = props;
 
     return (
@@ -40,7 +39,6 @@ export const WdsButton = forwardRef(
         data-loading={isLoading}
         data-variant={variant}
         isDisabled={isDisabled}
-        {...rest}
         ref={ref}
       >
         {isLoading && <Spinner />}

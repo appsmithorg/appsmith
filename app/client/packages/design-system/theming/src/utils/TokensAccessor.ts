@@ -111,20 +111,19 @@ export class TokensAccessor {
     tokenObj: TokenObj,
     tokenType: TokenType,
   ): ThemeTokens => {
-    return <ThemeTokens>Object.keys(tokenObj).reduce(
-      (acc, key) => {
-        return {
-          [tokenType]: {
-            ...acc[tokenType],
-            [kebabCase(key)]: {
-              value: tokenObj[key],
-              type: tokenType,
-            },
-          },
-        };
-      },
-      { [tokenType]: {} },
-    );
+    const themeTokens = {} as ThemeTokens;
+
+    Object.keys(tokenObj).forEach((key) => {
+      themeTokens[tokenType] = {
+        ...themeTokens[tokenType],
+        [kebabCase(key)]: {
+          value: tokenObj[key],
+          type: tokenType,
+        },
+      };
+    });
+
+    return themeTokens;
   };
 
   private getBgAccent = () => {
