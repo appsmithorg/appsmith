@@ -109,7 +109,6 @@ export const objectSetter = (
       getEvaluationVersion(),
     );
   } catch (e) {
-    // showError();
     return currentValue;
   }
 };
@@ -201,8 +200,6 @@ export const callBackFieldSetter = (
       ) || currentValue
     }}}`;
   } catch (e) {
-    // showError();
-    // throw e;
     return currentValue;
   }
 };

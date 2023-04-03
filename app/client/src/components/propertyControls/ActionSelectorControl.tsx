@@ -22,7 +22,7 @@ import {
 import store from "store";
 import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getApiQueriesAndJsActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
+import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
@@ -114,7 +114,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const pluginGroups: any = keyBy(plugins, "id");
 
     // this function gets all the Queries/API's/JS objects and attaches it to actionList
-    const fieldOptions = getApiQueriesAndJsActionOptionsWithChildren(
+    const fieldOptions = getApiQueriesAndJSActionOptionsWithChildren(
       pageId,
       pluginGroups,
       actions,
