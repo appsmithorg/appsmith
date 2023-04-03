@@ -206,9 +206,11 @@ export class PropertyPane {
     funcName: string,
   ) {
     this.AddAction(eventName);
-    cy.get(this.locator._dropDownValue("Execute a JS function")).click();
-    cy.get(this.locator._dropDownValue(jsName)).click();
-    cy.get(this.locator._dropDownValue(funcName)).click();
+    this.agHelper.GetNClick(
+      this.locator._dropDownValue("Execute a JS function"),
+    );
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName));
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName));
     this.agHelper.AssertAutoSave();
   }
 

@@ -25,10 +25,9 @@ describe("Test Create Api and Bind to Button widget", function () {
     propPane.SelectPlatformFunction("onClick", "Set interval");
     agHelper.EnterActionValue("Callback function", "{{() => { Api1.run() }}}");
     agHelper.EnterActionValue("Id", "myInterval");
-    jsEditor.EnableJSContext("onClick");
-    propPane.UpdatePropertyFieldValue(
+    propPane.EnterJSContext(
       "onClick",
-      `{{setInterval(() => {  Api1.run();}, 5000, 'myInterval');}}`,
+      "{{setInterval(() => {  Api1.run();}, 5000, 'myInterval');}}",
     );
   });
 
