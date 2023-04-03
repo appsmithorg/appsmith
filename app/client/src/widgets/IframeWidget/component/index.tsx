@@ -24,6 +24,7 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
   font-weight: bold;
 
   iframe {

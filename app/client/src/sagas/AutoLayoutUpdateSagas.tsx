@@ -29,6 +29,7 @@ import {
   getCurrentApplicationId,
   getCurrentAppPositioningType,
   getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
@@ -37,7 +38,6 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import {
   getLeftColumn,
@@ -208,7 +208,7 @@ function* updateWidgetDimensionsSaga(
   const { widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const isWidgetResizing: boolean = yield select(getIsResizing);
   const isCanvasResizing: boolean = yield select(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
@@ -274,7 +274,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
   let widgets = allWidgets;
   const widgetsOld = { ...widgets };

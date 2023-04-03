@@ -63,6 +63,7 @@ import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
@@ -681,7 +682,7 @@ abstract class BaseWidget<
           } else {
             content = this.makePositioned(content);
           }
-          if (isAutoHeightEnabledForWidget(this.props, true)) {
+          if (isAutoHeightEnabledForWidgetWithLimits(this.props)) {
             content = this.addAutoHeightOverlay(content);
           }
         }

@@ -25,8 +25,8 @@ import {
   getMetaWidget,
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
+  getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
@@ -85,7 +85,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
       equal,
     );
-    const isMobile = useSelector(getIsMobile);
+    const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
     const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
 

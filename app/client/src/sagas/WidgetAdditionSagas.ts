@@ -42,9 +42,11 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
-import { getCanvasWidth } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -80,7 +82,7 @@ function* getChildWidgetProps(
   const { disableResizeHandles } =
     WidgetFactory.getWidgetAutoLayoutConfig(type);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
