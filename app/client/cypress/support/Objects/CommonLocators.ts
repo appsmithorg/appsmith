@@ -56,6 +56,7 @@ export class CommonLocators {
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
+  _debugger = ".t--debugger";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
   _modal = ".t--modal-widget";
