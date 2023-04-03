@@ -434,7 +434,7 @@ Lets build great software together.
 [![nzidol](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13618973?v=4&w=50&h=50&mask=circle)](https://github.com/nzidol)
 [![onifs10](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48095055?v=4&w=50&h=50&mask=circle)](https://github.com/onifs10)
 [![ps-xaf](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/4478450?v=4&w=50&h=50&mask=circle)](https://github.com/ps-xaf)
-
+[![nikhil-babar](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/115392530?v=4&w=50&h=50&mask=circle)](https://github.com/nikhil-babar)
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
