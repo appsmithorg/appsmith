@@ -140,7 +140,12 @@ function FieldLabel({
   const align = direction === "row" ? alignField : "RIGHT";
 
   return (
-    <StyledLabel direction={direction}>
+    <StyledLabel
+      direction={direction}
+      onClick={(e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
+        e.stopPropagation();
+      }}
+    >
       {align === "LEFT" && children}
       <StyledLabelTextWrapper direction={direction}>
         <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>

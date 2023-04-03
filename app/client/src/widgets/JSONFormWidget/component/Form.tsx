@@ -166,6 +166,7 @@ function Form<TValues = any>(
     event?: React.MouseEvent<HTMLElement, MouseEvent>,
   ) => {
     event?.preventDefault?.();
+    event?.stopPropagation();
 
     const defaultValues =
       schema && schema[ROOT_SCHEMA_KEY]
