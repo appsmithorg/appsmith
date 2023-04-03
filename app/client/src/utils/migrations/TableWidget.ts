@@ -13,6 +13,7 @@ import {
   VerticalAlignmentTypes,
   ColumnTypes,
 } from "widgets/TableWidget/component/Constants";
+import { ColumnTypes as ColumnTypesV2 } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
@@ -710,6 +711,28 @@ export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
 
       widget.canFreezeColumn = false;
       widget.columnUpdatedAt = Date.now();
+    }
+  });
+};
+
+export const migrateSelectOptionAttributesForNewRow = (
+  currentDSL: DSLWidget,
+) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      const primaryColumns = widget?.primaryColumns;
+
+      // Set default value for allowSameOptionsInNewRow
+      if (primaryColumns) {
+        for (const column in primaryColumns) {
+          if (
+            primaryColumns[column].hasOwnProperty("columnType") &&
+            primaryColumns[column].columnType === ColumnTypesV2.SELECT
+          ) {
+            primaryColumns[column].allowSameOptionsInNewRow = true;
+          }
+        }
+      }
     }
   });
 };

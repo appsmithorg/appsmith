@@ -1441,6 +1441,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const cellProperties = getCellProperties(column, originalIndex);
     let isSelected = false;
 
+    let selectOptions;
+    if (
+      this.props.isAddRowInProgress &&
+      column.hasOwnProperty("selectOptions")
+    ) {
+      if (column.allowSameOptionsInNewRow) {
+        // Use select options from the first row
+        selectOptions = column.selectOptions[0];
+      } else {
+        selectOptions = column.newRowSelectOptions;
+      }
+    } else {
+      selectOptions = cellProperties.selectOptions;
+    }
+
     if (this.props.transientTableData) {
       cellProperties.hasUnsavedChanges =
         this.props.transientTableData.hasOwnProperty(originalIndex) &&
@@ -1639,7 +1654,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onFilterChangeActionString={column.onFilterUpdate}
             onItemSelect={this.onOptionSelect}
             onOptionSelectActionString={column.onOptionChange}
-            options={cellProperties.selectOptions}
+            options={selectOptions}
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
