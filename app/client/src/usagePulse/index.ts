@@ -7,7 +7,7 @@ import {
   PULSE_API_RETRY_TIMEOUT,
   PULSE_INTERVAL,
   USER_ACTIVITY_LISTENER_EVENTS,
-} from "./constants";
+} from "@appsmith/constants/UsagePulse";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
