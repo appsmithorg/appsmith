@@ -491,7 +491,7 @@ export const getAllPaths = (
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
       getAllPaths(records[i], tempKey, result);
     }
-  } else if (typeof records === "object" && records) {
+  } else if (isTrueObject(records)) {
     for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
       getAllPaths(records[key], tempKey, result);
