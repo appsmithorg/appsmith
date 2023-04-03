@@ -67,9 +67,6 @@ public class CommonConfig {
     @Value("${appsmith.rts.port:8091}")
     private String rtsPort;
 
-    @Value("${is.air-gap.instance:false}")
-    private boolean isAirGapInstance;
-
     private List<String> allowedDomains;
 
     @Bean
@@ -97,24 +94,6 @@ public class CommonConfig {
         GsonBuilder gsonBuilder = new GsonBuilder();
         SerializationUtils.typeAdapterRegistration().customize(gsonBuilder);
         return gsonBuilder.create();
-    }
-
-    /**
-     * Bean to set up the config hierarchy for air-gap instance
-     * - Disable analytics
-     * - Disable telemetry
-     */
-    @Bean
-    public void setupAirgappedConfig() {
-        if (!this.isAirGapInstance()) {
-            return;
-        }
-        // As Appsmith cloud never going to be hosted in air-gap environment, explicitly declaring it to self-hosted
-        // instance
-        this.setCloudHosting(false);
-        // For air-gap instance telemetry is disabled and which eventually disables the analytics for current instance
-        // Check SegmentConfig class for more details
-        this.setTelemetryDisabled(true);
     }
 
     public List<String> getOauthAllowedDomains() {

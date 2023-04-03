@@ -1,17 +1,10 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
-import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.dtos.ReleaseNode;
-import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.ConfigService;
-import com.appsmith.util.WebClientUtils;
-import lombok.Data;
+import com.appsmith.server.helpers.ReleaseNotesUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,59 +20,16 @@ import java.util.List;
 @Slf4j
 public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
 
-    private final CloudServicesConfig cloudServicesConfig;
-
-    private final SegmentConfig segmentConfig;
-
-    private final ConfigService configService;
-
     private final ProjectProperties projectProperties;
 
-    private final CommonConfig commonConfig;
+    private final ReleaseNotesUtils releaseNotesUtils;
 
     public List<ReleaseNode> releaseNodesCache = new ArrayList<>();
 
     private Instant cacheExpiryTime = null;
 
-    @Data
-    static class Releases {
-        private int totalCount;
-        private List<ReleaseNode> nodes;
-    }
-
     public Mono<List<ReleaseNode>> getReleaseNodes() {
-        if (cacheExpiryTime != null && Instant.now().isBefore(cacheExpiryTime)) {
-            return Mono.justOrEmpty(releaseNodesCache);
-        }
-
-        final String baseUrl = cloudServicesConfig.getBaseUrl();
-        if (StringUtils.isEmpty(baseUrl)) {
-            return Mono.justOrEmpty(releaseNodesCache);
-        }
-
-        return configService.getInstanceId()
-                .flatMap(instanceId -> WebClientUtils
-                        .create(
-                                baseUrl + "/api/v1/releases?instanceId=" + instanceId +
-                                        // isCloudHosted should be true only for our cloud instance,
-                                        // For docker images that burn the segment key with the image, the CE key will be present
-                                        "&isSourceInstall=" + (commonConfig.isCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey())) +
-                                        (StringUtils.isEmpty(commonConfig.getRepo()) ? "" : ("&repo=" + commonConfig.getRepo())) +
-                                        "&version=" + projectProperties.getVersion() +
-                                        "&edition=" + ProjectProperties.EDITION
-                        )
-                        .get()
-                        .exchange()
-                )
-                .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {}))
-                .map(result -> result.getData().getNodes())
-                .map(nodes -> {
-                    releaseNodesCache.clear();
-                    releaseNodesCache.addAll(nodes);
-                    cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);
-                    return nodes;
-                })
-                .doOnError(error -> log.error("Error fetching release notes from cloud services", error));
+        return releaseNotesUtils.getReleaseNodes(releaseNodesCache, cacheExpiryTime);
     }
 
     public String computeNewFrom(String version) {
@@ -127,12 +77,12 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void refreshReleaseNotes() {
 
-        // Do not fetch the release notes for air-gap instance as access to cloud-services will be restricted
-        if (commonConfig.isAirGapInstance()) {
-            return;
-        }
         cacheExpiryTime = null;  // Bust the release notes cache to force fetching again.
         getReleaseNodes()
+                .map(releaseNodes -> {
+                    cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);
+                    return releaseNodes;
+                })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
