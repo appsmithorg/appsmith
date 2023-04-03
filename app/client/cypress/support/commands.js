@@ -825,7 +825,7 @@ Cypress.Commands.add(
       locators._actionSelectorFieldByLabel("Message"),
       forSuccess,
     );
-    cy.get(`${locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(_.locators._actionSelectorPopupClose);
 
     // add a failure callback
     cy.get(locators._actionAddCallback("failure")).click().wait(500);
@@ -834,7 +834,7 @@ Cypress.Commands.add(
       locators._actionSelectorFieldByLabel("Message"),
       forFailure,
     );
-    cy.get(`${locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(_.locators._actionSelectorPopupClose);
   },
 );
 

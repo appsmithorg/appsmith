@@ -11,9 +11,8 @@ describe("UI to Code", () => {
 
   beforeEach(() => {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.UpdatePropertyFieldValue("onClick", "");
-    cy.get(_.locators._jsToggle("onclick")).click();
+    _.propPane.EnterJSContext("onClick", "");
+    _.jsEditor.DisableJSContext("onClick");
   });
 
   it("1. adds an action", () => {
@@ -94,9 +93,11 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
 
     // Assert that cards 1, 2 and 4 are present
-    cy.get(_.locators._actionCardByTitle("Show Alert")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Navigate to")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Copy to clipboard")).should("exist");
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Show Alert"));
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
+    _.agHelper.AssertElementExist(
+      _.locators._actionCardByTitle("Copy to clipboard"),
+    );
 
     // Assert the code for the remaining actions
     cy.get(_.locators._jsToggle("onclick")).click();
@@ -111,8 +112,10 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
 
     // Assert that cards 2 and 4 are present
-    cy.get(_.locators._actionCardByTitle("Navigate to")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Copy to clipboard")).should("exist");
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
+    _.agHelper.AssertElementExist(
+      _.locators._actionCardByTitle("Copy to clipboard"),
+    );
 
     // Assert the code for the remaining actions
     cy.get(_.locators._jsToggle("onclick")).click();
@@ -189,8 +192,12 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
 
     // Assert that first and third action are not present
-    cy.get(_.locators._actionCardByTitle("Show Alert")).should("not.exist");
-    cy.get(_.locators._actionCardByTitle("Store value")).should("not.exist");
+    _.agHelper.AssertElementAbsence(
+      _.locators._actionCardByTitle("Show Alert"),
+    );
+    _.agHelper.AssertElementAbsence(
+      _.locators._actionCardByTitle("Store value"),
+    );
 
     // Undo the last two actions
     cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
@@ -198,10 +205,12 @@ describe("UI to Code", () => {
     cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
     // Assert that all the cards are present
-    cy.get(_.locators._actionCardByTitle("Show Alert")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Navigate to")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Store value")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Copy to clipboard")).should("exist");
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Show Alert"));
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Store value"));
+    _.agHelper.AssertElementExist(
+      _.locators._actionCardByTitle("Copy to clipboard"),
+    );
 
     // Assert that code for all actions is back after undo actions
     cy.get(_.locators._jsToggle("onclick")).click();
@@ -278,8 +287,12 @@ describe("UI to Code", () => {
     cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
 
     // Assert that first and third action are not present
-    cy.get(_.locators._actionCardByTitle("Show Alert")).should("not.exist");
-    cy.get(_.locators._actionCardByTitle("Store value")).should("not.exist");
+    _.agHelper.AssertElementAbsence(
+      _.locators._actionCardByTitle("Show Alert"),
+    );
+    _.agHelper.AssertElementAbsence(
+      _.locators._actionCardByTitle("Store value"),
+    );
 
     // Undo the last two actions
     cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
@@ -287,10 +300,12 @@ describe("UI to Code", () => {
     cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
     // Assert that all the cards are present
-    cy.get(_.locators._actionCardByTitle("Show Alert")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Navigate to")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Store value")).should("exist");
-    cy.get(_.locators._actionCardByTitle("Copy to clipboard")).should("exist");
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Show Alert"));
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
+    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Store value"));
+    _.agHelper.AssertElementExist(
+      _.locators._actionCardByTitle("Copy to clipboard"),
+    );
 
     // Redo the last two undo actions
     cy.get("body").type(_.agHelper.isMac ? "{meta}Y" : "{ctrl}Y");
@@ -336,14 +351,13 @@ describe("UI to Code", () => {
   });
 
   it("6. updates the success and failure callbacks for nested query actions", () => {
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.UpdatePropertyFieldValue(
+    _.propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
+    _.jsEditor.DisableJSContext("onClick");
 
     // Select the card to show the callback button
     _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
@@ -381,14 +395,13 @@ describe("UI to Code", () => {
   });
 
   it("7. updates the query params correctly", () => {
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.UpdatePropertyFieldValue(
+    _.propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
+    _.jsEditor.DisableJSContext("onClick");
 
     // Select the card to show the callback button
     _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
@@ -417,15 +430,14 @@ describe("UI to Code", () => {
   });
 
   it("8. adds actions to callback function is argument if exists already", () => {
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.UpdatePropertyFieldValue(
+    _.propPane.EnterJSContext(
       "onClick",
       `Api1.run(() => {
         showAlert("Hello");
        })
        `,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
+    _.jsEditor.DisableJSContext("onClick");
 
     // Select the card to show the callback button
     _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");

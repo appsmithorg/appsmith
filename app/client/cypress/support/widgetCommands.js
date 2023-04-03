@@ -1061,9 +1061,11 @@ Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")
     .click({ force: true });
-  cy.get(
-    `${ObjectsRegistry.CommonLocators._actionSelectorPopup} .t--close`,
-  ).click({ force: true });
+  ObjectsRegistry.AggregateHelper.GetNClick(
+    ObjectsRegistry.CommonLocators._actionSelectorPopupClose,
+    0,
+    true,
+  );
 });
 
 Cypress.Commands.add("togglebar", (value) => {

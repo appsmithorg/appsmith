@@ -107,7 +107,7 @@ describe("Guided Tour", function () {
       .contains("getCustomers")
       .click({ force: true })
       .wait(500);
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    _.agHelper.GetNClick(_.locators._actionSelectorPopupClose);
 
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
