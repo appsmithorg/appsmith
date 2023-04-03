@@ -117,7 +117,7 @@ function useUpdateEmbedSnippet() {
   }, [defaultPageId, embedSetting?.showNavigationBar]);
 
   const snippet = useMemo(() => {
-    return `<iframe src="${appViewEndPoint}" width="${embedSetting?.width}" height="${embedSetting?.height}"></iframe>`;
+    return `${appViewEndPoint}`;
   }, [appViewEndPoint, embedSetting?.width, embedSetting?.height]);
 
   return {

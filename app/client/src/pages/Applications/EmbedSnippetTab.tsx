@@ -15,14 +15,12 @@ import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
 import ExternaLink from "remixicon-react/ExternalLinkLineIcon";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
-import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
 import TooltipWrapper from "./EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import classNames from "classnames";
 import { PopoverPosition } from "@blueprintjs/core";
 
 const StyledLink = styled.a`
@@ -47,10 +45,10 @@ function EmbedSnippetTab() {
   const embedSnippet = useUpdateEmbedSnippet();
   return (
     <div>
-      <div className="flex gap-3">
-        <div className="flex flex-1 flex-col">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-1 flex-col gap-6 pt-2">
           {embedSnippet.isSuperUser && (
-            <div className="pt-2">
+            <div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]">
                   <Icon
@@ -94,12 +92,7 @@ function EmbedSnippetTab() {
             </div>
           )}
 
-          <div
-            className={classNames({
-              "pt-2": !embedSnippet.isSuperUser,
-              "pt-3.5": embedSnippet.isSuperUser,
-            })}
-          >
+          <div>
             <div className="flex justify-between items-center">
               <Text type={TextType.P1}>
                 {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
@@ -122,27 +115,10 @@ function EmbedSnippetTab() {
               </SwitchWrapper>
             </div>
           </div>
-
-          <div className="flex justify-between pt-3.5">
-            <Text className="self-center" type={TextType.P1}>
-              {createMessage(IN_APP_EMBED_SETTING.embedSize)}
-            </Text>
-            <div className="flex gap-2">
-              <DimensionsInput
-                onChange={(width: string) => embedSnippet.onChange({ width })}
-                prefix="W"
-                value={embedSnippet.currentEmbedSetting?.width}
-              />
-              <DimensionsInput
-                onChange={(height: string) => embedSnippet.onChange({ height })}
-                prefix="H"
-                value={embedSnippet.currentEmbedSetting?.height}
-              />
-            </div>
-          </div>
         </div>
 
-        <div className="flex flex-1 pt-2">
+        <div className="flex flex-col gap-2">
+          <Text type={TextType.P1}>Embed URL</Text>
           <EmbedCodeSnippet snippet={embedSnippet.snippet} />
         </div>
       </div>
