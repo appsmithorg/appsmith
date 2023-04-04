@@ -150,7 +150,7 @@ class HelpModal extends React.Component<Props> {
               {isHelpModalOpen ? (
                 <Icon name="close-line" size="lg" />
               ) : (
-                <Icon name="question-mark-line" size="lg" />
+                <Icon name="question-mark" size="lg" />
               )}
             </TooltipComponent>
           </HelpButton>
