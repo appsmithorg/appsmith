@@ -5,7 +5,7 @@ import { getCodeFromMoustache, isEmptyBlock } from "./utils";
 import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
 import { useSelector } from "react-redux";
-import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import { generateReactKey } from "../../../utils/generators";
 
 export const ActionCreatorContext = React.createContext<{

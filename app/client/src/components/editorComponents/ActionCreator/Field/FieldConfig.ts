@@ -9,7 +9,7 @@ import {
   RESET_CHILDREN_OPTIONS,
   ViewTypes,
 } from "../constants";
-import { ALERT_STYLE_OPTIONS } from "ce/constants/messages";
+import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
 import type {
   ActionIntegrationType,
   ActionType,
