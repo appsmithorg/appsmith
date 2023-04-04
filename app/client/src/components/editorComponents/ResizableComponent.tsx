@@ -37,7 +37,10 @@ import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
 import type { UIElementSize } from "./ResizableUtils";
 import { computeFinalRowCols, computeRowCols } from "./ResizableUtils";
@@ -318,7 +321,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
   const fixedHeight =
-    isAutoHeightEnabledForWidget(props, true) ||
+    isAutoHeightEnabledForWidgetWithLimits(props) ||
     !isAutoHeightEnabledForWidget(props) ||
     !props.isCanvas;
 
