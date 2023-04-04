@@ -39,6 +39,7 @@ import {
 import { quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import { MAIN_CONTAINER_WIDGET_ID } from "../constants/WidgetConstants";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -221,11 +222,16 @@ function* handleWidgetSelectionSaga(
   action: ReduxAction<{ widgetIds: string[]; invokedBy?: NavigationMethod }>,
 ) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  if (action.payload.invokedBy !== NavigationMethod.CanvasClick) {
-    // When a widget selection is triggered via a canvas click,
-    // we do not want to set the widget ancestry. This is so
-    // that if the widget like a button causes a widget
-    // navigation, it would block the navigation
+  // When a widget selection is triggered via a canvas click,
+  // we do not want to set the widget ancestry. This is so
+  // that if the widget like a button causes a widget
+  // navigation, it would block the navigation
+  if (
+    !action.payload.invokedBy ||
+    action.payload.invokedBy === NavigationMethod.CanvasClick
+  ) {
+    yield call(setWidgetAncestry, MAIN_CONTAINER_WIDGET_ID, allWidgets);
+  } else {
     yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
   }
   yield call(focusOnWidgetSaga, action);
