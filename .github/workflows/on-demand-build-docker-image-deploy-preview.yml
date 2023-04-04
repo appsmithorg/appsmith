@@ -72,6 +72,27 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "app/client/yarn.lock"
 
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      - name: Set the build environment based on the branch
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
+          fi
+
+      # Run the Jest tests only if the workflow has been invoked in a PR
+      - name: Run the jest tests
+        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
 
