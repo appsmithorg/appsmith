@@ -76,6 +76,7 @@ describe("evaluateSync", () => {
             message: "wrongJS is not defined",
           },
           errorType: "PARSE",
+          kind: undefined,
           raw: `
   function $$closedFn () {
     const $$result = wrongJS
@@ -98,6 +99,7 @@ describe("evaluateSync", () => {
             message: "{}.map is not a function",
           },
           errorType: "PARSE",
+          kind: undefined,
           raw: `
   function $$closedFn () {
     const $$result = {}.map()
@@ -128,6 +130,7 @@ describe("evaluateSync", () => {
             message: "setImmediate is not defined",
           },
           errorType: "PARSE",
+          kind: undefined,
           raw: `
   function $$closedFn () {
     const $$result = setImmediate(() => {}, 100)
