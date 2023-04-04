@@ -192,7 +192,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 <StyledImgWrapper>
                   <StyledImg
                     alt="drag-and-drop-img"
-                    src={getDragAndDropImg()}
+                    src={getAssetUrl(getDragAndDropImg())}
                   />
                 </StyledImgWrapper>
               </ModalContentRow>
@@ -209,7 +209,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg alt="publish-image" src={getPublishAppsImg()} />
+                  <StyledImg
+                    alt="publish-image"
+                    src={getAssetUrl(getPublishAppsImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
             </ModalContentWrapper>
