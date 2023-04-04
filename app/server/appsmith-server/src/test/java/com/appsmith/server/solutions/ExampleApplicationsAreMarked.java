@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.configurations.ce.InstanceConfigCE;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.ApplicationPageService;
@@ -53,7 +53,7 @@ public class ExampleApplicationsAreMarked {
     private ConfigService configService;
 
     @SpyBean
-    private InstanceConfig instanceConfig;
+    private InstanceConfigCE instanceConfig;
 
     @Test
     @WithUserDetails(value = "api_user")

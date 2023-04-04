@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -30,6 +31,7 @@ import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class InstanceConfigCE implements ApplicationListener<ApplicationReadyEvent> {
 
     private final ConfigService configService;
