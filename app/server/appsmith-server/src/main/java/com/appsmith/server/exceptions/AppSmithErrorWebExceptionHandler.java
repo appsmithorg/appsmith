@@ -2,6 +2,7 @@ package com.appsmith.server.exceptions;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -22,7 +23,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.result.view.ViewResolver;
 import reactor.core.publisher.Mono;
 
-import jakarta.annotation.Nonnull;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,6 +35,10 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
 
     public static final String DESERIALIZATION_ERROR_MESSAGE =
             "Failed to deserialize payload. Is the byte array a result of corresponding serialization for DefaultDeserializer";
+
+    private static final String MESSAGE = "message";
+    private static final String ERROR = "error";
+    private static final String TRACE = "trace";
 
     @Autowired
     public AppSmithErrorWebExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
@@ -54,13 +58,25 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
 
     @Nonnull
     private Mono<ServerResponse> render(ServerRequest request) {
-        Map<String, Object> error = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
+
+        Map<String, Object> error
+            = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE, ErrorAttributeOptions.Include.MESSAGE));
         int errorCode = getHttpStatus(error);
+
+        // Customise the error response for unsupported operation error message which will be thrown from
+        // AirgapUnsupportedPathFilter class
+        if (error.get(MESSAGE) instanceof String
+            && error.get(MESSAGE).toString().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
+            && !String.valueOf(error.get(TRACE)).contains(DESERIALIZATION_ERROR_MESSAGE)) {
+
+            errorCode = AppsmithError.UNSUPPORTED_OPERATION.getHttpErrorCode();
+            error.put(ERROR, error.get(MESSAGE));
+        }
 
         ServerResponse.BodyBuilder responseBuilder = ServerResponse.status(errorCode)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        if (errorCode == 500 && String.valueOf(error.get("trace")).contains(DESERIALIZATION_ERROR_MESSAGE)) {
+        if (errorCode == 500 && String.valueOf(error.get(TRACE)).contains(DESERIALIZATION_ERROR_MESSAGE)) {
             // If the error is regarding a deserialization error in the session data, then the user is essentially locked out.
             // They have to use a different browser, or Incognito, or clear their cookies to get back in. So, we'll delete
             // the SESSION cookie here, so that the user gets sent back to the Login page, and they can unblock themselves.
@@ -73,9 +89,10 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
             );
         }
 
+
         return responseBuilder.body(
                 BodyInserters
-                        .fromValue(new ResponseDTO<>(errorCode, new ErrorDTO(String.valueOf(errorCode), String.valueOf(error.get("error")))))
+                        .fromValue(new ResponseDTO<>(errorCode, new ErrorDTO(String.valueOf(errorCode), String.valueOf(error.get(ERROR)))))
         );
     }
 }

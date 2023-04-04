@@ -21,10 +21,13 @@ public class LicenseConfig {
 
     @Autowired
     Gson gson;
+
     @Autowired
     CloudServicesConfig cloudServicesConfig;
+
     @Autowired
     ReleaseNotesService releaseNotesService;
+
     @Autowired
     ConfigService configService;
 
