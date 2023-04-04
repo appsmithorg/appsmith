@@ -674,7 +674,7 @@ public class FirestorePluginTest {
 
         //This validates firestore connection and the ProjectId given by the user
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
-        //We cannot use the datasource create flow here as the client authentication json in unknown. Hence, using the
+        //We cannot use the datasource create flow here as the client authentication json is unknown. Hence, using the
         //default emulator credentials
         FirebaseOptions firebaseOptions = FirebaseOptions.builder()
                 .setProjectId("test-project-invalid")
