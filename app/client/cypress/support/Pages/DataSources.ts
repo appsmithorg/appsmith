@@ -501,7 +501,10 @@ export class DataSources {
       );
       ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
       //cy.log("ServiceAccCreds is " + JSON.stringify(ServiceAccCreds));
-      cy.log("ServiceAccCreds.private_key  is" + ServiceAccCreds.private_key);
+      cy.log(
+        "ServiceAccCreds.private_key  is" +
+          JSON.stringify(ServiceAccCreds.private_key),
+      );
       this.agHelper.UpdateFieldLongInput(
         this.locator._inputFieldByName("Service Account Credentials"),
         JSON.stringify(ServiceAccCreds),
