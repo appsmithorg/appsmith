@@ -143,7 +143,7 @@ jobs:
           node-version: "16.14.0"
 
       # Install all the dependencies
-       - name: Install dependencies
+      - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
