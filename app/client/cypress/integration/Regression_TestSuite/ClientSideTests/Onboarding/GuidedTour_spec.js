@@ -20,6 +20,7 @@ describe("Guided Tour", function () {
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
+    _.debuggerHelper.ClickDebuggerIcon();
     // Refresh the page to validate if the tour resumes
     cy.reload();
     cy.get(".query-page").then(($ele) => {
