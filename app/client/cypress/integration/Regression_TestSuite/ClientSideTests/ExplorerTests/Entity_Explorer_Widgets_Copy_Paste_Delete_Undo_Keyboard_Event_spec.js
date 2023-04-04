@@ -39,7 +39,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       200,
     );
     agHelper.Sleep(1000);
-    cy.get("body").type(`{${modifierKey}}z`, { force: true });
+    cy.get("body").type(`{${modifierKey}}z`);
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("FormTest");
     ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");

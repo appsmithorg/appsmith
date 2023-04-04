@@ -67,6 +67,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function () {
     _.deployMode.NavigateBacktoEditor();
+    _.agHelper.Sleep(1000);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
@@ -187,6 +188,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function () {
     _.deployMode.NavigateBacktoEditor();
+    _.agHelper.Sleep(1000);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
