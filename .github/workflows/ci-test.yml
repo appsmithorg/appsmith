@@ -164,7 +164,7 @@ jobs:
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
             
-      - name: Setup MSSQL & Arango & ElasticSearch docker containers
+      - name: Setup MSSQL & Arango docker & ElasticSearch containers
         working-directory : app/client/cypress
         run : |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
