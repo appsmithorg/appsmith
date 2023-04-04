@@ -495,21 +495,21 @@ export class DataSources {
       this.locator._inputFieldByName("Project Id"),
       datasourceFormData["firestore-projectID"],
     );
-    cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
-      let ServiceAccCreds = JSON.parse(
-        JSON.stringify(json.serviceAccCredentials),
-      );
-      ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
-      //cy.log("ServiceAccCreds is " + JSON.stringify(ServiceAccCreds));
-      cy.log(
-        "ServiceAccCreds.private_key  is " +
-          JSON.stringify(ServiceAccCreds.private_key),
-      );
-      this.agHelper.UpdateFieldLongInput(
-        this.locator._inputFieldByName("Service Account Credentials"),
-        JSON.stringify(ServiceAccCreds),
-      );
-    });
+    // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
+    //   let ServiceAccCreds = JSON.parse(
+    //     JSON.stringify(json.serviceAccCredentials),
+    //   );
+    //   ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
+    //   //cy.log("ServiceAccCreds is " + JSON.stringify(ServiceAccCreds));
+    //   cy.log(
+    //     "ServiceAccCreds.private_key  is " +
+    //       JSON.stringify(ServiceAccCreds.private_key),
+    //   );
+    this.agHelper.UpdateFieldLongInput(
+      this.locator._inputFieldByName("Service Account Credentials"),
+      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+    );
+    //});
   }
 
   public FillUnAuthenticatedGraphQLDSForm() {
