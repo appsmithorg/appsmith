@@ -116,7 +116,6 @@ describe("Tests functionality of platform function", () => {
         // Test for meta data
         jsEditor.SelectFunctionDropdown("metaDataForSetTimeout");
         jsEditor.RunJSObj();
-        debuggerHelper.ClickDebuggerIcon();
         agHelper.GetNClick(jsEditor._logsTab);
         jsEditor.SelectFunctionDropdown("switchMetaData");
         jsEditor.RunJSObj();
@@ -126,7 +125,6 @@ describe("Tests functionality of platform function", () => {
 
         jsEditor.SelectFunctionDropdown("metaDataForSetInterval");
         jsEditor.RunJSObj();
-        debuggerHelper.ClickDebuggerIcon();
         agHelper.GetNClick(jsEditor._logsTab);
         jsEditor.SelectFunctionDropdown("switchMetaData");
         jsEditor.RunJSObj();
@@ -136,7 +134,6 @@ describe("Tests functionality of platform function", () => {
 
         jsEditor.SelectFunctionDropdown("metaDataApiTest");
         jsEditor.RunJSObj();
-        debuggerHelper.ClickDebuggerIcon();
         agHelper.GetNClick(jsEditor._logsTab);
         jsEditor.SelectFunctionDropdown("switchMetaData");
         jsEditor.RunJSObj();
