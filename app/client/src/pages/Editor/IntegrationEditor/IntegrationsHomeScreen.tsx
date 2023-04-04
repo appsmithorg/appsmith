@@ -5,7 +5,6 @@ import { reduxForm } from "redux-form";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
-import { Colors } from "constants/Colors";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
@@ -14,7 +13,7 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "design-system-old";
-import { IconSize, TabComponent, Text, TextType } from "design-system-old";
+import { IconSize, Text, TextType } from "design-system-old";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
@@ -27,6 +26,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -49,8 +49,6 @@ const ApiHomePage = styled.div`
   .bp3-collapse-body {
     position: absolute;
     z-index: 99999;
-    background-color: ${Colors.WHITE};
-    border: 1px solid ${Colors.ALTO};
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     width: 100%;
@@ -88,6 +86,41 @@ const NewIntegrationsContainer = styled.div`
   }
 `;
 
+// This replaces a previous instance of tab. It's a menu, but it's styled to look like a tab from ads.
+// This is because this is the only such instance of vertical menu on our platform. When we refactor the view
+// on this screen to have a smaller grid size, we should consider removing this entirely.
+const VerticalMenu = styled.nav`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 8px;
+
+  color: var(--ads-v2-color-fg-muted);
+  // &&&& to override blueprint styles
+  &&&&&& :hover {
+    color: var(--ads-v2-color-fg) !important;
+    text-decoration: none !important;
+  }
+`;
+
+const VerticalMenuItem = styled.a`
+  display: flex;
+  align-items: center;
+
+  height: 30px;
+  font-size: 14px;
+  padding-left: 8px;
+  border-left: solid 2px transparent;
+
+  :hover {
+    border-left: solid 2px var(--ads-v2-color-border-emphasis);
+  }
+
+  &[aria-selected="true"] {
+    border-left: solid 2px var(--ads-v2-color-border-brand);
+  }
+`;
+
 type IntegrationsHomeScreenProps = {
   pageId: string;
   selectedTab: string;
@@ -108,7 +141,7 @@ type IntegrationsHomeScreenProps = {
 
 type IntegrationsHomeScreenState = {
   page: number;
-  activePrimaryMenuId: number;
+  activePrimaryMenuId: string;
   activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
 };
@@ -117,33 +150,27 @@ type Props = IntegrationsHomeScreenProps &
   InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;
 
 const PRIMARY_MENU_IDS = {
-  ACTIVE: 0,
-  CREATE_NEW: 1,
+  ACTIVE: "ACTIVE",
+  CREATE_NEW: "CREATE_NEW",
 };
 
-const SECONDARY_MENU: TabProp[] = [
+const SECONDARY_MENU = [
   {
-    key: "API",
+    key: 0,
     title: "API",
-    panelComponent: <div />,
+    href: "#",
   },
   {
-    key: "DATABASE",
+    key: 1,
     title: "Database",
-    panelComponent: <div />,
+    href: "#",
+  },
+  {
+    key: 2,
+    title: "Sample Databases",
+    href: "#",
   },
 ];
-
-const getSecondaryMenu = (hasActiveSources: boolean) => {
-  const mockDbMenu = {
-    key: "MOCK_DATABASE",
-    title: "Sample Databases",
-    panelComponent: <div />,
-  };
-  return hasActiveSources
-    ? [...SECONDARY_MENU, mockDbMenu]
-    : [mockDbMenu, ...SECONDARY_MENU];
-};
 
 const getSecondaryMenuIds = (hasActiveSources = false) => {
   return {
@@ -354,7 +381,7 @@ class IntegrationsHomeScreen extends React.Component<
     }
   }
 
-  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
+  onSelectPrimaryMenu = (activePrimaryMenuId: string) => {
     const { dataSources, history, pageId } = this.props;
     if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
       return;
@@ -504,12 +531,24 @@ class IntegrationsHomeScreen extends React.Component<
           >
             <MainTabsContainer>
               {showTabs && (
-                <TabComponent
-                  cypressSelector="t--datasource-tab"
-                  onSelect={this.onSelectPrimaryMenu}
-                  selectedIndex={this.state.activePrimaryMenuId}
-                  tabs={PRIMARY_MENU}
-                />
+                <Tabs
+                  data-cy="t--datasource-tab"
+                  onValueChange={this.onSelectPrimaryMenu}
+                  value={this.state.activePrimaryMenuId}
+                >
+                  <TabsList>
+                    {PRIMARY_MENU.map((tab: TabProp) => (
+                      <Tab key={tab.key} value={tab.key}>
+                        {tab.title}
+                      </Tab>
+                    ))}
+                  </TabsList>
+                  {PRIMARY_MENU.map((tab: TabProp) => (
+                    <TabPanel key={tab.key} value={tab.key}>
+                      {tab.panelComponent}
+                    </TabPanel>
+                  ))}
+                </Tabs>
               )}
             </MainTabsContainer>
             {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
@@ -518,17 +557,20 @@ class IntegrationsHomeScreen extends React.Component<
 
             {currentScreen}
             {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-              <TabComponent
-                className="t--vertical-menu"
-                onSelect={this.onSelectSecondaryMenu}
-                selectedIndex={this.state.activeSecondaryMenuId}
-                tabs={
-                  this.props.mockDatasources.length > 0
-                    ? getSecondaryMenu(dataSources.length > 0)
-                    : SECONDARY_MENU
-                }
-                vertical
-              />
+              <VerticalMenu>
+                {SECONDARY_MENU.map((item) => (
+                  <VerticalMenuItem
+                    aria-selected={
+                      this.state.activeSecondaryMenuId === item.key
+                    }
+                    href={item.href}
+                    key={item.key}
+                    onClick={() => this.onSelectSecondaryMenu(item.key)}
+                  >
+                    {item.title}
+                  </VerticalMenuItem>
+                ))}
+              </VerticalMenu>
             )}
           </SectionGrid>
         </ApiHomePage>

@@ -37,13 +37,15 @@ import {
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
-import { validateResponse } from "sagas/ErrorSagas";
+import {
+  extractClientDefinedErrorMetadata,
+  validateResponse,
+} from "sagas/ErrorSagas";
 import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
@@ -114,6 +116,7 @@ import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
+import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 
 enum ActionResponseDataTypes {
@@ -513,6 +516,12 @@ function* runActionShortcutSaga() {
   }
 }
 
+type RunActionError = {
+  name: string;
+  message: string;
+  clientDefinedError?: boolean;
+};
+
 function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -558,7 +567,10 @@ function* runActionSaga(
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = { name: "", message: "" };
+  let error: RunActionError = {
+    name: "",
+    message: "",
+  };
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -580,14 +592,29 @@ function* runActionSaga(
           show: false,
         },
       });
-      Toaster.show({
-        text: createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name),
-        variant: Variant.danger,
+      toast.show(createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name), {
+        kind: "error",
       });
       return;
     }
     log.error(e);
     error = { name: (e as Error).name, message: (e as Error).message };
+
+    const clientDefinedErrorMetadata = extractClientDefinedErrorMetadata(e);
+    if (clientDefinedErrorMetadata) {
+      set(
+        payload,
+        "statusCode",
+        `${clientDefinedErrorMetadata?.statusCode || ""}`,
+      );
+      set(payload, "request", {});
+      set(
+        payload,
+        "pluginErrorDetails",
+        clientDefinedErrorMetadata?.pluginErrorDetails,
+      );
+      set(error, "clientDefinedError", true);
+    }
   }
 
   // Error should be readable error if present.
@@ -608,13 +635,22 @@ function* runActionSaga(
       }
     : undefined;
 
+  const clientDefinedError = error.clientDefinedError
+    ? {
+        name: "PluginExecutionError",
+        message: error?.message,
+        clientDefinedError: true,
+      }
+    : undefined;
+
   const defaultError = {
     name: "PluginExecutionError",
     message: "An unexpected error occurred",
   };
 
   if (isError) {
-    error = readableError || payloadBodyError || defaultError;
+    error =
+      readableError || payloadBodyError || clientDefinedError || defaultError;
 
     // In case of debugger, both the current error message
     // and the readableError needs to be present,
@@ -653,15 +689,14 @@ function* runActionSaga(
             pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
-          state: payload.request,
-          pluginErrorDetails: payload.pluginErrorDetails,
+          state: payload?.request,
+          pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
     ]);
 
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name), {
+      kind: "error",
     });
 
     yield put({
@@ -740,13 +775,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          Toaster.show({
-            text: createMessage(
+          toast.show(
+            createMessage(
               ACTION_EXECUTION_CANCELLED,
               `${collection.name}.${jsAction.name}`,
             ),
-            variant: Variant.danger,
-          });
+            {
+              kind: "error",
+            },
+          );
           // Don't proceed to executing the js function
           return;
         }
@@ -900,9 +937,8 @@ function* executePageLoadActionsSaga() {
   } catch (e) {
     log.error(e);
 
-    Toaster.show({
-      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
+      kind: "error",
     });
   }
 }
@@ -1024,6 +1060,10 @@ function* executePluginActionSaga(
       isError: isErrorResponse(response),
     };
   } catch (e) {
+    if ("clientDefinedError" in (e as any)) {
+      throw e;
+    }
+
     yield put(
       executePluginActionSuccess({
         id: actionId,

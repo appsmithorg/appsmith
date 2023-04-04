@@ -100,7 +100,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { Toaster, Variant } from "design-system-old";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
@@ -130,6 +129,7 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -468,9 +468,8 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       // Show toast messages from the server
       if (messages && messages.length && !guidedTourEnabled) {
         savePageResponse.data.messages.forEach((message) => {
-          Toaster.show({
-            text: message,
-            type: Variant.info,
+          toast.show(message, {
+            kind: "info",
           });
         });
       }
@@ -659,6 +658,7 @@ export function* createPageSaga(
 export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
+
     // to be done in backend
     request.customSlug = request.customSlug?.replaceAll(" ", "-");
 
@@ -1126,9 +1126,8 @@ export function* generateTemplatePageSaga(
         }),
       );
       // TODO : Add it to onSuccessCallback
-      Toaster.show({
-        text: "Successfully generated a page",
-        variant: Variant.success,
+      toast.show("Successfully generated a page", {
+        kind: "success",
       });
 
       yield put(

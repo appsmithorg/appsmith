@@ -107,6 +107,7 @@ export interface LogActionPayload {
   analytics?: Record<string, any>;
   // plugin error details if any (only for plugin errors).
   pluginErrorDetails?: any;
+  meta?: Record<string, any>;
 }
 
 export interface Message {

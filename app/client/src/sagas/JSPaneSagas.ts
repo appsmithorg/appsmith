@@ -52,7 +52,6 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { Toaster, Variant } from "design-system-old";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
@@ -84,8 +83,14 @@ import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { toast } from "design-system";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "../actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/helpers";
+import store from "../store";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -321,9 +326,8 @@ function* handleJSObjectNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    Toaster.show({
-      text: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
-      variant: Variant.danger,
+    toast.show(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
+      kind: "error",
     });
 
     return;
@@ -410,9 +414,8 @@ export function* handleExecuteJSFunctionSaga(data: {
     }
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
-      Toaster.show({
-        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
-        variant: Variant.success,
+      toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
+        kind: "success",
       });
   } catch (error) {
     AppsmithConsole.addErrors([
@@ -438,18 +441,30 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
       },
     ]);
-    Toaster.show({
-      text:
-        (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
-      variant: Variant.danger,
-      showDebugButton: {
-        component: DebugButton,
-        componentProps: {
+
+    const onDebugClick = () => {
+      const appMode = getAppMode(store.getState());
+
+      if (appMode === "PUBLISHED") return null;
+
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "TOAST",
+      });
+      store.dispatch(showDebugger(true));
+      store.dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    };
+
+    toast.show(
+      (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
+      {
+        kind: "error",
+        action: {
+          text: "debug",
+          effect: () => onDebugClick,
           className: "t--toast-debug-button",
-          source: "TOAST",
         },
       },
-    });
+    );
   }
 }
 

@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { PluginType } from "entities/Action";
-import { Toaster, Variant } from "design-system-old";
-import { Button } from "design-system";
+import { Button, toast } from "design-system";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
@@ -43,9 +42,8 @@ function NewActionButton(props: NewActionButtonProps) {
           !datasource.datasourceConfiguration ||
           !datasource.datasourceConfiguration.url)
       ) {
-        Toaster.show({
-          text: ERROR_ADD_API_INVALID_URL(),
-          variant: Variant.danger,
+        toast.show(ERROR_ADD_API_INVALID_URL(), {
+          kind: "error",
         });
         return;
       }
@@ -72,6 +70,7 @@ function NewActionButton(props: NewActionButtonProps) {
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
       onClick={disabled ? noop : createQueryAction}
+      size="md"
       startIcon="plus"
     >
       {pluginType === PluginType.DB || pluginType === PluginType.SAAS

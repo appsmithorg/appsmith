@@ -4,14 +4,9 @@ import { Field, reduxForm } from "redux-form";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  Toaster,
-  TooltipComponent,
-  UneditableField,
-  Variant,
-} from "design-system-old";
+import { TooltipComponent, UneditableField } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Icon, toast } from "design-system";
 
 const Wrapper = styled.div`
   margin: 24px 0;
@@ -64,9 +59,8 @@ function CopyUrlForm(
 
   const handleCopy = (value: string) => {
     copy(value);
-    Toaster.show({
-      text: `${props.title} copied to clipboard`,
-      variant: Variant.success,
+    toast.show(`${props.title} copied to clipboard`, {
+      kind: "success",
     });
     AnalyticsUtil.logEvent("URL_COPIED", { snippet: value });
   };
@@ -84,7 +78,7 @@ function CopyUrlForm(
             openOnTargetFocus={false}
             position="right"
           >
-            <Icon className={"help-icon"} name="question-mark-line" size="sm" />
+            <Icon className={"help-icon"} name="question-mark" size="sm" />
           </TooltipComponent>
         )}
       </HeaderWrapper>

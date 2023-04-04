@@ -1264,6 +1264,7 @@ class CodeEditor extends Component<Props, State> {
             /
           </Button>
         )}
+
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}

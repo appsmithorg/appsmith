@@ -7,7 +7,6 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
-import { Toaster, Variant } from "design-system-old";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
@@ -32,6 +31,8 @@ import store from "store";
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
+import type { PluginErrorDetails } from "api/ActionAPI";
+import { toast } from "design-system";
 
 /**
  * making with error message with action name
@@ -128,6 +129,28 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
+type ClientDefinedErrorMetadata = {
+  clientDefinedError: boolean;
+  statusCode: string;
+  message: string;
+  pluginErrorDetails: PluginErrorDetails;
+};
+
+export function extractClientDefinedErrorMetadata(
+  err: any,
+): ClientDefinedErrorMetadata | undefined {
+  if (err?.clientDefinedError && err?.response) {
+    return {
+      clientDefinedError: err?.clientDefinedError,
+      statusCode: err?.statusCode,
+      message: err?.message,
+      pluginErrorDetails: err?.pluginErrorDetails,
+    };
+  } else {
+    return undefined;
+  }
+}
+
 type ErrorPayloadType = {
   code?: number | string;
   message?: string;
@@ -183,6 +206,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   }
 
   if (error && error.crash) {
+    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
 
@@ -226,7 +250,7 @@ function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
 }
 
 function showAlertAboutError(message: string) {
-  Toaster.show({ text: message, variant: Variant.danger });
+  toast.show(message, { kind: "error" });
 }
 
 function* crashAppSaga(error: ErrorPayloadType) {

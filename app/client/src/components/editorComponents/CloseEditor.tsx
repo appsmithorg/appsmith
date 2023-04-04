@@ -14,10 +14,18 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { AppsmithLocationState } from "../../utils/history";
+import { NavigationMethod } from "../../utils/history";
 import { Link } from "design-system";
+import styled from "styled-components";
+
+const StyledLink = styled(Link)`
+  margin-left: 16px;
+  margin-top: 8px;
+`;
 
 function CloseEditor() {
-  const history = useHistory();
+  const history = useHistory<AppsmithLocationState>();
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
@@ -61,20 +69,21 @@ function CloseEditor() {
       fromUrl: location.pathname,
       toUrl: URL,
     });
-    history.push(URL);
+    history.push(URL, { invokedBy: NavigationMethod.ActionBackButton });
     return false;
   };
 
   return (
-    <Link
+    <StyledLink
       className="t--close-editor"
       kind="secondary"
       onClick={handleClose}
-      startIcon="arrow-left-s-line"
+      startIcon="arrow-left-line"
+      target="_self"
       to="#"
     >
       Back
-    </Link>
+    </StyledLink>
   );
 }
 

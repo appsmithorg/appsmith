@@ -3,14 +3,14 @@ import React from "react";
 import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
 import DatasourceChip from "../DatasourceChip";
-import { Colors } from "constants/Colors";
-import {
-  FontWeight,
-  getTypographyByKey,
-  Text,
-  TextType,
-} from "design-system-old";
-import { Button } from "design-system";
+// import { Colors } from "constants/Colors";
+// import {
+//   FontWeight,
+//   getTypographyByKey,
+//   Text,
+//   TextType,
+// } from "design-system-old";
+import { Button, Text } from "design-system";
 import {
   createMessage,
   DATASOURCES,
@@ -62,10 +62,6 @@ export const StyledDatasourceChip = styled(DatasourceChip)`
     height: 25px;
     width: 25px;
   }
-  span {
-    ${getTypographyByKey("h4")}
-    color: ${Colors.EBONY_CLAY};
-  }
 `;
 
 export const TemplatesWidgetList = styled.div`
@@ -109,11 +105,11 @@ function TemplateDescription(props: TemplateDescriptionProps) {
     <DescriptionWrapper>
       <DescriptionColumn>
         <Section>
-          <Text type={TextType.H1}>{createMessage(OVERVIEW)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(OVERVIEW)}
+          </Text>
           <div className="section-content">
-            <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-              {template.description}
-            </Text>
+            <Text kind="body-m">{template.description}</Text>
           </div>
           {!props.hideForkButton && !!workspaceList.length && (
             <ForkTemplate
@@ -134,25 +130,27 @@ function TemplateDescription(props: TemplateDescriptionProps) {
           )}
         </Section>
         <Section>
-          <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(FUNCTION)}
+          </Text>
           <div className="section-content">
-            <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-              {template.functions.join(" • ")}
-            </Text>
+            <Text kind="body-m">{template.functions.join(" • ")}</Text>
           </div>
         </Section>
         <Section>
-          <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(INDUSTRY)}
+          </Text>
           <div className="section-content">
-            <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-              {template.useCases.join(" • ")}
-            </Text>
+            <Text kind="body-m">{template.useCases.join(" • ")}</Text>
           </div>
         </Section>
       </DescriptionColumn>
       <DescriptionColumn>
         <Section>
-          <Text type={TextType.H1}>{createMessage(DATASOURCES)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(DATASOURCES)}
+          </Text>
           <div className="section-content">
             <TemplateDatasources>
               {template.datasources.map((packageName) => {
@@ -165,15 +163,15 @@ function TemplateDescription(props: TemplateDescriptionProps) {
               })}
             </TemplateDatasources>
             <div className="datasource-note">
-              <Text type={TextType.H4}>{createMessage(NOTE)} </Text>
-              <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                {createMessage(NOTE_MESSAGE)}
-              </Text>
+              <Text kind="body-m">{createMessage(NOTE)}</Text>
+              <Text kind="body-m">{createMessage(NOTE_MESSAGE)}</Text>
             </div>
           </div>
         </Section>
         <Section>
-          <Text type={TextType.H1}>{createMessage(WIDGET_USED)}</Text>
+          <Text kind="heading-m" renderAs="h4">
+            {createMessage(WIDGET_USED)}
+          </Text>
           <div className="section-content">
             <TemplatesWidgetList>
               {template.widgets.map((widgetType) => {
