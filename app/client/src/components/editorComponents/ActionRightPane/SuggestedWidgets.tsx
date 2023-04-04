@@ -20,6 +20,7 @@ import type { SuggestedWidget } from "api/ActionAPI";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const WidgetList = styled.div`
   ${getTypographyByKey("p1")}
@@ -68,43 +69,43 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "items",
     propertyName: "listData",
     widgetName: "List",
-    image: "https://assets.appsmith.com/widgetSuggestion/list.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/list.svg`,
   },
   TABLE_WIDGET: {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
-    image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
   },
   TABLE_WIDGET_V2: {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
-    image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
   },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
-    image: "https://assets.appsmith.com/widgetSuggestion/chart.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/chart.svg`,
   },
   SELECT_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
-    image: "https://assets.appsmith.com/widgetSuggestion/dropdown.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/dropdown.svg`,
   },
   TEXT_WIDGET: {
     label: "text",
     propertyName: "text",
     widgetName: "Text",
-    image: "https://assets.appsmith.com/widgetSuggestion/text.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/text.svg`,
   },
   INPUT_WIDGET_V2: {
     label: "text",
     propertyName: "defaultText",
     widgetName: "Input",
-    image: "https://assets.appsmith.com/widgetSuggestion/input.svg",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/input.svg`,
   },
 };
 
