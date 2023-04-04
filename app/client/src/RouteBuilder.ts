@@ -8,7 +8,7 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -166,6 +166,15 @@ export const onboardingCheckListUrl = (props: URLBuilderParams): string =>
 
 export const builderURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props);
+};
+
+export const widgetURL = (
+  props: URLBuilderParams & { selectedWidgets: string[] },
+) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `widgets/${props.selectedWidgets.join(",")}`,
+  });
 };
 
 export const viewerURL = (props: URLBuilderParams): string => {

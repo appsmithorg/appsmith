@@ -1,7 +1,9 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -32,53 +34,60 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
+    @JsonView(Views.Public.class)
     private String id;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Indexed
     @CreatedDate
     protected Instant createdAt;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @LastModifiedDate
     protected Instant updatedAt;
 
     @CreatedBy
+    @JsonView(Views.Public.class)
     protected String createdBy;
 
     @LastModifiedBy
+    @JsonView(Views.Public.class)
     protected String modifiedBy;
 
     // Deprecating this so we can move on to using `deletedAt` for all domain models.
     @Deprecated(forRemoval = true)
+    @JsonView(Views.Public.class)
     protected Boolean deleted = false;
 
+    @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
     @Override
+    @JsonView(Views.Public.class)
     public boolean isNew() {
         return this.getId() == null;
     }
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
     }
 
     @Transient
+    @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
     // This field will be used to store the default/root resource IDs for branched resources generated for git
     // connected applications and will be used to connect resources across the branches
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
     // This field will only be used for git related functionality to sync the action object across different instances.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String gitSyncId;
 
     public void sanitiseToExportBaseObject() {

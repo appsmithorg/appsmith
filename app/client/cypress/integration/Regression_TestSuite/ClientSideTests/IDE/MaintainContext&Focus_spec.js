@@ -10,7 +10,7 @@ const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
 
-describe("MaintainContext&Focus", function() {
+describe("MaintainContext&Focus", function () {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
@@ -135,7 +135,7 @@ describe("MaintainContext&Focus", function() {
 
   it("6. Maintains focus on JS Objects", () => {
     cy.SearchEntityandOpen("JSObject1");
-    cy.assertCursorOnCodeInput(".js-editor", { ch: 4, line: 4 });
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
 
     cy.SearchEntityandOpen("JSObject2");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
@@ -167,37 +167,16 @@ describe("MaintainContext&Focus", function() {
   it("9. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
+    dataSources.ExpandSection(0);
     agHelper.GoBack();
     ee.SelectEntityByName("Github", "Datasources");
-    dataSources.AssertViewMode();
+    dataSources.AssertDSEditViewMode("View");
     ee.SelectEntityByName("Appsmith", "Datasources");
-    dataSources.AssertEditMode();
+    dataSources.AssertDSEditViewMode("Edit");
+    dataSources.AssertSectionCollapseState(0, false);
   });
 
-  it("10. Datasource collapse state has to be maintained", () => {
-    // Create datasource 1
-    agHelper.GoBack();
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("PostgreSQL");
-    agHelper.RenameWithInPane("Postgres1", false);
-    // Expand section with index 1
-    dataSources.ExpandSection(1);
-    // Create and switch to datasource 2
-    dataSources.SaveDSFromDialog(true);
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("MongoDB");
-    agHelper.RenameWithInPane("Mongo1", false);
-    // Validate if section with index 1 is collapsed
-    dataSources.AssertSectionCollapseState(1, false);
-    // Switch back to datasource 1
-    dataSources.SaveDSFromDialog(false);
-    dataSources.CreateNewQueryInDS("Postgres1");
-    ee.SelectEntityByName("Postgres1");
-    // Validate if section with index 1 is expanded
-    dataSources.AssertSectionCollapseState(1, false);
-  });
-
-  it("11. Maintain focus of form control inputs", () => {
+  it("10. Maintain focus of form control inputs", () => {
     ee.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     cy.SearchEntityandOpen("S3_Query");

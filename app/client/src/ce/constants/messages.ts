@@ -125,6 +125,10 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_413 = (maxFileSize: number) =>
+  `Payload too large. File size cannot exceed ${maxFileSize}MB.`;
+export const GENERIC_API_EXECUTION_ERROR = () => `API execution error`;
+export const APPSMITH_HTTP_ERROR_413 = () => `413 CONTENT_TOO_LARGE`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
@@ -147,12 +151,21 @@ export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
-export const INVITE_USERS_SUBMIT_SUCCESS = () =>
-  `The users have been invited successfully`;
-export const INVITE_USER_SUBMIT_SUCCESS = () =>
-  `The user has been invited successfully`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The users have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
+export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+  "Users will have access to all applications in this workspace";
+export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
+  "Users will only have access to this application";
+export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
@@ -177,6 +190,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+export const SHARE_APP = () => `Share app`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -309,6 +323,8 @@ export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
+export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
+  `This selected widget cannot be cut.`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
@@ -422,6 +438,7 @@ export const NAVIGATE_TO = () => `Navigate to`;
 export const SHOW_MESSAGE = () => `Show message`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
+export const CLOSE = () => `CLOSE`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -983,11 +1000,13 @@ export const WELCOME_FORM_FULL_NAME = () => "Full Name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
-export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
-export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () => "- Select a role -";
-export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_ROLE_DROPDOWN = () =>
+  "Tell us about your primary skillset";
+export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
+  "- Select a skillset -";
+export const WELCOME_FORM_ROLE = () => "Skillset";
 export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
-export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_USE_CASE = () => "Tell us about your use case";
 export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
@@ -1106,7 +1125,7 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
-  "Tell us more about what you do at work?";
+  "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
@@ -1116,11 +1135,8 @@ export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
-  `The ${widgetName}widget you are currently using is now deprecated.`;
-export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
-  replacingWidgetName: string,
-) =>
-  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
+  `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
+
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
@@ -1131,11 +1147,17 @@ export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
+export const API_PANE_AUTO_GENERATED_HEADER = () =>
+  "This content-type header is auto-generated by appsmith based on body type of the API. Create a new header content-type to overwrite this value.";
+export const API_PANE_DUPLICATE_HEADER = (headerName: string) =>
+  `This is a duplicate header and will be overridden by the ${headerName} header added by you.`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query / JS Object";
+export const LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP = () =>
+  "Count of all the records in the source data for the list. This helps us calculate the number of pages to be shown";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1369,6 +1391,10 @@ export const MEMBERS_TAB_TITLE = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cloudHosting?: boolean,
 ) => `Users (${length})`;
+export const SEARCH_USERS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Search for users`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
@@ -1447,6 +1473,25 @@ export const IN_APP_EMBED_SETTING = {
   showNavigationBar: () => "Show navigation bar",
 };
 
+export const APP_NAVIGATION_SETTING = {
+  sectionHeader: () => "Navigation",
+  sectionHeaderDesc: () => "Customize the navigation bar",
+  showNavbarLabel: () => "Show Navbar",
+  orientationLabel: () => "Orientation",
+  navStyleLabel: () => "Variant",
+  positionLabel: () => "Position",
+  itemStyleLabel: () => "Item Style",
+  colorStyleLabel: () => "Background color",
+  logoLabel: () => "Logo",
+  logoConfigurationLabel: () => "Logo Configuration",
+  showSignInLabel: () => "Show Sign In",
+  showSignInTooltip: () =>
+    "Toggle to show the sign-in button for users who are not logged in.",
+};
+
+export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
+
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
@@ -1454,7 +1499,74 @@ export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
+  "Google sheets authorised file ids key";
 
+//Layout Conversion flow
+export const CONVERT = () => "CONVERT";
+export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const BUILD_RESPONSIVE_TEXT = () =>
+  "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
+export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT_TEXT = () =>
+  "Appsmith will convert your application’s UI to fixed layout, the default mode.";
+export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
+export const SAVE_SNAPSHOT = () =>
+  "Save a Snapshot of your Current Layout for 5 days";
+export const SAVE_SNAPSHOT_TEXT = () =>
+  "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
+export const CREATE_SNAPSHOT = () => "Creating a snapshot";
+export const CONVERTING_APP = () => "Converting your app";
+export const RESTORING_SNAPSHOT = () => "Removing changes made";
+export const REFRESH_THE_APP = () => "REFRESH THE APP";
+export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const CONVERSION_SUCCESS_HEADER = () => "All done";
+export const DISCARD_SNAPSHOT_TEXT = () =>
+  "You are about to discard this snapshot:";
+export const CONVERSION_SUCCESS_TEXT = () =>
+  "Check all your pages and start using your new layout";
+export const CONVERSION_WARNING_HEADER = () =>
+  "All done, some adjustments needed";
+export const CONVERSION_WARNING_TEXT = () =>
+  "You might need to manually position some of the widgets your layout contains";
+export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
+export const CONVERSION_ERROR = () =>
+  "Appsmith ran into a critical error while trying to convert to auto layout";
+export const SEND_REPORT = () => "SEND US A REPORT";
+export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
+export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
+export const CONVERSION_WARNING = () => "Conversion will change your layout";
+export const SNAPSHOT_LABEL = () =>
+  "To revert back to the original state use this snapshot";
+export const USE_SNAPSHOT_TEXT = () =>
+  "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+export const SNAPSHOT_WARNING_MESSAGE = () =>
+  "Any changes you made after conversion will not be present.";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
+export const SNAPSHOT_BANNER_MESSAGE = () =>
+  "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
+export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
+export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
+export const MORE_DETAILS = () => "More details";
+export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
+  "To resolve this error please:";
+export const CONVERSION_ERROR_MESSAGE_TEXT_ONE = () =>
+  "Check your internet connection.";
+export const CONVERSION_ERROR_MESSAGE_TEXT_TWO = () =>
+  "Send us a report. Sending a report will only inform us that the failure happened and will give us your email address to reach out to.";
+export const SNAPSHOT_TIME_FROM_MESSAGE = (
+  timeSince: string,
+  readableDate: string,
+) => `Snapshot from ${timeSince} ago (${readableDate})`;
+export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
+  timeTillExpiration: string,
+) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
+export const DISCARD = () => "DISCARD";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

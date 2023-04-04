@@ -1,11 +1,8 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import { User } from "constants/userConstants";
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-} = getAppsmithConfigs();
+import type { User } from "constants/userConstants";
+const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
+  getAppsmithConfigs();
 
 export const connectedMethods = [
   enableGoogleOAuth,
@@ -42,4 +39,10 @@ export const getDefaultAdminSettingsPath = (
 
 export const showAdminSettings = (user?: User): boolean => {
   return (user?.isSuperUser && user?.isConfigurable) || false;
+};
+
+export const getLoginUrl = (method: string): string => {
+  const urls: Record<string, string> = {};
+
+  return urls[method];
 };

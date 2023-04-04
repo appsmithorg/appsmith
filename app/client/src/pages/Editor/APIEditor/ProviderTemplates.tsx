@@ -1,23 +1,21 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Icon, Collapse } from "@blueprintjs/core";
-import { RouteComponentProps } from "react-router-dom";
+import type { RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 import ReactJson from "react-json-view";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import Button from "components/editorComponents/Button";
-import { ProviderViewerRouteParams } from "constants/routes";
+import type { ProviderViewerRouteParams } from "constants/routes";
 import {
   getProviderTemplates,
   getProvidersTemplatesLoadingState,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import {
-  ProviderTemplateArray,
-  DEFAULT_TEMPLATE_TYPE,
-} from "constants/providerConstants";
-import { AddApiToPageRequest } from "api/ProvidersApi";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ProviderTemplateArray } from "constants/providerConstants";
+import { DEFAULT_TEMPLATE_TYPE } from "constants/providerConstants";
+import type { AddApiToPageRequest } from "api/ProvidersApi";
 import {
   setLastUsedEditorPage,
   setLastSelectedPage,

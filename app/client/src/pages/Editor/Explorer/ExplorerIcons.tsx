@@ -1,13 +1,12 @@
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import {
-  HTTP_METHOD,
-  HTTP_METHODS_COLOR,
-} from "constants/ApiEditorConstants/CommonApiConstants";
+import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
@@ -208,11 +207,12 @@ export const SortFileIcon = (
 type EntityTextIconProps = {
   children: React.ReactNode;
   textColor?: string;
+  fontSize?: number;
 };
 
-const EntityTextIconWrapper = styled.div<{ color?: string }>`
+const EntityTextIconWrapper = styled.div<{ fontSize?: number; color?: string }>`
   color: ${({ color }) => (color ? color : Colors.SCORPION)};
-  font-size: 56%;
+  font-size: ${({ fontSize }) => fontSize + "%"};
   font-weight: 900;
   text-transform: uppercase;
   display: flex;
@@ -223,14 +223,18 @@ const EntityTextIconWrapper = styled.div<{ color?: string }>`
   padding: 0 2px;
 `;
 
+// added fontSize prop to allow for dynamic sizing.
 function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
   return (
-    <EntityTextIconWrapper color={props.textColor}>
+    <EntityTextIconWrapper color={props.textColor} fontSize={props.fontSize}>
       {props.children}
     </EntityTextIconWrapper>
   );
 }
 
+//border size is 8.5% of the height.
+// (8.5% because for 18px of default height, the border is 1.5px).
+//img and svg are set to 80% of the height to allow for the border to be visible and not cut off.
 const EntityIconWrapper = styled.div<{
   borderColor?: string;
   width?: string;
@@ -241,8 +245,12 @@ const EntityIconWrapper = styled.div<{
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
   background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
-  border: ${({ borderColor, noBorder }) =>
-    noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
+  border: ${({ borderColor, height, noBorder }) =>
+    noBorder
+      ? "none"
+      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
+          borderColor ?? Colors.SCORPION
+        }`};
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -251,8 +259,8 @@ const EntityIconWrapper = styled.div<{
 
   svg,
   img {
-    height: 12px !important;
-    width: 12px !important;
+    height: 80% !important;
+    width: 80% !important;
   }
 `;
 
@@ -284,11 +292,25 @@ export { EntityIcon };
 
 /** ======= Entity Icon components ends ====== */
 
-export function ApiMethodIcon(props: { type: keyof typeof HTTP_METHOD }) {
+// height and width are set to 18px by default. This is to maintain the current icon sizes.
+// fontSize is set to 56% by default.
+export function ApiMethodIcon(
+  type: keyof typeof HTTP_METHOD,
+  height = "18px",
+  width = "36px",
+  fontSize = 56,
+) {
   return (
-    <EntityIcon borderColor={HTTP_METHODS_COLOR[props.type]} width={"36px"}>
-      <EntityIcon.textIcon textColor={HTTP_METHODS_COLOR[props.type]}>
-        {props.type}
+    <EntityIcon
+      borderColor={HTTP_METHODS_COLOR[type]}
+      height={height}
+      width={width}
+    >
+      <EntityIcon.textIcon
+        fontSize={fontSize}
+        textColor={HTTP_METHODS_COLOR[type]}
+      >
+        {type}
       </EntityIcon.textIcon>
     </EntityIcon>
   );
@@ -310,11 +332,15 @@ export function CurlIconV2() {
   );
 }
 
-export const JsFileIconV2 = (
-  <EntityIcon>
-    <EntityIcon.textIcon>JS</EntityIcon.textIcon>
-  </EntityIcon>
-);
+// height and width are set to 18px by default. This is to maintain the current icon sizes.
+// fontSize is set to 56% by default.
+export function JsFileIconV2(height = 18, width = 18) {
+  return (
+    <EntityIcon height={height + "px"} width={width + "px"}>
+      <EntityIcon.textIcon fontSize={height * 3.05}>JS</EntityIcon.textIcon>
+    </EntityIcon>
+  );
+}
 
 export function GraphQLIconV2() {
   return (

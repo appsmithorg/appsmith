@@ -19,6 +19,8 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.GraphQLErrorMessages;
+import com.external.plugins.exceptions.GraphQLPluginError;
 import com.external.utils.GraphQLHintMessageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -105,7 +107,6 @@ public class GraphQLPlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(e);
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
                 }
@@ -128,7 +129,6 @@ public class GraphQLPlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(e);
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
                 }
@@ -179,7 +179,10 @@ public class GraphQLPlugin extends BasePlugin {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage(e));
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, GraphQLErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG, e.getMessage()
+                        )
+                    );
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -195,14 +198,20 @@ public class GraphQLPlugin extends BasePlugin {
             /* Check for content type */
             final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Invalid value for Content-Type."));
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, GraphQLErrorMessages.INVALID_CONTENT_TYPE_ERROR_MSG
+                        )
+                    );
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, GraphQLErrorMessages.NO_HTTP_METHOD_ERROR_MSG
+                        )
+                    );
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -221,7 +230,7 @@ public class GraphQLPlugin extends BasePlugin {
                  * as is for `application/json`. Hence, the current check assumes that any content type that differs
                  * from `application/graphql` would expect the data in the same format as for `application/json`
                  */
-                if (!ApiContentType.GRAPHQL.getValue().equals(reqContentType)) {
+                if (!ApiContentType.GRAPHQL.getValue().equalsIgnoreCase(reqContentType)) {
                     /**
                      * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
                      * following format:
@@ -254,25 +263,42 @@ public class GraphQLPlugin extends BasePlugin {
                  */
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has found an unexpected HTTP method configured with the GraphQL " +
-                                        "plugin query: " + httpMethod
+                                GraphQLPluginError.QUERY_EXECUTION_FAILED,
+                                String.format(GraphQLErrorMessages.UNEXPECTED_HTTP_METHOD_ERROR_MSG, httpMethod)
                         )
                 );
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
-                    encodeParamsToggle,
-                    httpMethod);
-            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+                    encodeParamsToggle, httpMethod);
+            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
             Set<String> hintMessages = new HashSet<>();
-            return restAPIActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
-                    objectMapper,
-                    hintMessages, errorResult, requestCaptureFilter);
+            return restAPIActivateUtils.triggerApiCall(
+                        client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+                        objectMapper, hintMessages, errorResult, requestCaptureFilter
+                    )
+                    .map(actionExecutionResult -> {
+                        if (! actionExecutionResult.getIsExecutionSuccess()) {
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED,
+                                                                                           GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                                                                           actionExecutionResult.getBody(),
+                                                                                           actionExecutionResult.getStatusCode() ));
+                        }
+                        return actionExecutionResult;
+                    })
+                    .onErrorResume(error -> {
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        errorResult.setIsExecutionSuccess(false);
+                        if (! (error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED, GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
+                        }
+                        errorResult.setErrorInfo(error);
+                        return Mono.just(errorResult);
+                    });
         }
 
         @Override

@@ -6,18 +6,21 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
-import {
+import type {
   ApplicationPayload,
   ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import ActionAPI, {
+import type {
   ActionExecutionResponse,
   ActionResponse,
   ExecuteActionRequest,
   PaginationField,
 } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -30,13 +33,18 @@ import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
-import { validateResponse } from "sagas/ErrorSagas";
-import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
-import { Action, PluginType } from "entities/Action";
+import {
+  extractClientDefinedErrorMetadata,
+  validateResponse,
+} from "sagas/ErrorSagas";
+import type { EventName } from "utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { Toaster, Variant } from "design-system-old";
 import {
@@ -47,10 +55,12 @@ import {
   ACTION_EXECUTION_CANCELLED,
   ACTION_EXECUTION_FAILED,
 } from "@appsmith/constants/messages";
-import {
-  EventType,
+import type {
   LayoutOnLoadActionErrors,
   PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -64,7 +74,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
@@ -80,7 +90,6 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -92,26 +101,23 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
-import { JSCollection } from "entities/JSCollection";
-import {
-  executeAppAction,
-  TriggerMeta,
-} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { JSCollection } from "entities/JSCollection";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
-import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
+import type { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   isTrueObject,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
+import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -325,11 +331,11 @@ function* evaluateActionParams(
 }
 
 export default function* executePluginActionTriggerSaga(
-  pluginAction: RunPluginActionDescription["payload"],
+  pluginAction: TRunDescription,
   eventType: EventType,
-  triggerMeta: TriggerMeta,
 ) {
-  const { actionId, onError, onSuccess, params } = pluginAction;
+  const { payload: pluginPayload } = pluginAction;
+  const { actionId, onError, params } = pluginPayload;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       "RUN_PLUGIN_ACTION",
@@ -388,35 +394,36 @@ export default function* executePluginActionTriggerSaga(
       {
         payload: {
           id: actionId,
+          iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${payload.statusCode}`,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: action.name,
             id: actionId,
+            httpMethod: action.actionConfiguration.httpMethod,
+            pluginType: action.pluginType,
           },
           state: payload.request,
           messages: [
             {
               // Need to stringify cause this gets rendered directly
               // and rendering objects can crash the app
-              message: !isString(payload.body)
-                ? JSON.stringify(payload.body)
-                : payload.body,
+              message: {
+                name: "PluginExecutionError",
+                message: !isString(payload.body)
+                  ? JSON.stringify(payload.body)
+                  : payload.body,
+              },
               type: PLATFORM_ERROR.PLUGIN_EXECUTION,
               subType: payload.errorType,
             },
           ],
+          pluginErrorDetails: payload.pluginErrorDetails,
         },
       },
     ]);
     if (onError) {
-      yield call(executeAppAction, {
-        event: { type: eventType },
-        dynamicString: onError,
-        callbackData: [payload.body, params],
-        ...triggerMeta,
-      });
       throw new PluginTriggerFailureError(
         createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
         [payload.body, params],
@@ -424,7 +431,7 @@ export default function* executePluginActionTriggerSaga(
     } else {
       throw new PluginTriggerFailureError(
         createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-        [payload.body, params],
+        [],
       );
     }
   } else {
@@ -442,14 +449,6 @@ export default function* executePluginActionTriggerSaga(
         request: payload.request,
       },
     });
-    if (onSuccess) {
-      yield call(executeAppAction, {
-        event: { type: eventType },
-        dynamicString: onSuccess,
-        callbackData: [payload.body, params],
-        ...triggerMeta,
-      });
-    }
   }
   return [payload.body, params];
 }
@@ -517,6 +516,12 @@ function* runActionShortcutSaga() {
   }
 }
 
+type RunActionError = {
+  name: string;
+  message: string;
+  clientDefinedError?: boolean;
+};
+
 function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -562,7 +567,10 @@ function* runActionSaga(
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = "";
+  let error: RunActionError = {
+    name: "",
+    message: "",
+  };
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -591,7 +599,23 @@ function* runActionSaga(
       return;
     }
     log.error(e);
-    error = (e as Error).message;
+    error = { name: (e as Error).name, message: (e as Error).message };
+
+    const clientDefinedErrorMetadata = extractClientDefinedErrorMetadata(e);
+    if (clientDefinedErrorMetadata) {
+      set(
+        payload,
+        "statusCode",
+        `${clientDefinedErrorMetadata?.statusCode || ""}`,
+      );
+      set(payload, "request", {});
+      set(
+        payload,
+        "pluginErrorDetails",
+        clientDefinedErrorMetadata?.pluginErrorDetails,
+      );
+      set(error, "clientDefinedError", true);
+    }
   }
 
   // Error should be readable error if present.
@@ -599,17 +623,35 @@ function* runActionSaga(
   // Default to "An unexpected error occurred" if none is available
 
   const readableError = payload.readableError
-    ? getErrorAsString(payload.readableError)
+    ? {
+        name: "PluginExecutionError",
+        message: getErrorAsString(payload.readableError),
+      }
     : undefined;
 
   const payloadBodyError = payload.body
-    ? getErrorAsString(payload.body)
+    ? {
+        name: "PluginExecutionError",
+        message: getErrorAsString(payload.body),
+      }
     : undefined;
 
-  const defaultError = "An unexpected error occurred";
+  const clientDefinedError = error.clientDefinedError
+    ? {
+        name: "PluginExecutionError",
+        message: error?.message,
+        clientDefinedError: true,
+      }
+    : undefined;
+
+  const defaultError = {
+    name: "PluginExecutionError",
+    message: "An unexpected error occurred",
+  };
 
   if (isError) {
-    error = readableError || payloadBodyError || defaultError;
+    error =
+      readableError || payloadBodyError || clientDefinedError || defaultError;
 
     // In case of debugger, both the current error message
     // and the readableError needs to be present,
@@ -635,6 +677,7 @@ function* runActionSaga(
       {
         payload: {
           id: actionId,
+          iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed${
             payload.statusCode ? ` with status ${payload.statusCode}` : ""
@@ -643,9 +686,12 @@ function* runActionSaga(
             type: ENTITY_TYPE.ACTION,
             name: actionObject.name,
             id: actionId,
+            httpMethod: actionObject.actionConfiguration.httpMethod,
+            pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
-          state: payload.request,
+          state: payload?.request,
+          pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
     ]);
@@ -658,7 +704,7 @@ function* runActionSaga(
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: {
-        error: appsmithConsoleErrorMessageList[0],
+        error: appsmithConsoleErrorMessageList[0].message,
         id: reduxAction.payload.id,
       },
     });
@@ -771,21 +817,31 @@ function* executePageLoadAction(pageAction: PageAction) {
       isExampleApp: currentApp.appIsExample,
     });
 
+    // action is required to fetch the pluginId and pluginType.
+    const action = shouldBeDefined<Action>(
+      yield select(getAction, pageAction.id),
+      `action not found for id - ${pageAction.id}`,
+    );
+
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    let error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
+    let error = {
+      name: "PluginExecutionError",
+      message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
+    };
     try {
-      const executePluginActionResponse: ExecutePluginActionResponse = yield call(
-        executePluginActionSaga,
-        pageAction,
-      );
+      const executePluginActionResponse: ExecutePluginActionResponse =
+        yield call(executePluginActionSaga, pageAction);
       payload = executePluginActionResponse.payload;
       isError = executePluginActionResponse.isError;
     } catch (e) {
       log.error(e);
 
       if (e instanceof UserCancelledActionExecutionError) {
-        error = createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name);
+        error = {
+          name: "PluginExecutionError",
+          message: createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name),
+        };
       }
     }
 
@@ -794,12 +850,15 @@ function* executePageLoadAction(pageAction: PageAction) {
         {
           payload: {
             id: pageAction.id,
+            iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
               name: pageAction.name,
               id: pageAction.id,
+              httpMethod: action.actionConfiguration.httpMethod,
+              pluginType: action.pluginType,
             },
             state: payload.request,
             messages: [
@@ -809,6 +868,7 @@ function* executePageLoadAction(pageAction: PageAction) {
                 subType: payload.errorType,
               },
             ],
+            pluginErrorDetails: payload.pluginErrorDetails,
           },
         },
       ]);
@@ -817,7 +877,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         executePluginActionError({
           actionId: pageAction.id,
           isPageLoad: true,
-          error: { message: error },
+          error: { message: error.message },
           data: payload,
         }),
       );
@@ -965,16 +1025,15 @@ function* executePluginActionSaga(
     params,
   );
 
+  let payload = EMPTY_RESPONSE;
+  let response: ActionExecutionResponse;
   try {
-    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-      formData,
-      timeout,
-    );
+    response = yield ActionAPI.executeAction(formData, timeout);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
     );
     yield validateResponse(response);
-    const payload = createActionExecutionResponse(response);
+    payload = createActionExecutionResponse(response);
 
     yield put(
       executePluginActionSuccess({
@@ -982,22 +1041,30 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-    let plugin: Plugin | undefined;
-    if (!!pluginAction.pluginId) {
-      plugin = shouldBeDefined<Plugin>(
-        yield select(getPlugin, pluginAction.pluginId),
-        `Plugin not found for id - ${pluginAction.pluginId}`,
-      );
+    // TODO: Plugins are not always fetched before on page load actions are executed.
+    try {
+      let plugin: Plugin | undefined;
+      if (!!pluginAction.pluginId) {
+        plugin = shouldBeDefined<Plugin>(
+          yield select(getPlugin, pluginAction.pluginId),
+          `Plugin not found for id - ${pluginAction.pluginId}`,
+        );
+      }
+
+      // sets the default display format for action response e.g Raw, Json or Table
+      yield setDefaultActionDisplayFormat(actionId, plugin, payload);
+    } catch (e) {
+      log.error("plugin no found", e);
     }
-
-    // sets the default display format for action response e.g Raw, Json or Table
-    yield setDefaultActionDisplayFormat(actionId, plugin, payload);
-
     return {
       payload,
       isError: isErrorResponse(response),
     };
   } catch (e) {
+    if ("clientDefinedError" in (e as any)) {
+      throw e;
+    }
+
     yield put(
       executePluginActionSuccess({
         id: actionId,

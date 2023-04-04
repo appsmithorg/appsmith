@@ -7,15 +7,22 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { change, getFormValues, initialize } from "redux-form";
-import _, { merge, isEmpty } from "lodash";
-import equal from "fast-deep-equal/es6";
 import {
+  change,
+  getFormInitialValues,
+  getFormValues,
+  initialize,
+} from "redux-form";
+import { merge, isEmpty, get, set, partition, omit } from "lodash";
+import equal from "fast-deep-equal/es6";
+import type {
   ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -30,22 +37,29 @@ import {
   getPluginPackageFromDatasourceId,
   getDatasources,
   getDatasourceActionRouteInfo,
+  getPlugin,
 } from "selectors/entitiesSelector";
+import type {
+  UpdateDatasourceSuccessAction,
+  executeDatasourceQueryReduxAction,
+} from "actions/datasourceActions";
 import {
   changeDatasource,
   fetchDatasourceStructure,
   setDatasourceViewMode,
   updateDatasourceSuccess,
-  UpdateDatasourceSuccessAction,
-  executeDatasourceQueryReduxAction,
   createTempDatasourceFromForm,
   removeTempDatasource,
   createDatasourceSuccess,
+  resetDefaultKeyValPairFlag,
+  updateDatasource,
 } from "actions/datasourceActions";
-import { ApiResponse } from "api/ApiResponses";
-import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
-import { Datasource } from "entities/Datasource";
-
+import type { ApiResponse } from "api/ApiResponses";
+import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import DatasourcesApi from "api/DatasourcesApi";
+import type { Datasource, TokenResponse } from "entities/Datasource";
+import { AuthenticationStatus } from "entities/Datasource";
+import { FilePickerActionStatus } from "entities/Datasource";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
@@ -67,6 +81,7 @@ import {
   DATASOURCE_DELETE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
+  GSHEET_AUTHORISED_FILE_IDS_KEY,
   OAUTH_APPSMITH_TOKEN_NOT_FOUND,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
@@ -82,14 +97,14 @@ import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
-import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
-import { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "selectors/applicationSelectors";
+import type { AppState } from "@appsmith/reducers";
+import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -110,9 +125,8 @@ function* fetchDatasourcesSaga(
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
-    const response: ApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
-      workspaceId,
-    );
+    const response: ApiResponse<Datasource[]> =
+      yield DatasourcesApi.fetchDatasources(workspaceId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -183,9 +197,8 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       });
       // @ts-expect-error: response is of type unknown
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
-      const isGeneratePageInitiator = getIsGeneratePageInitiator(
-        isGeneratePageMode,
-      );
+      const isGeneratePageInitiator =
+        getIsGeneratePageInitiator(isGeneratePageMode);
       const isInGuidedTour: boolean = yield select(inGuidedTour);
       if (isGeneratePageInitiator) {
         history.push(
@@ -221,9 +234,8 @@ export function* deleteDatasourceSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const response: ApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
-      id,
-    );
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.deleteDatasource(id);
     const pageId: string = yield select(getCurrentPageId);
 
     const isValidResponse: boolean = yield validateResponse(response);
@@ -326,16 +338,21 @@ function* updateDatasourceSaga(
 ) {
   try {
     const queryParams = getQueryParams();
-    const datasourcePayload = _.omit(actionPayload.payload, "name");
+    const datasourcePayload = omit(actionPayload.payload, "name");
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
-    const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
-      datasourcePayload,
-      datasourcePayload.id,
-    );
+
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.updateDatasource(
+        datasourcePayload,
+        datasourcePayload.id,
+      );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
+        pluginName: plugin?.name || "",
+        pluginPackageName: plugin?.packageName || "",
       });
       Toaster.show({
         text: createMessage(DATASOURCE_UPDATE, response.data.name),
@@ -451,7 +468,7 @@ function* getOAuthAccessTokenSaga(
   }
   try {
     // Get access token for datasource
-    const response: ApiResponse<Datasource> = yield OAuthApi.getAccessToken(
+    const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,
       appsmithToken,
     );
@@ -459,12 +476,23 @@ function* getOAuthAccessTokenSaga(
       // Update the datasource object
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
-        payload: response.data,
+        payload: response.data.datasource,
       });
-      Toaster.show({
-        text: OAUTH_AUTHORIZATION_SUCCESSFUL,
-        variant: Variant.success,
-      });
+
+      if (!!response.data.token) {
+        yield put({
+          type: ReduxActionTypes.SET_GSHEET_TOKEN,
+          payload: {
+            gsheetToken: response.data.token,
+            gsheetProjectID: response.data.projectID,
+          },
+        });
+      } else {
+        Toaster.show({
+          text: OAUTH_AUTHORIZATION_SUCCESSFUL,
+          variant: Variant.success,
+        });
+      }
       // Remove the token because it is supposed to be short lived
       localStorage.removeItem(APPSMITH_TOKEN_STORAGE_KEY);
     }
@@ -481,12 +509,13 @@ function* updateDatasourceNameSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
-    const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
-      {
-        name: actionPayload.payload.name,
-      },
-      actionPayload.payload.id,
-    );
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.updateDatasource(
+        {
+          name: actionPayload.payload.name,
+        },
+        actionPayload.payload.id,
+      );
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -518,7 +547,6 @@ function* handleDatasourceNameChangeFailureSaga(
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   let workspaceId: string = yield select(getCurrentWorkspaceId);
-
   // test button within the import modal
   if (!workspaceId) {
     workspaceId = yield select(getWorkspaceIdForImport);
@@ -543,12 +571,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   try {
-    const response: ApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
-      {
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.testDatasource({
         ...payload,
         workspaceId,
-      },
-    );
+      });
     const isValidResponse: boolean = yield validateResponse(response);
     let messages: Array<string> = [];
     if (isValidResponse) {
@@ -558,9 +585,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         (responseData.messages && responseData.messages.length)
       ) {
         if (responseData.invalids && responseData.invalids.length) {
-          Toaster.show({
-            text: responseData.invalids[0],
-            variant: Variant.danger,
+          responseData.invalids.forEach((message: string) => {
+            Toaster.show({
+              text: message,
+              variant: Variant.danger,
+            });
           });
         }
         if (responseData.messages && responseData.messages.length) {
@@ -695,7 +724,7 @@ function* createDatasourceFromFormSaga(
       formConfig,
     );
 
-    const payload = _.omit(merge(initialValues, actionPayload.payload), [
+    const payload = omit(merge(initialValues, actionPayload.payload), [
       "id",
       "new",
       "type",
@@ -703,12 +732,11 @@ function* createDatasourceFromFormSaga(
 
     payload.isConfigured = true;
 
-    const response: ApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-      {
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.createDatasource({
         ...payload,
         workspaceId,
-      },
-    );
+      });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -771,12 +799,12 @@ function* changeDatasourceSaga(
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
   const pageId: string = yield select(getCurrentPageId);
   let data;
-  if (_.isEmpty(draft)) {
+  if (isEmpty(draft)) {
     data = datasource;
   } else {
     data = draft;
   }
-  yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
+  yield put(initialize(DATASOURCE_DB_FORM, omit(data, ["name"])));
   // on reconnect modal, it shouldn't be redirected to datasource edit page
   if (shouldNotRedirect) return;
   // this redirects to the same route, so checking first.
@@ -797,7 +825,7 @@ function* changeDatasourceSaga(
     );
   yield put(
     // @ts-expect-error: data is of type unknown
-    updateReplayEntity(data.id, _.omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
+    updateReplayEntity(data.id, omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
   );
 }
 
@@ -852,10 +880,10 @@ function* storeAsDatasourceSaga() {
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string | undefined = yield select(getCurrentPageId);
-  let datasource = _.get(values, "datasource");
-  datasource = _.omit(datasource, ["name"]);
-  const originalHeaders = _.get(values, "actionConfiguration.headers", []);
-  const [datasourceHeaders, actionHeaders] = _.partition(
+  let datasource = get(values, "datasource");
+  datasource = omit(datasource, ["name"]);
+  const originalHeaders = get(values, "actionConfiguration.headers", []);
+  const [datasourceHeaders, actionHeaders] = partition(
     originalHeaders,
     ({ key, value }: { key: string; value: string }) => {
       return !(isDynamicValue(key) || isDynamicValue(value));
@@ -874,11 +902,7 @@ function* storeAsDatasourceSaga() {
     (d) => !(d.key === "" && d.key === ""),
   );
 
-  _.set(
-    datasource,
-    "datasourceConfiguration.headers",
-    filteredDatasourceHeaders,
-  );
+  set(datasource, "datasourceConfiguration.headers", filteredDatasourceHeaders);
 
   yield put(createTempDatasourceFromForm(datasource));
   const createDatasourceSuccessAction: unknown = yield take(
@@ -905,10 +929,9 @@ function* storeAsDatasourceSaga() {
 
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state: AppState = yield select();
-  const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
-  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
-    getGenerateCRUDEnabledPluginMap,
-  );
+  const actionRouteInfo = get(state, "ui.datasourcePane.actionRouteInfo");
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
+    yield select(getGenerateCRUDEnabledPluginMap);
   const pageId: string = yield select(getCurrentPageId);
   const updatedDatasource = action.payload;
 
@@ -1078,9 +1101,8 @@ function* executeDatasourceQuerySaga(
     // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
     //   action.payload,
     // );
-    const response: ApiResponse = yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(
-      action.payload,
-    );
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -1110,6 +1132,89 @@ function* executeDatasourceQuerySaga(
   }
 }
 
+function* initializeFormWithDefaults(
+  action: ReduxAction<{ pluginType: string }>,
+) {
+  const formName =
+    action?.payload?.pluginType === "API"
+      ? DATASOURCE_REST_API_FORM
+      : DATASOURCE_DB_FORM;
+  const initialValue: Datasource = yield select(getFormInitialValues(formName));
+  const defaultKeyValueArrayConfig: string[] = yield select(
+    (state) => state?.ui?.datasourcePane?.defaultKeyValueArrayConfig,
+  );
+
+  if (
+    defaultKeyValueArrayConfig &&
+    defaultKeyValueArrayConfig?.length > 0 &&
+    !!initialValue
+  ) {
+    const restAPIFormData: Datasource = yield select(
+      getFormValues(DATASOURCE_REST_API_FORM),
+    );
+    const formData: Datasource = yield select(
+      getFormValues(DATASOURCE_DB_FORM),
+    );
+
+    const formDataObj: Datasource =
+      action?.payload?.pluginType === "API" ? restAPIFormData : formData;
+    for (const prop of defaultKeyValueArrayConfig) {
+      const propPath: string[] = prop.split("[*].");
+      const newValues = get(formDataObj, propPath[0], []);
+      set(initialValue, propPath[0], newValues);
+    }
+
+    yield put(resetDefaultKeyValPairFlag());
+  }
+}
+
+function* filePickerActionCallbackSaga(
+  actionPayload: ReduxAction<{
+    action: FilePickerActionStatus;
+    datasourceId: string;
+    fileIds: Array<string>;
+  }>,
+) {
+  try {
+    const { action, datasourceId, fileIds } = actionPayload.payload;
+    yield put({
+      type: ReduxActionTypes.SET_GSHEET_TOKEN,
+      payload: {
+        gsheetToken: "",
+        gsheetProjectID: "",
+      },
+    });
+
+    const datasource: Datasource = yield select(getDatasource, datasourceId);
+
+    // When user selects cancel in file picker, we need to revert datasource status back to failure,
+    // so users cannot create queries on top of such faulty datasource
+    if (action === FilePickerActionStatus.CANCEL) {
+      set(
+        datasource,
+        "datasourceConfiguration.authentication.authenticationStatus",
+        AuthenticationStatus.FAILURE,
+      );
+    }
+
+    // Once users selects/cancels the file selection,
+    // Sending sheet ids selected as part of datasource
+    // config properties in order to save it in database
+    set(datasource, "datasourceConfiguration.properties[0]", {
+      key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+      value: fileIds,
+    });
+    yield put(updateDatasource(datasource));
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.SET_GSHEET_TOKEN,
+      payload: {
+        gsheetToken: "",
+        gsheetProjectID: "",
+      },
+    });
+  }
+}
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1164,9 +1269,17 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
       executeDatasourceQuerySaga,
     ),
+    takeEvery(
+      ReduxActionTypes.INITIALIZE_DATASOURCE_FORM_WITH_DEFAULTS,
+      initializeFormWithDefaults,
+    ),
     // Intercepting the redux-form change actionType to update drafts and track change history
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(
+      ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
+      filePickerActionCallbackSaga,
+    ),
   ]);
 }

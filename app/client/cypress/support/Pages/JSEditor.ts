@@ -81,7 +81,10 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
-  _dialogInDeployView = "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +"')]";
+  _dialogInDeployView =
+    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
+    "')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
@@ -116,15 +119,11 @@ export class JSEditor {
 
   //#region Page functions
   public NavigateToNewJSEditor() {
-    cy.get(this.locator._createNew)
-      .last()
-      .click({ force: true });
+    cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).click({ force: true });
 
     // Assert that the name of the JS Object is focused when newly created
-    cy.get(this._jsObjTxt)
-      .should("be.focused")
-      .type("{enter}");
+    cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
 
     cy.wait(1000);
 
@@ -254,7 +253,7 @@ export class JSEditor {
 
   public ValidateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
-    cy.get(this._propertyList).then(function($lis) {
+    cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
       expect($lis.eq(0).text()).to.be.oneOf([

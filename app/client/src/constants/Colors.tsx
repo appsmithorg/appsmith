@@ -69,7 +69,7 @@ export const Colors = {
   BUTTER_CUP: "#F7AF22",
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
-  JAFFA_DARK: "#F86A2B",
+  JAFFA_DARK: "#EF7541",
   BURNING_ORANGE: "#FF7742",
   TIA_MARIA: "#CB4810",
   SOLID_MERCURY: "#E5E5E5",
@@ -164,6 +164,7 @@ export const Colors = {
   GREY_900: "#191919",
 
   PRIMARY_ORANGE: "#F86A2B",
+  PRIMARY_ORANGE_OPAQUE: "#F86A2B1A",
 
   GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
@@ -193,6 +194,8 @@ export const Colors = {
   GRAY_800: "#393939",
   GRAY_900: "#101828",
   SCORPION: "#575757",
+
+  GRAY_600_OPAQUE: "#6B6B6B1A",
 
   COD_GRAY: "#191919",
 
@@ -235,4 +238,4 @@ export const Colors = {
   HIGHLIGHT_OUTLINE: "rgba(255, 255, 255, 0.5)",
 };
 
-export type Color = typeof Colors[keyof typeof Colors];
+export type Color = (typeof Colors)[keyof typeof Colors];

@@ -1,19 +1,16 @@
 import React from "react";
-import { WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import CurrencyInputComponent, {
-  CurrencyInputComponentProps,
-} from "../component";
+import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { CurrencyInputComponentProps } from "../component";
+import CurrencyInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ValidationTypes,
-  ValidationResponse,
-} from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
 } from "@appsmith/constants/messages";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
@@ -22,7 +19,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import {
@@ -36,7 +33,7 @@ import {
   getLocaleThousandSeparator,
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
 
 export function defaultValueValidation(
@@ -44,10 +41,18 @@ export function defaultValueValidation(
   props: CurrencyInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
-    "Please use . as the decimal separator for default values.";
-  const EMPTY_ERROR_MESSAGE = "";
+  const NUMBER_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be number",
+  };
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE = {
+    name: "ValidationError",
+    message: "Please use . as the decimal separator for default values.",
+  };
+  const EMPTY_ERROR_MESSAGE = {
+    name: "",
+    message: "",
+  };
   const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
@@ -103,7 +108,11 @@ export function defaultValueValidation(
     if (parsed !== Number(parsed.toFixed(props.decimals))) {
       isValid = false;
       messages = [
-        "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        {
+          name: "RangeError",
+          message:
+            "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
+        },
       ];
     } else {
       isValid = true;
@@ -296,7 +305,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   formatText() {
-    if (!!this.props.text) {
+    if (!!this.props.text && !this.isTextFormatted()) {
       try {
         /**
          * Since we are restricting default value to only have "." decimal separator,
@@ -344,6 +353,10 @@ class CurrencyInputWidget extends BaseInputWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  };
+
+  isTextFormatted = () => {
+    return this.props.text.includes(getLocaleThousandSeparator());
   };
 
   handleFocusChange = (isFocused?: boolean) => {

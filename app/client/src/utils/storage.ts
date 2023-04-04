@@ -27,9 +27,7 @@ const store = localforage.createInstance({
 });
 
 export const resetAuthExpiration = () => {
-  const expireBy = moment()
-    .add(1, "h")
-    .format();
+  const expireBy = moment().add(1, "h").format();
   store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
     log.error("Unable to set expiration time");
     log.error(error);
@@ -88,11 +86,11 @@ export const getReflowOnBoardingFlag = async (email: any) => {
 
 export const getCopiedWidgets = async () => {
   try {
-    const widget: string | null = await store.getItem(
+    const copiedWidgetData: string | null = await store.getItem(
       STORAGE_KEYS.COPIED_WIDGET,
     );
-    if (widget && widget.length > 0) {
-      return JSON.parse(widget);
+    if (copiedWidgetData && copiedWidgetData.length > 0) {
+      return JSON.parse(copiedWidgetData);
     }
   } catch (error) {
     log.error("An error occurred when fetching copied widget: ", error);

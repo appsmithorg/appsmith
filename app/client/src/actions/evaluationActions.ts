@@ -1,13 +1,13 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DependencyMap } from "utils/DynamicBindingUtils";
-import { Diff } from "deep-diff";
-import { QueryActionConfig } from "entities/Action";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { Diff } from "deep-diff";
+import type { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -30,7 +30,15 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: true,
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
+  [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: true,
 };
+
+export const LOG_REDUX_ACTIONS = [
+  ReduxActionTypes.UPDATE_LAYOUT,
+  ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+  ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  ReduxActionTypes.CREATE_ACTION_SUCCESS,
+];
 
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
@@ -71,6 +79,9 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  // Meta Widgets
+  ReduxActionTypes.MODIFY_META_WIDGETS,
+  ReduxActionTypes.DELETE_META_WIDGETS,
   // Widget Meta
   ReduxActionTypes.SET_META_PROP_AND_EVAL,
   ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
@@ -115,6 +126,10 @@ export function shouldLint(action: ReduxAction<unknown>) {
     );
   }
   return LINT_REDUX_ACTIONS[action.type];
+}
+
+export function shouldLog(action: ReduxAction<unknown>) {
+  return LOG_REDUX_ACTIONS.includes(action.type);
 }
 
 export const setEvaluatedTree = (

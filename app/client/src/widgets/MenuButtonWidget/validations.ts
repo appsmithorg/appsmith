@@ -1,6 +1,6 @@
-import { ValidationConfig } from "constants/PropertyControlConstants";
-import { ValidationResponse } from "constants/WidgetValidation";
-import { MenuButtonWidgetProps } from "./constants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import type { MenuButtonWidgetProps } from "./constants";
 
 /**
  * Checks if the source data array
@@ -15,7 +15,12 @@ export function sourceDataArrayValidation(
   const invalidResponse = {
     isValid: false,
     parsed: [],
-    messages: ["This value does not evaluate to type Array"],
+    messages: [
+      {
+        name: "TypeError",
+        message: "This value does not evaluate to type Array",
+      },
+    ],
   };
 
   try {
@@ -25,11 +30,14 @@ export function sourceDataArrayValidation(
 
     if (Array.isArray(options)) {
       let isValid = true;
-      let message = "";
+      let message = { name: "", message: "" };
 
       if (options.length > 10) {
         isValid = false;
-        message = "Source data cannot have more than 10 items";
+        message = {
+          name: "RangeError",
+          message: "Source data cannot have more than 10 items",
+        };
       }
 
       return {
@@ -50,7 +58,10 @@ export function textForEachRowValidation(
   props: MenuButtonWidgetProps,
   _: any,
 ): ValidationResponse {
-  const generateResponseAndReturn = (isValid = false, message = "") => {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
     return {
       isValid,
       parsed: isValid ? value : [],
@@ -58,8 +69,10 @@ export function textForEachRowValidation(
     };
   };
 
-  const DEFAULT_MESSAGE =
-    "The evaluated value should be either a string or a number.";
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: "The evaluated value should be either a string or a number.",
+  };
 
   if (
     _.isString(value) ||
@@ -99,7 +112,10 @@ export function textForEachRowValidation(
 export function booleanForEachRowValidation(
   value: unknown,
 ): ValidationResponse {
-  const generateResponseAndReturn = (isValid = false, message = "") => {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
     return {
       isValid,
       parsed: isValid ? value : true,
@@ -114,7 +130,10 @@ export function booleanForEachRowValidation(
     return isABoolean || isStringTrueFalse || value === undefined;
   };
 
-  const DEFAULT_MESSAGE = "The evaluated value should be a boolean.";
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: "The evaluated value should be a boolean.",
+  };
 
   if (isBoolean(value)) {
     return generateResponseAndReturn(true);
@@ -149,7 +168,10 @@ export function iconNamesForEachRowValidation(
   propertyPath: string,
   config: ValidationConfig,
 ): ValidationResponse {
-  const generateResponseAndReturn = (isValid = false, message = "") => {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
     return {
       isValid,
       parsed: isValid ? value : true,
@@ -157,8 +179,11 @@ export function iconNamesForEachRowValidation(
     };
   };
 
-  const DEFAULT_MESSAGE =
-    "The evaluated value should either be an icon name, undefined, null, or an empty string. We currently use the icons from the Blueprint library. You can see the list of icons at https://blueprintjs.com/docs/#icons";
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message:
+      "The evaluated value should either be an icon name, undefined, null, or an empty string. We currently use the icons from the Blueprint library. You can see the list of icons at https://blueprintjs.com/docs/#icons",
+  };
 
   const isIconName = (value: unknown) => {
     return (
@@ -202,7 +227,10 @@ export function iconPositionForEachRowValidation(
   propertyPath: string,
   config: ValidationConfig,
 ): ValidationResponse {
-  const generateResponseAndReturn = (isValid = false, message = "") => {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
     return {
       isValid,
       parsed: isValid ? value : true,
@@ -210,9 +238,12 @@ export function iconPositionForEachRowValidation(
     };
   };
 
-  const DEFAULT_MESSAGE = `The evaluated value should be one of the allowed values => ${config?.params?.allowedValues?.join(
-    ", ",
-  )}, undefined, null, or an empty string`;
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: `The evaluated value should be one of the allowed values => ${config?.params?.allowedValues?.join(
+      ", ",
+    )}, undefined, null, or an empty string`,
+  };
 
   const isIconPosition = (value: unknown) => {
     return (
@@ -256,7 +287,10 @@ export function colorForEachRowValidation(
   propertyPath: string,
   config: ValidationConfig,
 ): ValidationResponse {
-  const generateResponseAndReturn = (isValid = false, message = "") => {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
     return {
       isValid,
       parsed: isValid ? value : true,
@@ -264,7 +298,10 @@ export function colorForEachRowValidation(
     };
   };
 
-  const DEFAULT_MESSAGE = `The evaluated value should match ${config?.params?.regex}`;
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: `The evaluated value should match ${config?.params?.regex}`,
+  };
 
   const isColor = (value: unknown) => {
     return config?.params?.regex?.test(value as string);

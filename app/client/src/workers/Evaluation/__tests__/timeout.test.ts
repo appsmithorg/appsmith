@@ -1,11 +1,13 @@
 import { PluginType } from "entities/Action";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
-import overrideTimeout from "../TimeoutOverride";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { overrideWebAPIs } from "../fns/overrides";
+import type { ActionEntity } from "entities/DataTree/types";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
-  overrideTimeout();
+  overrideWebAPIs(self);
   jest.useFakeTimers();
   jest.spyOn(self, "setTimeout");
   self.postMessage = jest.fn();
@@ -104,9 +106,9 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
         dependencyMap: {},
         logBlackList: {},
-      },
+      } as ActionEntity,
     };
-    self.ALLOW_SYNC = false;
+    self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},

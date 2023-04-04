@@ -3,12 +3,12 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName;
 
-describe("Create a query with a empty datasource, run, save the query", function() {
+describe("Create a query with a empty datasource, run, save the query", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create a empty datasource", function() {
+  it("1. Create a empty datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.testSaveDatasource(false);
@@ -28,7 +28,7 @@ describe("Create a query with a empty datasource, run, save the query", function
     cy.EvaluateCurrentValue("select * from users limit 10");
     cy.runQuery(false);
     cy.get(".t--query-error").contains(
-      "[Missing endpoint., Missing username for authentication.]",
+      "[Missing endpoint., Missing username for authentication., Missing password for authentication.]",
     );
   });
 });

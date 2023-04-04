@@ -17,35 +17,85 @@ jobs:
           body: |
             Deploying Your Preview: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Workflow: `${{ github.workflow }}`.
+            skip-tests: `${{ github.event.client_payload.slash_command.args.named.skip-tests }}`.
+            env: `${{ github.event.client_payload.slash_command.args.named.env }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
 
   server-build:
     name: server-build
+    if: github.event.client_payload.slash_command.args.named.env != 'release'
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
 
   client-build:
     name: client-build
+    if: github.event.client_payload.slash_command.args.named.env != 'release'
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
 
   rts-build:
     name: rts-build
+    if: github.event.client_payload.slash_command.args.named.env != 'release'
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
+  vercel-build:
+    name: vercel-build
+    if: github.event.client_payload.slash_command.args.named.env == 'release'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.14.0"
+          cache: "yarn"
+          cache-dependency-path: "app/client/yarn.lock"
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        id: set-dpurl
+        run: |
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} >> ~/run_result.txt
+          echo "::set-output name=dpurl::$(cat ~/run_result.txt)"
+
+      - name: vercel-notify
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+           issue-number: ${{ github.event.client_payload.pull_request.number }}
+           body: |
+             Deploy-Preview-URL: ${{ steps.set-dpurl.outputs.dpurl }}
+
+
   push-image:
     needs: [client-build, rts-build, server-build]
     runs-on: ubuntu-latest
-
     if: success()
-
     steps:
 
       - name: Set up Depot CLI
@@ -68,13 +118,13 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
@@ -135,6 +185,9 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           PULL_REQUEST_NUMBER: ${{ github.event.client_payload.pull_request.number }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_URL: ${{ secrets.DB_URL }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh

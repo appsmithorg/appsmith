@@ -127,23 +127,23 @@ export const HorizontalHandleStyles = css<{
 
 export const LeftHandleStyles = styled.div`
   ${VerticalHandleStyles}
-  left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
+  left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1.5}px;
 `;
 
 export const RightHandleStyles = styled.div`
   ${VerticalHandleStyles};
-  right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3}px;
+  right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3.5}px;
   height: calc(100% + ${2 * WIDGET_PADDING}px);
 `;
 
 export const TopHandleStyles = styled.div`
   ${HorizontalHandleStyles};
-  top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
+  top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1.5}px;
 `;
 
 export const BottomHandleStyles = styled.div`
   ${HorizontalHandleStyles};
-  bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3}px;
+  bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3.5}px;
 `;
 
 export const CornerHandleStyles = css`

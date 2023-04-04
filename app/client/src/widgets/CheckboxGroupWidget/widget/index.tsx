@@ -4,24 +4,23 @@ import {
   LabelPosition,
 } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TextSize, WidgetType } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, xor } from "lodash";
 import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
-import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { OptionProps, SelectAllState } from "../constants";
+import { SelectAllStates } from "../constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -143,6 +142,7 @@ class CheckboxGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -288,7 +288,6 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

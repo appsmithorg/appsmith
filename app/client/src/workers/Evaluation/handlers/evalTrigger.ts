@@ -1,8 +1,8 @@
 import { dataTreeEvaluator } from "./evalTree";
-import { EvalWorkerASyncRequest } from "../types";
-import { createUnEvalTreeForEval } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import type { EvalWorkerASyncRequest } from "../types";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 
-export default async function(request: EvalWorkerASyncRequest) {
+export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;
   const {
     callbackData,
@@ -10,20 +10,22 @@ export default async function(request: EvalWorkerASyncRequest) {
     eventType,
     globalContext,
     triggerMeta,
-    unEvalTree: __unEvalTree__,
+    unEvalTree,
   } = data;
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
-  const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
-  const {
-    evalOrder,
-    nonDynamicFieldValidationOrder,
-    unEvalUpdates,
-  } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
+
+  ExecutionMetaData.setExecutionMetaData(triggerMeta, eventType);
+  const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+    dataTreeEvaluator.setupUpdateTree(
+      unEvalTree.unEvalTree,
+      unEvalTree.configTree,
+    );
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
+    unEvalTree.configTree,
     unEvalUpdates,
   );
   const evalTree = dataTreeEvaluator.evalTree;

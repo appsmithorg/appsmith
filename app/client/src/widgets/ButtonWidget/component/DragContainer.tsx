@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { ButtonVariant } from "components/constants";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { ButtonVariant } from "components/constants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { buttonHoverActiveStyles } from "./utils";
 
 /*
@@ -23,7 +24,7 @@ import { buttonHoverActiveStyles } from "./utils";
 
 /*
   For the Button Widget we don't remove the DragContainer
-  because of the Tooltip issue - 
+  because of the Tooltip issue -
   https://github.com/appsmithorg/appsmith/pull/12372
   For this reason we pass the showInAllModes prop.
 */
@@ -43,6 +44,14 @@ const ButtonContainer = styled.div<ButtonContainerProps>`
   & > button {
     width: 100%;
     height: 100%;
+  }
+
+  .auto-layout & > .bp3-button.bp3-fill {
+    display: flex;
+    width: auto;
+    max-width: 352px;
+    min-width: 112px;
+    min-height: 32px;
   }
 
   position: relative;

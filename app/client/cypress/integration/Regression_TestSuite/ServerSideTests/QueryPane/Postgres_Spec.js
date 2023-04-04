@@ -7,18 +7,14 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
-describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
+describe("Validate CRUD queries for Postgres along with UI flow verifications", function () {
   // afterEach(function() {
   //   if (this.currentTest.state === "failed") {
   //     Cypress.runner.stop();
   //   }
   // });
 
-  it("1. Creates a new Postgres datasource", function() {
+  it("1. Creates a new Postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.fillPostgresDatasourceForm();
@@ -92,7 +88,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.get(".CodeMirror textarea").paste(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     cy.EvaluateCurrentValue(tableCreateQuery);
-
+    cy.wait(3000);
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
   });
 
@@ -134,7 +130,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.runAndDeleteQuery();
   });
 
-  it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function() {
+  it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function () {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -284,9 +280,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--delete-datasource").contains("Are you sure?").click();
 
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
@@ -312,29 +306,25 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.deleteQueryUsingContext();
   });
 
-  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function() {
+  it("11. Bug 9425: The application is breaking when user run the query with wrong table name", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate("select * from public.users limit 10");
     cy.runQuery();
     cy.typeValueNValidate("select * from public.users_crud limit 10");
     cy.onlyQueryRun();
-    cy.get(commonlocators.debugger)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(commonlocators.errorTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
+    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
       .first()
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("Execution failed with status 5005");
+        expect($text).to.eq("Query execution error");
       });
     cy.deleteQueryUsingContext();
   });
 
-  it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function() {
+  it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(

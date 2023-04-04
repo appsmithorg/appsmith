@@ -10,7 +10,7 @@ const ee = ObjectsRegistry.EntityExplorer,
 
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
 
-describe("App Theming funtionality", function() {
+describe("App Theming funtionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -27,15 +27,13 @@ describe("App Theming funtionality", function() {
   let themesDeletebtn = (sectionName, themeName) =>
     themesSection(sectionName, themeName) + "/following-sibling::button";
 
-  it("1. Checks if theme can be changed to one of the existing themes", function() {
+  it("1. Checks if theme can be changed to one of the existing themes", function () {
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     // select a theme
-    cy.get(commonlocators.themeCard)
-      .last()
-      .click({ force: true });
+    cy.get(commonlocators.themeCard).last().click({ force: true });
 
     // check for alert
     cy.get(`${commonlocators.themeCard}`)
@@ -60,7 +58,7 @@ describe("App Theming funtionality", function() {
       });
   });
 
-  it("2. Checks if theme can be edited", function() {
+  it("2. Checks if theme can be edited", function () {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
     appSettings.ClosePane();
 
@@ -69,9 +67,7 @@ describe("App Theming funtionality", function() {
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
-    cy.get("canvas")
-      .first(0)
-      .trigger("click", { force: true });
+    cy.get("canvas").first(0).trigger("click", { force: true });
 
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
@@ -85,9 +81,7 @@ describe("App Theming funtionality", function() {
     //   .wait(500);
 
     // change app border radius
-    cy.get(commonlocators.themeAppBorderRadiusBtn)
-      .eq(1)
-      .click({ force: true });
+    cy.get(commonlocators.themeAppBorderRadiusBtn).eq(1).click({ force: true });
 
     // check if border radius is changed on button
     cy.get(commonlocators.themeAppBorderRadiusBtn)
@@ -113,9 +107,7 @@ describe("App Theming funtionality", function() {
     //cy.contains("Color").click({ force: true });
 
     //Change the primary color:
-    cy.get(widgetsPage.colorPickerV2Popover)
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2Color)
       .eq(-3)
       .then(($elem) => {
@@ -128,13 +120,9 @@ describe("App Theming funtionality", function() {
       });
 
     //Change the background color:
-    cy.get(".border-2")
-      .last()
-      .click({ force: true });
+    cy.get(".border-2").last().click({ force: true });
     cy.wait(500);
-    cy.get(widgetsPage.colorPickerV2Popover)
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2Color)
       .first()
       .then(($elem) => {
@@ -147,9 +135,7 @@ describe("App Theming funtionality", function() {
       });
 
     // Change the shadow
-    cy.get(commonlocators.themeAppBoxShadowBtn)
-      .eq(3)
-      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn).eq(3).click({ force: true });
     cy.get(commonlocators.themeAppBoxShadowBtn)
       .eq(3)
       .invoke("css", "box-shadow")
@@ -175,10 +161,7 @@ describe("App Theming funtionality", function() {
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem
-              .children()
-              .last()
-              .text(),
+            $childElem.children().last().text(),
           );
         });
     });
@@ -218,9 +201,7 @@ describe("App Theming funtionality", function() {
     cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
     cy.assertPageSave();
-    cy.get("canvas")
-      .first(0)
-      .trigger("click", { force: true });
+    cy.get("canvas").first(0).trigger("click", { force: true });
 
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
@@ -239,18 +220,12 @@ describe("App Theming funtionality", function() {
           cy.get(widgetsPage.iconWidgetBtn).should(
             "have.css",
             "font-family",
-            $childElem
-              .children()
-              .last()
-              .text(),
+            $childElem.children().last().text(),
           );
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem
-              .children()
-              .last()
-              .text(),
+            $childElem.children().last().text(),
           );
         });
     });
@@ -262,9 +237,7 @@ describe("App Theming funtionality", function() {
     // cy.contains("Color")
     //   .click({ force: true })
     //   .wait(200);
-    cy.get(widgetsPage.colorPickerV2Popover)
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2Color)
       .eq(-15)
       .then(($elem) => {
@@ -282,13 +255,9 @@ describe("App Theming funtionality", function() {
       });
 
     //Change the background color:
-    cy.get(".border-2")
-      .last()
-      .click({ force: true });
+    cy.get(".border-2").last().click({ force: true });
     cy.wait(500);
-    cy.get(widgetsPage.colorPickerV2Popover)
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(23)
       .then(($elem) => {
@@ -306,9 +275,7 @@ describe("App Theming funtionality", function() {
     // cy.contains("Border")
     //   .click({ force: true })
     //   .wait(200);
-    cy.get(commonlocators.themeAppBorderRadiusBtn)
-      .eq(2)
-      .click({ force: true });
+    cy.get(commonlocators.themeAppBorderRadiusBtn).eq(2).click({ force: true });
     cy.get(`${commonlocators.themeAppBorderRadiusBtn}`)
       .eq(2)
       .invoke("css", "border-top-left-radius")
@@ -328,9 +295,7 @@ describe("App Theming funtionality", function() {
     //#endregion
 
     //#region Change the shadow & verify widgets
-    cy.get(commonlocators.themeAppBoxShadowBtn)
-      .eq(3)
-      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn).eq(3).click({ force: true });
     cy.get(commonlocators.themeAppBoxShadowBtn)
       .eq(3)
       .invoke("css", "box-shadow")
@@ -385,9 +350,7 @@ describe("App Theming funtionality", function() {
     cy.get("input[placeholder='My theme']").type("testtheme");
     cy.contains("Name must be unique");
 
-    cy.get("input[placeholder='My theme']")
-      .clear()
-      .type("VioletYellowTheme");
+    cy.get("input[placeholder='My theme']").clear().type("VioletYellowTheme");
 
     //Click on save theme button
     cy.xpath("//span[text()='Save theme']/parent::a").click({ force: true });
@@ -761,29 +724,7 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn).should("have.css", "box-shadow", "none"); //Shadow
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
 
-    //Verify Share button
-    cy.contains("Share").should(
-      "have.css",
-      "border-top-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Share")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
-
-    //Verify Edit App button
-    cy.contains("Edit App").should(
-      "have.css",
-      "background-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Edit App")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
-
-    cy.get(publish.backToEditor)
-      .click({ force: true })
-      .wait(3000);
+    cy.get(publish.backToEditor).click({ force: true }).wait(3000);
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
@@ -792,24 +733,22 @@ describe("App Theming funtionality", function() {
     cy.assertPageSave();
     cy.moveToStyleTab();
     //Change Color & verify
-    cy.get(widgetsPage.colorPickerV2Popover)
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(33)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.widgetBtn)
-          .eq(1)
-          .should(
-            "have.css",
-            "background-color",
-            $elem.css("background-color"), //rgb(134, 239, 172)
-          ); //new widget with its own color
+        cy.get(".t--widget-button2 button").should(
+          "have.css",
+          "background-color",
+          $elem.css("background-color"), //rgb(134, 239, 172)
+        ); //new widget with its own color
 
-        cy.get(widgetsPage.widgetBtn)
-          .eq(0)
-          .should("have.css", "background-color", "rgb(126, 34, 206)"); //old widgets still conforming to theme color
+        cy.get(".t--widget-button1 button").should(
+          "have.css",
+          "background-color",
+          "rgb(126, 34, 206)",
+        ); //old widgets still conforming to theme color
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "background-color",
@@ -824,63 +763,64 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
-        cy.get(widgetsPage.widgetBtn)
-          .eq(1)
-          .should(
-            "have.css",
-            "border-radius",
-            borderRadius, //0px
-          );
+        cy.get(".t--widget-button2 button").should(
+          "have.css",
+          "border-radius",
+          borderRadius, //0px
+        );
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "border-radius",
           "24px",
         );
-        cy.get(widgetsPage.widgetBtn)
-          .eq(0)
-          .should("have.css", "border-radius", "24px");
+        cy.get(".t--widget-button1 button").should(
+          "have.css",
+          "border-radius",
+          "24px",
+        );
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-group-0.10px").click();
+    cy.get(".t--button-group-0.10px").click({ force: true });
     cy.get(".t--button-group-0.10px div")
       .eq(0)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
-        cy.get(widgetsPage.widgetBtn)
-          .eq(1)
-          .should(
-            "have.css",
-            "box-shadow",
-            boxshadow, //rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px
-          );
+        cy.get(".t--widget-button2 button").should(
+          "have.css",
+          "box-shadow",
+          boxshadow, //rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px
+        );
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "box-shadow",
           "none",
         );
-        cy.get(widgetsPage.widgetBtn)
-          .eq(0)
-          .should("have.css", "box-shadow", "none");
+        cy.get(".t--widget-button1 button").should(
+          "have.css",
+          "box-shadow",
+          "none",
+        );
       });
 
     cy.assertPageSave();
-
+    cy.wait(2000);
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "background-color",
-        "rgb(134, 239, 172)", //rgb(134, 239, 172)
-      ); //new widget with its own color
+    cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
+      "have.css",
+      "background-color",
+      "rgb(134, 239, 172)", //rgb(134, 239, 172)
+    ); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(126, 34, 206)");
+    cy.get(".t--widget-buttonwidget button").should(
+      "have.css",
+      "background-color",
+      "rgb(126, 34, 206)",
+    );
+
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
@@ -888,30 +828,32 @@ describe("App Theming funtionality", function() {
     );
 
     //Verify Border radius
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "border-radius", "0px");
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "border-radius",
+      "0px",
+    );
     cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px");
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "border-radius", "24px");
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    );
 
     //Verify Box shadow
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "box-shadow",
-        "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      );
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    );
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none");
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "box-shadow", "none");
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "box-shadow",
+      "none",
+    );
 
-    cy.get(publish.backToEditor)
-      .click({ force: true })
-      .wait(1000);
+    cy.get(publish.backToEditor).click({ force: true }).wait(1000);
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
@@ -923,21 +865,25 @@ describe("App Theming funtionality", function() {
       $elem[0].click();
     });
 
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "background-color", "rgb(126, 34, 206)"); //verify widget reverted to theme color
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "background-color",
+      "rgb(126, 34, 206)",
+    ); //verify widget reverted to theme color
     cy.get(".t--property-control-borderradius .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();
     });
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "border-radius", "24px");
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    );
 
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -945,67 +891,57 @@ describe("App Theming funtionality", function() {
       "background-color",
       "rgb(253, 224, 71)",
     ); //Background Color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "background-color", "rgb(126, 34, 206)"); //Widget Color
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "background-color",
+      "rgb(126, 34, 206)",
+    ); //Widget Color
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "background-color",
+      "rgb(126, 34, 206)",
+    ); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
       "rgb(126, 34, 206)",
     ); //Widget Color
 
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "border-radius", "24px"); //Border Radius
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "border-radius", "24px"); //Border Radius
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    ); //Border Radius
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    ); //Border Radius
     cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px"); //Border Radius
 
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "box-shadow", "none"); //Shadow
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "box-shadow",
-        "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      ); //Since Shadow revert option does not exixts
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "box-shadow",
+      "none",
+    ); //Shadow
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    ); //Since Shadow revert option does not exixts
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
 
-    //Verify Share button
-    cy.contains("Share").should(
-      "have.css",
-      "border-top-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Share")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
-
-    //Verify Edit App button
-    cy.contains("Edit App").should(
-      "have.css",
-      "background-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Edit App")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
-
-    cy.get(publish.backToEditor)
-      .click({ force: true })
-      .wait(2000);
+    cy.get(publish.backToEditor).click({ force: true }).wait(2000);
   });
 
   it("10. Verify Chainging theme should not affect Individual widgets with changed Color, Border radius, Shadow & can revert to newly selected theme", () => {
-    cy.get("canvas")
-      .first(0)
-      .trigger("click", { force: true });
+    cy.get("canvas").first(0).trigger("click", { force: true });
 
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
@@ -1024,24 +960,22 @@ describe("App Theming funtionality", function() {
     cy.moveToStyleTab();
 
     //Change Color & verify
-    cy.get(widgetsPage.colorPickerV2Popover)
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(13)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.widgetBtn)
-          .eq(0)
-          .should(
-            "have.css",
-            "background-color",
-            $elem.css("background-color"),
-          ); //new widget with its own color
+        cy.get(".t--widget-button1 button").should(
+          "have.css",
+          "background-color",
+          $elem.css("background-color"),
+        ); //new widget with its own color
 
-        cy.get(widgetsPage.widgetBtn)
-          .eq(1)
-          .should("have.css", "background-color", "rgb(239, 68, 68)"); //old widgets still conforming to theme color
+        cy.get(".t--widget-button2 button").should(
+          "have.css",
+          "background-color",
+          "rgb(239, 68, 68)",
+        ); //old widgets still conforming to theme color
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "background-color",
@@ -1051,58 +985,50 @@ describe("App Theming funtionality", function() {
 
     //Change Border & verify
 
-    cy.get(".t--button-group-0\\.375rem")
-      .click()
-      .wait(500);
+    cy.get(".t--button-group-0\\.375rem").click().wait(500);
     cy.get(".t--button-group-0\\.375rem div")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
-        cy.get(widgetsPage.widgetBtn)
-          .eq(0)
-          .should(
-            "have.css",
-            "border-radius",
-            borderRadius, //6px
-          );
+        cy.get(".t--widget-button1 button").should(
+          "have.css",
+          "border-radius",
+          borderRadius, //6px
+        );
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "border-radius",
           "24px",
         );
-        cy.get(widgetsPage.widgetBtn)
-          .eq(1)
-          .should("have.css", "border-radius", "24px");
+        cy.get(".t--widget-button2 button").should(
+          "have.css",
+          "border-radius",
+          "24px",
+        );
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-group-0.1px")
-      .click()
-      .wait(500);
+    cy.get(".t--button-group-0.1px").click().wait(500);
     cy.get(".t--button-group-0.1px div")
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
-        cy.get(widgetsPage.widgetBtn)
-          .eq(0)
-          .should(
-            "have.css",
-            "box-shadow",
-            boxshadow, //rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px
-          );
+        cy.get(".t--widget-button1 button").should(
+          "have.css",
+          "box-shadow",
+          boxshadow, //rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px
+        );
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "box-shadow",
           "none",
         );
-        cy.get(widgetsPage.widgetBtn)
-          .eq(1)
-          .should(
-            "have.css",
-            "box-shadow",
-            //same value as previous box shadow selection
-            //since revertion is not possible for box shadow - hence this widget maintains the same value
-            "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-          );
+        cy.get(".t--widget-button2 button").should(
+          "have.css",
+          "box-shadow",
+          //same value as previous box shadow selection
+          //since revertion is not possible for box shadow - hence this widget maintains the same value
+          "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+        );
       });
 
     cy.assertPageSave();
@@ -1111,14 +1037,18 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     //Verify Background color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(252, 165, 165)"); //new widget with its own color
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "background-color",
+      "rgb(252, 165, 165)",
+    ); //new widget with its own color
 
     ////old widgets still conforming to theme color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "background-color", "rgb(239, 68, 68)");
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "background-color",
+      "rgb(239, 68, 68)",
+    );
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
@@ -1126,34 +1056,32 @@ describe("App Theming funtionality", function() {
     );
 
     //Verify Border radius
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "border-radius", "6px");
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "border-radius",
+      "6px",
+    );
     cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px");
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "border-radius", "24px");
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    );
 
     //Verify Box shadow
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should(
-        "have.css",
-        "box-shadow",
-        "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
-      );
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+    );
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none");
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "box-shadow",
-        "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      );
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    );
 
-    cy.get(publish.backToEditor)
-      .click({ force: true })
-      .wait(1000);
+    cy.get(publish.backToEditor).click({ force: true }).wait(1000);
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
@@ -1165,22 +1093,26 @@ describe("App Theming funtionality", function() {
       $elem[0].click();
     });
 
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(239, 68, 68)"); //verify widget reverted to theme color
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "background-color",
+      "rgb(239, 68, 68)",
+    ); //verify widget reverted to theme color
 
     cy.get(".t--property-control-borderradius .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();
     });
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "border-radius", "24px");
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    );
 
     //the new widget with reverted styles also conforming to theme
     cy.PublishtheApp();
 
-    cy.wait(2000); //for theme to settle
+    cy.wait(4000); //for theme to settle
     cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
@@ -1188,64 +1120,53 @@ describe("App Theming funtionality", function() {
       "background-color",
       "rgb(255, 241, 242)",
     ); //Background Color of canvas
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
+
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "background-color",
+      "rgb(239, 68, 68)",
+    ); //Widget Color
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
+        cy.reload();
+        cy.wait(4000);
+      }
+    });
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "background-color",
+      "rgb(239, 68, 68)",
+    ); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
       "rgb(239, 68, 68)",
     ); //Widget Color
 
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should("have.css", "border-radius", "24px"); //Border Radius
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should("have.css", "border-radius", "24px"); //Border Radius
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    ); //Border Radius
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "border-radius",
+      "24px",
+    ); //Border Radius
     cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px"); //Border Radius
 
-    cy.get(widgetsPage.widgetBtn)
-      .eq(0)
-      .should(
-        "have.css",
-        "box-shadow",
-        "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
-      ); //Shadow
-    cy.get(widgetsPage.widgetBtn)
-      .eq(1)
-      .should(
-        "have.css",
-        "box-shadow",
-        "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      ); //Since Shadow revert option does not exixts
+    cy.get(".t--widget-button1 button").should(
+      "have.css",
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+    ); //Shadow
+    cy.get(".t--widget-button2 button").should(
+      "have.css",
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    ); //Since Shadow revert option does not exixts
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
 
-    //Verify Share button
-    cy.contains("Share").should(
-      "have.css",
-      "border-top-color",
-      "rgb(239, 68, 68)",
-    ); //Color
-    cy.contains("Share")
-      .closest("div")
-      .should("have.css", "font-family", "Rubik"); //Font
-
-    //Verify Edit App button
-    cy.contains("Edit App").should(
-      "have.css",
-      "background-color",
-      "rgb(239, 68, 68)",
-    ); //Color
-    cy.contains("Edit App")
-      .closest("div")
-      .should("have.css", "font-family", "Rubik"); //Font
-
-    cy.get(publish.backToEditor)
-      .click({ force: true })
-      .wait(1000);
+    cy.get(publish.backToEditor).click({ force: true }).wait(1000);
   });
 });

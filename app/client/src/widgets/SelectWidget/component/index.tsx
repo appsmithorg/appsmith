@@ -1,8 +1,9 @@
 import React from "react";
-import { ComponentProps } from "widgets/BaseComponent";
-import { Alignment, Classes } from "@blueprintjs/core";
-import { DropdownOption } from "../constants";
-import {
+import type { ComponentProps } from "widgets/BaseComponent";
+import type { Alignment } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
+import type { DropdownOption } from "../constants";
+import type {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
@@ -10,7 +11,7 @@ import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
 import equal from "fast-deep-equal/es6";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
-import { TextSize } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import {
   StyledControlGroup,
   StyledSingleDropDown,
@@ -19,7 +20,7 @@ import {
   MenuItem,
 } from "./index.styled";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import { LabelPosition } from "components/constants";
+import type { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import { labelMargin } from "../../WidgetUtils";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
@@ -99,13 +100,8 @@ class SelectComponent extends React.Component<
 
     const filter = items.filter(
       (item) =>
-        item.label
-          ?.toString()
-          .toLowerCase()
-          .includes(query.toLowerCase()) ||
-        String(item.value)
-          .toLowerCase()
-          .includes(query.toLowerCase()),
+        item.label?.toString().toLowerCase().includes(query.toLowerCase()) ||
+        String(item.value).toLowerCase().includes(query.toLowerCase()),
     );
     return filter;
   }
@@ -117,13 +113,18 @@ class SelectComponent extends React.Component<
     if (this.state.isOpen) this.togglePopoverVisibility();
   };
 
-  isOptionSelected = (selectedOption: DropdownOption) => {
-    if (this.props.value) return selectedOption.value === this.props.value;
+  isOptionSelected = (currentOption: DropdownOption) => {
+    // if currentOption is null, then return false
+    if (isNil(currentOption)) return false;
+
+    if (this.props.value) return currentOption.value === this.props.value;
+
     const optionIndex = findIndex(this.props.options, (option) => {
-      return option.value === selectedOption.value;
+      return option.value === currentOption.value;
     });
     return optionIndex === this.props.selectedIndex;
   };
+
   onQueryChange = debounce((filterValue: string) => {
     if (equal(filterValue, this.props.filterText)) return;
     this.props.onFilterChange(filterValue);

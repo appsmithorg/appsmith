@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
@@ -23,16 +23,16 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
+import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
 import {
   filterCategories,
   SEARCH_CATEGORY_ID,
-  SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster, Variant } from "design-system-old";
 
-import { getAppMode } from "selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import type { APP_MODE } from "entities/App";
 
 import {
   createMessage,
@@ -123,9 +123,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Search entities"
           onKeyDown={(e: any) => {
-            const widgetSearchInput = document.getElementById(
-              WIDGETS_SEARCH_ID,
-            );
+            const widgetSearchInput =
+              document.getElementById(WIDGETS_SEARCH_ID);
             if (widgetSearchInput) {
               widgetSearchInput.focus();
               e.preventDefault();

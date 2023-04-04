@@ -1,17 +1,19 @@
-import {
+import type {
   ClonePageSuccessPayload,
   Page,
   ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
+import type {
   GenerateCRUDSuccess,
   UpdatePageErrorPayload,
 } from "actions/pageActions";
-import { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
+import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
 import { sortBy } from "lodash";
-import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
 
 const initialState: PageListReduxState = {
@@ -127,7 +129,7 @@ export const pageListReducer = createReducer(initialState, {
     action: ReduxAction<{ id: string; slug?: string; permissions?: string[] }>,
   ) => {
     const pageList = state.pages.map((page) => {
-      if (page.pageId === action.payload.id)
+      if (page.pageId === action.payload.id && action.payload.permissions)
         page.userPermissions = action.payload.permissions;
       return page;
     });
@@ -252,8 +254,8 @@ export interface AppLayoutConfig {
 }
 
 export enum AppPositioningTypes {
-  "FIXED",
-  "AUTO",
+  FIXED = "FIXED",
+  AUTO = "AUTO",
 }
 export interface AppPositioningTypeConfig {
   type: AppPositioningTypes;

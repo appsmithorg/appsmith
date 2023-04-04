@@ -1,11 +1,17 @@
 import styled from "styled-components";
+import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  CodeEditorBorder,
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Skin, Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import {
+  NAVIGATION_CLASSNAME,
+  PEEKABLE_CLASSNAME,
+  PEEK_STYLE_PERSIST_CLASS,
+} from "./MarkHelpers/entityMarker";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -112,20 +118,21 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: 0px;
-      border: 1px solid ${(props) => {
-        switch (true) {
-          case props.border === "none":
-            return "transparent";
-          case props.border === "bottom-side":
-            return Colors.MERCURY;
-          case props.hasError:
-            return "red";
-          case props.isFocused:
-            return "var(--appsmith-input-focus-border-color)";
-          default:
-            return Colors.GREY_5;
-        }
-      }};
+      border: 1px solid
+        ${(props) => {
+          switch (true) {
+            case props.border === "none":
+              return "transparent";
+            case props.border === "bottom-side":
+              return Colors.MERCURY;
+            case props.hasError:
+              return "red";
+            case props.isFocused:
+              return "var(--appsmith-input-focus-border-color)";
+            default:
+              return Colors.GREY_5;
+          }
+        }};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
@@ -163,12 +170,21 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
-    .navigable-entity-highlight {
-      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
-      &:hover {
-        text-decoration: underline;
-      }
+
+    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
+      background-color: #f4ffde;
     }
+
+    .${NAVIGATION_CLASSNAME} {
+      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
+      ${(props) =>
+        props.ctrlPressed &&
+        `&:hover {
+        text-decoration: underline;
+        background-color:	#FFEFCF;
+      }`}
+    }
+
     .CodeMirror-matchingbracket {
       text-decoration: none;
       color: #ffd600 !important;
@@ -185,12 +201,12 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #FFF0F0;
-      border: 1px solid #F22B2B;
+      background: #fff0f0;
+      border: 1px solid #f22b2b;
     }
     .datasource-highlight-success {
-      background: #E3FFF3;
-      border: 1px solid #03B365;
+      background: #e3fff3;
+      border: 1px solid #03b365;
     }
     .CodeMirror {
       flex: 1;

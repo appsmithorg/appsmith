@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import React, { memo, useEffect, useMemo, useRef } from "react";
 
 import PerformanceTracker, {
@@ -9,10 +9,7 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
@@ -23,11 +20,8 @@ import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors"
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
-import { quickScrollToWidget } from "utils/helpers";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -36,28 +30,16 @@ type Props = {
 };
 
 export const PropertyPaneSidebar = memo((props: Props) => {
-  const dispatch = useDispatch();
-
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
 
-  const {
-    onMouseDown,
-    onMouseUp,
-    onTouchStart,
-    resizing,
-  } = useHorizontalResize(
-    sidebarRef,
-    props.onWidthChange,
-    props.onDragEnd,
-    true,
-  );
+  const { onMouseDown, onMouseUp, onTouchStart, resizing } =
+    useHorizontalResize(sidebarRef, props.onWidthChange, props.onDragEnd, true);
 
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const isSnipingMode = useSelector(snipingModeSelector);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
 
@@ -74,7 +56,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
   const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
-  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
@@ -85,16 +66,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
-
-  useEffect(() => {
-    if (!isSnipingMode) {
-      //update url hash with the selectedWidget
-      dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
-      if (selectedWidgetIds.length === 1) {
-        quickScrollToWidget(selectedWidgetIds[0], canvasWidgets);
-      }
-    }
-  }, [selectedWidgetIds]);
 
   /**
    * renders the property pane:
@@ -136,7 +107,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       {/* PROPERTY PANE */}
       <div
         className={classNames({
-          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]: true,
+          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]:
+            true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode,
         })}
@@ -152,7 +124,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           >
             <div
               className={classNames({
-                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition":
+                  true,
                 "bg-gray-300": resizing,
               })}
             />

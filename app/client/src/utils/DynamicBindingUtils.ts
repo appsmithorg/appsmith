@@ -1,14 +1,19 @@
 import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import { Action } from "entities/Action";
-import { WidgetProps } from "widgets/BaseWidget";
-import { Severity } from "entities/AppsmithConsole";
+import type { Action } from "entities/Action";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
+  isAction,
   isJSAction,
   isTrueObject,
+  isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -190,10 +195,7 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-export const isPathDynamicTrigger = (
-  widget: WidgetProps,
-  path: string,
-): boolean => {
+export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   if (
     widget &&
     widget.dynamicTriggerPathList &&
@@ -242,8 +244,6 @@ export const isThemeBoundProperty = (
 
 export const unsafeFunctionForEval = [
   "XMLHttpRequest",
-  "setInterval",
-  "clearInterval",
   "setImmediate",
   "Navigator",
 ];
@@ -306,9 +306,8 @@ const getNestedEvalPath = (
   fullPath = true,
   isPopulated = false,
 ) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
+  const { entityName, propertyPath } =
+    getEntityNameAndPropertyPath(fullPropertyPath);
   const nestedPath = isPopulated
     ? `${pathType}.${propertyPath}`
     : `${pathType}.['${propertyPath}']`;
@@ -355,9 +354,17 @@ export enum PropertyEvaluationErrorType {
   LINT = "LINT",
 }
 
+export enum PropertyEvaluationErrorCategory {
+  INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD = "INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD",
+}
+export interface PropertyEvaluationErrorKind {
+  category: PropertyEvaluationErrorCategory;
+  rootcause: string;
+}
+
 export interface DataTreeError {
   raw: string;
-  errorMessage: string;
+  errorMessage: Error;
   severity: Severity.WARNING | Severity.ERROR;
 }
 
@@ -366,6 +373,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
+  kind?: PropertyEvaluationErrorKind;
 }
 
 export interface LintError extends DataTreeError {
@@ -376,6 +384,7 @@ export interface LintError extends DataTreeError {
   code: string;
   line: number;
   ch: number;
+  originalPath?: string;
 }
 
 export interface DataTreeEvaluationProps {
@@ -522,4 +531,23 @@ export function getDynamicBindingsChangesSaga(
     }
   }
   return dynamicBindings;
+}
+
+export function getEntityType(entity: DataTreeEntity) {
+  return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE;
+}
+
+export function getEntityId(entity: DataTreeEntity) {
+  if (isAction(entity)) return entity.actionId;
+  if (isWidget(entity)) return entity.widgetId;
+  if (isJSAction(entity)) return entity.actionId;
+}
+
+export function getEntityName(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+) {
+  if (isAction(entity)) return entityConfig.name;
+  if (isWidget(entity)) return entity.widgetName;
+  if (isJSAction(entity)) return entityConfig.name;
 }

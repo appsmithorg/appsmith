@@ -1,5 +1,5 @@
-import { ErrorActionPayload } from "sagas/ErrorSagas";
-import { ActionResponse } from "api/ActionAPI";
+import type { ErrorActionPayload } from "sagas/ErrorSagas";
+import type { ActionResponse } from "api/ActionAPI";
 import { PluginType } from "entities/Action";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
@@ -7,6 +7,7 @@ import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
+import type { ENTITY_TYPE } from "entities/DataTree/types";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -20,6 +21,7 @@ export type ExecutionResult = {
 export type TriggerSource = {
   id: string;
   name: string;
+  entityType?: ENTITY_TYPE;
   collectionId?: string;
   isJSAction?: boolean;
   actionId?: string;
@@ -142,7 +144,8 @@ export interface LayoutOnLoadActionErrors {
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
+export const urlGroupsRegexExp =
+  /^(https?:\/{2}\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params|this\?.params/g;

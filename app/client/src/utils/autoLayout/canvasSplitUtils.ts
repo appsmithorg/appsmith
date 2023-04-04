@@ -1,10 +1,13 @@
-import { FlexLayer } from "./autoLayoutTypes";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlexLayer } from "./autoLayoutTypes";
+import type {
+  FlattenedWidgetProps,
+  CanvasWidgetsReduxState,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { generateReactKey } from "utils/generators";
 import { updateRelationships } from "./autoLayoutDraggingUtils";
-import { CanvasSplitTypes } from "./canvasSplitProperties";
+import type { CanvasSplitTypes } from "./canvasSplitProperties";
 import { ResponsiveBehavior } from "./constants";
-import { updateWidgetPositions, Widget } from "./positionUtils";
+import { updateWidgetPositions } from "./positionUtils";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { call } from "redux-saga/effects";
 
@@ -32,7 +35,7 @@ export function* addNewCanvas(
    * then the existing canvas is used as a reference to add / delete the new canvas.
    */
   const existingCanvasId: string = parent.children[0];
-  let existingCanvas: Widget = allWidgets[existingCanvasId];
+  let existingCanvas: FlattenedWidgetProps = allWidgets[existingCanvasId];
 
   /**
    * Shrink the existing canvas.
@@ -93,6 +96,7 @@ export function deleteCanvas(
   parentId: string,
   canvasSplitType: CanvasSplitTypes,
   isMobile: boolean,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   if (!parentId) return allWidgets;
   let widgets = { ...allWidgets };
@@ -106,13 +110,13 @@ export function deleteCanvas(
    * then the existing canvas is used as a reference to add / delete the new canvas.
    */
   const remainingCanvasId: string = parent.children[0];
-  let remainingCanvas: Widget = widgets[remainingCanvasId];
+  let remainingCanvas: FlattenedWidgetProps = widgets[remainingCanvasId];
 
   /**
    * Delete the second canvas.
    */
   const selectedCanvasId: string = parent.children[1];
-  const selectedCanvas: Widget = widgets[selectedCanvasId];
+  const selectedCanvas: FlattenedWidgetProps = widgets[selectedCanvasId];
   const selectedChildren: string[] = selectedCanvas.children || [];
   const selectedFlexLayers: FlexLayer[] = selectedCanvas.flexLayers || [];
   widgets = updateRelationships(
@@ -121,6 +125,7 @@ export function deleteCanvas(
     remainingCanvasId,
     false,
     isMobile,
+    mainCanvasWidth,
   );
   delete widgets[selectedCanvasId];
 
@@ -148,7 +153,13 @@ export function deleteCanvas(
     },
   };
 
-  widgets = updateWidgetPositions(widgets, remainingCanvasId, isMobile);
+  widgets = updateWidgetPositions(
+    widgets,
+    remainingCanvasId,
+    isMobile,
+    mainCanvasWidth,
+    false,
+  );
 
   return widgets;
 }

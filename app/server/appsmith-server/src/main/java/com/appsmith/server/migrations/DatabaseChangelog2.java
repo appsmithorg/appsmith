@@ -12,13 +12,12 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
@@ -30,8 +29,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QComment;
-import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
@@ -46,6 +43,7 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -66,7 +64,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
-import io.mongock.api.annotations.ChangeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
@@ -1019,13 +1016,6 @@ public class DatabaseChangelog2 {
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
         flushdb.subscribe();
-
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QComment.comment.workspaceId)).toValueOf(Fields.field(fieldName(QComment.comment.workspaceId))),
-                Comment.class);
-        mongoTemplate.updateMulti(new Query(),
-                AggregationUpdate.update().set(fieldName(QCommentThread.commentThread.workspaceId)).toValueOf(Fields.field(fieldName(QCommentThread.commentThread.workspaceId))),
-                CommentThread.class);
     }
 
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
@@ -2790,5 +2780,50 @@ public class DatabaseChangelog2 {
         Update update = new Update();
         update.set("datasourceConfiguration.connection.ssl.authType", "DEFAULT");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
+    }
+
+    // Migration to drop usage pulse collection for Appsmith cloud as we will not be logging these pulses unless
+    // multi-tenancy is introduced
+    @ChangeSet(order = "040", id = "remove-usage-pulses-for-appsmith-cloud", author = "")
+    public void removeUsagePulsesForAppsmithCloud(MongoTemplate mongoTemplate, @NonLockGuarded CommonConfig commonConfig) {
+        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
+            mongoTemplate.dropCollection(UsagePulse.class);
+        }
+    }
+
+    /**
+     * We are introducing SSL settings config for MSSQL, hence this migration configures older existing datasources
+     * with a setting that matches their current configuration (i.e. set to `disabled` since they have been running
+     * with encryption disabled post the Spring 6 upgrade).
+     *
+     */
+    @ChangeSet(order = "041", id = "add-ssl-mode-settings-for-existing-mssql-datasources", author = "")
+    public void addSslModeSettingsForExistingMssqlDatasource(MongoTemplate mongoTemplate) {
+        Plugin mssqlPlugin = mongoTemplate.findOne(query(where("packageName").is("mssql-plugin")),
+                Plugin.class);
+        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(mssqlPlugin);
+
+        Update update = new Update();
+        update.set("datasourceConfiguration.connection.ssl.authType", "DISABLE");
+        mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
+    }
+
+    @ChangeSet(order = "042", id = "add-oracle-plugin", author = "")
+    public void addOraclePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Oracle Plugin");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("oracle-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle-db.jpg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 }

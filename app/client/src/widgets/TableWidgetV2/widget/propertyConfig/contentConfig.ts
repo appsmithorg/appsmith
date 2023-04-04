@@ -2,14 +2,12 @@ import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  InlineEditingSaveOptions,
-  TableWidgetProps,
-} from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
   totalRecordsCountValidation,
@@ -54,6 +52,7 @@ export default [
           updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
+          "primaryColumns",
           "columnOrder",
           "childStylesheet",
           "inlineEditingSaveOption",
@@ -459,6 +458,17 @@ export default [
         helpText: "Toggle visibility of the data download",
         label: "Allow Download",
         controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "canFreezeColumn",
+        helpText: "Controls whether the user can freeze columns",
+        label: "Allow Column Freeze",
+        controlType: "SWITCH",
+        defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,

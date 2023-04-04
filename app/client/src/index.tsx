@@ -12,14 +12,14 @@ import AppRouter from "@appsmith/AppRouter";
 import * as Sentry from "@sentry/react";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { StyledToastContainer } from "design-system-old";
 import "./assets/styles/index.css";
-import "./polyfills/corejs-add-on";
+import "./polyfills";
 import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
-import AppErrorBoundary from "AppErrorBoundry";
+import AppErrorBoundary from "./AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 

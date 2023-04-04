@@ -1,3 +1,5 @@
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+
 const Access = {
   AdminSettingsEntryLink: ".admin-settings-menu-option",
   LeftPaneAuditLogsLink:
@@ -26,8 +28,8 @@ const UpgradePage = {
 const locators = { ...Access, ...UpgradePage };
 
 describe("Audit logs", () => {
-  it("super user can access audit logs page", () => {
-    if (Cypress.env("Edition") === 0) {
+  it("1. Super user can access audit logs page", () => {
+    if (CURRENT_REPO === REPO.CE) {
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.visit("/applications");

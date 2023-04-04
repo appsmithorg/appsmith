@@ -4,17 +4,18 @@ import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
 let forkableAppUrl;
 
-describe("Fork application across workspaces", function() {
+describe("Fork application across workspaces", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check if the forked application has the same dsl as the original", function() {
+  it("Check if the forked application has the same dsl as the original", function () {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
@@ -28,12 +29,8 @@ describe("Fork application across workspaces", function() {
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
     cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -53,12 +50,10 @@ describe("Fork application across workspaces", function() {
     });
   });
 
-  it("Non signed user should be able to fork a public forkable app", function() {
+  it("Non signed user should be able to fork a public forkable app", function () {
     cy.NavigateToHome();
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkNonSignedInUser.json");
@@ -72,9 +67,17 @@ describe("Fork application across workspaces", function() {
       }
 
       cy.PublishtheApp();
-      cy.get("button:contains('Share')")
-        .first()
-        .click({ force: true });
+      agHelper.Sleep(2000);
+      cy.get("button:contains('Share')").first().click({ force: true });
+      // agHelper.Sleep(1000);
+      // cy.get("body").then(($ele) => {
+      //   if ($ele.find(homePage.enablePublicAccess).length <= 0) {
+      //     cy.contains("Retry").click();
+      //     cy.get("button:contains('Share')")
+      //       .first()
+      //       .click({ force: true });
+      //   }
+      // });
       cy.enablePublicAccess();
 
       cy.url().then((url) => {
@@ -86,9 +89,7 @@ describe("Fork application across workspaces", function() {
         //cy.reload();
         //cy.visit(forkableAppUrl);
         cy.wait(4000);
-        cy.get(applicationLocators.forkButton)
-          .first()
-          .click({ force: true });
+        cy.get(applicationLocators.forkButton).first().click({ force: true });
         cy.get(loginPageLocators.signupLink).click();
 
         cy.generateUUID().then((uid) => {
@@ -96,9 +97,7 @@ describe("Fork application across workspaces", function() {
           cy.get(signupPageLocators.password).type(uid);
           cy.get(signupPageLocators.submitBtn).click();
           cy.wait(10000);
-          cy.get(applicationLocators.forkButton)
-            .first()
-            .click({ force: true });
+          cy.get(applicationLocators.forkButton).first().click({ force: true });
           cy.get(homePage.forkAppWorkspaceButton).should("be.visible");
         });
       });

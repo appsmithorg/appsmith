@@ -40,7 +40,7 @@ export const TableIconWrapper = styled.div<{
     margin-left: 4px;
     white-space: nowrap;
     color: ${(props) => props.titleColor || Colors.GRAY};
-    margin-top: 3px;
+    margin-top: 2px;
   }
 `;
 
@@ -117,4 +117,4 @@ function ActionItem(props: ActionItemProps) {
   }
 }
 
-export default ActionItem;
+export default React.memo(ActionItem);

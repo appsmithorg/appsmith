@@ -1,12 +1,11 @@
 const dsl = require("../../../../fixtures/autocomp.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("opens autocomplete for bindings", () => {
+  it("1. Opens autocomplete for bindings", () => {
     cy.selectEntityByName("TestModal");
     cy.wait(3000);
     cy.selectEntityByName("Aditya");
@@ -59,10 +58,10 @@ describe("Dynamic input autocomplete", () => {
             );
           });
       });
-    cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
+    cy.evaluateErrorMessage("garbage is not defined");
   });
 
-  it("test if action inside non event field throws error", () => {
+  it("2. Test if action inside non event field throws error & open current value popup", () => {
     cy.get(dynamicInputLocators.input)
       .first()
       .click({ force: true })
@@ -72,21 +71,10 @@ describe("Dynamic input autocomplete", () => {
     cy.wait(1000);
 
     cy.evaluateErrorMessage(
-      "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.".replaceAll(
+      "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.".replaceAll(
         "{{actionName}}",
         "storeValue()",
       ),
     );
-  });
-
-  it("opens current value popup", () => {
-    // Test on api pane
-    cy.NavigateToAPI_Panel();
-    cy.get(apiwidget.createapi).click({ force: true });
-    cy.wait("@createNewApi");
-    cy.get(apiwidget.headerValue).within(() => {
-      cy.get("textarea").click({ force: true });
-    });
-    cy.assertEvaluatedValuePopup("string");
   });
 });

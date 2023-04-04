@@ -1,19 +1,17 @@
 import * as React from "react";
 import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import {
-  DEFAULT_FONT_SIZE,
-  FontStyleTypes,
-  TextSize,
-} from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
 import { Icon, IconSize } from "design-system-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
-import { Color, Colors } from "constants/Colors";
+import type { Color } from "constants/Colors";
+import { Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
@@ -184,7 +182,7 @@ const Content = styled.div<{
   color: ${(props) => props?.textColor};
   max-height: 70vh;
   overflow: auto;
-  word-break: break-all;
+  overflow-wrap: break-word;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};

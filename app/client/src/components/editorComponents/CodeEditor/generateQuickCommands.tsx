@@ -1,12 +1,11 @@
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import React from "react";
-import {
-  AutocompleteDataType,
-  CommandsCompletion,
-} from "utils/autocomplete/CodemirrorTernService";
+import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
-import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
+import type { SlashCommandPayload } from "entities/Action";
+import { PluginType, SlashCommand } from "entities/Action";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -185,7 +184,7 @@ export const generateQuickCommands = (
         const pluginType = data.data.pluginType as PluginType;
         let icon = null;
         if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2;
+          icon = JsFileIconV2();
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>

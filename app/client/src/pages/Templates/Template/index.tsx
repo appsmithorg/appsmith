@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
-import { Template as TemplateInterface } from "api/TemplatesApi";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   Button,
   getTypographyByKey,
@@ -18,8 +18,6 @@ import {
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
 import { Position } from "@blueprintjs/core";
-import { getForkableWorkspaces } from "selectors/templatesSelectors";
-import { useSelector } from "react-redux";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -100,6 +98,7 @@ const StyledButton = styled(Button)`
 `;
 
 export interface TemplateProps {
+  isForkingEnabled: boolean;
   template: TemplateInterface;
   size?: string;
   onClick?: (id: string) => void;
@@ -114,24 +113,14 @@ const Template = (props: TemplateProps) => {
   }
 };
 
-export interface TemplateLayoutProps {
-  template: TemplateInterface;
+export interface TemplateLayoutProps extends TemplateProps {
   className?: string;
-  onClick?: (id: string) => void;
-  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
-  const {
-    datasources,
-    description,
-    functions,
-    id,
-    screenshotUrls,
-    title,
-  } = props.template;
+  const { datasources, description, functions, id, screenshotUrls, title } =
+    props.template;
   const [showForkModal, setShowForkModal] = useState(false);
-  const workspaceList = useSelector(getForkableWorkspaces);
   const onClick = () => {
     if (props.onClick) {
       props.onClick(id);
@@ -143,6 +132,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
     if (props.onForkTemplateClick) {
       e.preventDefault();
+      e.stopPropagation();
       props.onForkTemplateClick(props.template);
     } else {
       e.stopPropagation();
@@ -156,55 +146,54 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper
-      className={props.className}
-      data-cy="template-card"
-      onClick={onClick}
-    >
-      <ImageWrapper className="image-wrapper">
-        <StyledImage src={screenshotUrls[0]} />
-      </ImageWrapper>
-      <TemplateContent>
-        <div className="title">{title}</div>
-        <div className="categories">{functions.join(" • ")}</div>
-        <div className="description">{description}</div>
-        <TemplateContentFooter>
-          <TemplateDatasources>
-            {datasources.map((pluginPackageName) => {
-              return (
-                <DatasourceChip
-                  key={pluginPackageName}
-                  pluginPackageName={pluginPackageName}
-                />
-              );
-            })}
-          </TemplateDatasources>
-          {!!workspaceList.length && (
-            <div onClick={onForkButtonTrigger}>
-              <ForkTemplateDialog
-                onClose={onForkModalClose}
-                showForkModal={showForkModal}
-                templateId={id}
-              >
-                <Tooltip
-                  content={createMessage(FORK_THIS_TEMPLATE)}
-                  minimal
-                  position={Position.BOTTOM}
-                >
-                  <StyledButton
-                    className="t--fork-template fork-button"
-                    icon="plus"
-                    onClick={onForkButtonTrigger}
-                    size={Size.medium}
-                    tag="button"
+    <>
+      <ForkTemplateDialog
+        onClose={onForkModalClose}
+        showForkModal={showForkModal}
+        templateId={id}
+      />
+      <TemplateWrapper
+        className={props.className}
+        data-cy="template-card"
+        onClick={onClick}
+      >
+        <ImageWrapper className="image-wrapper">
+          <StyledImage src={screenshotUrls[0]} />
+        </ImageWrapper>
+        <TemplateContent>
+          <div className="title">{title}</div>
+          <div className="categories">{functions.join(" • ")}</div>
+          <div className="description">{description}</div>
+          <TemplateContentFooter>
+            <TemplateDatasources>
+              {datasources.map((pluginPackageName) => {
+                return (
+                  <DatasourceChip
+                    key={pluginPackageName}
+                    pluginPackageName={pluginPackageName}
                   />
-                </Tooltip>
-              </ForkTemplateDialog>
-            </div>
-          )}
-        </TemplateContentFooter>
-      </TemplateContent>
-    </TemplateWrapper>
+                );
+              })}
+            </TemplateDatasources>
+            {props.isForkingEnabled && (
+              <Tooltip
+                content={createMessage(FORK_THIS_TEMPLATE)}
+                minimal
+                position={Position.BOTTOM}
+              >
+                <StyledButton
+                  className="t--fork-template fork-button"
+                  icon="plus"
+                  onClick={onForkButtonTrigger}
+                  size={Size.medium}
+                  tag="button"
+                />
+              </Tooltip>
+            )}
+          </TemplateContentFooter>
+        </TemplateContent>
+      </TemplateWrapper>
+    </>
   );
 }
 

@@ -16,6 +16,7 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.GraphQLPluginError;
 import com.external.utils.GraphQLHintMessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,7 +48,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -154,6 +157,40 @@ public class GraphQLPluginTest {
                     JsonNode data = ((ObjectNode) result.getBody()).get("data");
                     String expectedResult = "{\"allPosts\":{\"nodes\":[{\"id\":1},{\"id\":2}]}}";
                     assertEquals(expectedResult, data.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidGraphQLApiExecutionWithWhitespacesInUrl() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+
+        //changing the url to add whitespaces at the start and end of the url
+        String url = dsConfig.getUrl();
+        url = String.format("%-" + (url.length() + 4) + "s" ,url);
+        url = String.format("%" + (url.length() + 4) + "s" ,url);
+        dsConfig.setUrl(url);
+        String queryBody = "query($limit: Int) {\n" +
+                "\tallPosts(first: $limit) {\n" +
+                "\t\tnodes {\n" +
+                "\t\t\tid\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+        actionConfig.setBody(queryBody);
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("", "true"));
+        properties.add(new Property("", "{\n" +
+                "  \"limit\": 2\n" +
+                "}"));
+        actionConfig.setPluginSpecifiedTemplates(properties);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
                 })
                 .verifyComplete();
     }
@@ -1130,6 +1167,16 @@ public class GraphQLPluginTest {
         String expectedVariableString = "{\"first\":3}";
         assertEquals(expectedVariableString,
                 actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
+    }
+
+    @Test
+    public void verifyUniquenessOfGraphQLPluginErrorCode() {
+        assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode).distinct().count() == GraphQLPluginError.values().length);
+
+        assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-GQL"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 
 }

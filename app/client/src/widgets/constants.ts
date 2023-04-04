@@ -1,26 +1,49 @@
 import { IconNames } from "@blueprintjs/icons";
-import { Theme } from "constants/DefaultTheme";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { Theme } from "constants/DefaultTheme";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import {
+import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { WidgetFeatures } from "utils/WidgetFeatures";
-import { WidgetProps } from "./BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
+import type { WidgetProps } from "./BaseWidget";
+
+export type WidgetSizeConfig = {
+  viewportMinWidth: number;
+  configuration: (props: any) => Record<string, string | number>;
+};
+
+type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
+type AutoDimensionOptions = { width?: boolean; height?: boolean };
+
+export type AutoLayoutConfig = {
+  // Indicates if a widgets dimensions should be auto adjusted according to content inside it
+  autoDimension?: AutoDimensionOptions;
+  // min/max sizes for the widget
+  widgetSize?: Array<WidgetSizeConfig>;
+  // Indicates if the widgets resize handles should be disabled
+  disableResizeHandles?: ResizeableOptions;
+  // default values for the widget specifi to auto layout
+  defaults?: Partial<WidgetConfigProps>;
+  // default values for the properties that are hidden/disabled in auto layout
+  disabledPropsDefaults?: Partial<WidgetProps>;
+};
 
 export interface WidgetConfiguration {
+  autoLayout?: AutoLayoutConfig;
   type: string;
   name: string;
   iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
+  eagerRender?: boolean;
   isDeprecated?: boolean;
   replacement?: string;
   isCanvas?: boolean;
@@ -28,6 +51,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
+  needsHeightForContent?: boolean;
   properties: {
     config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
@@ -46,6 +70,10 @@ export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",
   CHILD_OPERATIONS = "CHILD_OPERATIONS",
+  BEFORE_DROP = "BEFORE_DROP",
+  BEFORE_PASTE = "BEFORE_PASTE",
+  BEFORE_ADD = "BEFORE_ADD",
+  UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {
@@ -64,13 +92,20 @@ interface LayoutProps {
   responsiveBehavior?: ResponsiveBehavior;
 }
 
-const staticProps = omit(WIDGET_STATIC_PROPS, "children");
+const staticProps = omit(
+  WIDGET_STATIC_PROPS,
+  "children",
+  "topRowBeforeCollapse",
+  "bottomRowBeforeCollapse",
+);
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps
 > &
   LayoutProps & {
     children?: CanvasWidgetStructure[];
+    selected?: boolean;
+    onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
   };
 
 export enum FileDataTypes {
@@ -194,7 +229,8 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
   },
 };
 
-export const YOUTUBE_URL_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+export const YOUTUBE_URL_REGEX =
+  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
 
 export const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -283,7 +319,6 @@ export const dateFormatOptions = [
   },
 ];
 
-export const DRAG_MARGIN = 4;
 export type ThemeProp = {
   theme: Theme;
 };

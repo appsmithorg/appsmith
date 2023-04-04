@@ -9,18 +9,18 @@ import {
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes, MultiSwitch } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 
@@ -48,6 +48,7 @@ const NoBodyMessage = styled.div`
     color: ${(props) => props.theme.colors.apiPane.body.text};
   }
 `;
+
 interface PostDataProps {
   displayFormat: any;
   dataTreePath: string;
@@ -65,13 +66,8 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const {
-    apiId,
-    dataTreePath,
-    displayFormat,
-    theme,
-    updateBodyContentType,
-  } = props;
+  const { apiId, dataTreePath, displayFormat, theme, updateBodyContentType } =
+    props;
 
   const tabComponentsMap = (key: string, contentType: string): JSX.Element => {
     return {
@@ -86,6 +82,7 @@ function PostBodyData(props: Props) {
           <DynamicTextField
             border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
+            evaluatedPopUpLabel={"Body"}
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"
@@ -103,7 +100,7 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
-          // pushFields
+          pushFields
           theme={theme}
         />
       ),
@@ -115,7 +112,7 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
-          // pushFields
+          pushFields
           theme={theme}
         />
       ),
@@ -170,6 +167,7 @@ export default connect((state: AppState) => {
     label: POST_BODY_FORMAT_OPTIONS.NONE,
     value: POST_BODY_FORMAT_OPTIONS.NONE,
   };
+
   return {
     displayFormat,
     apiId,

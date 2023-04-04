@@ -1,18 +1,14 @@
-import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import {
-  ButtonPlacement,
-  ButtonPlacementTypes,
-  ButtonVariant,
-  ButtonVariantTypes,
-} from "components/constants";
+import type { Alignment } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonPlacement, ButtonVariant } from "components/constants";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
@@ -292,7 +288,6 @@ class ButtonGroupWidget extends BaseWidget<
                     },
                   ],
                 },
-                ...getResponsiveLayoutConfig(this.getWidgetType()),
                 {
                   sectionName: "Events",
                   hidden: (

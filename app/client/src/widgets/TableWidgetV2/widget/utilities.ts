@@ -1,22 +1,29 @@
 import { Colors } from "constants/Colors";
-import { FontStyleTypes } from "constants/WidgetConstants";
-import _, { isBoolean, isObject, uniq, without } from "lodash";
+import type { RenderMode } from "constants/WidgetConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
+import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
-import {
-  CellAlignmentTypes,
+import type {
   CellLayoutProperties,
   ColumnProperties,
+  ReactTableColumnProps,
+  TableColumnProps,
   TableStyles,
+} from "../component/Constants";
+import {
+  CellAlignmentTypes,
+  StickyType,
   VerticalAlignmentTypes,
 } from "../component/Constants";
 import {
   ColumnTypes,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
+  TABLE_COLUMN_ORDER_KEY,
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import { TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
@@ -26,8 +33,10 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
+import log from "loglevel";
+import type React from "react";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -206,6 +215,7 @@ export function getDefaultColumnProperties(
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
+    sticky: StickyType.NONE,
     validation: {},
   };
 
@@ -529,9 +539,7 @@ export function getSelectColumnTypeOptions(value: unknown) {
  */
 export const getSelectedRowBgColor = (accentColor: string) => {
   const tinyAccentColor = tinycolor(accentColor);
-  const brightness = tinycolor(accentColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(accentColor).greyscale().getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
   let nextBrightness = 0;
@@ -623,6 +631,7 @@ export const createColumn = (props: TableWidgetProps, baseName: string) => {
     .map((column) => column.index)
     .sort()
     .pop();
+
   const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
 
   return {
@@ -666,12 +675,17 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
     label: "Save / Discard",
     discardButtonVariant: ButtonVariantTypes.TERTIARY,
     discardButtonColor: Colors.DANGER_SOLID,
+    sticky: StickyType.RIGHT,
   };
-  const columnOrder = props.columnOrder || [];
+  const columnOrder = [...(props.columnOrder || [])];
   const editActionDynamicProperties = getEditActionColumnDynamicProperties(
     props.widgetName,
   );
 
+  const rightColumnIndex = columnOrder
+    .map((column) => props.primaryColumns[column])
+    .filter((col) => col.sticky !== StickyType.RIGHT).length;
+  columnOrder.splice(rightColumnIndex, 0, column.id);
   return [
     {
       propertyPath: `primaryColumns.${column.id}`,
@@ -682,7 +696,7 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
     },
     {
       propertyPath: `columnOrder`,
-      propertyValue: [...columnOrder, column.id],
+      propertyValue: columnOrder,
     },
     ...Object.entries(editActionDynamicProperties).map(([key, value]) => ({
       propertyPath: `primaryColumns.${column.id}.${key}`,
@@ -735,6 +749,88 @@ export const getColumnType = (
   }
 };
 
+export const generateLocalNewColumnOrderFromStickyValue = (
+  columnOrder: string[],
+  columnName: string,
+  sticky?: string,
+  leftOrder?: string[],
+  rightOrder?: string[],
+) => {
+  let newColumnOrder = [...columnOrder];
+  newColumnOrder = without(newColumnOrder, columnName);
+
+  let columnIndex = -1;
+  if (sticky === StickyType.LEFT && leftOrder) {
+    columnIndex = leftOrder.length;
+  } else if (sticky === StickyType.RIGHT && rightOrder) {
+    columnIndex =
+      rightOrder.length !== 0
+        ? columnOrder.indexOf(rightOrder[0]) - 1
+        : columnOrder.length - 1;
+  } else {
+    if (leftOrder?.includes(columnName)) {
+      columnIndex = leftOrder.length - 1;
+    } else if (rightOrder?.includes(columnName)) {
+      columnIndex =
+        rightOrder.length !== 0
+          ? columnOrder.indexOf(rightOrder[0])
+          : columnOrder.length - 1;
+    }
+  }
+  newColumnOrder.splice(columnIndex, 0, columnName);
+  return newColumnOrder;
+};
+/**
+ * Function to get new column order when there is a change in column's sticky value.
+ */
+export const generateNewColumnOrderFromStickyValue = (
+  primaryColumns: Record<string, ColumnProperties>,
+  columnOrder: string[],
+  columnName: string,
+  sticky?: string,
+) => {
+  let newColumnOrder = [...columnOrder];
+  newColumnOrder = without(newColumnOrder, columnName);
+
+  let columnIndex;
+  if (sticky === StickyType.LEFT) {
+    columnIndex = columnOrder
+      .map((column) => primaryColumns[column])
+      .filter((column) => column.sticky === StickyType.LEFT).length;
+  } else if (sticky === StickyType.RIGHT) {
+    columnIndex =
+      columnOrder
+        .map((column) => primaryColumns[column])
+        .filter((column) => column.sticky !== StickyType.RIGHT).length - 1;
+  } else {
+    /**
+     * This block will manage the column order when column is unfrozen.
+     * Unfreezing can happen in CANVAS or PAGE mode.
+     * Logic:
+     * --> If the column is unfrozen when its on the left, then it should be unfrozen after the last left frozen column.
+     * --> If the column is unfrozen when its on the right, then it should be unfrozen before the first right frozen column.
+     */
+    columnIndex = -1;
+
+    const staleStickyValue = primaryColumns[columnName].sticky;
+
+    if (staleStickyValue === StickyType.LEFT) {
+      columnIndex = columnOrder
+        .map((column) => primaryColumns[column])
+        .filter(
+          (column) =>
+            column.sticky === StickyType.LEFT && column.id !== columnName,
+        ).length;
+    } else if (staleStickyValue === StickyType.RIGHT) {
+      columnIndex = columnOrder
+        .map((column) => primaryColumns[column])
+        .filter((column) => column.sticky !== StickyType.RIGHT).length;
+    }
+  }
+  newColumnOrder.splice(columnIndex, 0, columnName);
+  return newColumnOrder;
+};
+
 export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
   props: TableWidgetProps,
 ): unknown => {
@@ -752,4 +848,257 @@ export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
   } else {
     return {};
   }
+};
+
+export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
+  try {
+    const localData = localStorage.getItem(TABLE_COLUMN_ORDER_KEY);
+    if (localData) {
+      const localColumnOrder = JSON.parse(localData);
+      delete localColumnOrder[widgetId];
+      localStorage.setItem(
+        TABLE_COLUMN_ORDER_KEY,
+        JSON.stringify(localColumnOrder),
+      );
+    }
+  } catch (e) {
+    log.debug("Error in reading local data", e);
+  }
+};
+
+export const fetchSticky = (
+  columnId: string,
+  primaryColumns: Record<string, ColumnProperties>,
+  renderMode: RenderMode,
+  widgetId?: string,
+): StickyType | undefined => {
+  if (renderMode === RenderModes.PAGE && widgetId) {
+    const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(widgetId);
+    if (localTableColumnOrder) {
+      const { leftOrder, rightOrder } = localTableColumnOrder;
+      if (leftOrder.indexOf(columnId) > -1) {
+        return StickyType.LEFT;
+      } else if (rightOrder.indexOf(columnId) > -1) {
+        return StickyType.RIGHT;
+      } else {
+        return StickyType.NONE;
+      }
+    } else {
+      return get(primaryColumns, `${columnId}`).sticky;
+    }
+  }
+  if (renderMode === RenderModes.CANVAS) {
+    return get(primaryColumns, `${columnId}`).sticky;
+  }
+};
+
+export const updateAndSyncTableLocalColumnOrders = (
+  columnName: string,
+  leftOrder: string[],
+  rightOrder: string[],
+  sticky?: StickyType,
+) => {
+  if (sticky === StickyType.LEFT) {
+    leftOrder.push(columnName);
+    if (rightOrder) {
+      rightOrder = without(rightOrder, columnName);
+    }
+  } else if (sticky === StickyType.RIGHT) {
+    rightOrder.unshift(columnName);
+    // When column is frozen to right from left. Remove the column name from leftOrder
+    if (leftOrder) {
+      leftOrder = without(leftOrder, columnName);
+    }
+  } else {
+    // remove column from both orders:
+    leftOrder = without(leftOrder, columnName);
+    rightOrder = without(rightOrder, columnName);
+  }
+  return { leftOrder, rightOrder };
+};
+
+export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
+  const localTableWidgetColumnOrder = localStorage.getItem(
+    TABLE_COLUMN_ORDER_KEY,
+  );
+  if (localTableWidgetColumnOrder) {
+    try {
+      const parsedTableWidgetColumnOrder = JSON.parse(
+        localTableWidgetColumnOrder,
+      );
+
+      if (parsedTableWidgetColumnOrder[widgetId]) {
+        const { columnOrder, columnUpdatedAt, leftOrder, rightOrder } =
+          parsedTableWidgetColumnOrder[widgetId];
+        return {
+          columnOrder,
+          columnUpdatedAt,
+          leftOrder,
+          rightOrder,
+        };
+      }
+    } catch (e) {
+      log.debug("Unable to parse local column order:", { e });
+    }
+  }
+};
+
+export const getAllStickyColumnsCount = (columns: TableColumnProps[]) => {
+  return (
+    filter(columns, { sticky: StickyType.LEFT }).length +
+    filter(columns, { sticky: StickyType.RIGHT }).length
+  );
+};
+
+/**
+ *
+ * @param currentIndex: current dragging item index
+ * @param targetIndex: Index poistion of of header that is being hovered
+ * @returns
+ */
+export const getHeaderClassNameOnDragDirection = (
+  currentIndex: number,
+  targetIndex: number,
+) => {
+  let parentClasses = "th header-reorder";
+
+  if (currentIndex !== -1) {
+    if (targetIndex > currentIndex) {
+      parentClasses += " highlight-right";
+    } else if (targetIndex < currentIndex) {
+      parentClasses += " highlight-left";
+    }
+  }
+
+  return parentClasses;
+};
+
+export const getIndexByColumnName = (
+  columnName: string,
+  columnOrder?: string[],
+) => {
+  let currentIndex = -1;
+  if (columnOrder) {
+    currentIndex = columnOrder.indexOf(columnName);
+  }
+  return currentIndex;
+};
+
+/**
+ * A function to get all drag and drop handlers for HeaderCell component.
+ * @param columns: React table columns
+ * @param currentDraggedColumn: The Mutable ref object that references column being dragged
+ * @param handleReorderColumn : Function to handle column reordering.
+ * @param columnOrder
+ * @returns
+ */
+export const getDragHandlers = (
+  columns: ReactTableColumnProps[],
+  currentDraggedColumn: React.MutableRefObject<string>,
+  handleReorderColumn: (columnOrder: string[]) => void,
+  columnOrder?: string[],
+) => {
+  const onDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
+  const onDragEnter = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetIndex: number,
+  ) => {
+    // We get the parent element(.th) so as to apply left and right highlighting
+    const targetElem = e.target as HTMLDivElement;
+    const parentTargetElem = targetElem.closest(".th.header-reorder");
+
+    const currentIndex = getIndexByColumnName(
+      currentDraggedColumn.current,
+      columnOrder,
+    );
+
+    if (parentTargetElem) {
+      parentTargetElem.className = getHeaderClassNameOnDragDirection(
+        currentIndex,
+        targetIndex,
+      );
+    }
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    const targetElem = e.target as HTMLDivElement;
+    targetElem.className = targetElem.className.replace(
+      " draggable-header--dragging",
+      "",
+    );
+    e.preventDefault();
+  };
+
+  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    const targetElem = e.target as HTMLDivElement;
+    const parentTargetElem = targetElem.closest(".th.header-reorder");
+
+    if (parentTargetElem) {
+      parentTargetElem.className = "th header-reorder";
+    }
+
+    e.preventDefault();
+  };
+  const onDragOver = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetIndex: number,
+  ) => {
+    // We get the parent element(.th) so as to apply left and right highlighting
+    const targetElem = e.target as HTMLDivElement;
+    const parentTargetElem = targetElem.closest(".th.header-reorder");
+
+    const currentIndex = getIndexByColumnName(
+      currentDraggedColumn.current,
+      columnOrder,
+    );
+
+    if (parentTargetElem) {
+      parentTargetElem.className = getHeaderClassNameOnDragDirection(
+        currentIndex,
+        targetIndex,
+      );
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    currentDraggedColumn.current = columns[index].alias;
+    const targetElem = e.target as HTMLDivElement;
+    targetElem.className = targetElem.className + " draggable-header--dragging";
+    e.stopPropagation();
+  };
+
+  const onDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    const targetElem = e.target as HTMLDivElement;
+    if (currentDraggedColumn.current) {
+      const partialColumnOrder = without(
+        columnOrder,
+        currentDraggedColumn.current,
+      );
+      partialColumnOrder.splice(index, 0, currentDraggedColumn.current);
+      handleReorderColumn(partialColumnOrder);
+    }
+    targetElem.className = targetElem.className.replace(
+      " draggable-header--dragging",
+      "",
+    );
+    e.stopPropagation();
+  };
+
+  return {
+    onDrag,
+    onDragEnd,
+    onDragEnter,
+    onDragLeave,
+    onDragOver,
+    onDragStart,
+    onDrop,
+  };
 };

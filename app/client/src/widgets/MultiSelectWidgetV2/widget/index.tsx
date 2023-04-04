@@ -2,20 +2,20 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import { WidgetType } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
-import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import type { LoDashStatic } from "lodash";
+import { isArray, isFinite, isString, xorWith } from "lodash";
+import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
@@ -28,17 +28,26 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid = false;
   let parsed: any[] = [];
-  let message = "";
+  let message = { name: "", message: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: options shouldn't get un-eval values;
   let options = props.options;
 
-  const DEFAULT_ERROR_MESSAGE =
-    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-  const MISSING_FROM_OPTIONS =
-    "Some or all default values are missing from options. Please update the values.";
-  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT =
-    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data";
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    message:
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+  };
+  const MISSING_FROM_OPTIONS = {
+    name: "ValidationError",
+    message:
+      "Some or all default values are missing from options. Please update the values.",
+  };
+  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
+    name: "ValidationError",
+    message:
+      "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
+  };
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -97,7 +106,10 @@ export function defaultOptionValueValidation(
         parsed = value;
       } else {
         parsed = [];
-        message = "values must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "values must be unique. Duplicate values found",
+        };
       }
     } else if (value.every(hasLabelValue)) {
       /*
@@ -108,7 +120,10 @@ export function defaultOptionValueValidation(
         parsed = value;
       } else {
         parsed = [];
-        message = "path:value must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          message: "path:value must be unique. Duplicate values found",
+        };
       }
     } else {
       /*
@@ -274,6 +289,7 @@ class MultiSelectWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -447,7 +463,6 @@ class MultiSelectWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -504,6 +519,7 @@ class MultiSelectWidget extends BaseWidget<
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

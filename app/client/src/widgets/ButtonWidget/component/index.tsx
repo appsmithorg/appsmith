@@ -1,18 +1,12 @@
 import React, { useRef, useState } from "react";
 import styled, { createGlobalStyle, css } from "styled-components";
 import Interweave from "interweave";
-import {
-  IButtonProps,
-  MaybeElement,
-  Button,
-  Alignment,
-  Position,
-  Classes,
-} from "@blueprintjs/core";
+import type { IButtonProps, MaybeElement } from "@blueprintjs/core";
+import { Button, Alignment, Position, Classes } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
 
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import {
@@ -25,13 +19,12 @@ import { Toaster, Variant } from "design-system-old";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import {
+import type {
   ButtonPlacement,
   ButtonVariant,
-  ButtonVariantTypes,
   RecaptchaType,
-  RecaptchaTypes,
 } from "components/constants";
+import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -41,7 +34,7 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -73,18 +66,20 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
-height: 100%;
-background-image: none !important;
-font-weight: ${(props) => props.theme.fontWeights[2]};
-outline: none;
-padding: 0px 10px;
-gap: 8px;
+  height: 100%;
+  background-image: none !important;
+  font-weight: ${(props) => props.theme.fontWeights[2]};
+  outline: none;
+  padding: 0px 10px;
+  gap: 8px;
 
-&:hover, &:active, &:focus {
-  ${buttonHoverActiveStyles}
- }
+  &:hover,
+  &:active,
+  &:focus {
+    ${buttonHoverActiveStyles}
+  }
 
-${({ buttonColor, buttonVariant, theme }) => `
+  ${({ buttonColor, buttonVariant, theme }) => `
     background: ${
       getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
         ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -96,8 +91,10 @@ ${({ buttonColor, buttonVariant, theme }) => `
 
     &:disabled, &.${Classes.DISABLED} {
     cursor: not-allowed;
-    background-color: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
-      "var(--wds-color-bg-disabled)"} !important;
+    background-color: ${
+      buttonVariant !== ButtonVariantTypes.TERTIARY &&
+      "var(--wds-color-bg-disabled)"
+    } !important;
     color: var(--wds-color-text-disabled) !important;
     box-shadow: none !important;
     pointer-events: none;
@@ -121,13 +118,10 @@ ${({ buttonColor, buttonVariant, theme }) => `
   }
 
   & > span {
-    max-height: 100%;
-    max-width: 99%;
+    display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     line-height: normal;
 
     color: ${
@@ -138,18 +132,18 @@ ${({ buttonColor, buttonVariant, theme }) => `
   }
 `}
 
-border-radius: ${({ borderRadius }) => borderRadius};
-box-shadow: ${({ boxShadow }) => `${boxShadow ?? "none"}`} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow ?? "none"}`} !important;
 
-${({ placement }) =>
-  placement
-    ? `
+  ${({ placement }) =>
+    placement
+      ? `
     justify-content: ${getCustomJustifyContent(placement)};
     & > span.bp3-button-text {
       flex: unset !important;
     }
   `
-    : ""}
+      : ""}
 `;
 
 export const StyledButton = styled((props) => (

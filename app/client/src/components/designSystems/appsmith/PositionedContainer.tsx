@@ -1,11 +1,11 @@
-import React, { CSSProperties, ReactNode, useMemo } from "react";
-import { BaseStyle } from "widgets/BaseWidget";
+import type { CSSProperties, ReactNode, Ref } from "react";
+import React, { useMemo } from "react";
+import type { BaseStyle } from "widgets/BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   CSSUnits,
   PositionTypes,
-  WidgetType,
-  widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -14,14 +14,14 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import WidgetFactory from "utils/WidgetFactory";
-import { memoize } from "lodash";
 import {
   getIsReflowEffectedSelector,
   getReflowSelector,
 } from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;
@@ -48,15 +48,13 @@ export type PositionedContainerProps = {
   parentColumnSpace: number;
   isDisabled?: boolean;
   isVisible?: boolean;
+  widgetName: string;
 };
 
-export const checkIsDropTarget = memoize(function isDropTarget(
-  type: WidgetType,
+export function PositionedContainer(
+  props: PositionedContainerProps,
+  ref: Ref<HTMLDivElement>,
 ) {
-  return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
-});
-
-export function PositionedContainer(props: PositionedContainerProps) {
   const { componentHeight, componentWidth } = props;
 
   // Memoizing the style
@@ -94,9 +92,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(props.widgetType)}`
+      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(
+        props.widgetType,
+      )} t--widget-${props.widgetName?.toLowerCase()}`
     );
-  }, [props.widgetType, props.widgetId]);
+  }, [props.widgetType, props.widgetId, props.widgetName]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
 
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -169,12 +169,14 @@ export function PositionedContainer(props: PositionedContainerProps) {
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
       onClick={stopEventPropagation}
       onClickCapture={clickToSelectWidget}
+      ref={ref}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
       zIndexOnHover={onHoverZIndex}
@@ -184,6 +186,4 @@ export function PositionedContainer(props: PositionedContainerProps) {
   );
 }
 
-PositionedContainer.padding = WIDGET_PADDING;
-
-export default PositionedContainer;
+export default React.forwardRef(PositionedContainer);

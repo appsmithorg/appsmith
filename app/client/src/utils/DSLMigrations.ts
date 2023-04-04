@@ -7,7 +7,7 @@ import {
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
-import { ChartDataPoint } from "widgets/ChartWidget/constants";
+import type { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
 import {
@@ -25,6 +25,7 @@ import {
   migrateTableWidgetV2ValidationBinding,
   migrateMenuButtonDynamicItemsInsideTableWidget,
   migrateTableWidgetV2SelectOption,
+  migrateColumnFreezeAttributes,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -34,11 +35,11 @@ import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { FetchPageResponse } from "api/PageApi";
+import type { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   migrateMenuButtonDynamicItems,
   migrateMenuButtonWidgetButtonProperties,
@@ -51,9 +52,9 @@ import {
 } from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "entities/DataTree/types";
 import {
   migrateChildStylesheetFromDynamicBindingPathList,
   migrateStylingPropertiesForTheming,
@@ -546,16 +547,14 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
           ...dynamicBindablePropsList,
         ];
       }
-      currentDSL.dynamicPropertyPathList = currentDSL.dynamicPropertyPathList.filter(
-        (each) => {
+      currentDSL.dynamicPropertyPathList =
+        currentDSL.dynamicPropertyPathList.filter((each) => {
           return each.key !== "tabs";
-        },
-      );
-      currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList.filter(
-        (each) => {
+        });
+      currentDSL.dynamicBindingPathList =
+        currentDSL.dynamicBindingPathList.filter((each) => {
           return each.key !== "tabs";
-        },
-      );
+        });
       currentDSL.tabsObj = currentDSL.tabs.reduce(
         (obj: any, tab: any, index: number) => {
           obj = {
@@ -1164,6 +1163,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 75) {
     currentDSL = migrateInputWidgetsMultiLineInputType(currentDSL);
+    currentDSL.version = 76;
+  }
+
+  if (currentDSL.version === 76) {
+    currentDSL = migrateColumnFreezeAttributes(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

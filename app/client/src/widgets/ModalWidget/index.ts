@@ -5,14 +5,23 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { get } from "lodash";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import WidgetFactory from "utils/WidgetFactory";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -177,6 +186,131 @@ export const CONFIG = {
           },
         },
       ],
+      operations: [
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (
+            widget: FlattenedWidgetProps,
+            widgets: CanvasWidgetsReduxState,
+            parent: FlattenedWidgetProps,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return [];
+
+            //get Canvas Widget
+            const canvasWidget: FlattenedWidgetProps = get(
+              widget,
+              "children.0",
+            );
+
+            //get Children Ids of the StatBox
+            const childrenIds: string[] = get(widget, "children.0.children");
+
+            //get Children props of the StatBox
+            const children: FlattenedWidgetProps[] = childrenIds.map(
+              (childId) => widgets[childId],
+            );
+
+            //get the Text Widgets
+            const textWidget = children.filter(
+              (child) => child.type === "TEXT_WIDGET",
+            )?.[0];
+
+            //get all the Icon button Widgets
+            const iconWidget = children.filter(
+              (child) => child.type === "ICON_BUTTON_WIDGET",
+            )?.[0];
+
+            const [buttonWidget1, buttonWidget2] = children.filter(
+              (child) => child.type === "BUTTON_WIDGET",
+            );
+
+            //Create flex layer object based on the children
+            const flexLayers: FlexLayer[] = [
+              {
+                children: [
+                  {
+                    id: textWidget.widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                  {
+                    id: iconWidget.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: buttonWidget1.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                  {
+                    id: buttonWidget2.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+            ];
+
+            //Add widget specific property Defaults, for autoLayout widget
+            const { disabledPropsDefaults } =
+              WidgetFactory.getWidgetAutoLayoutConfig("MODAL_WIDGET") || {};
+
+            //create properties to be updated
+            return getWidgetBluePrintUpdates({
+              [widget.widgetId]: {
+                dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+                height: 100,
+                ...disabledPropsDefaults,
+              },
+              [canvasWidget.widgetId]: {
+                flexLayers,
+                useAutoLayout: true,
+                positioning: Positioning.Vertical,
+                bottomRow: 100,
+              },
+              [textWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Fill,
+                alignment: FlexLayerAlignment.Start,
+                topRow: 0,
+                bottomRow: 4,
+                leftColumn: 0,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 4,
+              },
+              [iconWidget.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 0,
+                bottomRow: 4,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 4,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+              [buttonWidget1.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 2 * 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+              },
+              [buttonWidget2.widgetId]: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+                alignment: FlexLayerAlignment.End,
+                topRow: 4,
+                bottomRow: 8,
+                leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
+                rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
+              },
+            });
+          },
+        },
+      ],
+    },
+  },
+  autoLayout: {
+    disabledPropsDefaults: {
+      minDynamicHeight: 8,
     },
   },
   properties: {

@@ -20,14 +20,14 @@ import styled from "styled-components";
 import { IframeTopBar, IframeWrapper } from "../TemplateView";
 import PageSelection from "./PageSelection";
 import LoadingScreen from "./LoadingScreen";
-import { Template } from "api/TemplatesApi";
+import type { Template } from "api/TemplatesApi";
 import { generatePath, matchPath } from "react-router";
 import { isURLDeprecated, trimQueryString } from "utils/helpers";
 import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
 import TemplateModalHeader from "./Header";
 import TemplateDescription from "../Template/TemplateDescription";
 import SimilarTemplates from "../Template/SimilarTemplates";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 const breakpointColumns = {
   default: 4,
@@ -154,6 +154,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}
+            isForkingEnabled
             onBackPress={props.onBackPress}
             onClick={onSimilarTemplateClick}
             onFork={onForkTemplateClick}

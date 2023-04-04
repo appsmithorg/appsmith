@@ -32,7 +32,7 @@ yarn-error.log*
 .storybook-out/
 cypress/videos
 cypress/screenshots
-/cypress.env.json
+cypress.env.json
 results/
 
 
@@ -48,3 +48,8 @@ build-storybook.log
 TODO
 
 /nginx
+
+/public/static/wds/
+
+storybook-static
+stats.json

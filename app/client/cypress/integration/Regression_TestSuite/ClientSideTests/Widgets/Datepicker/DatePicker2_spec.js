@@ -2,9 +2,10 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
 
-describe("DatePicker Widget Functionality", function() {
+describe("DatePicker Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -13,7 +14,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.openPropertyPane("datepickerwidget");
   });
 
-  it("DatePicker-Date Name validation", function() {
+  it("DatePicker-Date Name validation", function () {
     // changing the date to today
     cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();
@@ -22,7 +23,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.widgetText(
       this.data.Datepickername,
       formWidgetsPage.datepickerWidget,
-      formWidgetsPage.datepickerWidget + " " + commonlocators.widgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
 
     // change the date to next day
@@ -34,9 +35,7 @@ describe("DatePicker Widget Functionality", function() {
      * @param2 --> user date formate
      */
     cy.setDate(1, "ddd MMM DD YYYY");
-    const nextDay = dayjs()
-      .add(1, "days")
-      .format("DD/MM/YYYY");
+    const nextDay = dayjs().add(1, "days").format("DD/MM/YYYY");
     cy.log(nextDay);
     cy.get(formWidgetsPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
@@ -50,10 +49,8 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("Datepicker-Clear date validation", function() {
-    const today = dayjs()
-      .add(0, "days")
-      .format("DD/MM/YYYY");
+  it("Datepicker-Clear date validation", function () {
+    const today = dayjs().add(0, "days").format("DD/MM/YYYY");
     cy.get(formWidgetsPage.defaultDate).click();
     cy.ClearDate();
     cy.PublishtheApp();
@@ -144,21 +141,21 @@ describe("DatePicker Widget Functionality", function() {
   //   );
   // });
 
-  it("DatePicker-check Visible field  validation", function() {
+  it("DatePicker-check Visible field  validation", function () {
     // Check the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget).should("not.exist");
   });
 
-  it("DatePicker-uncheck Visible field validation", function() {
+  it("DatePicker-uncheck Visible field validation", function () {
     // Check the visible checkbox
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget).should("be.visible");
   });
 
-  it("DatePicker-Disable field validation", function() {
+  it("DatePicker-Disable field validation", function () {
     //Check the Disabled checkbox
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateDisableWidget(
@@ -172,7 +169,7 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("DatePicker-Enable field validation", function() {
+  it("DatePicker-Enable field validation", function () {
     //UnCheck the Disabled checkbox
     cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateEnableWidget(

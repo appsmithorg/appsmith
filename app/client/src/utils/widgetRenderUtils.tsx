@@ -1,27 +1,39 @@
-import {
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
+import type {
+  ConfigTree,
   DataTree,
-  DataTreeWidget,
-  ENTITY_TYPE,
+  WidgetEntity,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
-import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import {
+  WIDGET_DSL_STRUCTURE_PROPS,
+  WIDGET_STATIC_PROPS,
+} from "constants/WidgetConstants";
 import WidgetFactory from "./WidgetFactory";
-import { WidgetProps } from "widgets/BaseWidget";
-import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: WidgetEntity,
+  evaluatedWidgetConfig: WidgetEntityConfig,
   specificChildProps?: string[],
 ) => {
-  const widgetStaticProps = pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  );
+  /**
+   * WIDGET_DSL_STRUCTURE_PROPS is required for Building the List widget meta widgets
+   *  requiresFlatWidgetChildren and hasMetaWidgets are the keys required.
+   */
+
+  const widgetStaticProps = pick(canvasWidget, [
+    ...Object.keys({ ...WIDGET_STATIC_PROPS, ...WIDGET_DSL_STRUCTURE_PROPS }),
+    ...(canvasWidget.additionalStaticProps || []),
+  ]);
 
   //Pick required only contents for specific widgets
   const evaluatedStaticProps = specificChildProps
@@ -30,14 +42,15 @@ export const createCanvasWidget = (
 
   return {
     ...evaluatedStaticProps,
+    ...evaluatedWidgetConfig,
     ...widgetStaticProps,
-  } as DataTreeWidget;
+  } as any;
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
-): DataTreeWidget => {
+): WidgetEntity => {
   const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
@@ -74,26 +87,36 @@ export const createLoadingWidget = (
  */
 export function buildChildWidgetTree(
   canvasWidgets: CanvasWidgetsReduxState,
+  metaWidgets: MetaWidgetsReduxState,
   evaluatedDataTree: DataTree,
   loadingEntities: LoadingEntitiesState,
+  configTree: ConfigTree,
   widgetId: string,
   requiredWidgetProps?: string[],
 ) {
-  const parentWidget = canvasWidgets[widgetId];
+  const parentWidget = canvasWidgets[widgetId] || metaWidgets[widgetId];
 
   // specificChildProps are the only properties required by the parent to derive it's properties
   const specificChildProps =
-    requiredWidgetProps ||
-    getWidgetSpecificChildProps(canvasWidgets[widgetId].type);
+    requiredWidgetProps || getWidgetSpecificChildProps(parentWidget.type);
 
   if (parentWidget.children) {
     return parentWidget.children.map((childWidgetId) => {
-      const childWidget = canvasWidgets[childWidgetId];
+      const childWidget =
+        canvasWidgets[childWidgetId] || metaWidgets[childWidgetId];
       const evaluatedWidget = evaluatedDataTree[
         childWidget.widgetName
-      ] as DataTreeWidget;
+      ] as WidgetEntity;
+      const evaluatedWidgetConfig = configTree[
+        childWidget.widgetName
+      ] as WidgetEntityConfig;
       const widget = evaluatedWidget
-        ? createCanvasWidget(childWidget, evaluatedWidget, specificChildProps)
+        ? createCanvasWidget(
+            childWidget,
+            evaluatedWidget,
+            evaluatedWidgetConfig,
+            specificChildProps,
+          )
         : createLoadingWidget(childWidget);
 
       widget.isLoading = loadingEntities.has(childWidget.widgetName);
@@ -101,8 +124,10 @@ export function buildChildWidgetTree(
       if (widget?.children?.length > 0) {
         widget.children = buildChildWidgetTree(
           canvasWidgets,
+          metaWidgets,
           evaluatedDataTree,
           loadingEntities,
+          configTree,
           childWidgetId,
           specificChildProps,
         );
@@ -113,6 +138,25 @@ export function buildChildWidgetTree(
   }
 
   return [];
+}
+
+export function buildFlattenedChildCanvasWidgets(
+  canvasWidgets: CanvasWidgetsReduxState,
+  parentWidgetId: string,
+  flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
+) {
+  const parentWidget = canvasWidgets[parentWidgetId];
+  parentWidget?.children?.forEach((childId) => {
+    flattenedChildCanvasWidgets[childId] = canvasWidgets[childId];
+
+    buildFlattenedChildCanvasWidgets(
+      canvasWidgets,
+      childId,
+      flattenedChildCanvasWidgets,
+    );
+  });
+
+  return flattenedChildCanvasWidgets;
 }
 
 function getWidgetSpecificChildProps(type: string) {

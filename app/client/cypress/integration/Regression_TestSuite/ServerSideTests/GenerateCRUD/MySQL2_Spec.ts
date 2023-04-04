@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+// import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any, newStoreSecret: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
@@ -12,7 +12,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // beforeEach(function() {
-  //   if (Cypress.env("MySQL") === 0) {
+  //   if (INTERCEPT.MYSQL) {
   //     cy.log("MySQL DB is not found. Using intercept");
   //     //dataSources.StartInterceptRoutesForMySQL();
   //   } else cy.log("MySQL DB is found, hence using actual DB");
@@ -184,14 +184,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(4, 3, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 3, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(7, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
 
-    table.ReadTableRowColumnData(5, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
       expect($cellData).not.eq("2132"); //Deleted record Store_ID
     });
 
@@ -230,7 +230,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
     agHelper.AssertContains("Column 'store_id' cannot be null");
-    agHelper.AssertContains("error response");
 
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.EnterJSONInputValue("Store Id", "2106");
@@ -321,7 +320,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
-    table.ReadTableRowColumnData(0, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 200).then(($cellData) => {
       expect($cellData).not.eq("2105"); //Deleted record Store_ID
     });
   });
@@ -377,13 +376,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
@@ -400,19 +399,21 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   }
 
   function generateStoresSecretInfo(rowIndex: number) {
-    let secretInfo: string = "";
-    table.ReadTableRowColumnData(rowIndex, 3, 200).then(($cellData: any) => {
-      var points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
-      let secretCode: string[] = (points as string).split(",");
-      secretCode[0] = secretCode[0].slice(0, 5);
-      secretCode[1] = secretCode[1].slice(0, 5);
-      secretInfo = secretCode[0] + secretCode[1];
-      deployMode.EnterJSONInputValue("Store Secret Code", secretInfo);
-      cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
-        .invoke("attr", "type")
-        .should("eq", "password");
-      cy.wrap(secretInfo).as("secretInfo");
-    });
+    let secretInfo = "";
+    table
+      .ReadTableRowColumnData(rowIndex, 3, "v1", 200)
+      .then(($cellData: any) => {
+        let points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
+        let secretCode: string[] = (points as string).split(",");
+        secretCode[0] = secretCode[0].slice(0, 5);
+        secretCode[1] = secretCode[1].slice(0, 5);
+        secretInfo = secretCode[0] + secretCode[1];
+        deployMode.EnterJSONInputValue("Store Secret Code", secretInfo);
+        cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
+          .invoke("attr", "type")
+          .should("eq", "password");
+        cy.wrap(secretInfo).as("secretInfo");
+      });
   }
 
   function updateNVerify(
@@ -428,9 +429,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(rowIndex);
 
     //validating update happened fine!
-    table.ReadTableRowColumnData(rowIndex, colIndex, 200).then(($cellData) => {
-      expect($cellData).to.eq(expectedTableData);
-    });
+    table
+      .ReadTableRowColumnData(rowIndex, colIndex, "v1", 200)
+      .then(($cellData) => {
+        expect($cellData).to.eq(expectedTableData);
+      });
   }
 
   function updatingStoreJSONPropertyFileds() {

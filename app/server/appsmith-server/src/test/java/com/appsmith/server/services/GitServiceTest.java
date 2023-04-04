@@ -10,10 +10,11 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -2260,7 +2261,8 @@ public class GitServiceTest {
 
                     Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
                     appNavigationSetting.setOrientation("top");
-                    branchedApplication.setNavigationSetting(appNavigationSetting);
+                    branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+                    branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
                     return Mono.just(branchedApplication);
                 })
                 .flatMap(branchedApplication->
@@ -2278,8 +2280,8 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2337,9 +2339,9 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2401,10 +2403,10 @@ public class GitServiceTest {
                 .assertNext(tuple -> {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNotNull();
-                    assertThat(srcApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -2602,22 +2604,23 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
+        Application application1 = createApplicationConnectedToGit("createBranch_cancelledMidway_newApplicationCreated", "master");
         gitService
-                .createBranch(gitConnectedApplication.getId(), createGitBranchDTO, gitConnectedApplication.getGitApplicationMetadata().getBranchName())
+                .createBranch(application1.getId(), createGitBranchDTO, application1.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
-        Mono<Application> branchedAppMono = Mono.just(gitConnectedApplication)
+        Mono<Application> branchedAppMono = Mono.just(application1)
                 .flatMap(application -> {
                     try {
                         // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
                         // completes
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     return applicationService
-                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS);
+                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), MANAGE_APPLICATIONS);
                 });
 
         StepVerifier
@@ -2627,7 +2630,7 @@ public class GitServiceTest {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotEqualTo(gitData.getDefaultApplicationId());
-                    assertThat(gitData.getDefaultApplicationId()).isEqualTo(gitConnectedApplication.getId());
+                    assertThat(gitData.getDefaultApplicationId()).isEqualTo(application1.getId());
                     assertThat(gitData.getBranchName()).isEqualTo(createGitBranchDTO.getBranchName());
                     assertThat(gitData.getDefaultBranchName()).isNotEmpty();
                     assertThat(gitData.getRemoteUrl()).isNotEmpty();
@@ -3157,7 +3160,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true);
+        Mono<Application> applicationMono = gitService.discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
         StepVerifier
                 .create(applicationMono)
@@ -3197,7 +3200,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("fetched"));
 
         gitService
-                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName(), true)
+                .discardChanges(application.getId(), application.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofNanos(100))
                 .subscribe();
 
@@ -3264,6 +3267,42 @@ public class GitServiceTest {
                     Set<String> branchNames = new HashSet<>();
                     applicationList.forEach(application1 -> branchNames.add(application1.getGitApplicationMetadata().getBranchName()));
                     assertThat(branchNames).doesNotContain(TO_BE_DELETED_BRANCH);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitAndPushApplication_WithMultipleUsers_success() throws GitAPIException, IOException {
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("test commit");
+
+        PageDTO page = new PageDTO();
+        page.setApplicationId(gitConnectedApplication.getId());
+        page.setName("commit_WithMultipleUsers_page");
+        applicationPageService.createPage(page).block();
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("committed successfully"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("pushed successfully"));
+
+        // First request for commit operation
+        Mono<String> commitMonoReq1 = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        // Second request for commit operation
+        Mono<String> commitMonoReq2 = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+
+        // Both the request to execute completely without the file lock error from jgit.
+        StepVerifier
+                .create(Mono.zip(commitMonoReq1, commitMonoReq2))
+                .assertNext(tuple ->{
+                    assertThat(tuple.getT1()).contains("committed successfully");
+                    assertThat(tuple.getT2()).contains("committed successfully");
                 })
                 .verifyComplete();
     }

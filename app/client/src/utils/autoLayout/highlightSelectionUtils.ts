@@ -1,4 +1,4 @@
-import { HighlightInfo } from "./autoLayoutTypes";
+import type { HighlightInfo } from "./autoLayoutTypes";
 
 export interface Point {
   x: number;
@@ -29,6 +29,7 @@ export const getHighlightPayload = (
    */
   let filteredHighlights: HighlightInfo[] = [];
   filteredHighlights = getViableDropPositions(highlights, pos);
+  // console.log("#### filteredHighlights", filteredHighlights);
   if (!filteredHighlights || !filteredHighlights?.length) return;
 
   // Sort filtered highlights in ascending order of distance from mouse position.
@@ -118,5 +119,5 @@ function calculateDistance(a: HighlightInfo, b: Point): number {
       distX = 0;
     }
   }
-  return Math.abs(Math.sqrt(distX * distX + distY * distY));
+  return Math.hypot(distX, distY);
 }

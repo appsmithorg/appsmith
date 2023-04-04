@@ -3,22 +3,24 @@ import { JSEditor } from "../Pages/JSEditor";
 import { EntityExplorer } from "../Pages/EntityExplorer";
 import { CommonLocators } from "./CommonLocators";
 import { ApiPage } from "../Pages/ApiPage";
+import { AdminSettings } from "../Pages/AdminSettings";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
-import { TableV2 } from "../Pages/TableV2";
 import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
 import { LibraryInstaller } from "../Pages/LibraryInstaller";
+import { PeekOverlay } from "../Pages/PeekOverlay";
 import { InviteModal } from "../Pages/InviteModal";
 import { AppSettings } from "../Pages/AppSettings/AppSettings";
 import { GeneralSettings } from "../Pages/AppSettings/GeneralSettings";
 import { PageSettings } from "../Pages/AppSettings/PageSettings";
 import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
 import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
+import { Templates } from "../Pages/Templates";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -61,6 +63,14 @@ export class ObjectsRegistry {
     return ObjectsRegistry.apiPage__;
   }
 
+  private static adminSettings__: AdminSettings;
+  static get AdminSettings(): AdminSettings {
+    if (ObjectsRegistry.adminSettings__ === undefined) {
+      ObjectsRegistry.adminSettings__ = new AdminSettings();
+    }
+    return ObjectsRegistry.adminSettings__;
+  }
+
   private static homePage__: HomePage;
   static get HomePage(): HomePage {
     if (ObjectsRegistry.homePage__ === undefined) {
@@ -83,14 +93,6 @@ export class ObjectsRegistry {
       ObjectsRegistry.table__ = new Table();
     }
     return ObjectsRegistry.table__;
-  }
-
-  private static tableV2__: TableV2;
-  static get TableV2(): TableV2 {
-    if (ObjectsRegistry.tableV2__ === undefined) {
-      ObjectsRegistry.tableV2__ = new TableV2();
-    }
-    return ObjectsRegistry.tableV2__;
   }
 
   private static propertyPane__: PropertyPane;
@@ -181,12 +183,28 @@ export class ObjectsRegistry {
     return ObjectsRegistry.LibraryInstaller__;
   }
 
+  private static peekOverlay__: PeekOverlay;
+  static get PeekOverlay(): PeekOverlay {
+    if (ObjectsRegistry.peekOverlay__ === undefined) {
+      ObjectsRegistry.peekOverlay__ = new PeekOverlay();
+    }
+    return ObjectsRegistry.peekOverlay__;
+  }
+
   private static inviteModal__: InviteModal;
   static get InviteModal(): InviteModal {
     if (ObjectsRegistry.inviteModal__ === undefined) {
       ObjectsRegistry.inviteModal__ = new InviteModal();
     }
     return ObjectsRegistry.inviteModal__;
+  }
+
+  private static templates__: Templates;
+  static get Templates(): Templates {
+    if (ObjectsRegistry.templates__ === undefined) {
+      ObjectsRegistry.templates__ = new Templates();
+    }
+    return ObjectsRegistry.templates__;
   }
 }
 

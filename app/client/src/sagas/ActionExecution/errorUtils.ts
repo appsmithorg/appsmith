@@ -1,22 +1,18 @@
-import { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import AppsmithConsole from "utils/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
-  DEBUGGER_TRIGGER_ERROR,
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Toaster, Variant } from "design-system-old";
-import { ApiResponse } from "api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
-import { Types } from "utils/TypeHelpers";
-import {
-  ActionTriggerFunctionNames,
-  ActionTriggerKeys,
-} from "@appsmith/entities/DataTree/actionTriggers";
+import type { Types } from "utils/TypeHelpers";
+import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -49,7 +45,9 @@ export class ActionValidationError extends TriggerFailureError {
   ) {
     const errorMessage = createMessage(
       TRIGGER_ACTION_VALIDATION_ERROR,
-      ActionTriggerFunctionNames[functionName],
+      getActionTriggerFunctionNames(!!APPSMITH_CONFIGS.cloudHosting)[
+        functionName
+      ],
       argumentName,
       expectedType,
       received,
@@ -62,31 +60,31 @@ export const logActionExecutionError = (
   errorMessage: string,
   source?: TriggerSource,
   triggerPropertyName?: string,
-  errorType?: PropertyEvaluationErrorType,
 ) => {
-  if (triggerPropertyName) {
-    AppsmithConsole.addErrors([
-      {
-        payload: {
-          id: `${source?.id}-${triggerPropertyName}`,
-          logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-          text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            id: source?.id ?? "",
-            name: source?.name ?? "",
-            propertyPath: triggerPropertyName,
-          },
-          messages: [
-            {
-              type: errorType,
-              message: errorMessage,
-            },
-          ],
-        },
-      },
-    ]);
-  }
+  //Commenting as per decision taken for the error hanlding epic to not show the trigger errors in the debugger.
+  // if (triggerPropertyName) {
+  //   AppsmithConsole.addErrors([
+  //     {
+  //       payload: {
+  //         id: `${source?.id}-${triggerPropertyName}`,
+  //         logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+  //         text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+  //         source: {
+  //           type: ENTITY_TYPE.WIDGET,
+  //           id: source?.id ?? "",
+  //           name: source?.name ?? "",
+  //           propertyPath: triggerPropertyName,
+  //         },
+  //         messages: [
+  //           {
+  //             type: errorType,
+  //             message: { name: "TriggerExecutionError", message: errorMessage },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   ]);
+  // }
 
   Toaster.show({
     text: errorMessage,

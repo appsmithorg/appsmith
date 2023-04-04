@@ -1,4 +1,4 @@
-import { TreeNode } from "./constants";
+import type { TreeNode } from "./constants";
 import { getNearestAbove } from "./helpers";
 
 function getAllEffectedBoxes(
@@ -53,9 +53,14 @@ export function computeChangeInPositionBasedOnDelta(
   }
 
   // Sort the effected box ids, this is to make sure we compute from top to bottom.
-  const sortedEffectedBoxIds = effectedBoxes.sort(
-    (a, b) => tree[a].topRow - tree[b].topRow,
-  );
+  const sortedEffectedBoxIds = effectedBoxes.sort((a, b) => {
+    const A = tree[a].topRow;
+    const B = tree[b].topRow;
+    if (A === B) {
+      return tree[a].originalTopRow - tree[b].originalTopRow;
+    }
+    return tree[a].topRow - tree[b].topRow;
+  });
 
   // For each of the boxes which have been effected
   for (const effectedBoxId of sortedEffectedBoxIds) {

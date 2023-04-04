@@ -3,17 +3,18 @@ import { ButtonGroup, TooltipComponent } from "design-system-old";
 import * as React from "react";
 import { useDispatch } from "react-redux";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   CanvasSplitOptions,
-  CanvasSplitTypes,
   getCanvasSplitRatio,
 } from "utils/autoLayout/canvasSplitProperties";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { CanvasSplitTypes } from "utils/autoLayout/canvasSplitProperties";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 /**
  * ----------------------------------------------------------------------------
@@ -72,9 +73,7 @@ export const CanvasSplitOptionsControlButtonTab = ({
 //  * COMPONENT
 //  *-----------------------------------------------------------------------------
 //  */
-class CanvasSplitOptionsControl extends BaseControl<
-  CanvasSplitOptionsControlProps
-> {
+class CanvasSplitOptionsControl extends BaseControl<CanvasSplitOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {

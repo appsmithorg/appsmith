@@ -1,4 +1,5 @@
-import React, { RefObject, createRef } from "react";
+import type { RefObject } from "react";
+import React, { createRef } from "react";
 import { sortBy } from "lodash";
 import {
   Alignment,
@@ -9,15 +10,15 @@ import {
   Spinner,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import {
+import type {
   ButtonStyleType,
   ButtonVariant,
-  ButtonVariantTypes,
   ButtonPlacement,
 } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import styled, { createGlobalStyle } from "styled-components";
 import {
   getCustomBackgroundColor,
@@ -25,11 +26,12 @@ import {
   getCustomJustifyContent,
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 // Utility functions
 interface ButtonData {
@@ -181,6 +183,11 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   align-items: center;
   padding: 0px 10px;
 
+  .auto-layout & {
+    min-height: 32px;
+    min-width: 120px;
+  }
+
   &:hover,
   &:active,
   &:focus {
@@ -227,10 +234,14 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
 
     &:disabled {
       cursor: not-allowed;
-      border: ${buttonVariant === ButtonVariantTypes.SECONDARY &&
-        "1px solid var(--wds-color-border-disabled)"} !important;
-      background: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
-        "var(--wds-color-bg-disabled)"} !important;
+      border: ${
+        buttonVariant === ButtonVariantTypes.SECONDARY &&
+        "1px solid var(--wds-color-border-disabled)"
+      } !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY &&
+        "var(--wds-color-bg-disabled)"
+      } !important;
 
       span {
         color: var(--wds-color-text-disabled) !important;

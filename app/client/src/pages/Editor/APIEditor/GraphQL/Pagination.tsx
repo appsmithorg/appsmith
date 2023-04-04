@@ -4,22 +4,23 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
+import type { DropdownOption } from "design-system-old";
 import {
   Text,
   TextType,
   TooltipComponent as Tooltip,
   Dropdown,
   Checkbox,
-  DropdownOption,
 } from "design-system-old";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { AnyAction, bindActionCreators, Dispatch } from "redux";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { AnyAction, Dispatch } from "redux";
+import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
-import { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import {
   LIMITBASED_PREFIX,
   CURSORBASED_PREFIX,
@@ -270,6 +271,7 @@ function PaginationTypeBasedWrapper({
           className={`${className}Value`}
           dataTreePath={dataTreePath}
           disabled={separateKeyFlag && !separateValueFlag}
+          evaluatedPopUpLabel={valueLabel}
           name={valuePath}
           onChange={onInputChange}
           placeholder={valuePlaceholder || ""}

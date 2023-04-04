@@ -1,6 +1,7 @@
 import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getFilteredErrors } from "./debuggerSelectors";
 
@@ -10,12 +11,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "main_input_id-defaultText": {
           id: "main_input_id-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -58,8 +62,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -69,12 +73,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "modal_input-defaultText": {
           id: "modal_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -143,8 +150,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -154,12 +161,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "tab2_input-defaultText": {
           id: "tab2_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -252,8 +262,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -263,12 +273,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "tab2_input-defaultText": {
           id: "tab2_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -361,8 +374,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -372,12 +385,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "tab2_input-defaultText": {
           id: "tab2_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -496,8 +512,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -507,12 +523,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "container1_input_id-defaultText": {
           id: "container1_input_id-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -581,8 +600,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -592,12 +611,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "main_input_id-isVisible": {
           id: "main_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -638,13 +660,16 @@ describe("getFilteredErrors", () => {
       expectedResult: {
         "main_input_id-isVisible": {
           id: "main_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -668,8 +693,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -679,12 +704,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "container1_input_id-isVisible": {
           id: "container1_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -751,12 +779,15 @@ describe("getFilteredErrors", () => {
       expectedResult: {
         "container1_input_id-isVisible": {
           id: "container1_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -782,8 +813,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -793,12 +824,15 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "container1_input_id-isVisible": {
           id: "container1_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                message:
+                  "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -867,8 +901,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });

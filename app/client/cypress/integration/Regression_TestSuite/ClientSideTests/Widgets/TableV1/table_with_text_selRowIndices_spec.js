@@ -2,21 +2,18 @@ const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Table widget edge case scenario testing", function() {
+describe("Table widget edge case scenario testing", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Check if the selectedRowIndices does not contain -1", function() {
+  it("Check if the selectedRowIndices does not contain -1", function () {
     cy.openPropertyPane("tablewidget");
 
     //Update the property default selected row to blank
     cy.updateCodeInput(".t--property-control-defaultselectedrow", "");
 
-    //Check if the evaluated value is undefined
-    cy.get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .should("have.text", "undefined");
+    // ensure evaluated value popup does not show up
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
 
     //Check the value present in the textfield which is selectedRowIndices is blank
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "");

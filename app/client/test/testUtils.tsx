@@ -1,19 +1,21 @@
-import React, { ReactElement } from "react";
-import { render, RenderOptions, queries } from "@testing-library/react";
+import type { ReactElement } from "react";
+import React from "react";
+import type { RenderOptions } from "@testing-library/react";
+import { render, queries } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
-import appReducer, { AppState } from "@appsmith/reducers";
-import { DndProvider } from "react-dnd";
-import TouchBackend from "react-dnd-touch-backend";
+import type { AppState } from "@appsmith/reducers";
+import appReducer from "@appsmith/reducers";
 import { applyMiddleware, compose, createStore } from "redux";
 import { reduxBatch } from "@manaflair/redux-batch";
 import createSagaMiddleware from "redux-saga";
 import store, { testStore } from "store";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
+
 const testSagaMiddleware = createSagaMiddleware();
 
 const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
@@ -23,10 +25,10 @@ const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
     compose(reduxBatch, applyMiddleware(testSagaMiddleware), reduxBatch),
   );
 
-const rootSaga = function*(sagasToRun = sagasToRunForTests) {
+const rootSaga = function* (sagasToRun = sagasToRunForTests) {
   yield all(
     sagasToRun.map((saga) =>
-      spawn(function*() {
+      spawn(function* () {
         while (true) {
           yield call(saga);
           break;
@@ -58,14 +60,7 @@ const customRender = (
   return render(
     <BrowserRouter>
       <Provider store={reduxStore}>
-        <DndProvider
-          backend={TouchBackend}
-          options={{
-            enableMouseEvents: true,
-          }}
-        >
-          <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
-        </DndProvider>
+        <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
       </Provider>
     </BrowserRouter>,
     {

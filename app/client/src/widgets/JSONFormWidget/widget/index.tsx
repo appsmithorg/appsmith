@@ -3,32 +3,30 @@ import equal from "fast-deep-equal/es6";
 import { debounce, difference, isEmpty, noop, merge } from "lodash";
 import { klona } from "klona";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import {
-  EventType,
-  ExecuteTriggerPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ActionUpdateDependency,
-  FieldState,
-  FieldThemeStylesheet,
-  ROOT_SCHEMA_KEY,
-  Schema,
-} from "../constants";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { FieldState, FieldThemeStylesheet, Schema } from "../constants";
+import { ActionUpdateDependency, ROOT_SCHEMA_KEY } from "../constants";
 import {
   ComputedSchemaStatus,
   computeSchema,
   dynamicPropertyPathListFromSchema,
   generateFieldState,
 } from "./helper";
-import { ButtonStyleProps } from "widgets/ButtonWidget/component";
-import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type {
+  ButtonStyles,
+  ChildStylesheet,
+  Stylesheet,
+} from "entities/AppTheming";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
@@ -226,7 +224,6 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidMount() {
     this.constructAndSaveSchemaIfRequired();
-    this.isWidgetMounting = false;
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
@@ -249,6 +246,10 @@ class JSONFormWidget extends BaseWidget<
       this.state.metaInternalFieldState,
       schema,
     );
+  }
+
+  deferredComponentDidRender() {
+    this.isWidgetMounting = false;
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {

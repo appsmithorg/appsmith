@@ -1,4 +1,4 @@
-import { changeAppViewAccessInit } from "actions/applicationActions";
+import { changeAppViewAccessInit } from "@appsmith/actions/applicationActions";
 import {
   IconSize,
   TextType,
@@ -14,7 +14,7 @@ import {
   getCurrentApplication,
   getIsChangingViewAccess,
   getIsFetchingApplications,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import SwitchWrapper from "../Components/SwitchWrapper";
 import styled from "styled-components";
@@ -161,8 +161,8 @@ function EmbedSettings() {
             large
             onChange={() =>
               embedSnippet.onChange({
-                showNavigationBar: !embedSnippet.currentEmbedSetting
-                  ?.showNavigationBar,
+                showNavigationBar:
+                  !embedSnippet.currentEmbedSetting?.showNavigationBar,
               })
             }
           />

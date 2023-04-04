@@ -4,7 +4,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -16,6 +16,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["datagrid"],
   hideCard: true,
+  needsHeightForContent: true,
   defaults: {
     rows: 28,
     columns: 34,

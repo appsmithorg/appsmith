@@ -4,14 +4,22 @@ import {
   lintingUnEvalTree,
   unEvalTree,
 } from "./mockData/mockUnEvalTree";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { configTree, lintingConfigTree } from "./mockData/mockConfigTree";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
-import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
-import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
+import {
+  arrayAccessorCyclicDependency,
+  arrayAccessorCyclicDependencyConfig,
+} from "./mockData/ArrayAccessorTree";
+import {
+  nestedArrayAccessorCyclicDependency,
+  nestedArrayAccessorCyclicDependencyConfig,
+} from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import { parseJSActions } from "workers/Evaluation/JSObject";
-import { WidgetConfiguration } from "widgets/constants";
+import type { ActionEntityConfig } from "entities/DataTree/types";
+import type { WidgetConfiguration } from "widgets/constants";
 
 const widgetConfigMap: Record<
   string,
@@ -138,21 +146,23 @@ describe("DataTreeEvaluator", () => {
 
   describe("test updateDependencyMap", () => {
     beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree((unEvalTree as unknown) as DataTree);
+      dataTreeEvaluator.setupFirstTree(
+        unEvalTree as unknown as DataTree,
+        configTree as unknown as ConfigTree,
+      );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
 
     it("initial dependencyMap computation", () => {
-      const {
-        evalOrder,
-        nonDynamicFieldValidationOrder,
-        unEvalUpdates,
-      } = dataTreeEvaluator.setupUpdateTree(
-        (unEvalTree as unknown) as DataTree,
-      );
+      const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+        dataTreeEvaluator.setupUpdateTree(
+          unEvalTree as unknown as DataTree,
+          configTree as unknown as ConfigTree,
+        );
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        configTree as unknown as ConfigTree,
         unEvalUpdates,
       );
 
@@ -174,6 +184,7 @@ describe("DataTreeEvaluator", () => {
         },
       ];
       updateDependencyMap({
+        configTree: configTree as unknown as ConfigTree,
         dataTreeEvalRef: dataTreeEvaluator,
         translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
         unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
@@ -200,6 +211,7 @@ describe("DataTreeEvaluator", () => {
         dataTreeEvalRef: dataTreeEvaluator,
         translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
         unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
+        configTree: configTree as unknown as ConfigTree,
       });
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
@@ -210,9 +222,14 @@ describe("DataTreeEvaluator", () => {
   });
 
   describe("parseJsActions", () => {
+    const postMessageMock = jest.fn();
     beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(({} as unknown) as DataTree);
+      dataTreeEvaluator.setupFirstTree(
+        {} as unknown as DataTree,
+        {} as unknown as ConfigTree,
+      );
       dataTreeEvaluator.evalAndValidateFirstTree();
+      self.postMessage = postMessageMock;
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
@@ -230,6 +247,7 @@ describe("DataTreeEvaluator", () => {
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree(
         nestedArrayAccessorCyclicDependency.initUnEvalTree,
+        nestedArrayAccessorCyclicDependencyConfig.initConfigTree,
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
@@ -245,10 +263,12 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates,
           } = dataTreeEvaluator.setupUpdateTree(
             arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
             evalOrder,
             nonDynamicFieldValidationOrder1,
+            arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
           );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -257,9 +277,9 @@ describe("DataTreeEvaluator", () => {
           expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([
             "Api1.data[2]",
           ]);
-          expect(
-            dataTreeEvaluator.dependencyMap["Api1.data[2]"],
-          ).toStrictEqual(["Api1.data[2].id"]);
+          expect(dataTreeEvaluator.dependencyMap["Api1.data[2]"]).toStrictEqual(
+            ["Api1.data[2].id"],
+          );
           expect(dataTreeEvaluator.dependencyMap["Text1.text"]).toStrictEqual([
             "Api1.data[2].id",
           ]);
@@ -271,10 +291,12 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates: unEvalUpdates2,
           } = dataTreeEvaluator.setupUpdateTree(
             arrayAccessorCyclicDependency.apiFailureUnEvalTree,
+            arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
             order,
             nonDynamicFieldValidationOrder2,
+            arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
           );
 
@@ -302,10 +324,12 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
           nonDynamicFieldValidationOrder3,
+          arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
         );
 
@@ -316,10 +340,12 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates: unEvalUpdates2,
         } = dataTreeEvaluator.setupUpdateTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
+          arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
           order2,
           nonDynamicFieldValidationOrder4,
+          arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
         );
 
@@ -346,10 +372,12 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates,
           } = dataTreeEvaluator.setupUpdateTree(
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
             order,
             nonDynamicFieldValidationOrder5,
+            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
           );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -358,9 +386,9 @@ describe("DataTreeEvaluator", () => {
           expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([
             "Api1.data[2]",
           ]);
-          expect(
-            dataTreeEvaluator.dependencyMap["Api1.data[2]"],
-          ).toStrictEqual(["Api1.data[2][2]"]);
+          expect(dataTreeEvaluator.dependencyMap["Api1.data[2]"]).toStrictEqual(
+            ["Api1.data[2][2]"],
+          );
           expect(
             dataTreeEvaluator.dependencyMap["Api1.data[2][2]"],
           ).toStrictEqual(["Api1.data[2][2].id"]);
@@ -375,10 +403,12 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates: unEvalUpdates2,
           } = dataTreeEvaluator.setupUpdateTree(
             nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
+            nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
             order1,
             nonDynamicFieldValidationOrder,
+            nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
           );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -408,10 +438,12 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
           order,
           nonDynamicFieldValidationOrder,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
         );
 
@@ -422,10 +454,12 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates: unEvalUpdates2,
         } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
           nonDynamicFieldValidationOrder2,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
         );
 
@@ -451,10 +485,12 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
           order,
           nonDynamicFieldValidationOrder2,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
         );
 
@@ -465,10 +501,12 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates: unEvalUpdates2,
         } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
           nonDynamicFieldValidationOrder,
+          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
           unEvalUpdates2,
         );
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
@@ -491,7 +529,8 @@ describe("DataTreeEvaluator", () => {
   describe("triggerfield dependency map", () => {
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree(
-        (lintingUnEvalTree as unknown) as DataTree,
+        lintingUnEvalTree as unknown as DataTree,
+        lintingConfigTree as unknown as ConfigTree,
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
@@ -503,17 +542,20 @@ describe("DataTreeEvaluator", () => {
     });
 
     it("Correctly updates triggerFieldDependencyMap", () => {
-      const newUnEvalTree = ({ ...lintingUnEvalTree } as unknown) as DataTree;
+      const newUnEvalTree = { ...lintingUnEvalTree } as unknown as DataTree;
+      const newConfigTree = { ...lintingConfigTree } as unknown as ConfigTree;
       // delete Api2
       delete newUnEvalTree["Api2"];
+      delete newConfigTree["Api2"];
       const {
         evalOrder,
         nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
         unEvalUpdates,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder2,
+        newConfigTree,
         unEvalUpdates,
       );
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
@@ -524,14 +566,18 @@ describe("DataTreeEvaluator", () => {
       // Add Api2
       // @ts-expect-error: Types are not available
       newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
+      newConfigTree["Api2"] = { ...lintingConfigTree }[
+        "Api2"
+      ] as ActionEntityConfig;
       const {
         evalOrder: order1,
         nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
         unEvalUpdates: unEvalUpdates2,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         order1,
         nonDynamicFieldValidationOrder3,
+        newConfigTree,
         unEvalUpdates2,
       );
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
@@ -539,7 +585,7 @@ describe("DataTreeEvaluator", () => {
         "Button2.onClick": ["Api2.run"],
       });
 
-      // self-reference Button2
+      // // self-reference Button2
       const newButton2 = { ...lintingUnEvalTree }["Button2"];
       newButton2.onClick = "{{Api2.run(); AbsentEntity.run(); Button2}}";
       // @ts-expect-error: Types are not available
@@ -548,23 +594,26 @@ describe("DataTreeEvaluator", () => {
         evalOrder: order2,
         nonDynamicFieldValidationOrder,
         unEvalUpdates: unEvalUpdates3,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         order2,
         nonDynamicFieldValidationOrder,
+        newConfigTree,
         unEvalUpdates3,
       );
 
       // delete Button2
       delete newUnEvalTree["Button2"];
+      delete newConfigTree["Button2"];
       const {
         evalOrder: order3,
         nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder4,
         unEvalUpdates: unEvalUpdates4,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         order3,
         nonDynamicFieldValidationOrder4,
+        newConfigTree,
         unEvalUpdates4,
       );
 

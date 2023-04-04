@@ -1,10 +1,10 @@
 import React from "react";
-import { Field, BaseFieldProps } from "redux-form";
-import CodeEditor, {
-  EditorStyleProps,
-} from "components/editorComponents/CodeEditor";
+import type { BaseFieldProps } from "redux-form";
+import { Field } from "redux-form";
+import type { EditorStyleProps } from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
+import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -24,6 +24,7 @@ class DynamicTextField extends React.Component<
       height?: string;
       disabled?: boolean;
       lineCommentString?: string;
+      evaluatedPopUpLabel?: string;
     }
 > {
   render() {

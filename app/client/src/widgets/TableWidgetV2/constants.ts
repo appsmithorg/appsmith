@@ -1,18 +1,18 @@
-import {
+import type {
   ColumnProperties,
   CompactMode,
   ReactTableFilter,
   TableStyles,
   SortOrderTypes,
 } from "./component/Constants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { WithMeta } from "widgets/MetaHOC";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WithMeta } from "widgets/MetaHOC";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { IconNames } from "@blueprintjs/icons";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import { ButtonVariant } from "components/constants";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import type { Alignment } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonVariant } from "components/constants";
 
 export type EditableCell = {
   column: string;
@@ -65,6 +65,8 @@ export interface TableWidgetProps
   enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
+  frozenColumnIndices: Record<string, number>;
+  canFreezeColumn?: boolean;
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: {
     [key: string]: { type: string; format: string; inputFormat?: string };
@@ -113,6 +115,8 @@ export const PRIMARY_COLUMN_KEY_VALUE = "__primaryKey__";
 export const DEFAULT_COLUMN_WIDTH = 150;
 
 export const COLUMN_MIN_WIDTH = 60;
+
+export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -210,3 +214,5 @@ export const defaultEditableCell = {
   value: "",
   initialValue: "",
 };
+
+export const DEFAULT_COLUMN_NAME = "Table Column";

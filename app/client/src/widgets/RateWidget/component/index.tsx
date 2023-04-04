@@ -5,9 +5,10 @@ import styled from "styled-components";
 import Rating from "react-rating";
 import _ from "lodash";
 
-import { RateSize, RATE_SIZES } from "../constants";
+import type { RateSize } from "../constants";
+import { RATE_SIZES } from "../constants";
 import { TooltipComponent } from "design-system-old";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 
 /*
   Note:
@@ -29,6 +30,15 @@ export const RateContainer = styled.div<RateContainerProps>`
   justify-content: center;
   align-content: flex-start;
   overflow: auto;
+
+  .auto-layout && {
+    min-height: 32px;
+    overflow: unset;
+
+    > span {
+      flex-wrap: nowrap;
+    }
+  }
 
   > span {
     display: flex !important;
@@ -139,14 +149,8 @@ function renderStarsWithTooltip(props: RateComponentProps, isActive?: boolean) {
 function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
-  const {
-    isAllowHalf,
-    isDisabled,
-    maxCount,
-    onValueChanged,
-    readonly,
-    value,
-  } = props;
+  const { isAllowHalf, isDisabled, maxCount, onValueChanged, readonly, value } =
+    props;
 
   return (
     <RateContainer

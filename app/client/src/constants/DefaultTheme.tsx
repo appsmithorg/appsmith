@@ -1,15 +1,21 @@
 import { css } from "styled-components";
-import { Colors, Color } from "./Colors";
+import type { Color } from "./Colors";
+import { Colors } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
-import { IconProps } from "constants/IconConstants";
-import { JSXElementConstructor } from "react";
-import { typography, Typography, TypographyKeys } from "./typography";
+import type { IconProps } from "constants/IconConstants";
+import type { JSXElementConstructor } from "react";
+import type { Typography, TypographyKeys } from "./typography";
+import { typography } from "./typography";
 
-import { LabelPosition } from "components/constants";
-export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
+import type { LabelPosition } from "components/constants";
+import {
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SCROLLBAR_WIDTH,
+} from "widgets/TableWidgetV2/component/Constants";
+export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
@@ -21,7 +27,7 @@ export const IntentColors: Record<string, Color> = {
   successLight: Colors.GREEN,
 };
 
-export type Intent = typeof IntentColors[keyof typeof IntentColors];
+export type Intent = (typeof IntentColors)[keyof typeof IntentColors];
 
 export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
   primary: AlertIcons.SUCCESS,
@@ -527,6 +533,30 @@ export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
+export const tableScrollBars = css`
+  &::-webkit-scrollbar {
+    width: ${TABLE_SCROLLBAR_WIDTH}px;
+    height: ${TABLE_SCROLLBAR_HEIGHT}px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--wds-color-bg-disabled);
+    border-radius: 10px;
+  }
+
+  &:hover {
+    &::-webkit-scrollbar-track {
+      background: var(--wds-color-bg-disabled);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+      border-radius: 10px;
+    }
+  }
+`;
+
 export const hideScrollbar = css`
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -611,7 +641,7 @@ export const appColors = [
   "#FFEBFB",
 ] as const;
 
-export type AppColorCode = typeof appColors[number];
+export type AppColorCode = (typeof appColors)[number];
 
 const darkShades = [
   "#1A191C",
@@ -654,7 +684,7 @@ const lightShades = [
   "#E7E7E7",
 ] as const;
 
-type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
+type ShadeColor = (typeof darkShades)[number] | (typeof lightShades)[number];
 
 type buttonVariant = {
   main: string;
@@ -1037,6 +1067,7 @@ type ColorType = {
   apiPane: {
     bg: ShadeColor;
     text: ShadeColor;
+    keyValueText?: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
     tabBg: ShadeColor;
@@ -1271,12 +1302,14 @@ type ColorType = {
     };
     error: {
       time: string;
+      type: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
       hoverIconColor: string;
     };
     jsonIcon: string;
+    collapseIcon: string;
     message: string;
   };
   helpModal: {
@@ -1939,6 +1972,7 @@ export const dark: ColorType = {
     bg: darkShades[0],
     tabBg: lightShades[10],
     text: darkShades[6],
+    keyValueText: lightShades[8],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
     requestTree: {
@@ -2053,6 +2087,7 @@ export const dark: ColorType = {
     entity: "rgba(212, 212, 212, 0.5)",
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
+    collapseIcon: lightShades[20],
     message: "#D4D4D4",
     evalDebugButton: {
       hover: "#fafafaaa",
@@ -2074,18 +2109,19 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       borderBottom: "black",
     },
     warning: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
+      type: "#393939",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "black",
@@ -2571,6 +2607,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
+    keyValueText: lightShades[8],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {
@@ -2687,6 +2724,7 @@ export const light: ColorType = {
     entityLink: "#575757",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    collapseIcon: lightShades[20],
     evalDebugButton: {
       hover: "#fafafaaa",
       active: "#fafafaff",
@@ -2707,18 +2745,19 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      time: "#939393",
+      time: Colors.GRAY_500,
       borderBottom: "#E8E8E8",
     },
     warning: {
-      time: "#575757",
+      time: Colors.GRAY_500,
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "#E8E8E8",
       backgroundColor: "#FFF8E2",
     },
     error: {
-      time: "#575757",
+      time: Colors.GRAY_500,
+      type: "#393939",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "#E8E8E8",

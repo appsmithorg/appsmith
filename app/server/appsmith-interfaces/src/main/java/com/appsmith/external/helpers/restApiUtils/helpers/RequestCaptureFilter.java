@@ -52,8 +52,14 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
     }
 
     public ActionExecutionRequest populateRequestFields(ActionExecutionRequest existing) {
-
         final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+
+        if (request == null) {
+            // The `request` can be null, if there's another filter function before `this.filter`,
+            // which returns a `Mono.error` instead of the request object.
+            return actionExecutionRequest;
+        }
+
         actionExecutionRequest.setUrl(request.url().toString());
         actionExecutionRequest.setHttpMethod(request.method());
         MultiValueMap<String, String> headers = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));

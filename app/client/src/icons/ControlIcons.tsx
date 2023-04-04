@@ -1,5 +1,7 @@
-import React, { JSXElementConstructor } from "react";
-import { IconProps, IconWrapper } from "constants/IconConstants";
+import type { JSXElementConstructor } from "react";
+import React from "react";
+import type { IconProps } from "constants/IconConstants";
+import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as DeleteIcon } from "assets/icons/control/delete.svg";
 import { ReactComponent as MoveIcon } from "assets/icons/control/move.svg";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit.svg";
@@ -58,6 +60,7 @@ import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
 import IncreaseV2Icon from "remixicon-react/AddLineIcon";
+import PinIcon from "remixicon-react/Pushpin2LineIcon";
 import PlayIcon from "assets/icons/control/play-icon.png";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import QuestionIcon from "remixicon-react/QuestionLineIcon";
@@ -398,6 +401,11 @@ export const ControlIcons: {
   QUESTION: (props: IconProps) => (
     <IconWrapper {...props}>
       <QuestionIcon />
+    </IconWrapper>
+  ),
+  PIN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <PinIcon />
     </IconWrapper>
   ),
 };

@@ -5,7 +5,7 @@ const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Chart Widget Functionality", function() {
+describe("Chart Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -14,7 +14,7 @@ describe("Chart Widget Functionality", function() {
     cy.openPropertyPane("chartwidget");
   });
 
-  it("Fill the Chart Widget Properties.", function() {
+  it("Fill the Chart Widget Properties.", function () {
     //changing the Chart Name
     /**
      * @param{Text} Random Text
@@ -24,7 +24,7 @@ describe("Chart Widget Functionality", function() {
     cy.widgetText(
       "Test",
       viewWidgetsPage.chartWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     cy.EnableAllCodeEditors();
     //changing the Chart Title
@@ -66,7 +66,7 @@ describe("Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("Pie Chart Widget Functionality", function() {
+  it("Pie Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Pie Chart");
 
@@ -84,7 +84,7 @@ describe("Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("Line Chart Widget Functionality", function() {
+  it("Line Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Line Chart");
 
@@ -95,14 +95,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .last()
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Bar Chart Widget Functionality", function() {
+  it("Bar Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Bar Chart");
 
@@ -113,14 +111,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Area Chart Widget Functionality", function() {
+  it("Area Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Area Chart");
 
@@ -131,14 +127,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .last()
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Column Chart Widget Functionality", function() {
+  it("Column Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Column Chart");
 
@@ -149,14 +143,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Pie Chart Widget Functionality", function() {
+  it("Toggle JS - Pie Chart Widget Functionality", function () {
     //changing the Chart type
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.testJsontext("charttype", "PIE_CHART");
@@ -175,7 +167,7 @@ describe("Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Line Chart Widget Functionality", function() {
+  it("Toggle JS - Line Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "LINE_CHART");
 
@@ -186,14 +178,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .last()
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Bar Chart Widget Functionality", function() {
+  it("Toggle JS - Bar Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "BAR_CHART");
 
@@ -204,14 +194,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Area Chart Widget Functionality", function() {
+  it("Toggle JS - Area Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "AREA_CHART");
 
@@ -222,14 +210,12 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .last()
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Column Chart Widget Functionality", function() {
+  it("Toggle JS - Column Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "COLUMN_CHART");
 
@@ -240,42 +226,37 @@ describe("Chart Widget Functionality", function() {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
     cy.PublishtheApp();
   });
 
-  it("Chart - Modal", function() {
+  it("Chart - Modal", function () {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
-    cy.get(widgetsPage.chartPlotGroup)
-      .children()
-      .first()
-      .click();
+    cy.get(widgetsPage.chartPlotGroup).children().first().click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
       this.data.ModalName,
     );
   });
 
-  it("Chart-Unckeck Visible field Validation", function() {
+  it("Chart-Unckeck Visible field Validation", function () {
     // Making the widget invisible
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
-  it("Chart-Check Visible field Validation", function() {
+  it("Chart-Check Visible field Validation", function () {
     // Making the widget visible
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
 
-  it("Toggle JS - Chart-Unckeck Visible field Validation", function() {
+  it("Toggle JS - Chart-Unckeck Visible field Validation", function () {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
@@ -283,28 +264,26 @@ describe("Chart Widget Functionality", function() {
     cy.get(publish.chartWidget).should("not.exist");
   });
 
-  it("Toggle JS - Chart-Check Visible field Validation", function() {
+  it("Toggle JS - Chart-Check Visible field Validation", function () {
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
 
-  it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
+  it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function () {
     cy.togglebarDisable(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab).should("not.exist");
   });
 
-  it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {
+  it("Chart Widget Functionality To Check Horizontal Scroll Visible", function () {
     cy.togglebar(commonlocators.allowScroll);
     cy.PublishtheApp();
-    cy.get(publish.horizontalTab)
-      .eq(1)
-      .should("exist");
+    cy.get(publish.horizontalTab).eq(1).should("exist");
   });
 
-  it("Check Chart widget reskinning config", function() {
+  it("Check Chart widget reskinning config", function () {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Column Chart");
 

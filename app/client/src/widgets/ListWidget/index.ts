@@ -1,16 +1,13 @@
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { FlattenedWidgetProps } from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -20,6 +17,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  isDeprecated: true,
+  hideCard: true,
+  replacement: "LIST_WIDGET_V2",
+  needsHeightForContent: true,
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
@@ -28,7 +29,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     positioning: Positioning.Fixed,
     enhancements: {
@@ -55,9 +56,8 @@ export const CONFIG = {
 
           if (!parentProps.widgetId) return [];
 
-          const { jsSnippets, stringSegments } = getDynamicBindings(
-            propertyValue,
-          );
+          const { jsSnippets, stringSegments } =
+            getDynamicBindings(propertyValue);
 
           const js = combineDynamicBindings(jsSnippets, stringSegments);
 
@@ -265,9 +265,8 @@ export const CONFIG = {
                   let value = childWidget[key];
 
                   if (isString(value) && value.indexOf("currentItem") > -1) {
-                    const { jsSnippets, stringSegments } = getDynamicBindings(
-                      value,
-                    );
+                    const { jsSnippets, stringSegments } =
+                      getDynamicBindings(value);
 
                     const js = combineDynamicBindings(
                       jsSnippets,
@@ -416,6 +415,19 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "300px",
+          };
+        },
+      },
+    ],
   },
 };
 

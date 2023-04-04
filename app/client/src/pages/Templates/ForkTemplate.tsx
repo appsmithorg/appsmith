@@ -1,4 +1,5 @@
-import React, { ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Category,
@@ -43,7 +44,7 @@ const StyledDialog = styled(Dialog)`
 `;
 
 interface ForkTemplateProps {
-  children: ReactNode;
+  children?: ReactNode;
   showForkModal: boolean;
   onClose: (e?: React.MouseEvent<HTMLElement>) => void;
   templateId: string;

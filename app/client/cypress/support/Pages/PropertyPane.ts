@@ -29,8 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
-  private _contentTabBtn = "li:contains('CONTENT')";
-  private _styleTabBtn = "li:contains('STYLE')";
+  private _styleTabBtn = (tab: string) => "li:contains('" + tab + "')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -60,6 +59,8 @@ export class PropertyPane {
     "//h3[text()='" + option + " Color']//parent::div//input";
   _colorInputField = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div";
+  _rowHeightBtn = (btnType: "SHORT" | "DEFAULT" | "TALL") =>
+    ".t--button-group-" + btnType + " ";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -107,15 +108,9 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper
-        .GetElement(this._colorInput(type))
-        .clear()
-        .wait(200);
+      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper
-        .GetElement(this._colorInput(type))
-        .clear()
-        .wait(200);
+      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -124,7 +119,7 @@ export class PropertyPane {
   public GetJSONFormConfigurationFileds() {
     const fieldNames: string[] = [];
     let fieldInvokeValue: string;
-    cy.xpath(this._jsonFieldConfigList).each(function($item) {
+    cy.xpath(this._jsonFieldConfigList).each(function ($item) {
       cy.wrap($item)
         .invoke("val")
         .then(($fieldName: any) => {
@@ -169,16 +164,9 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public moveToContentTab() {
-    cy.get(this._contentTabBtn)
-      .first()
-      .click({ force: true });
-  }
-
-  public moveToStyleTab() {
-    cy.get(this._styleTabBtn)
-      .first()
-      .click({ force: true });
+  public MoveToTab(tab: "CONTENT" | "STYLE") {
+    this.agHelper.GetNClick(this._styleTabBtn(tab));
+    this.agHelper.Sleep();
   }
 
   public SelectPropertiesDropDown(
@@ -233,6 +221,29 @@ export class PropertyPane {
         this.agHelper.ValidateCodeEditorContent($field, valueToValidate);
       },
     );
+    return cy.wrap(valueToValidate);
+  }
+
+  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+    let val: any;
+    if (fieldName) {
+      cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
+      val = cy.get(fieldName).then(($field) => {
+        cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
+      });
+    } else {
+      cy.xpath(this.locator._codeMirrorCode).click();
+      val = cy
+        .xpath(
+          "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
+        )
+        .then(($field) => {
+          cy.wrap($field).invoke("text");
+        });
+    }
+    this.agHelper.Sleep(); //Increasing wait time to evaluate non-undefined values
+    if (currentValue) expect(val).to.eq(currentValue);
+    return val;
   }
 
   public RemoveText(endp: string, toVerifySave = true) {

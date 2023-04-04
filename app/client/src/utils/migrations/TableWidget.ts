@@ -7,21 +7,22 @@ import {
   generateTableColumnId,
   getAllTableColumnKeys,
 } from "widgets/TableWidget/component/TableHelpers";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
-  ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
 } from "widgets/TableWidget/component/Constants";
 import { Colors } from "constants/Colors";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
-import { DSLWidget } from "widgets/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { stringToJS } from "components/editorComponents/ActionCreator/utils";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -689,6 +690,26 @@ export const migrateMenuButtonDynamicItemsInsideTableWidget = (
           }
         }
       }
+    }
+  });
+};
+
+export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      const primaryColumns = widget?.primaryColumns;
+
+      // Assign default sticky value to each column
+      if (primaryColumns) {
+        for (const column in primaryColumns) {
+          if (!primaryColumns[column].hasOwnProperty("sticky")) {
+            primaryColumns[column].sticky = StickyType.NONE;
+          }
+        }
+      }
+
+      widget.canFreezeColumn = false;
+      widget.columnUpdatedAt = Date.now();
     }
   });
 };

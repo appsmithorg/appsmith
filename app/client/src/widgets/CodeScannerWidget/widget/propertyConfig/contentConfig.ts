@@ -1,10 +1,8 @@
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import {
-  CodeScannerWidgetProps,
-  ScannerLayout,
-} from "widgets/CodeScannerWidget/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
+import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 export default [
   {
     sectionName: "Basic",
@@ -26,6 +24,7 @@ export default [
             value: ScannerLayout.CLICK_TO_SCAN,
           },
         ],
+        hidden: isAutoLayout,
         isJSConvertible: false,
         isBindProperty: false,
         isTriggerProperty: false,
@@ -95,7 +94,6 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("CODE_SCANNER_WIDGET"),
 
   {
     sectionName: "Events",

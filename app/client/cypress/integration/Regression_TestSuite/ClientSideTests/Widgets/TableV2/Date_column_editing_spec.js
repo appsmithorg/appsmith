@@ -50,9 +50,7 @@ describe("Table widget date column inline editing functionality", () => {
     });
     cy.get(".bp3-dateinput-popover").should("exist");
     cy.get(".t--inlined-cell-editor").should("exist");
-    cy.get(`${commonlocators.textWidget}`)
-      .first()
-      .click();
+    cy.get(`${commonlocators.textWidget}`).first().click();
     cy.get(".bp3-dateinput-popover").should("not.exist");
     cy.get(".t--inlined-cell-editor").should("not.exist");
     cy.get(
@@ -78,10 +76,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(".t--property-control-displayformat .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Do MMM YYYY")
-      .click();
+    cy.get(".t--dropdown-option").children().contains("Do MMM YYYY").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
     ).should("contain", "17th May 2021");
@@ -91,10 +86,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(".t--property-control-displayformat .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("DD/MM/YYYY")
-      .click();
+    cy.get(".t--dropdown-option").children().contains("DD/MM/YYYY").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
     ).should("contain", "17/05/2021");
@@ -138,10 +130,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Minute")
-      .click();
+    cy.get(".t--dropdown-option").children().contains("Minute").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
     ).dblclick({
@@ -158,10 +147,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("None")
-      .click();
+    cy.get(".t--dropdown-option").children().contains("None").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
     ).dblclick({
@@ -174,10 +160,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Second")
-      .click();
+    cy.get(".t--dropdown-option").children().contains("Second").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
     ).dblclick({
@@ -273,11 +256,9 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
     ).realHover();
-    cy.get(`.t--editable-cell-icon`)
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(`.t--editable-cell-icon`).first().click({
+      force: true,
+    });
     cy.get(
       ".bp3-transition-container .bp3-popover .bp3-popover-content",
     ).should("contain", "Date out of range");
@@ -307,20 +288,14 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
     ).realHover();
-    cy.get(`.t--editable-cell-icon`)
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(`.t--editable-cell-icon`).first().click({
+      force: true,
+    });
     cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
     ).realHover();
-    cy.get(`.t--editable-cell-icon`)
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(`.t--editable-cell-icon`).first().click({});
     cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
     cy.get(
       ".bp3-transition-container .bp3-popover .bp3-popover-content",
@@ -362,5 +337,39 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
     ).should("not.have.value", "");
+  });
+  it("11. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(".t--property-control-tabledata").then(($el) => {
+      cy.updateCodeInput(
+        $el,
+        '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
+      );
+    });
+    cy.wait(500);
+
+    cy.editColumn("dateValue");
+    //change format of column to date
+    cy.changeColumnType("Date");
+
+    cy.get(".t--property-control-dateformat").click();
+    cy.contains("ISO 8601").click();
+    // we should not see an error after selecting the ISO 8061 format
+    cy.get(".t--property-control-dateformat .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    cy.get(".t--property-control-dateformat").find(".t--js-toggle").click();
+    //check the selected format value
+    cy.get(".t--property-control-dateformat").contains(
+      "YYYY-MM-DDTHH:mm:ss.SSSZ",
+    );
+    cy.get(".t--property-control-dateformat").then(($el) => {
+      //give a corrupted date format
+      cy.updateCodeInput($el, "YYYY-MM-DDTHH:mm:ss.SSSsZ");
+    });
+    //we should now see an error when an incorrect date format
+    cy.get(".t--property-control-dateformat .t--codemirror-has-error").should(
+      "exist",
+    );
   });
 });

@@ -1,7 +1,5 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 
@@ -15,6 +13,7 @@ const initialState: WidgetDragResizeState = {
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestry: [],
+  isAutoCanvasResizing: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -71,6 +70,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.isResizing = action.payload.isResizing;
   },
+  [ReduxActionTypes.SET_AUTO_CANVAS_RESIZING]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.isAutoCanvasResizing = action.payload;
+  },
   [ReduxActionTypes.SET_SELECTED_WIDGETS]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetIds: string[] }>,
@@ -120,6 +125,7 @@ export type WidgetDragResizeState = {
   focusedWidget?: string;
   selectedWidgetAncestry: string[];
   selectedWidgets: string[];
+  isAutoCanvasResizing: boolean;
 };
 
 export default widgetDraggingReducer;

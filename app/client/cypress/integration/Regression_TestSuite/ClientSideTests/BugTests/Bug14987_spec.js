@@ -6,19 +6,15 @@ let guid, datasourceName;
 let dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Verify setting tab form controls not to have tooltip and tooltip (underline) styles", function() {
-  beforeEach(() => {
-    cy.startRoutesForDatasource();
-  });
-
-  it("1. Creates a new Mongo datasource", function() {
+describe("Verify setting tab form controls not to have tooltip and tooltip (underline) styles", function () {
+  before("Creates a new Mongo datasource", () => {
     dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
   });
 
-  it("2. We make sure the label in the settings tab does not have any underline styles", function() {
+  it("1. We make sure the label in the settings tab does not have any underline styles", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
     cy.get(queryLocators.querySettingsTab).click();

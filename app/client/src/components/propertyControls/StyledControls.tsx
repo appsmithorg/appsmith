@@ -1,19 +1,15 @@
-import React, { RefObject, useEffect, useRef } from "react";
+import type { RefObject } from "react";
+import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
-import { ContainerOrientation } from "constants/WidgetConstants";
+import type { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import {
-  Button,
-  Dropdown,
-  InputWrapper,
-  TextInput,
-  TextInputProps,
-} from "design-system-old";
+import type { TextInputProps } from "design-system-old";
+import { Button, Dropdown, InputWrapper, TextInput } from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 import { Checkbox } from "design-system-old";
@@ -219,9 +215,8 @@ export const StyledInputGroup = React.forwardRef(
   (props: TextInputProps, ref) => {
     let inputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLInputElement>(null);
-    const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent<
-      HTMLInputElement
-    >(false, wrapperRef);
+    const { dispatchInteractionAnalyticsEvent } =
+      useInteractionAnalyticsEvent<HTMLInputElement>(false, wrapperRef);
 
     if (ref) inputRef = ref as RefObject<HTMLInputElement>;
 
@@ -287,6 +282,24 @@ export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
   position: absolute;
   margin-right: 15px;
   cursor: move;
+  z-index: 1;
+  left: 4px;
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledPinIcon = styled(ControlIcons.PIN)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: default;
   z-index: 1;
   left: 4px;
   && svg {

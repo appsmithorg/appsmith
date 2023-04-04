@@ -1,6 +1,8 @@
-import React, { ChangeEvent } from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { EventOrValueHandler } from "redux-form";
+import type { ChangeEvent } from "react";
+import React from "react";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { EventOrValueHandler } from "redux-form";
 import {
   EditorModes,
   EditorSize,

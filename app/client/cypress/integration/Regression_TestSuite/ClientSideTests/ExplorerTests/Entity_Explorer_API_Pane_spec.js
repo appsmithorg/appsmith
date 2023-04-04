@@ -3,13 +3,14 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 let ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage;
 
-describe("Entity explorer API pane related testcases", function() {
-  it("1. Empty Message validation for Widgets/API/Queries", function() {
+describe("Entity explorer API pane related testcases", function () {
+  it("1. Empty Message validation for Widgets/API/Queries", function () {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace("EmptyMsgCheck");
     homePage.CreateAppInWorkspace("EmptyMsgCheck");
@@ -32,10 +33,9 @@ describe("Entity explorer API pane related testcases", function() {
     agHelper.AssertElementVisible(locator._visibleTextDiv("NEW DATASOURCE"));
   });
 
-  it("2. Move to page / edit API name /properties validation", function() {
+  it("2. Move to page / edit API name /properties validation", function () {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
-    cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.SaveAndRunAPI();
     cy.validateRequest(
@@ -47,7 +47,7 @@ describe("Entity explorer API pane related testcases", function() {
     cy.ResponseStatusCheck(testdata.successStatusCode);
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
       expect($lis.eq(1)).to.contain("{{FirstAPI.data}}");
@@ -55,11 +55,10 @@ describe("Entity explorer API pane related testcases", function() {
       expect($lis.eq(3)).to.contain("{{FirstAPI.run()}}");
       expect($lis.eq(4)).to.contain("{{FirstAPI.clear()}}");
     });
-    cy.get(apiwidget.actionlist)
-      .contains(testdata.Get)
-      .should("be.visible");
+    cy.get(apiwidget.actionlist).contains(testdata.Get).should("be.visible");
     cy.Createpage(pageid);
     ee.SelectEntityByName("Page1");
+    agHelper.Sleep(); //for the selected entity to settle loading!
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
@@ -69,14 +68,18 @@ describe("Entity explorer API pane related testcases", function() {
       .invoke("show")
       .click({ force: true });
     ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
+    agHelper.AssertContains("moved to page");
     cy.wait(500);
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("SecondAPI");
-    /*To be enabled once the bug is fixed
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain('{{SecondAPI.isLoading}}');
-      expect($lis.eq(1)).to.contain('{{SecondAPI.data}}');
-      expect($lis.eq(2)).to.contain('{{SecondAPI.run()}}');
-    });*/
+    ee.ActionContextMenuByEntityName("SecondAPI", "Show Bindings");
+    cy.get(apiwidget.propertyList).then(function ($lis) {
+      expect($lis).to.have.length(5);
+      expect($lis.eq(0)).to.contain("{{SecondAPI.isLoading}}");
+      expect($lis.eq(1)).to.contain("{{SecondAPI.data}}");
+      expect($lis.eq(2)).to.contain("{{SecondAPI.responseMeta}}");
+      expect($lis.eq(3)).to.contain("{{SecondAPI.run()}}");
+      expect($lis.eq(4)).to.contain("{{SecondAPI.clear()}}");
+    });
   });
 });

@@ -2,22 +2,24 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
+import type { WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
-import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
+import type { Stylesheet } from "entities/AppTheming";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -31,7 +33,12 @@ export function selectedTabValidation(
   return {
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
-    messages: [`Tab name ${value} does not exist`],
+    messages: [
+      {
+        name: "ValidationError",
+        message: `Tab name ${value} does not exist`,
+      },
+    ],
   };
 }
 class TabsWidget extends BaseWidget<
@@ -180,7 +187,6 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -243,6 +249,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",
@@ -321,9 +328,13 @@ class TabsWidget extends BaseWidget<
       width:
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}
+        $noScroll={isAutoHeightEnabled}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
@@ -331,6 +342,7 @@ class TabsWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
+        selectedTabWidgetId={this.getSelectedTabWidgetId()}
       >
         {this.renderComponent()}
       </TabsComponent>
@@ -338,7 +350,7 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabWidgetId = this.props.selectedTabWidgetId;
+    const selectedTabWidgetId = this.getSelectedTabWidgetId();
     const childWidgetData = {
       ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
@@ -375,6 +387,17 @@ class TabsWidget extends BaseWidget<
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
+
+  private getSelectedTabWidgetId() {
+    let selectedTabWidgetId = this.props.selectedTabWidgetId;
+    if (this.props.children) {
+      selectedTabWidgetId =
+        this.props.children.find((tab) =>
+          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        )?.widgetId ?? this.props.selectedTabWidgetId;
+    }
+    return selectedTabWidgetId;
+  }
 
   static getWidgetType(): string {
     return "TABS_WIDGET";

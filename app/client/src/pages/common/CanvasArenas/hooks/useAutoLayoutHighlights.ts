@@ -1,16 +1,14 @@
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasWidth } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import {
-  getHighlightPayload,
-  Point,
-} from "utils/autoLayout/highlightSelectionUtils";
-import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import type { Point } from "utils/autoLayout/highlightSelectionUtils";
+import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
+import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { useRef } from "react";
+import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -34,9 +32,8 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
-  const canvasWidth: number = useSelector(getCanvasWidth);
-  const isMobile = useSelector(getIsMobile);
-  let highlights: HighlightInfo[] = [];
+  const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
+  const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
 
@@ -47,7 +44,7 @@ export const useAutoLayoutHighlights = ({
   const cleanUpTempStyles = () => {
     // reset state
     lastActiveHighlight = undefined;
-    highlights = [];
+    highlights.current = [];
   };
 
   const checkForFillWidget = (): boolean => {
@@ -73,22 +70,22 @@ export const useAutoLayoutHighlights = ({
     return flag;
   };
 
-  const calculateHighlights = (): HighlightInfo[] => {
+  const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
       isFillWidget = checkForFillWidget();
-      highlights = deriveHighlightsFromLayers(
+      highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
       );
     }
-    // console.log("#### highlights", highlights);
-    return highlights;
+    // console.log("#### highlights", highlights.current);
+    return highlights.current;
   };
 
   /**
@@ -100,20 +97,28 @@ export const useAutoLayoutHighlights = ({
    * @param e | MouseMoveEvent
    * @returns HighlightInfo | undefined
    */
-  const highlightDropPosition = (e: any): HighlightInfo | undefined => {
-    if (!highlights || !highlights.length)
-      highlights = deriveHighlightsFromLayers(
+  const getDropPosition = (
+    snapColumnSpace: number,
+    e?: any,
+    val?: Point,
+    mouseUp = false,
+  ) => {
+    if (mouseUp && lastActiveHighlight) return lastActiveHighlight;
+
+    if (!highlights || !highlights?.current?.length)
+      highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
-        canvasWidth,
+        snapColumnSpace,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
       );
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
-      highlights,
-      e,
+      highlights.current,
+      e || null,
+      val,
     );
     if (!highlight) return;
 
@@ -121,33 +126,9 @@ export const useAutoLayoutHighlights = ({
     return highlight;
   };
 
-  const getDropInfo = (val: Point): HighlightInfo | undefined => {
-    if (lastActiveHighlight) return lastActiveHighlight;
-
-    if (!highlights || !highlights.length)
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        canvasWidth,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
-
-    const payload: HighlightInfo | undefined = getHighlightPayload(
-      highlights,
-      null,
-      val,
-    );
-    if (!payload) return;
-    lastActiveHighlight = payload;
-    return payload;
-  };
-
   return {
     calculateHighlights,
     cleanUpTempStyles,
-    getDropInfo,
-    highlightDropPosition,
+    getDropPosition,
   };
 };

@@ -5,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Container Widget Functionality", function() {
+describe("Container Widget Functionality", function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
@@ -13,7 +13,7 @@ describe("Container Widget Functionality", function() {
     cy.wait(5000);
   });
 
-  it("1. List-Unckeck Visible field Validation", function() {
+  it("1. List-Unckeck Visible field Validation", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -24,7 +24,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("2. List-Check Visible field Validation", function() {
+  it("2. List-Check Visible field Validation", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -35,7 +35,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("3. Toggle JS - List-Unckeck Visible field Validation", function() {
+  it("3. Toggle JS - List-Unckeck Visible field Validation", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -47,7 +47,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("4. Toggle JS - List-Check Visible field Validation", function() {
+  it("4. Toggle JS - List-Check Visible field Validation", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -58,14 +58,14 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("5. checks if list shows correct no. of items", function() {
+  it("5. checks if list shows correct no. of items", function () {
     // Verify the length of list
-    cy.get(commonlocators.containerWidget).then(function($lis) {
+    cy.get(commonlocators.containerWidget).then(function ($lis) {
       expect($lis).to.have.length(2);
     });
   });
 
-  it("6. checks currentItem binding", function() {
+  it("6. checks currentItem binding", function () {
     // Open property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.CheckAndUnfoldEntityItem("List1");
@@ -77,7 +77,7 @@ describe("Container Widget Functionality", function() {
 
     cy.closePropertyPane();
     // Verify Current Item Bindings
-    cy.get(commonlocators.TextInside).then(function($lis) {
+    cy.get(commonlocators.TextInside).then(function ($lis) {
       expect($lis.eq(0)).to.contain(items[0].first_name);
       expect($lis.eq(1)).to.contain(items[1].first_name);
     });
@@ -92,7 +92,7 @@ describe("Container Widget Functionality", function() {
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
     cy.wait(2000);
     // Verify the length of list
-    cy.get(commonlocators.containerWidget).then(function($lis) {
+    cy.get(commonlocators.containerWidget).then(function ($lis) {
       expect($lis).to.have.length(2);
     });
 
@@ -104,7 +104,7 @@ describe("Container Widget Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("8. checks button action", function() {
+  it("8. checks button action", function () {
     // Open property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.CheckAndUnfoldEntityItem("List1");
@@ -113,17 +113,16 @@ describe("Container Widget Functionality", function() {
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onclick");
+    cy.wait(3000);
     cy.PublishtheApp();
+    cy.wait(2000);
     // Verify Widget Button by clicking on it
-    cy.get(widgetsPage.widgetBtn)
-      .closest("div")
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.widgetBtn).closest("div").first().click({ force: true });
     // Verify the click on first button
     cy.get(commonlocators.toastmsg).contains(items[0].last_name);
   });
 
-  it("9. it checks onListItem click action", function() {
+  it("9. it checks onListItem click action", function () {
     // Verify Clicking on list item shows message of first name
     cy.get(publishPage.backToEditor).click({ force: true });
     // Open property pane
@@ -131,9 +130,7 @@ describe("Container Widget Functionality", function() {
     cy.selectEntityByName("List1");
     // Verify Action type and Message of List Item
     // Click on the onListItemClick action dropdown.
-    cy.get(commonlocators.dropdownSelectButton)
-      .last()
-      .click();
+    cy.get(commonlocators.dropdownSelectButton).last().click();
 
     cy.get(commonlocators.chooseAction)
       .children()
@@ -155,23 +152,30 @@ describe("Container Widget Functionality", function() {
     cy.get(
       "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
     ).click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(commonlocators.toastmsg).length <= 0) {
+        cy.get(
+          "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
+        ).click();
+      }
+    });
     // Verify the click on first item
     cy.get(commonlocators.toastmsg).contains(items[0].first_name);
   });
 
-  it("10. it checks pagination", function() {
+  it("10. it checks pagination", function () {
     // clicking on second pagination button
     cy.get(`${commonlocators.paginationButton}-2`).click();
 
     // now we are on the second page which shows first the 3rd item in the list
-    cy.get(commonlocators.TextInside).then(function($lis) {
+    cy.get(commonlocators.TextInside).then(function ($lis) {
       expect($lis.eq(0)).to.contain(items[2].first_name);
       expect($lis.eq(1)).to.contain(items[3].first_name);
     });
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("11. ListWidget-Copy & Delete Verification", function() {
+  it("11. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -183,7 +187,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("12. List widget background colour and deploy ", function() {
+  it("12. List widget background colour and deploy ", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -209,7 +213,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("13. Toggle JS - List widget background colour and deploy ", function() {
+  it("13. Toggle JS - List widget background colour and deploy ", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -237,7 +241,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("14. Add new item in the list widget array object", function() {
+  it("14. Add new item in the list widget array object", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -248,7 +252,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("15. Adding large item Spacing for item card", function() {
+  it("15. Adding large item Spacing for item card", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -261,7 +265,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("16. Renaming the widget from Property pane and Entity explorer ", function() {
+  it("16. Renaming the widget from Property pane and Entity explorer ", function () {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("List1");
@@ -269,7 +273,7 @@ describe("Container Widget Functionality", function() {
     cy.widgetText(
       "List2",
       widgetsPage.listWidgetName,
-      widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
+      widgetsPage.widgetNameSpan,
     );
     // Change the list widget name from Entity Explorer
     cy.renameEntity("List2", "List1");

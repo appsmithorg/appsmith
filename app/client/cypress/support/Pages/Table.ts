@@ -30,6 +30,7 @@ export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public deployMode = ObjectsRegistry.DeployMode;
   public locator = ObjectsRegistry.CommonLocators;
+  public propPane = ObjectsRegistry.PropertyPane;
 
   private _tableWrap = "//div[@class='tableWrap']";
   private _tableHeader =
@@ -39,20 +40,39 @@ export class Table {
     "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='" +
     columnName +
     "']/parent::div/parent::div/parent::div";
-  private _nextPage = ".t--widget-tablewidget .t--table-widget-next-page";
-  private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page";
+  private _tableWidgetVersion = (version: "v1" | "v2") =>
+    `.t--widget-tablewidget${version == "v1" ? "" : version}`;
+  private _nextPage = (version: "v1" | "v2") =>
+    this._tableWidgetVersion(version) + " .t--table-widget-next-page";
+  private _previousPage = (version: "v1" | "v2") =>
+    this._tableWidgetVersion(version) + " .t--table-widget-prev-page";
+  private _pageNumber = ".t--widget-tablewidgetv2 .page-item";
+  private _pageNumberServerSideOff =
+    ".t--widget-tablewidgetv2 .t--table-widget-page-input input";
   private _pageNumberServerSidePagination = ".t--widget-tablewidget .page-item";
   private _pageNumberClientSidePagination =
     ".t--widget-tablewidget .t--table-widget-page-input input";
-  _tableRow = (rowNum: number, colNum: number) =>
-    `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
-  _tableRowColumnData = (rowNum: number, colNum: number) =>
-    this._tableRow(rowNum, colNum) + ` div div`;
-  _tableLoadStateDelete =
-    this._tableRow(0, 0) + ` div div button span:contains('Delete')`;
-  _tableRowImageColumnData = (rowNum: number, colNum: number) =>
-    this._tableRow(rowNum, colNum) + ` div div.image-cell`;
-  _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td`; //selected-row
+  _tableRow = (rowNum: number, colNum: number, version: "v1" | "v2") =>
+    this._tableWidgetVersion(version) +
+    ` .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  _tableRowColumnDataVersion = (version: "v1" | "v2") =>
+    `${version == "v1" ? " div div" : " .cell-wrapper"}`;
+  _tableRowColumnData = (
+    rowNum: number,
+    colNum: number,
+    version: "v1" | "v2",
+  ) =>
+    this._tableRow(rowNum, colNum, version) +
+    this._tableRowColumnDataVersion(version);
+  _tableLoadStateDelete = (version: "v1" | "v2") =>
+    this._tableRow(0, 0, version) + ` div div button span:contains('Delete')`;
+  _tableRowImageColumnData = (
+    rowNum: number,
+    colNum: number,
+    version: "v1" | "v2",
+  ) => this._tableRow(rowNum, colNum, version) + ` div div.image-cell`;
+  _tableEmptyColumnData = (version: "v1" | "v2") =>
+    this._tableWidgetVersion(version) + " .tbody .td"; //selected-row
   _tableSelectedRow =
     this._tableWrap +
     "//div[contains(@class, 'tbody')]//div[contains(@class, 'selected-row')]/div";
@@ -71,6 +91,10 @@ export class Table {
   _dropdownText = ".t--dropdown-option";
   _filterConditionDropdown = ".t--table-filter-conditions-dropdown";
   _filterInputValue = ".t--table-filter-value-input";
+  _addColumn = ".t--add-column-btn";
+  _deleteColumn = ".t--delete-column-btn";
+  _defaultColName =
+    "[data-rbd-draggable-id='customColumn1'] input[type='text']";
   private _filterApplyBtn = ".t--apply-filter-btn";
   private _filterCloseBtn = ".t--close-filter-btn";
   private _removeFilter = ".t--table-filter-remove-btn";
@@ -83,32 +107,64 @@ export class Table {
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
     "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
+  _columnSettingsV2 = (columnName: string) =>
+    `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
 
-  public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    this.agHelper.GetElement(this._tableRowColumnData(rowIndex, colIndex), 30000).waitUntil(
-      ($ele) =>
-        cy
-          .wrap($ele)
-          .children("button")
-          .should("have.length", 0)
-    );
-
-    //or below will work:
-    //this.agHelper.AssertElementAbsence(this._tableLoadStateDelete, 30000);
-    // this.agHelper.Sleep(500);
+  public WaitUntilTableLoad(
+    rowIndex = 0,
+    colIndex = 0,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    // this.agHelper
+    // .GetElement(this._tableRowColumnData(rowIndex, colIndex, tableVersion), 30000)
+    // .waitUntil(($ele) =>
+    //   cy
+    //     .wrap($ele)
+    //     .children("button")
+    //     .should("have.length", 0),
+    // );
+    //or above will also work:
+    this.agHelper.AssertElementAbsence(
+      this._tableLoadStateDelete(tableVersion),
+      30000,
+    ); //For CURD generated pages Delete button appears first when table is loading & not fully loaded, hence validating that here!
+    cy.waitUntil(
+      () => this.ReadTableRowColumnData(rowIndex, colIndex, tableVersion),
+      {
+        errorMsg: "Table is not populated",
+        timeout: 10000,
+        interval: 2000,
+      },
+    ).then((cellData) => {
+      expect(cellData).not.empty;
+    });
+    this.agHelper.Sleep(500); //for table to settle loading!
   }
 
-  public WaitForTableEmpty() {
-    cy.waitUntil(() => cy.get(this._tableEmptyColumnData), {
+  public AssertTableLoaded(
+    rowIndex = 0,
+    colIndex = 0,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    this.agHelper
+      .GetElement(
+        this._tableRowColumnData(rowIndex, colIndex, tableVersion),
+        30000,
+      )
+      .waitUntil(($ele) =>
+        cy.wrap($ele).children("span").should("not.be.empty"),
+      );
+  }
+
+  public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
+    cy.waitUntil(() => cy.get(this._tableEmptyColumnData(tableVersion)), {
       errorMsg: "Table is populated when not expected",
       timeout: 10000,
       interval: 2000,
     }).then(($children) => {
-      cy.wrap($children)
-        .children()
-        .should("have.length", 0); //or below
+      cy.wrap($children).children().should("have.length", 0); //or below
       //expect($children).to.have.lengthOf(0)
       this.agHelper.Sleep(500);
     });
@@ -125,12 +181,13 @@ export class Table {
   public ReadTableRowColumnData(
     rowNum: number,
     colNum: number,
+    tableVersion: "v1" | "v2" = "v1",
     timeout = 1000,
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return this.agHelper
-      .GetElement(this._tableRowColumnData(rowNum, colNum), 30000)
+      .GetElement(this._tableRowColumnData(rowNum, colNum, tableVersion), 30000)
       .invoke("text");
   }
 
@@ -138,11 +195,12 @@ export class Table {
     rowNum: number,
     colNum: number,
     timeout = 200,
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy
-      .get(this._tableRowImageColumnData(rowNum, colNum))
+      .get(this._tableRowImageColumnData(rowNum, colNum, tableVersion))
       .invoke("attr", "style")
       .should("not.be.empty");
   }
@@ -157,66 +215,100 @@ export class Table {
     });
   }
 
-  public NavigateToNextPage(isServerPagination = true) {
+  public NavigateToNextPage(
+    isServerPagination = true,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
     let curPageNo: number;
-    this.agHelper
-      .GetText(
-        isServerPagination
-          ? this._pageNumberServerSidePagination
-          : this._pageNumberClientSidePagination,
-        isServerPagination ? "text" : "val",
-      )
-      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._nextPage).click();
-    this.agHelper
-      .GetText(
-        isServerPagination
-          ? this._pageNumberServerSidePagination
-          : this._pageNumberClientSidePagination,
-        isServerPagination ? "text" : "val",
-      )
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
-  }
-
-  public NavigateToPreviousPage(isServerPagination = true) {
-    let curPageNo: number;
-    this.agHelper
-      .GetText(
-        isServerPagination
-          ? this._pageNumberServerSidePagination
-          : this._pageNumberClientSidePagination,
-        isServerPagination ? "text" : "val",
-      )
-      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._previousPage).click();
-    this.agHelper
-      .GetText(
-        isServerPagination
-          ? this._pageNumberServerSidePagination
-          : this._pageNumberClientSidePagination,
-        isServerPagination ? "text" : "val",
-      )
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
-  }
-
-  public AssertPageNumber(pageNo: number, serverSide: "Off" | "On" = "On") {
-    if (serverSide == "On")
-      cy.get(this._pageNumberServerSidePagination).should(
-        "have.text",
-        Number(pageNo),
-      );
-    else {
-      cy.get(this._pageNumberClientSidePagination).should(
-        "have.value",
-        Number(pageNo),
-      );
-      cy.get(this._previousPage).should("have.attr", "disabled");
-      cy.get(this._nextPage).should("have.attr", "disabled");
+    if (tableVersion == "v1") {
+      this.agHelper
+        .GetText(
+          isServerPagination
+            ? this._pageNumberServerSidePagination
+            : this._pageNumberClientSidePagination,
+          isServerPagination ? "text" : "val",
+        )
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._nextPage(tableVersion)).click();
+      this.agHelper
+        .GetText(
+          isServerPagination
+            ? this._pageNumberServerSidePagination
+            : this._pageNumberClientSidePagination,
+          isServerPagination ? "text" : "val",
+        )
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    } else if (tableVersion == "v2") {
+      cy.get(this._pageNumber)
+        .invoke("text")
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._nextPage(tableVersion)).click();
+      cy.get(this._pageNumber)
+        .invoke("text")
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
     }
-    if (pageNo == 1) cy.get(this._previousPage).should("have.attr", "disabled");
   }
 
-  public AssertSelectedRow(rowNum: number = 0) {
+  public NavigateToPreviousPage(
+    isServerPagination = true,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    let curPageNo: number;
+    if (tableVersion == "v1") {
+      this.agHelper
+        .GetText(
+          isServerPagination
+            ? this._pageNumberServerSidePagination
+            : this._pageNumberClientSidePagination,
+          isServerPagination ? "text" : "val",
+        )
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._previousPage(tableVersion)).click();
+      this.agHelper
+        .GetText(
+          isServerPagination
+            ? this._pageNumberServerSidePagination
+            : this._pageNumberClientSidePagination,
+          isServerPagination ? "text" : "val",
+        )
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
+    } else if (tableVersion == "v2") {
+      cy.get(this._pageNumber)
+        .invoke("text")
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._previousPage(tableVersion)).click();
+      cy.get(this._pageNumber)
+        .invoke("text")
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
+    }
+  }
+
+  public AssertPageNumber(
+    pageNo: number,
+    serverSide: "Off" | "On" | "" = "On",
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    const serverSideOn =
+      tableVersion == "v1"
+        ? this._pageNumberServerSidePagination
+        : this._pageNumber;
+    const serverSideOff =
+      tableVersion == "v1"
+        ? this._pageNumberClientSidePagination
+        : this._pageNumberServerSideOff;
+
+    if (serverSide == "On")
+      cy.get(serverSideOn).should("have.text", Number(pageNo));
+    else {
+      cy.get(serverSideOff).should("have.value", Number(pageNo));
+      cy.get(this._previousPage(tableVersion)).should("have.attr", "disabled");
+      cy.get(this._nextPage(tableVersion)).should("have.attr", "disabled");
+    }
+    if (pageNo == 1)
+      cy.get(this._previousPage(tableVersion)).should("have.attr", "disabled");
+  }
+
+  public AssertSelectedRow(rowNum = 0) {
     cy.xpath(this._tableSelectedRow)
       .invoke("attr", "data-rowindex")
       .then(($rowIndex) => {
@@ -224,10 +316,15 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number, columnIndex = 0, select = true) {
+  public SelectTableRow(
+    rowIndex: number,
+    columnIndex = 0,
+    select = true,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
     //rowIndex - 0 for 1st row
     this.agHelper
-      .GetElement(this._tableRow(rowIndex, columnIndex))
+      .GetElement(this._tableRow(rowIndex, columnIndex, tableVersion))
       .parent("div")
       .invoke("attr", "class")
       .then(($classes: any) => {
@@ -236,7 +333,7 @@ export class Table {
           (!select && $classes?.includes("selected-row"))
         )
           this.agHelper.GetNClick(
-            this._tableRow(rowIndex, columnIndex),
+            this._tableRow(rowIndex, columnIndex, tableVersion),
             0,
             true,
           );
@@ -250,16 +347,19 @@ export class Table {
   }
 
   public SearchTable(searchTxt: string, index = 0) {
-    cy.get(this._searchText)
-      .eq(index)
-      .type(searchTxt);
+    cy.get(this._searchText).eq(index).type(searchTxt);
   }
 
-  public RemoveSearchTextNVerify(cellDataAfterSearchRemoved: string) {
+  public RemoveSearchTextNVerify(
+    cellDataAfterSearchRemoved: string,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
     this.agHelper.GetNClick(this._searchBoxCross);
-    this.ReadTableRowColumnData(0, 0).then((aftSearchRemoved: any) => {
-      expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
-    });
+    this.ReadTableRowColumnData(0, 0, tableVersion).then(
+      (aftSearchRemoved: any) => {
+        expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
+      },
+    );
   }
 
   public OpenFilter() {
@@ -299,14 +399,16 @@ export class Table {
     toClose = true,
     removeOne = true,
     index = 0,
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
     else this.agHelper.GetNClick(this._clearAllFilter);
-
     if (toClose) this.CloseFilter();
-    this.ReadTableRowColumnData(0, 0).then((aftFilterRemoved: any) => {
-      expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
-    });
+    this.ReadTableRowColumnData(0, 0, tableVersion).then(
+      (aftFilterRemoved: any) => {
+        expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
+      },
+    );
   }
 
   public CloseFilter() {
@@ -315,9 +417,7 @@ export class Table {
 
   public DownloadFromTable(filetype: "Download as CSV" | "Download as Excel") {
     cy.get(this._downloadBtn).click({ force: true });
-    cy.get(this._downloadOption)
-      .contains(filetype)
-      .click({ force: true });
+    cy.get(this._downloadOption).contains(filetype).click({ force: true });
   }
 
   public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
@@ -336,27 +436,73 @@ export class Table {
     }).should((buffer) => expect(buffer).to.contain(textToBePresent));
   }
 
-  public ChangeColumnType(columnName: string, newDataType: columnTypeValues) {
-    this.agHelper.GetNClick(this._columnSettings(columnName));
+  public ChangeColumnType(
+    columnName: string,
+    newDataType: columnTypeValues,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    const colSettings =
+      tableVersion == "v1"
+        ? this._columnSettings(columnName)
+        : this._columnSettingsV2(columnName);
+
+    this.agHelper.GetNClick(colSettings);
     this.agHelper.SelectDropdownList("Column Type", newDataType);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
+    if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
 
   public AssertURLColumnNavigation(
     row: number,
     col: number,
     expectedURL: string,
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     this.deployMode.StubbingWindow();
     this.agHelper
-      .GetNClick(this._tableRowColumnData(row, col))
+      .GetNClick(this._tableRowColumnData(row, col, tableVersion))
       .then(($cellData) => {
         //Cypress.$($cellData).trigger('click');
         cy.url().should("eql", expectedURL);
         this.agHelper.Sleep();
         cy.go(-1);
-        this.WaitUntilTableLoad();
+        this.WaitUntilTableLoad(0, 0, tableVersion);
       });
+  }
+
+  public AddColumn(colId: string) {
+    cy.get(this._addColumn).scrollIntoView();
+    cy.get(this._addColumn).should("be.visible").click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+    cy.get(this._defaultColName).clear({
+      force: true,
+    });
+    cy.get(this._defaultColName).type(colId, { force: true });
+  }
+
+  public EditColumn(colId: string, shouldReturnToMainPane = true) {
+    if (shouldReturnToMainPane) {
+      this.propPane.NavigateBackToPropertyPane();
+    }
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
+  }
+
+  public DeleteColumn(colId: string) {
+    this.propPane.NavigateBackToPropertyPane();
+    cy.get(
+      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
+    ).click({
+      force: true,
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   }
 
   //List methods - keeping it for now!

@@ -11,6 +11,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -32,7 +33,6 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -53,7 +53,6 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -71,6 +70,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 
@@ -92,7 +92,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
-    private final CommentThreadRepository commentThreadRepository;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -195,7 +194,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     });
         } else {
-            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id " + page.getId()));
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, page.getId()));
         }
 
     }
@@ -803,6 +802,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
+                            .flatMap(application -> publish(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
@@ -899,10 +899,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
-                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
-                            id, ApplicationMode.EDIT
-                    );
-
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
@@ -913,7 +909,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             }).collectList();
 
                     // Page is deleted only after other resources are deleted
-                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
+                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono)
                             .map(tuple -> {
                                 List<ActionDTO> actions = tuple.getT1();
                                 final List<ActionCollectionDTO> actionCollections = tuple.getT2();
@@ -1001,9 +997,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<List<NewPage>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
-                                        .then(newPageService.archiveById(id))
-                                )
+                                .flatMap(newPageService::archiveById)
                                 .collectList();
                     } else {
                         archivePageListMono = Mono.just(new ArrayList<>());
@@ -1012,8 +1006,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-                    application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
-                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
+                    application.setPublishedApplicationDetail(application.getUnpublishedApplicationDetail());
+
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
@@ -1175,22 +1169,25 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
+        Mono<Application> applicationMono = applicationService.findByNameAndWorkspaceId(actualName, application.getWorkspaceId(), MANAGE_APPLICATIONS);
 
-        return applicationWithPoliciesMono
-                .zipWith(userMono)
-                .flatMap(tuple -> {
-                    Application application1 = tuple.getT1();
-                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                    // We can't use create or createApplication method here as we are expecting update operation if the
-                    // _id is available with application object
-                    return applicationService.save(application);
-                })
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null) {
-                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
+        // We are taking pessimistic approach as this flow is used in import application where we are using transactions
+        // which creates problem if we hit duplicate key exception
+        return applicationMono
+                .flatMap(application1 ->
+                    this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
+                )
+                .switchIfEmpty(Mono.defer(() ->
+                    applicationWithPoliciesMono
+                            .zipWith(userMono)
+                            .flatMap(tuple -> {
+                                Application application1 = tuple.getT1();
+                                application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                                // We can't use create or createApplication method here as we are expecting update operation if the
+                                // _id is available with application object
+                                return applicationService.save(application);
+                            })
+                ));
     }
 
     /**

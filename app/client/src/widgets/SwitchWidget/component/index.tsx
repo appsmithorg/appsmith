@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
@@ -31,6 +31,10 @@ const SwitchComponentContainer = styled.div<{
   flex-direction: row;
   align-items: center;
   justify-content: stretch;
+  .auto-layout & {
+    width: 100%;
+    min-height: 32px;
+  }
   ${BlueprintControlTransform}
 `;
 
@@ -57,6 +61,13 @@ const SwitchLabel = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
+
+  .auto-layout & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+  }
 `;
 
 export const StyledSwitch = styled(Switch)<{
@@ -74,8 +85,7 @@ export const StyledSwitch = styled(Switch)<{
     input:checked:not(:disabled):focus ~ .bp3-control-indicator {
       background: ${({ $accentColor }) =>
         `${darkenColor($accentColor)}`} !important;
-      border: 1px solid ${({ $accentColor }) =>
-        `${darkenColor($accentColor)}`} !important;
+      border: 1px solid ${({ $accentColor }) => `${darkenColor($accentColor)}`} !important;
     }
   }
 

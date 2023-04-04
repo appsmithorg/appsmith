@@ -2,11 +2,14 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { get } from "lodash";
 import * as log from "loglevel";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { ReactTableColumnProps, ReactTableFilter } from "../../../Constants";
+import type {
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "../../../Constants";
 import TableFilterPaneContent from "./FilterPaneContent";
 import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 import { Layers } from "constants/Layers";
@@ -16,6 +19,7 @@ import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
@@ -121,10 +125,14 @@ class TableFilterPane extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, ownProps: TableFilterPaneProps) => {
+  const widgetLikeProps = {
+    widgetId: ownProps.widgetId,
+  } as WidgetProps;
+
   return {
     tableFilterPane: getTableFilterState(state),
     themeMode: getCurrentThemeMode(state),
-    metaProps: getWidgetMetaProps(state, ownProps.widgetId),
+    metaProps: getWidgetMetaProps(state, widgetLikeProps),
   };
 };
 

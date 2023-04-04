@@ -1,10 +1,10 @@
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { WidgetHeightLimits } from "constants/WidgetConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -19,8 +19,20 @@ export const CONFIG = {
   // evaluations. One way to handle these types of properties is to
   // define them in a Map which the platform understands to have
   // them stored only in the WidgetFactory.
-  canvasHeightOffset: (props: WidgetProps): number =>
-    props.shouldShowTabs === true ? 4 : 0,
+  canvasHeightOffset: (props: WidgetProps): number => {
+    let offset =
+      props.borderWidth && props.borderWidth > 1
+        ? Math.ceil(
+            (2 * parseInt(props.borderWidth, 10) || 0) /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          )
+        : 0;
+
+    if (props.shouldShowTabs === true) {
+      offset += 4;
+    }
+    return offset;
+  },
   features: {
     dynamicHeight: {
       sectionIndex: 1,
@@ -28,7 +40,7 @@ export const CONFIG = {
     },
   },
   defaults: {
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     columns: 24,
@@ -133,6 +145,22 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "300px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

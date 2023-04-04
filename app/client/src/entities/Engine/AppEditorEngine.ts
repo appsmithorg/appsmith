@@ -25,13 +25,13 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
-import { APP_MODE } from "entities/App";
+import type { APP_MODE } from "entities/App";
 import { call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -41,9 +41,9 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
-  AppEnginePayload,
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from ".";
@@ -211,7 +211,7 @@ export default class AppEditorEngine extends AppEngine {
         branch: branchInStore,
       }),
     );
-    // init of temporay remote url from old application
+    // init of temporary remote url from old application
     yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
     // add branch query to path and fetch status
     if (branchInStore) {

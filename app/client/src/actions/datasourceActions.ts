@@ -1,13 +1,13 @@
-import {
+import type {
   ReduxAction,
-  ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
-import { CreateDatasourceConfig } from "api/DatasourcesApi";
-import { Datasource } from "entities/Datasource";
-import { PluginType } from "entities/Action";
-import { executeDatasourceQueryRequest } from "api/DatasourcesApi";
-import { ResponseMeta } from "api/ApiResponses";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import type { Datasource, FilePickerActionStatus } from "entities/Datasource";
+import type { PluginType } from "entities/Action";
+import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
+import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export const createDatasourceFromForm = (
@@ -354,6 +354,29 @@ export const resetDefaultKeyValPairFlag = () => {
   return {
     type: ReduxActionTypes.RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET,
     payload: [],
+  };
+};
+
+export const initializeDatasourceFormDefaults = (pluginType: string) => {
+  return {
+    type: ReduxActionTypes.INITIALIZE_DATASOURCE_FORM_WITH_DEFAULTS,
+    payload: {
+      pluginType: pluginType,
+    },
+  };
+};
+
+// In case of access to specific sheets in google sheet datasource, this action
+// is used for handling file picker callback, when user selects files/cancels the selection
+// this callback action will be triggered
+export const filePickerCallbackAction = (data: {
+  action: FilePickerActionStatus;
+  datasourceId: string;
+  fileIds: Array<string>;
+}) => {
+  return {
+    type: ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
+    payload: data,
   };
 };
 

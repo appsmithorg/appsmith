@@ -1,5 +1,5 @@
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
 import { isString, keyBy } from "lodash";
@@ -10,7 +10,7 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   getDataTreeForActionCreator,
   getWidgetOptionsTree,
@@ -31,9 +31,9 @@ import {
 import Fields from "./Fields";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { JSAction, Variable } from "entities/JSCollection";
+import type { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
   CLEAR_STORE,
@@ -58,9 +58,9 @@ import {
 } from "@appsmith/constants/messages";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
+import type FeatureFlags from "entities/FeatureFlags";
 import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
 import {
@@ -68,7 +68,7 @@ import {
   AppsmithFunction,
   FieldType,
 } from "./constants";
-import {
+import type {
   SwitchType,
   ActionCreatorProps,
   GenericFunction,
@@ -269,9 +269,8 @@ function getFieldFromValue(
         });
       } else if (matches.length) {
         const entityPropertyPath = matches[0][1];
-        const { propertyPath } = getEntityNameAndPropertyPath(
-          entityPropertyPath,
-        );
+        const { propertyPath } =
+          getEntityNameAndPropertyPath(entityPropertyPath);
         const path = propertyPath && propertyPath.replace("()", "");
         const argsProps =
           path &&
@@ -534,14 +533,14 @@ function getIntegrationOptionsWithChildren(
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject = ({
+        const jsObject = {
           label: jsAction.config.name,
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
-          icon: JsFileIconV2,
-        } as unknown) as TreeDropdownOption;
-        ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
+          icon: JsFileIconV2(),
+        } as unknown as TreeDropdownOption;
+        (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
           //don't remove this will be used soon
           // const createJSFunction: TreeDropdownOption = {
@@ -574,7 +573,7 @@ function getIntegrationOptionsWithChildren(
               args: argValue,
             };
             (jsObject.children as TreeDropdownOption[]).push(
-              (jsFunction as unknown) as TreeDropdownOption,
+              jsFunction as unknown as TreeDropdownOption,
             );
           });
         }

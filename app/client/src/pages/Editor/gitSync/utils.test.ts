@@ -6,7 +6,7 @@ import {
   isValidGitRemoteUrl,
   removeSpecialChars,
 } from "./utils";
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 
 const validUrls = [
   "git@github.com:user/project.git",
@@ -66,7 +66,7 @@ const invalidUrls = [
 ];
 
 describe("gitSync utils", () => {
-  describe("getIsStartingWithRemoteBranches", function() {
+  describe("getIsStartingWithRemoteBranches", function () {
     it("returns true when only remote starts with origin/", () => {
       const actual = getIsStartingWithRemoteBranches(
         "whatever",

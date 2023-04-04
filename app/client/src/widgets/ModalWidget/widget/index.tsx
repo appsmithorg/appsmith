@@ -1,24 +1,37 @@
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 
 import { connect } from "react-redux";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { AppState } from "@appsmith/reducers";
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import type { AppState } from "@appsmith/reducers";
+import type { UIElementSize } from "components/editorComponents/ResizableUtils";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
+import type { Stylesheet } from "entities/AppTheming";
+import { get } from "lodash";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import type {
+  Alignment,
+  Positioning,
+  Spacing,
+} from "utils/autoLayout/constants";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
-// import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
-import { Stylesheet } from "entities/AppTheming";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const minSize = 100;
 
@@ -132,6 +145,16 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return Math.min(this.getMaxModalWidth(), width);
   }
 
+  getModalVisibility() {
+    if (this.props.selectedWidgetAncestry) {
+      return (
+        this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
+        !!this.props.isVisible
+      );
+    }
+    return !!this.props.isVisible;
+  }
+
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
@@ -207,11 +230,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalSelectable(content: ReactNode): ReactNode {
     // substitute coz the widget lacks draggable and position containers.
     return (
-      <ClickContentToOpenPropPane
-        backgroundColor={this.props.backgroundColor}
-        borderRadius={this.props.borderRadius}
-        widgetId={this.props.widgetId}
-      >
+      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
         {content}
       </ClickContentToOpenPropPane>
     );
@@ -221,19 +240,33 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const artBoard = document.getElementById("art-board");
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
     const { isPreviewMode, isSnipingMode } = this.props;
-
+    const modalWidth = this.getModalWidth(this.props.width);
     const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
-
+    const settingsComponent = isEditMode ? (
+      <WidgetNameComponent
+        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
+        parentId={this.props.parentId}
+        showControls
+        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
+        type={this.props.type}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
+        widgetWidth={modalWidth}
+      />
+    ) : null;
     return (
       <ModalComponent
+        background={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
         height={this.props.height}
+        isAutoLayout={this.props.isAutoLayout}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
-        isOpen={!!this.props.isVisible}
+        isOpen={this.getModalVisibility()}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}
@@ -241,9 +274,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
-        width={this.getModalWidth(this.props.width)}
+        width={modalWidth}
       >
         {content}
       </ModalComponent>
@@ -253,7 +287,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   getCanvasView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
-    children = this.showWidgetName(children, true);
+    // children = this.showWidgetName(children, true);
 
     return this.makeModalComponent(children, true);
   }
@@ -314,6 +348,7 @@ const mapStateToProps = (state: AppState) => {
     isSnipingMode: snipingModeSelector(state),
     isResizing: state.ui.widgetDragResize.isResizing,
     isPreviewMode: state.ui.editor.isPreviewMode,
+    isAutoLayout: getIsAutoLayout(state),
   };
   return props;
 };

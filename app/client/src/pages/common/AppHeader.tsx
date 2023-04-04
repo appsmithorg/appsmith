@@ -15,8 +15,9 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_CUSTOM_PATH,
 } from "constants/routes";
-import { withRouter, RouteComponentProps } from "react-router";
-import AppViewerHeader from "pages/AppViewer/AppViewerHeader";
+import Navigation from "pages/AppViewer/Navigation";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import AppEditorHeader from "pages/Editor/EditorHeader";
 
 type Props = RouteComponentProps;
@@ -40,11 +41,11 @@ class AppHeader extends React.Component<Props, any> {
         <Route path={SETUP} />
         <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={AppEditorHeader} path={BUILDER_PATH_DEPRECATED} />
-        <Route component={AppViewerHeader} path={VIEWER_PATH_DEPRECATED} />
+        <Route component={Navigation} path={VIEWER_PATH_DEPRECATED} />
         <Route component={AppEditorHeader} path={BUILDER_PATH} />
         <Route component={AppEditorHeader} path={BUILDER_CUSTOM_PATH} />
-        <Route component={AppViewerHeader} path={VIEWER_PATH} />
-        <Route component={AppViewerHeader} path={VIEWER_CUSTOM_PATH} />
+        <Route component={Navigation} path={VIEWER_PATH} />
+        <Route component={Navigation} path={VIEWER_CUSTOM_PATH} />
         <Route component={PageHeader} path={BASE_URL} />
       </Switch>
     );

@@ -1,13 +1,12 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown, {
-  TreeDropdownOption,
-} from "pages/Editor/Explorer/TreeDropdown";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
@@ -26,14 +25,14 @@ export function WidgetContextMenu(props: {
 }) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
-    return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
+    return state.ui.pageWidgets[props.pageId].dsl[props.widgetId].parentId;
   });
   const widget = useSelector((state: AppState) => {
-    return state.ui.pageWidgets[props.pageId][props.widgetId];
+    return state.ui.pageWidgets[props.pageId].dsl[props.widgetId];
   });
 
   const parentWidget: any = useSelector((state: AppState) => {
-    if (parentId) return state.ui.pageWidgets[props.pageId][parentId];
+    if (parentId) return state.ui.pageWidgets[props.pageId].dsl[parentId];
     return {};
   });
   const guidedTourEnabled = useSelector(inGuidedTour);

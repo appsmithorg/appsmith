@@ -1,31 +1,29 @@
-import React, {
-  ReactNode,
-  RefObject,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { ReactNode, RefObject } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { Classes, Overlay } from "@blueprintjs/core";
 import { get, omit } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { closeTableFilterPane } from "actions/widgetActions";
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import type { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
+import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable/resize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCanvasClassName } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { scrollCSS } from "widgets/WidgetUtils";
+import Resizable from "resizable/modalresize";
+import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
 const Container = styled.div<{
   width?: number;
@@ -38,6 +36,8 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
+  headerHeight?: number;
+  smallHeaderHeight?: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -45,13 +45,16 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: var(--view-mode-header-height, 0);
+      top: ${(props) =>
+        `calc(${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        })`};
       right: 0;
       bottom: 0;
       height: ${(props) =>
-        props.isEditMode
-          ? "100vh"
-          : `calc(100vh - var(--view-mode-header-height, 0))`};
+        `calc(100vh - (${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        }))`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -75,21 +78,27 @@ const Container = styled.div<{
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        .bp3-popover2-target.bp3-popover2-open {
-          height: 100%;
-        }
       }
     }
   }
 `;
-const Content = styled.div<{
-  height?: number;
-  scroll: boolean;
-  ref: RefObject<HTMLDivElement>;
-}>`
+const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
   width: 100%;
   height: 100%;
+  ${scrollCSS}
+  ${(props) => (!props.$scroll ? `overflow: hidden;` : ``)}
+`;
+
+const Wrapper = styled.div<{
+  $background?: string;
+  $borderRadius?: string;
+}>`
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: ${({ $background }) => `${$background || Colors.WHITE}`};
+  border-radius: ${({ $borderRadius }) => $borderRadius};
 `;
 
 const ComponentContainer = styled.div<{
@@ -128,17 +137,19 @@ export type ModalComponentProps = {
   widgetId: string;
   widgetName: string;
   isDynamicHeightEnabled: boolean;
+  background?: string;
+  borderRadius?: string;
+  settingsComponent?: ReactNode;
+  isAutoLayout: boolean;
 };
 
 /* eslint-disable react/display-name */
 export default function ModalComponent(props: ModalComponentProps) {
-  const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
-    null,
-  );
+  const modalContentRef: RefObject<HTMLDivElement> =
+    useRef<HTMLDivElement>(null);
   const { enableResize = false } = props;
 
   const [modalPosition, setModalPosition] = useState<string>("fixed");
-
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -148,7 +159,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
-
+  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -157,15 +168,15 @@ export default function ModalComponent(props: ModalComponentProps) {
       right: RightHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(allHandles, disabledResizeHandles);
+  }, [disabledResizeHandles]);
+  const headerHeight = useSelector(getAppViewHeaderHeight);
+  const theme = useSelector(getCurrentThemeDetails);
 
   useEffect(() => {
     setTimeout(() => {
       setModalPosition("unset");
     }, 100);
-
-    modalContentRef.current?.focus();
 
     return () => {
       // handle modal close events when this component unmounts
@@ -218,26 +229,12 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   const isVerticalResizeEnabled = useMemo(() => {
-    return !props.isDynamicHeightEnabled && enableResize;
+    return !props.isDynamicHeightEnabled && enableResize && !props.isAutoLayout;
   }, [props.isDynamicHeightEnabled, enableResize]);
-
-  const getModalContent = () => {
-    return (
-      <Content
-        className={`${getCanvasClassName()} ${props.className}`}
-        id={props.widgetId}
-        ref={modalContentRef}
-        scroll={props.scrollContents}
-        tabIndex={0}
-      >
-        {props.children}
-      </Content>
-    );
-  };
 
   const getResizableContent = () => {
     //id for Content is required for Copy Paste inside the modal
-    return enableResize ? (
+    return (
       <Resizable
         allowResize
         componentHeight={props.height || 0}
@@ -253,10 +250,25 @@ export default function ModalComponent(props: ModalComponentProps) {
         snapGrid={{ x: 1, y: 1 }}
         widgetId={props.widgetId}
       >
-        {getModalContent()}
+        {props.settingsComponent}
+        <Wrapper
+          $background={props.background}
+          $borderRadius={props.borderRadius}
+          data-cy="modal-wrapper"
+        >
+          <Content
+            $scroll={!!props.scrollContents}
+            className={`${getCanvasClassName()} ${
+              props.className
+            } scroll-parent`}
+            id={props.widgetId}
+            ref={modalContentRef}
+            tabIndex={0}
+          >
+            {props.children}
+          </Content>
+        </Wrapper>
       </Resizable>
-    ) : (
-      getModalContent()
     );
   };
 
@@ -274,12 +286,14 @@ export default function ModalComponent(props: ModalComponentProps) {
       >
         <Container
           bottom={props.bottom}
+          headerHeight={headerHeight}
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
           maxWidth={props.maxWidth}
           minSize={props.minSize}
           right={props.bottom}
+          smallHeaderHeight={theme.smallHeaderHeight}
           top={props.top}
           width={props.width}
           zIndex={

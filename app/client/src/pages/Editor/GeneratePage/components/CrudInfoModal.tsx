@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
@@ -16,7 +16,7 @@ import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
 
-import { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
+import type { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,

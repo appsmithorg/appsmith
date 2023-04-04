@@ -69,9 +69,7 @@ describe("Input widget V2 - ", () => {
     cy.openPropertyPane(widgetName);
 
     //required: on
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -152,9 +150,7 @@ describe("Input widget V2 - ", () => {
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: off
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
     [
@@ -232,9 +228,7 @@ describe("Input widget V2 - ", () => {
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: on
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -303,9 +297,7 @@ describe("Input widget V2 - ", () => {
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
     //required: off
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
 
     [
       {
@@ -342,27 +334,23 @@ describe("Input widget V2 - ", () => {
   it("7. Validating other properties - Input validity with #valid", () => {
     cy.openPropertyPane(widgetName);
     [
-      ["{{1 === 2}}", "false"],
-      ["", "true"],
-      ["{{1 === 1}}", "true"],
-      ["", "true"],
-    ].forEach(([input, expected]) => {
+      ["{{1 === 2}}", "false", true],
+      ["", "true", false],
+      ["{{1 === 1}}", "true", true],
+      ["", "true", false],
+    ].forEach(([input, expected, isValueDynamic]) => {
       cy.updateCodeInput(".t--property-control-valid", input);
       cy.wait(500);
-      cy.validateEvaluatedValue(expected);
+      isValueDynamic && cy.validateEvaluatedValue(expected);
     });
   });
 
   it("8. onSubmit should be triggered with the whole input value", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
-    cy.get(".t--property-control-required label")
-      .last()
-      .click({ force: true });
+    cy.get(".t--property-control-required label").last().click({ force: true });
     // Set onSubmit action, storing value
-    cy.get(".t--property-control-onsubmit")
-      .find(".t--js-toggle")
-      .click();
+    cy.get(".t--property-control-onsubmit").find(".t--js-toggle").click();
     cy.updateCodeInput(
       ".t--property-control-onsubmit",
       "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
@@ -424,7 +412,7 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "1.0001:1.0001:true");
   });
 
-  it("Check isDirty meta property", function() {
+  it("Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Input1.isDirty}}`);
     // Init isDirty

@@ -7,11 +7,11 @@ const jsEditor = ObjectsRegistry.JSEditor,
   propPane = ObjectsRegistry.PropertyPane,
   CommonLocators = ObjectsRegistry.CommonLocators;
 
-describe("JS Function Execution", function() {
+describe("JS Function Execution", function () {
   before(() => {
     ee.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
   });
-  it("1. Shows js function data as part of autocompletion hints", function() {
+  it("1. Shows js function data as part of autocompletion hints", function () {
     jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>{

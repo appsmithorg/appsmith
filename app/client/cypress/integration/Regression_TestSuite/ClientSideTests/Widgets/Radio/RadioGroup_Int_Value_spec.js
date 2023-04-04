@@ -10,12 +10,12 @@ function checkSelectedRadioValue(selector, value) {
   cy.get(`${selector} input:checked`).should("have.value", value);
 }
 
-describe("RadioGroup widget testing", function() {
+describe("RadioGroup widget testing", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Radio widget check selection with value property as integer", function() {
+  it("Radio widget check selection with value property as integer", function () {
     cy.openPropertyPane("radiogroupwidget");
 
     //Check radio with value=1 is selected
@@ -37,7 +37,7 @@ describe("RadioGroup widget testing", function() {
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "2");
   });
 
-  it("Radio widget check selection with value property as string", function() {
+  it("Radio widget check selection with value property as string", function () {
     cy.openPropertyPane("radiogroupwidget");
 
     cy.updateCodeInput(
@@ -76,7 +76,7 @@ describe("RadioGroup widget testing", function() {
     checkSelectedRadioValue(formWidgetsPage.radioWidget, "2");
   });
 
-  it("Check the custom validations for the options property", function() {
+  it("Check the custom validations for the options property", function () {
     /**
      * Test case defs, an error should be thrown when:
      * 1. When datatypes are not same for value property

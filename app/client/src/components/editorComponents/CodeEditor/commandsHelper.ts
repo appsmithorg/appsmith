@@ -1,16 +1,15 @@
 import CodeMirror from "codemirror";
-import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  AutocompleteDataType,
-  CommandsCompletion,
-} from "utils/autocomplete/CodemirrorTernService";
+import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { SlashCommandPayload } from "entities/Action";
+import type { SlashCommandPayload } from "entities/Action";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(

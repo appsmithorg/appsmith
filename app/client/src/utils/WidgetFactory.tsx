@@ -1,12 +1,19 @@
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import React from "react";
-import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type React from "react";
+import type {
+  WidgetBuilder,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 
-import { RenderMode } from "constants/WidgetConstants";
-import { Stylesheet } from "entities/AppTheming";
+import type { RenderMode } from "constants/WidgetConstants";
+import type { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { CanvasWidgetStructure } from "widgets/constants";
+import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type {
+  AutoLayoutConfig,
+  CanvasWidgetStructure,
+} from "widgets/constants";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
@@ -15,11 +22,12 @@ import {
   generatePropertyPaneSearchConfig,
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
-import { WidgetFeatures } from "./WidgetFeatures";
+import type { WidgetFeatures } from "./WidgetFeatures";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type WidgetType = typeof WidgetFactory.widgetTypes[number];
+export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
 
 export enum NonSerialisableWidgetConfigs {
   CANVAS_HEIGHT_OFFSET = "canvasHeightOffset",
@@ -34,14 +42,10 @@ class WidgetFactory {
     WidgetType,
     WidgetDerivedPropertyType
   > = new Map();
-  static derivedPropertiesMap: Map<
-    WidgetType,
-    DerivedPropertiesMap
-  > = new Map();
-  static defaultPropertiesMap: Map<
-    WidgetType,
-    Record<string, string>
-  > = new Map();
+  static derivedPropertiesMap: Map<WidgetType, DerivedPropertiesMap> =
+    new Map();
+  static defaultPropertiesMap: Map<WidgetType, Record<string, string>> =
+    new Map();
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,
@@ -73,6 +77,8 @@ class WidgetFactory {
     Record<NonSerialisableWidgetConfigs, unknown>
   > = new Map();
 
+  static autoLayoutConfigMap: Map<WidgetType, AutoLayoutConfig> = new Map();
+
   static registerWidgetBuilder(
     widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
@@ -85,6 +91,7 @@ class WidgetFactory {
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
     stylesheetConfig?: Stylesheet,
+    autoLayoutConfig?: AutoLayoutConfig,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -178,6 +185,28 @@ class WidgetFactory {
           WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetType),
         ),
       );
+
+      autoLayoutConfig &&
+        this.autoLayoutConfigMap.set(widgetType, {
+          ...autoLayoutConfig,
+          widgetSize:
+            autoLayoutConfig.widgetSize?.map((sizeConfig) => ({
+              ...sizeConfig,
+              configuration: (props: WidgetProps) => {
+                if (!props)
+                  return {
+                    minWidth:
+                      this.widgetConfigMap.get(widgetType)?.minWidth ||
+                      FILL_WIDGET_MIN_WIDTH,
+                    minHeight:
+                      this.widgetConfigMap.get(widgetType)?.minHeight || 80,
+                  };
+                return sizeConfig.configuration(props);
+              },
+            })) || [],
+          autoDimension: autoLayoutConfig.autoDimension ?? {},
+          disabledPropsDefaults: autoLayoutConfig.disabledPropsDefaults ?? {},
+        });
     }
   }
 
@@ -304,6 +333,19 @@ class WidgetFactory {
     const map = this.propertyPaneSearchConfigsMap.get(type);
     if (!map) {
       return [];
+    }
+    return map;
+  }
+
+  static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
+    const map = this.autoLayoutConfigMap.get(type);
+    if (!map) {
+      return {
+        autoDimension: {},
+        widgetSize: [],
+        disableResizeHandles: {},
+        disabledPropsDefaults: {},
+      };
     }
     return map;
   }

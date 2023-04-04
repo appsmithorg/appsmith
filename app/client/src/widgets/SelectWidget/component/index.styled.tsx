@@ -1,9 +1,9 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
 import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 
-import { DropdownOption } from "../constants";
+import type { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
@@ -80,9 +80,9 @@ type StyledSingleDropDownProps = PropsWithChildren<{
 }>;
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-export const StyledSingleDropDown = styled(SingleDropDown)<
-  StyledSingleDropDownProps
->`
+export const StyledSingleDropDown = styled(
+  SingleDropDown,
+)<StyledSingleDropDownProps>`
   div {
     flex: 1 1 auto;
   }
@@ -93,6 +93,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<
       height: 100%;
     }
   }
+
   &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
@@ -100,6 +101,9 @@ export const StyledSingleDropDown = styled(SingleDropDown)<
     align-items: center;
     justify-content: space-between;
     background: white;
+    .auto-layout & {
+      min-height: 36px;
+    }
     min-height: 32px;
     padding-left: 12px;
     padding: 0px 10px;
@@ -229,13 +233,13 @@ export const DropdownContainer = styled.div<{
     has fixed height and stretch the container.
   */
     ${({ labelPosition }) => {
-      if (labelPosition === LabelPosition.Left) {
-        return `
+    if (labelPosition === LabelPosition.Left) {
+      return `
       height: auto !important;
       align-items: stretch;
       `;
-      }
-    }}
+    }
+  }}
 
   & .${LABEL_CONTAINER_CLASS} {
     label {

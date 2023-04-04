@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Button, Size } from "design-system-old";
 import { flushErrors } from "actions/errorActions";
 
@@ -10,12 +10,8 @@ import {
   PAGE_CLIENT_ERROR_TITLE,
 } from "@appsmith/constants/messages";
 
-interface Props {
-  flushErrors?: any;
-}
-
-function ClientError(props: Props) {
-  const { flushErrors } = props;
+function ClientError() {
+  const dispatch = useDispatch();
 
   return (
     <Page
@@ -26,7 +22,7 @@ function ClientError(props: Props) {
           icon="right-arrow"
           iconAlignment="right"
           onClick={() => {
-            flushErrors();
+            dispatch(flushErrors());
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
           size={Size.large}
@@ -39,6 +35,4 @@ function ClientError(props: Props) {
   );
 }
 
-export default connect(null, {
-  flushErrors,
-})(ClientError);
+export default ClientError;

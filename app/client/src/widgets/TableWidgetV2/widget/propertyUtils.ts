@@ -1,18 +1,19 @@
 import { Alignment } from "@blueprintjs/core";
-import { CellAlignmentTypes, ColumnProperties } from "../component/Constants";
-import {
-  ColumnTypes,
-  InlineEditingSaveOptions,
-  TableWidgetProps,
-} from "../constants";
-import _, { get, isBoolean } from "lodash";
+import type { ColumnProperties } from "../component/Constants";
+import { CellAlignmentTypes } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
+import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
+import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { createEditActionColumn } from "./utilities";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import {
+  createEditActionColumn,
+  generateNewColumnOrderFromStickyValue,
+} from "./utilities";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
@@ -188,8 +189,19 @@ export const updateColumnOrderHook = (
     propertyValue: any;
   }> = [];
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
-    const oldColumnOrder = props.columnOrder || [];
-    const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+    const newColumnOrder = [...(props.columnOrder || [])];
+
+    const rightColumnIndex = findIndex(
+      newColumnOrder,
+      (colName: string) => props.primaryColumns[colName].sticky === "right",
+    );
+
+    if (rightColumnIndex !== -1) {
+      newColumnOrder.splice(rightColumnIndex, 0, propertyValue.id);
+    } else {
+      newColumnOrder.splice(newColumnOrder.length, 0, propertyValue.id);
+    }
+
     propertiesToUpdate.push({
       propertyPath: "columnOrder",
       propertyValue: newColumnOrder,
@@ -300,6 +312,31 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
 };
 
 const CELL_EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
+
+/**
+ * Hook that updates frozen column's old indices and also adds columns to the frozen positions.
+ */
+export const updateColumnOrderWhenFrozen = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+) => {
+  if (props && props.columnOrder) {
+    const newColumnOrder = generateNewColumnOrderFromStickyValue(
+      props.primaryColumns,
+      props.columnOrder,
+      propertyPath.split(".")[1],
+      propertyValue,
+    );
+
+    return [
+      {
+        propertyPath: "columnOrder",
+        propertyValue: newColumnOrder,
+      },
+    ];
+  }
+};
 /*
  * Hook that updates column level editability when cell level editability is
  * updaed.
@@ -907,7 +944,4 @@ export function selectColumnOptionsValidation(
 }
 
 export const getColumnPath = (propPath: string) =>
-  propPath
-    .split(".")
-    .slice(0, 2)
-    .join(".");
+  propPath.split(".").slice(0, 2).join(".");

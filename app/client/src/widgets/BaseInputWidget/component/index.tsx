@@ -1,30 +1,29 @@
-import React, { MutableRefObject } from "react";
+import type { MutableRefObject } from "react";
+import React from "react";
 import styled from "styled-components";
+import type { Alignment, Intent, IconName, IRef } from "@blueprintjs/core";
 import {
-  Alignment,
-  Intent,
   NumericInput,
-  IconName,
   InputGroup,
   Classes,
   ControlGroup,
   Tag,
-  IRef,
 } from "@blueprintjs/core";
 import _, { isNil } from "lodash";
 
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes, NumberInputStepButtonPosition } from "../constants";
+import type { NumberInputStepButtonPosition } from "../constants";
+import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { Icon } from "design-system-old";
-import { InputType } from "widgets/InputWidget/constants";
+import type { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import { lightenColor } from "widgets/WidgetUtils";
@@ -79,7 +78,6 @@ const InputComponentWrapper = styled((props) => (
   isMultiline?: boolean;
 }>`
   ${labelLayoutStyles}
-
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
     display: flex;
@@ -143,6 +141,7 @@ const InputComponentWrapper = styled((props) => (
           fill: ${(props) => props.theme.colors.icon?.hover};
         }
       }
+
       .${Classes.INPUT} {
         padding-left: 0.5rem;
         min-height: 36px;
@@ -367,6 +366,10 @@ const TextInputWrapper = styled.div<{
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   min-height: 32px;
+
+  .auto-layout & {
+    min-height: 36px;
+  }
 
   &:hover {
     border-color: ${({ disabled, hasError }) => {
@@ -612,9 +615,7 @@ class BaseInputComponent extends React.Component<
             />
           ) : this.props.iconName && this.props.iconAlign === "right" ? (
             <Tag icon={this.props.iconName} />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }
         spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputHTMLType)}

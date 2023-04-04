@@ -1,28 +1,28 @@
-import { FetchPageResponse } from "api/PageApi";
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import {
-  WidgetOperation,
-  WidgetOperations,
-  WidgetProps,
-} from "widgets/BaseWidget";
+import type { FetchPageResponse } from "api/PageApi";
+import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/BaseWidget";
+import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
-  RenderMode,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";
-import { WidgetType } from "./WidgetFactory";
-import { DSLWidget } from "widgets/constants";
-import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { BlockSpace, GridProps } from "reflow/reflowTypes";
-import { areIntersecting, Rect } from "./boxHelpers";
+import type { WidgetType } from "./WidgetFactory";
+import type { DSLWidget } from "widgets/constants";
+import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { BlockSpace, GridProps } from "reflow/reflowTypes";
+import type { Rect } from "./boxHelpers";
+import { areIntersecting } from "./boxHelpers";
+import convertDSLtoAutoAndUpdatePositions from "./DSLConversions/fixedToAutoLayout";
+import { checkIsDSLAutoLayout } from "./autoLayout/AutoLayoutUtils";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -34,12 +34,35 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
-): DSLWidget => {
+  isAutoLayout?: boolean,
+  mainCanvasWidth?: number,
+): { dsl: DSLWidget; layoutId: string | undefined } => {
   const newPage = !fetchPageResponse;
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
+
+  const transformedDSL = transformDSL(
+    currentDSL as ContainerWidgetProps<WidgetProps>,
+    newPage,
+  );
+
+  if (!isAutoLayout || checkIsDSLAutoLayout(transformedDSL)) {
+    return {
+      dsl: transformedDSL,
+      layoutId: fetchPageResponse?.data.layouts[0].id,
+    };
+  }
+
+  const convertedDSL = convertDSLtoAutoAndUpdatePositions(
+    transformedDSL,
+    mainCanvasWidth,
+  );
+
+  return {
+    dsl: convertedDSL,
+    layoutId: fetchPageResponse?.data.layouts[0].id,
+  };
 };
 
 /**
@@ -244,7 +267,7 @@ export const widgetOperationParams = (
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
         rightColumn: fullWidth
-          ? 64
+          ? GridDefaults.DEFAULT_GRID_COLUMNS
           : Math.round(
               leftColumn + widgetSizeUpdates.width / parentColumnSpace,
             ),
@@ -256,7 +279,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: fullWidth ? 64 : widget.columns,
+    columns: fullWidth ? GridDefaults.DEFAULT_GRID_COLUMNS : widget.columns,
     rows: widget.rows,
   };
 
@@ -315,6 +338,12 @@ export const generateWidgetProps = (
       topRow,
       bottomRow: topRow + widgetConfig.rows,
     };
+    const mobileSizes = {
+      mobileLeftColumn: leftColumn,
+      mobileRightColumn: leftColumn + widgetConfig.columns,
+      mobileTopRow: topRow,
+      mobileBottomRow: topRow + widgetConfig.rows,
+    };
 
     const others = {};
     const props: DSLWidget = {
@@ -327,6 +356,7 @@ export const generateWidgetProps = (
       parentColumnSpace,
       parentRowSpace,
       ...sizes,
+      ...mobileSizes,
       ...others,
       parentId: parent.widgetId,
       version,

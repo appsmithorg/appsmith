@@ -6,7 +6,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setWorkspaceIdForImport } from "actions/applicationActions";
+import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
@@ -21,7 +21,8 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
+import { Indices } from "constants/Layers";
 
 const Container = styled.div`
   height: 600px;
@@ -47,6 +48,7 @@ const CloseBtnContainer = styled.div`
   top: 0;
   padding: ${(props) => props.theme.spaces[1]}px 0;
   border-radius: ${(props) => props.theme.radii[1]}px;
+  z-index: ${Indices.Layer3};
 
   &:hover {
     svg,

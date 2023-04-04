@@ -1,11 +1,11 @@
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { Stylesheet } from "entities/AppTheming";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Positioning } from "utils/autoLayout/constants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneContentConfig() {
@@ -44,7 +44,6 @@ class StatboxWidget extends ContainerWidget {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -89,6 +88,7 @@ class StatboxWidget extends ContainerWidget {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
           {
             propertyName: "borderRadius",

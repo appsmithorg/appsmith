@@ -6,7 +6,7 @@ import layoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import { watchJSActionSagas } from "sagas/JSActionSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
-import applicationSagas from "../src/sagas/ApplicationSagas";
+import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import batchSagas from "../src/sagas/BatchSagas";
 import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";
@@ -23,7 +23,6 @@ import modalSagas from "../src/sagas/ModalSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
 import providersSagas from "../src/sagas/ProvidersSaga";
 import queryPaneSagas from "../src/sagas/QueryPaneSagas";
-import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import saaSPaneSagas from "../src/sagas/SaaSPaneSagas";
 import snipingModeSagas from "../src/sagas/SnipingModeSagas";
 import themeSagas from "../src/sagas/ThemeSaga";
@@ -31,6 +30,7 @@ import utilSagas from "../src/sagas/UtilSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "../src/sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
+import NavigationSagas from "../src/ee/sagas/NavigationSagas";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -64,5 +64,6 @@ export const sagasToRunForTests = [
   draggingCanvasSagas,
   LintingSaga,
   JSLibrarySaga,
+  NavigationSagas,
   layoutUpdateSagas,
 ];

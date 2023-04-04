@@ -1,8 +1,6 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type {
   EventType,
   ExecuteTriggerPayload,
   TriggerSource,
@@ -31,21 +29,14 @@ import {
   logActionExecutionError,
   TriggerFailureError,
   UncaughtPromiseError,
-  UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
-import {
-  clearIntervalSaga,
-  setIntervalSaga,
-} from "sagas/ActionExecution/SetIntervalSaga";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
-} from "sagas/ActionExecution/GetCurrentLocationSaga";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
-import { ModalType } from "reducers/uiReducers/modalActionReducer";
+} from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -67,21 +58,16 @@ export function* executeActionTriggers(
   let response: unknown[] = [];
   switch (trigger.type) {
     case "RUN_PLUGIN_ACTION":
-      response = yield call(
-        executePluginActionTriggerSaga,
-        trigger.payload,
-        eventType,
-        triggerMeta,
-      );
+      response = yield call(executePluginActionTriggerSaga, trigger, eventType);
       break;
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
       break;
     case "NAVIGATE_TO":
-      yield call(navigateActionSaga, trigger.payload);
+      yield call(navigateActionSaga, trigger);
       break;
     case "SHOW_ALERT":
-      yield call(showAlertSaga, trigger.payload);
+      yield call(showAlertSaga, trigger);
       break;
     case "SHOW_MODAL_BY_NAME":
       yield call(openModalSaga, trigger);
@@ -90,54 +76,35 @@ export function* executeActionTriggers(
       yield call(closeModalSaga, trigger);
       break;
     case "DOWNLOAD":
-      yield call(downloadSaga, trigger.payload);
+      yield call(downloadSaga, trigger);
       break;
     case "COPY_TO_CLIPBOARD":
-      yield call(copySaga, trigger.payload);
+      yield call(copySaga, trigger);
       break;
     case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
-      yield call(resetWidgetActionSaga, trigger.payload);
-      break;
-    case "SET_INTERVAL":
-      yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
-      break;
-    case "CLEAR_INTERVAL":
-      yield call(clearIntervalSaga, trigger.payload);
+      yield call(resetWidgetActionSaga, trigger);
       break;
     case "GET_CURRENT_LOCATION":
       response = yield call(
         getCurrentLocationSaga,
-        trigger.payload,
+        trigger,
         eventType,
         triggerMeta,
       );
       break;
-
     case "WATCH_CURRENT_LOCATION":
       response = yield call(
         watchCurrentLocation,
-        trigger.payload,
+        trigger,
         eventType,
         triggerMeta,
       );
       break;
-
     case "STOP_WATCHING_CURRENT_LOCATION":
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
-    case "CONFIRMATION_MODAL":
-      const payloadInfo = {
-        name: trigger?.payload?.funName,
-        modalOpen: true,
-        modalType: ModalType.RUN_ACTION,
-      };
-      const flag = yield call(requestModalConfirmationSaga, payloadInfo);
-      if (!flag) {
-        throw new UserCancelledActionExecutionError();
-      }
-      break;
     case "POST_MESSAGE":
-      yield call(postMessageSaga, trigger.payload, triggerMeta);
+      yield call(postMessageSaga, trigger, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);

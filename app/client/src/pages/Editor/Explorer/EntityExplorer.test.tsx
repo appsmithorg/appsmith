@@ -4,12 +4,8 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import React from "react";
-import {
-  dispatchTestKeyboardEventWithCode,
-  MockPageDSL,
-} from "test/testCommon";
+import { MockPageDSL } from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
-import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import store, { runSagaMiddleware } from "store";
 import Datasources from "./Datasources";
@@ -21,6 +17,9 @@ import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import * as permissionUtils from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import * as widgetSelectionsActions from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "utils/history";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -64,9 +63,7 @@ describe("Entity Explorer tests", () => {
 
   it("checks datasources section in explorer", () => {
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(
-      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
-    );
+    mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
@@ -89,9 +86,7 @@ describe("Entity Explorer tests", () => {
       .spyOn(permissionUtils, "hasCreateDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(
-      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
-    );
+    mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
@@ -117,9 +112,7 @@ describe("Entity Explorer tests", () => {
       .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(
-      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
-    );
+    mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch(updateCurrentPage("pageId"));
     const { container } = render(<Datasources />);
     const target = container.getElementsByClassName("t--context-menu");
@@ -156,189 +149,248 @@ describe("Entity Explorer tests", () => {
     expect(tabsWidget).toBeTruthy();
   });
 
-  it("Select widget on entity explorer", () => {
-    const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
-    const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
-      </MockPageDSL>,
+  describe("Widget Selection in entity explorer", () => {
+    const spyWidgetSelection = jest.spyOn(
+      widgetSelectionsActions,
+      "selectWidgetInitAction",
     );
-    const tabsWidget: any = component.queryByText(children[0].widgetName);
-    act(() => {
-      fireEvent.click(tabsWidget);
-      jest.runAllTimers();
-    });
-    const highlighted = component.container.getElementsByClassName(
-      "highlighted active",
-    );
-    expect(highlighted.length).toBe(1);
-  });
-
-  it("CMD + click Multi Select widget on entity explorer", () => {
-    const children: any = buildChildren([
-      { type: "CHECKBOX_WIDGET", parentId: "0" },
-      { type: "SWITCH_WIDGET", parentId: "0" },
-    ]);
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
-    const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
-      </MockPageDSL>,
-    );
-    const checkBox: any = component.queryByText(children[0].widgetName);
-    act(() => {
-      fireEvent.click(checkBox);
-      jest.runAllTimers();
-    });
-    const switchWidget: any = component.queryByText(children[1].widgetName);
-
-    act(() => {
-      fireEvent.click(switchWidget, {
-        ctrlKey: true,
-      });
-      jest.runAllTimers();
-    });
-    const highlighted = component.container.querySelectorAll(
-      "div.widget > .highlighted.active",
-    );
-    const active = component.container.querySelectorAll("div.widget > .active");
-    expect(highlighted.length).toBe(1);
-    expect(active.length).toBe(2);
-  });
-
-  it("Shift + Click Multi Select widget on entity explorer", () => {
-    const children: any = buildChildren([
-      { type: "CHECKBOX_WIDGET", parentId: "0" },
-      { type: "SWITCH_WIDGET", parentId: "0" },
-      { type: "BUTTON_WIDGET", parentId: "0" },
-    ]);
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
-    const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
-      </MockPageDSL>,
-    );
-
-    const checkboxWidget: any = component.queryByText(children[0].widgetName);
-    const buttonWidget: any = component.queryByText(children[2].widgetName);
-
-    act(() => {
-      fireEvent.click(checkboxWidget);
-      jest.runAllTimers();
+    beforeEach(() => {
+      spyWidgetSelection.mockClear();
     });
 
-    act(() => {
-      fireEvent.click(buttonWidget, {
-        shiftKey: true,
-      });
-      jest.runAllTimers();
-    });
-    const highlighted = component.container.querySelectorAll(
-      "div.widget > .highlighted.active",
-    );
-    const active = component.container.querySelectorAll("div.widget > .active");
-    expect(highlighted.length).toBe(1);
-    expect(active.length).toBe(3);
-  });
-
-  it("Shift + Click Deselect Non Siblings", () => {
-    const containerId = generateReactKey();
-    const canvasId = generateReactKey();
-    const children: any = buildChildren([
-      { type: "CHECKBOX_WIDGET", parentId: canvasId },
-      { type: "SWITCH_WIDGET", parentId: canvasId },
-      { type: "BUTTON_WIDGET", parentId: canvasId },
-    ]);
-    const canvasWidget = buildChildren([
-      {
-        type: "CANVAS_WIDGET",
-        parentId: containerId,
+    it("Select widget on entity explorer", () => {
+      const children: any = buildChildren([
+        { type: "TABS_WIDGET", widgetId: "tabsWidgetId" },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
         children,
-        widgetId: canvasId,
-      },
-    ]);
-    const containerChildren: any = buildChildren([
-      {
-        type: "CONTAINER_WIDGET",
-        children: canvasWidget,
-        widgetId: containerId,
-        parentId: MAIN_CONTAINER_WIDGET_ID,
-      },
-      { type: "CHART_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
-    ]);
-    const dsl: any = widgetCanvasFactory.build({
-      children: containerChildren,
-    });
-    const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
-      </MockPageDSL>,
-    );
-    const containerWidget: any = component.queryByText(
-      containerChildren[0].widgetName,
-    );
+      });
+      const component = render(
+        <MockPageDSL dsl={dsl}>
+          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+        </MockPageDSL>,
+      );
+      const tabsWidget: any = component.queryByText(children[0].widgetName);
+      act(() => {
+        fireEvent.click(tabsWidget);
+        jest.runAllTimers();
+      });
 
-    act(() => {
-      fireEvent.click(containerWidget);
-      jest.runAllTimers();
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.One,
+        ["tabsWidgetId"],
+        NavigationMethod.EntityExplorer,
+        undefined,
+      );
     });
-    let highlighted = component.container.querySelectorAll(
-      "div.widget > .highlighted.active",
-    );
-    let active = component.container.querySelectorAll("div.widget > .active");
-    expect(highlighted.length).toBe(1);
-    expect(active.length).toBe(1);
-    const collapsible: any = active[0].parentElement?.querySelector(
-      ".t--entity-collapse-toggle",
-    );
-    fireEvent.click(collapsible);
-    const buttonWidget: any = component.queryByText(children[2].widgetName);
-    act(() => {
-      fireEvent.click(buttonWidget, {
-        shiftKey: true,
+
+    it("CMD + click Multi Select widget on entity explorer", () => {
+      const children: any = buildChildren([
+        {
+          type: "CHECKBOX_WIDGET",
+          parentId: "0",
+          widgetId: "checkboxWidgetId",
+        },
+        { type: "SWITCH_WIDGET", parentId: "0", widgetId: "switchWidgetId" },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children,
       });
-      jest.runAllTimers();
-    });
-    highlighted = component.container.querySelectorAll(
-      "div.widget > .highlighted.active",
-    );
-    active = component.container.querySelectorAll("div.widget > .active");
-    expect(highlighted.length).toBe(1);
-    expect(active.length).toBe(1);
-    const checkBoxWidget: any = component.queryByText(children[0].widgetName);
-    act(() => {
-      fireEvent.click(checkBoxWidget, {
-        shiftKey: true,
+      const component = render(
+        <MockPageDSL dsl={dsl}>
+          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+        </MockPageDSL>,
+      );
+      const checkBox: any = component.queryByText(children[0].widgetName);
+      act(() => {
+        fireEvent.click(checkBox);
+        jest.runAllTimers();
       });
-      jest.runAllTimers();
-    });
-    highlighted = component.container.querySelectorAll(
-      "div.widget > .highlighted.active",
-    );
-    active = component.container.querySelectorAll("div.widget > .active");
-    expect(highlighted.length).toBe(1);
-    expect(active.length).toBe(3);
-    const chartWidget: any = component.queryByText(
-      containerChildren[1].widgetName,
-    );
-    act(() => {
-      fireEvent.click(chartWidget, {
-        shiftKey: true,
+      const switchWidget: any = component.queryByText(children[1].widgetName);
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.One,
+        ["checkboxWidgetId"],
+        NavigationMethod.EntityExplorer,
+        undefined,
+      );
+
+      act(() => {
+        fireEvent.click(switchWidget, {
+          ctrlKey: true,
+        });
+        jest.runAllTimers();
       });
-      jest.runAllTimers();
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.PushPop,
+        ["switchWidgetId"],
+        undefined,
+        undefined,
+      );
     });
-    highlighted = component.container.querySelectorAll(
-      "div.widget > .highlighted.active",
-    );
-    active = component.container.querySelectorAll("div.widget > .active");
-    expect(highlighted.length).toBe(1);
-    expect(active.length).toBe(1);
+
+    it("Shift + Click Multi Select widget on entity explorer", () => {
+      const children: any = buildChildren([
+        {
+          type: "CHECKBOX_WIDGET",
+          parentId: "0",
+          widgetId: "checkboxWidgetId",
+        },
+        { type: "SWITCH_WIDGET", parentId: "0", widgetId: "switchWidgetId" },
+        { type: "BUTTON_WIDGET", parentId: "0", widgetId: "buttonWidgetId" },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children,
+      });
+      const component = render(
+        <MockPageDSL dsl={dsl}>
+          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+        </MockPageDSL>,
+      );
+
+      const checkboxWidget: any = component.queryByText(children[0].widgetName);
+      const buttonWidget: any = component.queryByText(children[2].widgetName);
+
+      act(() => {
+        fireEvent.click(checkboxWidget);
+        jest.runAllTimers();
+      });
+
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.One,
+        ["checkboxWidgetId"],
+        NavigationMethod.EntityExplorer,
+        undefined,
+      );
+
+      act(() => {
+        fireEvent.click(buttonWidget, {
+          shiftKey: true,
+        });
+        jest.runAllTimers();
+      });
+
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.ShiftSelect,
+        ["buttonWidgetId"],
+        undefined,
+        undefined,
+      );
+    });
+
+    it("Shift + Click Deselect Non Siblings", () => {
+      const containerId = "containerWidgetId";
+      const canvasId = "canvasWidgetId";
+      const children: any = buildChildren([
+        {
+          type: "CHECKBOX_WIDGET",
+          parentId: canvasId,
+          widgetId: "checkboxWidgetId",
+        },
+        {
+          type: "SWITCH_WIDGET",
+          parentId: canvasId,
+          widgetId: "switchWidgetId",
+        },
+        {
+          type: "BUTTON_WIDGET",
+          parentId: canvasId,
+          widgetId: "buttonWidgetId",
+        },
+      ]);
+      const canvasWidget = buildChildren([
+        {
+          type: "CANVAS_WIDGET",
+          parentId: containerId,
+          children,
+          widgetId: canvasId,
+        },
+      ]);
+      const containerChildren: any = buildChildren([
+        {
+          type: "CONTAINER_WIDGET",
+          children: canvasWidget,
+          widgetId: containerId,
+          parentId: MAIN_CONTAINER_WIDGET_ID,
+        },
+        {
+          type: "CHART_WIDGET",
+          parentId: MAIN_CONTAINER_WIDGET_ID,
+          widgetId: "chartWidgetId",
+        },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children: containerChildren,
+      });
+      const component = render(
+        <MockPageDSL dsl={dsl}>
+          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+        </MockPageDSL>,
+      );
+      const containerWidget: any = component.queryByText(
+        containerChildren[0].widgetName,
+      );
+
+      act(() => {
+        fireEvent.click(containerWidget);
+        jest.runAllTimers();
+      });
+
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.One,
+        [containerId],
+        NavigationMethod.EntityExplorer,
+        undefined,
+      );
+
+      const collapsible: any = component.container.querySelector(
+        `a.t--entity-collapse-toggle[name="arrow-right"]`,
+      );
+
+      fireEvent.click(collapsible);
+
+      const buttonWidget: any = component.queryByText(children[2].widgetName);
+      act(() => {
+        fireEvent.click(buttonWidget, {
+          shiftKey: true,
+        });
+        jest.runAllTimers();
+      });
+
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.ShiftSelect,
+        ["buttonWidgetId"],
+        undefined,
+        undefined,
+      );
+
+      const checkBoxWidget: any = component.queryByText(children[0].widgetName);
+      act(() => {
+        fireEvent.click(checkBoxWidget, {
+          shiftKey: true,
+        });
+        jest.runAllTimers();
+      });
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.ShiftSelect,
+        ["checkboxWidgetId"],
+        undefined,
+        undefined,
+      );
+      const chartWidget: any = component.queryByText(
+        containerChildren[1].widgetName,
+      );
+      act(() => {
+        fireEvent.click(chartWidget, {
+          shiftKey: true,
+        });
+        jest.runAllTimers();
+      });
+      expect(spyWidgetSelection).toHaveBeenCalledWith(
+        SelectionRequestType.ShiftSelect,
+        ["chartWidgetId"],
+        undefined,
+        undefined,
+      );
+    });
   });
 });

@@ -8,10 +8,10 @@ import "codemirror-graphql/mode";
 
 import QueryWrapper from "./QueryWrapperWithCSS";
 import CodeEditor from "components/editorComponents/CodeEditor";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
@@ -56,7 +56,12 @@ function QueryEditor(props: QueryProps) {
           Query
         </Text>
       </QueryHeader>
-      <Field component={CodeEditor} {...props} {...editorProps} />
+      <Field
+        component={CodeEditor}
+        evaluatedPopUpLabel="Query"
+        {...props}
+        {...editorProps}
+      />
     </QueryWrapper>
   );
 }

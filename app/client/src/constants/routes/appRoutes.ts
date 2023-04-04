@@ -17,10 +17,14 @@ export const getViewerCustomPath = (customSlug: string, pageId: string) =>
   `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
 export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
-export const VIEWER_PATH_DEPRECATED_REGEX = /\/applications\/[^/]+\/pages\/[^/]+/;
+export const VIEWER_PATH_DEPRECATED_REGEX =
+  /\/applications\/[^/]+\/pages\/[^/]+/;
 
 export const VIEWER_FORK_PATH = `/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
+
+export const WIDGETS_EDITOR_BASE_PATH = `/widgets`;
+export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
 export const API_EDITOR_BASE_PATH = `/api`;
 export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:apiId`;
 export const API_EDITOR_PATH_WITH_SELECTED_PAGE_ID = `${API_EDITOR_BASE_PATH}?importTo=:importTo`;
@@ -55,7 +59,11 @@ export const matchBuilderPath = (
 ) =>
   match(BUILDER_PATH, options)(pathName) ||
   match(BUILDER_PATH_DEPRECATED, options)(pathName) ||
-  match(BUILDER_CUSTOM_PATH, options)(pathName);
+  match(BUILDER_CUSTOM_PATH, options)(pathName) ||
+  match(BUILDER_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
+  match(BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
+  match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName);
+
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) ||

@@ -1,7 +1,9 @@
-import React, { ReactNode } from "react";
+import { GridDefaults } from "constants/WidgetConstants";
+import type { ReactNode } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { FlexDirection, LayoutDirection } from "utils/autoLayout/constants";
+import type { LayoutDirection } from "utils/autoLayout/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -21,14 +23,16 @@ export interface AutoLayoutLayerProps {
   wrapCenter: boolean;
   wrapEnd: boolean;
   wrapLayer: boolean;
+  startColumns: number;
+  centerColumns: number;
+  endColumns: number;
 }
 
 const LayoutLayerContainer = styled.div<{
-  flexDirection: FlexDirection;
   wrap?: boolean;
 }>`
   display: flex;
-  flex-direction: ${({ flexDirection }) => flexDirection || FlexDirection.Row};
+  flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
@@ -37,12 +41,11 @@ const LayoutLayerContainer = styled.div<{
 `;
 
 const SubWrapper = styled.div<{
-  flexDirection: FlexDirection;
   wrap?: boolean;
 }>`
-  flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3"}%`};
+  flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3333"}%`};
   display: flex;
-  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  flex-direction: row;
   align-items: flex-start;
   align-self: stretch;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
@@ -60,47 +63,46 @@ const CenterWrapper = styled(SubWrapper)`
   justify-content: center;
 `;
 
-function getFlexDirection(direction: LayoutDirection): FlexDirection {
-  return direction === LayoutDirection.Horizontal
-    ? FlexDirection.Row
-    : FlexDirection.Column;
-}
-
-function getInverseDirection(direction: LayoutDirection): LayoutDirection {
-  return direction === LayoutDirection.Horizontal
-    ? LayoutDirection.Vertical
-    : LayoutDirection.Horizontal;
-}
-
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
-  const flexDirection = getFlexDirection(getInverseDirection(props.direction));
-
+  const renderChildren = () => {
+    const {
+      center,
+      centerColumns,
+      end,
+      endColumns,
+      isMobile,
+      start,
+      startColumns,
+    } = props;
+    const arr: (JSX.Element | null)[] = [
+      <StartWrapper key={0} wrap={props.wrapStart && props.isMobile}>
+        {start}
+      </StartWrapper>,
+      <CenterWrapper key={1} wrap={props.wrapCenter && props.isMobile}>
+        {center}
+      </CenterWrapper>,
+      <EndWrapper key={2} wrap={props.wrapEnd && props.isMobile}>
+        {end}
+      </EndWrapper>,
+    ];
+    const isFull =
+      startColumns + centerColumns + endColumns ===
+        GridDefaults.DEFAULT_GRID_COLUMNS && !isMobile;
+    if (isFull) {
+      if (startColumns === 0) arr[0] = null;
+      if (centerColumns === 0) arr[1] = null;
+      if (endColumns === 0) arr[2] = null;
+    }
+    return arr.filter((item) => item !== null);
+  };
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
-      flexDirection={flexDirection}
       wrap={props.isMobile && props.wrapLayer}
     >
-      <StartWrapper
-        flexDirection={flexDirection}
-        wrap={props.wrapStart && props.isMobile}
-      >
-        {props.start}
-      </StartWrapper>
-      <CenterWrapper
-        flexDirection={flexDirection}
-        wrap={props.wrapCenter && props.isMobile}
-      >
-        {props.center}
-      </CenterWrapper>
-      <EndWrapper
-        flexDirection={flexDirection}
-        wrap={props.wrapEnd && props.isMobile}
-      >
-        {props.end}
-      </EndWrapper>
+      {renderChildren()}
     </LayoutLayerContainer>
   );
 }
 
-export default React.memo(AutoLayoutLayer);
+export default AutoLayoutLayer;

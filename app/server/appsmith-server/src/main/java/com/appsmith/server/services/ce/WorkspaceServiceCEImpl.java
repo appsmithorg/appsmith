@@ -46,8 +46,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import jakarta.validation.Validator;
+
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -67,6 +67,8 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRI
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
+import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
+import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -81,7 +83,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final AssetRepository assetRepository;
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
-    private final PermissionGroupService permissionGroupService;
+    protected final PermissionGroupService permissionGroupService;
     private final PolicyUtils policyUtils;
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
@@ -204,78 +206,86 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         }))
                 // Save the workspace in the db
                 .flatMap(repository::save)
-                // Generate the default permission groups & policy for the current user
-                .flatMap(createdWorkspace1 -> {
-                    return Mono.zip(generateDefaultPermissionGroups(createdWorkspace1, user), Mono.just(createdWorkspace1))
-                            .flatMap(tuple -> {
-
-                                Set<PermissionGroup> permissionGroups = tuple.getT1();
-                                Workspace createdWorkspace = tuple.getT2();
-
-                                createdWorkspace.setDefaultPermissionGroups(
-                                        permissionGroups.stream()
-                                                .map(PermissionGroup::getId)
-                                                .collect(Collectors.toSet())
-                                );
-
-                                // Apply the permissions to the workspace
-                                for (PermissionGroup permissionGroup : permissionGroups) {
-                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
-
-                                    createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
-                                }
-
-                                return repository.save(createdWorkspace);
-                            });
-                })
+                .flatMap(createdWorkspace -> enrichWorkspaceWithDependents(createdWorkspace, user))
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
-    protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
+    protected Mono<Workspace> enrichWorkspaceWithDependents(Workspace createdWorkspace, User user) {
+        // Generate the default permission groups & policy for the current user
+        return generateDefaultPermissionGroups(createdWorkspace, user)
+                .flatMap(permissionGroups -> enrichDependents(permissionGroups,createdWorkspace)
+                        .then(addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace)));
+    }
+
+    /**
+     * returns the created workspace without any Operations
+     * See EE overrides for complete usage
+     * @param permissionGroups
+     * @param createdWorkspace
+     * @return Mono of the createdWorkspace
+     */
+    protected Mono<Workspace> enrichDependents(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+        return Mono.just(createdWorkspace);
+    }
+
+    protected Mono<Workspace> addPoliciesAndSaveWorkspace(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+        createdWorkspace.setDefaultPermissionGroups(
+                permissionGroups.stream()
+                        .map(PermissionGroup::getId)
+                        .collect(Collectors.toSet()));
+        // Apply the permissions to the workspace
+        for (PermissionGroup permissionGroup : permissionGroups) {
+            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
+            createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
+        }
+        return repository.save(createdWorkspace);
+    }
+
+    @Override
+    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
         return Mono.just(TRUE);
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
         if (oldName.startsWith(ADMINISTRATOR)) {
-            return getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName);
+            return generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName);
         } else if (oldName.startsWith(DEVELOPER)) {
-            return getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName);
+            return generateDefaultRoleNameForResource(DEVELOPER, workspaceName);
         } else if (oldName.startsWith(VIEWER)) {
-            return getDefaultNameForGroupInWorkspace(VIEWER, workspaceName);
+            return generateDefaultRoleNameForResource(VIEWER, workspaceName);
         }
 
         // If this is not a default group aka does not start with the expected prefix, don't update it.
         return oldName;
     }
 
-    @Override
-    public String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName) {
-        return prefix + " - " + workspaceName;
-    }
 
     private Mono<Set<PermissionGroup>> generateDefaultPermissionGroupsWithoutPermissions(Workspace workspace) {
         String workspaceName = workspace.getName();
         String workspaceId = workspace.getId();
         // Administrator permission group
         PermissionGroup adminPermissionGroup = new PermissionGroup();
-        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
-        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
+        adminPermissionGroup.setDefaultDomainId(workspaceId);
+        adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
 
         // Developer permission group
         PermissionGroup developerPermissionGroup = new PermissionGroup();
-        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
-        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
+        developerPermissionGroup.setDefaultDomainId(workspaceId);
+        developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
 
         // App viewer permission group
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
-        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
-        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
+        viewerPermissionGroup.setDefaultDomainId(workspaceId);
+        viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());
@@ -285,7 +295,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
     }
 
-    Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(Set<PermissionGroup> permissionGroups, Workspace workspace, User user) {
+    Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(Set<PermissionGroup> permissionGroups,
+                                                                             Workspace workspace, User user) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
@@ -316,11 +327,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
 
 
-        Set<Permission> permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
-        permissions.addAll(unassignPermissionGroupPermissions);
+        Set<Permission> permissions = collateAllPermissions(workspacePermissions,
+                                                            assignPermissionGroupPermissions,
+                                                            readPermissionGroupPermissions,
+                                                            unassignPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -337,10 +347,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
+        permissions = collateAllPermissions(workspacePermissions,
+                                            assignPermissionGroupPermissions,
+                                            readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -354,10 +363,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         assignPermissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = new HashSet<>();
-        permissions.addAll(workspacePermissions);
-        permissions.addAll(assignPermissionGroupPermissions);
-        permissions.addAll(readPermissionGroupPermissions);
+
+        permissions = collateAllPermissions(workspacePermissions,
+                                            assignPermissionGroupPermissions,
+                                            readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
@@ -385,15 +394,16 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return Mono.zip(
                         savedPermissionGroupsMono,
                         cleanPermissionGroupCacheForCurrentUser
-                )
+                       )
                 .map(tuple -> tuple.getT1());
     }
 
-    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
+    protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
 
         return generateDefaultPermissionGroupsWithoutPermissions(workspace)
                 // Generate the permissions per permission group
-                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace, user));
+                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace,
+                                                                                           user));
     }
 
     /**
@@ -531,7 +541,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             .collect(Collectors.toList());
                 });
 
-       return permissionGroupInfoDTOListMono;
+        return permissionGroupInfoDTOListMono;
     }
 
     @Override

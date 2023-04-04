@@ -2,15 +2,16 @@ import React, { lazy, Suspense } from "react";
 
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { MapType } from "../component";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { MapType } from "../component";
+import type { MapColorObject } from "../constants";
 import {
   dataSetForAfrica,
   dataSetForAsia,
@@ -21,13 +22,12 @@ import {
   dataSetForUSA,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
-  MapColorObject,
   MapTypes,
 } from "../constants";
 
 const MapChartComponent = lazy(() =>
-  retryPromise(() =>
-    import(/* webpackChunkName: "mapCharts" */ "../component"),
+  retryPromise(
+    () => import(/* webpackChunkName: "mapCharts" */ "../component"),
   ),
 );
 
@@ -206,7 +206,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -355,14 +354,8 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const {
-      colorRange,
-      data,
-      isVisible,
-      mapTitle,
-      mapType,
-      showLabels,
-    } = this.props;
+    const { colorRange, data, isVisible, mapTitle, mapType, showLabels } =
+      this.props;
 
     return (
       <Suspense fallback={<Skeleton />}>

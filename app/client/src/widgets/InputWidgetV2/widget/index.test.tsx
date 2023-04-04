@@ -1,6 +1,6 @@
+import type { InputWidgetProps } from "./index";
 import {
   defaultValueValidation,
-  InputWidgetProps,
   minValueValidation,
   maxValueValidation,
 } from "./index";
@@ -19,7 +19,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "text",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
 
     result = defaultValueValidation(
@@ -31,7 +31,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "1",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -45,7 +45,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: 1,
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
 
     result = defaultValueValidation(
@@ -57,7 +57,12 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: false,
       parsed: null,
-      messages: ["This value must be number"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be number",
+        },
+      ],
     });
   });
 
@@ -71,7 +76,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "test@appsmith.com",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
 
     result = defaultValueValidation(
@@ -83,7 +88,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "1",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
@@ -97,7 +102,7 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "admin123",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
 
     result = defaultValueValidation(
@@ -109,21 +114,26 @@ describe("defaultValueValidation", () => {
     expect(result).toEqual({
       isValid: true,
       parsed: "1",
-      messages: [""],
+      messages: [{ name: "", message: "" }],
     });
   });
 
   it("should validate defaulttext with type missing", () => {
     result = defaultValueValidation(
       "admin123",
-      ({ inputType: "" } as any) as InputWidgetProps,
+      { inputType: "" } as any as InputWidgetProps,
       _,
     );
 
     expect(result).toEqual({
       isValid: false,
       parsed: "",
-      messages: ["This value must be string"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be string",
+        },
+      ],
     });
   });
 
@@ -131,14 +141,19 @@ describe("defaultValueValidation", () => {
     const value = {};
     result = defaultValueValidation(
       value,
-      ({ inputType: "" } as any) as InputWidgetProps,
+      { inputType: "" } as any as InputWidgetProps,
       _,
     );
 
     expect(result).toEqual({
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      messages: ["This value must be string"],
+      messages: [
+        {
+          name: "TypeError",
+          message: "This value must be string",
+        },
+      ],
     });
   });
 });

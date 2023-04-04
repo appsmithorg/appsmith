@@ -5,15 +5,15 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2WidgetDsl.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-const table = ObjectsRegistry.TableV2;
+const table = ObjectsRegistry.Table;
 const PropPane = ObjectsRegistry.PropertyPane;
 
-describe("Table Widget V2 Functionality", function() {
+describe("Table Widget V2 Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Table Widget V2 Functionality", function() {
+  it("1. Table Widget V2 Functionality", function () {
     cy.openPropertyPane("tablewidgetv2");
 
     /**
@@ -24,13 +24,13 @@ describe("Table Widget V2 Functionality", function() {
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,
-      commonlocators.tableV2Inner,
+      widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
   });
 
-  it("2. Table Widget V2 Functionality To Verify The Data", function() {
+  it("2. Table Widget V2 Functionality To Verify The Data", function () {
     cy.readTableV2dataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -38,7 +38,7 @@ describe("Table Widget V2 Functionality", function() {
     });
   });
 
-  it("3. Table Widget V2 Functionality To Show a Base64 Image", function() {
+  it("3. Table Widget V2 Functionality To Show a Base64 Image", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("image");
     cy.changeColumnType("Image");
@@ -51,7 +51,7 @@ describe("Table Widget V2 Functionality", function() {
     });
   });
 
-  it("4. Table Widget V2 Functionality To Check if Table is Sortable", function() {
+  it("4. Table Widget V2 Functionality To Check if Table is Sortable", function () {
     cy.get(commonlocators.editPropBackButton).click();
     cy.openPropertyPane("tablewidgetv2");
     // Confirm if isSortable is true
@@ -68,7 +68,7 @@ describe("Table Widget V2 Functionality", function() {
       expect(tabValue).to.be.equal("Michael Lawson");
     });
     // Sort Username Column
-    cy.contains('[role="columnheader"]', "userName")
+    cy.contains('[role="columnheader"] .draggable-header', "userName")
       .first()
       .click({
         force: true,
@@ -105,11 +105,9 @@ describe("Table Widget V2 Functionality", function() {
       expect(tabValue).to.be.equal("Michael Lawson");
     });
     // Confirm Sort is disable on Username Column
-    cy.contains('[role="columnheader"]', "userName")
-      .first()
-      .click({
-        force: true,
-      });
+    cy.contains('[role="columnheader"]', "userName").first().click({
+      force: true,
+    });
     cy.wait(1000);
     // Confirm order after sort
     cy.readTableV2dataPublish("1", "3").then((tabData) => {
@@ -181,9 +179,7 @@ describe("Table Widget V2 Functionality", function() {
         expected: "contain",
       },
     ].forEach((data) => {
-      cy.get(commonlocators.changeColType)
-        .last()
-        .click();
+      cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)

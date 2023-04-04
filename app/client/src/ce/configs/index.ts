@@ -1,4 +1,4 @@
-import { AppsmithUIConfigs } from "./types";
+import type { AppsmithUIConfigs } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
@@ -17,7 +17,6 @@ export interface INJECTED_CONFIGS {
   enableGithubOAuth: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
-  disableTelemetry: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -49,6 +48,8 @@ export interface INJECTED_CONFIGS {
   supportEmail: string;
   hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
+  pricingUrl: string;
+  customerPortalUrl: string;
 }
 
 const capitalizeText = (text: string) => {
@@ -80,9 +81,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     disableSignup: process.env.APPSMITH_SIGNUP_DISABLED
       ? process.env.APPSMITH_SIGNUP_DISABLED.length > 0
-      : false,
-    disableTelemetry: process.env.APPSMITH_DISABLE_TELEMETRY
-      ? process.env.APPSMITH_DISABLE_TELEMETRY.length > 0
       : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
@@ -135,6 +133,8 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       .APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX
       ? process.env.APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX.length > 0
       : false,
+    pricingUrl: process.env.REACT_APP_PRICING_URL || "",
+    customerPortalUrl: process.env.REACT_APP_CUSTOMER_PORTAL_URL || "",
   };
 };
 
@@ -255,8 +255,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     disableSignup:
       ENV_CONFIG.disableSignup || APPSMITH_FEATURE_CONFIGS.disableSignup,
-    disableTelemetry:
-      ENV_CONFIG.disableTelemetry || APPSMITH_FEATURE_CONFIGS.disableTelemetry,
     enableGoogleOAuth:
       ENV_CONFIG.enableGoogleOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,
@@ -279,5 +277,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||
       APPSMITH_FEATURE_CONFIGS.disableIframeWidgetSandbox,
+    pricingUrl: ENV_CONFIG.pricingUrl || APPSMITH_FEATURE_CONFIGS.pricingUrl,
+    customerPortalUrl:
+      ENV_CONFIG.customerPortalUrl ||
+      APPSMITH_FEATURE_CONFIGS.customerPortalUrl,
   };
 };

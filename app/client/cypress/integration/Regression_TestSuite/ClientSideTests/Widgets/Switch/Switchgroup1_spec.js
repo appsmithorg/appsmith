@@ -1,7 +1,7 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Switchgroup Widget Functionality", function() {
+describe("Switchgroup Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
     cy.wait(5000);

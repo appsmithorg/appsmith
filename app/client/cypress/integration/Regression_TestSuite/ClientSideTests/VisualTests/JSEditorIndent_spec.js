@@ -65,6 +65,7 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.DuplicateApplication(appname);
     agHelper.WaitUntilAllToastsDisappear();
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
@@ -122,6 +123,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     ee.ClonePage("Page1");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.Sleep(3000);
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
@@ -317,9 +319,7 @@ myFun2: async () => {
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
 
-    cy.get("div.CodeMirror")
-      .type("{shift+cmd+p}")
-      .wait(1000);
+    cy.get("div.CodeMirror").type("{shift+cmd+p}").wait(1000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted

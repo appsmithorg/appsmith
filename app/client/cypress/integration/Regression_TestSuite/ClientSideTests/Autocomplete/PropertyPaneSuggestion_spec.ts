@@ -1,11 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const {
-  AggregateHelper,
-  CommonLocators,
-  EntityExplorer,
-  PropertyPane,
-} = ObjectsRegistry;
+const { AggregateHelper, CommonLocators, EntityExplorer, PropertyPane } =
+  ObjectsRegistry;
 
 describe("Property Pane Suggestions", () => {
   before(() => {
@@ -14,7 +10,7 @@ describe("Property Pane Suggestions", () => {
     });
   });
 
-  it("1. Should show Property Pane Suggestions on / command", () => {
+  it("1. Should show Property Pane Suggestions on / command & when typing {{}}", () => {
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
     PropertyPane.TypeTextIntoField("Label", "/");
     AggregateHelper.GetNAssertElementText(CommonLocators._hints, "Bind Data");
@@ -25,11 +21,9 @@ describe("Property Pane Suggestions", () => {
       1,
     );
     AggregateHelper.GetNClickByContains(CommonLocators._hints, "New Binding");
-
     PropertyPane.ValidatePropertyFieldValue("Label", "{{}}");
-  });
 
-  it("2. Should show Property Pane Suggestions on typing {{}}", () => {
+    //typing {{}}
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
     PropertyPane.TypeTextIntoField("Label", "{{");
     AggregateHelper.GetNAssertElementText(CommonLocators._hints, "appsmith");

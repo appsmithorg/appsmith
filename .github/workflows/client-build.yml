@@ -9,6 +9,10 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
 
   pull_request:
     branches: [release, master]
@@ -63,7 +67,7 @@ jobs:
         run: |
           PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
           -U aforce_admin -d perf-infra -c \
-          "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active) 
+          "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active)
           VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
@@ -95,6 +99,18 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
+      
+      - name: Run Eslint
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run lint:ci
+
+      - name: Run Prettier
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run prettier:ci
+
+      - name: Run type import check
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run check-types
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
@@ -117,16 +133,20 @@ jobs:
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0
+        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
         run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+          else
+            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
@@ -145,7 +165,7 @@ jobs:
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: client-build
           path: app/client/build/
 
       # Set status = success

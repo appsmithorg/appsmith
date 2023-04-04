@@ -7,14 +7,9 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import {
-  Card,
-  Classes,
-  HTMLDivProps,
-  ICardProps,
-  Position,
-} from "@blueprintjs/core";
-import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
+import { Card, Classes, Position } from "@blueprintjs/core";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
@@ -26,9 +21,9 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
+import type { AppIconName, MenuItemProps } from "design-system-old";
 import {
   AppIcon,
-  AppIconName,
   Button,
   Category,
   Classes as CsClasses,
@@ -42,7 +37,6 @@ import {
   Menu,
   MenuDivider,
   MenuItem,
-  MenuItemProps,
   SavingState,
   Size,
   Toaster,
@@ -52,15 +46,15 @@ import {
   Variant,
 } from "design-system-old";
 import { useSelector } from "react-redux";
-import {
+import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
-} from "api/ApplicationApi";
+} from "@appsmith/api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
@@ -69,6 +63,11 @@ import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { addItemsInContextMenu } from "@appsmith/utils";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -96,7 +95,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
         .overlay {
           position: relative;
-          ${props.hasReadPermission &&
+          ${
+            props.hasReadPermission &&
             `text-decoration: none;
              &:after {
                 left: 0;
@@ -142,7 +142,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                     }
                   }
                 }
-              }`}
+              }`
+          }
 
           & div.overlay-blur {
             position: absolute;
@@ -310,7 +311,12 @@ type ApplicationCardProps = {
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
   isMobile?: boolean;
-  hasCreateNewApplicationPermission?: boolean;
+  permissions?: {
+    hasCreateNewApplicationPermission?: boolean;
+    hasManageWorkspacePermissions?: boolean;
+    canInviteToWorkspace?: boolean;
+  };
+  workspaceId: string;
 };
 
 const EditButton = styled(Button)`
@@ -432,6 +438,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
+  const featureFlags = useSelector(selectFeatureFlags);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     theme.colors.appCardColors,
@@ -442,9 +449,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
-    false,
-  );
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] =
+    useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -472,7 +478,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     }
     if (
       props.duplicate &&
-      props.hasCreateNewApplicationPermission &&
+      props.permissions?.hasCreateNewApplicationPermission &&
       hasEditPermission
     ) {
       moreActionItems.push({
@@ -499,7 +505,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--export-app",
       });
     }
-    setMoreActionItems(moreActionItems);
+    const updatedMoreActionItems: MenuItemProps[] = addItemsInContextMenu(
+      [
+        props.permissions?.hasManageWorkspacePermissions || false,
+        props.permissions?.canInviteToWorkspace || false,
+        !cloudHosting,
+        featureFlags.RBAC || false,
+      ],
+      history,
+      props.workspaceId,
+      moreActionItems,
+    );
+    setMoreActionItems(updatedMoreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -739,11 +756,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
 
   function setURLParams() {
-    const page:
-      | ApplicationPagePayload
-      | undefined = props.application.pages.find(
-      (page) => page.id === props.application.defaultPageId,
-    );
+    const page: ApplicationPagePayload | undefined =
+      props.application.pages.find(
+        (page) => page.id === props.application.defaultPageId,
+      );
     if (!page) return;
     urlBuilder.updateURLParams(
       {

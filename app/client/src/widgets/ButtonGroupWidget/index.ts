@@ -2,11 +2,12 @@ import { ButtonVariantTypes } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
 import { get } from "lodash";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { ButtonGroupWidgetProps } from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -24,7 +25,7 @@ export const CONFIG = {
     isVisible: true,
     version: 1,
     animateLoading: true,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     groupButtons: {
       groupButton1: {
@@ -140,6 +141,30 @@ export const CONFIG = {
           },
         },
       ],
+    },
+  },
+  autoLayout: {
+    autoDimension: {
+      height: true,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: (props: ButtonGroupWidgetProps) => {
+          let minWidth = 120;
+          const buttonLength = Object.keys(props.groupButtons).length;
+          if (props.orientation === "horizontal") {
+            // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
+            minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
+          }
+          return {
+            minWidth: `${minWidth}px`,
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      vertical: true,
     },
   },
   properties: {

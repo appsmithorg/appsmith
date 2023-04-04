@@ -69,25 +69,13 @@ export function directlyMutateDOMNodes(
   > = getNodesAndStylesToUpdate(widgetsToUpdate, widgetsMeasuredInPixels);
 
   for (const widgetId in updates) {
-    let idSelector = widgetId;
-    let height = updates[widgetId].height;
+    const idSelector = widgetId;
+    const height = updates[widgetId].height;
     let skipTop = false;
-    // Special handling for main container
-    if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-      // The element we need to resize is the the art-board
-      idSelector = "art-board";
-      // The height has to match the dropTarget, which means we need to make sure we adjust for padding
-      // and the fact that drop target uses rows - 1 as default.
-      // so, this is expected height - padding on top - padding at bottom - 1 row height
-      height =
-        updates[widgetId].height -
-        CONTAINER_GRID_PADDING * 2 -
-        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
-      // Special handling for Modal widget 🤢
-      // TODO(abhinav): We need to re-structure the modal widget, possibly get away from blueprintjs
-      // Better yet, find a way that doesn't have to deal with these abstraction leaks.
-    }
+    // Special handling for Modal widget 🤢
+    // TODO(abhinav): We need to re-structure the modal widget, possibly get away from blueprintjs
+    // Better yet, find a way that doesn't have to deal with these abstraction leaks.
     let widgetNode = document.getElementById(idSelector);
     if (
       widgetsMeasuredInPixels.indexOf(widgetId) > -1 &&
