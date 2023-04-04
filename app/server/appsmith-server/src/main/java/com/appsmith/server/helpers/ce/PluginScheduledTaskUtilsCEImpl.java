@@ -11,7 +11,6 @@ import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-public class PluginUtilsCEImpl implements PluginUtilsCE {
+public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsCE {
 
     private final ConfigService configService;
     private final PluginService pluginService;

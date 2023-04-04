@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.helpers.PluginUtils;
+import com.appsmith.server.helpers.PluginScheduledTaskUtils;
 import com.appsmith.server.solutions.ce.PluginScheduledTaskCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PluginScheduledTaskImpl extends PluginScheduledTaskCEImpl implements PluginScheduledTask {
 
-    public PluginScheduledTaskImpl(PluginUtils pluginUtils) {
+    public PluginScheduledTaskImpl(PluginScheduledTaskUtils pluginScheduledTaskUtils) {
 
-        super(pluginUtils);
+        super(pluginScheduledTaskUtils);
     }
 }

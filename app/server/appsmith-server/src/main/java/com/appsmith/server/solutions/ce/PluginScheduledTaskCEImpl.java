@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.server.helpers.PluginUtils;
+import com.appsmith.server.helpers.PluginScheduledTaskUtils;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,7 +18,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
 
-    private final PluginUtils pluginUtils;
+    private final PluginScheduledTaskUtils pluginScheduledTaskUtils;
 
     private Instant lastUpdatedAt = null;
 
@@ -28,7 +28,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
     public void updateRemotePlugins() {
         // Moving the fetch and update remote plugins to helper classes to have custom implementation for business
         // edition
-        pluginUtils.fetchAndUpdateRemotePlugins(lastUpdatedAt)
+        pluginScheduledTaskUtils.fetchAndUpdateRemotePlugins(lastUpdatedAt)
                 // Set new updated time
                 .doOnSuccess(success -> this.lastUpdatedAt = Instant.now())
                 .subscribeOn(Schedulers.single())

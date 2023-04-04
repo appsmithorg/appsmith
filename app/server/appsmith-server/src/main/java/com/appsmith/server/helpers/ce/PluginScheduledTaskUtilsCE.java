@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
-public interface PluginUtilsCE {
+public interface PluginScheduledTaskUtilsCE {
 
     Mono<Void> fetchAndUpdateRemotePlugins(Instant lastUpdatedAt);
 
