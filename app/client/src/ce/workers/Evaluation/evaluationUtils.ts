@@ -17,7 +17,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import _, { difference, find, get, has, set } from "lodash";
+import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -210,17 +210,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
-        ) {
+        if (difference.lhs === undefined && !isNil(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
-        ) {
+        if (difference.rhs === undefined && !isNil(difference.lhs)) {
           result = [
             {
               event: DataTreeDiffEvent.EDIT,
