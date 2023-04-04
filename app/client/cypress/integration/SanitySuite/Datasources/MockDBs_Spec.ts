@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../support/Objects/ObjectsCore";
 let dsName: any;
 
 describe("Validate Mock Query Active Ds querying & count", () => {
