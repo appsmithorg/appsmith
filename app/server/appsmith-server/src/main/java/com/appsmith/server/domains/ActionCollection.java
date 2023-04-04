@@ -1,9 +1,10 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.interfaces.PublishableResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
 
@@ -22,7 +23,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-public class ActionCollection extends BranchAwareDomain {
+public class ActionCollection extends BranchAwareDomain implements PublishableResource {
 
     // Default resources from base domain will be used to store branchName, defaultApplicationId and defaultActionCollectionId
 
@@ -59,5 +60,17 @@ public class ActionCollection extends BranchAwareDomain {
     @JsonProperty("collection")
     public void setUnpublishedCollection(ActionCollectionDTO unpublishedCollection) {
         this.unpublishedCollection = unpublishedCollection;
+    }
+
+    @Override
+    public ActionCollectionDTO select(ResourceModes mode) {
+        switch (mode) {
+            case VIEW:
+                return publishedCollection;
+            case EDIT:
+                return unpublishedCollection;
+            default:
+                throw new RuntimeException("Invalid mode");
+        }
     }
 }

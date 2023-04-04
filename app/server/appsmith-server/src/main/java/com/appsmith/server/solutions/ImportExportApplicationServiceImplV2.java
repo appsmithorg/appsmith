@@ -1,5 +1,10 @@
 package com.appsmith.server.solutions;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.reactive.TransactionalOperator;
+
+import com.appsmith.server.helpers.ImportExportHelper;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -20,10 +25,8 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImplV2;
 import com.google.gson.Gson;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Component
@@ -55,13 +58,14 @@ public class ImportExportApplicationServiceImplV2 extends ImportExportApplicatio
                                                 ActionPermission actionPermission,
                                                 Gson gson,
                                                 TransactionalOperator transactionalOperator,
-                                                ApplicationSnapshotService applicationSnapshotService) {
+                                                ApplicationSnapshotService applicationSnapshotService,
+                                                ImportExportHelper importExportHelper) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
                 workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator,
-                applicationSnapshotService);
+                applicationSnapshotService, importExportHelper);
     }
 }

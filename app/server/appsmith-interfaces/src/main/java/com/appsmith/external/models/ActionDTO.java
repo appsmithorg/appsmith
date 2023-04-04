@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.interfaces.DeletableResource;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,7 +22,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActionDTO {
+public class ActionDTO implements DeletableResource {
 
     @Transient
     @JsonView(Views.Public.class)

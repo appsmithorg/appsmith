@@ -3,6 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.interfaces.DeletableResource;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
@@ -31,7 +32,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActionCollectionDTO {
+public class ActionCollectionDTO implements DeletableResource {
 
     @Transient
     @JsonView(Views.Public.class)

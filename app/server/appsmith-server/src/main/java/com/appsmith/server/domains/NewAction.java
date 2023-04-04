@@ -4,8 +4,12 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.interfaces.PublishableResource;
+import com.appsmith.server.serializers.ExportSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.appsmith.external.models.ActionDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +22,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-public class NewAction extends BranchAwareDomain {
+@JsonSerialize(using = ExportSerializer.class)
+public class NewAction extends BranchAwareDomain implements PublishableResource {
 
     // Fields in action that are not allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
@@ -52,21 +57,24 @@ public class NewAction extends BranchAwareDomain {
 
     ActionDTO publishedAction;
 
-    @JsonView(Views.ExportPublished.class)
-    @JsonProperty("action")
-    public ActionDTO getPublishedAction() {
-        return publishedAction;
-    }
-
-    @JsonView(Views.ExportUnpublished.class)
-    @JsonProperty("action")
-    public ActionDTO getUnpublishedAction() {
-        return unpublishedAction;
-    }
-
     @JsonView(Views.Import.class)
     @JsonProperty("action")
     public void setUnublishedAction(ActionDTO unpublishedAction) {
         this.unpublishedAction = unpublishedAction;
+    }
+
+    @Override
+    public ActionDTO select(ResourceModes mode) {
+        switch(mode) {
+            case EDIT: {
+                return unpublishedAction;
+            }
+            case VIEW: {
+                return publishedAction;
+            }
+            default: {
+                throw new RuntimeException("Invalid mode");
+            }
+        }
     }
 }
