@@ -51,8 +51,8 @@ import {
 
 const Wrapper = styled.div`
   padding: 15px;
-  /* margin-top: 18px; */
   cursor: pointer;
+  border-radius: var(--ads-v2-border-radius);
 
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle);
@@ -295,6 +295,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                       ? () => routeToGeneratePage
                       : editDatasource
                   }
+                  size="md"
                 >
                   {datasource.isConfigured
                     ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
