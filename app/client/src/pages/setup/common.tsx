@@ -1,12 +1,13 @@
 import React from "react";
-import { Dropdown, FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup as StyledFormGroup } from "design-system-old";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
 import type { OptionType } from "./constants";
+import { Select, Option } from "design-system";
 
 export const FormHeaderWrapper = styled.div`
-  position: relative;
+  /* position: relative; */
 `;
 
 export const FormHeaderLabel = styled.h5`
@@ -69,12 +70,12 @@ export const DropdownWrapper = styled(StyledFormGroup)`
     width: 100%;
   }
 
-  .${DROPDOWN_CLASSNAME} {
+  /* .${DROPDOWN_CLASSNAME} {
     .ads-dropdown-options-wrapper {
       padding: 0;
       border: 1px solid rgba(0, 0, 0, 8%);
     }
-  }
+  } */
 
   .ads-dropdown-errorMsg {
     font-size: ${(props) => props.theme.fontSizes[3]}px;
@@ -90,7 +91,7 @@ export const Center = styled.div`
   position: absolute;
 `;
 
-export function withDropdown(options: OptionType[], width: string) {
+export function withDropdown(options: OptionType[]) {
   return function DropdownField(
     componentProps: FormTextFieldProps & {
       meta: Partial<WrappedFieldMetaProps>;
@@ -105,20 +106,25 @@ export function withDropdown(options: OptionType[], width: string) {
     const selected = options.find(
       (option) => option.value == componentProps.input.value,
     ) || { label: componentProps.placeholder };
-    const hasError = componentProps.meta.invalid && componentProps.meta.touched;
+    // const hasError = componentProps.meta.invalid && componentProps.meta.touched;
 
     return (
-      <Dropdown
+      <Select
         className={DROPDOWN_CLASSNAME}
-        dontUsePortal
-        errorMsg={hasError ? componentProps.meta.error : ""}
-        fillOptions
+        defaultValue={selected}
+        // errorMsg={hasError ? componentProps.meta.error : ""}
+        // fillOptions
         onSelect={onSelect}
-        options={options}
-        selected={selected}
-        showLabelOnly
-        width={width}
-      />
+        // options={options}
+        // showLabelOnly
+        // width={width}
+      >
+        {options.map((role, index) => (
+          <Option key={index} value={role.value}>
+            {role.label}
+          </Option>
+        ))}
+      </Select>
     );
   };
 }

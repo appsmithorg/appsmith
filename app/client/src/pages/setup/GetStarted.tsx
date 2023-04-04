@@ -47,6 +47,7 @@ export function SuperUserForm(props: UserFormProps) {
       <StyledButton
         className="t--welcome-form-get-started"
         onClick={() => props.onGetStarted && props.onGetStarted()}
+        size="md"
       >
         {createMessage(WELCOME_ACTION)}
       </StyledButton>
@@ -78,7 +79,7 @@ const validate = (values: any) => {
   return errors;
 };
 
-const DROPDOWN_WIDTH = "400px";
+// const DROPDOWN_WIDTH = "400px";
 
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
@@ -91,7 +92,7 @@ function NonSuperUser(
       >
         <Field
           asyncControl
-          component={withDropdown(roleOptions, DROPDOWN_WIDTH)}
+          component={withDropdown(roleOptions)}
           name="role"
           placeholder=""
           type="text"
@@ -107,7 +108,7 @@ function NonSuperUser(
       >
         <Field
           asyncControl
-          component={withDropdown(useCaseOptions, DROPDOWN_WIDTH)}
+          component={withDropdown(useCaseOptions)}
           name="useCase"
           placeholder=""
           type="text"
@@ -125,6 +126,7 @@ function NonSuperUser(
               props.useCase,
             )
           }
+          size="md"
         >
           {createMessage(WELCOME_ACTION)}
         </StyledButton>

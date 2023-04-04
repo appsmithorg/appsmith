@@ -101,7 +101,7 @@ export default function DetailsForm(
         >
           <Field
             asyncControl
-            component={withDropdown(roleOptions, "260px")}
+            component={withDropdown(roleOptions)}
             name="role"
             placeholder={createMessage(WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER)}
             type="text"
@@ -121,7 +121,7 @@ export default function DetailsForm(
         >
           <Field
             asyncControl
-            component={withDropdown(useCaseOptions, "260px")}
+            component={withDropdown(useCaseOptions)}
             name="useCase"
             placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
             type="text"
