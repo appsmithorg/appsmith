@@ -228,7 +228,6 @@ public class NewActionServiceCEImplTest {
                 .body("""
                         --boundary\r
                         Content-Disposition: form-data; name="executeActionDTO"\r
-                        x-appsmith-type: meta\r
                         \r
                         irrelevant content\r
                         --boundary--\r
@@ -254,7 +253,6 @@ public class NewActionServiceCEImplTest {
                 .body("""
                         --boundary\r
                         Content-Disposition: form-data; name="executeActionDTO"\r
-                        x-appsmith-type: meta\r
                         \r
                         {"viewMode":false}\r
                         --boundary--\r
@@ -331,18 +329,15 @@ public class NewActionServiceCEImplTest {
         String usualOrderOfParts = """
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
-                x-appsmith-type: meta\r
                 \r
                 {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
                 --boundary\r
                 Content-Disposition: form-data; name="parameterMap"\r
-                x-appsmith-type: meta\r
                 \r
                 {"Input1.text":"k0"}\r
                 --boundary\r
                 Content-Disposition: form-data; name="k0"; filename="blob"\r
                 Content-Type: text/plain\r
-                x-appsmith-type: value\r
                 \r
                 xyz\r
                 --boundary--""";
@@ -385,18 +380,15 @@ public class NewActionServiceCEImplTest {
         String parameterMapAtLast = """
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
-                x-appsmith-type: meta\r
                 \r
                 {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
                 --boundary\r
                 Content-Disposition: form-data; name="k0"; filename="blob"\r
                 Content-Type: text/plain\r
-                x-appsmith-type: value\r
                 \r
                 xyz\r
                 --boundary\r
                 Content-Disposition: form-data; name="parameterMap"\r
-                x-appsmith-type: meta\r
                 \r
                 {"Input1.text":"k0"}\r
                 --boundary--""";
