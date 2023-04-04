@@ -1,4 +1,4 @@
-const datasource = require("../../../../locators/DatasourcesEditor.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe("Create, test, save then delete a mongo datasource", function () {
   beforeEach(() => {
