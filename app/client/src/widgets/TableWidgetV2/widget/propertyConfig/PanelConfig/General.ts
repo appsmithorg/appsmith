@@ -152,15 +152,15 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       options: [
         {
-          startIcon: "arrow-left-s-line",
+          startIcon: "contract-left-line",
           value: StickyType.LEFT,
         },
         {
-          startIcon: "arrow-left-s-line",
+          startIcon: "column-freeze",
           value: StickyType.NONE,
         },
         {
-          startIcon: "arrow-right-s-line",
+          startIcon: "contract-right-line",
           value: StickyType.RIGHT,
         },
       ],

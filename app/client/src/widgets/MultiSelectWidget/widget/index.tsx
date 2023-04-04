@@ -331,11 +331,11 @@ class MultiSelectWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],

@@ -410,11 +410,11 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         fullWidth: true,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],

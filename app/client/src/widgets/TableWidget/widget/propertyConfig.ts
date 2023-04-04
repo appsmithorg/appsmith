@@ -585,15 +585,15 @@ export default [
                   controlType: "ICON_TABS",
                   options: [
                     {
-                      startIcon: "arrow-left-s-line",
+                      startIcon: "align-left",
                       value: "LEFT",
                     },
                     {
-                      startIcon: "arrow-left-s-line",
+                      startIcon: "align-center",
                       value: "CENTER",
                     },
                     {
-                      startIcon: "arrow-right-s-line",
+                      startIcon: "align-right",
                       value: "RIGHT",
                     },
                   ],
@@ -667,15 +667,15 @@ export default [
                   controlType: "BUTTON_GROUP",
                   options: [
                     {
-                      icon: "BOLD_FONT",
+                      startIcon: "bold-font",
                       value: "BOLD",
                     },
                     {
-                      icon: "ITALICS_FONT",
+                      startIcon: "italics-font",
                       value: "ITALIC",
                     },
                     {
-                      icon: "UNDERLINE",
+                      startIcon: "underline",
                       value: "UNDERLINE",
                     },
                   ],
@@ -702,31 +702,18 @@ export default [
                   controlType: "ICON_TABS",
                   options: [
                     {
-                      startIcon: "arrow-left-s-line",
+                      startIcon: "vertical-align-top",
                       value: "TOP",
                     },
                     {
-                      startIcon: "arrow-right-s-line",
+                      startIcon: "vertical-align-middle",
                       value: "CENTER",
                     },
                     {
-                      startIcon: "arrow-right-s-line",
+                      startIcon: "vertical-align-bottom",
                       value: "BOTTOM",
                     },
                   ],
-                  //   {
-                  //     icon: "VERTICAL_TOP",
-                  //     value: "TOP",
-                  //   },
-                  //   {
-                  //     icon: "VERTICAL_CENTER",
-                  //     value: "CENTER",
-                  //   },
-                  //   {
-                  //     icon: "VERTICAL_BOTTOM",
-                  //     value: "BOTTOM",
-                  //   },
-                  // ],
                   defaultValue: "CENTER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -851,11 +838,11 @@ export default [
                   controlType: "ICON_TABS",
                   options: [
                     {
-                      icon: "VERTICAL_LEFT",
+                      startIcon: "align-left",
                       value: "left",
                     },
                     {
-                      icon: "VERTICAL_RIGHT",
+                      startIcon: "align-right",
                       value: "right",
                     },
                   ],
@@ -1329,11 +1316,11 @@ export default [
                             controlType: "ICON_TABS",
                             options: [
                               {
-                                icon: "VERTICAL_LEFT",
+                                startIcon: "align-left",
                                 value: "left",
                               },
                               {
-                                icon: "VERTICAL_RIGHT",
+                                startIcon: "align-right",
                                 value: "right",
                               },
                             ],
@@ -1713,11 +1700,11 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            icon: "BOLD_FONT",
+            startIcon: "bold-font",
             value: "BOLD",
           },
           {
-            icon: "ITALICS_FONT",
+            startIcon: "italics-font",
             value: "ITALIC",
           },
         ],
@@ -1732,15 +1719,15 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            startIcon: "arrow-left-s-line",
+            startIcon: "align-left",
             value: "LEFT",
           },
           {
-            icon: "arrow-left-s-line",
+            startIcon: "align-center",
             value: "CENTER",
           },
           {
-            startIcon: "arrow-right-s-line",
+            startIcon: "align-right",
             value: "RIGHT",
           },
         ],
@@ -1756,15 +1743,15 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            startIcon: "arrow-left-s-line",
+            startIcon: "vertical-align-top",
             value: "TOP",
           },
           {
-            startIcon: "arrow-right-s-line",
+            startIcon: "vertical-align-middle",
             value: "CENTER",
           },
           {
-            startIcon: "arrow-right-s-line",
+            startIcon: "vertical-align-bottom",
             value: "BOTTOM",
           },
         ],

@@ -55,11 +55,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isTriggerProperty: false,
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "skip-left-line",
                 value: AlignWidgetTypes.LEFT,
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "skip-right-line",
                 value: AlignWidgetTypes.RIGHT,
               },
             ],
@@ -202,11 +202,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                startIcon: "layout-line",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                startIcon: "layout-line",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],

@@ -125,11 +125,11 @@ class SwitchGroupWidget extends BaseWidget<
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "skip-left-line",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "skip-right-line",
                 value: Alignment.RIGHT,
               },
             ],
@@ -318,11 +318,11 @@ class SwitchGroupWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                startIcon: "layout-line",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                startIcon: "layout-line",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],
@@ -346,11 +346,11 @@ class SwitchGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "skip-left-line",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "skip-right-line",
                 value: Alignment.RIGHT,
               },
             ],

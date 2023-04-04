@@ -21,15 +21,15 @@ export default {
       controlType: "ICON_TABS",
       options: [
         {
-          startIcon: "left-align",
+          startIcon: "align-left",
           value: "LEFT",
         },
         {
-          startIcon: "left-align",
+          startIcon: "align-center",
           value: "CENTER",
         },
         {
-          startIcon: "right-align",
+          startIcon: "align-right",
           value: "RIGHT",
         },
       ],
@@ -66,15 +66,15 @@ export default {
       controlType: "ICON_TABS",
       options: [
         {
-          startIcon: "arrow-left-s-line",
+          startIcon: "vertical-align-top",
           value: "TOP",
         },
         {
-          startIcon: "arrow-left-s-line",
+          startIcon: "vertical-align-middle",
           value: "CENTER",
         },
         {
-          startIcon: "arrow-right-s-line",
+          startIcon: "vertical-align-bottom",
           value: "BOTTOM",
         },
       ],

@@ -31,11 +31,11 @@ export default [
         fullWidth: true,
         options: [
           {
-            startIcon: "left-align",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            startIcon: "right-align",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],

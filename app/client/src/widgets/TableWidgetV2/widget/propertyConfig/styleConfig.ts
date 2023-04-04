@@ -77,11 +77,11 @@ export default [
         dependencies: ["primaryColumns"],
         options: [
           {
-            startIcon: "layout-line",
+            startIcon: "bold-font",
             value: "BOLD",
           },
           {
-            startIcon: "layout-line",
+            startIcon: "italics-font",
             value: "ITALIC",
           },
         ],
@@ -100,15 +100,15 @@ export default [
         dependencies: ["primaryColumns"],
         options: [
           {
-            startIcon: "arrow-left-s-line",
+            startIcon: "align-left",
             value: "LEFT",
           },
           {
-            startIcon: "arrow-left-s-line",
+            startIcon: "align-center",
             value: "CENTER",
           },
           {
-            startIcon: "arrow-right-s-line",
+            startIcon: "align-right",
             value: "RIGHT",
           },
         ],
@@ -133,15 +133,15 @@ export default [
         dependencies: ["primaryColumns"],
         options: [
           {
-            startIcon: "arrow-left-s-line",
+            startIcon: "vertical-align-top",
             value: "TOP",
           },
           {
-            startIcon: "arrow-left-s-line",
+            startIcon: "vertical-align-middle",
             value: "CENTER",
           },
           {
-            startIcon: "arrow-right-s-line",
+            startIcon: "vertical-align-bottom",
             value: "BOTTOM",
           },
         ],

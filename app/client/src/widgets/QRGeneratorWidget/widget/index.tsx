@@ -274,11 +274,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],
@@ -293,15 +293,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "align-left",
                 value: "LEFT",
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "align-center",
                 value: "CENTER",
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "align-right",
                 value: "RIGHT",
               },
             ],
@@ -574,15 +574,15 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "align-left",
                 value: "LEFT",
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "align-center",
                 value: "CENTER",
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "align-right",
                 value: "RIGHT",
               },
             ],
@@ -598,11 +598,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                startIcon: "layout-line",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                startIcon: "layout-line",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],

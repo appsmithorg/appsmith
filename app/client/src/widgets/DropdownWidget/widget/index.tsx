@@ -207,11 +207,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "skip-left-line",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "skip-right-line",
                 value: Alignment.RIGHT,
               },
             ],
@@ -304,11 +304,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],

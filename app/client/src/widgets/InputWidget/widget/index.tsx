@@ -434,11 +434,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "skip-left-line",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "skip-right-line",
                 value: Alignment.RIGHT,
               },
             ],
@@ -560,11 +560,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "bold-font",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "italics-font",
                 value: "ITALIC",
               },
             ],
@@ -599,11 +599,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "VERTICAL_LEFT",
+                startIcon: "align-left",
                 value: "left",
               },
               {
-                icon: "VERTICAL_RIGHT",
+                startIcon: "align-right",
                 value: "right",
               },
             ],

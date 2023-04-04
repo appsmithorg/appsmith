@@ -290,11 +290,11 @@ class FormButtonWidget extends ButtonWidget {
             controlType: "ICON_TABS",
             options: [
               {
-                icon: "VERTICAL_LEFT",
+                startIcon: "align-left",
                 value: "left",
               },
               {
-                icon: "VERTICAL_RIGHT",
+                startIcon: "align-right",
                 value: "right",
               },
             ],

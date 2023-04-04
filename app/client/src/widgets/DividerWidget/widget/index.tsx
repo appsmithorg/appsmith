@@ -180,16 +180,16 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             fullWidth: true,
             options: [
               {
-                startIcon: "layout-line",
+                startIcon: "contract-left-line",
                 value: -1,
               },
               {
-                startIcon: "layout-line",
+                startIcon: "column-freeze",
                 value: 0,
                 width: 48,
               },
               {
-                startIcon: "layout-line",
+                startIcon: "contract-right-line",
                 value: 1,
               },
             ],
