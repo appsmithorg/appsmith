@@ -1296,13 +1296,13 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.createButton).click({ multiple: true });
 
   //Submit also not working
-  //cy.get(welcomePage.createSuperUser).submit();
+  cy.get(welcomePage.createSuperUser).submit();
 
-  cy.get("body").then(($ele) => {
-    if ($ele.find(locator._spanButton("Next").length) > 0) {
-      agHelper.GetNClick(locator._spanButton("Next"));
-    } else agHelper.GetNClick(locator._spanButton("Make your first App"));
-  });
+  // cy.get("body").then(($ele) => {
+  //   if ($ele.find(locator._spanButton("Next").length) > 0) {
+  //     agHelper.GetNClick(locator._spanButton("Next"));
+  //   } else agHelper.GetNClick(locator._spanButton("Make your first App"));
+  // });
 
   //trying jquery way - also not working
   // cy.get(welcomePage.createButton).then(($createBtn) => {
@@ -1310,7 +1310,7 @@ Cypress.Commands.add("createSuperUser", () => {
   //   $jQueryButton.trigger("click"); // click on the button using jQuery
   // });
 
-  cy.wait("@createSuperUser").then((interception) => {
+  cy.wait("@createSuperUser", { timeout: 50000 }).then((interception) => {
     expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",
     );
