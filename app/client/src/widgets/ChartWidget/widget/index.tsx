@@ -19,12 +19,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 
 const ChartComponent = lazy(() =>
-  retryPromise(
-    () =>
-      import(
-        /* webpackPrefetch: true, webpackChunkName: "charts" */ "../component"
-      ),
-  ),
+  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
