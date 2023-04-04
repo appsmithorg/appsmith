@@ -83,6 +83,8 @@ const ApiCard = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 64px;
+  border-radius: var(--ads-v2-border-radius);
+
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle);
     cursor: pointer;
