@@ -25,6 +25,7 @@ import { useParams, useLocation } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
+import { FilePickerActionStatus } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
@@ -341,14 +342,20 @@ function DatasourceAuth({
   };
 
   const pickerCallback = async (data: any) => {
-    dispatch(
-      filePickerCallbackAction({
-        action: data.action,
-        datasourceId: datasourceId,
-      }),
-    );
+    if (
+      data.action === FilePickerActionStatus.CANCEL ||
+      data.action === FilePickerActionStatus.PICKED
+    ) {
+      const fileIds = data?.docs?.map((element: any) => element.id) || [];
+      dispatch(
+        filePickerCallbackAction({
+          action: data.action,
+          datasourceId: datasourceId,
+          fileIds: fileIds,
+        }),
+      );
+    }
   };
-
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
 
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
