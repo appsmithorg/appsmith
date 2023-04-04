@@ -86,7 +86,7 @@ describe("Validate Datasource Panel Styles", function () {
   });
 
   it("4. Datasource title font size", () => {
-    cy.get(".t--integrationsHomePage").should("have.css", "font-size", "20px");
+    cy.get(".sectionHeadings").should("have.css", "font-size", "20px");
   });
 
   it("5. Action button icon placement", () => {
