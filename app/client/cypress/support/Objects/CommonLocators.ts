@@ -187,5 +187,6 @@ export class CommonLocators {
   _actionAddCallback = (type: "success" | "failure") =>
     `.t--action-add-${type}-callback`;
   _actionSelectorPopupClose = `${this._actionSelectorPopup} .t--close`;
+  _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
 }

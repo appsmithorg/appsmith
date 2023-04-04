@@ -20,6 +20,7 @@ import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga"
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import isEmpty from "lodash/isEmpty";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { LintTreeSagaRequestData } from "workers/Linting/types";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -31,12 +32,21 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
+  const {
+    asyncJSFunctionsInDataFields,
+    configTree,
+    jsPropertiesState,
+    pathsToLint: lintOrder,
+    unevalTree,
+  } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: data.lintOrder,
-      unevalTree: data.unevalTree,
-      configTree: data.configTree,
+      pathsToLint: lintOrder,
+      unevalTree,
+      jsPropertiesState,
+      asyncJSFunctionsInDataFields,
+      configTree,
     },
   });
 }

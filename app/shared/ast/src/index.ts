@@ -77,10 +77,12 @@ interface FunctionDeclarationNode extends Node, Function {
 // doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
 interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
+  async: boolean;
 }
 
 export interface ArrowFunctionExpressionNode extends Expression, Function {
   type: NodeTypes.ArrowFunctionExpression;
+  async: boolean;
 }
 
 export interface ObjectExpression extends Expression {
@@ -144,8 +146,12 @@ export interface Directive extends ExpressionStatement {
   directive: string;
 }
 
+export interface ExportDefaultDeclarationNode extends Node {
+  declaration: Node;
+}
+
 // Node with location details
-type NodeWithLocation<NodeType> = NodeType & {
+export type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
 };
 
@@ -214,7 +220,13 @@ export const isBlockStatementNode = (node: Node): node is BlockStatementNode => 
 
 export const isExpressionStatementNode = (node: Node): node is ExpressionStatement => {
   return node.type === NodeTypes.ExpressionStatement;
-}
+};
+
+export const isExportDefaultDeclarationNode = (
+  node: Node,
+): node is ExportDefaultDeclarationNode => {
+  return node.type === NodeTypes.ExportDefaultDeclaration;
+};
 
 export const isPropertyAFunctionNode = (
   node: Node,

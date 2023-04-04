@@ -519,6 +519,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
         type: NodeTypes.ArrowFunctionExpression,
         params: [],
         id: null,
+        async: false,
     };
     let requiredQuery: string = "";
     let commentArray: Array<Comment> = [];

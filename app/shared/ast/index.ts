@@ -22,7 +22,12 @@ import {
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import { parseJSObjectWithAST } from "./src/jsObject";
+import {
+  parseJSObject,
+  isJSFunctionProperty,
+  TParsedJSProperty,
+  JSPropertyPosition,
+} from "./src/jsObject";
 
 // action creator
 import {
@@ -62,6 +67,8 @@ export type {
   PropertyNode,
   MemberExpressionData,
   IdentifierInfo,
+  TParsedJSProperty,
+  JSPropertyPosition,
 };
 
 export {
@@ -78,7 +85,7 @@ export {
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
-  parseJSObjectWithAST,
+  parseJSObject,
   ECMA_VERSION,
   SourceType,
   NodeTypes,
@@ -110,4 +117,5 @@ export {
   checkIfThenBlockExists,
   checkIfCatchBlockExists,
   checkIfArgumentExistAtPosition,
+  isJSFunctionProperty,
 };
