@@ -13,7 +13,7 @@ import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetCon
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 // import { Positioning } from "utils/autoLayout/constants";
 import type {
   OccupiedSpace,
@@ -93,6 +93,8 @@ export const getIsPageSaving = (state: AppState) => {
   const savingApis = state.ui.apiPane.isSaving;
   const savingJSObjects = state.ui.jsPane.isSaving;
   const isSavingAppTheme = state.ui.appTheming.isSaving;
+  const isSavingNavigationSetting =
+    state.ui.applications.isSavingNavigationSetting;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
@@ -107,7 +109,8 @@ export const getIsPageSaving = (state: AppState) => {
     areApisSaving ||
     areJsObjectsSaving ||
     isSavingAppTheme ||
-    state.ui.editor.loadingStates.savingEntity
+    state.ui.editor.loadingStates.savingEntity ||
+    isSavingNavigationSetting
   );
 };
 

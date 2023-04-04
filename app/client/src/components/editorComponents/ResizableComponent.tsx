@@ -9,6 +9,7 @@ import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Resizable from "resizable/resizenreflow";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -36,7 +37,10 @@ import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 import { DropTargetContext } from "./DropTargetComponent";
 import type { UIElementSize } from "./ResizableUtils";
 import { computeFinalRowCols, computeRowCols } from "./ResizableUtils";
@@ -65,6 +69,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -277,7 +284,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     isWidgetFocused &&
     !props.resizeDisabled &&
     !isSnipingMode &&
-    !isPreviewMode;
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -313,7 +321,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
   const fixedHeight =
-    isAutoHeightEnabledForWidget(props, true) ||
+    isAutoHeightEnabledForWidgetWithLimits(props) ||
     !isAutoHeightEnabledForWidget(props) ||
     !props.isCanvas;
 
@@ -322,7 +330,10 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.isFlexChild;
   const isHovered = isFocused && !isSelected;
   const showResizeBoundary =
-    !isPreviewMode && !isDragging && (isHovered || isSelected);
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen &&
+    !isDragging &&
+    (isHovered || isSelected);
   return (
     <Resizable
       allowResize={allowResize}

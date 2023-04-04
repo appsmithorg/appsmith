@@ -42,6 +42,7 @@ import {
   setDependencyMap,
   setEvaluatedTree,
   shouldLint,
+  shouldLog,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
@@ -53,7 +54,7 @@ import {
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
 import type { JSAction } from "entities/JSCollection";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty, isUndefined } from "lodash";
 import {
@@ -73,7 +74,7 @@ import {
 import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "api/ApplicationApi";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -136,6 +137,7 @@ export function* evaluateTreeSaga(
   shouldReplay = true,
   requiresLinting = false,
   forceEvaluation = false,
+  requiresLogging = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
@@ -163,6 +165,7 @@ export function* evaluateTreeSaga(
     requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
     metaWidgets,
+    appMode,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -184,6 +187,7 @@ export function* evaluateTreeSaga(
     configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
+    isNewWidgetAdded,
   } = workerResponse;
 
   PerformanceTracker.stopAsyncTracking(
@@ -230,14 +234,18 @@ export function* evaluateTreeSaga(
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     yield call(makeUpdateJSCollection, jsUpdates);
-    yield fork(
-      logSuccessfulBindings,
-      unevalTree,
-      updatedDataTree,
-      evaluationOrder,
-      isCreateFirstTree,
-      configTree,
-    );
+
+    if (requiresLogging) {
+      yield fork(
+        logSuccessfulBindings,
+        unevalTree,
+        updatedDataTree,
+        evaluationOrder,
+        isCreateFirstTree,
+        isNewWidgetAdded,
+        configTree,
+      );
+    }
 
     yield fork(
       updateTernDefinitions,
@@ -578,7 +586,7 @@ function* evaluationChangeListenerSaga(): any {
     type: ReduxActionType;
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true, false);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -596,6 +604,8 @@ function* evaluationChangeListenerSaga(): any {
         postEvalActions,
         get(action, "payload.shouldReplay"),
         shouldLint(action),
+        false,
+        shouldLog(action),
       );
     }
   }

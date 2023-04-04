@@ -14,6 +14,7 @@ export const homePage = ObjectsRegistry.HomePage;
 export const theme = ObjectsRegistry.ThemeSettings;
 export const gitSync = ObjectsRegistry.GitSync;
 export const apiPage = ObjectsRegistry.ApiPage;
+export const adminSettings = ObjectsRegistry.AdminSettings;
 export const dataSources = ObjectsRegistry.DataSources;
 export const inviteModal = ObjectsRegistry.InviteModal;
 export const table = ObjectsRegistry.Table;

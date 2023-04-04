@@ -337,7 +337,7 @@ export function CurlIconV2() {
 export function JsFileIconV2(height = 18, width = 18) {
   return (
     <EntityIcon height={height + "px"} width={width + "px"}>
-      <EntityIcon.textIcon fontSize={height * 3.2}>JS</EntityIcon.textIcon>
+      <EntityIcon.textIcon fontSize={height * 3.05}>JS</EntityIcon.textIcon>
     </EntityIcon>
   );
 }

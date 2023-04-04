@@ -244,6 +244,18 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
  * @returns
  */
 export const getComplementaryGrayscaleColor = (color = "#fff") => {
+  const textColor = isLightColor(color) ? "black" : "white";
+
+  return textColor;
+};
+
+/**
+ *  return true if the color is light
+ *
+ * @param color
+ * @returns
+ */
+export const isLightColor = (color = "#fff") => {
   const tinyColor = tinycolor(color);
   const rgb: any = tinyColor.isValid()
     ? tinyColor.toRgb()
@@ -253,9 +265,8 @@ export const getComplementaryGrayscaleColor = (color = "#fff") => {
     (parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) /
       1000,
   );
-  const textColor = brightness > 125 ? "black" : "white";
 
-  return textColor;
+  return brightness > 125;
 };
 
 /**
@@ -726,18 +737,24 @@ export const flat = (array: DropdownOption[]) => {
 };
 
 /**
+ * A utility function to check whether a widget has dynamic height enabled with limits?
+ * @param props: Widget properties
+ */
+
+export const isAutoHeightEnabledForWidgetWithLimits = (props: WidgetProps) => {
+  if (props.isFlexChild) return false;
+
+  return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+};
+
+/**
  * A utility function to check whether a widget has dynamic height enabled?
  * @param props: Widget properties
- * @param shouldCheckIfEnabledWithLimits: Should we check specifically for auto height with limits.
  */
-export const isAutoHeightEnabledForWidget = (
-  props: WidgetProps,
-  shouldCheckIfEnabledWithLimits = false,
-) => {
+
+export const isAutoHeightEnabledForWidget = (props: WidgetProps) => {
   if (props.isFlexChild) return false;
-  if (shouldCheckIfEnabledWithLimits) {
-    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
-  }
+
   return (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS

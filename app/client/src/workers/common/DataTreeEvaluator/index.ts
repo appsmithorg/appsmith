@@ -52,6 +52,7 @@ import {
   isNewEntity,
   getStaleMetaStateIds,
   convertJSFunctionsToString,
+  DataTreeDiffEvent,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -96,7 +97,10 @@ import {
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference } from "./utils";
+import {
+  addRootcauseToAsyncInvocationErrors,
+  getFixedTimeDifference,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -378,11 +382,11 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
     pathsToClearErrorsFor: any[];
+    isNewWidgetAdded: boolean;
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
-    // const localConfigTree = configTree;
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
@@ -451,14 +455,32 @@ export default class DataTreeEvaluator {
         lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
+        isNewWidgetAdded: false,
       };
     }
+    let isNewWidgetAdded = false;
+
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+
+    /** We need to know if a new widget was added so that we do not fire ENTITY_BINDING_SUCCESS event */
+    for (let i = 0; i < translatedDiffs.length; i++) {
+      const diffEvent = translatedDiffs[i];
+      if (diffEvent.event === DataTreeDiffEvent.NEW) {
+        const entity = localUnEvalTree[diffEvent.payload.propertyPath];
+
+        if (isWidget(entity)) {
+          isNewWidgetAdded = true;
+
+          break;
+        }
+      }
+    }
+
     const diffCheckTimeStopTime = performance.now();
     this.logs.push({
       differences,
@@ -571,6 +593,7 @@ export default class DataTreeEvaluator {
         nonDynamicFieldValidationOrderSet,
       ),
       pathsToClearErrorsFor,
+      isNewWidgetAdded,
     };
   }
 
@@ -1043,7 +1066,7 @@ export default class DataTreeEvaluator {
             });
           }
 
-          const result = this.evaluateDynamicBoundValue(
+          const { errors: evalErrors, result } = this.evaluateDynamicBoundValue(
             toBeSentForEval,
             data,
             resolvedFunctions,
@@ -1051,16 +1074,20 @@ export default class DataTreeEvaluator {
             contextData,
             callBackData,
           );
-          if (fullPropertyPath && result.errors.length) {
+          if (fullPropertyPath && evalErrors.length) {
             addErrorToEntityProperty({
-              errors: result.errors,
+              errors: addRootcauseToAsyncInvocationErrors(
+                fullPropertyPath,
+                configTree,
+                evalErrors,
+              ),
               evalProps: this.evalProps,
               fullPropertyPath,
               dataTree: data,
               configTree,
             });
           }
-          return result.result;
+          return result;
         } else {
           return stringSegments[index];
         }

@@ -63,7 +63,7 @@ import {
   updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 
-import { showReconnectDatasourceModal } from "actions/applicationActions";
+import { showReconnectDatasourceModal } from "@appsmith/actions/applicationActions";
 
 import type { ApiResponse } from "api/ApiResponses";
 import type { GitConfig } from "entities/GitSync";
@@ -73,7 +73,7 @@ import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
   getWorkspaceIdForImport,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import {
   createMessage,
   DELETE_BRANCH_SUCCESS,
@@ -81,7 +81,7 @@ import {
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import type { GitApplicationMetadata } from "api/ApplicationApi";
+import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
@@ -97,8 +97,12 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
-import { APP_MODE } from "../entities/App";
-import type { GitDiscardResponse } from "../reducers/uiReducers/gitSyncReducer";
+import { APP_MODE } from "entities/App";
+import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import type { Action } from "entities/Action";
+import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -316,7 +320,7 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
 const trimRemotePrefix = (branch: string) => branch.replace(/^origin\//, "");
 
 function* switchBranch(action: ReduxAction<string>) {
-  let response: ApiResponse | undefined;
+  let response: ApiResponse<ApplicationPayload> | undefined;
   try {
     const branch = action.payload;
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -327,10 +331,65 @@ function* switchBranch(action: ReduxAction<string>) {
       getLogToSentryFromResponse(response),
     );
 
-    if (isValidResponse) {
-      const trimmedBranch = trimRemotePrefix(branch);
-      const updatedPath = addBranchParam(trimmedBranch);
-      history.push(updatedPath);
+    if (!response || !isValidResponse) {
+      return;
+    }
+
+    const trimmedBranch = trimRemotePrefix(branch);
+    const destinationHref = addBranchParam(trimmedBranch);
+
+    const entityInfo = identifyEntityFromPath(
+      destinationHref.slice(0, destinationHref.indexOf("?")),
+    );
+
+    // Check if page exists in the branch. If not, instead of 404, take them to
+    // the app home page
+    const page = response.data.pages.find(
+      (page) => page.id === entityInfo.pageId,
+    );
+    const homePage = response.data.pages.find((page) => page.isDefault);
+    if (!page) {
+      if (homePage) {
+        history.push(
+          builderURL({ pageId: homePage.id, branch: trimmedBranch }),
+        );
+        return;
+      }
+    }
+
+    // Page exists, so we will try to go to the destination
+    history.push(destinationHref);
+
+    let shouldGoToHomePage = false;
+    // It is possible that the action does not exist in the incoming branch
+    // so here instead of showing the 404 page, we will navigate them to the
+    // home page
+    if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
+      // Wait for fetch actions success, check if action id in actions state
+      // or else navigate to home
+      yield take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS);
+      const actions: Action[] = yield select(getActions);
+      if (!actions.find((action) => action.id === entityInfo.id)) {
+        shouldGoToHomePage = true;
+      }
+    }
+
+    // Same for JS Objects
+    if (entityInfo.entity === FocusEntity.JS_OBJECT) {
+      yield take(ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS);
+      const jsActions: JSCollectionDataState = yield select(getJSCollections);
+      if (!jsActions.find((action) => action.config.id === entityInfo.id)) {
+        shouldGoToHomePage = true;
+      }
+    }
+
+    if (shouldGoToHomePage) {
+      if (homePage) {
+        // We will replace so that the user does not go back to the 404 url
+        history.replace(
+          builderURL({ pageId: homePage.id, persistExistingParams: true }),
+        );
+      }
     }
   } catch (e) {
     // non api error

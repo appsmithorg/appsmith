@@ -125,6 +125,10 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_413 = (maxFileSize: number) =>
+  `Payload too large. File size cannot exceed ${maxFileSize}MB.`;
+export const GENERIC_API_EXECUTION_ERROR = () => `API execution error`;
+export const APPSMITH_HTTP_ERROR_413 = () => `413 CONTENT_TOO_LARGE`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
@@ -147,12 +151,21 @@ export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
-export const INVITE_USERS_SUBMIT_SUCCESS = () =>
-  `The users have been invited successfully`;
-export const INVITE_USER_SUBMIT_SUCCESS = () =>
-  `The user has been invited successfully`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The users have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
+export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+  "Users will have access to all applications in this workspace";
+export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
+  "Users will only have access to this application";
+export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
@@ -177,6 +190,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+export const SHARE_APP = () => `Share app`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -1457,6 +1471,25 @@ export const IN_APP_EMBED_SETTING = {
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
 };
+
+export const APP_NAVIGATION_SETTING = {
+  sectionHeader: () => "Navigation",
+  sectionHeaderDesc: () => "Customize the navigation bar",
+  showNavbarLabel: () => "Show Navbar",
+  orientationLabel: () => "Orientation",
+  navStyleLabel: () => "Variant",
+  positionLabel: () => "Position",
+  itemStyleLabel: () => "Item Style",
+  colorStyleLabel: () => "Background color",
+  logoLabel: () => "Logo",
+  logoConfigurationLabel: () => "Logo Configuration",
+  showSignInLabel: () => "Show Sign In",
+  showSignInTooltip: () =>
+    "Toggle to show the sign-in button for users who are not logged in.",
+};
+
+export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";

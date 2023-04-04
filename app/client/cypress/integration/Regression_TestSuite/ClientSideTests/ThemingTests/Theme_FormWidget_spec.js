@@ -127,16 +127,6 @@ describe("Theme validation usecases", function () {
       "font-family",
       themeFont,
     );
-    cy.get(".bp3-button:contains('Edit App')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
-    cy.get(".bp3-button:contains('Share')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
     cy.get(".bp3-button:contains('Reset')").should(
       "have.css",
       "font-family",
@@ -181,27 +171,7 @@ describe("Theme validation usecases", function () {
       });
   });
 
-  it("4. Publish the App and validate Default Theme across the app", function () {
-    cy.PublishtheApp();
-    /* Bug Form backgroud colour reset in Publish mode
-        cy.get(formWidgetsPage.formD)
-          .should("have.css", "background-color")
-          .and("eq", "rgb(21, 128, 61)");
-          */
-    cy.get(".bp3-button:contains('Sub')")
-      .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Edit App')")
-          .invoke("css", "background-color")
-          .then((selectedBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
-            expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
-            expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
-          });
-      });
-  });
-
-  it("5. Validate Theme change across application", function () {
+  it("4. Validate Theme change across application", function () {
     cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
@@ -284,22 +254,11 @@ describe("Theme validation usecases", function () {
       .and("eq", "rgb(126, 34, 206)");
   });
 
-  it("6. Publish the App and validate Theme across the app", function () {
+  it("5. Publish the App and validate Theme across the app", function () {
     cy.PublishtheApp();
     //Bug Form backgroud colour reset in Publish mode
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
       .and("eq", "rgb(126, 34, 206)");
-    cy.get(".bp3-button:contains('Sub')")
-      .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Edit App')")
-          .invoke("css", "background-color")
-          .then((selectedBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
-            expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
-            expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
-          });
-      });
   });
 });

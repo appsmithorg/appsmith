@@ -90,19 +90,11 @@ jobs:
 
       # Download failed_spec_ci list for all CI container jobs
       - uses: actions/download-artifact@v3
-        if: needs.ci-test.result
+        if: needs.ci-test.result != 'success'
         id: download_ci
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
-
-      # delete-artifact
-      - name: delete existing failed-spec-ci artifact
-        if: needs.ci-test.result != 'success'
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: failed-spec-ci
-          failOnError: false
 
       # In case for any ci job failure, create combined failed spec
       - name: "combine all specs for CI"

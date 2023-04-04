@@ -62,6 +62,7 @@ import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
@@ -635,7 +636,7 @@ abstract class BaseWidget<
           } else {
             content = this.makePositioned(content);
           }
-          if (isAutoHeightEnabledForWidget(this.props, true)) {
+          if (isAutoHeightEnabledForWidgetWithLimits(this.props)) {
             content = this.addAutoHeightOverlay(content);
           }
         }
@@ -645,14 +646,11 @@ abstract class BaseWidget<
       // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
-        if (this.props.isVisible) {
-          if (this.props.isFlexChild) content = this.makeFlex(content);
-          else if (!this.props.detachFromLayout) {
-            content = this.makePositioned(content);
-          }
-          return content;
+        if (this.props.isFlexChild) content = this.makeFlex(content);
+        else if (!this.props.detachFromLayout) {
+          content = this.makePositioned(content);
         }
-        return null;
+        return content;
       default:
         throw Error("RenderMode not defined");
     }
@@ -787,6 +785,7 @@ export interface WidgetDisplayProps {
   animateLoading?: boolean;
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
+  selectedWidgetAncestry?: string[];
 }
 
 export interface WidgetDataProps
