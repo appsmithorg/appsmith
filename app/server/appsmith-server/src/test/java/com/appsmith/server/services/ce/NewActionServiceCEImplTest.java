@@ -439,24 +439,20 @@ public class NewActionServiceCEImplTest {
         String partsWithBlobRefs = """
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
-                x-appsmith-type: meta\r
                 \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blobId"]}}}\r
+                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:1234"]}}}\r
                 --boundary\r
                 Content-Disposition: form-data; name="parameterMap"\r
-                x-appsmith-type: meta\r
                 \r
                 {"Input1.text":"k0"}\r
                 --boundary\r
                 Content-Disposition: form-data; name="k0"; filename="blob"\r
                 Content-Type: text/plain\r
-                x-appsmith-type: value\r
                 \r
-                {"name": "randomName", "data": "blobId"}\r
+                {"name": "randomName", "data": "blob:1234"}\r
                 --boundary\r
-                Content-Disposition: form-data; name="blobId"; filename="blobId"\r
+                Content-Disposition: form-data; name="blob:1234"; filename="blob"\r
                 Content-Type: text/plain\r
-                x-appsmith-type: blob\r
                 \r
                 xy\\nz\r
                 --boundary--""";
@@ -477,7 +473,7 @@ public class NewActionServiceCEImplTest {
                 .assertNext(paramsList -> {
                     assertEquals(1, paramsList.size());
                     Param param = paramsList.get(0);
-                    assertEquals("{\"name\": \"randomName\", \"data\": \"blobId\"}", param.getValue());
+                    assertEquals("{\"name\": \"randomName\", \"data\": \"blob:1234\"}", param.getValue());
                 })
                 .verifyComplete();
     }

@@ -2255,7 +2255,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return switch (key) {
                         case "k\\d+" ->
                                 groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
-                        case "blob:[\\d-]=" ->
+                        case "blob:[\\d-]+" ->
                                 this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
                         case "executeActionDTO" ->
                                 groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
