@@ -278,6 +278,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         // To avoid sending extra event data to analytics
                         analyticsProperties.remove(FieldName.EVENT_DATA);
                     }
+                    if (analyticsProperties.containsKey(FieldName.CLOUD_HOSTED_EXTRA_PROPS)) {
+                        if (commonConfig.isCloudHosting()) {
+                            Map<String, Object> extraPropsForCloudHostedInstance = (Map<String, Object>) analyticsProperties.get(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
+                            analyticsProperties.putAll(extraPropsForCloudHostedInstance);
+                        }
+                        analyticsProperties.remove(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
+                    }
 
                     return sendEvent(eventTag, username, analyticsProperties)
                             .thenReturn(object);

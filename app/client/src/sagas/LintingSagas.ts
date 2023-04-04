@@ -14,6 +14,11 @@ import type {
 import { LINT_WORKER_ACTIONS } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import type { AppState } from "@appsmith/reducers";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { get, set, union } from "lodash";
+import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
+import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -35,8 +40,58 @@ function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
   );
 }
 
+function* getValidOldJSCollectionLintErrors(
+  jsEntities: string[],
+  errors: LintErrorsStore,
+  jsObjectsState: TJSPropertiesState,
+) {
+  const updatedJSCollectionLintErrors: LintErrorsStore = {};
+  for (const jsObjectName of jsEntities) {
+    const jsObjectBodyPath = `["${jsObjectName}.body"]`;
+    const oldJsBodyLintErrors: LintError[] = yield select((state: AppState) =>
+      get(state.linting.errors, jsObjectBodyPath, []),
+    );
+    const newJSBodyLintErrors = get(
+      errors,
+      jsObjectBodyPath,
+      [] as LintError[],
+    );
+
+    const newJSBodyLintErrorsOriginalPaths = newJSBodyLintErrors.reduce(
+      (paths, currentError) => {
+        if (currentError.originalPath)
+          return union(paths, [currentError.originalPath]);
+        return paths;
+      },
+      [] as string[],
+    );
+
+    const jsObjectState = get(jsObjectsState, jsObjectName, {});
+    const jsObjectProperties = Object.keys(jsObjectState);
+
+    const filteredOldJsObjectBodyLintErrors = oldJsBodyLintErrors.filter(
+      (lintError) =>
+        lintError.originalPath &&
+        lintError.originalPath in jsObjectProperties &&
+        !(lintError.originalPath in newJSBodyLintErrorsOriginalPaths),
+    );
+    const updatedLintErrors = [
+      ...filteredOldJsObjectBodyLintErrors,
+      ...newJSBodyLintErrors,
+    ];
+    set(updatedJSCollectionLintErrors, jsObjectBodyPath, updatedLintErrors);
+  }
+  return updatedJSCollectionLintErrors;
+}
+
 export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const { configTree, pathsToLint, unevalTree } = action.payload;
+  const {
+    asyncJSFunctionsInDataFields,
+    configTree,
+    jsPropertiesState,
+    pathsToLint,
+    unevalTree,
+  } = action.payload;
   // only perform lint operations in edit mode
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
@@ -44,18 +99,32 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   const lintTreeRequestData: LintTreeRequest = {
     pathsToLint,
     unevalTree,
+    jsPropertiesState,
     configTree,
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+    asyncJSFunctionsInDataFields,
   };
 
-  const { errors }: LintTreeResponse = yield call(
+  const { errors, updatedJSEntities }: LintTreeResponse = yield call(
     lintWorker.request,
     LINT_WORKER_ACTIONS.LINT_TREE,
     lintTreeRequestData,
   );
 
-  yield put(setLintingErrors(errors));
-  yield call(logLatestLintPropertyErrors, { errors, dataTree: unevalTree });
+  const oldJSCollectionLintErrors: LintErrorsStore =
+    yield getValidOldJSCollectionLintErrors(
+      updatedJSEntities,
+      errors,
+      jsPropertiesState,
+    );
+
+  const updatedErrors = { ...errors, ...oldJSCollectionLintErrors };
+
+  yield put(setLintingErrors(updatedErrors));
+  yield call(logLatestLintPropertyErrors, {
+    errors,
+    dataTree: unevalTree,
+  });
 }
 
 export default function* lintTreeSagaWatcher() {
