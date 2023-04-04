@@ -277,9 +277,9 @@ public class GraphQLPluginTest {
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithPluginException);
-                    String expectedMessage = "Invalid GraphQL body: Invalid Syntax : There are more tokens in the " +
-                            "query that have not been consumed offending token '}' at line 8 column 1";
-                    assertTrue(expectedMessage.equals(error.getMessage()));
+                    String expectedMessage = "Invalid GraphQL body: Invalid syntax encountered. There are extra " +
+                            "tokens in the text that have not been consumed. Offending token '}' at line 8 column 1";
+                    assertEquals(expectedMessage, error.getMessage());
                 });
     }
 
