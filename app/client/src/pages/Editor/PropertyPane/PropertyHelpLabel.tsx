@@ -1,7 +1,8 @@
-import { TooltipComponent as Tooltip } from "design-system-old";
+// import { TooltipComponent as Tooltip } from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 import styled from "styled-components";
+import { Tooltip } from "design-system";
 
 const Label = styled.label`
   color: var(--ads-v2-color-gray-600);
@@ -26,22 +27,23 @@ function PropertyHelpLabel(props: Props) {
   }
   return (
     <Tooltip
-      content={
-        <div
-          style={{
-            color: "#FAFAFA",
-            maxWidth: props.maxWidth ? props.maxWidth : "320px",
-            lineHeight: props.lineHeight,
-          }}
-        >
-          {props.tooltip || ""}
-        </div>
-      }
-      disabled={!toolTipDefined}
-      hoverOpenDelay={200}
-      openOnTargetFocus={false}
-      popoverClassName={props.className}
-      position="top"
+      content={props.tooltip || ""}
+      // content={
+      //   <div
+      //     style={{
+      //       color: "#FAFAFA",
+      //       maxWidth: props.maxWidth ? props.maxWidth : "320px",
+      //       lineHeight: props.lineHeight,
+      //     }}
+      //   >
+      //     {props.tooltip || ""}
+      //   </div>
+      // }
+      // disabled={!toolTipDefined}
+      // hoverOpenDelay={200}
+      // openOnTargetFocus={false}
+      // popoverClassName={props.className}
+      // position="top"
     >
       <div
         onClick={props.onClick}
