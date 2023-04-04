@@ -60,7 +60,6 @@ public class FirestoreErrorMessages {
 
     public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID = "Unable to connect to the database, No database found for the given ProjectID.";
 
-
     /*
      ************************************************************************************************************************************************
                                         Error messages related to validation of datasource.
@@ -76,4 +75,13 @@ public class FirestoreErrorMessages {
     public static final String DS_MISSING_CLIENTJSON_ERROR_MSG = "Missing ClientJSON in datasource.";
 
     public static final String DS_MISSING_FIRESTORE_URL_ERROR_MSG = "Missing Firestore URL.";
+
+    /*
+     ************************************************************************************************************************************************
+                                        Warning messages related to datasource.
+     ************************************************************************************************************************************************
+     */
+    public static final String META_DATA_ACCESS_MISSING_MESSAGE = "Hi, it seems that the credentials provided here " +
+            "don't have the permission to gather metadata information. Please reach out to your database admin " +
+            "to understand more. ";
 }

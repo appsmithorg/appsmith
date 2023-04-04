@@ -663,8 +663,8 @@ public class FirestorePluginTest {
                     assertTrue(datasourceTestResult.isSuccess());
                     assertTrue(datasourceTestResult.getInvalids().isEmpty());
                     assertFalse(datasourceTestResult.getMessages().isEmpty());
-                    assertTrue(datasourceTestResult.getMessages().stream().anyMatch(s -> s.equals("Unable to validate " +
-                            "ProjectID, provided service account doesn't has access to metadata")));
+                    assertTrue(datasourceTestResult.getMessages().stream().anyMatch(s -> s.equals(FirestoreErrorMessages
+                            .META_DATA_ACCESS_MISSING_MESSAGE)));
                 })
                 .verifyComplete();
     }

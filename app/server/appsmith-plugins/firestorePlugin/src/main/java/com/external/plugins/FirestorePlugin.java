@@ -921,11 +921,9 @@ public class FirestorePlugin extends BasePlugin {
                         } catch (FirestoreException e){
                             log.debug("Invalid datasource configuration : {}", e.getMessage());
                             if(e.getMessage().contains("Metadata operations require admin authentication")){
-                                String metaDataAccessMissingMessage = "Unable to validate ProjectID, provided service " +
-                                        "account doesn't has access to metadata";
                                 DatasourceTestResult datasourceTestResult = new DatasourceTestResult();
                                 datasourceTestResult.setMessages(new HashSet<>(Collections.singletonList(
-                                        metaDataAccessMissingMessage)));
+                                        FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
                                 return Mono.just(datasourceTestResult);
                             }
                             return Mono.just(new DatasourceTestResult(FirestoreErrorMessages.
