@@ -280,11 +280,11 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.json
-          group: "Electrons on Github Action Fat Container"
+          group: "Electrons on Github Action Fat Container Smoke"
           spec: "cypress/integration/SmokeSuite/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}-smoke
+          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       # In case of second attempt only run failed specs
@@ -338,11 +338,11 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.json
-          group: "Electrons on Github Action Fat Container"
+          group: "Electrons on Github Action Fat Container Smoke"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}-smoke
+          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs

@@ -284,11 +284,11 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.json
-          group: "Electrons on Github Action Fat Container"
+          group: "Electrons on Github Action Fat Container Sanity"
           spec: "cypress/integration/SanitySuite/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}-sanity
+          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       # In case of second attempt only run failed specs
@@ -342,11 +342,11 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.json
-          group: "Electrons on Github Action Fat Container"
+          group: "Electrons on Github Action Fat Container Sanity"
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}-sanity
+          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
