@@ -10,7 +10,6 @@ import { createMessage } from "design-system-old/build/constants/messages";
 import { UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import camelCase from "lodash/camelCase";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -97,47 +96,39 @@ export function Categories({
 }) {
   return (
     <CategoryList className="t--settings-category-list">
-      {categories?.map((config) => {
-        if (isAirgapped() && config.slug === "google-maps") {
-          return null; // not supported in airgapped instance
-        }
-
-        return (
-          <CategoryItem key={config.slug}>
-            <StyledLink
-              $active={
-                !!currentSubCategory && showSubCategory
-                  ? currentSubCategory == config.slug
-                  : currentCategory == config.slug
-              }
-              className={`t--settings-category-${config.slug}`}
-              to={
-                !parentCategory
-                  ? adminSettingsCategoryUrl({ category: config.slug })
-                  : adminSettingsCategoryUrl({
-                      category: parentCategory.slug,
-                      selected: config.slug,
-                    })
-              }
-            >
-              <div>
-                {config?.icon && (
-                  <Icon name={config?.icon} size={IconSize.XL} />
-                )}
-              </div>
-              <div>{config.title}</div>
-            </StyledLink>
-            {showSubCategory && (
-              <Categories
-                categories={config.children}
-                currentCategory={currentCategory}
-                currentSubCategory={currentSubCategory}
-                parentCategory={config}
-              />
-            )}
-          </CategoryItem>
-        );
-      })}
+      {categories?.map((config) => (
+        <CategoryItem key={config.slug}>
+          <StyledLink
+            $active={
+              !!currentSubCategory && showSubCategory
+                ? currentSubCategory == config.slug
+                : currentCategory == config.slug
+            }
+            className={`t--settings-category-${config.slug}`}
+            to={
+              !parentCategory
+                ? adminSettingsCategoryUrl({ category: config.slug })
+                : adminSettingsCategoryUrl({
+                    category: parentCategory.slug,
+                    selected: config.slug,
+                  })
+            }
+          >
+            <div>
+              {config?.icon && <Icon name={config?.icon} size={IconSize.XL} />}
+            </div>
+            <div>{config.title}</div>
+          </StyledLink>
+          {showSubCategory && (
+            <Categories
+              categories={config.children}
+              currentCategory={currentCategory}
+              currentSubCategory={currentSubCategory}
+              parentCategory={config}
+            />
+          )}
+        </CategoryItem>
+      ))}
     </CategoryList>
   );
 }

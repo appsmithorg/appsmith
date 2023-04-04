@@ -23,7 +23,6 @@ import {
   JS_ORIGIN_URI_FORM,
   REDIRECT_URL_FORM,
 } from "@appsmith/constants/forms";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
   getAppsmithConfigs();
@@ -230,19 +229,13 @@ export const OidcAuthCallout: AuthMethodType = {
   type: "OTHER",
 };
 
-const isAirgappedInstance = isAirgapped();
-
 const AuthMethods = [
   OidcAuthCallout,
   SamlAuthCallout,
   GoogleAuthCallout,
   GithubAuthCallout,
   FormAuthCallout,
-].filter((method) =>
-  isAirgappedInstance
-    ? method !== GoogleAuthCallout && method !== GithubAuthCallout
-    : true,
-);
+];
 
 function AuthMain() {
   return <AuthPage authMethods={AuthMethods} />;

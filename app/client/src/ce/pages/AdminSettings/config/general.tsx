@@ -16,7 +16,6 @@ import { TagInput } from "design-system-old";
 import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",
@@ -171,8 +170,6 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   },
 };
 
-const isAirgappedInstance = isAirgapped();
-
 export const config: AdminConfigType = {
   icon: "settings-2-line",
   type: SettingCategories.GENERAL,
@@ -186,7 +183,5 @@ export const config: AdminConfigType = {
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
-  ].filter((setting) =>
-    isAirgappedInstance ? setting !== APPSMITH_DISABLE_TELEMETRY_SETTING : true,
-  ),
+  ],
 } as AdminConfigType;
