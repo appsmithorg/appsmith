@@ -10,7 +10,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 
@@ -32,6 +32,14 @@ class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
+  static getAutocompleteConfig(): any {
+    return {
+      isVisible: isVisible,
+      text: "string",
+      isDisabled: "string",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {

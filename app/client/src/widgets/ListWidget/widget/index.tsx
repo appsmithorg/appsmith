@@ -1,4 +1,3 @@
-import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
 import { Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -26,6 +25,9 @@ import React from "react";
 import shallowEqual from "shallowequal";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
+import { isVisible } from "widgets/WidgetUtils";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -55,6 +57,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     page: 1,
   };
 
+  static getAutocompleteConfig(): any {
+    return (widget: any, extraDefsToDefine?: ExtraDef) => ({
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/list",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      },
+      isVisible: isVisible,
+      gridGap: "number",
+      selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+      items: generateTypeDef(widget.items, extraDefsToDefine),
+      listData: generateTypeDef(widget.listData, extraDefsToDefine),
+      pageNo: generateTypeDef(widget.pageNo),
+      pageSize: generateTypeDef(widget.pageSize),
+    });
+  }
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
   }
@@ -117,10 +137,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         if (widgetType) {
           childrenEntityDefinitions[widgetType] = Object.keys(
             omit(
-              get(entityDefinitions, `${widgetType}`) as Record<
+              WidgetFactory.getAutocompleteConfig(widgetType) as Record<
                 string,
                 unknown
               >,
+              // get(entityDefinitions, `${widgetType}`) as Record<
+              //   string,
+              //   unknown
+              // >,
               ["!doc", "!url"],
             ),
           );

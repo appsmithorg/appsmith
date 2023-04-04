@@ -27,7 +27,7 @@ import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -161,6 +161,35 @@ class PhoneInputWidget extends BaseInputWidget<
       ],
       super.getPropertyPaneContentConfig(),
     );
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",
+      "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+      text: {
+        "!type": "string",
+        "!doc": "The text value of the input",
+        "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+      },
+      value: {
+        "!type": "string",
+        "!doc": "The unformatted text value of the input",
+        "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+      },
+      isValid: "bool",
+      isVisible: isVisible,
+      isDisabled: "bool",
+      countryCode: {
+        "!type": "string",
+        "!doc": "Selected country code for Phone Number",
+      },
+      dialCode: {
+        "!type": "string",
+        "!doc": "Selected dialing code for Phone Number",
+      },
+    };
   }
 
   static getPropertyPaneStyleConfig() {

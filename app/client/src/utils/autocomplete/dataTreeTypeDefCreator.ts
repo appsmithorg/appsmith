@@ -1,6 +1,6 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { uniqueId, get, isFunction, isObject } from "lodash";
+import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import type { Def } from "tern";
@@ -17,6 +17,7 @@ export type ExtraDef = Record<string, Def | string>;
 
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
+import WidgetFactory from "utils/WidgetFactory";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -33,26 +34,54 @@ export const dataTreeTypeDefCreator = (
   // When there is a complex data type, we store it in extra def and refer to it in the def
   const extraDefsToDefine: Def = {};
 
+  // debugger;
+
   const def: Def = {
     "!name": "DATA_TREE",
   };
+
   const entityMap: Map<string, DataTreeDefEntityInformation> = new Map();
 
   Object.entries(dataTree).forEach(([entityName, entity]) => {
+    // entity will have data type : WidgetEntity
+    console.log("rajat iterating for entity");
+    console.log(entityName);
+    console.log(entity);
+
     if (isWidget(entity)) {
       const widgetType = entity.type;
-      if (widgetType in entityDefinitions) {
-        const definition = get(entityDefinitions, widgetType);
-        if (isFunction(definition)) {
-          def[entityName] = definition(entity, extraDefsToDefine);
+      console.log("rajat widget type is " + widgetType);
+      // console.log(widgetType);datatyp
+
+      console.log("def before is ");
+      console.log(def);
+
+      console.log("rajat widget factory config is ");
+      const autocompleteConfig =
+        WidgetFactory.getAutocompleteConfig(widgetType);
+      console.log(autocompleteConfig);
+
+      if (autocompleteConfig) {
+        if (isFunction(autocompleteConfig)) {
+          def[entityName] = autocompleteConfig(entity, extraDefsToDefine);
         } else {
-          def[entityName] = definition;
+          def[entityName] = autocompleteConfig;
         }
+
+        console.log("def after appending is ");
+        console.log(def);
+
         flattenDef(def, entityName);
+
+        console.log("def after flattening is ");
+        console.log(def);
+
         entityMap.set(entityName, {
           type: ENTITY_TYPE.WIDGET,
           subType: widgetType,
         });
+        console.log("entity map is ");
+        console.log(entityMap);
       }
     } else if (isAction(entity)) {
       def[entityName] = entityDefinitions.ACTION(entity, extraDefsToDefine);

@@ -22,6 +22,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
+import WidgetFactory from "utils/WidgetFactory";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -37,12 +38,26 @@ const EntityInfoContainer = styled.div`
 `;
 
 const selectEntityInfo = (state: AppState) => state.ui.explorer.entityInfo;
+console.log("Rajat select entity info is ");
+console.log(selectEntityInfo);
 
 export function EntityProperties() {
   const ref = React.createRef<HTMLDivElement>();
   const dispatch = useDispatch();
   const { entityId, entityName, entityType, show } =
     useSelector(selectEntityInfo);
+  console.log("rajat parsing logs");
+  console.log("entityId" + entityId);
+
+  console.log("entity name is ");
+  console.log(entityName);
+
+  console.log("entity type ");
+  console.log(entityType);
+
+  console.log("show");
+  console.log(show);
+
   const pageId = useSelector(getCurrentPageId) || "";
   PerformanceTracker.startTracking(
     PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
@@ -126,6 +141,8 @@ export function EntityProperties() {
   }, [entityId]);
 
   const entity: any = widgetEntity || actionEntity || jsActionEntity;
+  // debugger;
+
   let config: any;
   let entityProperties: any = [];
 
@@ -149,6 +166,9 @@ export function EntityProperties() {
       }
       break;
     case ENTITY_TYPE.ACTION:
+      console.log("RAJAT ACTION ENTITY IS ");
+      console.log(entity);
+
       config = (entityDefinitions.ACTION as any)(entity as any);
       if (config) {
         entityProperties = Object.keys(config)
@@ -190,7 +210,9 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = entityDefinitions[type];
+      // console
+      config = WidgetFactory.getAutocompleteConfig(type);
+      // debugger;
       if (!config) {
         return null;
       }

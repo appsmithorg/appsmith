@@ -62,6 +62,7 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
       ".tableWrap .thead .tr div[role='columnheader']:first-child",
       DEFAULT_COLUMN_NAME,
     );
+    cy.type;
   });
 
   it("4. when the column label value is an object replace column name with default column name", function () {

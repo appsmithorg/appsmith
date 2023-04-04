@@ -10,11 +10,22 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { isVisible } from "widgets/WidgetUtils";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
+      "!url": "https://docs.appsmith.com/widget-reference/image",
+      image: "string",
+      isVisible: isVisible,
+    };
   }
 
   static getPropertyPaneContentConfig() {

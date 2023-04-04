@@ -238,6 +238,10 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
 export const registerWidgets = () => {
   const start = performance.now();
   for (const widget of ALL_WIDGETS_AND_CONFIG) {
+    console.log("rajat widget");
+    console.log(widget[0]);
+    console.log(widget[1]);
+
     registerWidget(widget[0], widget[1] as WidgetConfiguration);
   }
 

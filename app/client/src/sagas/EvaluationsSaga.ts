@@ -246,6 +246,8 @@ export function* evaluateTreeSaga(
         configTree,
       );
     }
+    console.log("RAJAT updated data tree ");
+    // debugger;
 
     yield fork(
       updateTernDefinitions,

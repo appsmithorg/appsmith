@@ -401,6 +401,7 @@ function* startInstallationRequestChannel() {
 }
 
 export default function* () {
+  console.log("RAJAT call START INSTALLATION REQUEST CHANNEL");
   yield all([
     takeEvery(ReduxActionTypes.UNINSTALL_LIBRARY_INIT, uninstallLibrarySaga),
     takeLatest(ReduxActionTypes.FETCH_JS_LIBRARIES_INIT, fetchJSLibraries),

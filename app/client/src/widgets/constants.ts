@@ -39,6 +39,7 @@ export interface WidgetConfiguration {
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
+    autocompleteConfig?: any;
   };
 }
 

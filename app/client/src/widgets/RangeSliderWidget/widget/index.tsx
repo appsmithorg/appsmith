@@ -10,6 +10,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { Stylesheet } from "entities/AppTheming";
+import { isVisible } from "widgets/WidgetUtils";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,
@@ -55,6 +56,17 @@ class RangeSliderWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Range slider widget is used to capture user feedback from a range of values",
+      "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+      isVisible: isVisible,
+      start: "number",
+      end: "number",
+    };
   }
 
   componentDidUpdate(prevProps: RangeSliderWidgetProps) {

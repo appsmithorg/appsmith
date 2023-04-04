@@ -119,6 +119,10 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getAutocompleteConfig(): any {
+    return {};
+  }
+
   /**
    * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
    * which can set the isLoading prop of the widget.

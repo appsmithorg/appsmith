@@ -55,6 +55,8 @@ export const getEntitiesForNavigation = createSelector(
     dataTree: DataTree,
     entityName: string | undefined,
   ) => {
+    console.log("RAJAT IN nav console");
+    console.log(widgets);
     // data tree retriggers this
     jsActions = jsActions.filter((a) => a.config.pageId === pageId);
     const navigationData: EntityNavigationData = {};

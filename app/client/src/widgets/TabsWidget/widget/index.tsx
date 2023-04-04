@@ -20,6 +20,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
+  isVisible,
 } from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
@@ -308,6 +309,13 @@ class TabsWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
+    };
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      isVisible: isVisible,
+      selectedTab: "string",
     };
   }
 
