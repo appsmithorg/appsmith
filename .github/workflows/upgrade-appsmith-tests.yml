@@ -40,7 +40,7 @@ jobs:
     needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success()
-    name: ci-test
+    name: smoke-test
     uses: ./.github/workflows/ci-smoke.yml
     secrets: inherit
     with:
@@ -50,7 +50,7 @@ jobs:
     needs: [ smoke ]
     # Only run if the build step is successful
     if: success()
-    name: ci-test
+    name: sanity-test
     uses: ./.github/workflows/ci-sanity.yml
     secrets: inherit
     with:
