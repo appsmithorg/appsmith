@@ -3,7 +3,7 @@ import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer"
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { MetaArgs } from "./types";
-import type { EvaluationVersion } from "ce/api/ApplicationApi";
+import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
 
 const reg = /this\./g;
 
