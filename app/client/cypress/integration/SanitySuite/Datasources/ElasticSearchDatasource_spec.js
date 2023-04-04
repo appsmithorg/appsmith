@@ -1,5 +1,5 @@
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const datasource = require("../../../locators/DatasourcesEditor.json");
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let elasticSearchName;
 let dataSource = ObjectsRegistry.DataSources;

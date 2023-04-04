@@ -1,4 +1,4 @@
-const datasource = require("../../../../locators/DatasourcesEditor.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
 
 describe("Redshift datasource test cases", function () {

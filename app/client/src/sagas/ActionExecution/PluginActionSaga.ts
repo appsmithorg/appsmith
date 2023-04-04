@@ -129,7 +129,7 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
-import { FILE_SIZE_LIMIT_FOR_BLOBS } from "widgets/FilePickerWidgetV2/widget";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -236,7 +236,7 @@ function* resolvingBlobUrls(
   //If array elements then dont push datatypes to payload.
   isArray
     ? arrDatatype?.push(dataType)
-    : (executeActionRequest.paramProperties[`k${index}`] = dataType);
+    : (executeActionRequest.paramProperties[`k${index}`] = { dataType });
 
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
@@ -311,8 +311,6 @@ function* evaluateActionParams(
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
 
-  // Maintain a blob map to resolve blob urls of large files
-  const blobMap: Record<string, string> = {};
   // Maintain a blob data map to resolve blob urls of large files as array buffer
   const blobDataMap: Record<string, Blob> = {};
 
@@ -347,6 +345,8 @@ function* evaluateActionParams(
     }
 
     let useBlobMaps = false;
+    // Maintain a blob map to resolve blob urls of large files
+    const blobMap: Array<string> = [];
 
     if (typeof value === "object") {
       // This is used in cases of large files
@@ -358,9 +358,9 @@ function* evaluateActionParams(
               useBlobMaps = true;
               // remove the ?type=binary from the blob url if present
               const sanitisedBlobURL = blobUrl.split("?")[0];
-              set(blobMap, sanitisedBlobURL, `k${i}`);
+              blobMap.push(sanitisedBlobURL);
               set(blobDataMap, sanitisedBlobURL, new Blob([value[path]]));
-              unset(value, path);
+              set(value, path, sanitisedBlobURL);
             }
           },
         );
@@ -375,17 +375,18 @@ function* evaluateActionParams(
     }
     bindingsMap[key] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
+    const paramProperties = executeActionRequest.paramProperties[`k${i}`];
+    if (!!paramProperties && typeof paramProperties === "object") {
+      paramProperties["blobIdentifiers"] = blobMap;
+    }
   }
 
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
 
-  // Append blob map and blob data map to formData if not empty
-  if (!isEmpty(blobMap) && !isEmpty(blobDataMap)) {
-    // blobMap is used to resolve blob urls of large files
-    formData.append("blobMap", JSON.stringify(blobMap));
-
+  // Append blob data map to formData if not empty
+  if (!isEmpty(blobDataMap)) {
     // blobDataMap is used to resolve blob urls of large files as array buffer
     // we need to add each blob data to formData as a separate entry
     Object.entries(blobDataMap).forEach(([path, blobData]) =>
