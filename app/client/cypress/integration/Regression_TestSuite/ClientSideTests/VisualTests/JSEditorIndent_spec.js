@@ -51,7 +51,6 @@ myFun2: async () => {
         prettify: false,
       },
     );
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -67,7 +66,6 @@ myFun2: async () => {
     agHelper.WaitUntilAllToastsDisappear();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
@@ -111,7 +109,6 @@ myFun2: async () => {
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify7");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -126,7 +123,6 @@ myFun2: async () => {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.Sleep(3000);
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });
 
@@ -155,7 +151,6 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -207,7 +202,6 @@ myFun2: async () => {
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
@@ -257,13 +251,13 @@ myFun2: async () => {
         prettify: false,
       },
     );
-
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
+    agHelper.GetNClick(".t--close-debugger");
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjBeforePrettify3");
 
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
+    agHelper.GetNClick(".t--close-debugger");
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjAfterPrettify3");
@@ -316,7 +310,6 @@ myFun2: async () => {
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
 
     cy.get("div.CodeMirror").type("{shift+cmd+p}").wait(1000);
@@ -347,7 +340,6 @@ myFun2: async () => {
       shouldCreateNewJSObj: true,
     });
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeGoLineStartSmart5");
 
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
