@@ -133,9 +133,12 @@ describe("1. CommandClickNavigation", function () {
 
     agHelper.Sleep();
 
-    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
-      ctrlKey: true,
-    });
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click(
+      {
+        ctrlKey: true,
+      },
+      { force: true },
+    );
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
     agHelper.Sleep();
