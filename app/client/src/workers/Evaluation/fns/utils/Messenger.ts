@@ -45,6 +45,7 @@ export class WorkerMessenger {
       });
     } catch (e) {
       // TODO: Pass in a error handler to allow custom error handling.
+      console.error(e);
       sendMessage.call(self, {
         messageType: MessageType.DEFAULT,
         body: {
