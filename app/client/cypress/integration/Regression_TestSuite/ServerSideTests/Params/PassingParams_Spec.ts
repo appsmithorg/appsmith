@@ -215,6 +215,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function () {
     _.deployMode.NavigateBacktoEditor();
+    _.agHelper.Sleep(500);
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
