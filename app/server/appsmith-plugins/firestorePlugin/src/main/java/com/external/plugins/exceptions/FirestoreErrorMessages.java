@@ -58,7 +58,7 @@ public class FirestoreErrorMessages {
 
     public static final String WHERE_CONDITION_UNPARSABLE_AS_JSON_LIST_ERROR_MSG = "Unable to parse condition value as a JSON list.";
 
-    public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID = "Unable to connect to the database, No database found for the given ProjectID.";
+    public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID = "Unable to connect to the Firestore project. No project found for the given ProjectID.";
 
     /*
      ************************************************************************************************************************************************
