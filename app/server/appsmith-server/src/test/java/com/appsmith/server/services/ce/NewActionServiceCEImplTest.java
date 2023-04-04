@@ -432,7 +432,7 @@ public class NewActionServiceCEImplTest {
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
                 \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:1234"]}}}\r
+                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}}\r
                 --boundary\r
                 Content-Disposition: form-data; name="parameterMap"\r
                 \r
@@ -441,9 +441,9 @@ public class NewActionServiceCEImplTest {
                 Content-Disposition: form-data; name="k0"; filename="blob"\r
                 Content-Type: text/plain\r
                 \r
-                {"name": "randomName", "data": "blob:1234"}\r
+                {"name": "randomName", "data": "blob:12345678-1234-1234-1234-123456781234"}\r
                 --boundary\r
-                Content-Disposition: form-data; name="blob:1234"; filename="blob"\r
+                Content-Disposition: form-data; name="blob:12345678-1234-1234-1234-123456781234"; filename="blob"\r
                 Content-Type: text/plain\r
                 \r
                 xy\\nz\r
@@ -465,7 +465,7 @@ public class NewActionServiceCEImplTest {
                 .assertNext(paramsList -> {
                     assertEquals(1, paramsList.size());
                     Param param = paramsList.get(0);
-                    assertEquals("{\"name\": \"randomName\", \"data\": \"blob:1234\"}", param.getValue());
+                    assertEquals("{\"name\": \"randomName\", \"data\": \"blob:12345678-1234-1234-1234-123456781234\"}", param.getValue());
                 })
                 .verifyComplete();
     }
