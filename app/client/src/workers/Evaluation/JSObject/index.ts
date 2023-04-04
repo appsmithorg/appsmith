@@ -248,12 +248,7 @@ export function parseJSActions(
     });
   }
 
-  let dataTree = unEvalDataTree;
-  const evalTree = dataTreeEvaluator?.getEvalTree() || {};
-  if (Object.keys(evalTree).length === 0) {
-    dataTree = evalTree;
-  }
-  functionDeterminer.setupEval(dataTree);
+  functionDeterminer.setupEval(unEvalDataTree);
 
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
