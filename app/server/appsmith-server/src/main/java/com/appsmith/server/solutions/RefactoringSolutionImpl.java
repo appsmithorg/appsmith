@@ -1,6 +1,6 @@
     package com.appsmith.server.solutions;
 
-import com.appsmith.server.configurations.ce.InstanceConfigCE;
+import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -27,7 +27,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                                    LayoutActionService layoutActionService,
                                    ApplicationService applicationService,
                                    AstService astService,
-                                   InstanceConfigCE instanceConfig,
+                                   InstanceConfig instanceConfig,
                                    AnalyticsService analyticsService,
                                    SessionUserService sessionUserService,
                                    PagePermission pagePermission,

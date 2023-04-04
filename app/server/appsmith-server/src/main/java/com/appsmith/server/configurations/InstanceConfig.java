@@ -1,7 +1,5 @@
-package com.appsmith.server.configurations.ce;
+package com.appsmith.server.configurations;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -32,7 +30,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class InstanceConfigCE implements ApplicationListener<ApplicationReadyEvent> {
+public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final ConfigService configService;
 
