@@ -42,7 +42,7 @@ export const getWrapperStyle = memoize(
     isHovered: boolean,
   ): CSSProperties => {
     return {
-      borderRadius: inverted ? "4px 4px 4px 0px" : "0px 4px 4px 4px",
+      borderRadius: inverted ? "4px 4px 0px 4px" : "4px 0px 4px 4px",
       border: `${resizeBorder}px solid`,
       padding: `${resizeBorderPadding}px`,
       outline: `${resizeOutline}px solid !important`,
