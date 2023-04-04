@@ -27,8 +27,13 @@ import {
 } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import {
+  hasCreateDatasourceActionPermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import NewActionButton from "./NewActionButton";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -46,6 +51,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasource: Datasource;
   datasourceButtonConfiguration: string[] | undefined;
   hiddenHeader?: boolean;
+  canCreateDatasourceActions?: boolean;
   canManageDatasource?: boolean;
   datasourceName?: string;
   isDatasourceBeingSavedFromPopup: boolean;
@@ -69,6 +75,13 @@ const CollapsibleWrapper = styled.div`
 
 export const FormBodyContainer = styled.div`
   flex: 8 8 80%;
+`;
+
+const CTAContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -137,14 +150,22 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               />
             </FormTitleContainer>
             {viewMode && (
-              <EditDatasourceButton
-                category={Category.secondary}
-                className="t--edit-datasource"
-                onClick={() => {
-                  this.props.setDatasourceViewMode(false);
-                }}
-                text="EDIT"
-              />
+              <CTAContainer>
+                <EditDatasourceButton
+                  category={Category.secondary}
+                  className="t--edit-datasource"
+                  onClick={() => {
+                    this.props.setDatasourceViewMode(false);
+                  }}
+                  text="EDIT"
+                />
+                <NewActionButton
+                  datasource={datasource}
+                  disabled={!this.props.canCreateDatasourceActions}
+                  eventFrom="datasource-pane"
+                  pluginType={pluginType}
+                />
+              </CTAContainer>
             )}
           </Header>
         )}
@@ -223,12 +244,20 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourcePermissions,
   );
 
+  const pagePermissions = getPagePermissions(state);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
   return {
     messages: hintMessages,
     datasource,
     datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
-    canManageDatasource: canManageDatasource,
+    canCreateDatasourceActions,
+    canManageDatasource,
     datasourceName: datasource?.name ?? "",
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
