@@ -284,7 +284,7 @@ jobs:
           spec: "cypress/integration/SmokeSuite/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
+          tag: ${{ github.event_name }}-smoke
           env: "NODE_ENV=development"
 
       # In case of second attempt only run failed specs
@@ -342,7 +342,7 @@ jobs:
           spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
+          tag: ${{ github.event_name }}-smoke
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
