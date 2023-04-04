@@ -1,7 +1,9 @@
 import {
   createMessage,
   ERROR_0,
+  ERROR_413,
   ERROR_500,
+  GENERIC_API_EXECUTION_ERROR,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -95,6 +97,23 @@ export const apiSuccessResponseInterceptor = (
 
 // Handle different api failure scenarios
 export const apiFailureResponseInterceptor = (error: any) => {
+  // this can be extended to other errors we want to catch.
+  // in this case it is 413.
+  if (error && error?.response && error?.response.status === 413) {
+    return Promise.reject({
+      ...error,
+      clientDefinedError: true,
+      statusCode: "AE-APP-4013",
+      message: createMessage(ERROR_413, 100),
+      pluginErrorDetails: {
+        appsmithErrorCode: "AE-APP-4013",
+        appsmithErrorMessage: createMessage(ERROR_413, 100),
+        errorType: "INTERNAL_ERROR", // this value is from the server, hence cannot construct enum type.
+        title: createMessage(GENERIC_API_EXECUTION_ERROR),
+      },
+    });
+  }
+
   // Return error when there is no internet
   if (!window.navigator.onLine) {
     return Promise.reject({
