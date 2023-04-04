@@ -5,22 +5,15 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.PluginParameterType;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
-@ToString
-@NoArgsConstructor
-@Document
 public class PluginCE extends BaseDomain {
 
     public enum ResponseType {
