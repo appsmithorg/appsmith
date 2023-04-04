@@ -148,10 +148,9 @@ function CanvasContainer(props: CanvasContainerProps) {
     : "0px";
   const scrollBarHeight =
     isPreviewMode || isPreviewingNavigation ? "10px" : "40px";
-  const navHeight = isPreviewingNavigation ? 0 : navigationHeight;
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navHeight}px)`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
   const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
