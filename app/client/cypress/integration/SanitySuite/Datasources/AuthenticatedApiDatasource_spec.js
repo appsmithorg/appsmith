@@ -1,7 +1,7 @@
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const datasourceFormData = require("../../../../fixtures/datasources.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
-const testdata = require("../../../../fixtures/testdata.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
+const datasourceFormData = require("../../../fixtures/datasources.json");
+const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
+const testdata = require("../../../fixtures/testdata.json");
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSources = ObjectsRegistry.DataSources;
