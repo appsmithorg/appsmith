@@ -22,7 +22,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   display: flex;

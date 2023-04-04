@@ -9,7 +9,7 @@ import {
   WELCOME_HEADER,
 } from "@appsmith/constants/messages";
 import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const LandingPageWrapper = styled.div<{ hide: boolean }>`
   width: ${(props) => props.theme.pageContentWidth}px;

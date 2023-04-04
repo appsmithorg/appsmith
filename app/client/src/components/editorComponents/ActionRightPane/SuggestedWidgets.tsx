@@ -21,7 +21,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const WidgetList = styled.div`
   ${getTypographyByKey("p1")}

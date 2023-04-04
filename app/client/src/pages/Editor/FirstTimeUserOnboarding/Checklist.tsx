@@ -51,7 +51,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;

@@ -39,7 +39,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   width: 100%;

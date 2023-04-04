@@ -8,7 +8,7 @@ import { FooterComponent } from "../Footer";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;

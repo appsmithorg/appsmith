@@ -1,4 +1,4 @@
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
 

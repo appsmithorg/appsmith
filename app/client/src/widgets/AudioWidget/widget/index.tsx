@@ -10,7 +10,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
