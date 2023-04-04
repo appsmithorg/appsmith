@@ -31,8 +31,9 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 
-// import { ObjectsRegistry } from "../support/Objects/Registry";
-// let agHelper = ObjectsRegistry.AggregateHelper;
+import { ObjectsRegistry } from "../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
+let locator = ObjectsRegistry.CommonLocators;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -1293,7 +1294,15 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
   //cy.get(welcomePage.createButton).click({ multiple: true });
-  cy.get(welcomePage.createSuperUser).submit();
+
+  //Submit also not working
+  //cy.get(welcomePage.createSuperUser).submit();
+
+  cy.get("body").then(($ele) => {
+    if ($ele.find(locator._spanButton("Next").length)) {
+      agHelper.GetNClick(locator._spanButton("Next"));
+    } else agHelper.GetNClick(locator._spanButton("Make your first App"));
+  });
 
   //trying jquery way - also not working
   // cy.get(welcomePage.createButton).then(($createBtn) => {
