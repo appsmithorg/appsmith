@@ -8,7 +8,7 @@ import { FooterComponent } from "../Footer";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { ImageLoader } from "@appsmith/utils/ImageLoader";
+import { AssetLoader } from "@appsmith/utils/AssetLoader";
 
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;
@@ -91,14 +91,14 @@ export const UpgradeToBEPage = () => {
         <FlexContainer className="flex-container">
           <ContentWrapper className="content-wrapper">
             <LeftWrapper>
-              <ImageLoader
+              <AssetLoader
                 alt="Upgrade to Business Edition"
                 loading="lazy"
                 src={BUSINESS_FEATURES_IMAGE}
               />
             </LeftWrapper>
             <ImageContainer>
-              <ImageLoader
+              <AssetLoader
                 alt="Upgrade to Business Edition"
                 loading="lazy"
                 src={UPGRADE_BOX_IMAGE}

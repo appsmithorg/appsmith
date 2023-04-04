@@ -39,6 +39,7 @@ import {
   STEP_TWO_TITLE,
 } from "@appsmith/constants/messages";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 export const Classes = {
   GUIDED_TOUR_BORDER: "guided-tour-border",
@@ -112,7 +113,9 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 imageShape: "RECTANGLE",
-                defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+                defaultImage: getAssetUrl(
+                  `${ASSETS_CDN_URL}/widgets/default.png`,
+                ),
                 objectFit: "contain",
                 image: "{{CustomersTable.selectedRow.image}}",
                 dynamicBindingPathList: [{ key: "image" }],

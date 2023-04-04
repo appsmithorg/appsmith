@@ -4,13 +4,14 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { metaWidgetState } from "utils/metaWidgetState";
 import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 const modifiedState: MetaWidgetsReduxState = {
   baowuczcgg: {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,

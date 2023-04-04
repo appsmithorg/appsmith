@@ -1,3 +1,4 @@
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const originalDSLForDSLMigrations = {
@@ -315,7 +316,9 @@ export const originalDSLForDSLMigrations = {
                           key: "image",
                         },
                       ],
-                      defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+                      defaultImage: getAssetUrl(
+                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                      ),
                       key: "52v1r95ynr",
                       image: "{{lst_user.selectedItem.image}}",
                       isDeprecated: false,
@@ -1625,7 +1628,9 @@ export const originalDSLForDSLMigrations = {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+                          defaultImage: getAssetUrl(
+                            `${ASSETS_CDN_URL}/widgets/default.png`,
+                          ),
                           key: "6zvrwxg59v",
                           image:
                             "{{lst_user.listData.map((currentItem) => currentItem.image)}}",
@@ -2187,7 +2192,9 @@ export const originalDSLForDSLMigrations = {
                                         },
                                       ],
                                       leftColumn: 0,
-                                      defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+                                      defaultImage: getAssetUrl(
+                                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                                      ),
                                       key: "6zvrwxg59v",
                                       image: "{{currentItem.image}}",
                                       isDeprecated: false,

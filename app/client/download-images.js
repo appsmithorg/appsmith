@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 
-const regex = /\${ASSETS_CDN_URL}\/\S+(?<!;)(?<!`)(?<!,)(?<!})/g;
+const regex = /\${ASSETS_CDN_URL}\/\S+(?<!;)(?<!`)(?<!,)(?<!})(?<!\))/g;
 const rootDir = path.resolve(__dirname, "src");
 console.log(rootDir);
 

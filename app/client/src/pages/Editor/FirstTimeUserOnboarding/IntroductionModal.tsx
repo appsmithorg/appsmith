@@ -22,6 +22,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { AssetLoader } from "@appsmith/utils/AssetLoader";
 
 const Wrapper = styled.div`
   display: flex;
@@ -74,7 +75,7 @@ const StyledImgWrapper = styled.div`
   justify-content: center;
 `;
 
-const StyledImg = styled.img`
+const StyledImg = styled(AssetLoader)`
   vertical-align: middle;
 `;
 
@@ -170,7 +171,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getConnectDataImg()} />
+                  <StyledImg
+                    alt="connect-data-image"
+                    src={getConnectDataImg()}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow border>
@@ -186,7 +190,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getDragAndDropImg()} />
+                  <StyledImg
+                    alt="drag-and-drop-img"
+                    src={getDragAndDropImg()}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow className="border-b-0">
@@ -202,7 +209,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getPublishAppsImg()} />
+                  <StyledImg alt="publish-image" src={getPublishAppsImg()} />
                 </StyledImgWrapper>
               </ModalContentRow>
             </ModalContentWrapper>

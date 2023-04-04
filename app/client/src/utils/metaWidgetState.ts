@@ -1,3 +1,4 @@
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
@@ -6,7 +7,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     isVisible: true,
     parentColumnSpace: 1,
     parentRowSpace: 1,
-    defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -279,7 +280,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -662,7 +663,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,

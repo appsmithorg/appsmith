@@ -21,6 +21,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { AssetLoader } from "@appsmith/utils/AssetLoader";
 
 const WidgetList = styled.div`
   ${getTypographyByKey("p1")}
@@ -241,7 +242,12 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             >
               <Tooltip content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}>
                 <div className="image-wrapper">
-                  {widgetInfo.image && <img src={widgetInfo.image} />}
+                  {widgetInfo.image && (
+                    <AssetLoader
+                      alt="widget-info-image"
+                      src={widgetInfo.image}
+                    />
+                  )}
                   <WidgetOverlay />
                 </div>
               </Tooltip>

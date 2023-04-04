@@ -39,6 +39,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
+import { AssetLoader } from "@appsmith/utils/AssetLoader";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -60,7 +61,7 @@ const TaskImageContainer = styled.div`
   margin: 0 auto;
 `;
 
-const TaskImage = styled.img`
+const TaskImage = styled(AssetLoader)`
   width: 100%;
 `;
 

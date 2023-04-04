@@ -1,3 +1,4 @@
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
 
@@ -8,7 +9,7 @@ export const mockPlugins = [
     name: "PostgreSQL",
     type: "DB",
     packageName: PluginPackageName.POSTGRES,
-    iconLocation: `${ASSETS_CDN_URL}/logo/postgresql.svg`,
+    iconLocation: getAssetUrl(`${ASSETS_CDN_URL}/logo/postgresql.svg`),
     documentationLink:
       "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres",
     responseType: "TABLE",
@@ -26,7 +27,7 @@ export const mockPlugins = [
     name: "REST API",
     type: "API",
     packageName: PluginPackageName.REST_API,
-    iconLocation: `${ASSETS_CDN_URL}/RestAPI.png`,
+    iconLocation: getAssetUrl(`${ASSETS_CDN_URL}/RestAPI.png`),
     uiComponent: "ApiEditorForm",
     datasourceComponent: "RestAPIDatasourceForm",
     defaultInstall: true,

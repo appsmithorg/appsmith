@@ -12,6 +12,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -91,17 +92,17 @@ export const CONFIG = {
       {
         id: "001",
         name: "Blue",
-        img: `${ASSETS_CDN_URL}/widgets/default.png`,
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
       {
         id: "002",
         name: "Green",
-        img: `${ASSETS_CDN_URL}/widgets/default.png`,
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
       {
         id: "003",
         name: "Red",
-        img: `${ASSETS_CDN_URL}/widgets/default.png`,
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
     ],
     widgetName: "List",
@@ -159,7 +160,9 @@ export const CONFIG = {
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
-                                    defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+                                    defaultImage: getAssetUrl(
+                                      `${ASSETS_CDN_URL}/widgets/default.png`,
+                                    ),
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",

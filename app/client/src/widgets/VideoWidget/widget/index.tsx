@@ -12,6 +12,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -44,7 +45,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
                 expected: {
                   type: "Video URL",
-                  example: `${ASSETS_CDN_URL}/widgets/bird.mp4`,
+                  example: getAssetUrl(`${ASSETS_CDN_URL}/widgets/bird.mp4`),
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },

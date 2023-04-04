@@ -1,13 +1,14 @@
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Image",
   iconSVG: IconSVG,
   defaults: {
-    defaultImage: `${ASSETS_CDN_URL}/widgets/default.png`,
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,

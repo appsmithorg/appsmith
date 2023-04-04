@@ -3,6 +3,7 @@ import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,7 +15,7 @@ export const CONFIG = {
     rows: 4,
     columns: 28,
     widgetName: "Audio",
-    url: `${ASSETS_CDN_URL}/widgets/birds_chirping.mp3`,
+    url: getAssetUrl(`${ASSETS_CDN_URL}/widgets/birds_chirping.mp3`),
     autoPlay: false,
     version: 1,
     animateLoading: true,

@@ -1,6 +1,7 @@
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { getAssetUrl } from "@appsmith/utils/AssetLoader";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -12,7 +13,7 @@ export const CONFIG = {
     rows: 28,
     columns: 24,
     widgetName: "Video",
-    url: `${ASSETS_CDN_URL}/widgets/bird.mp4`,
+    url: getAssetUrl(`${ASSETS_CDN_URL}/widgets/bird.mp4`),
     autoPlay: false,
     version: 1,
     animateLoading: true,
