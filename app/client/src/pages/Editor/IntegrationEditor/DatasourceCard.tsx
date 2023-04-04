@@ -70,7 +70,7 @@ const DatasourceCardMainBody = styled.div`
   width: 100%;
 `;
 
-const MenuComponent = styled(Menu)`
+const StyledMenu = styled(Menu)`
   flex: 0;
 `;
 
@@ -314,13 +314,8 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
             )}
             {(canDeleteDatasource || canEditDatasource) && (
-              <MenuWrapper
-                className="t--datasource-menu-option here-is-a-test"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <MenuComponent>
+              <MenuWrapper className="t--datasource-menu-option">
+                <StyledMenu>
                   <MenuTrigger>
                     <Button
                       isIconButton
@@ -359,7 +354,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                       </MenuItem>
                     )}
                   </MenuContent>
-                </MenuComponent>
+                </StyledMenu>
               </MenuWrapper>
             )}
           </ButtonsWrapper>
