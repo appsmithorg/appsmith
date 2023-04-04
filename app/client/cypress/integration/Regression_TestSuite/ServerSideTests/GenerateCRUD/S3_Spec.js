@@ -8,7 +8,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let ee = ObjectsRegistry.EntityExplorer;
 
-describe("Generate New CRUD Page Inside from entity explorer", function() {
+describe("Generate New CRUD Page Inside from entity explorer", function () {
   let datasourceName;
 
   beforeEach(() => {
@@ -16,11 +16,9 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.startInterceptRoutesForS3();
   });
 
-  it("1. Create new app and Generate CRUD page using a new datasource", function() {
+  it("1. Create new app and Generate CRUD page using a new datasource", function () {
     cy.NavigateToHome();
-    cy.get(homePage.createNew)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.createNew).first().click({ force: true });
 
     cy.wait("@createNewApplication").should(
       "have.nested.property",
@@ -83,7 +81,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("2. Generate CRUD page from datasource ACTIVE section", function() {
+  it("2. Generate CRUD page from datasource ACTIVE section", function () {
     // cy.NavigateToQueryEditor();
     // cy.get(pages.integrationActiveTab)
     //   .should("be.visible")
@@ -135,11 +133,9 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("3. Add new Page and generate CRUD template using existing supported datasource & Bug 9649", function() {
+  it("3. Add new Page and generate CRUD template using existing supported datasource & Bug 9649", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasourceEditor.AmazonS3)
-      .click({ force: true })
-      .wait(1000);
+    cy.get(datasourceEditor.AmazonS3).click({ force: true }).wait(1000);
 
     cy.generateUUID().then((uid) => {
       datasourceName = `Amazon S3 MOCKDS ${uid}`;
@@ -181,9 +177,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("@dSName").then((dbName) => {
       ee.AddNewPage("generate-page");
       cy.get(generatePage.selectDatasourceDropdown).click();
-      cy.get(generatePage.datasourceDropdownOption)
-        .contains(dbName)
-        .click();
+      cy.get(generatePage.datasourceDropdownOption).contains(dbName).click();
     });
 
     // fetch bucket
@@ -249,7 +243,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //cy.isNotInViewport("//div[text()='No data to display']")
   });
 
-  it("4. Generate CRUD page from the page menu", function() {
+  it("4. Generate CRUD page from the page menu", function () {
     cy.GenerateCRUD();
     cy.NavigateToDSGeneratePage(datasourceName);
     // fetch bucket

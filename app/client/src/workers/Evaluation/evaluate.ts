@@ -1,13 +1,11 @@
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import {
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import { DOM_APIS } from "./SetupDOM";
@@ -25,40 +23,48 @@ export enum EvaluationScriptType {
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
   ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
+  OBJECT_PROPERTY = "OBJECT_PROPERTY",
 }
 
 export const ScriptTemplate = "<<string>>";
 
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
-  function closedFunction () {
-    const result = ${ScriptTemplate}
-    return result;
+  function $$closedFn () {
+    const $$result = ${ScriptTemplate}
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
-  function callback (script) {
-    const userFunction = script;
-    const result = userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
-    return result;
+  function $$closedFn (script) {
+    const $$userFunction = script;
+    const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return $$result
   }
-  callback(${ScriptTemplate})
+  $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
-  async function callback (script) {
-    const userFunction = script;
-    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
-    return result;
+  async function $$closedFn (script) {
+    const $$userFunction = script;
+    const $$result = $$userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return await $$result;
   }
-  callback(${ScriptTemplate})
+  $$closedFn(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
-  async function closedFunction () {
-    const result = await ${ScriptTemplate};
-    return result;
+  async function $$closedFn () {
+    const $$result = ${ScriptTemplate};
+    return await $$result
   }
-  closedFunction.call(THIS_CONTEXT);
+  $$closedFn.call(THIS_CONTEXT)
+  `,
+  [EvaluationScriptType.OBJECT_PROPERTY]: `
+  function $$closedFn () {
+    const $$result = {${ScriptTemplate}}
+    return $$result
+  }
+  $$closedFn.call(THIS_CONTEXT)
   `,
 };
 
@@ -122,8 +128,11 @@ export interface createEvaluationContextArgs {
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
-  // Whether not to add functions like "run", "clear" to entity in global data
-  skipEntityFunctions?: boolean;
+  /*
+   Whether to remove functions like "run", "clear" from entities in global context
+   use case => To show lint warning when Api.run is used in a function bound to a data field (Eg. Button.text)
+   */
+  removeEntityFunctions?: boolean;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -137,8 +146,8 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
+    removeEntityFunctions,
     resolvedFunctions,
-    skipEntityFunctions,
   } = args;
 
   const EVAL_CONTEXT: EvalContext = {};
@@ -154,7 +163,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
-    skipEntityFunctions: !!skipEntityFunctions,
+    removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
 
@@ -239,7 +248,7 @@ export default function evaluateSync(
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ): EvalResult {
-  return (function() {
+  return (function () {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
@@ -281,18 +290,23 @@ export default function evaluateSync(
       result = indirectEval(script);
       if (result instanceof Promise) {
         /**
-         * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
-         * NOTE: Awaiting for promise will make sync field evaluation slower.
+         * If a promise is returned in data field then show the error to help understand data field doesn't await to resolve promise.
+         * NOTE: Awaiting for promise will make data field evaluation slower.
          */
         throw new FoundPromiseInSyncEvalError();
       }
     } catch (error) {
+      const { errorCategory, errorMessage } = errorModifier.run(error as Error);
       errors.push({
-        errorMessage: errorModifier.run(error as Error),
+        errorMessage,
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
+        kind: errorCategory && {
+          category: errorCategory,
+          rootcause: "",
+        },
       });
     } finally {
       for (const entityName in evalContext) {
@@ -314,7 +328,7 @@ export async function evaluateAsync(
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
-  return (async function() {
+  return (async function () {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;

@@ -1,4 +1,4 @@
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
@@ -11,7 +11,8 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import { getQueryStringfromObject, URLBuilderParams } from "RouteBuilder";
+import type { URLBuilderParams } from "RouteBuilder";
+import { getQueryStringfromObject } from "RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
 enum URL_TYPE {
@@ -200,6 +201,7 @@ export class URLBuilder {
       persistExistingParams = false,
       suffix,
       pageId,
+      branch,
     } = builderParams;
 
     if (!pageId) {
@@ -214,7 +216,13 @@ export class URLBuilder {
       persistExistingParams,
     );
 
-    const modifiedQueryParams = { ...queryParamsToPersist, ...params };
+    const branchParams = branch ? { branch: encodeURIComponent(branch) } : {};
+
+    const modifiedQueryParams = {
+      ...queryParamsToPersist,
+      ...params,
+      ...branchParams,
+    };
 
     const queryString = getQueryStringfromObject(modifiedQueryParams);
 

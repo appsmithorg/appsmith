@@ -1,4 +1,4 @@
-import { TreeNode } from "./constants";
+import type { TreeNode } from "./constants";
 import { getNearestAbove } from "./helpers";
 
 function getAllEffectedBoxes(

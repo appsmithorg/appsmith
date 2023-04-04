@@ -1,5 +1,5 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import * as DSLMigrations from "./DSLMigrations";
 import * as chartWidgetReskinningMigrations from "./migrations/ChartWidgetReskinningMigrations";
 import * as tableMigrations from "./migrations/TableWidget";
@@ -748,7 +748,6 @@ const migrations: Migration[] = [
 ];
 
 const mockFnObj: Record<number, any> = {};
-let migratedDSL: ContainerWidgetProps<WidgetProps>;
 
 describe("Test all the migrations are running", () => {
   afterAll(() => {
@@ -785,10 +784,8 @@ describe("Test all the migrations are running", () => {
   });
 
   // Runs all the migrations
-  migratedDSL = DSLMigrations.transformDSL(
-    (originalDSLForDSLMigrations as unknown) as ContainerWidgetProps<
-      WidgetProps
-    >,
+  DSLMigrations.transformDSL(
+    originalDSLForDSLMigrations as unknown as ContainerWidgetProps<WidgetProps>,
   );
 
   migrations.forEach((item: any, testIdx: number) => {

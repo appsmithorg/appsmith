@@ -1,9 +1,6 @@
 import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
-import {
-  DataTree,
-  DataTreeWidget,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { functionDeterminer } from "../functionDeterminer";
@@ -11,7 +8,7 @@ import { resetJSLibraries } from "workers/common/JSLibrary";
 import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
 
 describe("evaluateSync", () => {
-  const widget: DataTreeWidget = {
+  const widget: WidgetEntity = {
     bottomRow: 0,
     isLoading: false,
     leftColumn: 0,
@@ -79,12 +76,13 @@ describe("evaluateSync", () => {
             message: "wrongJS is not defined",
           },
           errorType: "PARSE",
+          kind: undefined,
           raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
+  function $$closedFn () {
+    const $$result = wrongJS
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "wrongJS",
@@ -101,12 +99,13 @@ describe("evaluateSync", () => {
             message: "{}.map is not a function",
           },
           errorType: "PARSE",
+          kind: undefined,
           raw: `
-  function closedFunction () {
-    const result = {}.map()
-    return result;
+  function $$closedFn () {
+    const $$result = {}.map()
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "{}.map()",
@@ -131,12 +130,13 @@ describe("evaluateSync", () => {
             message: "setImmediate is not defined",
           },
           errorType: "PARSE",
+          kind: undefined,
           raw: `
-  function closedFunction () {
-    const result = setImmediate(() => {}, 100)
-    return result;
+  function $$closedFn () {
+    const $$result = setImmediate(() => {}, 100)
+    return $$result
   }
-  closedFunction.call(THIS_CONTEXT)
+  $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
           originalBinding: "setImmediate(() => {}, 100)",

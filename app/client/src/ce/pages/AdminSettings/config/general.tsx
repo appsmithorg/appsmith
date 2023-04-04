@@ -2,12 +2,14 @@ import React from "react";
 import { isEmail } from "utils/formhelpers";
 import { apiRequestConfig } from "api/Api";
 import UserApi from "@appsmith/api/UserApi";
-import {
+import type {
   AdminConfigType,
+  Setting,
+} from "@appsmith/pages/AdminSettings/config/types";
+import {
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-  Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
@@ -62,12 +64,11 @@ export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING: Setting = {
 
 export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
   id: "APPSMITH_DISABLE_TELEMETRY",
+  name: "APPSMITH_DISABLE_TELEMETRY",
   category: SettingCategories.GENERAL,
-  controlType: SettingTypes.TOGGLE,
-  label: "Share anonymous usage data",
-  subText: "Share anonymous usage data to help improve the product",
-  toggleText: (value: boolean) =>
-    value ? "Don't share any data" : "Share Anonymous Telemetry",
+  controlType: SettingTypes.CHECKBOX,
+  label: "Anonymous Usage Data",
+  text: "Share anonymous usage data to help improve the product",
 };
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
@@ -77,7 +78,7 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "Appsmith Watermark",
   text: "Show Appsmith Watermark",
-  needsUpgrade: true,
+  needsUpgrade: false,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
   upgradeLogEventName: "ADMIN_SETTINGS_UPGRADE_WATERMARK",
@@ -102,11 +103,9 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
         badge: "NOT RECOMMENDED",
         tooltip: {
           icon: <QuestionFillIcon />,
-          text:
-            "Lets all domains, including malicious ones, embed your Appsmith apps. ",
+          text: "Lets all domains, including malicious ones, embed your Appsmith apps. ",
           linkText: "SEE WHY THIS IS RISKY",
-          link:
-            "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
+          link: "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
         },
         label: "Allow embedding everywhere",
         value: AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE,

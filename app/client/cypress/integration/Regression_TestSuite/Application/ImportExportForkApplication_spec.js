@@ -1,16 +1,14 @@
 const homePage = require("../../../locators/HomePage");
 const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
 
-describe("Import, Export and Fork application and validate data binding", function() {
+describe("Import, Export and Fork application and validate data binding", function () {
   let workspaceId;
   let newWorkspaceName;
   let appName;
-  it("Import application from json and validate data on pageload", function() {
+  it("1. Import application from json and validate data on pageload", function () {
     // import application
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
@@ -38,9 +36,7 @@ describe("Import, Export and Fork application and validate data binding", functi
         force: true,
       });
       cy.wait(2000);
-      cy.get(homePage.applicationName)
-        .clear()
-        .type(appName);
+      cy.get(homePage.applicationName).clear().type(appName);
       cy.get("body").click(0, 0);
       cy.wait("@updateApplication").should(
         "have.nested.property",
@@ -59,17 +55,13 @@ describe("Import, Export and Fork application and validate data binding", functi
     });
   });
 
-  it("Fork application and validate data binding for the widgets", function() {
+  it("2. Fork application and validate data binding for the widgets", function () {
     // fork application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.searchInput).type(`${appName}`);
     cy.wait(3000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
     cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
     cy.wait(4000);
@@ -81,18 +73,12 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath("//span[text()='due']").should("be.visible");
   });
 
-  it("Export and import application and validate data binding for the widgets", function() {
+  it("3. Export and import application and validate data binding for the widgets", function () {
     cy.NavigateToHome();
-    cy.get(homePage.searchInput)
-      .clear()
-      .type(`${appName}`);
+    cy.get(homePage.searchInput).clear().type(`${appName}`);
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     // export application
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.searchInput).clear();

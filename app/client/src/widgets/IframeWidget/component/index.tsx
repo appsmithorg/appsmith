@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
-import { ComponentProps } from "widgets/BaseComponent";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { RenderMode } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 interface IframeContainerProps {

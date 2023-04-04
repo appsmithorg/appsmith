@@ -11,20 +11,8 @@ const widgetName = "currencyinputwidget";
 const wiggetClass = `.t--widget-${widgetName}`;
 const widgetInput = `${wiggetClass} input`;
 
-describe("Currency Input Issue", function() {
-  before(function() {
-    agHelper.ClearLocalStorageCache();
-  });
-
-  beforeEach(function() {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(function() {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  it("1. Import application json", function() {
+describe("Currency Input Issue", function () {
+  it("1. Import application json &should check that the widget input is not showing any error", function () {
     cy.visit("/applications");
     homePage.ImportApp("CurrencyInputIssueExport.json");
     cy.wait("@importNewApplication").then((interception) => {
@@ -39,9 +27,6 @@ describe("Currency Input Issue", function() {
         homePage.AssertImportToast();
       }
     });
-  });
-
-  it("2. should check that the widget input is not showing any error", function() {
     cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");

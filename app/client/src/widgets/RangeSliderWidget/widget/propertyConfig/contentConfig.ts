@@ -1,16 +1,17 @@
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { RangeSliderWidgetProps } from "..";
 import {
-  maxValueValidation,
-  minValueValidation,
-  minRangeValidation,
-  stepSizeValidation,
-  startValueValidation,
   endValueValidation,
+  maxValueValidation,
+  minRangeValidation,
+  minValueValidation,
+  startValueValidation,
+  stepSizeValidation,
 } from "../../validations";
-import { RangeSliderWidgetProps } from "..";
 
 export default [
   {
@@ -316,6 +317,7 @@ export default [
       },
     ],
   },
+  ...getResponsiveLayoutConfig("RANGE_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [

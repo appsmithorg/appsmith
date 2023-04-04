@@ -1,13 +1,15 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
+import { Colors } from "constants/Colors";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { Colors } from "constants/Colors";
-import { Stylesheet } from "entities/AppTheming";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -125,6 +127,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

@@ -3,13 +3,14 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const dsl = require("../../../../../fixtures/checkboxgroupDsl.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Checkbox Group Widget Functionality", function() {
+describe("Checkbox Group Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Checkbox Group Widget Functionality", function() {
+  it("1. Checkbox Group Widget Functionality", function () {
     cy.openPropertyPane("checkboxgroupwidget");
     /**
      * @param{Text} Random Text
@@ -19,7 +20,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.widgetText(
       "checkboxgrouptest",
       formWidgetsPage.checkboxGroupWidget,
-      formWidgetsPage.checkboxGroupInput,
+      widgetsPage.widgetNameSpan,
     );
     /**
      * @param{IndexValue} Provide Input Index Value
@@ -38,17 +39,13 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
     cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue)
-      .eq(2)
-      .click({ force: true });
+    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
     cy.wait(200);
     cy.get(formWidgetsPage.labelCheckboxGroup).should(
       "not.have.value",
       "test4",
     );
-    cy.get(formWidgetsPage.deleteradiovalue)
-      .eq(2)
-      .click({ force: true });
+    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
     cy.wait(200);
     /**
      * @param{Show Alert} Css for InputChange
@@ -61,7 +58,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("2. Checkbox Group Functionality To Unchecked Visible Widget", function() {
+  it("2. Checkbox Group Functionality To Unchecked Visible Widget", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -70,7 +67,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("3. Checkbox Group Functionality To Check Visible Widget", function() {
+  it("3. Checkbox Group Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -80,14 +77,14 @@ describe("Checkbox Group Widget Functionality", function() {
       .should("exist");
   });
 
-  it("4. Checkbox Group Functionality To Button Text", function() {
+  it("4. Checkbox Group Functionality To Button Text", function () {
     cy.get(publish.checkboxGroupWidget + " " + "label")
       .eq(2)
       .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
   });
 
-  it("handleSelectAllChange: unchecked", function() {
+  it("handleSelectAllChange: unchecked", function () {
     const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
     const uncheckedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:not(:checked)`;
     // Deselect all
@@ -96,7 +93,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(uncheckedOptionInputs).should("have.length", 2);
   });
 
-  it("handleSelectAllChange: checked", function() {
+  it("handleSelectAllChange: checked", function () {
     const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
     const checkedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:checked`;
     // Select all
@@ -105,7 +102,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(checkedOptionInputs).should("have.length", 2);
   });
 
-  it("Checkbox Group Functionality To alignment options", function() {
+  it("Checkbox Group Functionality To alignment options", function () {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.moveToStyleTab();
     // check default value
@@ -124,16 +121,14 @@ describe("Checkbox Group Widget Functionality", function() {
       force: true,
     });
     cy.wait(200);
-    cy.get(".t--dropdown-option")
-      .contains("Start")
-      .click({ force: true });
+    cy.get(".t--dropdown-option").contains("Start").click({ force: true });
     cy.wait(400);
     cy.get(
       ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
     ).should("have.css", "justify-content", "flex-start");
   });
 
-  it("Check isDirty meta property", function() {
+  it("Check isDirty meta property", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
     cy.openPropertyPane("textwidget");
@@ -148,9 +143,7 @@ describe("Checkbox Group Widget Functionality", function() {
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
-    cy.get(formWidgetsPage.labelCheckboxGroup)
-      .first()
-      .click();
+    cy.get(formWidgetsPage.labelCheckboxGroup).first().click();
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
   });

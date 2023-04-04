@@ -48,7 +48,6 @@ import reactor.core.scheduler.Scheduler;
 import jakarta.validation.Validator;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,6 +68,7 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTI
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
+import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -241,51 +241,51 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return repository.save(createdWorkspace);
     }
 
-    protected Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
+    @Override
+    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
         return Mono.just(TRUE);
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
         if (oldName.startsWith(ADMINISTRATOR)) {
-            return getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName);
+            return generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName);
         } else if (oldName.startsWith(DEVELOPER)) {
-            return getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName);
+            return generateDefaultRoleNameForResource(DEVELOPER, workspaceName);
         } else if (oldName.startsWith(VIEWER)) {
-            return getDefaultNameForGroupInWorkspace(VIEWER, workspaceName);
+            return generateDefaultRoleNameForResource(VIEWER, workspaceName);
         }
 
         // If this is not a default group aka does not start with the expected prefix, don't update it.
         return oldName;
     }
 
-    @Override
-    public String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName) {
-        return prefix + " - " + workspaceName;
-    }
 
     private Mono<Set<PermissionGroup>> generateDefaultPermissionGroupsWithoutPermissions(Workspace workspace) {
         String workspaceName = workspace.getName();
         String workspaceId = workspace.getId();
         // Administrator permission group
         PermissionGroup adminPermissionGroup = new PermissionGroup();
-        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
-        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
+        adminPermissionGroup.setDefaultDomainId(workspaceId);
+        adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
 
         // Developer permission group
         PermissionGroup developerPermissionGroup = new PermissionGroup();
-        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
-        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
+        developerPermissionGroup.setDefaultDomainId(workspaceId);
+        developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
 
         // App viewer permission group
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
-        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
-        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
+        viewerPermissionGroup.setDefaultDomainId(workspaceId);
+        viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());

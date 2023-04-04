@@ -1,20 +1,26 @@
-import React from "react";
-import { find } from "lodash";
-import TabsComponent from "../component";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
-import WidgetFactory from "utils/WidgetFactory";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { WidgetProperties } from "selectors/propertyPaneSelectors";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import derivedProperties from "./parseDerivedProperties";
-import { Stylesheet } from "entities/AppTheming";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { find } from "lodash";
+import React from "react";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import type { WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import TabsComponent from "../component";
+import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import derivedProperties from "./parseDerivedProperties";
+import type { Stylesheet } from "entities/AppTheming";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -182,6 +188,7 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -323,9 +330,13 @@ class TabsWidget extends BaseWidget<
       width:
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
+    const isAutoHeightEnabled: boolean =
+      isAutoHeightEnabledForWidget(this.props) &&
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}
+        $noScroll={isAutoHeightEnabled}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
@@ -333,6 +344,7 @@ class TabsWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
+        selectedTabWidgetId={this.getSelectedTabWidgetId()}
       >
         {this.renderComponent()}
       </TabsComponent>
@@ -340,7 +352,7 @@ class TabsWidget extends BaseWidget<
   }
 
   renderComponent = () => {
-    const selectedTabWidgetId = this.props.selectedTabWidgetId;
+    const selectedTabWidgetId = this.getSelectedTabWidgetId();
     const childWidgetData = {
       ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
@@ -359,9 +371,35 @@ class TabsWidget extends BaseWidget<
       : componentHeight - 1;
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
+    const selectedTabProps = Object.values(this.props.tabsObj)?.filter(
+      (item) => item.widgetId === selectedTabWidgetId,
+    )[0];
+    const positioning: Positioning =
+      this.props.appPositioningType == AppPositioningTypes.AUTO
+        ? Positioning.Vertical
+        : Positioning.Fixed;
+    childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning !== Positioning.Fixed;
+    childWidgetData.direction =
+      positioning === Positioning.Vertical
+        ? LayoutDirection.Vertical
+        : LayoutDirection.Horizontal;
+    childWidgetData.alignment = selectedTabProps?.alignment;
+    childWidgetData.spacing = selectedTabProps?.spacing;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
+
+  private getSelectedTabWidgetId() {
+    let selectedTabWidgetId = this.props.selectedTabWidgetId;
+    if (this.props.children) {
+      selectedTabWidgetId =
+        this.props.children.find((tab) =>
+          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        )?.widgetId ?? this.props.selectedTabWidgetId;
+    }
+    return selectedTabWidgetId;
+  }
 
   static getWidgetType(): string {
     return "TABS_WIDGET";

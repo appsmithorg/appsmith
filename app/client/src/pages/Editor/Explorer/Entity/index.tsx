@@ -1,10 +1,9 @@
+import type { ReactNode, RefObject } from "react";
 import React, {
-  ReactNode,
   useEffect,
   useRef,
   forwardRef,
   useCallback,
-  RefObject,
   useMemo,
 } from "react";
 import styled, { css } from "styled-components";
@@ -27,11 +26,12 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
+  CONTEXT_MENU_CONTENT = "entity-context-menu-content",
   RIGHT_ICON = "entity-right-icon",
   PRE_RIGHT_ICON = "entity-pre-right-icon",
   ADD_BUTTON = "t--entity-add-btn",

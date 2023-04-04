@@ -1,6 +1,7 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import equal from "fast-deep-equal/es6";
-import React, { ReactNode, useCallback } from "react";
+import type { ReactNode } from "react";
+import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
@@ -12,6 +13,7 @@ import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "../history";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -83,9 +85,13 @@ export const useClickToSelectWidget = (widgetId: string) => {
         }
 
         if (parentWidgetToOpen) {
-          selectWidget(type, [parentWidgetToOpen.widgetId]);
+          selectWidget(
+            type,
+            [parentWidgetToOpen.widgetId],
+            NavigationMethod.CanvasClick,
+          );
         } else {
-          selectWidget(type, [widgetId]);
+          selectWidget(type, [widgetId], NavigationMethod.CanvasClick);
           focusWidget(widgetId);
         }
 

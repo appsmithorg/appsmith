@@ -5,12 +5,14 @@ import styled from "styled-components";
 
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import {
+import type {
   ChartDataPoint,
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
   ChartSelectedDataPoint,
+} from "../constants";
+import {
   LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
@@ -211,10 +213,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const dataset = Object.keys(chartData).map((key: string, index) => {
       const item = get(chartData, `${key}`);
 
-      const seriesChartData: Array<Record<
-        string,
-        unknown
-      >> = getSeriesChartData(get(item, "data", []), categories);
+      const seriesChartData: Array<Record<string, unknown>> =
+        getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
         color: item.color

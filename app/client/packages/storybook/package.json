@@ -1,0 +1,47 @@
+{
+  "name": "@design-system/storybook",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
+  "license": "MIT",
+  "scripts": {
+    "storybook": "start-storybook -p 6006",
+    "build": "build-storybook",
+    "lint:ci": "echo 'No lint specified'",
+    "prettier:ci": "echo 'No prettier specified'"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.12",
+    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-docs": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/addon-interactions": "^6.5.16",
+    "@storybook/addon-links": "^6.5.16",
+    "@storybook/addon-postcss": "^2.0.0",
+    "@storybook/builder-webpack4": "^6.5.16",
+    "@storybook/builder-webpack5": "^6.5.16",
+    "@storybook/manager-webpack4": "^6.5.16",
+    "@storybook/manager-webpack5": "^6.5.16",
+    "@storybook/node-logger": "^6.5.16",
+    "@storybook/preset-create-react-app": "^4.1.2",
+    "@storybook/react": "^6.5.16",
+    "@storybook/testing-library": "^0.0.13",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "autoprefixer": "^9.0.0",
+    "babel-loader": "^8.3.0",
+    "postcss": "^8",
+    "re-resizable": "^6.9.9",
+    "storybook-addon-pseudo-states": "^1.15.2",
+    "storybook-color-picker": "^3.1.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.2"
+  },
+  "dependencies": {
+    "@capsizecss/core": "^3.1.0",
+    "@capsizecss/metrics": "^1.0.1",
+    "@design-system/wds": "*",
+    "colorjs.io": "^0.4.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

@@ -1,30 +1,26 @@
-import React, {
-  Context,
-  createContext,
-  ReactNode,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+import type { Context, ReactNode } from "react";
+import React, { createContext, useCallback, useMemo, useRef } from "react";
 import { connect } from "react-redux";
 import { get, set } from "lodash";
 
-import { WidgetOperation } from "widgets/BaseWidget";
+import type { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeTrigger, disableDragAction } from "actions/widgetActions";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import {
   updateWidgetPropertyRequest,
   deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
-  BatchPropertyUpdatePayload,
 } from "actions/controlActions";
 
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 
+import type { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 import {
   resetChildrenMetaProperty,
+  syncBatchUpdateWidgetMetaProperties,
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
@@ -33,21 +29,20 @@ import {
   deleteMetaWidgets,
   updateMetaWidgetProperty,
 } from "actions/metaWidgetActions";
-import {
+import type {
   ModifyMetaWidgetPayload,
   DeleteMetaWidgetsPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
-import {
-  selectWidgetInitAction,
-  WidgetSelectionRequest,
-} from "actions/widgetSelectionActions";
+import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -75,6 +70,9 @@ export type EditorContextType<TCache = unknown> = {
     widgetId: string,
     propertyName: string,
     propertyValue: any,
+  ) => void;
+  syncBatchUpdateWidgetMetaProperties?: (
+    batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
   ) => void;
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
   checkContainersForAutoHeight?: () => void;
@@ -109,6 +107,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "setWidgetCache",
   "updateMetaWidgetProperty",
   "syncUpdateWidgetMetaProperty",
+  "syncBatchUpdateWidgetMetaProperties",
   "triggerEvalOnMetaUpdate",
   "updateWidgetAutoHeight",
   "checkContainersForAutoHeight",
@@ -125,15 +124,13 @@ const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   "updateWidgetProperty",
 ];
 
-const ApiMethodsListByRenderModes: Record<
-  RenderMode,
-  EditorContextTypeKey[]
-> = {
-  [RenderModes.CANVAS]: CANVAS_MODE_API_METHODS,
-  [RenderModes.PAGE]: PAGE_MODE_API_METHODS,
-  [RenderModes.CANVAS_SELECTED]: [],
-  [RenderModes.COMPONENT_PANE]: [],
-};
+const ApiMethodsListByRenderModes: Record<RenderMode, EditorContextTypeKey[]> =
+  {
+    [RenderModes.CANVAS]: CANVAS_MODE_API_METHODS,
+    [RenderModes.PAGE]: PAGE_MODE_API_METHODS,
+    [RenderModes.CANVAS_SELECTED]: [],
+    [RenderModes.COMPONENT_PANE]: [],
+  };
 
 function extractFromObj<T, K extends keyof T>(
   obj: T,
@@ -200,6 +197,9 @@ const mapDispatchToProps = {
     propertyName: string,
     propertyValue: any,
   ) => syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
+  syncBatchUpdateWidgetMetaProperties: (
+    batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
+  ) => syncBatchUpdateWidgetMetaProperties(batchMetaUpdates),
   resetChildrenMetaProperty,
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,

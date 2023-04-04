@@ -12,7 +12,9 @@ type templateActions =
   | "Delete"
   | "Count"
   | "Distinct"
-  | "Aggregate";
+  | "Aggregate"
+  | "Select"
+  | "Create";
 
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -47,7 +49,7 @@ export class EntityExplorer {
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
   private _visibleTextSpan = (spanText: string) =>
-    "//span[text()='" + spanText + " Query']";
+    "//span[text()='" + spanText + "']";
   _createNewPopup = ".bp3-overlay-content";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _pinEntityExplorer = ".t--pin-entity-explorer";
@@ -170,11 +172,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
-    widgetType: string,
-    x: number = 200,
-    y: number = 200,
-  ) {
+  public DragDropWidgetNVerify(widgetType: string, x = 200, y = 200) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
@@ -190,24 +188,17 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.ExpandCollapseEntity("Pages");
-    cy.get(this.getPageLocator(pageName))
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(this._moreOptionsPopover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(this._pageClone).click({ force: true });
+    this.SelectEntityByName(pageName, "Pages");
+    this.ActionContextMenuByEntityName(pageName, "Clone");
     this.agHelper.ValidateNetworkStatus("@clonePage", 201);
   }
 
-  public CreateNewDsQuery(dsName: string) {
-    cy.get(this.locator._createNew)
-      .last()
-      .click({ force: true });
-    cy.xpath(this._visibleTextSpan(dsName)).click({ force: true });
+  public CreateNewDsQuery(dsName: string, isQuery = true) {
+    cy.get(this.locator._createNew).last().click({ force: true });
+    let overlayItem = isQuery
+      ? this._visibleTextSpan(dsName + " Query")
+      : this._visibleTextSpan(dsName);
+    this.agHelper.GetNClick(overlayItem);
   }
 
   public CopyPasteWidget(widgetName: string) {

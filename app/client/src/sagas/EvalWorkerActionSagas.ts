@@ -3,15 +3,16 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
-import { Channel } from "redux-saga";
+import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
-import {
+import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
 } from "reducers/entityReducers/jsActionsReducer";
-import { MessageType, TMessage } from "utils/MessageUtil";
+import type { TMessage } from "utils/MessageUtil";
+import { MessageType } from "utils/MessageUtil";
+import type { ResponsePayload } from "../sagas/EvaluationsSaga";
 import {
-  ResponsePayload,
   evalWorker,
   executeTriggerRequestSaga,
 } from "../sagas/EvaluationsSaga";
@@ -19,6 +20,7 @@ import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga"
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import isEmpty from "lodash/isEmpty";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { LintTreeSagaRequestData } from "workers/Linting/types";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -30,11 +32,21 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
+  const {
+    asyncJSFunctionsInDataFields,
+    configTree,
+    jsPropertiesState,
+    pathsToLint: lintOrder,
+    unevalTree,
+  } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: data.lintOrder,
-      unevalTree: data.unevalTree,
+      pathsToLint: lintOrder,
+      unevalTree,
+      jsPropertiesState,
+      asyncJSFunctionsInDataFields,
+      configTree,
     },
   });
 }

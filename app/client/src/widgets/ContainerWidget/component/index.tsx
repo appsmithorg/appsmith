@@ -1,20 +1,17 @@
-import React, {
+import type {
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   RefObject,
-  useCallback,
-  useEffect,
-  useRef,
 } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
 import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import WidgetStyleContainer, {
-  WidgetStyleContainerProps,
-} from "components/designSystems/appsmith/WidgetStyleContainer";
-import { WidgetType } from "utils/WidgetFactory";
+import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
 
 const StyledContainerComponent = styled.div<
@@ -24,17 +21,16 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
-  
-  ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
+
+  ${(props) =>
+    props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
 
   background: ${(props) => props.backgroundColor};
   &:hover {
     background-color: ${(props) => {
       return props.onClickCapture && props.backgroundColor
-        ? tinycolor(props.backgroundColor)
-            .darken(5)
-            .toString()
+        ? tinycolor(props.backgroundColor).darken(5).toString()
         : props.backgroundColor;
     }};
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
@@ -51,6 +47,7 @@ interface ContainerWrapperProps {
   widgetId: string;
   type: WidgetType;
   dropDisabled?: boolean;
+  $noScroll: boolean;
 }
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
@@ -118,6 +115,7 @@ function ContainerComponentWrapper(
     <StyledContainerComponent
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
+      $noScroll={props.$noScroll}
       backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
@@ -142,6 +140,7 @@ function ContainerComponent(props: ContainerComponentProps) {
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
+        $noScroll={!!props.noScroll}
         dropDisabled={props.dropDisabled}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
@@ -167,6 +166,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       widgetId={props.widgetId}
     >
       <ContainerComponentWrapper
+        $noScroll={!!props.noScroll}
         backgroundColor={props.backgroundColor}
         dropDisabled={props.dropDisabled}
         onClick={props.onClick}
@@ -196,6 +196,11 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   backgroundColor?: string;
   type: WidgetType;
   noScroll?: boolean;
+  minHeight?: number;
+  useAutoLayout?: boolean;
+  direction?: string;
+  justifyContent?: string;
+  alignItems?: string;
   dropDisabled?: boolean;
 }
 

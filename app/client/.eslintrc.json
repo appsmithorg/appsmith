@@ -1,11 +1,11 @@
 // This JSON file configures the eslint plugin. It supports comments as well as per the JSON5 spec
 {
+  "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks","sort-destructure-keys", "cypress"],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
     "plugin:cypress/recommended",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
@@ -19,17 +19,20 @@
     }
   },
   "rules": {
-    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "import/no-webpack-loader-syntax": "off",
+    "no-undef": "off",
+    "react/prop-types": "off",
+    "react/display-name": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "cypress/no-unnecessary-waiting": "off",
+    "cypress/no-assigning-return-values": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    // enforce `import type` for all type-only imports so the bundler knows to erase them
+    "@typescript-eslint/consistent-type-imports": "error",
     "react-hooks/rules-of-hooks": "error",
-    "@typescript-eslint/no-use-before-define": 0,
-    "@typescript-eslint/no-var-requires": 0,
-    "import/no-webpack-loader-syntax": 0,
-    "no-undef": 0,
-    "react/prop-types": 0,
-    "react/display-name": 0,
-    "@typescript-eslint/explicit-module-boundary-types": 0,
-    "cypress/no-unnecessary-waiting": 0,
-    "cypress/no-assigning-return-values": 0,
     "react/jsx-boolean-value": "error",
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",

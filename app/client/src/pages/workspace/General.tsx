@@ -5,7 +5,7 @@ import {
   saveWorkspace,
   uploadWorkspaceLogo,
 } from "@appsmith/actions/workspaceActions";
-import { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
+import type { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
 import { debounce } from "lodash";
 import {
   TextInput,
@@ -20,16 +20,10 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import {
-  FilePickerV2,
-  FileType,
-  SetProgress,
-  Text,
-  TextType,
-  UploadCallback,
-} from "design-system-old";
+import type { SetProgress, UploadCallback } from "design-system-old";
+import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { useMediaQuery } from "react-responsive";
 
 // trigger tests

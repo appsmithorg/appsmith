@@ -1,7 +1,8 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { InputType } from "components/constants";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { InputType } from "components/constants";
+import type { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
 
@@ -11,13 +12,8 @@ const Wrapper = styled.div`
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
-    const {
-      configProperty,
-      dataType,
-      disabled,
-      fixedKey,
-      placeholderText,
-    } = this.props;
+    const { configProperty, dataType, disabled, fixedKey, placeholderText } =
+      this.props;
 
     return (
       <Wrapper>

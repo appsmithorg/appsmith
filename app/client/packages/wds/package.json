@@ -1,0 +1,26 @@
+{
+  "name": "@design-system/wds",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
+  "license": "MIT",
+  "scripts": {
+    "build:tokens": "npx ts-node  ./src/utils/buildTokens.ts",
+    "lint:ci": "eslint --cache .",
+    "prettier:ci": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "eslint": "*",
+    "eslint-plugin-storybook": "^0.6.10",
+    "prettier": "*"
+  },
+  "dependencies": {
+    "@capsizecss/core": "^3.1.0",
+    "@capsizecss/metrics": "^1.0.1",
+    "colorjs.io": "^0.4.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

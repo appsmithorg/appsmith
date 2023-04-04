@@ -6,8 +6,8 @@ const shortName = "shortName";
 const longName = "AVeryLongNameThatOverflows";
 const alternateName = "AlternateName";
 
-describe("Entity Explorer showing tooltips on long names", function() {
-  it("Expect tooltip on long names only", function() {
+describe("Entity Explorer showing tooltips on long names", function () {
+  it("Expect tooltip on long names only", function () {
     // create an API with a short name
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(shortName);

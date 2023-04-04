@@ -4,18 +4,18 @@ const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const color = "rgb(151, 0, 0)";
 
-describe("Table Widget property pane feature validation", function() {
+describe("Table Widget property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table widget with with modal popup", function() {
+  it("Table widget with with modal popup", function () {
     cy.openPropertyPane("tablewidget");
     //update Table name with _
     cy.widgetText(
       "Table_1",
       widgetsPage.tableWidget,
-      commonlocators.tableInner,
+      widgetsPage.widgetNameSpan,
     );
     cy.createModal("Modal", this.data.ModalName);
     cy.isSelectRow(1);
@@ -24,7 +24,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".bp3-overlay-backdrop").click({ force: true });
   });
 
-  it("Table widget with button colour change validation", function() {
+  it("Table widget with button colour change validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.editColumn("id");
@@ -34,10 +34,7 @@ describe("Table Widget property pane feature validation", function() {
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.changeColumnType("Button", false);
-    cy.get(widgetsPage.buttonColor)
-      .click({ force: true })
-      .clear()
-      .type(color);
+    cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type(color);
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color);
     cy.readTabledataPublish("2", "2").then((tabData) => {
       const tabValue = tabData;
@@ -45,7 +42,7 @@ describe("Table Widget property pane feature validation", function() {
     });
   });
 
-  it("Table widget icon type and colour validation", function() {
+  it("Table widget icon type and colour validation", function () {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.get(commonlocators.editPropBackButton).click({ force: true });
@@ -56,16 +53,14 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
-    cy.get(".bp3-icon-add")
-      .first()
-      .click({
-        force: true,
-      });
+    cy.get(".bp3-icon-add").first().click({
+      force: true,
+    });
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-add").should("be.visible");
     cy.get(".bp3-overlay-backdrop").click({ force: true });
   });
 
-  it("Table widget validation of a field without js ", function() {
+  it("Table widget validation of a field without js ", function () {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("email");
     cy.clearPropertyValue(0);
@@ -75,7 +70,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.clearPropertyValue(1);
   });
 
-  it("Table widget column reorder and reload function", function() {
+  it("Table widget column reorder and reload function", function () {
     cy.openPropertyPane("tablewidget");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.hideColumn("email");

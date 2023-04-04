@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Table Widget empty row color validation", function() {
+describe("Table Widget empty row color validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Validate cell background of columns", function() {
+  it("1. Validate cell background of columns", function () {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // give general color to all table row
@@ -37,8 +37,7 @@ describe("Table Widget empty row color validation", function() {
       "background-color",
       "rgb(30, 58, 138)",
     );
-  });
-  it("2. Validate empty row background", function() {
+    //Test 2. Validate empty row background
     // first cell of first row should be transparent
     cy.get(
       ".t--widget-tablewidget .tbody div[data-cy='empty-row-0-cell-0']",

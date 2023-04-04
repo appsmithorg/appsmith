@@ -19,7 +19,7 @@ import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal } from "actions/templateActions";
 import { Colors } from "constants/Colors";
 import {
@@ -135,7 +135,7 @@ function AddPageContextMenu({
     onMenuItemClick(item);
   };
 
-  const onMenuItemClick = (item: typeof ContextMenuItems[number]) => {
+  const onMenuItemClick = (item: (typeof ContextMenuItems)[number]) => {
     setShow(false);
     item.onClick();
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_ADD_PAGE_CLICK", {
@@ -152,7 +152,11 @@ function AddPageContextMenu({
           handleSubmitKey={handleSelect}
           handleUpKey={handleUpKey}
         >
-          <Wrapper ref={menuRef} tabIndex={0}>
+          <Wrapper
+            className={EntityClassNames.CONTEXT_MENU_CONTENT}
+            ref={menuRef}
+            tabIndex={0}
+          >
             <Text autofocus className="title" type={TextType.H5}>
               {createMessage(CANVAS_NEW_PAGE_CARD)}
             </Text>

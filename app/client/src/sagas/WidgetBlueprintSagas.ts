@@ -1,15 +1,13 @@
-import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
 import { get } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetType,
-} from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
@@ -113,9 +111,9 @@ export function* executeWidgetBlueprintOperations(
             (childId: string) => widgets[childId],
           ) as WidgetProps[];
         }
-        const updatePropertyPayloads:
-          | UpdatePropertyArgs[]
-          | undefined = (operation.fn as BlueprintOperationModifyPropsFn)(
+        const updatePropertyPayloads: UpdatePropertyArgs[] | undefined = (
+          operation.fn as BlueprintOperationModifyPropsFn
+        )(
           widget as WidgetProps & { children?: WidgetProps[] },
           widgets,
           get(widgets, widget.parentId || "", undefined),
@@ -166,15 +164,9 @@ export function* executeWidgetBlueprintChildOperations(
 
     let currMessage;
 
-    ({
-      message: currMessage,
-      widgets,
-    } = (operation.fn as BlueprintOperationChildOperationsFn)(
-      widgets,
-      widgetId,
-      parentId,
-      widgetPropertyMaps,
-    ));
+    ({ message: currMessage, widgets } = (
+      operation.fn as BlueprintOperationChildOperationsFn
+    )(widgets, widgetId, parentId, widgetPropertyMaps));
     //set message if one of the widget has any message to show
     if (currMessage) message = currMessage;
   }

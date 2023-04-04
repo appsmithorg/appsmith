@@ -1,9 +1,10 @@
 import { Component } from "react";
-import { ControlType } from "constants/PropertyControlConstants";
-import { InputType } from "components/constants";
-import { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
-import { DropdownOption } from "design-system-old";
-import { ViewTypes } from "./utils";
+import type { ControlType } from "constants/PropertyControlConstants";
+import type { InputType } from "components/constants";
+import type { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { DropdownOption } from "design-system-old";
+import type { ViewTypes } from "./utils";
+import type FeatureFlags from "entities/FeatureFlags";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -18,7 +19,8 @@ export type ComparisonOperations =
   | "LESSER"
   | "GREATER"
   | "IN"
-  | "NOT_IN";
+  | "NOT_IN"
+  | "FEATURE_FLAG";
 
 export type HiddenType = boolean | Condition | ConditionObject;
 
@@ -28,6 +30,7 @@ export type Condition = {
   path: string;
   comparison: ComparisonOperations;
   value: any;
+  flagValue: keyof FeatureFlags;
 };
 
 export type Conditions = Array<Condition> | ConditionObject;

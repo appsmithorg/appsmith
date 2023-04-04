@@ -33,7 +33,7 @@ import { supportedKeyTypeList } from "./SupportedKeyTypeList";
 import getNotificationBanner from "./getNotificationBanner";
 import { getConfirmMenuItem } from "./getConfirmMenuItem";
 import { getMenuItems } from "./getMenuItems";
-import { SSHKeyType } from "actions/gitSyncActions";
+import type { SSHKeyType } from "actions/gitSyncActions";
 
 type KeysProps = {
   copyToClipboard: () => void;
@@ -94,7 +94,7 @@ function Keys(props: KeysProps) {
         {createMessage(SSH_KEY)}
       </Text>
       <FlexRow style={{ position: "relative" }}>
-        <DeployedKeyContainer $marginTop={4}>
+        <DeployedKeyContainer $marginTop={1}>
           <FlexRow>
             <Key2LineIcon
               color={Colors.DOVE_GRAY2}

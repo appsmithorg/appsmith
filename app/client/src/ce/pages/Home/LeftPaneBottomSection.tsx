@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { MenuItem } from "design-system-old";
 import {
   ADMIN_SETTINGS,
@@ -10,7 +9,7 @@ import {
   DOCUMENTATION,
   WELCOME_TOUR,
 } from "@appsmith/constants/messages";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -83,7 +82,6 @@ function LeftPaneBottomSection() {
         />
       )}
       <MenuItem
-        className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
         icon="discord"
         onSelect={() => {
           window.open("https://discord.gg/rBTTVJp", "_blank");
@@ -91,30 +89,25 @@ function LeftPaneBottomSection() {
         text={"Join our Discord"}
       />
       <MenuItem
-        containerClassName={
-          isFetchingApplications ? BlueprintClasses.SKELETON : ""
-        }
         icon="book"
         onSelect={() => {
           window.open("https://docs.appsmith.com/", "_blank");
         }}
         text={createMessage(DOCUMENTATION)}
       />
-      {!!onboardingWorkspaces.length && (
-        <MenuItem
-          containerClassName={
-            isFetchingApplications
-              ? BlueprintClasses.SKELETON
-              : "t--welcome-tour"
-          }
-          icon="guide"
-          onSelect={() => {
+
+      <MenuItem
+        containerClassName={"t--welcome-tour"}
+        icon="guide"
+        onSelect={() => {
+          if (!isFetchingApplications && !!onboardingWorkspaces.length) {
             AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
             dispatch(onboardingCreateApplication());
-          }}
-          text={createMessage(WELCOME_TOUR)}
-        />
-      )}
+          }
+        }}
+        text={createMessage(WELCOME_TOUR)}
+      />
+
       <ProductUpdatesModal />
       <LeftPaneVersionData>
         <span>

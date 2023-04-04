@@ -1,45 +1,63 @@
 import { createSelector } from "reselect";
 
-import { AppState } from "@appsmith/reducers";
-import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import {
+import type { AppState } from "@appsmith/reducers";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import type {
+  AppLayoutConfig,
+  PageListReduxState,
+} from "reducers/entityReducers/pageListReducer";
+import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
+// import { Positioning } from "utils/autoLayout/constants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
+import { APP_MODE } from "entities/App";
+import type {
+  DataTree,
+  ConfigTree,
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
+import { find, sortBy } from "lodash";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  getDataTree,
+  getLoadingEntities,
+  getConfigTree,
+} from "selectors/dataTreeSelectors";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+
 import {
   getActions,
   getCanvasWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
 import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { find, sortBy } from "lodash";
-import { APP_MODE } from "entities/App";
-import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { ApplicationVersion } from "actions/applicationActions";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import {
   buildChildWidgetTree,
   buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -75,6 +93,8 @@ export const getIsPageSaving = (state: AppState) => {
   const savingApis = state.ui.apiPane.isSaving;
   const savingJSObjects = state.ui.jsPane.isSaving;
   const isSavingAppTheme = state.ui.appTheming.isSaving;
+  const isSavingNavigationSetting =
+    state.ui.applications.isSavingNavigationSetting;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
@@ -89,7 +109,8 @@ export const getIsPageSaving = (state: AppState) => {
     areApisSaving ||
     areJsObjectsSaving ||
     isSavingAppTheme ||
-    state.ui.editor.loadingStates.savingEntity
+    state.ui.editor.loadingStates.savingEntity ||
+    isSavingNavigationSetting
   );
 };
 
@@ -224,8 +245,53 @@ export const getViewModePageList = createSelector(
   },
 );
 
-export const getCurrentApplicationLayout = (state: AppState) =>
-  state.ui.applications.currentApplication?.appLayout;
+const defaultLayout: AppLayoutConfig = {
+  type: "FLUID",
+};
+
+const getAppLayout = (state: AppState) =>
+  state.ui.applications.currentApplication?.appLayout || defaultLayout;
+
+// export const getMainCanvasPositioning = createSelector(
+//   getWidgets,
+//   (widgets) => {
+//     return (
+//       widgets &&
+//       widgets[MAIN_CONTAINER_WIDGET_ID] &&
+//       widgets[MAIN_CONTAINER_WIDGET_ID].positioning
+//     );
+//   },
+// );
+
+export const isAutoLayoutEnabled = (state: AppState): boolean => {
+  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
+};
+
+// export const getCurrentAppPositioningType = createSelector(
+//   () => AppPositioningTypes.FIXED,
+// );
+
+export const getCurrentAppPositioningType = createSelector(
+  // getMainCanvasPositioning,
+  // isAutoLayoutEnabled,
+  // (positioning: any, autoLayoutEnabled: boolean): AppPositioningTypes => {
+  //   return positioning && positioning !== Positioning.Fixed && autoLayoutEnabled
+  //     ? AppPositioningTypes.AUTO
+  //     : AppPositioningTypes.FIXED;
+  // },
+  isAutoLayoutEnabled,
+  (): AppPositioningTypes => AppPositioningTypes.FIXED,
+);
+
+export const getCurrentApplicationLayout = createSelector(
+  getAppLayout,
+  getCurrentAppPositioningType,
+  (appLayout: AppLayoutConfig, appPositionType) => {
+    return appPositionType === AppPositioningTypes.FIXED
+      ? appLayout
+      : defaultLayout;
+  },
+);
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
@@ -316,6 +382,7 @@ export const computeMainContainerWidget = (
 export const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  configTree: ConfigTree,
   mainCanvasProps: MainCanvasReduxState,
 ) => {
   const canvasWidget = computeMainContainerWidget(
@@ -326,25 +393,35 @@ export const getMainContainer = (
   //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
-  }) as DataTreeWidget;
-  return createCanvasWidget(canvasWidget, evaluatedWidget);
+  }) as WidgetEntity;
+  const evaluatedWidgetConfig = find(configTree, {
+    widgetId: MAIN_CONTAINER_WIDGET_ID,
+  }) as WidgetEntityConfig;
+  return createCanvasWidget(
+    canvasWidget,
+    evaluatedWidget,
+    evaluatedWidgetConfig,
+  );
 };
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
+  getConfigTree,
   getLoadingEntities,
   getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
+    configTree,
     loadingEntities,
     mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, DataTreeWidget> = {
+    const widgets: Record<string, WidgetEntity> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        configTree,
         mainCanvasProps,
       ),
     };
@@ -354,11 +431,15 @@ export const getCanvasWidgetDsl = createSelector(
         const canvasWidget = canvasWidgets[widgetKey];
         const evaluatedWidget = find(evaluatedDataTree, {
           widgetId: widgetKey,
-        }) as DataTreeWidget;
+        }) as WidgetEntity;
+        const evaluatedWidgetConfig = find(configTree, {
+          widgetId: widgetKey,
+        });
         if (evaluatedWidget) {
           widgets[widgetKey] = createCanvasWidget(
             canvasWidget,
             evaluatedWidget,
+            evaluatedWidgetConfig,
           );
         } else {
           widgets[widgetKey] = createLoadingWidget(canvasWidget);
@@ -380,6 +461,7 @@ export const getChildWidgets = createSelector(
     getMetaWidgets,
     getDataTree,
     getLoadingEntities,
+    getConfigTree,
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
@@ -806,3 +888,9 @@ export const showCanvasTopSectionSelector = createSelector(
     return true;
   },
 );
+
+export const getGsheetToken = (state: AppState) =>
+  state.entities.datasources.gsheetToken;
+
+export const getGsheetProjectID = (state: AppState) =>
+  state.entities.datasources.gsheetProjectID;

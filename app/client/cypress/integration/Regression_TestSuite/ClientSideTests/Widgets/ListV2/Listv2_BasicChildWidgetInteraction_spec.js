@@ -4,8 +4,8 @@ const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
   const selector = `.t--widget-card-draggable-${widgetType}`;
@@ -23,6 +23,20 @@ function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 }
 
+function deleteAllWidgetsInContainer() {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+    .first()
+    .click({
+      force: true,
+    });
+  cy.get("body").type(`{${modifierKey}}{a}`);
+  cy.get("body").type("{del}");
+
+  cy.wait(200);
+}
+
 function checkSelectedRadioValue(selector, value) {
   /**
    * This function checks if the radio button is checked.
@@ -33,20 +47,16 @@ function checkSelectedRadioValue(selector, value) {
 }
 
 describe("List widget v2 - Basic Child Widget Interaction", () => {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+  before(() => {
     cy.addDsl(emptyListDSL);
     cy.get(publishLocators.containerWidget).should("have.length", 3);
+    cy.wait(3000); // for dsl to settle
   });
 
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  it("1. Input widget", () => {
+  it("1. Child widgets", () => {
     // Drop Input widget
     dragAndDropToWidget("inputwidgetv2", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -54,20 +64,18 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.inputWidget).should("exist");
 
     // Type value
-    cy.get(publishLocators.inputWidget)
-      .find("input")
-      .type("abcd");
+    cy.get(publishLocators.inputWidget).find("input").type("abcd");
 
     // Verify if the value got typed
     cy.get(publishLocators.inputWidget)
       .find("input")
       .should("have.value", "abcd");
-  });
 
-  it("2. Select widget", () => {
+    deleteAllWidgetsInContainer();
+
     // Drop Select widget
     dragAndDropToWidget("selectwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -75,6 +83,16 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     cy.get(publishLocators.selectwidget).should("exist");
 
     cy.PublishtheApp();
+
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.selectwidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
     // open the select widget
     cy.get(publishLocators.selectwidget)
@@ -89,12 +107,12 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
     // Assert if the select widget has Red as the selected value
     cy.get(publishLocators.selectwidget).contains("Red");
     cy.get(publishPage.backToEditor).click({ force: true });
-  });
 
-  it("3. Checkbox group widget", () => {
-    // Drop Select widget
+    deleteAllWidgetsInContainer();
+
+    // Drop Checkbox widget
     dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -103,18 +121,25 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    cy.wait(1000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.checkboxGroupWidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
-    // select green
+    cy.wait(2000); //for widgets to settle
+
+    // select green & Verify Green selected
+
     cy.get(publishLocators.checkboxGroupWidget)
       .find(".bp3-checkbox")
       .contains("Green")
-      .click({ force: true });
-
-    // Verify Green selected
-    cy.get(publishLocators.checkboxGroupWidget)
-      .find(".bp3-checkbox")
-      .contains("Green")
+      .click({ force: true })
+      .wait(500)
       .siblings("input")
       .should("be.checked");
 
@@ -125,12 +150,11 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
       .siblings("input")
       .should("be.checked");
     cy.get(publishPage.backToEditor).click({ force: true });
-  });
+    deleteAllWidgetsInContainer();
 
-  it("4. Switch widget", () => {
-    // Drop Select widget
+    // Drop Switch widget
     dragAndDropToWidget("switchwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -139,29 +163,42 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
-    // Verify checked
-    cy.get(publishLocators.switchwidget)
-      .find("input")
-      .should("be.checked");
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.switchwidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
 
-    // Uncheck
+    // Verify checked
+    cy.get(publishLocators.switchwidget).find("input").should("be.checked");
+    cy.wait(1000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.switchwidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
+    // Uncheck & Verify unchecked
     cy.get(publishLocators.switchwidget)
       .find("label")
       .first()
-      .click({ force: true });
-
-    // Verify unchecked
-    cy.get(publishLocators.switchwidget)
-      .find("input")
-      .first()
+      .click()
+      .wait(500)
       .should("not.be.checked");
-    cy.get(publishPage.backToEditor).click({ force: true });
-  });
 
-  it("5. Radio group widget", () => {
-    // Drop Select widget
+    cy.get(publishPage.backToEditor).click({ force: true });
+    deleteAllWidgetsInContainer();
+
+    // Drop Radio widget
     dragAndDropToWidget("radiogroupwidget", "containerwidget", {
-      x: 50,
+      x: 250,
       y: 50,
     });
 
@@ -170,9 +207,28 @@ describe("List widget v2 - Basic Child Widget Interaction", () => {
 
     cy.PublishtheApp();
 
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.radioWidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
+
     // Check radio with value=1 is selected
     checkSelectedRadioValue(publishLocators.radioWidget, "Y");
-
+    cy.wait(1000);
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector("List1")} ${containerWidgetSelector} ${
+            publishLocators.radioWidget
+          }`,
+        )
+        .should("have.length", 3),
+    );
     // Check option 2 and then check it's value:
     cy.get(`${publishLocators.radioWidget} input`).check("N", { force: true });
     checkSelectedRadioValue(publishLocators.radioWidget, "N");

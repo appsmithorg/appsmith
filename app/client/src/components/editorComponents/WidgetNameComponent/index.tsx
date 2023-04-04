@@ -1,25 +1,27 @@
+import type { AppState } from "@appsmith/reducers";
+import { bindDataToWidget } from "actions/propertyPaneActions";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import SettingsControl, { Activities } from "./SettingsControl";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType } from "constants/WidgetConstants";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import WidgetFactory from "utils/WidgetFactory";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { hideErrors } from "selectors/debuggerSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { bindDataToWidget } from "actions/propertyPaneActions";
-import { hideErrors } from "selectors/debuggerSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import WidgetFactory from "utils/WidgetFactory";
+import SettingsControl, { Activities } from "./SettingsControl";
+import { NavigationMethod } from "utils/history";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -60,6 +62,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -111,7 +116,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
+      selectWidget &&
+        selectWidget(
+          SelectionRequestType.One,
+          [props.widgetId],
+          NavigationMethod.CanvasClick,
+        );
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
@@ -133,6 +143,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const shouldShowWidgetName = () => {
     return (
       !isPreviewMode &&
+      !isAppSettingsPaneWithNavigationTabOpen &&
       !isMultiSelectedWidget &&
       (isSnipingMode
         ? focusedWidget === props.widgetId

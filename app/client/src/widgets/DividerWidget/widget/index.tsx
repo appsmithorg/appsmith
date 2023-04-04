@@ -1,9 +1,11 @@
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -34,6 +36,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
         ],
       },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

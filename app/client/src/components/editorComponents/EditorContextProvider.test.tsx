@@ -3,10 +3,8 @@ import store from "store";
 import TestRenderer from "react-test-renderer";
 import { Provider } from "react-redux";
 
-import EditorContextProvider, {
-  EditorContext,
-  EditorContextType,
-} from "./EditorContextProvider";
+import type { EditorContextType } from "./EditorContextProvider";
+import EditorContextProvider, { EditorContext } from "./EditorContextProvider";
 
 type TestChildProps = {
   editorContext: EditorContextType;
@@ -34,6 +32,7 @@ describe("EditorContextProvider", () => {
       "setWidgetCache",
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
+      "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "deleteMetaWidgets",
       "deleteWidgetProperty",
@@ -71,6 +70,7 @@ describe("EditorContextProvider", () => {
       "setWidgetCache",
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
+      "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
       "checkContainersForAutoHeight",

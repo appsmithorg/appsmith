@@ -5,7 +5,7 @@ const {
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe("Admin settings page", function() {
+describe("Admin settings page", function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -15,7 +15,7 @@ describe("Admin settings page", function() {
     }).as("postEnvVariables");
   });
 
-  it("should test that settings page is accessible to super user", () => {
+  it("1. Should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
@@ -26,7 +26,7 @@ describe("Admin settings page", function() {
     cy.LogOut();
   });
 
-  it("should test that settings page is not accessible to normal users", () => {
+  it("2. Should test that settings page is not accessible to normal users", () => {
     cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.visit("/applications");
@@ -37,7 +37,7 @@ describe("Admin settings page", function() {
     cy.LogOut();
   });
 
-  it("should test that settings page is redirected to default tab", () => {
+  it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait(3000);
@@ -45,7 +45,7 @@ describe("Admin settings page", function() {
     cy.url().should("contain", "/settings/general");
   });
 
-  it("should test that settings page tab redirects", () => {
+  it("4. Should test that settings page tab redirects", () => {
     cy.visit("/applications");
     cy.wait(3000);
     cy.get(".admin-settings-menu-option").click();
@@ -63,7 +63,7 @@ describe("Admin settings page", function() {
     cy.url().should("contain", "/settings/version");
   });
 
-  it("should test that authentication page redirects", () => {
+  it("5. Should test that authentication page redirects", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -79,7 +79,7 @@ describe("Admin settings page", function() {
     cy.url().should("contain", "/settings/authentication/form-login");
   });
 
-  it("should test that configure link redirects to google signup setup doc", () => {
+  it("6. Should test that configure link redirects to google signup setup doc", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -94,7 +94,7 @@ describe("Admin settings page", function() {
     });
   });
 
-  it("should test that configure link redirects to github signup setup doc", () => {
+  it("7. Should test that configure link redirects to github signup setup doc", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -109,7 +109,7 @@ describe("Admin settings page", function() {
     });
   });
 
-  it("should test save and clear buttons disabled state", () => {
+  it("8. Should test save and clear buttons disabled state", () => {
     cy.visit("/settings/general");
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
@@ -119,9 +119,7 @@ describe("Admin settings page", function() {
     };
     assertVisibilityAndDisabledState();
     cy.get(adminsSettings.instanceName).should("be.visible");
-    cy.get(adminsSettings.instanceName)
-      .clear()
-      .type("AppsmithInstance");
+    cy.get(adminsSettings.instanceName).clear().type("AppsmithInstance");
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
     cy.get(adminsSettings.resetButton).should("be.visible");
@@ -130,16 +128,14 @@ describe("Admin settings page", function() {
     assertVisibilityAndDisabledState();
   });
 
-  it("should test saving a setting value", () => {
+  it("9. Should test saving a setting value", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
     cy.generateUUID().then((uuid) => {
       instanceName = uuid;
-      cy.get(adminsSettings.instanceName)
-        .clear()
-        .type(uuid);
+      cy.get(adminsSettings.instanceName).clear().type(uuid);
     });
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
@@ -158,16 +154,14 @@ describe("Admin settings page", function() {
     cy.wait(3000);
   });
 
-  it("should test saving settings value from different tabs", () => {
+  it("10.Should test saving settings value from different tabs", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
     cy.generateUUID().then((uuid) => {
       instanceName = uuid;
-      cy.get(adminsSettings.instanceName)
-        .clear()
-        .type(uuid);
+      cy.get(adminsSettings.instanceName).clear().type(uuid);
     });
     cy.get(adminsSettings.saveButton).should("be.visible");
     cy.get(adminsSettings.saveButton).should("not.be.disabled");
@@ -178,9 +172,7 @@ describe("Admin settings page", function() {
     let fromAddress;
     cy.generateUUID().then((uuid) => {
       fromAddress = uuid;
-      cy.get(adminsSettings.fromAddress)
-        .clear()
-        .type(`${uuid}@appsmith.com`);
+      cy.get(adminsSettings.fromAddress).clear().type(`${uuid}@appsmith.com`);
     });
     cy.intercept("POST", "/api/v1/admin/restart", {
       body: { responseMeta: { status: 200, success: true }, data: true },

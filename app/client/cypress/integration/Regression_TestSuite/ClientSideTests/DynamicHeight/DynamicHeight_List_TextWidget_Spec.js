@@ -6,7 +6,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Dynamic Height Width validation list widget", function() {
+describe("Dynamic Height Width validation list widget", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -14,7 +14,7 @@ describe("Dynamic Height Width validation list widget", function() {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
-  it("Validate change with auto height width for list widgets", function() {
+  it("Validate change with auto height width for list widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     const textMsg = "Dynamic panel validation for text widget wrt height";
     cy.addDsl(dsl);
@@ -84,10 +84,12 @@ describe("Dynamic Height Width validation list widget", function() {
         cy.selectEntityByName("Text3CopyCopy");
         cy.wait(2000);
         cy.get(commonlocators.generalSectionHeight).should("be.visible");
+        cy.get(".t--widget-textwidget").first().click({ force: true });
         cy.get(".t--widget-textwidget")
-          .last()
+          .first()
           .invoke("css", "height")
           .then((height) => {
+            cy.log("height", height);
             cy.changeLayoutHeight(commonlocators.autoHeight);
             cy.wait("@updateLayout").should(
               "have.nested.property",
@@ -95,10 +97,13 @@ describe("Dynamic Height Width validation list widget", function() {
               200,
             );
             cy.wait(3000);
+            cy.get(".t--widget-textwidget").first().click({ force: true });
             cy.get(".t--widget-textwidget")
-              .last()
+              .first()
+              .wait(1000)
               .invoke("css", "height")
               .then((newheight) => {
+                cy.log("newheight", newheight);
                 expect(height).to.not.equal(newheight);
               });
           });
