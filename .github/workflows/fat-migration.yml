@@ -143,11 +143,13 @@ jobs:
           node-version: "16.14.0"
 
       # Install all the dependencies
-      - name: Install dependencies
+       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install
+          yarn install \
+          --cwd cypress \
+          --modules-folder ../node_modules
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
