@@ -236,7 +236,9 @@ function* resolvingBlobUrls(
   //If array elements then dont push datatypes to payload.
   isArray
     ? arrDatatype?.push(dataType)
-    : (executeActionRequest.paramProperties[`k${index}`] = { dataType });
+    : (executeActionRequest.paramProperties[`k${index}`] = {
+        datatype: dataType,
+      });
 
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
