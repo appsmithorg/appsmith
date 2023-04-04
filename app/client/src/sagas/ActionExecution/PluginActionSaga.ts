@@ -349,11 +349,14 @@ function* evaluateActionParams(
       // This is used in cases of large files
       if (value.hasOwnProperty("blobUrlPaths")) {
         Object.entries(value.blobUrlPaths as Record<string, string>).forEach(
+          // blobUrl: string eg: blob:1234-1234-1234?type=binary
           ([path, blobUrl]) => {
             if (isArrayBuffer(value[path])) {
               useBlobMaps = true;
-              set(blobMap, blobUrl, `k${i}`);
-              set(blobDataMap, path, new Blob([value[path]]));
+              // remove the ?type=binary from the blob url if present
+              const sanitisedBlobURL = blobUrl.split("?")[0];
+              set(blobMap, sanitisedBlobURL, `k${i}`);
+              set(blobDataMap, sanitisedBlobURL, new Blob([value[path]]));
               unset(value, path);
             }
           },
