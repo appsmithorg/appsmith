@@ -813,6 +813,7 @@ export function EditorJSONtoForm(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "",
     id: currentActionConfig ? currentActionConfig.id : "",
   };
+
   const responseTabs = [
     {
       key: "response",
@@ -825,28 +826,36 @@ export function EditorJSONtoForm(props: Props) {
                 <ResponseTabErrorDefaultMessage>
                   Your query failed to execute
                   {executedQueryData &&
-                    executedQueryData.pluginErrorDetails &&
+                    (executedQueryData.pluginErrorDetails ||
+                      executedQueryData.body) &&
                     ":"}
                 </ResponseTabErrorDefaultMessage>
-                {executedQueryData && executedQueryData.pluginErrorDetails && (
-                  <>
-                    <div data-cy="t--query-error">
-                      {
-                        executedQueryData.pluginErrorDetails
-                          .downstreamErrorMessage
-                      }
-                    </div>
-                    {executedQueryData.pluginErrorDetails
-                      .downstreamErrorCode && (
-                      <LogAdditionalInfo
-                        text={
+                {executedQueryData &&
+                  (executedQueryData.pluginErrorDetails ? (
+                    <>
+                      <div data-cy="t--query-error">
+                        {
                           executedQueryData.pluginErrorDetails
-                            .downstreamErrorCode
+                            .downstreamErrorMessage
                         }
-                      />
-                    )}
-                  </>
-                )}
+                      </div>
+                      {executedQueryData.pluginErrorDetails
+                        .downstreamErrorCode && (
+                        <LogAdditionalInfo
+                          text={
+                            executedQueryData.pluginErrorDetails
+                              .downstreamErrorCode
+                          }
+                        />
+                      )}
+                    </>
+                  ) : (
+                    executedQueryData.body && (
+                      <div data-cy="t--query-error">
+                        {executedQueryData.body}
+                      </div>
+                    )
+                  ))}
                 <LogHelper
                   logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
                   name="PluginExecutionError"
