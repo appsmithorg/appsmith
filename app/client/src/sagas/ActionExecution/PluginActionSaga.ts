@@ -129,7 +129,7 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
-import { FILE_SIZE_LIMIT_FOR_BLOBS } from "widgets/FilePickerWidgetV2/widget";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

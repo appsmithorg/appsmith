@@ -10,6 +10,7 @@ import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import type { WidgetType } from "constants/WidgetConstants";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -27,8 +28,6 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
-
-export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1000;
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
