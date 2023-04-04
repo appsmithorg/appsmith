@@ -1299,7 +1299,7 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.createSuperUser).submit();
 
   cy.get("body").then(($ele) => {
-    if ($ele.find(locator._spanButton("Next").length)) {
+    if ($ele.find(locator._spanButton("Next").length) > 0) {
       agHelper.GetNClick(locator._spanButton("Next"));
     } else agHelper.GetNClick(locator._spanButton("Make your first App"));
   });
