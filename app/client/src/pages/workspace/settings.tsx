@@ -106,20 +106,24 @@ export default function Settings() {
 
   const currentTab = location.pathname.split("/").pop();
 
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
+
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   useEffect(() => {
-    const hasManageWorkspacePermissions = isPermitted(
-      currentWorkspace?.userPermissions,
-      PERMISSION_TYPE.MANAGE_WORKSPACE,
-    );
-    const canInviteToWorkspace = isPermitted(
-      currentWorkspace?.userPermissions,
-      PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-    );
-    if (!hasManageWorkspacePermissions || !canInviteToWorkspace) {
+    if (
+      (!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+      (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)
+    ) {
       history.replace(APPLICATIONS_URL);
     }
     if (currentWorkspace) {
@@ -161,11 +165,6 @@ export default function Settings() {
       setSearchValue("");
     }
   }, 300);
-
-  const isMemberofTheWorkspace = isPermitted(
-    currentWorkspace?.userPermissions || [],
-    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-  );
 
   const tabArr: TabProp[] = [
     isMemberofTheWorkspace && {
