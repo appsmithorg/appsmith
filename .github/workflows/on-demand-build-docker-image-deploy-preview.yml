@@ -20,6 +20,7 @@ jobs:
             skip-tests: `${{ github.event.client_payload.slash_command.args.named.skip-tests }}`.
             env: `${{ github.event.client_payload.slash_command.args.named.env }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
+            recreate: ${{ github.event.client_payload.slash_command.args.named.recreate }}.
 
   server-build:
     name: server-build
@@ -185,6 +186,7 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           PULL_REQUEST_NUMBER: ${{ github.event.client_payload.pull_request.number }}
+          RECREATE: ${{ github.event.client_payload.slash_command.args.named.recreate }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
