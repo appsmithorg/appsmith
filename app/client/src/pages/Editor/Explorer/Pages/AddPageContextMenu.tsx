@@ -152,7 +152,11 @@ function AddPageContextMenu({
           handleSubmitKey={handleSelect}
           handleUpKey={handleUpKey}
         >
-          <Wrapper ref={menuRef} tabIndex={0}>
+          <Wrapper
+            className={EntityClassNames.CONTEXT_MENU_CONTENT}
+            ref={menuRef}
+            tabIndex={0}
+          >
             <Text autofocus className="title" type={TextType.H5}>
               {createMessage(CANVAS_NEW_PAGE_CARD)}
             </Text>

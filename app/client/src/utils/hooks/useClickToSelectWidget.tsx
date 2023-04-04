@@ -13,6 +13,7 @@ import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "../history";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -84,9 +85,13 @@ export const useClickToSelectWidget = (widgetId: string) => {
         }
 
         if (parentWidgetToOpen) {
-          selectWidget(type, [parentWidgetToOpen.widgetId]);
+          selectWidget(
+            type,
+            [parentWidgetToOpen.widgetId],
+            NavigationMethod.CanvasClick,
+          );
         } else {
-          selectWidget(type, [widgetId]);
+          selectWidget(type, [widgetId], NavigationMethod.CanvasClick);
           focusWidget(widgetId);
         }
 
