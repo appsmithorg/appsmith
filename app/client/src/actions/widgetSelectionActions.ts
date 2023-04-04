@@ -29,10 +29,13 @@ export const selectWidgetInitAction: WidgetSelectionRequest = (
 });
 
 // To be used to collect selected widget state from url and set on state
-export const setSelectedWidgets = (widgetIds: string[]) => {
+export const setSelectedWidgets = (
+  widgetIds: string[],
+  invokedBy?: NavigationMethod,
+) => {
   return {
     type: ReduxActionTypes.SET_SELECTED_WIDGETS,
-    payload: { widgetIds },
+    payload: { widgetIds, invokedBy },
   };
 };
 

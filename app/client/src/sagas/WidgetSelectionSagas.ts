@@ -14,8 +14,7 @@ import { setSelectedWidgets } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { showModal } from "actions/widgetActions";
-import type { NavigationMethod } from "utils/history";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
@@ -219,10 +218,16 @@ function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
 }
 
 function* handleWidgetSelectionSaga(
-  action: ReduxAction<{ widgetIds: string[] }>,
+  action: ReduxAction<{ widgetIds: string[]; invokedBy?: NavigationMethod }>,
 ) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
+  if (action.payload.invokedBy !== NavigationMethod.CanvasClick) {
+    // When a widget selection is triggered via a canvas click,
+    // we do not want to set the widget ancestry. This is so
+    // that if the widget like a button causes a widget
+    // navigation, it would block the navigation
+    yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
+  }
   yield call(focusOnWidgetSaga, action);
   yield call(openOrCloseModalSaga, action);
 }
