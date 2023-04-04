@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import type { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { invertedBoxShadowOptions } from "constants/ThemeConstants";
 import { SegmentedControl } from "design-system";
@@ -43,11 +43,7 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
     label: (
-      <TooltipComponent
-        content={optionKey}
-        key={optionKey}
-        openOnTargetFocus={false}
-      >
+      <Tooltip content={optionKey} key={optionKey} mouseEnterDelay={0}>
         <div
           className="flex items-center justify-center w-5 h-5 bg-white  t--theme-appBoxShadow"
           style={{ boxShadow: options[optionKey] }}
@@ -56,7 +52,7 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
             <CloseLineIcon className="text-gray-700" />
           )}
         </div>
-      </TooltipComponent>
+      </Tooltip>
     ),
     value: optionKey,
   }));

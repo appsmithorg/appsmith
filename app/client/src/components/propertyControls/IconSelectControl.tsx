@@ -10,11 +10,11 @@ import { VirtuosoGrid } from "react-virtuoso";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { TooltipComponent } from "design-system-old";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { Tooltip } from "design-system";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -392,7 +392,7 @@ class IconSelectControl extends BaseControl<
       return null;
     }
     return (
-      <TooltipComponent content={icon}>
+      <Tooltip content={icon} mouseEnterDelay={0}>
         <StyledMenuItem
           active={modifiers.active}
           icon={icon === NONE ? undefined : icon}
@@ -401,7 +401,7 @@ class IconSelectControl extends BaseControl<
           text={icon === NONE ? NONE : undefined}
           textClassName={icon === NONE ? "bp3-icon-(none)" : ""}
         />
-      </TooltipComponent>
+      </Tooltip>
     );
   };
 

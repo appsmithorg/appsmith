@@ -1,4 +1,3 @@
-// import { TooltipComponent as Tooltip } from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 import styled from "styled-components";
@@ -28,22 +27,9 @@ function PropertyHelpLabel(props: Props) {
   return (
     <Tooltip
       content={props.tooltip || ""}
-      // content={
-      //   <div
-      //     style={{
-      //       color: "#FAFAFA",
-      //       maxWidth: props.maxWidth ? props.maxWidth : "320px",
-      //       lineHeight: props.lineHeight,
-      //     }}
-      //   >
-      //     {props.tooltip || ""}
-      //   </div>
-      // }
+      mouseEnterDelay={0.2}
       // disabled={!toolTipDefined}
-      // hoverOpenDelay={200}
-      // openOnTargetFocus={false}
       // popoverClassName={props.className}
-      // position="top"
     >
       <div
         onClick={props.onClick}

@@ -1,16 +1,16 @@
 import * as React from "react";
 
-import { TooltipComponent } from "design-system-old";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
+import { SegmentedControl, Tooltip } from "design-system";
+
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import { SegmentedControl } from "design-system";
 
 /**
  * ----------------------------------------------------------------------------
@@ -23,16 +23,12 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
   label: (
-    <TooltipComponent
-      content={optionKey}
-      key={optionKey}
-      openOnTargetFocus={false}
-    >
+    <Tooltip content={optionKey} key={optionKey} mouseEnterDelay={0}>
       <div
         className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
         style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
       />
-    </TooltipComponent>
+    </Tooltip>
   ),
   value: borderRadiusOptions[optionKey],
 }));

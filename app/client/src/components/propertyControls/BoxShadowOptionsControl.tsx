@@ -2,8 +2,7 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { TooltipComponent } from "design-system-old";
-import { SegmentedControl } from "design-system";
+import { SegmentedControl, Tooltip } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import type { DSEventDetail } from "utils/AppsmithUtils";
@@ -18,11 +17,7 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
 
 const options = Object.keys(boxShadowOptions).map((optionKey) => ({
   label: (
-    <TooltipComponent
-      content={optionKey}
-      key={optionKey}
-      openOnTargetFocus={false}
-    >
+    <Tooltip content={optionKey} key={optionKey} mouseEnterDelay={0}>
       <div
         className="flex items-center justify-center w-5 h-5 bg-white"
         style={{ boxShadow: boxShadowOptions[optionKey] }}
@@ -31,7 +26,7 @@ const options = Object.keys(boxShadowOptions).map((optionKey) => ({
           <CloseLineIcon className="text-gray-700" />
         )}
       </div>
-    </TooltipComponent>
+    </Tooltip>
   ),
   value: boxShadowOptions[optionKey],
 }));
