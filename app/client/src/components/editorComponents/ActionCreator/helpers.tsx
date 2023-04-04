@@ -9,8 +9,8 @@ import {
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
-import type { AppState } from "ce/reducers";
-import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
+import type { AppState } from "@appsmith/reducers";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "design-system-old";
 import { Icon } from "design-system-old";
 import { PluginType } from "entities/Action";
@@ -58,7 +58,7 @@ import {
   getEvaluationVersion,
 } from "./utils";
 import store from "store";
-import { selectEvaluationVersion } from "ce/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import {
   isAction,
   isJSAction,
