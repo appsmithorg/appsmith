@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.server.configurations.ce.InstanceConfigCE;
+import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -53,7 +53,7 @@ class RefactoringSolutionCEImplTest {
     @MockBean
     private AstService astService;
     @MockBean
-    private InstanceConfigCE instanceConfig;
+    private InstanceConfig instanceConfig;
     @MockBean
     private AnalyticsService analyticsService;
     @MockBean

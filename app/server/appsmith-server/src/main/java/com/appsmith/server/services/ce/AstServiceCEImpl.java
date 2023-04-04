@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.ce.InstanceConfigCE;
+import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
@@ -38,7 +38,7 @@ public class AstServiceCEImpl implements AstServiceCE {
 
     private final CommonConfig commonConfig;
 
-    private final InstanceConfigCE instanceConfig;
+    private final InstanceConfig instanceConfig;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
             .maxConnections(100)

@@ -5,7 +5,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.server.configurations.ce.InstanceConfigCE;
+import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -69,7 +69,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final AstService astService;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final InstanceConfigCE instanceConfig;
+    private final InstanceConfig instanceConfig;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     /*
@@ -88,7 +88,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                      LayoutActionService layoutActionService,
                                      ApplicationService applicationService,
                                      AstService astService,
-                                     InstanceConfigCE instanceConfig,
+                                     InstanceConfig instanceConfig,
                                      AnalyticsService analyticsService,
                                      SessionUserService sessionUserService,
                                      PagePermission pagePermission,
