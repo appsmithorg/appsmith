@@ -5,7 +5,7 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { isNil, noop } from "lodash";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import store from "store";
 import history from "utils/history";
 

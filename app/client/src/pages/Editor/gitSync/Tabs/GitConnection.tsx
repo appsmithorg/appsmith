@@ -34,7 +34,7 @@ import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,

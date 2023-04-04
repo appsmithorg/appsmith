@@ -6816,7 +6816,7 @@ acorn-walk@^7.0.0, acorn-walk@^7.1.1, acorn-walk@^7.2.0:
   version "7.2.0"
   resolved "https://registry.npmjs.org/acorn-walk/-/acorn-walk-7.2.0.tgz"
 
-acorn-walk@^8.1.1, acorn-walk@^8.2.0:
+acorn-walk@^8.1.1:
   version "8.2.0"
   resolved "https://registry.npmjs.org/acorn-walk/-/acorn-walk-8.2.0.tgz"
   integrity sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==
@@ -7362,11 +7362,6 @@ ast-types@^0.14.2:
 astral-regex@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/astral-regex/-/astral-regex-2.0.0.tgz"
-
-astring@^1.7.5:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/astring/-/astring-1.8.3.tgz#1a0ae738c7cc558f8e5ddc8e3120636f5cebcb85"
-  integrity sha512-sRpyiNrx2dEYIMmUXprS8nlpRg2Drs8m9ElX9vVEXaCB4XEAJhKfs7IcX0IwShjuOAjLR6wzIrgoptz1n19i1A==
 
 async-limiter@~1.0.0:
   version "1.0.1"
@@ -9657,10 +9652,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.0.52":
-  version "1.0.52"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.52.tgz#031b179a9b3689a081e29c3994b7296935fa3edb"
-  integrity sha512-iB20Dhq+BGS1vac18UtgC+mSLCAOGLH3FpVGMyfVuw+S2ZugqECnLSLmpPYGDN4Bx9ohWqYTR1CQoJgTK1kw1w==
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.1.tgz#39b01530658e5916b75ce804f34c5022982f7455"
+  integrity sha512-/r9GrbMof5OsbtET40W0t+iZZmYZyNwdhUSYwVplt4xo2QkjEVxJTBaRHxq9pS+ddgktWUzkLsLg/0w2jQgTpw==
   dependencies:
     emoji-mart "3.0.1"
 
@@ -14943,9 +14938,10 @@ memfs@^3.2.2:
   version "5.1.1"
   resolved "https://registry.npmjs.org/memoize-one/-/memoize-one-5.1.1.tgz"
 
-memoize-one@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.npmjs.org/memoize-one/-/memoize-one-5.2.1.tgz"
+memoize-one@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-6.0.0.tgz#b2591b871ed82948aee4727dc6abceeeac8c1045"
+  integrity sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==
 
 memoizerific@^1.11.3:
   version "1.11.3"
