@@ -1,4 +1,4 @@
-import { parse, Node, SourceLocation, Options, Comment } from "acorn";
+import { parse, Node, SourceLocation, Options } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
@@ -36,7 +36,7 @@ interface MemberExpressionNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
-interface IdentifierNode extends Node {
+export interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
   name: string;
 }
@@ -69,10 +69,12 @@ interface FunctionDeclarationNode extends Node, Function {
 // doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
 interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
+  async: boolean;
 }
 
 interface ArrowFunctionExpressionNode extends Expression, Function {
   type: NodeTypes.ArrowFunctionExpression;
+  async: boolean;
 }
 
 export interface ObjectExpression extends Expression {
@@ -87,7 +89,7 @@ interface AssignmentPatternNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#literal
-interface LiteralNode extends Node {
+export interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
 }
@@ -107,8 +109,12 @@ export interface PropertyNode extends Node {
   kind: "init" | "get" | "set";
 }
 
+export interface ExportDefaultDeclarationNode extends Node {
+  declaration: Node;
+}
+
 // Node with location details
-type NodeWithLocation<NodeType> = NodeType & {
+export type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
 };
 
@@ -163,6 +169,12 @@ export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
+export const isExportDefaultDeclarationNode = (
+  node: Node,
+): node is ExportDefaultDeclarationNode => {
+  return node.type === NodeTypes.ExportDefaultDeclaration;
+};
+
 export const isPropertyAFunctionNode = (
   node: Node,
 ): node is ArrowFunctionExpressionNode | FunctionExpressionNode => {
@@ -211,7 +223,11 @@ const getFunctionalParamNamesFromNode = (
 // Since this will be used by both the server and the client, we want to prevent regeneration of ast
 // for the the same code snippet
 export const getAST = memoize((code: string, options?: AstOptions) =>
-  parse(code, { ...options, ecmaVersion: ECMA_VERSION }),
+  parse(code, {
+    ...options,
+    ecmaVersion: ECMA_VERSION,
+    locations: true, // Adds location data to each node
+  }),
 );
 
 /**
