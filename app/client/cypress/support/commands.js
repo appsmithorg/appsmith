@@ -1293,11 +1293,13 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
   //cy.get(welcomePage.createButton).click({ multiple: true });
-  //trying jquery way
-  cy.get(welcomePage.createButton).then(($createBtn) => {
-    const $jQueryButton = Cypress.$($createBtn); // wrap the button element in jQuery
-    $jQueryButton.trigger("click"); // click on the button using jQuery
-  });
+  cy.get(welcomePage.createSuperUser).submit();
+
+  //trying jquery way - also not working
+  // cy.get(welcomePage.createButton).then(($createBtn) => {
+  //   const $jQueryButton = Cypress.$($createBtn); // wrap the button element in jQuery
+  //   $jQueryButton.trigger("click"); // click on the button using jQuery
+  // });
 
   cy.wait("@createSuperUser").then((interception) => {
     expect(interception.request.body).contains(
