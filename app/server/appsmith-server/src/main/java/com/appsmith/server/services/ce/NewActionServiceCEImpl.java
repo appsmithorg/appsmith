@@ -153,6 +153,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     static final String EXECUTE_ACTION_DTO = "executeActionDTO";
     static final String PARAMETER_MAP = "parameterMap";
 
+    List<Pattern> patternList = new ArrayList<>();
+
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
@@ -225,6 +227,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
+
+        this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
+        this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
+        this.patternList.add(Pattern.compile(EXECUTE_ACTION_DTO));
+        this.patternList.add(Pattern.compile(PARAMETER_MAP));
     }
 
     @Override
@@ -2236,12 +2243,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return
      */
     protected Flux<Param> parsePartsAndGetParamsFlux(Flux<Part> partFlux, AtomicLong totalReadableByteCount, ExecuteActionDTO dto) {
-        List<Pattern> patternList = new ArrayList<>();
-        patternList.add(Pattern.compile(PARAM_KEY_REGEX));
-        patternList.add(Pattern.compile(BLOB_KEY_REGEX));
-        patternList.add(Pattern.compile(EXECUTE_ACTION_DTO));
-        patternList.add(Pattern.compile(PARAMETER_MAP));
-
         return partFlux
                 .groupBy(part -> {
                     // We're grouping parts by the type of processing required
@@ -2294,7 +2295,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // if the type is not an array e.g. "k1": "string" or "k1": "boolean"
                     ParamProperty paramProperty = dto.getParamProperties().get(pseudoBindingName);
                     if (paramProperty != null) {
-                        this.calculateExecutionParamDatatype(param, paramProperty);
+                        this.identifyExecutionParamDatatype(param, paramProperty);
 
                         this.substituteBlobValuesInParam(dto, param, paramProperty);
                     }
@@ -2332,7 +2333,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
     }
 
-    private void calculateExecutionParamDatatype(Param param, ParamProperty paramProperty) {
+    private void identifyExecutionParamDatatype(Param param, ParamProperty paramProperty) {
         Object datatype = paramProperty.getDatatype();
         if (datatype instanceof String) {
             param.setClientDataType(ClientDataType.valueOf(String.valueOf(datatype).toUpperCase()));
@@ -2368,7 +2369,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
                     } catch (IOException e) {
                         log.error("Error in deserializing ExecuteActionDTO", e);
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "executeActionDTO"));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EXECUTE_ACTION_DTO));
                     }
                 })
                 .flatMap(executeActionDTO -> {
@@ -2391,7 +2392,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(objectMapper.readValue(byteData, new TypeReference<Map<String, String>>() {
                         }));
                     } catch (IOException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "parameterMap"));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PARAMETER_MAP));
                     }
                 })
                 .flatMap(paramMap -> {
