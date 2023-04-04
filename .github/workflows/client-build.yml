@@ -131,6 +131,8 @@ jobs:
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo "SKIP-TESTS" $inputs.skip-tests
+          echo "PR NUMBER" $inputs.pr
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
