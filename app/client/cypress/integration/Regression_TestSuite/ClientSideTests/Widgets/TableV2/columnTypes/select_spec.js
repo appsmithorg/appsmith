@@ -202,93 +202,131 @@ describe("Table widget - Select column type functionality", () => {
   it("8. should check that 'same select option in new row' property is working", () => {
     propertyPane.NavigateBackToPropertyPane();
 
-    propertyPane.ToggleOnOrOff("Allow adding a row", "On");
+    const checkSameOptionsInNewRowWhileEditing = () => {
+      propertyPane.ToggleOnOrOff("Allow adding a row", "On");
 
-    propertyPane.OpenTableColumnSettings("step");
+      propertyPane.OpenTableColumnSettings("step");
 
-    cy.get(".t--property-control-sameoptionsinnewrow label")
-      .last()
-      .should("have.class", "checked");
-    cy.get(".t--property-control-newrowoptions").should("not.exist");
+      cy.get(".t--property-control-sameoptionsinnewrow label")
+        .last()
+        .should("have.class", "checked");
 
-    cy.updateCodeInput(
-      ".t--property-control-options",
-      `
-      {{[{
-        "label": "male",
-        "value": "male"
-        },
-        {
-        "label": "female",
-        "value": "female"
-        }
-      ]}}
-    `,
-    );
+      // Check if newrowoption is invisible when sameoptionsinnewrow is true
+      cy.get(".t--property-control-newrowoptions").should("not.exist");
 
-    cy.editTableSelectCell(0, 0);
+      cy.updateCodeInput(
+        ".t--property-control-options",
+        `
+        {{[{
+          "label": "male",
+          "value": "male"
+          },
+          {
+          "label": "female",
+          "value": "female"
+          }
+        ]}}
+      `,
+      );
 
-    // Check if the options appear in the table
-    cy.get(".menu-item-text").contains("male").should("exist");
-    cy.get(".menu-item-text").contains("female").should("exist");
-    cy.get("[data-colindex=1][data-rowindex=0]").click({ force: true });
+      cy.editTableSelectCell(0, 0);
+
+      // Check if the options appear in the table
+      cy.get(".menu-item-text").contains("male").should("exist");
+      cy.get(".menu-item-text").contains("female").should("exist");
+      cy.get("[data-colindex=1][data-rowindex=0]").click({ force: true });
+    };
+
+    const checkSameOptionsWhileAddingNewRow = () => {
+      // Check if the same options appears while adding a new row.
+      cy.get(".t--add-new-row").scrollIntoView().should("be.visible");
+      cy.get(".t--add-new-row").click({ force: true });
+      cy.wait(500);
+
+      // Check if new row is visible
+      cy.get(".tableWrap .new-row").should("be.visible");
+
+      // Click on the first cell of the table that hasa select dropdown
+      cy.get(
+        "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
+      ).click({ force: true });
+
+      cy.get(".menu-item-text").contains("male").should("exist");
+      cy.get(".menu-item-text").contains("female").should("exist");
+
+      cy.get(".t--discard-new-row").click({ force: true });
+    };
+
+    checkSameOptionsInNewRowWhileEditing();
+
     cy.wait(500);
 
-    // Check if the same options appears while adding a new row.
-    cy.get(".t--add-new-row").scrollIntoView().should("be.visible");
-    cy.get(".t--add-new-row").click({ force: true });
-    cy.wait(10000);
-
-    cy.get(".tableWrap .new-row").should("be.visible");
-
-    cy.get(
-      "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
-    ).click({ force: true });
-
-    cy.get(".menu-item-text").contains("male").should("exist");
-    cy.get(".menu-item-text").contains("female").should("exist");
-
-    cy.get(".t--discard-new-row").click({ force: true });
+    checkSameOptionsWhileAddingNewRow();
   });
 
   it("9. should check that 'new row select options' is working", () => {
-    // New row select options should be visible when "Same options in new row" is turned off
-    propertyPane.ToggleOnOrOff("Same options in new row", "Off");
-    cy.get(".t--property-control-newrowoptions").should("exist");
+    const checkNewRowOptions = () => {
+      // New row select options should be visible when "Same options in new row" is turned off
+      propertyPane.ToggleOnOrOff("Same options in new row", "Off");
+      cy.get(".t--property-control-newrowoptions").should("exist");
 
-    // New row select options should appear in table
-    cy.updateCodeInput(
-      ".t--property-control-newrowoptions",
-      `
-      [{"label": "abc", "value": "abc"}]
-    `,
-    );
-    cy.get(".t--add-new-row").scrollIntoView().should("be.visible");
-    cy.get(".t--add-new-row").click({ force: true });
-    cy.get(".tableWrap .new-row").should("exist");
-    cy.get(
-      "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
-    ).click({ force: true });
+      // New row select options should appear in table
+      cy.updateCodeInput(
+        ".t--property-control-newrowoptions",
+        `
+        [{"label": "abc", "value": "abc"}]
+      `,
+      );
+      cy.get(".t--add-new-row").scrollIntoView().should("be.visible");
+      cy.get(".t--add-new-row").click({ force: true });
+      cy.get(".tableWrap .new-row").should("exist");
+      cy.get(
+        "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
+      ).click({ force: true });
 
-    cy.get(".menu-item-text").contains("abc").should("exist");
+      cy.get(".menu-item-text").contains("abc").should("exist");
+    };
 
-    // New row select options should not have access to the currentRow
-    cy.updateCodeInput(".t--property-control-newrowoptions", "{{currentRow}}");
-    agHelper.VerifyEvaluatedErrorMessage("currentRow is not defined");
+    const isCurrentRowAccessDisabled = () => {
+      // New row select options should not have access to the currentRow
+      cy.updateCodeInput(
+        ".t--property-control-newrowoptions",
+        "{{currentRow}}",
+      );
+      agHelper.VerifyEvaluatedErrorMessage("currentRow is not defined");
+    };
 
-    //New row selection options should support dynamic values
-    cy.updateCodeInput(
-      ".t--property-control-newrowoptions",
-      `
-      {{[{"label": "abc1", "value": "abc1"}]}}
-    `,
-    );
-    cy.get(
-      "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
-    ).click({ force: true });
-    cy.get(".menu-item-text").contains("abc1").should("exist");
+    const checkDynamicBindingSupport = () => {
+      //New row selection options should support dynamic values
+      cy.updateCodeInput(
+        ".t--property-control-newrowoptions",
+        `
+        {{[{"label": "abc1", "value": "abc1"}]}}
+      `,
+      );
 
-    cy.get(".t--discard-new-row").click({ force: true });
+      cy.get(
+        "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
+      ).click({ force: true });
+
+      cy.get(".menu-item-text").contains("abc1").should("exist");
+    };
+
+    const checkNoOptionState = () => {
+      // Check that no select options are present when new row options are cleared:
+      cy.updateCodeInput(".t--property-control-newrowoptions", ``); // Clear the field
+      cy.get(
+        "[data-colindex=0][data-rowindex=0] [data-testid='selectbutton.btn.main']",
+      ).click({ force: true });
+      cy.get(".menu-item-text").contains("No Results Found").should("exist");
+
+      cy.get(".t--discard-new-row").click({ force: true });
+    };
+
+    checkNewRowOptions();
+    isCurrentRowAccessDisabled();
+    checkDynamicBindingSupport();
+    checkNoOptionState();
   });
 
   it("10. should check that server side filering is working", () => {

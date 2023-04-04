@@ -63,6 +63,7 @@ import {
   generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
   getAllStickyColumnsCount,
+  getSelectOptions,
 } from "./utilities";
 import type {
   ColumnProperties,
@@ -1441,20 +1442,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const cellProperties = getCellProperties(column, originalIndex);
     let isSelected = false;
 
-    let selectOptions;
-    if (
-      this.props.isAddRowInProgress &&
-      column.hasOwnProperty("selectOptions")
-    ) {
-      if (column.allowSameOptionsInNewRow) {
-        // Use select options from the first row
-        selectOptions = column.selectOptions[0];
-      } else {
-        selectOptions = column.newRowSelectOptions;
-      }
-    } else {
-      selectOptions = cellProperties.selectOptions;
-    }
+    const selectOptions = getSelectOptions(
+      this.props.isAddRowInProgress,
+      column,
+      cellProperties,
+    );
 
     if (this.props.transientTableData) {
       cellProperties.hasUnsavedChanges =

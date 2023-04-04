@@ -37,6 +37,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
 import type React from "react";
+import type { DropdownOption } from "widgets/SelectWidget/constants";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -1102,4 +1103,26 @@ export const getDragHandlers = (
     onDragStart,
     onDrop,
   };
+};
+
+export const getSelectOptions = (
+  isAddRowInProgress: boolean,
+  columnProperties: Omit<ColumnProperties, "selectOptions"> & {
+    selectOptions?: DropdownOption[];
+  },
+  cellProperties: CellLayoutProperties,
+) => {
+  if (isAddRowInProgress) {
+    if (
+      columnProperties.allowSameOptionsInNewRow &&
+      columnProperties?.selectOptions
+    ) {
+      // Use select options from the first row
+      return columnProperties.selectOptions[0] as any;
+    } else {
+      return columnProperties.newRowSelectOptions;
+    }
+  } else {
+    return cellProperties.selectOptions;
+  }
 };

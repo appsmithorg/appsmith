@@ -724,14 +724,14 @@ export const migrateSelectOptionAttributesForNewRow = (
 
       // Set default value for allowSameOptionsInNewRow
       if (primaryColumns) {
-        for (const column in primaryColumns) {
+        Object.keys(primaryColumns).forEach((column) => {
           if (
             primaryColumns[column].hasOwnProperty("columnType") &&
             primaryColumns[column].columnType === ColumnTypesV2.SELECT
           ) {
             primaryColumns[column].allowSameOptionsInNewRow = true;
           }
-        }
+        });
       }
     }
   });
