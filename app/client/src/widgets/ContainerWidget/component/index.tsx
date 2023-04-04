@@ -13,6 +13,7 @@ import type { WidgetStyleContainerProps } from "components/designSystems/appsmit
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -114,8 +115,9 @@ function ContainerComponentWrapper(
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const el = e.currentTarget;
+      const selectionDiv = `div-selection-${MAIN_CONTAINER_WIDGET_ID}`;
       const isTargetMainCanvas =
-        (e.target as HTMLDivElement).parentElement?.dataset.widgetid === "0";
+        (e.target as HTMLDivElement).dataset.testid === selectionDiv;
       const widgetType = el.getAttribute("type");
       const isContainerWidget = widgetType === "CONTAINER_WIDGET";
       const widgetId = el.dataset.widgetid;
@@ -125,6 +127,7 @@ function ContainerComponentWrapper(
         // This is to prevent every click/Resize from propagating outside it's bounding container.
         e.stopPropagation();
       }
+
       props.onClick?.(e);
     },
     [props.onClick],
