@@ -404,7 +404,7 @@ function* logDebuggerErrorAnalyticsSaga(
       );
       const pluginId = action?.pluginId || payload?.analytics?.pluginId || "";
       const plugin: Plugin = yield select(getPlugin, pluginId);
-      const pluginName = plugin.name.replace(/ /g, "");
+      const pluginName = plugin?.name.replace(/ /g, "");
       let propertyPath = `${pluginName}`;
 
       if (payload.propertyPath) {

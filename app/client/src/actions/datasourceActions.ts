@@ -4,7 +4,7 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, FilePickerActionStatus } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
@@ -370,8 +370,9 @@ export const initializeDatasourceFormDefaults = (pluginType: string) => {
 // is used for handling file picker callback, when user selects files/cancels the selection
 // this callback action will be triggered
 export const filePickerCallbackAction = (data: {
-  action: string;
+  action: FilePickerActionStatus;
   datasourceId: string;
+  fileIds: Array<string>;
 }) => {
   return {
     type: ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
