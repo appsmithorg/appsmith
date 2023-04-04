@@ -1,15 +1,15 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
-import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
 import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import { get, set } from "lodash";
+import { get } from "lodash";
+import { isJSObjectVariable } from "./utils";
+import isDeepEqualES6 from "fast-deep-equal/es6";
 
 export enum PatchType {
-  "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
-  "DELETE" = "DELETE",
   "SET" = "SET",
+  "GET" = "GET",
 }
 
 export type Patch = {
@@ -18,13 +18,15 @@ export type Patch = {
   value?: unknown;
 };
 
+export type UpdatedPathsMap = Record<string, Patch>;
+
 class JSVariableUpdates {
-  private static patches: Patch[] = [];
+  private static potentialUpdatedPathsMap: UpdatedPathsMap = {};
 
   static add(patch: Patch) {
     if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking)
       return;
-    this.patches.push(patch);
+    this.potentialUpdatedPathsMap[patch.path] = patch;
     /**
      *  For every update on variable, we register a task to check for update updates and apply
      *  them to eval tree.
@@ -32,41 +34,41 @@ class JSVariableUpdates {
     registerJSVarUpdateTask();
   }
 
-  static getAll() {
-    return this.patches;
+  static getMap() {
+    return this.potentialUpdatedPathsMap;
   }
 
   static clear() {
-    this.patches = [];
+    this.potentialUpdatedPathsMap = {};
   }
 }
 
 export default JSVariableUpdates;
 
-export function getUpdatedPaths(patches: Patch[]) {
+export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
   // store exact path to diff
   const updatedVariables = [];
-  const pushedPathsMap: Record<string, string> = {};
-  for (const patch of patches) {
-    const pathArray = patch.path.split(".");
-    const [jsObjectName, varName] = pathArray;
 
+  const patches = Object.entries(potentialUpdatedPathsMap);
+
+  for (const [fullPath, patch] of patches) {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
     if (!dataTreeEvaluator) continue;
-
     const configTree = dataTreeEvaluator?.oldConfigTree;
-    const entityConfig = configTree[jsObjectName] as unknown as DataTreeEntity;
-    if (!isJSAction(entityConfig)) continue;
-    const variables = entityConfig.variables;
-    if (
-      variables.includes(varName) &&
-      !get(pushedPathsMap, [jsObjectName, varName])
-    ) {
-      updatedVariables.push([jsObjectName, varName]);
-      set(
-        pushedPathsMap,
-        [jsObjectName, varName],
-        `${jsObjectName}.${varName}`,
-      );
+
+    if (!isJSObjectVariable(entityName, propertyPath, configTree)) continue;
+
+    if (patch.method === PatchType.SET) {
+      updatedVariables.push([entityName, propertyPath]);
+      continue;
+    }
+
+    // if the value is not set, we need to check if the value is different from the global value
+    const oldValue = get(dataTreeEvaluator.getEvalTree(), fullPath);
+    const newValue = get(globalThis, fullPath);
+    // Shallow comparison for dataTypes like weakMap, weakSet and object that cannot be compared
+    if (oldValue !== newValue && !isDeepEqualES6(oldValue, newValue)) {
+      updatedVariables.push([entityName, propertyPath]);
     }
   }
   return updatedVariables;
@@ -76,8 +78,7 @@ let jsVarUpdateTaskRegistered = false;
 
 // executes when worker is idle
 function applyJSVariableUpdatesToEvalTree() {
-  const updates = JSVariableUpdates.getAll();
-  const modifiedVariablesList = getUpdatedPaths(updates);
+  const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getMap());
 
   updateEvalTreeValueFromContext(modifiedVariablesList);
 

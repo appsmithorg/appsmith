@@ -21,6 +21,7 @@ import type {
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
+import { setEvalContext } from "../evaluate";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -127,6 +128,13 @@ export default function (request: EvalWorkerSyncRequest) {
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+
+      setEvalContext({
+        dataTree: dataTreeEvaluator.evalTree,
+        isDataField: false,
+        isTriggerBased: true,
+      });
+
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
@@ -171,6 +179,13 @@ export default function (request: EvalWorkerSyncRequest) {
         unEvalUpdates,
         Object.keys(metaWidgets),
       );
+
+      setEvalContext({
+        dataTree: dataTreeEvaluator.evalTree,
+        isDataField: false,
+        isTriggerBased: true,
+      });
+
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });

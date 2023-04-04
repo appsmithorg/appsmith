@@ -2,7 +2,6 @@ import JSVariableUpdates, { getUpdatedPaths } from "../JSVariableUpdates";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import type { VariableState } from "../Collection";
 import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
@@ -52,19 +51,25 @@ describe("Mutation", () => {
         variables: ["var", "var2"],
         ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       },
-    } as unknown as DataTree;
+    };
 
-    JSObjectCollection.setVariableState(dataTree as unknown as VariableState);
+    JSObjectCollection.setVariableValue(
+      dataTree.JSObject1.var,
+      "JSObject1.var",
+    );
+    JSObjectCollection.setVariableValue(
+      dataTree.JSObject1.var2,
+      "JSObject1.var2",
+    );
 
     const evalContext = createEvaluationContext({
-      dataTree,
+      dataTree: dataTree as unknown as DataTree,
       isTriggerBased: true,
       skipEntityFunctions: true,
     });
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
-      enableJSVarUpdate: true,
     });
 
     Object.assign(self, evalContext);
@@ -81,23 +86,15 @@ describe("Mutation", () => {
       enableJSVarUpdateTracking: false,
     });
 
-    expect(JSVariableUpdates.getAll()).toEqual([
-      { path: "JSObject1.var", method: "SET", value: { b: { a: [2] } } },
-      { path: "JSObject1.var.b", method: "SET", value: { a: [2] } },
-      { path: "JSObject1.var.b.a", method: "SET", value: [2] },
-      {
-        path: "JSObject1.var.b.a",
-        method: "PROTOTYPE_METHOD_CALL",
-        value: [].push,
-      },
-      {
+    expect(JSVariableUpdates.getMap()).toEqual({
+      "JSObject1.var": { path: "JSObject1.var", method: "GET" },
+      "JSObject1.var2": {
         path: "JSObject1.var2",
-        method: "PROTOTYPE_METHOD_CALL",
-        value: new Set().add,
+        method: "GET",
       },
-    ]);
+    });
 
-    const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getAll());
+    const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getMap());
 
     expect(modifiedVariablesList).toEqual([
       ["JSObject1", "var"],

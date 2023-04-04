@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import { removeProxyObject } from "workers/Evaluation/JSObject/removeProxy";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -94,9 +93,8 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
   }>(
     (acc, d: any) => {
       const { data, name } = d;
-      const _data = removeProxyObject(data);
       try {
-        acc.JSExecutionData[name] = self.structuredClone(_data);
+        acc.JSExecutionData[name] = self.structuredClone(data);
       } catch (e) {
         acc.JSExecutionData[name] = undefined;
         acc.JSExecutionErrors[name] = {

@@ -11,7 +11,6 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { removeProxyObject } from "./JSObject/removeProxy";
 
 export type EvalResult = {
   result: any;
@@ -193,6 +192,31 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
+export function setEvalContext({
+  context,
+  dataTree,
+  evalArguments,
+  isDataField,
+  isTriggerBased,
+}: {
+  context?: EvaluateContext;
+  dataTree: DataTree;
+  evalArguments?: Array<any>;
+  isDataField: boolean;
+  isTriggerBased: boolean;
+}) {
+  self["$isDataField"] = isDataField;
+
+  const evalContext = createEvaluationContext({
+    dataTree,
+    context,
+    evalArguments,
+    isTriggerBased,
+  });
+
+  Object.assign(self, evalContext);
+}
+
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
@@ -204,18 +228,6 @@ export default function evaluateSync(
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
-
-    self["$isDataField"] = true;
-
-    // skipping log reset if the js collection is being evaluated without run
-    // Doing this because the promise execution is losing logs in the process due to resets
-    /**** Setting the eval context ****/
-    const evalContext: EvalContext = createEvaluationContext({
-      dataTree,
-      context,
-      evalArguments,
-      isTriggerBased: isJSCollection,
-    });
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -232,10 +244,13 @@ export default function evaluateSync(
       };
     }
 
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.assign(self, evalContext);
+    setEvalContext({
+      dataTree,
+      isDataField: true,
+      isTriggerBased: isJSCollection,
+      context,
+      evalArguments,
+    });
 
     try {
       result = indirectEval(script);
@@ -272,26 +287,18 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
 
-    self["$isDataField"] = false;
-
-    /**** Setting the eval context ****/
-    const evalContext: EvalContext = createEvaluationContext({
-      dataTree,
-      context,
-      evalArguments,
-      isTriggerBased: true,
-    });
-
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
 
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.assign(self, evalContext);
+    setEvalContext({
+      dataTree,
+      isDataField: false,
+      isTriggerBased: true,
+      context,
+      evalArguments,
+    });
 
     try {
       result = await indirectEval(script);
-      result = removeProxyObject(result);
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name

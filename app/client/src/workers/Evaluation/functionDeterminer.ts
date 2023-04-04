@@ -1,11 +1,13 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import type { EvalContext } from "./evaluate";
+import { setEvalContext } from "./evaluate";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./fns/overrides/console";
 import ExecutionMetaData from "./fns/utils/ExecutionMetaData";
+import { dataTreeEvaluator } from "./handlers/evalTree";
 
 class FunctionDeterminer {
-  private evalContext: EvalContext = {};
+  evalContext: EvalContext = {};
 
   setupEval(dataTree: DataTree) {
     /**** Setting the eval context ****/
@@ -29,7 +31,6 @@ class FunctionDeterminer {
     // entity properties from the global context
     Object.assign(self, evalContext);
 
-    this.evalContext = evalContext;
     userLogs.disable();
   }
 
@@ -37,6 +38,14 @@ class FunctionDeterminer {
     userLogs.enable();
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
+    });
+
+    if (!dataTreeEvaluator) return;
+    const dataTree = dataTreeEvaluator?.getEvalTree();
+    setEvalContext({
+      dataTree,
+      isTriggerBased: true,
+      isDataField: false,
     });
   }
 

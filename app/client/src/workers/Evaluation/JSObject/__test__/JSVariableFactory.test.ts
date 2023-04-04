@@ -1,9 +1,9 @@
-import JSProxy from "../JSVariableProxy";
+import JSFactory from "../JSVariableFactory";
 import JSVariableUpdates from "../JSVariableUpdates";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 
-describe("JSVariableProxy", () => {
+describe("JSVariableFactory", () => {
   it("trigger setters with JSVariableUpdates enabled", async () => {
     const jsObject = {
       number: 1,
@@ -16,11 +16,10 @@ describe("JSVariableProxy", () => {
       weakSet: new WeakSet(),
     } as unknown as JSActionEntity;
 
-    const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
+    const proxiedJSObject = JSFactory.create("JSObject1", jsObject);
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
-      enableJSVarUpdate: true,
     });
 
     proxiedJSObject.number = 5;
@@ -33,32 +32,30 @@ describe("JSVariableProxy", () => {
     // weakMap: new WeakMap(),
     // weakSet: new WeakSet(),
 
-    expect(JSVariableUpdates.getAll()).toEqual([
-      { method: "SET", path: "JSObject1.number", value: 5 },
-      { method: "SET", path: "JSObject1.string", value: "hello world" },
-      {
+    expect(JSVariableUpdates.getMap()).toEqual({
+      "JSObject1.number": { method: "SET", path: "JSObject1.number", value: 5 },
+      "JSObject1.string": {
         method: "SET",
-        path: "JSObject1.object.a",
-        value: {
-          b: 2,
-        },
+        path: "JSObject1.string",
+        value: "hello world",
       },
-      {
-        method: "PROTOTYPE_METHOD_CALL",
+      "JSObject1.object": {
+        method: "GET",
+        path: "JSObject1.object",
+      },
+      "JSObject1.array": {
+        method: "GET",
         path: "JSObject1.array",
-        value: [].push,
       },
-      {
-        method: "PROTOTYPE_METHOD_CALL",
+      "JSObject1.map": {
+        method: "GET",
         path: "JSObject1.map",
-        value: new Map().set,
       },
-      {
-        method: "PROTOTYPE_METHOD_CALL",
+      "JSObject1.set": {
+        method: "GET",
         path: "JSObject1.set",
-        value: new Set().add,
       },
-    ]);
+    });
   });
   it("trigger setters with JSVariableUpdates disabled", async () => {
     const jsObject = {
@@ -72,7 +69,7 @@ describe("JSVariableProxy", () => {
       weakSet: new WeakSet(),
     } as unknown as JSActionEntity;
 
-    const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
+    const proxiedJSObject = JSFactory.create("JSObject1", jsObject);
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: false,
@@ -88,7 +85,7 @@ describe("JSVariableProxy", () => {
     // weakMap: new WeakMap(),
     // weakSet: new WeakSet(),
 
-    expect(JSVariableUpdates.getAll()).toEqual([]);
+    expect(JSVariableUpdates.getMap()).toEqual({});
   });
   it("trigger getters with JSVariableUpdates enabled", async () => {
     const jsObject = {
@@ -102,26 +99,44 @@ describe("JSVariableProxy", () => {
       weakSet: new WeakSet(),
     } as unknown as JSActionEntity;
 
-    const proxiedJSObject = JSProxy.create(jsObject, "JSObject1", jsObject);
+    const proxiedJSObject = JSFactory.create("JSObject1", jsObject);
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
-      enableJSVarUpdate: true,
     });
 
     proxiedJSObject.number;
     proxiedJSObject.string;
     proxiedJSObject.object.a;
-    proxiedJSObject.array.push(); // patch added
-    proxiedJSObject.map.set; // no patch
-    proxiedJSObject.set.add; // no patch
+    proxiedJSObject.array.push();
+    proxiedJSObject.map.set;
+    proxiedJSObject.set.add;
 
-    expect(JSVariableUpdates.getAll()).toEqual([
-      {
-        method: "PROTOTYPE_METHOD_CALL",
+    expect(JSVariableUpdates.getMap()).toEqual({
+      "JSObject1.array": {
+        method: "GET",
         path: "JSObject1.array",
-        value: [].push,
       },
-    ]);
+      "JSObject1.map": {
+        method: "GET",
+        path: "JSObject1.map",
+      },
+      "JSObject1.number": {
+        method: "GET",
+        path: "JSObject1.number",
+      },
+      "JSObject1.object": {
+        method: "GET",
+        path: "JSObject1.object",
+      },
+      "JSObject1.set": {
+        method: "GET",
+        path: "JSObject1.set",
+      },
+      "JSObject1.string": {
+        method: "GET",
+        path: "JSObject1.string",
+      },
+    });
   });
 });

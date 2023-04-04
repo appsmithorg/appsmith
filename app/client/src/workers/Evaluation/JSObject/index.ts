@@ -18,8 +18,6 @@ import {
 import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
-import { klona } from "klona/full";
-import { removeProxyObject } from "./removeProxy";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 
@@ -107,7 +105,6 @@ export function saveResolvedFunctionsAndJSUpdates(
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
             ExecutionMetaData.setExecutionMetaData({
-              enableJSVarUpdate: false,
               enableJSVarUpdateTracking: false,
               enableJSFnPostProcessors: false,
             });
@@ -119,7 +116,6 @@ export function saveResolvedFunctionsAndJSUpdates(
               undefined,
             );
             ExecutionMetaData.setExecutionMetaData({
-              enableJSVarUpdate: true,
               enableJSVarUpdateTracking: true,
               enableJSFnPostProcessors: true,
             });
@@ -291,30 +287,25 @@ export function updateEvalTreeWithJSCollectionState(
   oldUnEvalTree: DataTree,
 ) {
   // loop through jsCollectionState and set all values to evalTree
-  const jsCollections = JSObjectCollection.getCurrentVariableState();
+  const jsCollections = JSObjectCollection.getVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
-    const sanitizedState = removeProxyObject(variableState);
     if (!evalTree[jsObjectName]) {
       evalTree[jsObjectName] = merge(
         {},
         oldUnEvalTree[jsObjectName],
-        sanitizedState,
+        variableState,
       );
       continue;
     }
-
     evalTree[jsObjectName] = Object.assign(
       evalTree[jsObjectName],
-      sanitizedState,
+      variableState,
     );
   }
 }
 
 export function updateEvalTreeValueFromContext(paths: string[][]) {
-  ExecutionMetaData.setExecutionMetaData({
-    enableJSVarUpdateTracking: false,
-  });
   const currentEvalContext = self;
 
   if (!dataTreeEvaluator) return;
@@ -324,18 +315,19 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
     const [jsObjectName, variableName] = fullPathArray;
     const entity = evalTree[jsObjectName];
     if (jsObjectName && variableName && isJSAction(entity)) {
+      if (!(jsObjectName in currentEvalContext)) continue;
+
       const variableValue = get(currentEvalContext, [
         jsObjectName,
         variableName,
       ]);
-      const value = klona(removeProxyObject(variableValue));
+      const value = variableValue;
       JSObjectCollection.setVariableValue(
         value,
         `${jsObjectName}.${variableName}`,
       );
       /* 
       JSobject variable values are picked from evalProps until the unevalValue is not modified.
-
       Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
       */
       set(
@@ -348,7 +340,4 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       );
     }
   }
-  ExecutionMetaData.setExecutionMetaData({
-    enableJSVarUpdateTracking: true,
-  });
 }

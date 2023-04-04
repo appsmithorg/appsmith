@@ -28,7 +28,11 @@ import type {
   WidgetEntityConfig,
   DataTreeEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+import type {
+  ActionEntity,
+  JSActionEntity,
+  JSActionEntityConfig,
+} from "entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { PrivateWidgets } from "entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/types";
@@ -1042,8 +1046,9 @@ export default class DataTreeEvaluator {
             set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
-            const variableList: Array<string> =
-              get(entityConfig, "variables") || [];
+            const variableList =
+              (entityConfig as JSActionEntityConfig).variables || [];
+
             if (variableList.indexOf(propertyPath) > -1) {
               const prevEvaluatedValue = get(
                 this.evalProps,
@@ -1301,7 +1306,6 @@ export default class DataTreeEvaluator {
   ): EvalResult {
     let evalResponse: EvalResult;
     ExecutionMetaData.setExecutionMetaData({
-      enableJSVarUpdate: false,
       enableJSVarUpdateTracking: false,
       enableJSFnPostProcessors: false,
     });
@@ -1330,7 +1334,6 @@ export default class DataTreeEvaluator {
       };
     }
     ExecutionMetaData.setExecutionMetaData({
-      enableJSVarUpdate: true,
       enableJSVarUpdateTracking: true,
       enableJSFnPostProcessors: true,
     });

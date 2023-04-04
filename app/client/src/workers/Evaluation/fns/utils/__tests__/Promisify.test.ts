@@ -48,7 +48,6 @@ describe("Tests for promisify util", () => {
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
         enableJSFnPostProcessors: true,
-        enableJSVarUpdate: true,
         enableJSVarUpdateTracking: true,
         trigger: {
           type: "TEST_TYPE",
@@ -63,7 +62,6 @@ describe("Tests for promisify util", () => {
       triggerMeta,
       eventType,
       enableJSFnPostProcessors: true,
-      enableJSVarUpdate: true,
       enableJSVarUpdateTracking: true,
     });
   });

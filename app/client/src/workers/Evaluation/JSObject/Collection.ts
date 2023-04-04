@@ -63,15 +63,11 @@ export default class JSObjectCollection {
     this.variableState[entityName] = newVarState;
   }
 
-  static setVariableState(variableState: VariableState) {
-    this.variableState = variableState;
-  }
-
-  static getCurrentVariableState(
+  static getVariableState(
     JSObjectName?: string,
   ): VariableState | Record<string, any> {
     if (!JSObjectName || !this.variableState) return klona(this.variableState);
-    return klona(this.variableState[JSObjectName]);
+    return this.variableState[JSObjectName];
   }
 
   static removeVariable(fullPath: string) {
