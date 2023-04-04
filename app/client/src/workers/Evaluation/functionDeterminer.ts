@@ -5,8 +5,6 @@ import userLogs from "./fns/overrides/console";
 import ExecutionMetaData from "./fns/utils/ExecutionMetaData";
 
 class FunctionDeterminer {
-  private evalContext: EvalContext = {};
-
   setupEval(dataTree: DataTree) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
@@ -29,7 +27,6 @@ class FunctionDeterminer {
     // entity properties from the global context
     Object.assign(self, evalContext);
 
-    this.evalContext = evalContext;
     userLogs.disable();
   }
 
