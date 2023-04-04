@@ -1,5 +1,6 @@
-import { Icon, IconSize, Text, TextType } from "design-system-old";
+import { Tooltip2 } from "@blueprintjs/popover2";
 import { Colors } from "constants/Colors";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import type { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import React from "react";
@@ -69,11 +70,14 @@ function ListItemWrapper(props: {
           >
             {ds.name}
           </Text>
-          <Icon
-            fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
-            name={ds.isConfigured ? "oval-check" : "info"}
-            size={IconSize.MEDIUM}
-          />
+          <Tooltip2 content={ds.name} placement="right">
+            <Icon
+              className="t--ds-list-icon"
+              fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+              name={ds.isConfigured ? "oval-check" : "info"}
+              size={IconSize.MEDIUM}
+            />
+          </Tooltip2>
         </DsTitle>
         <Text color={Colors.GRAY_700} type={TextType.H5}>
           {plugin.name}
