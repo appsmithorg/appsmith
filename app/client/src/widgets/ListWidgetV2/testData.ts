@@ -1,4 +1,4 @@
-import { getAssetUrl } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import type { FlattenedWidgetProps } from "widgets/constants";
 

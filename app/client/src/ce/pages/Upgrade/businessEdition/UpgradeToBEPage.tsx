@@ -8,7 +8,7 @@ import { FooterComponent } from "../Footer";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { AssetLoader } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;
@@ -75,9 +75,11 @@ export const ContentWrapper = styled.div`
   overflow: hidden;
 `;
 
-const BUSINESS_FEATURES_IMAGE = `${ASSETS_CDN_URL}/business-features.svg`;
+const BUSINESS_FEATURES_IMAGE = getAssetUrl(
+  `${ASSETS_CDN_URL}/business-features.svg`,
+);
 
-const UPGRADE_BOX_IMAGE = `${ASSETS_CDN_URL}/upgrade-box.svg`;
+const UPGRADE_BOX_IMAGE = getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`);
 
 export const UpgradeToBEPage = () => {
   const { onUpgrade } = useOnUpgrade({
@@ -91,14 +93,14 @@ export const UpgradeToBEPage = () => {
         <FlexContainer className="flex-container">
           <ContentWrapper className="content-wrapper">
             <LeftWrapper>
-              <AssetLoader
+              <img
                 alt="Upgrade to Business Edition"
                 loading="lazy"
                 src={BUSINESS_FEATURES_IMAGE}
               />
             </LeftWrapper>
             <ImageContainer>
-              <AssetLoader
+              <img
                 alt="Upgrade to Business Edition"
                 loading="lazy"
                 src={UPGRADE_BOX_IMAGE}

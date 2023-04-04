@@ -1,7 +1,7 @@
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { getAssetUrl } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),

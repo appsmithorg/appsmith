@@ -9,7 +9,7 @@ import {
   WELCOME_HEADER,
 } from "@appsmith/constants/messages";
 import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
-import { AssetLoader } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 const LandingPageWrapper = styled.div<{ hide: boolean }>`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -114,7 +114,7 @@ export default memo(function LandingPage(props: LandingPageProps) {
           )}
         </StyledTextBanner>
         <StyledImageBanner>
-          <AssetLoader src={getWelcomeImage()} />
+          <img src={getAssetUrl(getWelcomeImage())} />
         </StyledImageBanner>
       </LandingPageContent>
     </LandingPageWrapper>

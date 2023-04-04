@@ -1,5 +1,5 @@
 import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 export const getInfoThumbnail = () =>
   getAssetUrl(`${ASSETS_CDN_URL}/crud/crud_info_thumbnail.png`);

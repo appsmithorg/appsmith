@@ -51,7 +51,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { AssetLoader } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -153,7 +153,7 @@ const BannerText = styled.p`
     ${(props) => props.theme.spaces[7]}px;
 `;
 
-const StyledImg = styled(AssetLoader)`
+const StyledImg = styled.img`
   width: 20px;
   margin-right: 5px;
 `;
@@ -561,7 +561,10 @@ export default function OnboardingChecklist() {
         className="flex"
         onClick={() => triggerWelcomeTour(dispatch)}
       >
-        <StyledImg alt="rocket" src={`${ASSETS_CDN_URL}/Rocket.png`} />
+        <StyledImg
+          alt="rocket"
+          src={getAssetUrl(`${ASSETS_CDN_URL}/Rocket.png`)}
+        />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
           {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
         </Text>

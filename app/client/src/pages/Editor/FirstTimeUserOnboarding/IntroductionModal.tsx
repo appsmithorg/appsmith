@@ -22,7 +22,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { AssetLoader } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 const Wrapper = styled.div`
   display: flex;
@@ -75,7 +75,7 @@ const StyledImgWrapper = styled.div`
   justify-content: center;
 `;
 
-const StyledImg = styled(AssetLoader)`
+const StyledImg = styled.img`
   vertical-align: middle;
 `;
 
@@ -173,7 +173,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 <StyledImgWrapper>
                   <StyledImg
                     alt="connect-data-image"
-                    src={getConnectDataImg()}
+                    src={getAssetUrl(getConnectDataImg())}
                   />
                 </StyledImgWrapper>
               </ModalContentRow>

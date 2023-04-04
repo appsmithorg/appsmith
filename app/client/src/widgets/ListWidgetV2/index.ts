@@ -12,7 +12,7 @@ import {
 } from "./widget/helper";
 import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/AssetLoader";
+import { getAssetUrl } from "@appsmith/utils/getAssetUrl";
 
 const DEFAULT_LIST_DATA = [
   {
