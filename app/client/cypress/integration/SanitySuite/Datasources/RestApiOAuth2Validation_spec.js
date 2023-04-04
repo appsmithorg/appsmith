@@ -1,5 +1,5 @@
-const testdata = require("../../../../fixtures/testdata.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
+const testdata = require("../../../fixtures/testdata.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 

@@ -1,7 +1,6 @@
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const dsl = require("../../../../fixtures/SMTPTestdsl.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../locators/QueryEditor.json");
+const dsl = require("../../../fixtures/SMTPTestdsl.json");
 let datasourceName;
 
 describe("SMTP datasource test cases using ted", function () {
