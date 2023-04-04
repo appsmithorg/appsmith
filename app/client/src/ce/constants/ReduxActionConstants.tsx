@@ -3,7 +3,6 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
-  EvaluationVersion,
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
@@ -14,6 +13,7 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
   WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL: "WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL",

@@ -91,12 +91,15 @@ export const extractInfoFromReferences = (
   references.forEach((reference: string) => {
     // If the identifier exists directly, add it and return
     if (allPaths.hasOwnProperty(reference)) {
-      if (thisIdentifier && reference.startsWith("this."))
-        validReferences.add(thisIdentifier + reference.substring(4));
-      else {
-        validReferences.add(reference);
-      }
+      validReferences.add(reference);
       return;
+    }
+    if (thisIdentifier && reference.startsWith("this.")) {
+      reference = thisIdentifier + reference.substring(4);
+      if (allPaths.hasOwnProperty(reference)) {
+        validReferences.add(reference);
+        return;
+      }
     }
     const subpaths = toPath(reference);
     let current = "";
@@ -440,18 +443,6 @@ export function updateMap(
   } else {
     map[path] = updatedEntries;
   }
-}
-
-export function mockThisKeyword(unEvalDataTree: DataTree) {
-  return {
-    ...unEvalDataTree,
-    this: Object.keys(unEvalDataTree)
-      .filter((key) => isJSAction(unEvalDataTree[key]))
-      .reduce((acc, key) => {
-        acc = { ...acc, ...unEvalDataTree[key] };
-        return acc;
-      }, {} as any),
-  };
 }
 
 export function isAsyncJSFunction(configTree: ConfigTree, fullPath: string) {

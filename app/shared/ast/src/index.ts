@@ -689,6 +689,9 @@ const ancestorWalk = (ast: Node): NodeList => {
       ]);
     },
     ThisExpression(node: Node, ancestors) {
+      const returnStatementIndex = ancestors.findIndex(node => (node.type === "ReturnStatement"));
+      const firstFunction = ancestors.slice(returnStatementIndex+1).find(node => isFunctionDeclaration(node) || isFunctionExpression(node) || isArrowFunctionExpression(node));
+      if (firstFunction && isArrowFunctionExpression(firstFunction)) return;
       const parent = ancestors[ancestors.length - 2];
       if (isMemberExpressionNode(parent)) {
         const memberExpIdentifier = constructFinalMemberExpIdentifier(

@@ -110,7 +110,6 @@ import {
 import { errorModifier } from "workers/Evaluation/errorModifier";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import { mockThisKeyword } from "../DependencyMap/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -224,7 +223,7 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
     // set All keys
-    this.allKeys = getAllPaths(mockThisKeyword(localUnEvalTree));
+    this.allKeys = getAllPaths(localUnEvalTree);
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
