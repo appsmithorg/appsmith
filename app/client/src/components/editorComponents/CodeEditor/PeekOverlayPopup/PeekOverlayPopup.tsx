@@ -81,6 +81,7 @@ export function PeekOverlayPopUpContent(
         width: "300px",
         backgroundColor: "var(--appsmith-color-black-0)",
         boxShadow: "0px 0px 10px #0000001A", // color used from designs
+        borderRadius: "var(--ads-v2-border-radius)",
         left: `${props.position.left + props.position.width - 300}px`,
         ...(props.position.top >= CONTAINER_MAX_HEIGHT_PX
           ? {

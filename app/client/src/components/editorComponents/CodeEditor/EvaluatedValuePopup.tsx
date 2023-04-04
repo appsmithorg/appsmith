@@ -49,6 +49,7 @@ const Wrapper = styled.div`
   position: relative;
   flex: 1;
   height: 100%;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 type ThemeConfig = {
