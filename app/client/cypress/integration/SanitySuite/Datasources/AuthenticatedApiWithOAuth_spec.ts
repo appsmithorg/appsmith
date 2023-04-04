@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../support/Objects/ObjectsCore";
 //import * as _ from "@ObjectsCore";
 
 describe("Authentiacted Api with OAuth 2.O authorization code test cases", function () {
