@@ -55,8 +55,8 @@ import {
   initPageLevelSocketConnection,
 } from "actions/websocketActions";
 import {
-  getEnableFirstTimeUserOnboarding,
-  getFirstTimeUserOnboardingApplicationId,
+  getEnableStartSignposting,
+  getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import {
@@ -534,20 +534,16 @@ export function* fetchFeatureFlags() {
 }
 
 export function* updateFirstTimeUserOnboardingSage() {
-  const enable: string | null = yield getEnableFirstTimeUserOnboarding();
+  const enable: boolean | null = yield select(getEnableStartSignposting);
 
   if (enable) {
-    const applicationId: string =
-      yield getFirstTimeUserOnboardingApplicationId() || "";
+    const applicationIds: string[] =
+      yield getFirstTimeUserOnboardingApplicationIds() || [];
     const introModalVisibility: string | null =
       yield getFirstTimeUserOnboardingIntroModalVisibility();
     yield put({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: true,
-    });
-    yield put({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: applicationId,
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+      payload: applicationIds,
     });
     yield put({
       type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,

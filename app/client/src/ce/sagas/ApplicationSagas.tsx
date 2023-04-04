@@ -75,6 +75,7 @@ import {
 
 import {
   deleteRecentAppEntities,
+  getEnableStartSignposting,
   setPostWelcomeTourState,
 } from "utils/storage";
 import {
@@ -83,12 +84,7 @@ import {
 } from "actions/websocketActions";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
-import {
-  getCurrentStep,
-  getEnableFirstTimeUserOnboarding,
-  getFirstTimeUserOnboardingApplicationId,
-  inGuidedTour,
-} from "selectors/onboardingSelectors";
+import { getCurrentStep, inGuidedTour } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
   fetchDatasources,
@@ -596,16 +592,9 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
-          getEnableFirstTimeUserOnboarding,
-        );
-        const FirstTimeUserOnboardingApplicationId: string = yield select(
-          getFirstTimeUserOnboardingApplicationId,
-        );
-        if (
-          isFirstTimeUserOnboardingEnabled &&
-          FirstTimeUserOnboardingApplicationId === ""
-        ) {
+        const enableSignposting: boolean | null =
+          yield getEnableStartSignposting();
+        if (enableSignposting) {
           yield put({
             type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
