@@ -1,12 +1,24 @@
+import { WIDGET } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let jsName: any, dsName: any;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
-    cy.fixture("paramsDsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 500);
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.SELECT, 700, 700);
+    _.propPane.UpdatePropertyFieldValue(
+      "Options",
+      `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,
+    );
+    _.propPane.UpdatePropertyFieldValue(
+      "Default Selected Value",
+      `{\n    \"label\": \"8\",\n    \"value\": \"8\"\n  }`,
+    );
+    _.entityExplorer.SelectEntityByName("Select1");
+    _.agHelper.RenameWidget("Select1", "selRecordFilter");
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE);
+    _.entityExplorer.NavigateToSwitcher("explorer");
   });
 
   it("1. With Optional chaining : {{ this?.params?.condition }}", function () {
@@ -48,7 +60,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 3000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -63,7 +75,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -78,7 +90,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -93,7 +105,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -108,7 +120,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -123,7 +135,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -138,7 +150,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("7");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -153,7 +165,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("8");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -168,7 +180,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.agHelper.SelectDropDown("9");
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -187,7 +199,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     );
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -201,7 +213,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     _.deployMode.DeployApp(_.locators._spanButton("Submit"));
     _.agHelper.ClickButton("Submit");
     _.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    _.table.ReadTableRowColumnData(0, 0, "v1", 2000).then((cellData) => {
+    _.table.ReadTableRowColumnData(0, 1, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
