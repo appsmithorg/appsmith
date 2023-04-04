@@ -36,6 +36,7 @@ export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
 export HELMCHART_VERSION="2.0.0"
+export RANDOM_STRING=$(tr -dc a-z </dev/urandom | head -c 4)
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
 
@@ -45,11 +46,15 @@ kubectl config set-context --current --namespace=default
 echo "Getting the pods"
 kubectl get pods
 
-echo "Delete previously created namespace"
-kubectl delete ns $NAMESPACE || echo "true"
+if [ ! -z "$RECREATE" ]
+then
+  kubectl delete ns $NAMESPACE || echo "true"
+  export DBNAME=ce"$PULL_REQUEST_NUMBER_$RANDOM_STRING"
+fi
 
 echo "Use kubernetes secret to Pull Image"
-kubectl create ns $NAMESPACE
+kubectl create ns $NAMESPACE || echo true
+
 kubectl create secret docker-registry $SECRET \
   --docker-server=https://index.docker.io/v1/ \
   --docker-username=$DOCKER_HUB_USERNAME \
