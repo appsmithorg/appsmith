@@ -329,7 +329,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         !canCreateDatasourceActions || !isPluginAuthorized
                       }
                       eventFrom="datasource-pane"
-                      plugin={plugin}
+                      pluginType={plugin?.type ?? ""}
                       style={{
                         marginLeft: "16px",
                       }}
@@ -370,7 +370,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     />
                   ) : null
                 }
-                showDatasourceSavedText={!isGoogleSheetPlugin}
               />
             )}
           </FormBodyContainer>
