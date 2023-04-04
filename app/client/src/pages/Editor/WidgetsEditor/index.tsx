@@ -52,7 +52,6 @@ import {
   SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
 } from "@appsmith/constants/messages";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
-import classNames from "classnames";
 import { APP_MODE } from "entities/App";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -185,9 +184,7 @@ function WidgetsEditor() {
             <div className="relative flex flex-col w-full overflow-hidden">
               <CanvasTopSection />
               <div
-                className={classNames({
-                  "relative flex flex-row w-full overflow-hidden": true,
-                })}
+                className="relative flex flex-row w-full overflow-hidden"
                 data-testid="widgets-editor"
                 draggable
                 id="widgets-editor"
@@ -200,10 +197,7 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
-                  className={classNames({
-                    "relative flex flex-row w-full justify-center overflow-hidden":
-                      true,
-                  })}
+                  className="relative flex flex-row w-full justify-center overflow-hidden"
                   hasPinnedSidebar={
                     isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail

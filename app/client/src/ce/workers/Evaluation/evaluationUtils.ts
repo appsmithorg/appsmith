@@ -391,6 +391,15 @@ export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
     entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
+export function isJSActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is JSActionEntityConfig {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
 
 export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
@@ -400,6 +409,10 @@ export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
     "pluginType" in entity &&
     entity.pluginType === PluginType.JS
   );
+}
+
+export function isDataTreeEntity(entity: unknown) {
+  return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
