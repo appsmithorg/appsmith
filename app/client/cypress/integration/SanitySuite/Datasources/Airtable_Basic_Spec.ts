@@ -1,5 +1,5 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../fixtures/datasources.json";
+import * as _ from "../../../support/Objects/ObjectsCore";
+import datasourceFormData from "../../../fixtures/datasources.json";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe("Validate Airtable Ds", () => {

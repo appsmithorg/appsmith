@@ -1,4 +1,4 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 const { ApiPage, DataSources, EntityExplorer } = ObjectsRegistry;
 
 describe("Validate generate CRUD operation by creating a datasource from generate CRUD form", () => {
