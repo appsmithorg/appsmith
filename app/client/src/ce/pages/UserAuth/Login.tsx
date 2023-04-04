@@ -29,6 +29,7 @@ import {
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { LoginFormValues } from "pages/UserAuth/helpers";
 
@@ -46,8 +47,7 @@ import PerformanceTracker, {
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
-import { getThirdPartyAuths } from "../../selectors/tenantSelectors";
-import { ThirdPartyLoginRegistry } from "../../../pages/UserAuth/ThirdPartyLoginRegistry";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {

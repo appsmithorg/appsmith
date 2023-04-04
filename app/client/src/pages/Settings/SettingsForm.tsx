@@ -42,7 +42,7 @@ import {
   MaxWidthWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
-import { getThirdPartyAuths } from "../../ce/selectors/tenantSelectors";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { disableLoginForm } = getAppsmithConfigs();

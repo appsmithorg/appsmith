@@ -88,7 +88,7 @@ function SocialLoginButton(props: {
   );
 }
 
-function ThirdPartyAuth(props: {
+export function ThirdPartyAuth(props: {
   logins: SocialLoginType[];
   type: SignInType;
 }) {

@@ -24,7 +24,7 @@ import {
   REDIRECT_URL_FORM,
 } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
-import { getThirdPartyAuths } from "../../../../selectors/tenantSelectors";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 
 const { disableLoginForm } = getAppsmithConfigs();
 

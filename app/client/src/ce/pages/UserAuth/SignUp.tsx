@@ -23,6 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -43,8 +44,7 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
-import { getThirdPartyAuths } from "../../selectors/tenantSelectors";
-import { ThirdPartyLoginRegistry } from "../../../pages/UserAuth/ThirdPartyLoginRegistry";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 
 declare global {
   interface Window {
