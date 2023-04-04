@@ -66,7 +66,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "CLEAR_PLUGIN_ACTION",
@@ -97,7 +96,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "NAVIGATE_TO",
@@ -126,7 +124,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "SHOW_ALERT",
@@ -154,7 +151,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "SHOW_MODAL_BY_NAME",
@@ -180,7 +176,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "CLOSE_MODAL",
@@ -264,7 +259,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "DOWNLOAD",
@@ -292,7 +286,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "COPY_TO_CLIPBOARD",
@@ -323,7 +316,6 @@ describe("Add functions", () => {
       messageCreator("PROCESS_TRIGGER", {
         data: {
           enableJSFnPostProcessors: true,
-          enableJSVarUpdate: true,
           enableJSVarUpdateTracking: true,
           trigger: {
             type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",

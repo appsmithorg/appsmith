@@ -49,7 +49,6 @@ describe("Tests for run function in callback styled", () => {
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
         enableJSFnPostProcessors: true,
-        enableJSVarUpdate: true,
         enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
@@ -84,7 +83,6 @@ describe("Tests for run function in callback styled", () => {
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
         enableJSFnPostProcessors: true,
-        enableJSVarUpdate: true,
         enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
@@ -167,7 +165,6 @@ describe("Tests for run function in promise styled", () => {
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
         enableJSFnPostProcessors: true,
-        enableJSVarUpdate: true,
         enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
@@ -200,7 +197,6 @@ describe("Tests for run function in promise styled", () => {
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
         enableJSFnPostProcessors: true,
-        enableJSVarUpdate: true,
         enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",

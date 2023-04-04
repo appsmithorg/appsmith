@@ -105,7 +105,6 @@ export function saveResolvedFunctionsAndJSUpdates(
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
             ExecutionMetaData.setExecutionMetaData({
-              enableJSVarUpdate: false,
               enableJSVarUpdateTracking: false,
               enableJSFnPostProcessors: false,
             });
@@ -117,7 +116,6 @@ export function saveResolvedFunctionsAndJSUpdates(
               undefined,
             );
             ExecutionMetaData.setExecutionMetaData({
-              enableJSVarUpdate: true,
               enableJSVarUpdateTracking: true,
               enableJSFnPostProcessors: true,
             });

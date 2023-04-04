@@ -70,7 +70,6 @@ describe("Mutation", () => {
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
-      enableJSVarUpdate: true,
     });
 
     Object.assign(self, evalContext);

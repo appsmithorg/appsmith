@@ -1306,7 +1306,6 @@ export default class DataTreeEvaluator {
   ): EvalResult {
     let evalResponse: EvalResult;
     ExecutionMetaData.setExecutionMetaData({
-      enableJSVarUpdate: false,
       enableJSVarUpdateTracking: false,
       enableJSFnPostProcessors: false,
     });
@@ -1335,7 +1334,6 @@ export default class DataTreeEvaluator {
       };
     }
     ExecutionMetaData.setExecutionMetaData({
-      enableJSVarUpdate: true,
       enableJSVarUpdateTracking: true,
       enableJSFnPostProcessors: true,
     });

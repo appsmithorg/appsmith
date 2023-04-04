@@ -20,7 +20,6 @@ describe("JSVariableFactory", () => {
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
-      enableJSVarUpdate: true,
     });
 
     proxiedJSObject.number = 5;
@@ -104,7 +103,6 @@ describe("JSVariableFactory", () => {
 
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: true,
-      enableJSVarUpdate: true,
     });
 
     proxiedJSObject.number;

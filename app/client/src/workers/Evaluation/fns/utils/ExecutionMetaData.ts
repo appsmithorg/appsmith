@@ -7,7 +7,6 @@ import type {
 export default class ExecutionMetaData {
   private static triggerMeta?: TriggerMeta;
   private static eventType?: EventType;
-  private static enableJSVarUpdate = true;
   private static enableJSVarUpdateTracking = true;
   private static enableJSFnPostProcessors = true;
 
@@ -15,7 +14,6 @@ export default class ExecutionMetaData {
     triggerMeta?: TriggerMeta;
     eventType?: EventType;
     enableJSFnPostProcessors?: boolean;
-    enableJSVarUpdate?: boolean;
     enableJSVarUpdateTracking?: boolean;
   }) {
     const metaDataEntries = Object.entries(metaData);
@@ -32,7 +30,6 @@ export default class ExecutionMetaData {
         triggerPropertyName,
       },
       eventType: ExecutionMetaData.eventType,
-      enableJSVarUpdate: ExecutionMetaData.enableJSVarUpdate,
       enableJSVarUpdateTracking: ExecutionMetaData.enableJSVarUpdateTracking,
       enableJSFnPostProcessors: ExecutionMetaData.enableJSFnPostProcessors,
     };
