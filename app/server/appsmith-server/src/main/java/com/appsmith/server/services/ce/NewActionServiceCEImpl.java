@@ -148,6 +148,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
+    static final String PARAM_KEY_REGEX = "k\\d+";
+    static final String BLOB_KEY_REGEX = "blob:[\\d-]+";
+    static final String EXECUTE_ACTION_DTO = "executeActionDTO";
+    static final String PARAMETER_MAP = "parameterMap";
+
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
@@ -2232,10 +2237,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      */
     protected Flux<Param> parsePartsAndGetParamsFlux(Flux<Part> partFlux, AtomicLong totalReadableByteCount, ExecuteActionDTO dto) {
         List<Pattern> patternList = new ArrayList<>();
-        patternList.add(Pattern.compile("k\\d+"));
-        patternList.add(Pattern.compile("blob:[\\d-]+"));
-        patternList.add(Pattern.compile("executeActionDTO"));
-        patternList.add(Pattern.compile("parameterMap"));
+        patternList.add(Pattern.compile(PARAM_KEY_REGEX));
+        patternList.add(Pattern.compile(BLOB_KEY_REGEX));
+        patternList.add(Pattern.compile(EXECUTE_ACTION_DTO));
+        patternList.add(Pattern.compile(PARAMETER_MAP));
 
         return partFlux
                 .groupBy(part -> {
@@ -2253,16 +2258,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(groupedPartsFlux -> {
                     String key = groupedPartsFlux.key();
                     return switch (key) {
-                        case "k\\d+" ->
+                        case PARAM_KEY_REGEX ->
                                 groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
-                        case "blob:[\\d-]+" ->
+                        case BLOB_KEY_REGEX ->
                                 this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
-                        case "executeActionDTO" ->
+                        case EXECUTE_ACTION_DTO ->
                                 groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
-                        case "parameterMap" ->
+                        case PARAMETER_MAP ->
                                 groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
                         default ->
-                                Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found."));
+                                Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found: " + key));
                     };
                 });
     }
