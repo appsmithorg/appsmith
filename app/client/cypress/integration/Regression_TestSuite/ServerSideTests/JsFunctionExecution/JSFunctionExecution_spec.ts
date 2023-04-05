@@ -7,7 +7,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   table = ObjectsRegistry.Table,
   agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
@@ -108,7 +109,13 @@ describe("JS Function Execution", function () {
         prettify: false,
       },
     );
-    jsEditor.AssertParseError(true);
+    //Debugger shouldn't open when there is a parse error.
+    //It should open only in case of execution error.
+    debuggerHelper.AssertClosed();
+    //Verify there is no error shown in the response tab.
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickResponseTab();
+    jsEditor.AssertParseError(false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 

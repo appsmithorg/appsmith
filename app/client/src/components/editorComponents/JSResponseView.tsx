@@ -14,7 +14,6 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
-  JS_ACTION_EXECUTION_ERROR,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -212,10 +211,7 @@ function JSResponseView(props: Props) {
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
 
   const filteredErrors = useSelector(getFilteredErrors);
-  let errorMessage = createMessage(
-    JS_ACTION_EXECUTION_ERROR,
-    `${jsObject.name}.${currentFunction ? currentFunction.name : ""}`,
-  );
+  let errorMessage: string | undefined;
   let errorType = "ValidationError";
 
   // action source for analytics.
@@ -226,16 +222,28 @@ function JSResponseView(props: Props) {
   };
   try {
     let errorObject: Log | undefined;
-    every(filteredErrors, (error) => {
-      if (
-        includes(error.id, seletedJsObject?.config.id) ||
-        includes(error.id, seletedJsObject?.config.id + "body")
-      ) {
-        errorObject = error;
-        return false;
-      }
-      return true;
-    });
+    //get JS execution error from redux store.
+    if (
+      seletedJsObject &&
+      seletedJsObject.config &&
+      seletedJsObject.activeJSActionId
+    ) {
+      every(filteredErrors, (error) => {
+        if (
+          includes(
+            error.id,
+            seletedJsObject?.config.id +
+              "-" +
+              seletedJsObject?.activeJSActionId,
+          )
+        ) {
+          errorObject = error;
+          return false;
+        }
+        return true;
+      });
+    }
+    // update error message.
     if (errorObject) {
       if (errorObject.source) {
         // update action source.
@@ -257,7 +265,8 @@ function JSResponseView(props: Props) {
       title: "Response",
       panelComponent: (
         <>
-          {(hasExecutionParseErrors || hasJSObjectParseError) && (
+          {(hasExecutionParseErrors ||
+            (hasJSObjectParseError && errorMessage)) && (
             <ResponseTabErrorContainer>
               <ResponseTabErrorContent>
                 <div className="t--js-response-parse-error-call-out">

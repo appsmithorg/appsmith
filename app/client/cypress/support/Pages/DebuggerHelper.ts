@@ -18,7 +18,7 @@ export class DebuggerHelper {
   private readonly TAB_MIN_HEIGHT = 36;
 
   public readonly locators = {
-    _debuggerIcon: ".t--debugger svg",
+    _debuggerIcon: ".t--debugger",
     _debuggerToggle: "[data-cy=t--debugger-toggle]",
     _debuggerDownStreamErrMsg: "[data-cy=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
