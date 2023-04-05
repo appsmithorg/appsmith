@@ -252,6 +252,10 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 });
             }
         });
+
+        datasources.forEach(datasource -> {
+            datasource.setPluginId(pluginIdToNameMap.get(datasource.getPluginId()));
+        });
     }
 
     boolean shouldIncludeResourceForExport(PublishableResource resource, ResourceModes resourceMode) {
@@ -383,6 +387,18 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     // Populate actions
                     applicationJson.setActionList(actions);
                     updatedResources.put(FieldName.ACTION_LIST, ImportExportUtils.getUpdatedActionsForApplication(application, actions, resourceMode));
+
+                    // Populate datasources
+                    Set<String> datasourceIds = actions.stream()
+                            .map(action -> action.select(resourceMode).getDatasource().getId())
+                            .filter(StringUtils::isNotBlank)
+                            .collect(Collectors.toSet());
+
+                    datasources = datasources.stream()
+                            .filter(datasource -> datasourceIds.contains(datasource.getId()))
+                            .collect(Collectors.toList());
+
+                    applicationJson.setDatasourceList(datasources);
 
                     // Fix references
                     fixReferencesForExport(application, pages, actionCollections, actions, plugins, datasources, resourceMode);

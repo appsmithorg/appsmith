@@ -43,7 +43,7 @@ public class ApplicationJson {
     @JsonView({Views.Public.class, Views.Export.class})
     Application exportedApplication;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<Datasource> datasourceList;
 
     @JsonView({Views.Public.class, Views.Export.class})
