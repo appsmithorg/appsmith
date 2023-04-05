@@ -26,7 +26,7 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import { FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup } from "design-system-old";
 import { Button } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 
@@ -39,6 +39,12 @@ const DetailsFormWrapper = styled.div`
 
 const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
+`;
+
+const StyledFormGroup = styled(FormGroup)`
+  && > .bp3-label {
+    color: var(--ads-v2-color-fg);
+  }
 `;
 
 export default function DetailsForm(

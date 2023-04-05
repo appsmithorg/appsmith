@@ -1,24 +1,21 @@
 import React, { memo, useState } from "react";
 import styled from "styled-components";
-import { Toggle } from "design-system-old";
+import { Switch, Link } from "design-system";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import {
   AllowToggle,
-  AllowToggleLabel,
   AllowToggleWrapper,
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderSubtext,
   FormHeaderWrapper,
-  StyledLink as Link,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
   WELCOME_FORM_DATA_COLLECTION_BODY,
   WELCOME_FORM_DATA_COLLECTION_HEADER,
-  WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
   WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE,
   WELCOME_FORM_DATA_COLLECTION_LINK,
 } from "@appsmith/constants/messages";
@@ -46,7 +43,7 @@ export default memo(function DataCollectionForm() {
         <FormHeaderSubtext>
           {createMessage(WELCOME_FORM_DATA_COLLECTION_BODY)}
           <br />
-          <StyledLink href={TELEMETRY_URL} target="_blank">
+          <StyledLink kind="primary" target="_blank" to={TELEMETRY_URL}>
             {createMessage(WELCOME_FORM_DATA_COLLECTION_LINK)}
           </StyledLink>
         </FormHeaderSubtext>
@@ -55,18 +52,22 @@ export default memo(function DataCollectionForm() {
         <ControlWrapper>
           <AllowToggleWrapper>
             <AllowToggle>
-              <Toggle
+              <Switch
                 className="t--welcome-form-datacollection"
+                defaultSelected={allowCollection}
                 name="allowCollectingAnonymousData"
-                onToggle={(value: boolean) => setAllowCollection(value)}
-                value={allowCollection}
-              />
+                onChange={(value: boolean) => setAllowCollection(value)}
+              >
+                {/* Removed the below condition because it had a confusing behaviour */}
+                {/* <AllowToggleLabel>
+                      {allowCollection
+                        ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
+                        : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
+                    </AllowToggleLabel>
+                 */}
+                {createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)}
+              </Switch>
             </AllowToggle>
-            <AllowToggleLabel>
-              {allowCollection
-                ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
-                : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
-            </AllowToggleLabel>
           </AllowToggleWrapper>
         </ControlWrapper>
       </FormBodyWrapper>

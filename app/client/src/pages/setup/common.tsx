@@ -6,14 +6,13 @@ import styled from "styled-components";
 import type { OptionType } from "./constants";
 import { Select, Option } from "design-system";
 
-export const FormHeaderWrapper = styled.div`
-  /* position: relative; */
-`;
+export const FormHeaderWrapper = styled.div``;
 
 export const FormHeaderLabel = styled.h5`
   width: 100%;
   font-size: 20px;
   font-weight: 500;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 export const FormHeaderIndex = styled.h5`
@@ -25,7 +24,9 @@ export const FormBodyWrapper = styled.div`
   padding: ${(prop) => prop.theme.spaces[10]}px 0px;
 `;
 
-export const FormHeaderSubtext = styled.p``;
+export const FormHeaderSubtext = styled.p`
+  color: var(--ads-v2-color-fg);
+`;
 
 export const ControlWrapper = styled.div`
   margin: ${(prop) => prop.theme.spaces[6]}px 0px;
@@ -41,12 +42,10 @@ export const ButtonWrapper = styled.div`
 `;
 
 export const AllowToggleWrapper = styled.div`
-  display: flex;
+  display: block;
 `;
 
-export const AllowToggle = styled.div`
-  flex-basis: 68px;
-`;
+export const AllowToggle = styled.div``;
 
 export const AllowToggleLabel = styled.p`
   margin-bottom: 0px;
@@ -68,6 +67,10 @@ export const DropdownWrapper = styled(StyledFormGroup)`
   }
   && .cs-text {
     width: 100%;
+  }
+
+  && > .bp3-label {
+    color: var(--ads-v2-color-fg);
   }
 
   /* .${DROPDOWN_CLASSNAME} {

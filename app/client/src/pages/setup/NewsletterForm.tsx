@@ -1,11 +1,9 @@
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";
-import { Toggle } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Switch } from "design-system";
 import {
   AllowToggle,
-  AllowToggleLabel,
   AllowToggleWrapper,
   ButtonWrapper,
   FormBodyWrapper,
@@ -40,16 +38,15 @@ export default memo(function NewsletterForm() {
       <FormBodyWrapper>
         <AllowToggleWrapper>
           <AllowToggle>
-            <Toggle
+            <Switch
               className="t--welcome-form-newsletter"
+              defaultSelected
               name="signupForNewsletter"
-              onToggle={() => noop}
-              value
-            />
+              onChange={() => noop}
+            >
+              {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
+            </Switch>
           </AllowToggle>
-          <AllowToggleLabel>
-            {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
-          </AllowToggleLabel>
         </AllowToggleWrapper>
         <ButtonWrapper>
           <Button
