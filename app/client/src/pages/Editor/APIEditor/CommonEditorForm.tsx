@@ -708,7 +708,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <Wrapper>
           <SecondaryWrapper>
             <TabbedViewContainer>
-              <Tabs>
+              <Tabs defaultValue={API_EDITOR_TABS.HEADERS}>
                 <TabsList>
                   {Object.values(API_EDITOR_TABS).map((tab) => (
                     <Tab
