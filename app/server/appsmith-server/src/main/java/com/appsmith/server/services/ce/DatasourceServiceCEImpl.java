@@ -190,7 +190,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(repository::setUserPermissionsInObject);
     }
 
-    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
+    protected Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
         return userMono
                 .flatMap(user -> {
                     Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), permission)
