@@ -231,6 +231,10 @@ public class Application extends BaseDomain {
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
             applicationPage.setDefaultPageId(null);
         }
+        for (ApplicationPage applicationPage : this.getPublishedPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
+            applicationPage.setDefaultPageId(null);
+        }
     }
 
     public void sanitiseToExportDBObject() {
@@ -249,7 +253,6 @@ public class Application extends BaseDomain {
         this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
-        this.setPublishedPages(null);
     }
 
     public List<ApplicationPage> getPages() {

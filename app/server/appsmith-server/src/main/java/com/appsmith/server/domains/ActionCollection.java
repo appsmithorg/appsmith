@@ -39,7 +39,10 @@ public class ActionCollection extends BaseDomain {
         if (unpublishedCollection != null) {
             unpublishedCollection.sanitiseForExport();
         }
-        this.setPublishedCollection(null);
+        ActionCollectionDTO publishedCollection = this.getPublishedCollection();
+        if (publishedCollection != null) {
+            publishedCollection.sanitiseForExport();
+        }
         this.sanitiseToExportBaseObject();
         this.setOrganizationId(null);
     }

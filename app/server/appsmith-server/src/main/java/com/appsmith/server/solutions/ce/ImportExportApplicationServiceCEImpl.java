@@ -180,16 +180,28 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         Mono<List<CustomJSLib>> unpublishedCustomJSLibListMono =
-                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, false)
-                        .map(unpublishedCustomJSLibList -> {
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, false);
+        Mono<List<CustomJSLib>> publishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, true);
+        Mono<List<CustomJSLib>> allCustomJSLibListMono = Mono.zip(unpublishedCustomJSLibListMono,
+                        publishedCustomJSLibListMono)
+                .map(tuple -> {
+                    List<CustomJSLib> unpublishedCustomJSLibList = tuple.getT1();
+                    List<CustomJSLib> publishedCustomJSLibList = tuple.getT2();
+
+                    Set<CustomJSLib> allCustomJSLibSet = new HashSet<>();
+                    allCustomJSLibSet.addAll(unpublishedCustomJSLibList);
+                    allCustomJSLibSet.addAll(publishedCustomJSLibList);
+                    List<CustomJSLib> allCustomJSLibList = new ArrayList<>(allCustomJSLibSet);
+
                     /*
                         Previously it was a Set and as Set is an unordered collection of elements that resulted in
                         uncommitted changes. Making it a list and sorting it by the UidString ensure that the order
                         will be maintained. And this solves the issue.
                      */
-                            Collections.sort(unpublishedCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
-                            return unpublishedCustomJSLibList;
-                        });
+                    Collections.sort(allCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
+                    return allCustomJSLibList;
+                });
 
         Mono<Application> applicationMono =
                 // Find the application with appropriate permission
@@ -258,6 +270,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             ? newPageRepository.findByApplicationId(applicationId, pagePermission.getReadPermission())
                             : newPageRepository.findByApplicationId(applicationId, pagePermission.getEditPermission());
 
+
                     List<String> unPublishedPages = application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
                     return pageFlux
                             .collectList()
@@ -280,16 +293,27 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             });
                                         }
                                     }
+
+                                    if (newPage.getPublishedPage() != null) {
+                                        pageIdToNameMap.put(
+                                                newPage.getId() + VIEW, newPage.getPublishedPage().getName()
+                                        );
+                                        PageDTO publishedPageDTO = newPage.getPublishedPage();
+                                        if (!CollectionUtils.isEmpty(publishedPageDTO.getLayouts())) {
+                                            publishedPageDTO.getLayouts().forEach(layout -> {
+                                                layout.setId(publishedPageDTO.getName());
+                                            });
+                                        }
+                                    }
                                     // Including updated pages list for git file storage
                                     Instant newPageUpdatedAt = newPage.getUpdatedAt();
                                     boolean isNewPageUpdated = isClientSchemaMigrated || isServerSchemaMigrated || applicationLastCommittedAt == null || newPageUpdatedAt == null || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
-                                    String newPageName = newPage.getUnpublishedPage() != null ? newPage.getUnpublishedPage().getName() : null;
-                                    if (isNewPageUpdated && newPageName != null && unPublishedPages.contains(newPage.getId())) {
+                                    String newPageName = newPage.getUnpublishedPage() != null ? newPage.getUnpublishedPage().getName() : newPage.getPublishedPage() != null ? newPage.getPublishedPage().getName() : null;
+                                    if (isNewPageUpdated && newPageName != null) {
                                         updatedPageSet.add(newPageName);
                                     }
                                     newPage.sanitiseToExportDBObject();
                                 });
-
                                 // Exclude the deleted pages that are present in view mode  because the app is not published yet
                                 newPageList.removeIf(newPage -> !validPages.contains(newPage.getUnpublishedPage().getName()));
                                 applicationJson.setPageList(newPageList);
@@ -328,6 +352,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                                     collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
                                     actionCollection.setId(updatedCollectionId);
+                                }
+                                if (actionCollection.getPublishedCollection() != null) {
+                                    ActionCollectionDTO actionCollectionDTO = actionCollection.getPublishedCollection();
+                                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + VIEW));
+                                    actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
+
+                                    if (!collectionIdToNameMap.containsValue(actionCollection.getId())) {
+                                        final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
+                                        collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
+                                        actionCollection.setId(updatedCollectionId);
+                                    }
                                 }
                                 return actionCollection;
                             })
@@ -384,6 +419,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
                                     actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                     newAction.setId(updatedActionId);
+                                }
+                                if (newAction.getPublishedAction() != null) {
+                                    ActionDTO actionDTO = newAction.getPublishedAction();
+                                    actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + VIEW));
+
+                                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())
+                                            && collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
+                                        actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
+                                    }
+
+                                    if (!actionIdToNameMap.containsValue(newAction.getId())) {
+                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
+                                        actionIdToNameMap.put(newAction.getId(), updatedActionId);
+                                        newAction.setId(updatedActionId);
+                                    }
                                 }
                                 return newAction;
                             })
@@ -453,7 +503,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
                             .thenReturn(applicationJson);
                 })
-                .then(unpublishedCustomJSLibListMono)
+                .then(allCustomJSLibListMono)
                 .map(allCustomLibList -> {
                     applicationJson.setCustomJSLibList(allCustomLibList);
                     return applicationJson;
