@@ -1,9 +1,12 @@
 import log from "loglevel";
-import React, { useState } from "react";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import { Input } from "design-system";
+import React, { useState, useRef, useEffect } from "react";
+import type { TextInputProps } from "design-system-old";
 import styled from "styled-components";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
-import { StyledInputGroup } from "./StyledControls";
+// import { StyledInputGroup } from "./StyledControls";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -113,3 +116,54 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
 }
 
 export default LocationSearchControl;
+
+const StyledInputGroup = React.forwardRef((props: TextInputProps, ref) => {
+  let inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLInputElement>(null);
+  const { dispatchInteractionAnalyticsEvent } =
+    useInteractionAnalyticsEvent<HTMLInputElement>(false, wrapperRef);
+
+  if (ref) inputRef = ref as React.RefObject<HTMLInputElement>;
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === wrapperRef?.current) {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
+          inputRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (document.activeElement === inputRef?.current) {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
+          wrapperRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Tab":
+        if (document.activeElement === wrapperRef?.current) {
+          dispatchInteractionAnalyticsEvent({
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
+        }
+        break;
+    }
+  };
+
+  return (
+    <div className="w-full" ref={wrapperRef} tabIndex={0}>
+      <Input ref={inputRef} {...props} size="md" tabIndex={-1} />
+    </div>
+  );
+});
+
+StyledInputGroup.displayName = "StyledInputGroup";

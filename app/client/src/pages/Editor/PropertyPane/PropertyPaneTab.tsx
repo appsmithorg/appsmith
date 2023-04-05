@@ -17,6 +17,10 @@ type PropertyPaneTabProps = {
 const tabs = ["content", "style"];
 
 const StyledTabs = styled(Tabs)`
+  > [role="tabpanel"] {
+    margin-top: 0;
+  }
+
   > [role="tablist"] {
     position: sticky;
     top: 74px;

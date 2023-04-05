@@ -1,7 +1,4 @@
 import React from "react";
-
-// import type { DropdownOption, RenderOption } from "design-system-old";
-// import { Dropdown } from "design-system-old";
 import { Select, Option } from "design-system";
 import type { AppTheme } from "entities/AppTheming";
 
@@ -14,7 +11,6 @@ interface ThemeFontControlProps {
 }
 
 function ThemeFontControl(props: ThemeFontControlProps) {
-  // const { options, sectionName, selectedOption, theme, updateTheme } = props;
   const { options, selectedOption } = props;
   // const renderOption: RenderOption = ({
   //   isHighlighted,
@@ -66,27 +62,6 @@ function ThemeFontControl(props: ThemeFontControlProps) {
       </Select>
     </section>
   );
-
-  // return (
-  //   <section className="space-y-2">
-  //     <Dropdown
-  //       options={options.map((option) => ({
-  //         value: option,
-  //         label: option,
-  //       }))}
-  //       portalContainer={
-  //         document.getElementById("app-settings-portal") || undefined
-  //       }
-  //       renderOption={renderOption}
-  //       selected={{
-  //         label: selectedOption,
-  //         value: selectedOption,
-  //       }}
-  //       showLabelOnly
-  //       width="100%"
-  //     />
-  //   </section>
-  // );
 }
 
 export default ThemeFontControl;

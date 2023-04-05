@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Option, Select } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledDropDownContainer } from "./StyledControls";
 import type { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -101,7 +100,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     return (
-      <StyledDropDownContainer ref={this.containerRef}>
+      <div className="w-full h-full" ref={this.containerRef}>
         <StyledSelect
           // closeOnSpace={false}
           // dropdownHeight={this.props.dropdownHeight}
@@ -134,7 +133,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             );
           })}
         </StyledSelect>
-      </StyledDropDownContainer>
+      </div>
     );
   }
 

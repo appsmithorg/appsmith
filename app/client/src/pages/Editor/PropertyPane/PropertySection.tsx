@@ -31,7 +31,6 @@ const SectionWrapper = styled.div`
   padding: 12px 16px;
 
   &:first-of-type {
-    padding-top: 0px;
     border-top: 0;
   }
 

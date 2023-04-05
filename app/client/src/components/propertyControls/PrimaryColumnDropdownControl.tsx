@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
+import { Select, Option } from "design-system";
 import type { DropdownOption } from "design-system-old";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -68,17 +68,20 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     }
 
     return (
-      <StyledDropDownContainer ref={this.containerRef}>
-        <StyledDropDown
-          dropdownMaxHeight="200px"
-          fillOptions
+      <div className="w-full h-full" ref={this.containerRef}>
+        <Select
+          // @ts-expect-error: Type mismatch
           onSelect={this.onItemSelect}
-          options={options}
           selected={defaultSelected}
-          showLabelOnly
-          width="100%"
         />
-      </StyledDropDownContainer>
+        {options.map((option) => {
+          return (
+            <Option key={option.value} value={option.value}>
+              {option.label}
+            </Option>
+          );
+        })}
+      </div>
     );
   }
 

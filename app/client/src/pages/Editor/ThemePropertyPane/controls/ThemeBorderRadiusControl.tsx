@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 
 import type { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
 import { SegmentedControl } from "design-system";
 
@@ -42,16 +42,12 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
     label: (
-      <TooltipComponent
-        content={optionKey}
-        key={optionKey}
-        openOnTargetFocus={false}
-      >
+      <Tooltip content={optionKey} key={optionKey}>
         <div
           className="w-5 h-5 border-t-2 border-l-2 border-gray-500 t--theme-appBorderRadius"
           style={{ borderTopLeftRadius: options[optionKey] }}
         />
-      </TooltipComponent>
+      </Tooltip>
     ),
     value: optionKey,
   }));

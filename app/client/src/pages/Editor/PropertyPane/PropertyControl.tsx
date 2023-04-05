@@ -3,10 +3,7 @@ import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
-import {
-  ControlPropertyLabelContainer,
-  ControlWrapper,
-} from "components/propertyControls/StyledControls";
+import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { ToggleButton } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
@@ -716,7 +713,7 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <ControlPropertyLabelContainer className="gap-1">
+          <div className="flex align-center gap-1">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
@@ -763,7 +760,7 @@ const PropertyControl = memo((props: Props) => {
                 </button>
               </>
             )}
-          </ControlPropertyLabelContainer>
+          </div>
           {PropertyControlFactory.createControl(
             config,
             {

@@ -74,16 +74,6 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
         ref={this.componentRef}
       />
     );
-    // return (
-    //   // <ControlContainer>
-    //   //   <ButtonGroup
-    //   //     options={options}
-    //   //     ref={this.componentRef}
-    //   //     selectButton={this.handleAlign}
-    //   //     values={[propertyValue || Alignment.LEFT]}
-    //   //   />
-    //   // </ControlContainer>
-    // );
   }
 
   private handleAlign(align: string, isUpdatedViaKeyboard = false) {
