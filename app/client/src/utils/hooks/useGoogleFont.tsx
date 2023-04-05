@@ -1,19 +1,8 @@
-import { useEffect, useMemo } from "react";
-import webfontloader from "webfontloader";
+import { useMemo } from "react";
 
 export const DEFAULT_FONT_NAME = "System Default";
 
 function useGoogleFont(fontFamily = DEFAULT_FONT_NAME) {
-  useEffect(() => {
-    if (fontFamily !== DEFAULT_FONT_NAME) {
-      webfontloader.load({
-        google: {
-          families: [`${fontFamily}:300,400,500,700`],
-        },
-      });
-    }
-  }, [fontFamily]);
-
   /**
    * returns the font to be used for the canvas
    */
