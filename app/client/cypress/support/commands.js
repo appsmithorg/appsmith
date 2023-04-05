@@ -1294,9 +1294,10 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
   //cy.get(welcomePage.createButton).click({ multiple: true });
+  cy.get(welcomePage.createButton).trigger("click");
 
   //Submit also not working
-  cy.get(welcomePage.createSuperUser).submit();
+  //cy.get(welcomePage.createSuperUser).submit();
   cy.wait(5000); //waiting a bit before attempting logout
 
   // cy.get("body").then(($ele) => {
