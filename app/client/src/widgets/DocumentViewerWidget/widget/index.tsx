@@ -6,6 +6,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
+import { isVisible } from "widgets/WidgetUtils";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -132,6 +133,15 @@ class DocumentViewerWidget extends BaseWidget<
       },
       ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc": "Document viewer widget is used to show documents on a page",
+      "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",
+      isVisible: isVisible,
+      docUrl: "string",
+    };
   }
 
   getPageView() {

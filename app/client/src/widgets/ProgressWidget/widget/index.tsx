@@ -1,6 +1,7 @@
 import React from "react";
 
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { isVisible } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
@@ -129,6 +130,16 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       },
       ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",
+      "!url": "https://docs.appsmith.com/widget-reference/progress",
+      isVisible: isVisible,
+      progress: "number",
+    };
   }
 
   static getPropertyPaneStyleConfig() {

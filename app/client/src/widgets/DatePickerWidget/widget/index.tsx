@@ -10,6 +10,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { isVisible } from "widgets/WidgetUtils";
 
 function defaultDateValidation(
   value: unknown,
@@ -176,6 +177,17 @@ function maxDateValidation(
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+      "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+      isVisible: isVisible,
+      selectedDate: "string",
+      isDisabled: "bool",
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

@@ -381,6 +381,15 @@ class SwitchGroupWidget extends BaseWidget<
     };
   }
 
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Switch group widget allows users to create many switch components which can easily by used in a form",
+      "!url": "https://docs.appsmith.com/widget-reference/switch-group",
+      selectedValues: "[string]",
+    };
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedValuesArray: "defaultSelectedValues",

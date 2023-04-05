@@ -26,6 +26,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   isAutoHeightEnabledForWidget,
+  isVisible,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 
@@ -36,6 +37,19 @@ export class ContainerWidget extends BaseWidget<
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/container",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/container",
+      },
+      isVisible: isVisible,
+    };
   }
 
   static getPropertyPaneContentConfig() {

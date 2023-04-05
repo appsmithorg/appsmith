@@ -16,7 +16,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -464,6 +464,28 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      isVisible: isVisible,
+      selectedOptionValue: {
+        "!type": "string",
+        "!doc": "The value selected in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+      selectedOptionLabel: {
+        "!type": "string",
+        "!doc": "The selected option label in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      options: "[$__dropdownOption__$]",
+    };
   }
 
   static getDerivedPropertiesMap() {

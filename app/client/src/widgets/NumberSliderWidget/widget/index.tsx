@@ -9,6 +9,7 @@ import SliderComponent from "../component/Slider";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { Stylesheet } from "entities/AppTheming";
+import { isVisible } from "widgets/WidgetUtils";
 
 export interface NumberSliderWidgetProps
   extends WidgetProps,
@@ -44,6 +45,16 @@ class NumberSliderWidget extends BaseWidget<
   static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Number slider widget is used to capture user feedback from a range of values",
+      "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+      isVisible: isVisible,
+      value: "number",
     };
   }
 

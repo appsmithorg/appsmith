@@ -9,6 +9,17 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 import type { LevelData } from "./widget";
 
+import { registerWidget } from "utils/WidgetRegisterHelpers";
+import ImageWidget, { CONFIG as ImageWidgetConfig } from "widgets/ImageWidget";
+import TextWidget, { CONFIG as TextWidgetConfig } from "widgets/TextWidget";
+import ListWidget, { CONFIG as ListWidgetConfig } from "widgets/ListWidgetV2";
+import CanvasWidget, {
+  CONFIG as CanvasWidgetConfig,
+} from "widgets/CanvasWidget";
+import ContainerWidget, {
+  CONFIG as ContainerWidgetConfig,
+} from "widgets/ContainerWidget";
+
 type Validator = {
   widgetType: string;
   occurrence: number;
@@ -219,6 +230,14 @@ const validateMetaWidgetType = (
   expect(missingMetaWidget).toEqual([]);
   expect(extraGeneratedMetaWidgets).toEqual([]);
 };
+
+beforeAll(() => {
+  registerWidget(ImageWidget, ImageWidgetConfig);
+  registerWidget(TextWidget, TextWidgetConfig);
+  registerWidget(ListWidget, ListWidgetConfig);
+  registerWidget(CanvasWidget, CanvasWidgetConfig);
+  registerWidget(ContainerWidget, ContainerWidgetConfig);
+});
 
 describe("#generate", () => {
   it("generates meta widgets for first instance", () => {

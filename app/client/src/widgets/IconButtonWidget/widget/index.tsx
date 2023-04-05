@@ -13,6 +13,7 @@ import { ButtonVariantTypes } from "components/constants";
 import type { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import IconButtonComponent from "../component";
+import { isVisible } from "widgets/WidgetUtils";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -249,6 +250,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         }
       />
     );
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Icon button widget is just an icon, along with all other button properties.",
+      "!url": "https://docs.appsmith.com/widget-reference/icon-button",
+      isVisible: isVisible,
+    };
   }
 
   static getWidgetType(): WidgetType {

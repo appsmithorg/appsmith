@@ -39,6 +39,9 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { isVisible } from "widgets/WidgetUtils";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -149,6 +152,37 @@ class ListWidget extends BaseWidget<
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
+  }
+
+  static getAutocompleteConfig(): any {
+    return (widget: any, extraDefsToDefine?: ExtraDef) => ({
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/list",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      },
+      isVisible: isVisible,
+      itemSpacing: "number",
+      selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+      selectedItemView: generateTypeDef(
+        widget.selectedItemView,
+        extraDefsToDefine,
+      ),
+      triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
+      triggeredItemView: generateTypeDef(
+        widget.triggeredItemView,
+        extraDefsToDefine,
+      ),
+      listData: generateTypeDef(widget.listData, extraDefsToDefine),
+      pageNo: generateTypeDef(widget.pageNo),
+      pageSize: generateTypeDef(widget.pageSize),
+      currentItemsView: generateTypeDef(
+        widget.currentItemsView,
+        extraDefsToDefine,
+      ),
+    });
   }
 
   static getDerivedPropertiesMap() {

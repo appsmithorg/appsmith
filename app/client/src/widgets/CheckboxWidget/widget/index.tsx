@@ -7,12 +7,23 @@ import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
+      "!url": "https://docs.appsmith.com/widget-reference/checkbox",
+      isVisible: isVisible,
+      isChecked: "bool",
+      isDisabled: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {

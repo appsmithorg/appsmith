@@ -11,7 +11,6 @@ import {
 import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
@@ -34,6 +33,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import WidgetFactory from "utils/WidgetFactory";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];
@@ -1717,7 +1717,7 @@ class MetaWidgetGenerator {
     widgetType: string,
     blacklistedWidgetProperties?: string[],
   ) => {
-    const config = get(entityDefinitions, widgetType);
+    const config = WidgetFactory.getAutocompleteConfig(widgetType);
     const entityDefinition = typeof config === "function" ? config({}) : config;
     const blacklistedKeys = ["!doc", "!url"].concat(
       blacklistedWidgetProperties || [],

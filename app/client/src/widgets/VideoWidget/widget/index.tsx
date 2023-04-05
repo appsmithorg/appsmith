@@ -188,6 +188,16 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     };
   }
 
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+      "!url": "https://docs.appsmith.com/widget-reference/video",
+      playState: "number",
+      autoPlay: "bool",
+    };
+  }
+
   // TODO: (Rishabh) When we have the new list widget, we need to make the playState as a derived propery.
   // TODO: (Balaji) Can we have dynamic default value that accepts current widget values and determines the default value.
   componentDidUpdate(prevProps: VideoWidgetProps) {

@@ -20,6 +20,16 @@ export enum PlayState {
 }
 
 class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+      "!url": "https://docs.appsmith.com/widget-reference/audio",
+      playState: "number",
+      autoPlay: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {

@@ -19,6 +19,7 @@ import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";
 import TextComponent from "../component";
 import { OverflowTypes } from "../constants";
+import { isVisible } from "widgets/WidgetUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -411,6 +412,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{ this.text }}`,
+    };
+  }
+
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "‌Text widget is used to display textual information. Whether you want to display a paragraph or information or add a heading to a container, a text widget makes it easy to style and display text",
+      "!url": "https://docs.appsmith.com/widget-reference/text",
+      isVisible: isVisible,
+      text: "string",
     };
   }
 

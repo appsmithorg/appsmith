@@ -14,7 +14,7 @@ import { LabelPosition } from "components/constants";
 import type { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
@@ -42,6 +42,18 @@ function allowedRange(value: any) {
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
+  static getAutocompleteConfig(): any {
+    return {
+      "!doc":
+        "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+      "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+      isVisible: isVisible,
+      selectedDate: "string",
+      formattedDate: "string",
+      isDisabled: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
