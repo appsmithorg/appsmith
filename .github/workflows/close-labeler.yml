@@ -1,0 +1,64 @@
+name: Close Labeler
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - release
+
+jobs:
+  apply:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            console.log("PR Details", context.issue)
+
+            const result = await github.graphql(
+              `
+                query($owner: String!, $name: String!, $prNum: Int!) {
+                  repository(owner: $owner, name: $name) {
+                    pullRequest(number: $prNum) {
+                      closingIssuesReferences(first: 10) {
+                        nodes {
+                          number
+                          labels(first: 50) {
+                            edges {
+                              node {
+                                name
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `,
+              {
+                owner: context.issue.owner,
+                name: context.issue.repo,
+                prNum: context.issue.number,
+              },
+            )
+            console.log("GraphQL result", JSON.stringify(result, null, 2));
+
+            for (const node of result.repository.pullRequest.closingIssuesReferences.nodes) {
+              const issueNum = node.number;
+              const shouldQA = node.labels.edges.find(edge => edge.node.name === "Enhancement" || edge.node.name === "Bug") != null
+              if (!shouldQA) {
+                break
+              }
+              console.log("Adding QA to", issueNum)
+              github.rest.issues.addLabels({
+                issue_number: issueNum,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ["QA"],
+              })
+            }
+
+            console.log("Fin")
