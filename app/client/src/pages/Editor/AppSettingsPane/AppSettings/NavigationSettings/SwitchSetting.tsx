@@ -4,8 +4,6 @@ import type {
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
-// import SwitchWrapper from "../../Components/SwitchWrapper";
-// import { Switch } from "design-system-old";
 import { Switch } from "design-system";
 import type { UpdateSetting } from ".";
 import kebabCase from "lodash/kebabCase";
@@ -33,8 +31,6 @@ const SwitchSetting = (props: {
         >
           <StyledPropertyHelpLabel
             label={label}
-            lineHeight="1.17"
-            maxWidth="270px"
             onClick={() => {
               updateSetting(keyName, !value);
               logEvent(keyName as keyof StringsFromNavigationSetting, !value);

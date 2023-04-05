@@ -14,7 +14,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
-// import ColorStyleIcon from "./ColorStyleIcon";
+import ColorStyleIcon from "./ColorStyleIcon";
 import SwitchSetting from "./SwitchSetting";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import equal from "fast-deep-equal";
@@ -282,24 +282,30 @@ function NavigationSettings() {
             navigationSetting={navigationSetting}
             options={[
               {
-                label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
-                startIcon: "layout-line",
-                // startIcon: (
-                //   <ColorStyleIcon
-                //     colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
-                //   />
-                // ),
+                label: (
+                  <div className="inline-flex items-center">
+                    <ColorStyleIcon
+                      colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
+                    />
+                    <span>
+                      {_.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT)}
+                    </span>
+                  </div>
+                ),
               },
               {
-                label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME),
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
-                startIcon: "layout-line",
-                // startIcon: (
-                //   <ColorStyleIcon
-                //     colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
-                //   />
-                // ),
+                label: (
+                  <div className="inline-flex items-center">
+                    <ColorStyleIcon
+                      colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
+                    />
+                    <span>
+                      {_.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME)}
+                    </span>
+                  </div>
+                ),
               },
             ]}
             updateSetting={updateSetting}

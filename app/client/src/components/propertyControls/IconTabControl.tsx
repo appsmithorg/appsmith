@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ButtonGroupOption } from "design-system-old";
+import type { SegmentedControlOption } from "design-system";
 import { SegmentedControl } from "design-system";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -16,6 +16,12 @@ const StyledSegmentedControl = styled(SegmentedControl)`
     flex: 1 1 0%;
   }
 `;
+
+export interface IconTabControlProps extends ControlProps {
+  options: SegmentedControlOption[];
+  defaultValue: string;
+  fullWidth: boolean;
+}
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -83,12 +89,6 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
       return true;
     return false;
   }
-}
-
-export interface IconTabControlProps extends ControlProps {
-  options: ButtonGroupOption[];
-  defaultValue: string;
-  fullWidth: boolean;
 }
 
 export default IconTabControl;

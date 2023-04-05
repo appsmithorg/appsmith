@@ -1,11 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
+import type { SegmentedControlOption } from "design-system";
 import { SegmentedControl } from "design-system";
-
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ButtonGroupOption } from "design-system-old";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -21,7 +20,7 @@ const StyledSegmentedControl = styled(SegmentedControl)`
 
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;
-  options: ButtonGroupOption[];
+  options: SegmentedControlOption[];
   defaultValue: Alignment;
 }
 

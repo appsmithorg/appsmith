@@ -19,8 +19,6 @@ import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Input, Switch } from "design-system";
-// import { Text, TextType } from "design-system-old";
-// import AdsSwitch from "design-system-old/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
@@ -37,7 +35,6 @@ import { getUrlPreview } from "../Utils";
 import type { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
-// import SwitchWrapper from "../Components/SwitchWrapper";
 
 const UrlPreviewWrapper = styled.div`
   height: 54px;
@@ -174,7 +171,6 @@ function PageSettings(props: { page: Page }) {
 
   return (
     <>
-      {/* <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text> */}
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
@@ -187,7 +183,6 @@ function PageSettings(props: { page: Page }) {
           // @ts-expect-error: Input id prop is not available
           id="t--page-settings-name"
           isDisabled={!canManagePages}
-          // fill
           label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
           onBlur={savePageName}
           onChange={(value: string) =>
@@ -226,7 +221,6 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      {/* <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text> */}
       {appNeedsUpdate && (
         <div
           className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px]`}
@@ -254,7 +248,6 @@ function PageSettings(props: { page: Page }) {
           defaultValue={customSlug}
           // @ts-expect-error: Input id prop is not available
           id="t--page-settings-custom-slug"
-          // fill
           isDisabled={!canManagePages}
           label={PAGE_SETTINGS_PAGE_URL_LABEL()}
           onBlur={saveCustomSlug}

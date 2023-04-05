@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Option, Select } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { DropdownOption } from "design-system-old";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSEventDetail } from "utils/AppsmithUtils";
@@ -19,6 +18,11 @@ const StyledSelect = styled(Select)`
     font-family: "Twemoji Country Flags";
   }
 `;
+
+type DropdownOption = {
+  label?: string;
+  value?: string;
+};
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
@@ -102,28 +106,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <StyledSelect
-          // closeOnSpace={false}
-          // dropdownHeight={this.props.dropdownHeight}
-          // dropdownMaxHeight="200px"
           isMultiSelect={this.props.isMultiSelect}
-          // enableSearch={this.props.enableSearch}
-          // fillOptions
-          // hideSubText={this.props.hideSubText}
-          // @ts-expect-error: Type mismatch
           onSelect={this.onItemSelect}
-          // options={options}
-          // optionWidth={
-          //   this.props.optionWidth ? this.props.optionWidth : "231px"
-          // }
           placeholder={this.props.placeholderText}
-          removeSelectedOption={this.onItemRemove}
-          selected={defaultSelected}
-          // searchAutoFocus
-          // searchPlaceholder={this.props.searchPlaceholderText}
+          // @ts-expect-error: removeItem does not exits
+          removeItem={this.onItemRemove}
           showSearch={this.props.enableSearch}
-          // showEmptyOptions
-          // showLabelOnly
-          // width="100%"
+          value={defaultSelected}
         >
           {options.map((option) => {
             return (
@@ -137,11 +126,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  onItemSelect = (
-    value?: string,
-    _option?: DropdownOption,
-    isUpdatedViaKeyboard?: boolean,
-  ): void => {
+  onItemSelect = (value?: string): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
@@ -161,11 +146,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
-      this.updateProperty(
-        this.props.propertyName,
-        selectedValue,
-        isUpdatedViaKeyboard,
-      );
+      this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
 

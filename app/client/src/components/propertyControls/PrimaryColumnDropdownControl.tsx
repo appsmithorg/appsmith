@@ -2,8 +2,8 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { SegmentedControlOption } from "design-system";
 import { Select, Option } from "design-system";
-import type { DropdownOption } from "design-system-old";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -54,12 +54,12 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
       });
     }
 
-    let defaultSelected: DropdownOption = {
+    let defaultSelected: SegmentedControlOption = {
       label: "No selection.",
-      value: undefined,
+      value: "",
     };
 
-    const selected: DropdownOption = options.find(
+    const selected: SegmentedControlOption = options.find(
       (option) => option.value === this.props.propertyValue,
     );
 
@@ -69,11 +69,7 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
-        <Select
-          // @ts-expect-error: Type mismatch
-          onSelect={this.onItemSelect}
-          selected={defaultSelected}
-        />
+        <Select onSelect={this.onItemSelect} value={defaultSelected} />
         {options.map((option) => {
           return (
             <Option key={option.value} value={option.value}>
@@ -85,13 +81,9 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     );
   }
 
-  onItemSelect = (
-    value?: string,
-    _option?: DropdownOption,
-    isUpdatedViaKeyboard?: boolean,
-  ): void => {
+  onItemSelect = (value?: string): void => {
     if (value) {
-      this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
+      this.updateProperty(this.props.propertyName, value);
     }
   };
 

@@ -16,6 +16,7 @@ type DimensionsInputProp = {
   onChange?: ((value: string) => void) | undefined;
   value: string;
   prefix: string;
+  icon: string;
 };
 
 export function cssDimensionValidator(value: string) {
@@ -37,8 +38,7 @@ function DimensionsInput(props: DimensionsInputProp) {
         onChange={props.onChange}
         renderAs="input"
         size="md"
-        startIcon="layout-line"
-        // prefix={props.prefix}
+        startIcon={props.icon}
         // validator={cssDimensionValidator}
         value={props.value}
       />

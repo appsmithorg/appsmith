@@ -60,7 +60,6 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     >
       <div className="sticky top-0 bg-gray-50 px-3">
         <SearchInput
-          // @ts-expect-error: autoComplete not available
           autoComplete="off"
           autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}

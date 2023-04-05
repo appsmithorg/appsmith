@@ -1,8 +1,7 @@
 import type { MutableRefObject } from "react";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import Divider from "components/editorComponents/Divider";
-import { SearchInput } from "design-system";
+import { SearchInput, Divider } from "design-system";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {
@@ -65,10 +64,6 @@ const NoResult = styled(NonIdealState)`
   }
 `;
 
-const StyledDivider = styled(Divider)`
-  border-bottom-color: #f0f0f0;
-`;
-
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -106,7 +101,6 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       ref={explorerRef}
     >
       <SearchInput
-        // @ts-expect-error: id not available
         id={SEARCH_ENTITY}
         isHidden
         onChange={(value: string) => setSearchKeyword(value)}
@@ -126,7 +120,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <StyledDivider />
+      <Divider />
       <Datasources />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />

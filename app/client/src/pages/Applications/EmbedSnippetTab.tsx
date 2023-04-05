@@ -1,7 +1,6 @@
 import {
   TextType,
   Text,
-  Switch,
   Case,
   TooltipComponent,
   Classes,
@@ -9,7 +8,7 @@ import {
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
+import { Switch } from "design-system";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
@@ -93,25 +92,20 @@ function EmbedSnippetTab() {
             })}
           >
             <div className="flex justify-between items-center">
-              <Text type={TextType.P1}>
+              <Switch
+                data-cy="show-navigation-bar-toggle"
+                defaultSelected={
+                  embedSnippet.currentEmbedSetting?.showNavigationBar
+                }
+                onChange={() =>
+                  embedSnippet.onChange({
+                    showNavigationBar:
+                      !embedSnippet.currentEmbedSetting.showNavigationBar,
+                  })
+                }
+              >
                 {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-              </Text>
-              <SwitchWrapper>
-                <Switch
-                  className="mb-0"
-                  data-cy={"show-navigation-bar-toggle"}
-                  defaultChecked={
-                    embedSnippet.currentEmbedSetting?.showNavigationBar
-                  }
-                  large
-                  onChange={() =>
-                    embedSnippet.onChange({
-                      showNavigationBar:
-                        !embedSnippet.currentEmbedSetting.showNavigationBar,
-                    })
-                  }
-                />
-              </SwitchWrapper>
+              </Switch>
             </div>
           </div>
 
@@ -121,11 +115,13 @@ function EmbedSnippetTab() {
             </Text>
             <div className="flex gap-2">
               <DimensionsInput
+                icon="w-line"
                 onChange={(width: string) => embedSnippet.onChange({ width })}
                 prefix="W"
                 value={embedSnippet.currentEmbedSetting?.width}
               />
               <DimensionsInput
+                icon="h-line"
                 onChange={(height: string) => embedSnippet.onChange({ height })}
                 prefix="H"
                 value={embedSnippet.currentEmbedSetting?.height}

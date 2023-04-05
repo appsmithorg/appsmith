@@ -1,5 +1,4 @@
 import React from "react";
-// import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
@@ -11,19 +10,6 @@ import { Button } from "design-system";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-
-// const StyledPropertyPaneButtonWrapper = styled.div`
-//   display: flex;
-//   width: 100%;
-//   justify-content: center;
-//   margin-top: 10px;
-// `;
-
-// const ButtonListWrapper = styled.div`
-//   width: 100%;
-//   display: flex;
-//   flex-direction: column;
-// `;
 
 type State = {
   focusedIndex: number | null;

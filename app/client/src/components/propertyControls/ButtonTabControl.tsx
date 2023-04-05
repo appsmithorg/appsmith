@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ButtonGroupOption } from "design-system-old";
+import type { SegmentedControlOption } from "design-system";
 import { SegmentedControl } from "design-system";
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
@@ -10,6 +10,11 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+export interface ButtonTabControlProps extends ControlProps {
+  options: SegmentedControlOption[];
+  defaultValue: string;
+}
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -100,11 +105,6 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
     return true;
   }
-}
-
-export interface ButtonTabControlProps extends ControlProps {
-  options: ButtonGroupOption[];
-  defaultValue: string;
 }
 
 export default ButtonTabControl;

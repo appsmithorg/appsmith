@@ -1,10 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import type { ButtonGroupOption } from "design-system-old";
 import { TextType, Text } from "design-system-old";
-// TODO - @Dhruvik - ImprovedAppNav
-// Update the DS package
-// import { ButtonGroup } from "design-system-old";
+import type { SegmentedControlOption } from "design-system";
 import { SegmentedControl } from "design-system";
 import type {
   NavigationSetting,
@@ -21,7 +18,9 @@ const StyledSegmentedControl = styled(SegmentedControl)`
 
 export type ButtonGroupSettingProps = {
   heading: string;
-  options: Array<ButtonGroupOption & { startIcon?: any; hidden?: boolean }>;
+  options: Array<
+    SegmentedControlOption & { startIcon?: any; hidden?: boolean }
+  >;
   navigationSetting: NavigationSetting;
   keyName: keyof StringsFromNavigationSetting;
   updateSetting: UpdateSetting;
@@ -51,12 +50,6 @@ const ButtonGroupSetting = ({
           onChange={onChange}
           options={visibleOptions}
         />
-        {/* <ButtonGroup
-          fullWidth
-          options={visibleOptions}
-          selectButton={onChange}
-          values={[navigationSetting[keyName]]}
-        /> */}
       </div>
     </div>
   );

@@ -88,7 +88,6 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
         className="propertyPaneSearch"
         onChange={props.onTextChange}
         placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
-        // @ts-expect-error: ref not allowed
         ref={inputRef}
         tabIndex={-1}
         variant={SearchVariant.BACKGROUND}

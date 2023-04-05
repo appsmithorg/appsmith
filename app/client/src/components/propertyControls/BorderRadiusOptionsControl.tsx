@@ -5,18 +5,12 @@ import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { SegmentedControl, Tooltip } from "design-system";
-
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-/**
- * ----------------------------------------------------------------------------
- * TYPES
- *-----------------------------------------------------------------------------
- */
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -35,11 +29,6 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
 
 const optionsValues = new Set(Object.values(borderRadiusOptions));
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- *-----------------------------------------------------------------------------
- */
 class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 

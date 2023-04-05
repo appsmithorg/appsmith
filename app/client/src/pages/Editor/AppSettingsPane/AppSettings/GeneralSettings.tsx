@@ -74,7 +74,6 @@ function GeneralSettings() {
 
   return (
     <>
-      {/* <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text> */}
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,

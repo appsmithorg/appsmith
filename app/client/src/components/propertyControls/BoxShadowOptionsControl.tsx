@@ -2,9 +2,8 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { SegmentedControl, Tooltip } from "design-system";
+import { Icon, SegmentedControl, Tooltip } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
-import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -23,7 +22,7 @@ const options = Object.keys(boxShadowOptions).map((optionKey) => ({
         style={{ boxShadow: boxShadowOptions[optionKey] }}
       >
         {boxShadowOptions[optionKey] === "none" && (
-          <CloseLineIcon className="text-gray-700" />
+          <Icon name="close-x" size="10px" />
         )}
       </div>
     </Tooltip>
