@@ -38,6 +38,8 @@ import {
   getContainerWidgetSpacesSelector,
   getCurrentAppPositioningType,
   getCurrentPageId,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
@@ -167,9 +169,9 @@ import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
+import { LayoutDirection } from "utils/autoLayout/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -180,7 +182,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       getWidget,
       resizeAction.payload.widgetId,
     );
-    const isMobile: boolean = yield select(getIsMobile);
+    const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
     const widgets = { ...stateWidgets };
     let widget = { ...stateWidget };
     const {
@@ -214,13 +216,15 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileBottomRow,
     };
 
-    // Keeps track of user defined widget width in terms of percentage
-    if (isMobile) {
-      widget.mobileWidthInPercentage =
-        (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
-    } else {
-      widget.widthInPercentage =
-        (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      // Keeps track of user defined widget width in terms of percentage
+      if (isMobile) {
+        widget.mobileWidthInPercentage =
+          (getWidgetWidth(widget, true) * snapColumnSpace) / mainCanvasWidth;
+      } else {
+        widget.widthInPercentage =
+          (getWidgetWidth(widget, false) * snapColumnSpace) / mainCanvasWidth;
+      }
     }
 
     const movedWidgets: {
@@ -259,7 +263,12 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
-    yield put(generateAutoHeightLayoutTreeAction(true, true));
+
+    // Widget resize based auto-height is only required for fixed-layout
+    // Auto-layout has UPDATE_WIDGET_DIMENSIONS to handle auto height
+    if (appPositioningType !== AppPositioningTypes.AUTO) {
+      yield put(generateAutoHeightLayoutTreeAction(true, true));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1381,7 +1390,7 @@ function* pasteWidgetSaga(
   const selectedWidget: FlattenedWidgetProps<undefined> =
     yield getSelectedWidgetWhenPasting();
 
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
@@ -1922,7 +1931,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
-
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   try {
     let newWidget = {
       newWidgetId: generateReactKey(),
@@ -1951,10 +1960,25 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     };
 
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: newWidget,
-    });
+    if (isAutoLayout) {
+      yield put({
+        type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+        payload: {
+          dropPayload: {
+            isNewLayer: true,
+          },
+          newWidget,
+          parentId: MAIN_CONTAINER_WIDGET_ID,
+          direction: LayoutDirection.Vertical,
+          addToBottom: true,
+        },
+      });
+    } else {
+      yield put({
+        type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+        payload: newWidget,
+      });
+    }
 
     yield take(ReduxActionTypes.UPDATE_LAYOUT);
 

@@ -58,22 +58,31 @@ export function deriveHighlightsFromLayers(
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
   for (const layer of layers) {
     /**
+     * Discard widgets that are detached from layout (Modals).
+     */
+    const updatedLayer: FlexLayer = {
+      children: layer?.children?.filter(
+        (child: LayerChild) =>
+          widgets[child.id] && !widgets[child.id].detachFromLayout,
+      ),
+    };
+    /**
      * If the layer is empty, after discounting the dragged widgets,
      * then don't process it for vertical highlights.
      */
     const isEmpty: boolean =
-      layer?.children?.filter(
+      updatedLayer?.children?.filter(
         (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
       ).length === 0;
     const childrenRows = getTotalRowsOfAllChildren(
       widgets,
-      layer.children?.map((child) => child.id) || [],
+      updatedLayer.children?.map((child) => child.id) || [],
       isMobile,
     );
 
     const payload: VerticalHighlightsPayload = generateVerticalHighlights({
       widgets,
-      layer,
+      layer: updatedLayer,
       childCount,
       layerIndex,
       offsetTop,
@@ -344,12 +353,11 @@ export function generateHighlightsForAlignment(data: {
       posY:
         lastChild === null
           ? offsetTop
-          : getTopRow(lastChild, isMobile) * lastChild?.parentRowSpace +
-            FLEXBOX_PADDING,
+          : getTopRow(lastChild, isMobile) * rowSpace + FLEXBOX_PADDING,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height:
         isMobile && lastChild !== null
-          ? getWidgetHeight(lastChild, isMobile) * lastChild.parentRowSpace
+          ? getWidgetHeight(lastChild, isMobile) * rowSpace
           : maxHeight,
       isVertical: true,
       canvasId,

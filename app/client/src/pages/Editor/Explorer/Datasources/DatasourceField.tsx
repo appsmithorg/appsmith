@@ -7,6 +7,7 @@ import {
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${(props) =>
@@ -109,7 +110,7 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
       position={Position.RIGHT_TOP}
     >
       {content}
-      <Container>
+      <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
         {icon}
         <PopoverContent>
           <PopupValue>{fieldName}</PopupValue>

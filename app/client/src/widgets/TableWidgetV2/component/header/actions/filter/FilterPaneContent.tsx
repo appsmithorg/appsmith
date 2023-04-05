@@ -113,17 +113,25 @@ interface TableFilterProps {
   borderRadius: string;
 }
 
+const defaultFilters = [{ ...DEFAULT_FILTER }];
+const getTableFilters = (filters: ReactTableFilter[] | undefined) => {
+  if (!filters || filters.length === 0) {
+    return defaultFilters;
+  }
+  return filters;
+};
+
 function TableFilterPaneContent(props: TableFilterProps) {
   const [filters, updateFilters] = React.useState(
-    new Array<ReactTableFilter>(),
+    getTableFilters(props.filters),
   );
 
   useEffect(() => {
-    const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
-    if (filters.length === 0) {
-      filters.push({ ...DEFAULT_FILTER });
+    const updatedFiltersState = getTableFilters(props.filters);
+    //if props has been updated update the filters state
+    if (updatedFiltersState !== filters) {
+      updateFilters(updatedFiltersState);
     }
-    updateFilters(filters);
   }, [props.filters]);
 
   const addFilter = () => {
@@ -150,8 +158,8 @@ function TableFilterPaneContent(props: TableFilterProps) {
   };
 
   const clearFilters = useCallback(() => {
-    props.applyFilter([{ ...DEFAULT_FILTER }]);
-  }, []);
+    props.applyFilter(defaultFilters);
+  }, [props]);
 
   const columns: DropdownOption[] = props.columns
     .map((column: ReactTableColumnProps) => {

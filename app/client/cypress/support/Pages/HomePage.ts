@@ -39,6 +39,7 @@ export class HomePage {
   _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";
+  public _closeBtn = ".bp3-dialog-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
   private _homeIcon = ".t--appsmith-logo";
@@ -149,7 +150,10 @@ export class HomePage {
     email: string,
     role: string,
   ) {
-    const successMessage = "The user has been invited successfully";
+    const successMessage =
+      CURRENT_REPO === REPO.CE
+        ? "The user has been invited successfully"
+        : "The user/group have been invited successfully";
     this.StubPostHeaderReq();
     this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
@@ -187,6 +191,9 @@ export class HomePage {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
       req.headers["origin"] = "Cypress";
     }).as("mockPostInvite");
+    cy.intercept("POST", "/api/v1/applications/invite", (req) => {
+      req.headers["origin"] = "Cypress";
+    }).as("mockPostAppInvite");
   }
 
   public NavigateToHome() {
@@ -368,7 +375,10 @@ export class HomePage {
     this.agHelper.Sleep(3500);
   }
   public InviteUserToWorkspaceFromApp(email: string, role: string) {
-    const successMessage = "The user has been invited successfully";
+    const successMessage =
+      CURRENT_REPO === REPO.CE
+        ? "The user has been invited successfully"
+        : "The user/group have been invited successfully";
     this.StubPostHeaderReq();
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
@@ -380,6 +390,29 @@ export class HomePage {
       .should("have.property", "origin", "Cypress");
     cy.contains(email, { matchCase: false });
     cy.contains(successMessage);
+  }
+
+  public InviteUserToApplicationFromApp(email: string, role: string) {
+    const successMessage = "The user/group have been invited successfully";
+    this.StubPostHeaderReq();
+    cy.xpath(this._email).click({ force: true }).type(email);
+    cy.xpath(this._selectRole).first().click({ force: true });
+    this.agHelper.Sleep(500);
+    cy.xpath(this._userRole(role)).click({ force: true });
+    this.agHelper.ClickButton("Invite");
+    cy.wait("@mockPostAppInvite")
+      .its("request.headers")
+      .should("have.property", "origin", "Cypress");
+    cy.contains(email, { matchCase: false });
+    cy.contains(successMessage);
+  }
+
+  public InviteUserToApplication(email: string, role: string) {
+    if (CURRENT_REPO === REPO.CE) {
+      this.InviteUserToWorkspaceFromApp(email, role);
+    } else {
+      this.InviteUserToApplicationFromApp(email, role);
+    }
   }
 
   public DeleteWorkspace(workspaceNameToDelete: string) {

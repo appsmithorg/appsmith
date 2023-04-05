@@ -123,6 +123,18 @@ export const CONFIG = {
       ],
       operations: [
         {
+          type: BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+            isAutoLayout: boolean,
+          ) => {
+            if (!isAutoLayout) return {};
+            return { rows: 10 };
+          },
+        },
+        {
           type: BlueprintOperationTypes.MODIFY_PROPS,
           fn: (
             widget: FlattenedWidgetProps,
@@ -183,11 +195,15 @@ export const CONFIG = {
             return getWidgetBluePrintUpdates({
               [widget.widgetId]: {
                 dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+                bottomRow: widget.topRow + 10,
+                mobileBottomRow: (widget.mobileTopRow || widget.topRow) + 10,
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
                 useAutoLayout: true,
                 positioning: Positioning.Vertical,
+                bottomRow: 100,
+                mobileBottomRow: 100,
               },
               [textWidget.widgetId]: {
                 responsiveBehavior: ResponsiveBehavior.Fill,
@@ -237,7 +253,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "280px",
-            minHeight: "300px",
+            minHeight: "100px",
           };
         },
       },

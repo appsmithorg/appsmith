@@ -769,6 +769,7 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
       },
     ];
     dsl.children[0].flexLayers = flexLayers;
+    dsl.children[0].responsiveBehavior = ResponsiveBehavior.Fill;
     dsl.children[0].positioning = Positioning.Vertical;
   }
 

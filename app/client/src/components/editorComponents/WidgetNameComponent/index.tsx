@@ -33,6 +33,7 @@ import {
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
+import { NavigationMethod } from "utils/history";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -49,7 +50,7 @@ const PositionStyle = styled.div<{
       ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
       : `calc(100% - ${1 + props.positionOffset[0]}px)`};
   height: ${WidgetNameComponentHeight}px;
-  margin-left: ${(props) => props.positionOffset[1]}px;
+  right: ${(props) => props.positionOffset[1]}px;
   z-index: ${Layers.widgetName};
 `;
 
@@ -122,7 +123,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
+      selectWidget &&
+        selectWidget(
+          SelectionRequestType.One,
+          [props.widgetId],
+          NavigationMethod.CanvasClick,
+        );
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
@@ -178,7 +184,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const getPositionOffset = (): [number, number] => {
     return isAutoLayout
       ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
-      : [0, -RESIZE_BORDER_BUFFER];
+      : [0, 0];
   };
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name

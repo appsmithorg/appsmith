@@ -9,7 +9,8 @@ export const PageViewContainer = styled.div<{
   ${({ isPublished }) => (isPublished ? "" : "width: inherit;")};
   ${({ hasPinnedSidebar, sidebarWidth }) =>
     hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
-  ${({ isPreviewMode }) => (isPreviewMode ? "width: 100%" : "")};
+  ${({ isPreviewMode }) =>
+    isPreviewMode ? "width: 100%; height: 100vh;" : ""};
 `;
 
 export const PageView = styled.div<{ width: number }>`

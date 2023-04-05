@@ -19,7 +19,7 @@ import type {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
-} from "api/ApplicationApi";
+} from "@appsmith/api/ApplicationApi";
 import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
@@ -403,8 +403,10 @@ export const handlers = {
       isSavingAppName = true;
     }
     if (state.currentApplication && action.payload.applicationDetail) {
-      state.currentApplication.applicationDetail =
-        action.payload.applicationDetail;
+      state.currentApplication.applicationDetail = {
+        ...state.currentApplication.applicationDetail,
+        ...action.payload.applicationDetail,
+      };
     }
 
     if (action.payload.applicationDetail?.navigationSetting) {

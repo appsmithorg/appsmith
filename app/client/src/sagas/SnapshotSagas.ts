@@ -3,8 +3,8 @@ import {
   updateSnapshotDetails,
 } from "actions/autoLayoutActions";
 import type { ApiResponse } from "api/ApiResponses";
-import ApplicationApi from "api/ApplicationApi";
-import type { PageDefaultMeta } from "api/ApplicationApi";
+import ApplicationApi from "@appsmith/api/ApplicationApi";
+import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";

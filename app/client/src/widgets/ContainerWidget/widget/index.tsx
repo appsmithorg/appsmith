@@ -14,9 +14,12 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import type { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -197,8 +200,9 @@ export class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidget(this.props, true) &&
+      !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
       this.props.positioning !== Positioning.Vertical;
+
     return (
       <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
         <WidgetsMultiSelectBox

@@ -3,6 +3,7 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import type { RenderMode, WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
@@ -73,6 +74,13 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
+  const wrappedChildren = (children: ReactNode) =>
+    props.renderMode === RenderModes.PAGE ? (
+      <div className="w-full h-full">{children}</div>
+    ) : (
+      children
+    );
+
   const className = useMemo(
     () =>
       `auto-layout-parent-${props.parentId} auto-layout-child-${
@@ -141,7 +149,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       onClickCapture={onClickFn}
       style={flexComponentStyle}
     >
-      {props.children}
+      {wrappedChildren(props.children)}
     </FlexWidget>
   );
 }

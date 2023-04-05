@@ -6,10 +6,10 @@ import styled from "styled-components";
 import _, { noop } from "lodash";
 import { Button, SearchInput, SearchVariant, Size } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { setShowAppInviteUsersDialog } from "@appsmith/actions/applicationActions";
 
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;

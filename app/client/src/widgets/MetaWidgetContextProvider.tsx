@@ -27,6 +27,9 @@ function MetaWidgetContextProvider({
   const updateWidgetProperty =
     metaEditorContextProps.updateWidgetProperty ??
     editorContextProps.updateWidgetProperty;
+  const syncBatchUpdateWidgetMetaProperties =
+    metaEditorContextProps.syncBatchUpdateWidgetMetaProperties ??
+    editorContextProps.syncBatchUpdateWidgetMetaProperties;
   const syncUpdateWidgetMetaProperty =
     metaEditorContextProps.syncUpdateWidgetMetaProperty ??
     editorContextProps.syncUpdateWidgetMetaProperty;
@@ -82,6 +85,7 @@ function MetaWidgetContextProvider({
       deleteMetaWidgets,
       updateMetaWidgetProperty,
       updateWidgetDimension,
+      syncBatchUpdateWidgetMetaProperties,
     }),
     [
       executeAction,
@@ -99,6 +103,7 @@ function MetaWidgetContextProvider({
       deleteMetaWidgets,
       updateMetaWidgetProperty,
       updateWidgetDimension,
+      syncBatchUpdateWidgetMetaProperties,
     ],
   );
 
