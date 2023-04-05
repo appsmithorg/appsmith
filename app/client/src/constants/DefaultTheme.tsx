@@ -29,12 +29,8 @@ export const IntentColors: Record<string, Color> = {
 export type Intent = (typeof IntentColors)[keyof typeof IntentColors];
 
 export const IntentIcons: Record<Intent, React.ReactNode> = {
-  primary: (
-    <Icon color="var(--ads-v2-color-fg-success)" name="checkbox-circle-fill" />
-  ),
-  success: (
-    <Icon color="var(--ads-v2-color-fg-success)" name="checkbox-circle-fill" />
-  ),
+  primary: <Icon color="var(--ads-v2-color-fg-success)" name="close-circle" />,
+  success: <Icon color="var(--ads-v2-color-fg-success)" name="close-circle" />,
   secondary: (
     <Icon color="var(--ads-v2-color-fg-information)" name="information-fill" />
   ),

@@ -188,7 +188,7 @@ function StatusIcon(props: {
       <Icon
         className="installed"
         color="var(--ads-v2-color-fg-success)"
-        name="checkbox-circle-fill"
+        name="close-circle"
         size="md"
       />
     );
