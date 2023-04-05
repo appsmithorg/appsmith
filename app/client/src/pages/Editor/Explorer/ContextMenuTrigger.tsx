@@ -1,27 +1,38 @@
-import React from "react";
-import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
-import { TooltipComponent } from "design-system-old";
 import {
-  createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,
+  createMessage,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Icon } from "design-system";
+import { TooltipComponent } from "design-system-old";
+import React from "react";
+import { Button } from "design-system";
+import styled from "styled-components";
+
+const StyledButton = styled(Button)`
+  && {
+    height: 100%;
+  }
+`;
+
+const StyledTooltipComponent = styled(TooltipComponent)`
+  height: 100%;
+`;
 
 export function ContextMenuTrigger(props: { className?: string }) {
   return (
-    <EntityTogglesWrapper
-      className={props.className + " entity-context-menu-icon"}
+    <StyledTooltipComponent
+      boundary="viewport"
+      content={createMessage(ENTITY_MORE_ACTIONS_TOOLTIP)}
+      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+      position="right"
     >
-      <TooltipComponent
-        boundary="viewport"
-        content={createMessage(ENTITY_MORE_ACTIONS_TOOLTIP)}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
-      >
-        <Icon name="more-vertical-control" size="md" />
-      </TooltipComponent>
-    </EntityTogglesWrapper>
+      <StyledButton
+        className={props.className}
+        isIconButton
+        kind="tertiary"
+        startIcon="more-vertical-control"
+      />
+    </StyledTooltipComponent>
   );
 }
 
