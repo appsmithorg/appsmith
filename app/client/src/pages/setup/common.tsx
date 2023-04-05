@@ -6,8 +6,6 @@ import styled from "styled-components";
 import type { OptionType } from "./constants";
 import { Select, Option } from "design-system";
 
-export const FormHeaderWrapper = styled.div``;
-
 export const FormHeaderLabel = styled.h5`
   width: 100%;
   font-size: 20px;

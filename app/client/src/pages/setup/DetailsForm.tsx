@@ -6,7 +6,6 @@ import {
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
-  FormHeaderWrapper,
   withDropdown,
 } from "./common";
 import {
@@ -54,10 +53,10 @@ export default function DetailsForm(
 
   return (
     <DetailsFormWrapper ref={ref}>
-      <FormHeaderWrapper className="relative flex-col items-start">
+      <div className="relative flex-col items-start">
         <FormHeaderIndex className="absolute -left-6">1.</FormHeaderIndex>
         <FormHeaderLabel>{createMessage(WELCOME_FORM_HEADER)}</FormHeaderLabel>
-      </FormHeaderWrapper>
+      </div>
       <StyledFormBodyWrapper>
         <StyledFormGroup
           className="t--welcome-form-full-name"

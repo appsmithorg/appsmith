@@ -9,7 +9,6 @@ import {
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
-  FormHeaderWrapper,
 } from "./common";
 import { memo } from "react";
 import {
@@ -29,12 +28,12 @@ const NewsletterContainer = styled.div`
 export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
-      <FormHeaderWrapper className="relative flex-col items-start">
+      <div className="relative flex-col items-start">
         <FormHeaderIndex className="absolute -left-6">3.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
         </FormHeaderLabel>
-      </FormHeaderWrapper>
+      </div>
       <FormBodyWrapper>
         <AllowToggleWrapper>
           <AllowToggle>

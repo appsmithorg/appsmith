@@ -9,7 +9,6 @@ import {
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderSubtext,
-  FormHeaderWrapper,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
 import {
@@ -35,7 +34,7 @@ export default memo(function DataCollectionForm() {
   const [allowCollection, setAllowCollection] = useState(true);
   return (
     <DataCollectionFormWrapper>
-      <FormHeaderWrapper className="relative flex flex-col items-start">
+      <div className="relative flex flex-col items-start">
         <FormHeaderIndex className="absolute -left-6">2.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_DATA_COLLECTION_HEADER)}
@@ -47,7 +46,7 @@ export default memo(function DataCollectionForm() {
             {createMessage(WELCOME_FORM_DATA_COLLECTION_LINK)}
           </StyledLink>
         </FormHeaderSubtext>
-      </FormHeaderWrapper>
+      </div>
       <FormBodyWrapper>
         <ControlWrapper>
           <AllowToggleWrapper>

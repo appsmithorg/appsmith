@@ -79,8 +79,6 @@ const validate = (values: any) => {
   return errors;
 };
 
-// const DROPDOWN_WIDTH = "400px";
-
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
