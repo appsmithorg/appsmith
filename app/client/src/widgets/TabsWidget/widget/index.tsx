@@ -17,7 +17,10 @@ import TabsComponent from "../component";
 import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -329,7 +332,7 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidget(this.props, true);
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}

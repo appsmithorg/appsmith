@@ -23,6 +23,7 @@ export enum EvaluationScriptType {
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
   ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
+  OBJECT_PROPERTY = "OBJECT_PROPERTY",
 }
 
 export const ScriptTemplate = "<<string>>";
@@ -55,6 +56,13 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   async function $$closedFn () {
     const $$result = ${ScriptTemplate};
     return await $$result
+  }
+  $$closedFn.call(THIS_CONTEXT)
+  `,
+  [EvaluationScriptType.OBJECT_PROPERTY]: `
+  function $$closedFn () {
+    const $$result = {${ScriptTemplate}}
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
@@ -120,8 +128,11 @@ export interface createEvaluationContextArgs {
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
-  // Whether not to add functions like "run", "clear" to entity in global data
-  skipEntityFunctions?: boolean;
+  /*
+   Whether to remove functions like "run", "clear" from entities in global context
+   use case => To show lint warning when Api.run is used in a function bound to a data field (Eg. Button.text)
+   */
+  removeEntityFunctions?: boolean;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -135,8 +146,8 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
+    removeEntityFunctions,
     resolvedFunctions,
-    skipEntityFunctions,
   } = args;
 
   const EVAL_CONTEXT: EvalContext = {};
@@ -152,7 +163,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
-    skipEntityFunctions: !!skipEntityFunctions,
+    removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
 
@@ -279,18 +290,23 @@ export default function evaluateSync(
       result = indirectEval(script);
       if (result instanceof Promise) {
         /**
-         * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
-         * NOTE: Awaiting for promise will make sync field evaluation slower.
+         * If a promise is returned in data field then show the error to help understand data field doesn't await to resolve promise.
+         * NOTE: Awaiting for promise will make data field evaluation slower.
          */
         throw new FoundPromiseInSyncEvalError();
       }
     } catch (error) {
+      const { errorCategory, errorMessage } = errorModifier.run(error as Error);
       errors.push({
-        errorMessage: errorModifier.run(error as Error),
+        errorMessage,
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
+        kind: errorCategory && {
+          category: errorCategory,
+          rootcause: "",
+        },
       });
     } finally {
       for (const entityName in evalContext) {

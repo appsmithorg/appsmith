@@ -41,10 +41,12 @@ import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { flushErrorsAndRedirect } from "actions/errorActions";
+import {
+  flushErrorsAndRedirect,
+  safeCrashAppRequest,
+} from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import { Toaster, Variant } from "design-system-old";
 import log from "loglevel";
@@ -185,12 +187,7 @@ export function* getCurrentUserSaga() {
       },
     });
 
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: ERROR_CODES.SERVER_ERROR,
-      },
-    });
+    yield put(safeCrashAppRequest());
   }
 }
 

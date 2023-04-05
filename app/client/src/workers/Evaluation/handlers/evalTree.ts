@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty } from "lodash";
+import { isEmpty, union } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -21,6 +21,8 @@ import type {
   EvalWorkerSyncRequest,
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
+import { jsPropertiesState } from "../JSObject/jsPropertiesState";
+import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -45,6 +47,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const {
     allActionValidationConfig,
+    appMode,
     forceEvaluation,
     metaWidgets,
     requiresLinting,
@@ -60,6 +63,7 @@ export default function (request: EvalWorkerSyncRequest) {
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
+      asyncJsFunctionInDataFields.initialize(appMode);
       replayMap = replayMap || {};
       replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
       dataTreeEvaluator = new DataTreeEvaluator(
@@ -72,17 +76,25 @@ export default function (request: EvalWorkerSyncRequest) {
         configTree,
       );
       evalOrder = setupFirstTreeResponse.evalOrder;
-      lintOrder = setupFirstTreeResponse.lintOrder;
+      lintOrder = union(
+        setupFirstTreeResponse.lintOrder,
+        jsPropertiesState.getUpdatedJSProperties(),
+      );
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      initiateLinting(
+      initiateLinting({
         lintOrder,
-        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
-          sanitizeDataTree: false,
-        }),
+        unevalTree: makeEntityConfigsAsObjProperties(
+          dataTreeEvaluator.oldUnEvalTree,
+          {
+            sanitizeDataTree: false,
+          },
+        ),
         requiresLinting,
-        dataTreeEvaluator.oldConfigTree,
-      );
+        jsPropertiesState: jsPropertiesState.getMap(),
+        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
+        configTree: dataTreeEvaluator.oldConfigTree,
+      });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -114,17 +126,25 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
-      lintOrder = setupFirstTreeResponse.lintOrder;
+      lintOrder = union(
+        setupFirstTreeResponse.lintOrder,
+        jsPropertiesState.getUpdatedJSProperties(),
+      );
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      initiateLinting(
+      initiateLinting({
         lintOrder,
-        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
-          sanitizeDataTree: false,
-        }),
+        unevalTree: makeEntityConfigsAsObjProperties(
+          dataTreeEvaluator.oldUnEvalTree,
+          {
+            sanitizeDataTree: false,
+          },
+        ),
         requiresLinting,
-        dataTreeEvaluator.oldConfigTree,
-      );
+        jsPropertiesState: jsPropertiesState.getMap(),
+        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
+        configTree: dataTreeEvaluator.oldConfigTree,
+      });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -147,20 +167,28 @@ export default function (request: EvalWorkerSyncRequest) {
       );
 
       evalOrder = setupUpdateTreeResponse.evalOrder;
-      lintOrder = setupUpdateTreeResponse.lintOrder;
+      lintOrder = union(
+        setupUpdateTreeResponse.lintOrder,
+        jsPropertiesState.getUpdatedJSProperties(),
+      );
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
       pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
-      initiateLinting(
+      initiateLinting({
         lintOrder,
-        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
-          sanitizeDataTree: false,
-        }),
+        unevalTree: makeEntityConfigsAsObjProperties(
+          dataTreeEvaluator.oldUnEvalTree,
+          {
+            sanitizeDataTree: false,
+          },
+        ),
         requiresLinting,
-        dataTreeEvaluator.oldConfigTree,
-      );
+        jsPropertiesState: jsPropertiesState.getMap(),
+        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
+        configTree: dataTreeEvaluator.oldConfigTree,
+      });
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
 

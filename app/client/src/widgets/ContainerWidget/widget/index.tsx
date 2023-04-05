@@ -24,7 +24,10 @@ import type { Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -231,7 +234,7 @@ export class ContainerWidget extends BaseWidget<
       : false;
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidget(this.props, true) &&
+      !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
       !useAutoLayout;
     return (
       <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>

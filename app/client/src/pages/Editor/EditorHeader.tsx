@@ -382,7 +382,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
-        className="pl-1 pr-1"
+        className="pl-1 pr-1 overflow-hidden"
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">

@@ -8,6 +8,7 @@ import {
   entityFns,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
+import { klona } from "klona/full";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -33,21 +34,21 @@ export enum ExecutionType {
 export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: EvalContext;
   dataTree: Readonly<DataTree>;
-  skipEntityFunctions?: boolean;
+  removeEntityFunctions?: boolean;
   isTriggerBased: boolean;
 }) => {
   const {
     dataTree,
     EVAL_CONTEXT,
     isTriggerBased,
-    skipEntityFunctions = false,
+    removeEntityFunctions = false,
   } = args;
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = entity;
-    if (skipEntityFunctions || !isTriggerBased) continue;
+    if (!removeEntityFunctions && !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
       const func = entityFn.fn(entity, entityName);
@@ -55,6 +56,12 @@ export const addDataTreeToContext = (args: {
       set(entityFunctionCollection, fullPath, func);
     }
   }
+
+  if (removeEntityFunctions)
+    return removeEntityFunctionsFromEvalContext(
+      entityFunctionCollection,
+      EVAL_CONTEXT,
+    );
 
   // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
   if (!isTriggerBased) return;
@@ -86,4 +93,19 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
+};
+
+export const removeEntityFunctionsFromEvalContext = (
+  entityFunctionCollection: Record<string, Record<string, Function>>,
+  evalContext: EvalContext,
+) => {
+  for (const [entityName, funcObj] of Object.entries(
+    entityFunctionCollection,
+  )) {
+    const entity = klona(evalContext[entityName]);
+    Object.keys(funcObj).forEach((entityFn) => {
+      delete entity[entityFn];
+    });
+    evalContext[entityName] = entity;
+  }
 };
