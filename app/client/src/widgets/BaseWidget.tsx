@@ -32,7 +32,7 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { get, memoize } from "lodash";
+import { get, isFunction, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -628,8 +628,12 @@ abstract class BaseWidget<
         this.props.type,
       ).autoDimension;
 
-      const shouldObserveWidth = autoDimensionConfig?.width;
-      const shouldObserveHeight = autoDimensionConfig?.height;
+      const shouldObserveWidth = isFunction(autoDimensionConfig)
+        ? autoDimensionConfig(this.props).width
+        : autoDimensionConfig?.width;
+      const shouldObserveHeight = isFunction(autoDimensionConfig)
+        ? autoDimensionConfig(this.props).height
+        : autoDimensionConfig?.height;
 
       if (!shouldObserveHeight && !shouldObserveWidth) return content;
 

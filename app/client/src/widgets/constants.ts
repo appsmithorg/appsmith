@@ -20,8 +20,12 @@ export type WidgetSizeConfig = {
   configuration: (props: any) => Record<string, string | number>;
 };
 
-type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
-type AutoDimensionOptions = { width?: boolean; height?: boolean };
+type ResizableValues = { vertical?: boolean; horizontal?: boolean };
+type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
+type AutoDimensionValues = { width?: boolean; height?: boolean };
+type AutoDimensionOptions =
+  | AutoDimensionValues
+  | ((props: any) => AutoDimensionValues);
 
 export type AutoLayoutConfig = {
   // Indicates if a widgets dimensions should be auto adjusted according to content inside it
@@ -29,7 +33,7 @@ export type AutoLayoutConfig = {
   // min/max sizes for the widget
   widgetSize?: Array<WidgetSizeConfig>;
   // Indicates if the widgets resize handles should be disabled
-  disableResizeHandles?: ResizeableOptions;
+  disableResizeHandles?: ResizableOptions;
   // default values for the widget specifi to auto layout
   defaults?: Partial<WidgetConfigProps>;
   // default values for the properties that are hidden/disabled in auto layout
