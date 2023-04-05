@@ -7,14 +7,12 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
   getSafeToRenderDataTree,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -23,6 +21,12 @@ import type {
 import { clearAllIntervals } from "../fns/overrides/interval";
 import { jsPropertiesState } from "../JSObject/jsPropertiesState";
 import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
+import { MAIN_THREAD_ACTION } from "ce/workers/Evaluation/evalWorkerActions";
+import type {
+  initiateLintingProps,
+  LintTreeSagaRequestData,
+} from "workers/Linting/types";
+import { WorkerMessenger } from "../fns/utils/Messenger";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -268,19 +272,24 @@ export function clearCache() {
   return true;
 }
 
-export function initiateLinting(
-  lintOrder: string[],
-  unevalTree: DataTree,
-  requiresLinting: boolean,
-  configTree: ConfigTree,
-) {
+export function initiateLinting({
+  asyncJSFunctionsInDataFields,
+  configTree,
+  jsPropertiesState,
+  lintOrder,
+  requiresLinting,
+  unevalTree,
+}: initiateLintingProps) {
+  const data = {
+    pathsToLint: lintOrder,
+    unevalTree,
+    jsPropertiesState,
+    asyncJSFunctionsInDataFields,
+    configTree,
+  } as LintTreeSagaRequestData;
   if (!requiresLinting) return;
   WorkerMessenger.ping({
-    data: {
-      lintOrder,
-      unevalTree,
-      configTree,
-    },
+    data,
     method: MAIN_THREAD_ACTION.LINT_TREE,
   });
 }
