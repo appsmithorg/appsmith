@@ -13,7 +13,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import type { TextInputProps } from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button } from "design-system";
+import { Button, Input } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -33,8 +33,9 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
-const StyledTextInput = styled(TextInput)`
+const StyledTextInput = styled(Input)`
   min-width: 66px;
+  margin-bottom: 8px;
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -42,8 +43,7 @@ const StyledTextInput = styled(TextInput)`
   }
 `;
 
-const CenteredButton = styled(Button)`
-  align-self: center;
+const StyledButton = styled(Button)`
   margin-left: 15px;
 `;
 
@@ -116,7 +116,10 @@ function KeyValueRow(
         return (
           <FormRowWithLabel
             key={index}
-            style={{ marginTop: index > 0 ? "16px" : "0px" }}
+            style={{
+              marginTop: index > 0 ? "16px" : "0px",
+              alignItems: "center",
+            }}
           >
             <div
               data-replay-id={btoa(keyTextFieldName)}
@@ -156,16 +159,18 @@ function KeyValueRow(
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
-                  <CenteredButton
-                    className="t--delete-field"
-                    isIconButton
-                    kind="tertiary"
-                    onClick={() => props.fields.remove(index)}
-                    size="sm"
-                    startIcon="delete"
-                  />
                 </div>
               </div>
+            )}
+            {!props.actionConfig && (
+              <StyledButton
+                className="t--delete-field"
+                isIconButton
+                kind="tertiary"
+                onClick={() => props.fields.remove(index)}
+                size="md"
+                startIcon="delete"
+              />
             )}
 
             {props.actionConfig && (
@@ -243,18 +248,19 @@ function renderTextInput(
     input: Partial<WrappedFieldInputProps>;
   },
 ): JSX.Element {
+  //  TODO (tanvi): use number or text inout based on data type
   return (
     <StyledTextInput
-      dataType={props.dataType}
+      // dataType={props.dataType}
       defaultValue={props.defaultValue}
-      errorMsg={props.errorMsg}
-      helperText={props.helperText}
-      name={props.input?.name}
+      description={props.helperText}
+      errorMessage={props.errorMsg}
+      // name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
-      validator={props.keyFieldValidate}
+      size="md"
+      // validator={props.keyFieldValidate}
       value={props.input.value}
-      width="100%"
     />
   );
 }
