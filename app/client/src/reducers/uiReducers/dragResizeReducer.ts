@@ -2,6 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
+import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
@@ -13,6 +14,7 @@ const initialState: WidgetDragResizeState = {
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestry: [],
+  entityExplorerAncestry: [],
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -71,7 +73,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SET_SELECTED_WIDGETS]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetIds: string[] }>,
+    action: ReduxAction<SetSelectedWidgetsPayload>,
   ) => {
     state.selectedWidgets = action.payload.widgetIds;
   },
@@ -92,6 +94,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<string[]>,
   ) => {
     state.selectedWidgetAncestry = action.payload;
+  },
+  [ReduxActionTypes.SET_ENTITY_EXPLORER_WIDGET_ANCESTRY]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<string[]>,
+  ) => {
+    state.entityExplorerAncestry = action.payload;
   },
 });
 
@@ -117,6 +125,7 @@ export type WidgetDragResizeState = {
   lastSelectedWidget?: string;
   focusedWidget?: string;
   selectedWidgetAncestry: string[];
+  entityExplorerAncestry: string[];
   selectedWidgets: string[];
 };
 
