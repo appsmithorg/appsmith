@@ -62,9 +62,9 @@ export const CONFIG = {
         },
       },
     ],
-    disableResizeHandles: {
-      vertical: true,
-    },
+    disableResizeHandles: (props: BaseInputWidgetProps) => ({
+      vertical: props.inputType !== "MULTI_LINE_TEXT",
+    }),
   },
 };
 
