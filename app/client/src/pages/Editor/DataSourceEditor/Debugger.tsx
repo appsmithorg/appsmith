@@ -8,8 +8,11 @@ import {
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "@appsmith/constants/messages";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
-import { setDatasourcePaneResponsePaneHeight } from "actions/datasourceActions";
+import {
+  setDebuggerSelectedTab,
+  setResponsePaneHeight,
+  showDebugger,
+} from "actions/debuggerActions";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
@@ -18,10 +21,12 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import Errors from "components/editorComponents/Debugger/Errors";
 import DebbuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
-import { getDatasourceResponsePaneHeight } from "selectors/datasourceSelectors";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
-import { ActionExecutionResizerHeight } from "../APIEditor/constants";
 import { ErrorTabTitle } from "components/editorComponents/Debugger/DebuggerTabs";
+import {
+  getDebuggerSelectedTab,
+  getResponsePaneHeight,
+} from "selectors/debuggerSelectors";
+import { ActionExecutionResizerHeight } from "../APIEditor/constants";
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
@@ -79,7 +84,7 @@ export default function Debugger() {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   // fetch the height of the response pane from the store
-  const responsePaneHeight = useSelector(getDatasourceResponsePaneHeight);
+  const responsePaneHeight = useSelector(getResponsePaneHeight);
 
   // fetch the selected tab from the store
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
@@ -104,8 +109,8 @@ export default function Debugger() {
   ];
 
   // set the height of the response pane in the store
-  const setResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setDatasourcePaneResponsePaneHeight(height));
+  const setResponsePaneHeightFn = useCallback((height: number) => {
+    dispatch(setResponsePaneHeight(height));
   }, []);
 
   // set the selected tab in the store
@@ -124,7 +129,7 @@ export default function Debugger() {
     >
       <Resizable
         initialHeight={responsePaneHeight}
-        onResizeComplete={(height: number) => setResponsePaneHeight(height)}
+        onResizeComplete={(height: number) => setResponsePaneHeightFn(height)}
         openResizer={false}
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
