@@ -62,6 +62,7 @@ export function updateWidgetPositions(
       widgets,
       mainCanvasWidth,
       isMobile,
+      parent?.canvasSplitRatio || 1,
     );
 
     let height = 0;
