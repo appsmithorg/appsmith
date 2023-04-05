@@ -107,7 +107,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -659,6 +659,7 @@ export function* createPageSaga(
 export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
+
     // to be done in backend
     request.customSlug = request.customSlug?.replaceAll(" ", "-");
 

@@ -125,6 +125,10 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_413 = (maxFileSize: number) =>
+  `Payload too large. File size cannot exceed ${maxFileSize}MB.`;
+export const GENERIC_API_EXECUTION_ERROR = () => `API execution error`;
+export const APPSMITH_HTTP_ERROR_413 = () => `413 CONTENT_TOO_LARGE`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
@@ -147,12 +151,21 @@ export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
-export const INVITE_USERS_SUBMIT_SUCCESS = () =>
-  `The users have been invited successfully`;
-export const INVITE_USER_SUBMIT_SUCCESS = () =>
-  `The user has been invited successfully`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The users have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
+export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
+  "Users will have access to all applications in this workspace";
+export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
+  "Users will only have access to this application";
+export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
@@ -1485,6 +1498,8 @@ export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
+  "Google sheets authorised file ids key";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
