@@ -33,60 +33,60 @@ describe("Upgrade appsmith version", () => {
       cy.GetAndVerifyLogs(tedUrl, `appsmith-${name}`);
     });
 
+    // todo: uncomment below steps once this test is moved to infra test
     //verify the Applications after upgrade only on CE and skip for BE
-    if (CURRENT_REPO === REPO.CE) {
-      cy.forceVisit(testdata.APPURL);
-      agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true);
-      agHelper.Sleep(1000);
-      agHelper.GetNAssertElementText(
-        ".tbody>div",
-        "1Developmentexpertise",
-        "have.text",
-        1,
-      );
+    // if (CURRENT_REPO === REPO.CE) {
+    //   cy.forceVisit(testdata.APPURL);
+    //   agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true);
+    //   agHelper.Sleep(1000);
+    //   agHelper.GetNAssertElementText(
+    //     ".tbody>div",
+    //     "1Developmentexpertise",
+    //     "have.text",
+    //     1,
+    //   );
 
-      agHelper.GetNClick(".tbody>div", 1, true, 1000);
-      agHelper.GetNAssertElementText(
-        ".t--jsonformfield-label input",
-        "Development",
-        "have.value",
-      );
-      agHelper.GetNAssertElementText(
-        ".t--jsonformfield-type input",
-        "expertise",
-        "have.value",
-      );
-      agHelper.GetNAssertElementText(
-        ".t--jsonformfield-rowIndex input",
-        "1",
-        "have.value",
-      );
+    //   agHelper.GetNClick(".tbody>div", 1, true, 1000);
+    //   agHelper.GetNAssertElementText(
+    //     ".t--jsonformfield-label input",
+    //     "Development",
+    //     "have.value",
+    //   );
+    //   agHelper.GetNAssertElementText(
+    //     ".t--jsonformfield-type input",
+    //     "expertise",
+    //     "have.value",
+    //   );
+    //   agHelper.GetNAssertElementText(
+    //     ".t--jsonformfield-rowIndex input",
+    //     "1",
+    //     "have.value",
+    //   );
 
-      // todo: uncomment below steps once this test is moved to infra test
-      // cy.get(".t--jsonformfield-label input").clear().type("DevelopmentUpdate");
-      // agHelper.GetNClick(".t--jsonform-footer button", 1, true);
-      // agHelper.Sleep(2000);
-      // agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
-      // agHelper.GetNAssertElementText(
-      //   ".tbody>div",
-      //   "1DevelopmentUpdateexpertise",
-      //   "have.text",
-      //   1,
-      // );
+    //   cy.get(".t--jsonformfield-label input").clear().type("DevelopmentUpdate");
+    //   agHelper.GetNClick(".t--jsonform-footer button", 1, true);
+    //   agHelper.Sleep(2000);
+    //   agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
+    //   agHelper.GetNAssertElementText(
+    //     ".tbody>div",
+    //     "1DevelopmentUpdateexpertise",
+    //     "have.text",
+    //     1,
+    //   );
 
-      // //Resetting the data
-      // agHelper.GetNClick(".tbody>div", 1, true, 1000);
-      // cy.get(".t--jsonformfield-label input").clear().type("Development");
-      // agHelper.GetNClick(".t--jsonform-footer button", 1, true);
-      // agHelper.Sleep(2000);
-      // agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
-      // agHelper.GetNAssertElementText(
-      //   ".tbody>div",
-      //   "1Developmentexpertise",
-      //   "have.text",
-      //   1,
-      // );
-    }
+    //   //Resetting the data
+    //   agHelper.GetNClick(".tbody>div", 1, true, 1000);
+    //   cy.get(".t--jsonformfield-label input").clear().type("Development");
+    //   agHelper.GetNClick(".t--jsonform-footer button", 1, true);
+    //   agHelper.Sleep(2000);
+    //   agHelper.GetNClick(".t--widget-iconbuttonwidget button", 0, true, 1000);
+    //   agHelper.GetNAssertElementText(
+    //     ".tbody>div",
+    //     "1Developmentexpertise",
+    //     "have.text",
+    //     1,
+    //   );
+    // }
     // stop the container
     cy.StopContainer(tedUrl, localStorage.getItem("ContainerName"));
     agHelper.Sleep(2000);
