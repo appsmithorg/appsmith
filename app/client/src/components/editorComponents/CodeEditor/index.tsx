@@ -832,6 +832,7 @@ class CodeEditor extends Component<Props, State> {
     // Check if it is a user focus
     const { sticky } = cm.getCursor();
     const isUserFocus = sticky !== null;
+
     if (this.props.editorLastCursorPosition) {
       if (
         !isUserFocus ||
@@ -1088,6 +1089,7 @@ class CodeEditor extends Component<Props, State> {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
+
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
     if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
@@ -1098,6 +1100,10 @@ class CodeEditor extends Component<Props, State> {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
       const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
+    } else if (key === '"') {
+      /* Autocomplete for [ should show up only when a user attempts to write [[""]] for object property completions. */
+      const prevChar = line[cursor.ch - 1];
+      showAutocomplete = prevChar === "[";
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
