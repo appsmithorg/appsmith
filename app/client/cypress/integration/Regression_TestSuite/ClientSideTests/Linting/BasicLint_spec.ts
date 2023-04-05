@@ -20,6 +20,7 @@ const clickButtonAndAssertLintError = (
 ) => {
   agHelper.Sleep(2000);
   // Check for presence/ absence of lint error
+  ee.ExpandCollapseEntity("Widgets");
   ee.SelectEntityByName("Button1", "Widgets");
   // Sometimes wait for page to switch
   shouldWait && agHelper.Sleep(2000);
@@ -35,6 +36,7 @@ const clickButtonAndAssertLintError = (
 
   //Reload and Check for presence/ absence of lint error
   agHelper.RefreshPage();
+  ee.ExpandCollapseEntity("Widgets");
   ee.SelectEntityByName("Button1", "Widgets");
   shouldExist
     ? agHelper.AssertElementExist(locator._lintErrorElement)
@@ -60,6 +62,7 @@ describe("Linting", () => {
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
+    ee.ExpandCollapseEntity("Widgets");
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -78,7 +81,6 @@ describe("Linting", () => {
 
     // create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
-
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
@@ -89,16 +91,16 @@ describe("Linting", () => {
 
     // Re-create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
-
     clickButtonAndAssertLintError(false);
   });
 
   it("2. TC 1927 Cont'd - Doesn't show lint errors when Api is renamed", () => {
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("Api1", "Queries/JS");
     agHelper.RenameWithInPane("Api2");
 
     clickButtonAndAssertLintError(false);
-
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("Api2", "Queries/JS");
     agHelper.RenameWithInPane("Api1");
 
@@ -106,6 +108,7 @@ describe("Linting", () => {
   });
 
   it("3. TC 1929 - Shows correct lint error when JSObject is deleted or created", () => {
+    ee.ExpandCollapseEntity("Widgets");
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -224,6 +227,7 @@ describe("Linting", () => {
   });
 
   it("7. TC 1930 - Shows correct lint error with multiple entities in triggerfield", () => {
+    ee.ExpandCollapseEntity("Widgets");
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -270,7 +274,6 @@ describe("Linting", () => {
       },
     );
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
-
     createMySQLDatasourceQuery();
     agHelper.RefreshPage(); //Since this seems failing a bit
     clickButtonAndAssertLintError(false);
