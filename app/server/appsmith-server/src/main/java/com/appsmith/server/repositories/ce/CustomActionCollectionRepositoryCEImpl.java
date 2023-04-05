@@ -144,12 +144,4 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
         return queryAll(List.of(pageIdCriteria), permission);
     }
-
-    @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(
-                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
-        return queryAll(List.of(pageIdCriteria), permission);
-    }
 }
