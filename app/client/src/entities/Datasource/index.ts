@@ -17,6 +17,7 @@ export enum AuthenticationStatus {
 export enum FilePickerActionStatus {
   CANCEL = "cancel",
   PICKED = "picked",
+  LOADED = "loaded",
 }
 
 export interface DatasourceAuthentication {

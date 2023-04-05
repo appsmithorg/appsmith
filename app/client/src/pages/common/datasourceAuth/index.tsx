@@ -46,6 +46,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { removeHTMLBodyOverlay } from "pages/utils";
 
 interface Props {
   datasource: Datasource;
@@ -160,6 +161,7 @@ function DatasourceAuth({
     (window as any).googleAPIsLoaded,
   );
   const [pickerInitiated, setPickerInitiated] = useState<boolean>(false);
+  const [pickerVisible, setPickerVisible] = useState<boolean>(false);
   const dsName = datasource?.name;
   const orgId = datasource?.workspaceId;
 
@@ -304,6 +306,18 @@ function DatasourceAuth({
   };
 
   useEffect(() => {
+    // Since we need to display file picker on blank page, as soon as file picker is visible
+    // Add overlay on the file picker background
+    if (pickerVisible) {
+      const element: HTMLElement | null =
+        document.querySelector(".picker-dialog-bg");
+      if (!!element) {
+        element.style.opacity = "1";
+      }
+    }
+  }, [pickerVisible]);
+
+  useEffect(() => {
     // This loads the picker object in gapi script
     if (!!gsheetToken && !!gapi && !!gsheetProjectID) {
       gapi.load("client:picker", async () => {
@@ -339,13 +353,18 @@ function DatasourceAuth({
       .setCallback(pickerCallback)
       .build();
     picker.setVisible(true);
+    setPickerVisible(true);
   };
 
   const pickerCallback = async (data: any) => {
-    if (
+    // Remove document body overlay as soon as file picker is loaded
+    if (data.action === FilePickerActionStatus.LOADED) {
+      removeHTMLBodyOverlay();
+    } else if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
     ) {
+      setPickerVisible(false);
       const fileIds = data?.docs?.map((element: any) => element.id) || [];
       dispatch(
         filePickerCallbackAction({

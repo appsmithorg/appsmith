@@ -13,3 +13,11 @@ export const getIsBranchUpdated = (
 
   return branch1 !== branch2;
 };
+
+export const addHTMLBodyOverlay = () => {
+  document.body.classList.add("overlay");
+};
+
+export const removeHTMLBodyOverlay = () => {
+  document.body.classList.remove("overlay");
+};

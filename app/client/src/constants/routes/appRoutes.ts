@@ -130,3 +130,5 @@ export const INTEGRATION_EDITOR_MODES = {
 export const PLACEHOLDER_APP_SLUG = "application";
 export const PLACEHOLDER_PAGE_ID = "pageId";
 export const PLACEHOLDER_PAGE_SLUG = "page";
+
+export const SHOW_FILE_PICKER_KEY = "showPicker";

@@ -51,6 +51,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
   deleteTempDSFromDraft,
+  loadFilePickerAction,
   removeTempDatasource,
   setDatasourceViewMode,
   toggleSaveActionFlag,
@@ -96,6 +97,7 @@ interface DatasourceFormFunctions {
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
   createTempDatasource: (data: any) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
+  loadFilePickerAction: () => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -182,6 +184,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     if (!this.props.viewMode) {
       this.blockRoutes();
     }
+    this.props.loadFilePickerAction();
   }
 
   componentWillUnmount() {
@@ -486,6 +489,7 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
     dispatch(setDatasourceViewMode(viewMode)),
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
+  loadFilePickerAction: () => dispatch(loadFilePickerAction()),
 });
 
 export default connect(
