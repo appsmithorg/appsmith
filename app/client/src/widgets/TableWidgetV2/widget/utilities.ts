@@ -37,7 +37,6 @@ import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
 import type React from "react";
-import type { DropdownOption } from "widgets/SelectWidget/constants";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -295,6 +294,7 @@ export const getArrayPropertyValue = (value: unknown, index: number) => {
 export const getCellProperties = (
   columnProperties: ColumnProperties,
   rowIndex: number,
+  isAddRowInProgress = false,
 ) => {
   if (columnProperties) {
     return {
@@ -495,9 +495,10 @@ export const getCellProperties = (
         true,
       ),
       shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
-      selectOptions: getArrayPropertyValue(
-        columnProperties.selectOptions,
+      selectOptions: getSelectOptions(
+        isAddRowInProgress,
         rowIndex,
+        columnProperties,
       ),
       timePrecision: getPropertyValue(
         columnProperties.timePrecision,
@@ -1106,23 +1107,21 @@ export const getDragHandlers = (
 };
 
 export const getSelectOptions = (
-  isAddRowInProgress: boolean,
-  columnProperties: Omit<ColumnProperties, "selectOptions"> & {
-    selectOptions?: DropdownOption[];
-  },
-  cellProperties: CellLayoutProperties,
+  isNewRow: boolean,
+  rowIndex: number,
+  columnProperties: ColumnProperties,
 ) => {
-  if (isAddRowInProgress) {
+  if (isNewRow) {
     if (
       columnProperties.allowSameOptionsInNewRow &&
       columnProperties?.selectOptions
     ) {
       // Use select options from the first row
-      return columnProperties.selectOptions[0] as any;
+      return getArrayPropertyValue(columnProperties.selectOptions, 0);
     } else {
       return columnProperties.newRowSelectOptions;
     }
   } else {
-    return cellProperties.selectOptions;
+    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
   }
 };

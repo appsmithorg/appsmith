@@ -63,7 +63,6 @@ import {
   generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
   getAllStickyColumnsCount,
-  getSelectOptions,
 } from "./utilities";
 import type {
   ColumnProperties,
@@ -1435,18 +1434,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
     }
 
+    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
+
     /*
      * cellProperties order or size does not change when filter/sorting/grouping is applied
      * on the data thus original index is needed to identify the column's cell property.
      */
-    const cellProperties = getCellProperties(column, originalIndex);
+    const cellProperties = getCellProperties(column, originalIndex, isNewRow);
     let isSelected = false;
-
-    const selectOptions = getSelectOptions(
-      this.props.isAddRowInProgress,
-      column,
-      cellProperties,
-    );
 
     if (this.props.transientTableData) {
       cellProperties.hasUnsavedChanges =
@@ -1466,8 +1461,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
     const alias = props.cell.column.columnProperties.alias;
-
-    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
 
     const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
 
@@ -1646,7 +1639,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onFilterChangeActionString={column.onFilterUpdate}
             onItemSelect={this.onOptionSelect}
             onOptionSelectActionString={column.onOptionChange}
-            options={selectOptions}
+            options={cellProperties.selectOptions}
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}

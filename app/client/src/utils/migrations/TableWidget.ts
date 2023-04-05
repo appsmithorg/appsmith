@@ -13,7 +13,6 @@ import {
   VerticalAlignmentTypes,
   ColumnTypes,
 } from "widgets/TableWidget/component/Constants";
-import { ColumnTypes as ColumnTypesV2 } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
@@ -23,7 +22,10 @@ import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { stringToJS } from "components/editorComponents/ActionCreator/utils";
-import { StickyType } from "widgets/TableWidgetV2/component/Constants";
+import {
+  type ColumnProperties as ColumnPropertiesV2,
+  StickyType,
+} from "widgets/TableWidgetV2/component/Constants";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -715,21 +717,21 @@ export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
   });
 };
 
-export const migrateSelectOptionAttributesForNewRow = (
+export const migrateTableSelectOptionAttributesForNewRow = (
   currentDSL: DSLWidget,
 ) => {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (widget.type === "TABLE_WIDGET_V2") {
-      const primaryColumns = widget?.primaryColumns;
+      const primaryColumns = widget?.primaryColumns as ColumnPropertiesV2;
 
       // Set default value for allowSameOptionsInNewRow
       if (primaryColumns) {
-        Object.keys(primaryColumns).forEach((column) => {
+        Object.values(primaryColumns).forEach((column) => {
           if (
-            primaryColumns[column].hasOwnProperty("columnType") &&
-            primaryColumns[column].columnType === ColumnTypesV2.SELECT
+            column.hasOwnProperty("columnType") &&
+            column.columnType === "select"
           ) {
-            primaryColumns[column].allowSameOptionsInNewRow = true;
+            column.allowSameOptionsInNewRow = true;
           }
         });
       }
