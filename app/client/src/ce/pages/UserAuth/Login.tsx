@@ -140,7 +140,7 @@ export function Login(props: LoginFormProps) {
               : [
                   {
                     children: invalidCredsForgotPasswordLinkText,
-                    to: invalidCredsForgotPasswordLinkText,
+                    to: FORGOT_PASSWORD_URL,
                   },
                 ]
           }

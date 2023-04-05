@@ -15,7 +15,6 @@ const MockDataSourceWrapper = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   min-width: 150px;
-  border-radius: 4px;
   align-items: center;
   margin-top: 8px;
 `;
@@ -52,10 +51,10 @@ const CardWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 64px;
+  border-radius: var(--ads-v2-border-radius);
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle);
     cursor: pointer;
-  }
   }
 `;
 

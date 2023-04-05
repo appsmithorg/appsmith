@@ -91,6 +91,7 @@ export function ResetPassword(props: ResetPasswordProps) {
       {
         to: FORGOT_PASSWORD_URL,
         children: messageActionText,
+        target: "_self",
       },
     ];
   }
@@ -110,6 +111,7 @@ export function ResetPassword(props: ResetPasswordProps) {
       {
         to: AUTH_LOGIN_URL,
         children: messageActionText,
+        target: "_self",
       },
     ];
   }
@@ -129,6 +131,7 @@ export function ResetPassword(props: ResetPasswordProps) {
         {
           to: FORGOT_PASSWORD_URL,
           children: messageActionText,
+          target: "_self",
         },
       ];
     }

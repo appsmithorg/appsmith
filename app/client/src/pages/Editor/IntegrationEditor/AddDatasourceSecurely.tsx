@@ -4,7 +4,8 @@ import Secure from "assets/images/secure.svg";
 import AppsmithDatasource from "assets/images/appsmith-datasource.png";
 
 const Wrapper = styled.div`
-  border: 2px solid #d6d6d6;
+  border: 2px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   padding: 16px 23px;
   flex-direction: row;
   display: flex;

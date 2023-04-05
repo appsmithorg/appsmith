@@ -2178,7 +2178,7 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.4.2", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.11.2"
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.11.2.tgz"
   dependencies:
@@ -10328,10 +10328,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.2-alpha.17":
-  version "2.1.2-alpha.17"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.2-alpha.17.tgz#23fdc9fa777cc96a20f1fbe7433a51c13ede9f0c"
-  integrity sha512-LSxTmI3W5w+tAxMqYsNTlkw58MP5LxLTnMsRuS5UXaLVXMf6zPlY7slssJXtnrbVN7HXByZ/UTSjYAu/aQt+Xw==
+"design-system@npm:@appsmithorg/design-system@2.1.4":
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.4.tgz#2114e3e0c554d43644452c67fc836479664c3b18"
+  integrity sha512-DEZcSjMr7BLJuZgWhof1zUXzo8t7Zd0ZrP6lNyiWRs6eYxE8sBxWsnt529S3Z8oGhXz2r0cd4CaIDqrX56yIHA==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
@@ -19013,15 +19013,6 @@ react-toastify@9.0.3:
   dependencies:
     clsx "^1.1.1"
 
-react-toastify@^5.5.0:
-  version "5.5.0"
-  resolved "https://registry.npmjs.org/react-toastify/-/react-toastify-5.5.0.tgz"
-  dependencies:
-    "@babel/runtime" "^7.4.2"
-    classnames "^2.2.6"
-    prop-types "^15.7.2"
-    react-transition-group "^4"
-
 react-transition-group@^2.9.0:
   version "2.9.0"
   resolved "https://registry.npmjs.org/react-transition-group/-/react-transition-group-2.9.0.tgz"
@@ -19031,7 +19022,7 @@ react-transition-group@^2.9.0:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
-react-transition-group@^4, react-transition-group@^4.3.0:
+react-transition-group@^4.3.0:
   version "4.4.1"
   resolved "https://registry.npmjs.org/react-transition-group/-/react-transition-group-4.4.1.tgz"
   dependencies:
