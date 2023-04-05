@@ -62,7 +62,7 @@ import { Severity } from "entities/AppsmithConsole";
 import {
   entityFns,
   getActionTriggerFunctionNames,
-} from "workers/Evaluation/fns";
+} from "@appsmith/workers/Evaluation/fns";
 import type {
   TJSFunctionPropertyState,
   TJSpropertyState,
