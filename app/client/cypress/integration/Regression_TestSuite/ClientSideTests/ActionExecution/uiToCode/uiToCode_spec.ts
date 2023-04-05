@@ -1,468 +1,433 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
+const { agHelper, apiPage, entityExplorer, jsEditor, locators, propPane } = _;
+
 describe("UI to Code", () => {
   before(() => {
     cy.fixture("buttondsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
+      agHelper.AddDsl(val);
     });
-    _.apiPage.CreateApi("Api1", "GET");
-    _.apiPage.CreateApi("Api2", "POST");
+    apiPage.CreateApi("Api1", "GET");
+    apiPage.CreateApi("Api2", "POST");
   });
 
   beforeEach(() => {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.propPane.EnterJSContext("onClick", "");
-    _.jsEditor.DisableJSContext("onClick");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext("onClick", "");
+    jsEditor.DisableJSContext("onClick");
   });
 
   it("1. adds an action", () => {
-    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Message"),
+    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
-      "onClick",
-      `{{showAlert('Hello!', '');}}`,
-    );
-    cy.get(_.locators._jsToggle("onclick")).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    propPane.ValidateJSFieldValue("onClick", `{{showAlert('Hello!', '');}}`);
   });
 
   it("2. adds multiple actions", () => {
     // Add first action
-    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Message"),
+    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(`${propPane._actionSelectorPopup} .t--close`);
 
     // Add second action
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    cy.get(_.locators._openNavigationTab("url")).click();
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Enter URL"),
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
+    agHelper.GetNClick(locators._openNavigationTab("url"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.SelectPlatformFunction("onClick", "Store value");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Key"),
+    propPane.SelectPlatformFunction("onClick", "Store value");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Key"),
       "secret-key",
     );
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Value"),
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Value"),
       "secret-value",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Add fourth action
-    _.propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
+    propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "text to copy",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Validate the code
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Delete the third action
-    cy.get(_.locators._actionCardByTitle("Store value")).click();
-    cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Store value"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that cards 1, 2 and 4 are present
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Show Alert"));
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
-    _.agHelper.AssertElementExist(
-      _.locators._actionCardByTitle("Copy to clipboard"),
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
+    agHelper.AssertElementExist(
+      propPane._actionCardByTitle("Copy to clipboard"),
     );
 
     // Assert the code for the remaining actions
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Delete the first action
-    cy.get(_.locators._actionCardByTitle("Show Alert")).click();
-    cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that cards 2 and 4 are present
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
-    _.agHelper.AssertElementExist(
-      _.locators._actionCardByTitle("Copy to clipboard"),
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
+    agHelper.AssertElementExist(
+      propPane._actionCardByTitle("Copy to clipboard"),
     );
 
     // Assert the code for the remaining actions
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{navigateTo('https://google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("3. works with undo using cmd+z", () => {
     // Add first action
-    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Message"),
+    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Add second action
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    cy.get(_.locators._openNavigationTab("url")).click();
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Enter URL"),
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
+    agHelper.GetNClick(locators._openNavigationTab("url"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.SelectPlatformFunction("onClick", "Store value");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Key"),
+    propPane.SelectPlatformFunction("onClick", "Store value");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Key"),
       "secret-key",
     );
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Value"),
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Value"),
       "secret-value",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Add fourth action
-    _.propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
+    propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "text to copy",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Validate the code
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Delete the third action
-    cy.get(_.locators._actionCardByTitle("Store value")).click();
-    cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Store value"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Delete the first action
-    cy.get(_.locators._actionCardByTitle("Show Alert")).click();
-    cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that first and third action are not present
-    _.agHelper.AssertElementAbsence(
-      _.locators._actionCardByTitle("Show Alert"),
-    );
-    _.agHelper.AssertElementAbsence(
-      _.locators._actionCardByTitle("Store value"),
-    );
+    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Store value"));
 
     // Undo the last two actions
-    cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
+    cy.get("body").type(agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
-    cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
+    cy.get("body").type(agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
     // Assert that all the cards are present
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Show Alert"));
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Store value"));
-    _.agHelper.AssertElementExist(
-      _.locators._actionCardByTitle("Copy to clipboard"),
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Store value"));
+    agHelper.AssertElementExist(
+      propPane._actionCardByTitle("Copy to clipboard"),
     );
 
     // Assert that code for all actions is back after undo actions
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("4. works with redo using cmd+y", () => {
     // Add first action
-    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Message"),
+    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Add second action
-    _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    _.propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    cy.get(_.locators._openNavigationTab("url")).click();
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Enter URL"),
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
+    agHelper.GetNClick(locators._openNavigationTab("url"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.SelectPlatformFunction("onClick", "Store value");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Key"),
+    propPane.SelectPlatformFunction("onClick", "Store value");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Key"),
       "secret-key",
     );
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Value"),
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Value"),
       "secret-value",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Add fourth action
-    _.propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
+    propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "text to copy",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Validate the code
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '');navigateTo('https://google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
 
     // Delete the third action
-    cy.get(_.locators._actionCardByTitle("Store value")).click();
-    cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Store value"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Delete the first action
-    cy.get(_.locators._actionCardByTitle("Show Alert")).click();
-    cy.get(`${_.locators._actionSelectorPopup} .t--delete`).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that first and third action are not present
-    _.agHelper.AssertElementAbsence(
-      _.locators._actionCardByTitle("Show Alert"),
-    );
-    _.agHelper.AssertElementAbsence(
-      _.locators._actionCardByTitle("Store value"),
-    );
+    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Store value"));
 
     // Undo the last two actions
-    cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
+    cy.get("body").type(agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
-    cy.get("body").type(_.agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
+    cy.get("body").type(agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
     // Assert that all the cards are present
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Show Alert"));
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Navigate to"));
-    _.agHelper.AssertElementExist(_.locators._actionCardByTitle("Store value"));
-    _.agHelper.AssertElementExist(
-      _.locators._actionCardByTitle("Copy to clipboard"),
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Store value"));
+    agHelper.AssertElementExist(
+      propPane._actionCardByTitle("Copy to clipboard"),
     );
 
     // Redo the last two undo actions
-    cy.get("body").type(_.agHelper.isMac ? "{meta}Y" : "{ctrl}Y");
+    cy.get("body").type(agHelper.isMac ? "{meta}Y" : "{ctrl}Y");
 
-    cy.get("body").type(_.agHelper.isMac ? "{meta}Y" : "{ctrl}Y");
+    cy.get("body").type(agHelper.isMac ? "{meta}Y" : "{ctrl}Y");
 
     // Assert that code for first and third action is gone
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{navigateTo('https://google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("5. can add success and error callbacks", () => {
-    _.propPane.SelectPlatformFunction("onClick", "Show Alert");
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Message"),
+    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    cy.get(_.locators._actionCardByTitle("Show Alert")).click();
+    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
 
-    cy.get(_.locators._actionCallbacks).click();
+    agHelper.GetNClick(propPane._actionCallbacks);
 
     // add a success callback
-    cy.get(_.locators._actionAddCallback("success")).click().wait(500);
-    cy.get(_.locators._dropDownValue("Store value")).click().wait(500);
+    agHelper.GetNClick(propPane._actionAddCallback("success")).wait(500);
+    agHelper.GetNClick(locators._dropDownValue("Store value")).wait(500);
 
     // add an error callback
-    cy.get(_.locators._actionAddCallback("failure")).click().wait(500);
-    cy.get(_.locators._dropDownValue("Navigate to")).click().wait(500);
+    agHelper.GetNClick(propPane._actionAddCallback("failure")).wait(500);
+    agHelper.GetNClick(locators._dropDownValue("Navigate to")).wait(500);
 
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{showAlert('Hello!', '').then(() => {  storeValue("", "");}).catch(() => {  navigateTo("", {}, 'SAME_WINDOW');});}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("6. updates the success and failure callbacks for nested query actions", () => {
-    _.propPane.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    _.jsEditor.DisableJSContext("onClick");
+    jsEditor.DisableJSContext("onClick");
 
     // Select the card to show the callback button
-    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Click on the callback button
-    cy.get(_.locators._actionCallbacks).click();
+    agHelper.GetNClick(propPane._actionCallbacks);
 
     // Edit the success callback of the nested Api2.run
-    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
+    propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
     cy.get(
-      _.jsEditor._lineinPropertyPaneJsEditor(
+      jsEditor._lineinPropertyPaneJsEditor(
         2,
-        _.locators._actionSelectorFieldContentByLabel("Callback function"),
+        propPane._actionSelectorFieldContentByLabel("Callback function"),
       ),
     ).type("eeee");
 
     // Edit the failure callback of the nested Api2.run
-    cy.get(_.locators._openNavigationTab("onFailure")).click();
+    cy.get(locators._openNavigationTab("onFailure")).click();
     cy.get(
-      _.jsEditor._lineinPropertyPaneJsEditor(
+      jsEditor._lineinPropertyPaneJsEditor(
         2,
-        _.locators._actionSelectorFieldContentByLabel("Callback function"),
+        propPane._actionSelectorFieldContentByLabel("Callback function"),
       ),
     ).type("oooo");
 
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });}).catch(() => {});}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("7. updates the query params correctly", () => {
-    _.propPane.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    _.jsEditor.DisableJSContext("onClick");
+    jsEditor.DisableJSContext("onClick");
 
     // Select the card to show the callback button
-    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Click on the callback button
-    cy.get(_.locators._actionCallbacks).click();
+    agHelper.GetNClick(propPane._actionCallbacks);
 
     // Edit the success callback of the nested Api2.run
-    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
+    propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
     cy.get(
-      _.jsEditor._lineinPropertyPaneJsEditor(
+      jsEditor._lineinPropertyPaneJsEditor(
         2,
-        _.locators._actionSelectorFieldContentByLabel("Params"),
+        propPane._actionSelectorFieldContentByLabel("Params"),
       ),
     ).type("val: 1");
 
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });}).catch(() => {});}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("8. adds actions to callback function is argument if exists already", () => {
-    _.propPane.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `Api1.run(() => {
         showAlert("Hello");
        })
        `,
     );
-    _.jsEditor.DisableJSContext("onClick");
+    jsEditor.DisableJSContext("onClick");
 
     // Select the card to show the callback button
-    _.propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Click on the callback button
-    cy.get(_.locators._actionCallbacks).click();
-    cy.get(_.locators._actionAddCallback("success")).click();
-    cy.get(_.locators._dropDownValue("Store value")).click().wait(500);
+    agHelper.GetNClick(propPane._actionCallbacks);
+    cy.get(propPane._actionAddCallback("success")).click();
+    cy.get(locators._dropDownValue("Store value")).click().wait(500);
 
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{Api1.run(() => {  showAlert("Hello");  storeValue("", "");}, () => {});}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 
   it("9. correctly configures a setInterval action", () => {
-    _.propPane.SelectPlatformFunction("onClick", "Set interval");
+    propPane.SelectPlatformFunction("onClick", "Set interval");
 
     cy.get(
-      _.jsEditor._lineinPropertyPaneJsEditor(
+      jsEditor._lineinPropertyPaneJsEditor(
         2,
-        _.locators._actionSelectorFieldContentByLabel("Callback function"),
+        propPane._actionSelectorFieldContentByLabel("Callback function"),
       ),
     ).type("{enter}showAlert('Hello'){enter}//");
 
-    _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Id"),
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Id"),
       "interval-id",
     );
-    cy.get(`${_.locators._actionSelectorPopup} .t--close`).click();
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    cy.get(_.locators._jsToggle("onclick")).click();
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ValidateJSFieldValue(
       "onClick",
       `{{setInterval(() => {  // add c  showAlert(\'Hello\');  // ode here}, 5000, \'interval-id\');}}`,
     );
-    cy.get(_.locators._jsToggle("onclick")).click();
   });
 });

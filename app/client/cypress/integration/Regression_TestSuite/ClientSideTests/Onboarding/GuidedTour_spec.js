@@ -97,8 +97,8 @@ describe("Guided Tour", function () {
       "Execute a query",
       "updateCustomerInfo.run",
     ),
-      cy.get(_.locators._actionCallbacks).click();
-    cy.get(_.locators._actionAddCallback("success")).click().wait(500);
+      cy.get(_.propPane._actionCallbacks).click();
+    cy.get(_.propPane._actionAddCallback("success")).click().wait(500);
     cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)
@@ -107,7 +107,7 @@ describe("Guided Tour", function () {
       .contains("getCustomers")
       .click({ force: true })
       .wait(500);
-    _.agHelper.GetNClick(_.locators._actionSelectorPopupClose);
+    _.agHelper.GetNClick(_.propPane._actionSelectorPopupClose);
 
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy

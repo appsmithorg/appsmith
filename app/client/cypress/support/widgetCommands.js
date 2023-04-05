@@ -124,7 +124,7 @@ Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
 
 Cypress.Commands.add("AddActionWithModal", () => {
   propPane.SelectPlatformFunction("onTabSelected", "Show modal");
-  cy.get(".t--open-dropdown-Select-Modal").click({ force: true });
+  agHelper.GetNClick(propPane._actionOpenDropdownSelectModal, 0, true);
   cy.get(".t--create-modal-btn").click({ force: true });
 });
 
@@ -1035,7 +1035,7 @@ Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
     .contains("Success")
     .click({ force: true });
   ObjectsRegistry.AggregateHelper.GetNClick(
-    ObjectsRegistry.CommonLocators._actionSelectorPopupClose,
+    ObjectsRegistry.PropertyPane._actionSelectorPopupClose,
     0,
     true,
   );

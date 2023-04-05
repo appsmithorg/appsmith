@@ -18,7 +18,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.propPane.EnterJSContext("onClick", `{{Api1.run()}}`, true, false);
     _.jsEditor.DisableJSContext("onClick");
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run",
     );
   });
@@ -33,7 +33,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.jsEditor.DisableJSContext("onClick");
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run",
     );
   });
@@ -48,31 +48,31 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.jsEditor.DisableJSContext("onClick");
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run+2",
     );
-    _.agHelper.GetNClick(".action-block-tree");
-    _.agHelper.GetNClick(".callback-collapse");
+    _.agHelper.GetNClick(_.propPane._actionCard);
+    _.agHelper.GetNClick(_.propPane._actionTreeCollapse);
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On success",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show AlertAdd message",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On failure",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show modalnone",
       "have.text",
       2,
@@ -89,50 +89,50 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.jsEditor.DisableJSContext("onClick");
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run+3",
     );
-    _.agHelper.GetNClick(".action-block-tree");
-    _.agHelper.GetNClick(".callback-collapse");
+    _.agHelper.GetNClick(_.propPane._actionCard);
+    _.agHelper.GetNClick(_.propPane._actionTreeCollapse);
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On success",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show AlertHello world!",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On failure",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Store valuea",
       "have.text",
       2,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show modalModal1",
       "have.text",
       3,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 1);
+    _.agHelper.GetNClick(_.propPane._actionCard, 1);
     _.agHelper.ValidateCodeEditorContent(".text-view", "Hello world!");
     _.agHelper.GetNAssertElementText(".selector-view .bp3-button-text", "Info");
 
-    _.agHelper.GetNClick(".action-block-tree", 2);
+    _.agHelper.GetNClick(_.propPane._actionCard, 2);
     _.agHelper.ValidateCodeEditorContent(".text-view", "a{{18}}");
 
-    _.agHelper.GetNClick(".action-block-tree", 3);
+    _.agHelper.GetNClick(_.propPane._actionCard, 3);
     _.agHelper.GetNAssertElementText(
       ".selector-view .bp3-button-text",
       "Select Modal",
@@ -158,26 +158,26 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run+2",
     );
 
-    _.agHelper.GetNClick(".action-block-tree");
-    _.agHelper.GetNClick(".callback-collapse");
+    _.agHelper.GetNClick(_.propPane._actionCard);
+    _.agHelper.GetNClick(_.propPane._actionTreeCollapse);
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On success",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On failure",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Set interval5000ms",
       "have.text",
       2,
@@ -195,28 +195,28 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run+1",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree");
-    _.agHelper.GetNClick(".callback-collapse");
+    _.agHelper.GetNClick(_.propPane._actionCard);
+    _.agHelper.GetNClick(_.propPane._actionTreeCollapse);
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On failure",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Copy to clipboardhi",
       "have.text",
       1,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 1);
+    _.agHelper.GetNClick(_.propPane._actionCard, 1);
     _.agHelper.ValidateCodeEditorContent(".text-view", "hi");
   });
 
@@ -231,22 +231,22 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "GETExecute a queryApi1.run+1",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree");
-    _.agHelper.GetNClick(".callback-collapse");
+    _.agHelper.GetNClick(_.propPane._actionCard);
+    _.agHelper.GetNClick(_.propPane._actionTreeCollapse);
     _.agHelper.GetNAssertElementText(
-      ".action-callback-add",
+      _.propPane._actionCallbackTitle,
       "On success",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Clear store",
       "have.text",
       1,
@@ -287,14 +287,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject1.funcWithoutArgsSync()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
-    _.agHelper.AssertElementAbsence('[data-testId="text-view-label"]', 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
+    _.agHelper.AssertElementAbsence(_.propPane._actionPopupTextLabel, 0);
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -305,22 +305,22 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject1.funcWithArgsSync(18, 26)",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
     _.agHelper.ValidateCodeEditorContent(".text-view", "{{18}}{{26}}");
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "a",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "b",
       "have.text",
       1,
@@ -335,14 +335,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject1.funcWithoutArgsAsync()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
-    _.agHelper.AssertElementAbsence('[data-testId="text-view-label"]', 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
+    _.agHelper.AssertElementAbsence(_.propPane._actionPopupTextLabel, 0);
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -353,21 +353,21 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject1.funcWithArgsAsync()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "a",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "b",
       "have.text",
       1,
@@ -410,14 +410,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject2.promiseFuncNoArgs()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
-    _.agHelper.AssertElementAbsence('[data-testId="text-view-label"]', 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
+    _.agHelper.AssertElementAbsence(_.propPane._actionPopupTextLabel, 0);
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -428,14 +428,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject2.promiseFuncNoArgs()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
-    _.agHelper.AssertElementAbsence('[data-testId="text-view-label"]', 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
+    _.agHelper.AssertElementAbsence(_.propPane._actionPopupTextLabel, 0);
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -446,14 +446,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject2.promiseFuncNoArgs()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
-    _.agHelper.AssertElementAbsence('[data-testId="text-view-label"]', 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
+    _.agHelper.AssertElementAbsence(_.propPane._actionPopupTextLabel, 0);
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -464,14 +464,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject2.promiseFuncNoArgs()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
-    _.agHelper.AssertElementAbsence('[data-testId="text-view-label"]', 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
+    _.agHelper.AssertElementAbsence(_.propPane._actionPopupTextLabel, 0);
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -482,15 +482,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       'Execute a JS functionJSObject2.promiseFuncWithArgs("hi")',
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "a",
       "have.text",
       0,
@@ -506,15 +506,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject2.promiseFuncWithArgs()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "a",
       "have.text",
       0,
@@ -529,15 +529,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Execute a JS functionJSObject2.promiseFuncWithArgs()",
       "have.text",
       0,
     );
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "a",
       "have.text",
       0,
@@ -552,12 +552,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Navigate toSelect page",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
       "#switcher--page-name",
@@ -574,7 +574,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Query Params",
       "have.text",
       0,
@@ -596,12 +596,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Navigate toPage1",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
       "#switcher--page-name",
@@ -618,7 +618,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Query Params",
       "have.text",
       0,
@@ -640,24 +640,24 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Navigate togoogle.com",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText("#switcher--url", "URL", "have.text", 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Enter URL",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Query Params",
       "have.text",
       1,
@@ -679,15 +679,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show AlertAdd message",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Message",
       "have.text",
       0,
@@ -709,15 +709,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show Alerthello",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Message",
       "have.text",
       0,
@@ -742,15 +742,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show modalnone",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-Modal",
+      _.propPane._actionOpenDropdownSelectModal,
       "Select Modal",
       "have.text",
       0,
@@ -765,15 +765,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Show modalModal1",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-Modal",
+      _.propPane._actionOpenDropdownSelectModal,
       "Modal1",
       "have.text",
       0,
@@ -788,15 +788,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Close modalnone",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-Modal",
+      _.propPane._actionOpenDropdownSelectModal,
       "Select Modal",
       "have.text",
       0,
@@ -811,15 +811,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Close modalModal1",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-Modal",
+      _.propPane._actionOpenDropdownSelectModal,
       "Modal1",
       "have.text",
       0,
@@ -834,21 +834,21 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Store valueAdd key",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Key",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Value",
       "have.text",
       1,
@@ -863,23 +863,23 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Store valuea",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.propPane.EnterJSContext("onClick", "{{storeValue('a', 1)}}", true, false);
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Store valuea",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.ValidateCodeEditorContent(".text-view", "a{{1}}");
 
@@ -887,12 +887,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Store valueAdd key",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
   });
 
   it("16. shows fields for remove value appropriately", () => {
@@ -903,15 +903,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Remove valueAdd Key",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Key",
       "have.text",
       0,
@@ -921,12 +921,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Remove valuea",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.ValidateCodeEditorContent(".text-view", "a");
   });
@@ -939,21 +939,21 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "DownloadAdd data to download",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Data to download",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "File name with extension",
       "have.text",
       1,
@@ -979,7 +979,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "DownloadAdd data to download",
       "have.text",
       0,
@@ -994,7 +994,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Downloadb",
       "have.text",
       0,
@@ -1009,12 +1009,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Downloadb",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
     _.agHelper.ValidateCodeEditorContent(".text-view", "ab");
 
     _.agHelper.GetNAssertElementText(
@@ -1033,15 +1033,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Copy to clipboardAdd text",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Text to be copied to clipboard",
       "have.text",
       0,
@@ -1056,16 +1056,16 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Copy to clipboarda",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.ValidateCodeEditorContent(".text-view", "a");
     _.agHelper.TypeText(
-      _.locators._actionSelectorFieldByLabel("Text to be copied to clipboard"),
+      _.propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "line1{enter}line2{enter}line3",
       0,
       true,
@@ -1085,12 +1085,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Reset widgetSelect widget",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
       '[data-testId="selector-view-label"]',
@@ -1129,12 +1129,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Reset widgetModal1",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
       ".selector-view .bp3-button-text",
@@ -1159,12 +1159,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Reset widgetModal1",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
       ".selector-view .bp3-button-text",
@@ -1189,12 +1189,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Reset widgetSelect widget",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
       ".selector-view .bp3-button-text",
@@ -1219,29 +1219,29 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Set intervalms",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Callback function",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Delay (ms)",
       "have.text",
       1,
     );
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Id",
       "have.text",
       2,
@@ -1256,12 +1256,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Set interval200ms",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     // _.agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}");
 
@@ -1274,12 +1274,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Set interval200ms",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     // _.agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}id1");
   });
@@ -1292,15 +1292,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Clear intervalAdd ID",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Id",
       "have.text",
       0,
@@ -1315,12 +1315,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Clear intervalId1",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.ValidateCodeEditorContent(".text-view", "Id1");
   });
@@ -1333,12 +1333,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Clear store",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.AssertElementAbsence(".text-view");
     _.agHelper.AssertElementAbsence(".selector-view");
@@ -1357,12 +1357,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Watch Geolocation",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.AssertElementAbsence(".text-view");
     _.agHelper.AssertElementAbsence(".selector-view");
@@ -1381,12 +1381,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Stop watching Geolocation",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.AssertElementAbsence(".text-view");
     _.agHelper.AssertElementAbsence(".selector-view");
@@ -1405,15 +1405,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Get GeolocationAdd callback",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Callback function",
       "have.text",
       0,
@@ -1429,10 +1429,10 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.jsEditor.DisableJSContext("onClick");
 
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Callback function",
       "have.text",
       0,
@@ -1452,27 +1452,27 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Post messageAdd message",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Message",
       "have.text",
       0,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Target iframe",
       "have.text",
       1,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="text-view-label"]',
+      _.propPane._actionPopupTextLabel,
       "Allowed origins",
       "have.text",
       2,
@@ -1487,12 +1487,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.jsEditor.DisableJSContext("onClick");
 
     _.agHelper.GetNAssertElementText(
-      ".action-block-tree",
+      _.propPane._actionCard,
       "Post messagehello",
       "have.text",
       0,
     );
-    _.agHelper.GetNClick(".action-block-tree", 0);
+    _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.ValidateCodeEditorContent(".text-view", "hellowindow*");
   });

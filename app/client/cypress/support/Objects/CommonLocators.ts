@@ -176,17 +176,6 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-cy='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
-  _actionSelectorPopup = ".t--action-selector-popup";
-  _actionSelectorFieldByLabel = (label: string) =>
-    `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
-  _actionSelectorFieldContentByLabel = (label: string) =>
-    `.t--action-selector-popup label[for="${label}"] + div`;
-  _actionCardByTitle = (title: string) =>
-    `[data-testid='action-card-${title}']`;
-  _actionCallbacks = ".t--action-callbacks";
-  _actionAddCallback = (type: "success" | "failure") =>
-    `.t--action-add-${type}-callback`;
-  _actionSelectorPopupClose = `${this._actionSelectorPopup} .t--close`;
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
 }

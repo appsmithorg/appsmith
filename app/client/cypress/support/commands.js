@@ -816,25 +816,25 @@ Cypress.Commands.add(
   (forSuccess, forFailure, actionType, actionValue) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-    cy.get(locators._actionCallbacks).click();
+    cy.get(propPane._actionCallbacks).click();
 
     // add a success callback
-    cy.get(locators._actionAddCallback("success")).click().wait(500);
+    cy.get(propPane._actionAddCallback("success")).click().wait(500);
     cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
     agHelper.TypeText(
-      locators._actionSelectorFieldByLabel("Message"),
+      propPane._actionSelectorFieldByLabel("Message"),
       forSuccess,
     );
-    agHelper.GetNClick(locators._actionSelectorPopupClose);
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // add a failure callback
-    cy.get(locators._actionAddCallback("failure")).click().wait(500);
+    cy.get(propPane._actionAddCallback("failure")).click().wait(500);
     cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
     agHelper.TypeText(
-      locators._actionSelectorFieldByLabel("Message"),
+      propPane._actionSelectorFieldByLabel("Message"),
       forFailure,
     );
-    agHelper.GetNClick(locators._actionSelectorPopupClose);
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
   },
 );
 

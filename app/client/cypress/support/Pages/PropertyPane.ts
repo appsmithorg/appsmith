@@ -62,6 +62,23 @@ export class PropertyPane {
     "//h3[text()='" + option + " Color']//parent::div";
   _rowHeightBtn = (btnType: "SHORT" | "DEFAULT" | "TALL") =>
     ".t--button-group-" + btnType + " ";
+  _actionSelectorPopup = ".t--action-selector-popup";
+  _actionSelectorFieldByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea`;
+  _actionSelectorFieldContentByLabel = (label: string) =>
+    `.t--action-selector-popup label[for="${label}"] + div`;
+  _actionCardByTitle = (title: string) =>
+    `[data-testid='action-card-${title}']`;
+  _actionCallbacks = ".t--action-callbacks";
+  _actionAddCallback = (type: "success" | "failure") =>
+    `.t--action-add-${type}-callback`;
+  _actionSelectorPopupClose = `${this._actionSelectorPopup} .t--close`;
+  _actionSelectorDelete = `${this._actionSelectorPopup} .t--delete`;
+  _actionCard = ".action-block-tree";
+  _actionCallbackTitle = ".action-callback-add";
+  _actionTreeCollapse = ".callback-collapse";
+  _actionPopupTextLabel = '[data-testid="text-view-label"]';
+  _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -241,6 +258,12 @@ export class PropertyPane {
     return cy.wrap(valueToValidate);
   }
 
+  public ValidateJSFieldValue(fieldName: string, valueToValidate: string) {
+    this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
+    this.ValidatePropertyFieldValue(fieldName, valueToValidate);
+    this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
+  }
+
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
     let val: any;
     if (fieldName) {
@@ -388,10 +411,7 @@ export class PropertyPane {
   }
 
   public SelectActionByTitleAndValue(title: string, value: string) {
-    cy.get(this.locator._actionCardByTitle(title))
-      .children()
-      .contains(value)
-      .click();
+    cy.get(this._actionCardByTitle(title)).children().contains(value).click();
   }
 
   public ClearActionField(property: string) {
