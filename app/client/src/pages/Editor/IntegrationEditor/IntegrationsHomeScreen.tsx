@@ -13,7 +13,7 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "design-system-old";
-import { IconSize, TabComponent, Text, TextType } from "design-system-old";
+import { IconSize, Text, TextType } from "design-system-old";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
@@ -86,6 +86,41 @@ const NewIntegrationsContainer = styled.div`
   }
 `;
 
+// This replaces a previous instance of tab. It's a menu, but it's styled to look like a tab from ads.
+// This is because this is the only such instance of vertical menu on our platform. When we refactor the view
+// on this screen to have a smaller grid size, we should consider removing this entirely.
+const VerticalMenu = styled.nav`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 8px;
+
+  color: var(--ads-v2-color-fg-muted);
+  // &&&& to override blueprint styles
+  &&&&&& :hover {
+    color: var(--ads-v2-color-fg) !important;
+    text-decoration: none !important;
+  }
+`;
+
+const VerticalMenuItem = styled.a`
+  display: flex;
+  align-items: center;
+
+  height: 30px;
+  font-size: 14px;
+  padding-left: 8px;
+  border-left: solid 2px transparent;
+
+  :hover {
+    border-left: solid 2px var(--ads-v2-color-border-emphasis);
+  }
+
+  &[aria-selected="true"] {
+    border-left: solid 2px var(--ads-v2-color-border-brand);
+  }
+`;
+
 type IntegrationsHomeScreenProps = {
   pageId: string;
   selectedTab: string;
@@ -107,7 +142,7 @@ type IntegrationsHomeScreenProps = {
 type IntegrationsHomeScreenState = {
   page: number;
   activePrimaryMenuId: string;
-  activeSecondaryMenuId: string;
+  activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
 };
 
@@ -119,29 +154,23 @@ const PRIMARY_MENU_IDS = {
   CREATE_NEW: "CREATE_NEW",
 };
 
-const SECONDARY_MENU: TabProp[] = [
+const SECONDARY_MENU = [
   {
-    key: "API",
+    key: 0,
     title: "API",
-    panelComponent: <div />,
+    href: "#",
   },
   {
-    key: "DATABASE",
+    key: 1,
     title: "Database",
-    panelComponent: <div />,
+    href: "#",
+  },
+  {
+    key: 2,
+    title: "Sample Databases",
+    href: "#",
   },
 ];
-
-const getSecondaryMenu = (hasActiveSources: boolean) => {
-  const mockDbMenu = {
-    key: "MOCK_DATABASE",
-    title: "Sample Databases",
-    panelComponent: <div />,
-  };
-  return hasActiveSources
-    ? [...SECONDARY_MENU, mockDbMenu]
-    : [mockDbMenu, ...SECONDARY_MENU];
-};
 
 const getSecondaryMenuIds = (hasActiveSources = false) => {
   return {
@@ -268,7 +297,7 @@ class IntegrationsHomeScreen extends React.Component<
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: getSecondaryMenuIds(
         props.mockDatasources.length > 0,
-      ).API.toString(),
+      ).API,
       unsupportedPluginDialogVisible: false,
     };
   }
@@ -329,7 +358,7 @@ class IntegrationsHomeScreen extends React.Component<
         }),
       );
       this.onSelectSecondaryMenu(
-        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE.toString(),
+        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
       );
     } else {
       this.syncActivePrimaryMenu();
@@ -347,7 +376,7 @@ class IntegrationsHomeScreen extends React.Component<
         }),
       );
       this.onSelectSecondaryMenu(
-        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE.toString(),
+        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
       );
     }
   }
@@ -369,12 +398,12 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({
       activeSecondaryMenuId:
         activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS.toString()
-          : getSecondaryMenuIds(dataSources.length > 0).API.toString(),
+          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
+          : getSecondaryMenuIds(dataSources.length > 0).API,
     });
   };
 
-  onSelectSecondaryMenu = (activeSecondaryMenuId: string) => {
+  onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
     this.setState({ activeSecondaryMenuId });
   };
 
@@ -425,7 +454,7 @@ class IntegrationsHomeScreen extends React.Component<
         <UseMockDatasources
           active={
             activeSecondaryMenuId ===
-            getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE.toString()
+            getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE
           }
           mockDatasources={this.props.mockDatasources}
         />
@@ -441,7 +470,7 @@ class IntegrationsHomeScreen extends React.Component<
           <CreateNewAPI
             active={
               activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).API.toString()
+              getSecondaryMenuIds(dataSources.length > 0).API
             }
             history={history}
             isCreating={isCreating}
@@ -452,7 +481,7 @@ class IntegrationsHomeScreen extends React.Component<
           <CreateNewDatasource
             active={
               activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).DATABASE.toString()
+              getSecondaryMenuIds(dataSources.length > 0).DATABASE
             }
             history={history}
             isCreating={isCreating}
@@ -528,17 +557,20 @@ class IntegrationsHomeScreen extends React.Component<
 
             {currentScreen}
             {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-              <TabComponent
-                className="t--vertical-menu"
-                onSelect={this.onSelectSecondaryMenu}
-                selectedIndex={this.state.activeSecondaryMenuId}
-                tabs={
-                  this.props.mockDatasources.length > 0
-                    ? getSecondaryMenu(dataSources.length > 0)
-                    : SECONDARY_MENU
-                }
-                vertical
-              />
+              <VerticalMenu>
+                {SECONDARY_MENU.map((item) => (
+                  <VerticalMenuItem
+                    aria-selected={
+                      this.state.activeSecondaryMenuId === item.key
+                    }
+                    href={item.href}
+                    key={item.key}
+                    onClick={() => this.onSelectSecondaryMenu(item.key)}
+                  >
+                    {item.title}
+                  </VerticalMenuItem>
+                ))}
+              </VerticalMenu>
             )}
           </SectionGrid>
         </ApiHomePage>
