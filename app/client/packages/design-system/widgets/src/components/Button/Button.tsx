@@ -4,8 +4,8 @@ import { Spinner } from "../Spinner";
 import { StyledButton } from "./index.styled";
 import type { fontFamilyTypes } from "../../utils/typography";
 import type {
-  HeadlessButtonProps,
-  HeadlessButtonRef,
+  ButtonProps as HeadlessButtonProps,
+  ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
 
 export type ButtonVariants = "primary" | "secondary" | "tertiary";
@@ -22,7 +22,7 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   isFitContainer?: boolean;
 }
 
-export const WdsButton = forwardRef(
+export const Button = forwardRef(
   (props: ButtonProps, ref: HeadlessButtonRef) => {
     const {
       children,
@@ -30,6 +30,16 @@ export const WdsButton = forwardRef(
       isDisabled,
       isFitContainer = false,
       isLoading,
+      onBlur,
+      onFocus,
+      onFocusChange,
+      onKeyDown,
+      onKeyUp,
+      onPress,
+      onPressChange,
+      onPressEnd,
+      onPressStart,
+      onPressUp,
       variant = "primary",
     } = props;
 
@@ -39,6 +49,16 @@ export const WdsButton = forwardRef(
         data-loading={isLoading}
         data-variant={variant}
         isDisabled={isDisabled}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        onFocusChange={onFocusChange}
+        onKeyDown={onKeyDown}
+        onKeyUp={onKeyUp}
+        onPress={onPress}
+        onPressChange={onPressChange}
+        onPressEnd={onPressEnd}
+        onPressStart={onPressStart}
+        onPressUp={onPressUp}
         ref={ref}
       >
         {isLoading && <Spinner />}

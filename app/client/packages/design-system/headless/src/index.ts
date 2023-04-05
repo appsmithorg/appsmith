@@ -1,5 +1,2 @@
-export { HeadlessButton } from "./components/HeadlessButton";
-export type {
-  HeadlessButtonProps,
-  HeadlessButtonRef,
-} from "./components/HeadlessButton";
+export { Button } from "./components/Button";
+export type { ButtonProps, ButtonRef } from "./components/Button";

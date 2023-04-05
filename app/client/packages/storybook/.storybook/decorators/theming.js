@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import webfontloader from "webfontloader";
 import styled, { createGlobalStyle } from "styled-components";
 import { ThemeProvider, TokensAccessor } from "@design-system/theming";
-import { createGlobalFontStack } from "@design-system/wds";
+import { createGlobalFontStack } from "@design-system/widgets";
 
 const StyledContainer = styled.div`
   display: flex;

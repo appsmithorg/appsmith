@@ -10,7 +10,7 @@ import {
   ColorControl,
 } from "@storybook/components";
 import { useGlobals } from "@storybook/api";
-import { fontMetricsMap } from "@design-system/wds";
+import { fontMetricsMap } from "@design-system/widgets";
 import debounce from "lodash/debounce";
 
 const { Select } = Form;

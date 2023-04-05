@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { HeadlessButton } from "@design-system/headless";
+import { Button as HeadlessButton } from "@design-system/headless";
 import type { ButtonProps } from "./Button";
 
 export const StyledButton = styled(HeadlessButton)<ButtonProps>`
