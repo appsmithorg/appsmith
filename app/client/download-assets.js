@@ -15,7 +15,8 @@ function searchFiles(dir) {
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
       searchFiles(filePath);
-    } else if (stat.isFile()) {
+    } else if (stat.isFile() && path.extname(filePath) !== ".class") {
+      // Skip .class files - server code
       const contents = fs.readFileSync(filePath, "utf8");
       const matches = contents.match(regex);
       if (matches) {
