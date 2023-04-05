@@ -3,7 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  homePage = ObjectsRegistry.HomePage;
+  homePage = ObjectsRegistry.HomePage,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("JSEditor Indendation - Visual tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
@@ -215,6 +216,8 @@ myFun2: async () => {
     // click run button and take a snap to make sure prettify did not revert
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.Sleep(); // allow time to run
+    //Close bottom bar after execution.
+    debuggerHelper.ClickDebuggerIcon();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click dropdown to change function and make sure prettify has not reverted
@@ -251,13 +254,11 @@ myFun2: async () => {
         prettify: false,
       },
     );
-    agHelper.GetNClick(".t--close-debugger");
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjBeforePrettify3");
 
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
-    agHelper.GetNClick(".t--close-debugger");
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjAfterPrettify3");
@@ -322,6 +323,8 @@ myFun2: async () => {
     // click run button and take a snap to make sure prettify did not revert
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.Sleep(); // allow time to run
+    //Close bottom bar after execution.
+    debuggerHelper.ClickDebuggerIcon();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click dropdown to change function and make sure prettify has not reverted
