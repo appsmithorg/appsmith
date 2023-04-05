@@ -49,4 +49,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
+    Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+
 }
