@@ -107,7 +107,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
       <ProfileSection>
         <ProfileImage
           className="t--profile-menu-icon"
-          size={52}
+          size="md"
           source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
           userName={props.name || props.userName}
         />
