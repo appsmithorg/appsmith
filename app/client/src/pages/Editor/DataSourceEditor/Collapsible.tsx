@@ -89,7 +89,6 @@ function Collapsible(props: Props) {
             {headerIcon && <Icon name={headerIcon.name} size="md" />}
           </SectionLabel>
           <Icon
-            color="var(--ads-v2-color-fg-information)"
             name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
             size="md"
           />
