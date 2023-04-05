@@ -10,12 +10,10 @@ import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Colors } from "constants/Colors";
 import type { TextInputProps } from "design-system-old";
-import { Case, Classes, Text, TextInput, TextType } from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button, Icon } from "design-system";
+import { Button } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -47,33 +45,6 @@ const StyledTextInput = styled(TextInput)`
 const CenteredButton = styled(Button)`
   align-self: center;
   margin-left: 15px;
-`;
-
-const AddMoreAction = styled.div`
-  width: fit-content;
-  cursor: pointer;
-  display: flex;
-  margin-top: 16px;
-  margin-left: 12px;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: ${Colors.GRAY};
-  }
-  svg {
-    fill: ${Colors.GRAY};
-    path {
-      fill: none;
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${Colors.CHARCOAL};
-    }
-    svg {
-      fill: ${Colors.CHARCOAL};
-    }
-  }
 `;
 
 function KeyValueRow(
@@ -211,12 +182,15 @@ function KeyValueRow(
           </FormRowWithLabel>
         );
       })}
-      <AddMoreAction className="t--add-field" onClick={addRow}>
-        <Icon className="t--addApiHeader" name="add-more" size="md" />
-        <Text case={Case.UPPERCASE} type={TextType.H5}>
-          Add more
-        </Text>
-      </AddMoreAction>
+      <Button
+        className="t--add-field"
+        kind="tertiary"
+        onClick={addRow}
+        size="md"
+        startIcon="add-more"
+      >
+        Add more
+      </Button>
     </>
   ) : null;
 }

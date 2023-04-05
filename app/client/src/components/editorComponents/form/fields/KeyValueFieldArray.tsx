@@ -21,9 +21,8 @@ import {
   DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { Button, Icon } from "design-system";
+import { Button } from "design-system";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -49,33 +48,6 @@ const FormRowWithLabel = styled(FormRow)`
 const CenteredButton = styled(Button)`
   align-self: center;
   margin-left: 15px;
-`;
-
-const AddMoreAction = styled.div`
-  width: fit-content;
-  cursor: pointer;
-  display: flex;
-  margin-top: 16px;
-  margin-left: 12px;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: ${Colors.GRAY};
-  }
-  svg {
-    fill: ${Colors.GRAY};
-    path {
-      fill: unset;
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${Colors.CHARCOAL};
-    }
-    svg {
-      fill: ${Colors.CHARCOAL};
-    }
-  }
 `;
 
 const Flex = styled.div<{ size: number }>`
@@ -292,12 +264,14 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
           })}
         </>
       )}
-      <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
-        <Icon className="t--addApiHeader" name="add-more" size="md" />
-        <Text case={Case.UPPERCASE} type={TextType.H5}>
-          Add more
-        </Text>
-      </AddMoreAction>
+      <Button
+        kind="tertiary"
+        onClick={() => props.fields.push({ key: "", value: "" })}
+        size="md"
+        startIcon="add-more"
+      >
+        Add more
+      </Button>
     </KeyValueStackContainer>
   );
 }
@@ -305,8 +279,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 type Props = {
   name: string;
   label: string;
-  // TODO(Hetu): Fix the banned type here
-  // eslint-disable-next-line @typescript-eslint/ban-types
   rightIcon?: React.ReactNode;
   description?: string;
   actionConfig?: any;
