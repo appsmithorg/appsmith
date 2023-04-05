@@ -47,7 +47,6 @@ const DatasourceCard = styled.div`
   width: 100%;
   padding: 10px;
   border-radius: var(--ads-v2-border-radius);
-  border: 1px solid var(--ads-v2-color-border);
 
   display: flex;
   flex-direction: column;
@@ -60,7 +59,7 @@ const DatasourceCard = styled.div`
     transition: 0.3s all ease;
   }
   &:hover {
-    box-shadow: 0 0 5px #c7c7c7;
+    background-color: var(--ads-v2-color-bg-emphasis-plus);
     .cs-icon {
       opacity: 1;
     }
@@ -78,11 +77,6 @@ const DatasourceURL = styled.span`
   width: fit-content;
   max-width: 100%;
   font-weight: 500;
-`;
-
-const PadTop = styled.div`
-  padding-top: 5px;
-  border: none;
 `;
 
 const DataSourceNameContainer = styled.div`
@@ -298,17 +292,9 @@ function ApiRightPane(props: any) {
                           {d.datasourceConfiguration?.url}
                         </DatasourceURL>
                         {dataSourceInfo && (
-                          <>
-                            <Divider />
-                            <PadTop>
-                              <Text
-                                type={TextType.P3}
-                                weight={FontWeight.NORMAL}
-                              >
-                                {dataSourceInfo}
-                              </Text>
-                            </PadTop>
-                          </>
+                          <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                            {dataSourceInfo}
+                          </Text>
                         )}
                       </DatasourceCard>
                     );
