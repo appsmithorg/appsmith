@@ -34,7 +34,7 @@ export function* handleRouteChange(
       yield fork(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);
-      yield fork(setSelectedWidgetsSaga, state.invokedBy);
+      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
     }
   } catch (e) {
     log.error("Error in focus change", e);
