@@ -173,7 +173,7 @@ describe("Binary Datatype tests", function () {
     });
   });
 
-  it.skip("6. Validating Binary (bytea) - escape, hex, base64 functions", () => {
+  it("6. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     _.deployMode.NavigateBacktoEditor();
     _.table.WaitUntilTableLoad();
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
