@@ -123,7 +123,7 @@ export const EntityItem = styled.div<{
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
     svg {
       path {
-        fill: ${Colors.GRAY};
+        fill: var(--ads-v2-color-fg);
       }
     }
   }
