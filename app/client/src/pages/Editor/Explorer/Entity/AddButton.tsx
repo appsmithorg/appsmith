@@ -1,27 +1,16 @@
 import React from "react";
 import styled from "styled-components";
+import { Button } from "design-system";
 
-import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
-import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+const Wrapper = styled.div`
+  height: 100%;
+  width: 30px;
+`;
 
-const Wrapper = styled(EntityTogglesWrapper)`
-  &&& {
-    width: 30px;
-    & svg {
-      cursor: ${(props) => (props.onClick ? "pointer" : "initial")};
-      path {
-        fill: ${Colors.CODE_GRAY};
-      }
-    }
-  }
-  &.selected {
-    background: ${Colors.SHARK2} !important;
-    svg {
-      path {
-        fill: ${Colors.WHITE} !important;
-      }
-    }
+const StyledButton = styled(Button)`
+  && {
+    height: 100%;
+    width: 100%;
   }
 `;
 
@@ -36,8 +25,13 @@ export const EntityAddButton = (props: {
   if (!props.onClick) return null;
   else {
     return (
-      <Wrapper className={props.className} onClick={handleClick}>
-        <Icon name="increase-control-v2" size="md" />
+      <Wrapper className={props.className}>
+        <StyledButton
+          isIconButton
+          kind="tertiary"
+          onClick={handleClick}
+          startIcon="increase-control-v2"
+        />
       </Wrapper>
     );
   }
