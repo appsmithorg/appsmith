@@ -532,6 +532,8 @@ export function EditorJSONtoForm(props: Props) {
         ? getErrorAsString(executedQueryData.readableError)
         : getErrorAsString(executedQueryData.body);
     } else if (isString(executedQueryData.body)) {
+      //reset error.
+      error = "";
       try {
         // Try to parse response as JSON array to be displayed in the Response tab
         output = JSON.parse(executedQueryData.body);
@@ -544,9 +546,13 @@ export function EditorJSONtoForm(props: Props) {
         ];
       }
     } else {
+      //reset error.
+      error = "";
       output = executedQueryData.body;
     }
     if (executedQueryData.messages && executedQueryData.messages.length) {
+      //reset error.
+      error = "";
       hintMessages = executedQueryData.messages;
     }
   }
@@ -813,7 +819,6 @@ export function EditorJSONtoForm(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "",
     id: currentActionConfig ? currentActionConfig.id : "",
   };
-
   const responseTabs = [
     {
       key: "response",
