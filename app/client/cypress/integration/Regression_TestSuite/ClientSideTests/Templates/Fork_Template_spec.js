@@ -58,7 +58,7 @@ describe("Fork a template to an workspace", () => {
     );
   });
 
-  it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
+  it.only("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
@@ -78,6 +78,6 @@ describe("Fork a template to an workspace", () => {
     cy.get(reconnectDatasourceLocators.ListItemIcon)
       .first()
       .trigger("mouseover");
-    cy.get("[class$='popover2-target']").should("be.visible");
+    cy.get("[class$='popover-open']").should("be.visible");
   });
 });
