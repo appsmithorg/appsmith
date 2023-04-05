@@ -2,7 +2,6 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import { TextInput } from "design-system-old";
 import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
@@ -10,6 +9,7 @@ import type { InputType } from "components/constants";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
+import { Input } from "design-system";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -55,17 +55,17 @@ function renderComponent(
   },
 ) {
   return (
-    <TextInput
-      dataType={props.dataType}
-      disabled={props.disabled || false}
-      name={props.input?.name}
+    // TODO: handle validation externally using "errorMessage"
+    // TODO: Extend the type of input from React.HTMLAttributes<HTMLInputElement>
+    <Input
+      isDisabled={props.disabled || false}
+      // name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       ref={props.reference}
+      size="md"
       value={props.input.value}
-      {...props.input}
-      validator={props.validator}
-      width="100%"
+      // validator={props.validator}
     />
   );
 }
