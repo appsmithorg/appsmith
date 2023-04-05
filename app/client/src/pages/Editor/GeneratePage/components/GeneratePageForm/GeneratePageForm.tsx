@@ -75,7 +75,7 @@ import {
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { hasCreateDatasourcePermission } from "ce/utils/permissionHelpers";
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 //  ---------- Styles ----------
 
