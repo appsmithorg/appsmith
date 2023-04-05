@@ -208,9 +208,11 @@ export class PropertyPane {
     this.AddAction(eventName);
     this.agHelper.GetNClick(
       this.locator._dropDownValue("Execute a JS function"),
+      0,
+      true,
     );
-    this.agHelper.GetNClick(this.locator._dropDownValue(jsName));
-    this.agHelper.GetNClick(this.locator._dropDownValue(funcName));
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();
   }
 

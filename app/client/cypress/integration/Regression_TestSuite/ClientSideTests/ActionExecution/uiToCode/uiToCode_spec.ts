@@ -56,7 +56,7 @@ describe("UI to Code", () => {
     cy.get(_.locators._jsToggle("onclick")).click();
 
     // Add third action
-    _.propPane.UpdatePropertyFieldValue("onClick", "Store value");
+    _.propPane.SelectPlatformFunction("onClick", "Store value");
     _.agHelper.TypeText(
       _.locators._actionSelectorFieldByLabel("Key"),
       "secret-key",
