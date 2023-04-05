@@ -1,4 +1,5 @@
 import type { Datasource } from "entities/Datasource";
+import { AuthenticationStatus } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import {
   createMessage,
@@ -26,11 +27,16 @@ export function isAuthorisedFilesEmptyGsheet(
   )?.scopeString;
 
   const authorisedFileIds = getDatasourcePropertyValue(datasource, propertyKey);
+  const authStatus =
+    datasource?.datasourceConfiguration?.authentication?.authenticationStatus;
+  const isAuthFailure =
+    !!authStatus && authStatus === AuthenticationStatus.FAILURE;
 
   return (
     !!authorisedFileIds &&
     authorisedFileIds.length === 0 &&
-    scopeValue.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)
+    scopeValue.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE) &&
+    isAuthFailure
   );
 }
 
