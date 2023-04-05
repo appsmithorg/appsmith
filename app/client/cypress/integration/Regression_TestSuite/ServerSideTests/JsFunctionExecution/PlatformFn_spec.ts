@@ -120,6 +120,7 @@ describe("Tests functionality of platform function", () => {
         jsEditor.SelectFunctionDropdown("switchMetaData");
         jsEditor.RunJSObj();
         agHelper.Sleep(4000);
+        agHelper.GetNClick(jsEditor._logsTab);
         debuggerHelper.filter("JSObject1.metaDataForSetTimeout");
         debuggerHelper.DoesConsoleLogExist("Hello from setTimeout");
 
@@ -129,6 +130,7 @@ describe("Tests functionality of platform function", () => {
         jsEditor.SelectFunctionDropdown("switchMetaData");
         jsEditor.RunJSObj();
         agHelper.Sleep(3000);
+        agHelper.GetNClick(jsEditor._logsTab);
         debuggerHelper.filter("JSObject1.metaDataForSetInterval");
         debuggerHelper.DoesConsoleLogExist("Hello from setInterval");
 
@@ -138,6 +140,7 @@ describe("Tests functionality of platform function", () => {
         jsEditor.SelectFunctionDropdown("switchMetaData");
         jsEditor.RunJSObj();
         agHelper.Sleep(2000);
+        agHelper.GetNClick(jsEditor._logsTab);
         debuggerHelper.filter("JSObject1.metaDataApiTest");
         debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
       });
