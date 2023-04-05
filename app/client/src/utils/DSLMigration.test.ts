@@ -749,7 +749,7 @@ const migrations: Migration[] = [
     functionLookup: [
       {
         moduleObj: tableMigrations,
-        functionName: "migrateSelectOptionAttributesForNewRow",
+        functionName: "migrateTableSelectOptionAttributesForNewRow",
       },
     ],
     version: 77,
