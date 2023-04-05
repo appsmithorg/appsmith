@@ -22,7 +22,7 @@ jobs:
       run:
         shell: bash
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         job: [ 0, 1, 2, 3, 4 ]
 
