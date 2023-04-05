@@ -1318,7 +1318,7 @@ Cypress.Commands.add("createSuperUser", () => {
   //   );
   //   expect(interception.request.body).contains("signupForNewsletter=true");
   // });
-  //cy.LogOut();//commenting since its done outside when createSuperUser() called in index.js
+  cy.LogOut();
   cy.wait(2000);
 });
 
