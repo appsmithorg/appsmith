@@ -120,11 +120,11 @@ public class UserWorkspaceServiceTest {
         // due to having assigned to multiple auto created permission groups of the same workspace.
         assertThat(memberInfoDTOList).hasSize(3);
         MemberInfoDTO memberInfoDTO1 = memberInfoDTOList.get(0);
-        assertThat(memberInfoDTO1.getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(memberInfoDTO1.getRoles()).hasSize(1);
-        assertThat(memberInfoDTO1.getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
+        assertThat(memberInfoDTO1.getUserId()).isEqualTo(apiUser.getId());
         MemberInfoDTO memberInfoDTO2 = memberInfoDTOList.get(1);
-        assertThat(memberInfoDTO2.getUserId()).isEqualTo(apiUser.getId());
+        assertThat(memberInfoDTO2.getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTO2.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO2.getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
         MemberInfoDTO memberInfoDTO3 = memberInfoDTOList.get(2);
         assertThat(memberInfoDTO3.getUserGroupId()).isEqualTo(createdUserGroup.getId());
         assertThat(memberInfoDTO3.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
@@ -192,11 +192,12 @@ public class UserWorkspaceServiceTest {
                 .getWorkspaceMembers(createdWorkspace.getId())
                 .block();
         // Now the workspace will contain 2 members, 1 UserGroup and 1 User
-        // Also tested that the UserGroup members will come before User members.
+        // When comparing between user and user group, we compare with the name, given that both of them have the
+        // admin role assigned. Hence, user group will come after user according to lexicographical order.
         assertThat(memberInfoDTOList).hasSize(2);
-        assertThat(memberInfoDTOList.get(0).getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(memberInfoDTOList.get(0).getRoles()).hasSize(1);
-        assertThat(memberInfoDTOList.get(0).getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
+        assertThat(memberInfoDTOList.get(1).getUserGroupId()).isEqualTo(createdUserGroup.getId());
+        assertThat(memberInfoDTOList.get(1).getRoles()).hasSize(1);
+        assertThat(memberInfoDTOList.get(1).getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUserGroupId(createdUserGroup.getId());

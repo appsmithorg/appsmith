@@ -167,7 +167,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList()))
                 .map(memberInfoDTOS -> {
-                    memberInfoDTOS.sort(AppsmithComparators.getWorkspaceMemberComparator());
+                    memberInfoDTOS.sort(AppsmithComparators.workspaceMembersComparator());
                     return memberInfoDTOS;
                 });
     }
