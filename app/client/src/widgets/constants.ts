@@ -21,7 +21,10 @@ export type WidgetSizeConfig = {
 };
 
 type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
-type AutoDimensionOptions = { width?: boolean; height?: boolean };
+type AutoDimensionValues = { width?: boolean; height?: boolean };
+type AutoDimensionOptions =
+  | AutoDimensionValues
+  | ((props: any) => AutoDimensionValues);
 
 export type AutoLayoutConfig = {
   // Indicates if a widgets dimensions should be auto adjusted according to content inside it

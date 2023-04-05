@@ -3,6 +3,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -45,9 +46,9 @@ export const CONFIG = {
       labelPosition: LabelPosition.Top,
       labelTextSize: "0.875rem",
     },
-    autoDimension: {
-      height: true,
-    },
+    autoDimension: (props: BaseInputWidgetProps) => ({
+      height: props.inputType !== "MULTI_LINE_TEXT",
+    }),
     defaults: {
       rows: 7,
     },
