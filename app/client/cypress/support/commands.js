@@ -1310,13 +1310,13 @@ Cypress.Commands.add("createSuperUser", () => {
   //   $jQueryButton.trigger("click"); // click on the button using jQuery
   // });
 
-  //commenting below until solved
-  // cy.wait("@createSuperUser").then((interception) => {
-  //   expect(interception.request.body).contains(
-  //     "allowCollectingAnonymousData=true",
-  //   );
-  //   expect(interception.request.body).contains("signupForNewsletter=true");
-  // });
+  //uncommenting below to analyse the stackcs
+  cy.wait("@createSuperUser").then((interception) => {
+    expect(interception.request.body).contains(
+      "allowCollectingAnonymousData=true",
+    );
+    expect(interception.request.body).contains("signupForNewsletter=true");
+  });
   cy.LogOut();
   cy.wait(2000);
 });

@@ -112,6 +112,7 @@ beforeEach(function () {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
   }
   initLocalstorage();
+  //cy.session("SESSION", "remember_token");//not working, to check more
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer

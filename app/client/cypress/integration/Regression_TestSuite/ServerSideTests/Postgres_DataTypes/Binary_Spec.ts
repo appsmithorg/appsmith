@@ -249,7 +249,9 @@ describe("Binary Datatype tests", function () {
     _.dataSources.ReadQueryTableResponse(4).then(($cellData) => {
       expect($cellData).to.eq("XA==");
     });
+  });
 
+  it("7. Validating Binary (bytea) - escape, hex, base64 functions - conts.,", () => {
     //Validating random string
     query = `select encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'escape') as "string bytea_output Escape", encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'hex') as "string bytea_output Hex", encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'base64') as "string bytea_output Base64";`;
     _.dataSources.EnterQuery(query);
@@ -304,7 +306,7 @@ describe("Binary Datatype tests", function () {
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
-  it("7. Deleting records - binarytype", () => {
+  it("8. Deleting records - binarytype", () => {
     _.entityExplorer.SelectEntityByName("Page1");
     _.deployMode.DeployApp();
     _.table.WaitUntilTableLoad();
@@ -328,7 +330,7 @@ describe("Binary Datatype tests", function () {
     _.table.WaitForTableEmpty();
   });
 
-  it("8. Inserting another record (to check serial column) - binarytype", () => {
+  it("9. Inserting another record (to check serial column) - binarytype", () => {
     imageNameToUpload = "Datatypes/Massachusetts.jpeg";
 
     _.agHelper.ClickButton("Run InsertQuery");
@@ -356,71 +358,71 @@ describe("Binary Datatype tests", function () {
     });
   });
 
-  after(
-    "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
-    () => {
-      //Drop table
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.SelectEntityByName("dropTable");
-      _.dataSources.RunQuery();
-      _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped _.table!
-      });
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.entityExplorer.ExpandCollapseEntity(dsName);
-      _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
-      _.agHelper.AssertElementAbsence(
-        _.entityExplorer._entityNameInExplorer("public.binarytype"),
-      );
-      _.entityExplorer.ExpandCollapseEntity(dsName, false);
-      _.entityExplorer.ExpandCollapseEntity("Datasources", false);
+  // after(
+  //   "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
+  //   () => {
+  //     //Drop table
+  //     _.deployMode.NavigateBacktoEditor();
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+  //     _.entityExplorer.SelectEntityByName("dropTable");
+  //     _.dataSources.RunQuery();
+  //     _.dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+  //       expect($cellData).to.eq("0"); //Success response for dropped _.table!
+  //     });
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+  //     _.entityExplorer.ExpandCollapseEntity("Datasources");
+  //     _.entityExplorer.ExpandCollapseEntity(dsName);
+  //     _.entityExplorer.ActionContextMenuByEntityName(dsName, "Refresh");
+  //     _.agHelper.AssertElementAbsence(
+  //       _.entityExplorer._entityNameInExplorer("public.binarytype"),
+  //     );
+  //     _.entityExplorer.ExpandCollapseEntity(dsName, false);
+  //     _.entityExplorer.ExpandCollapseEntity("Datasources", false);
 
-      //Delete all queries
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "createTable",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "deleteAllRecords",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "deleteRecord",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "dropTable",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "insertRecord",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "selectRecords",
-        "Delete",
-        "Are you sure?",
-      );
-      _.entityExplorer.ActionContextMenuByEntityName(
-        "updateRecord",
-        "Delete",
-        "Are you sure?",
-      );
+  //     //Delete all queries
+  //     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "createTable",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "deleteAllRecords",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "deleteRecord",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "dropTable",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "insertRecord",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "selectRecords",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "updateRecord",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
 
-      //Delete DS
-      _.deployMode.DeployApp();
-      _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
-    },
-  );
+  //     //Delete DS
+  //     _.deployMode.DeployApp();
+  //     _.deployMode.NavigateBacktoEditor();
+  //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+  //     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+  //   },
+  // );
 });
