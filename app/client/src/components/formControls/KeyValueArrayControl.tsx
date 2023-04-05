@@ -28,6 +28,7 @@ const FormRowWithLabel = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
+  align-items: center;
   & svg {
     cursor: pointer;
   }
@@ -114,13 +115,7 @@ function KeyValueRow(
           valueTextFieldName = `${field}.${valueName[1]}`;
 
         return (
-          <FormRowWithLabel
-            key={index}
-            style={{
-              marginTop: index > 0 ? "16px" : "0px",
-              alignItems: "center",
-            }}
-          >
+          <FormRowWithLabel key={index}>
             <div
               data-replay-id={btoa(keyTextFieldName)}
               style={{ width: "20vw" }}
