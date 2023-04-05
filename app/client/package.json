@@ -7,7 +7,7 @@
     "npm": "^8.5.5"
   },
   "workspaces": [
-    "packages/*"
+    "packages/**/*"
   ],
   "cracoConfig": "craco.dev.config.js",
   "scripts": {
@@ -41,7 +41,7 @@
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
-    "@design-system/wds": "*",
+    "@design-system/widgets": "*",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@googlemaps/markerclusterer": "^2.0.14",
