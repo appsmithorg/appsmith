@@ -226,6 +226,7 @@ function renderDropdown(
       {options.map((option) => {
         return (
           <Option
+            aria-label={option.label}
             isDisabled={option.isDisabled}
             key={option.value}
             value={option.value}

@@ -247,6 +247,9 @@ function renderTextInput(
   return (
     <StyledTextInput
       // dataType={props.dataType}
+      aria-label={
+        props.helperText || props.defaultValue || props.placeholder || "label"
+      }
       defaultValue={props.defaultValue}
       description={props.helperText}
       errorMessage={props.errorMsg}
