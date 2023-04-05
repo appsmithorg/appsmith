@@ -314,4 +314,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         return queryAll(List.of(pageIdCriteria), permission);
     }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
 }

@@ -164,6 +164,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         Map<String, String> pageIdToNameMap = new HashMap<>();
         Map<String, String> actionIdToNameMap = new HashMap<>();
         Map<String, String> collectionIdToNameMap = new HashMap<>();
+        List<String> validPages = new ArrayList<>();
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
@@ -291,6 +292,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     : Optional.of(pagePermission.getEditPermission());
                     Flux<NewPage> pageFlux = newPageRepository.findByApplicationId(applicationId, optionalPermission);
 
+                    List<String> unPublishedPages = application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
                     return pageFlux
                             .collectList()
                             .flatMap(newPageList -> {
@@ -299,7 +301,9 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                                 Set<String> updatedPageSet = new HashSet<String>();
                                 newPageList.forEach(newPage -> {
-                                    if (newPage.getUnpublishedPage() != null) {
+                                    // check the application object for the page reference in the page list
+                                    if (newPage.getUnpublishedPage() != null && unPublishedPages.contains(newPage.getId())) {
+                                        validPages.add(newPage.getUnpublishedPage().getName());
                                         pageIdToNameMap.put(
                                                 newPage.getId() + EDIT, newPage.getUnpublishedPage().getName()
                                         );
@@ -310,27 +314,17 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                             });
                                         }
                                     }
-
-                                    if (newPage.getPublishedPage() != null) {
-                                        pageIdToNameMap.put(
-                                                newPage.getId() + VIEW, newPage.getPublishedPage().getName()
-                                        );
-                                        PageDTO publishedPageDTO = newPage.getPublishedPage();
-                                        if (!CollectionUtils.isEmpty(publishedPageDTO.getLayouts())) {
-                                            publishedPageDTO.getLayouts().forEach(layout -> {
-                                                layout.setId(publishedPageDTO.getName());
-                                            });
-                                        }
-                                    }
                                     // Including updated pages list for git file storage
                                     Instant newPageUpdatedAt = newPage.getUpdatedAt();
                                     boolean isNewPageUpdated = isClientSchemaMigrated || isServerSchemaMigrated || applicationLastCommittedAt == null || newPageUpdatedAt == null || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
-                                    String newPageName = newPage.getUnpublishedPage() != null ? newPage.getUnpublishedPage().getName() : newPage.getPublishedPage() != null ? newPage.getPublishedPage().getName() : null;
-                                    if (isNewPageUpdated && newPageName != null) {
+                                    String newPageName = newPage.getUnpublishedPage() != null ? newPage.getUnpublishedPage().getName() : null;
+                                    if (isNewPageUpdated && newPageName != null && unPublishedPages.contains(newPage.getId())) {
                                         updatedPageSet.add(newPageName);
                                     }
                                     newPage.sanitiseToExportDBObject();
                                 });
+                                // Exclude the deleted pages that are present in view mode  because the app is not published yet
+                                newPageList.removeIf(newPage -> !validPages.contains(newPage.getUnpublishedPage().getName()));
                                 applicationJson.setPageList(newPageList);
                                 applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
                                     put(FieldName.PAGE_LIST, updatedPageSet);
@@ -355,7 +349,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 ? Optional.of(actionPermission.getReadPermission())
                                                 : Optional.of(actionPermission.getEditPermission());
                                 Flux<ActionCollection> actionCollectionFlux =
-                                        actionCollectionRepository.findByApplicationId(applicationId, optionalPermission1, Optional.empty());
+                                        actionCollectionRepository.findByListOfPageIds(validPages, optionalPermission1);
                                 return actionCollectionFlux;
                             })
                             .map(actionCollection -> {
@@ -373,17 +367,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                                     collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
                                     actionCollection.setId(updatedCollectionId);
-                                }
-                                if (actionCollection.getPublishedCollection() != null) {
-                                    ActionCollectionDTO actionCollectionDTO = actionCollection.getPublishedCollection();
-                                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId() + VIEW));
-                                    actionCollectionDTO.setPluginId(pluginMap.get(actionCollectionDTO.getPluginId()));
-
-                                    if (!collectionIdToNameMap.containsValue(actionCollection.getId())) {
-                                        final String updatedCollectionId = actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
-                                        collectionIdToNameMap.put(actionCollection.getId(), updatedCollectionId);
-                                        actionCollection.setId(updatedCollectionId);
-                                    }
                                 }
                                 return actionCollection;
                             })
@@ -415,7 +398,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                         : Optional.of(actionPermission.getEditPermission());
 
                                 Flux<NewAction> actionFlux =
-                                        newActionRepository.findByApplicationId(applicationId, optionalPermission2, Optional.empty());
+                                        newActionRepository.findByListOfPageIds(validPages, optionalPermission2);
                                 return actionFlux;
                             })
                             .map(newAction -> {
@@ -443,21 +426,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
                                     actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                     newAction.setId(updatedActionId);
-                                }
-                                if (newAction.getPublishedAction() != null) {
-                                    ActionDTO actionDTO = newAction.getPublishedAction();
-                                    actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + VIEW));
-
-                                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())
-                                            && collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
-                                        actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
-                                    }
-
-                                    if (!actionIdToNameMap.containsValue(newAction.getId())) {
-                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
-                                        actionIdToNameMap.put(newAction.getId(), updatedActionId);
-                                        newAction.setId(updatedActionId);
-                                    }
                                 }
                                 return newAction;
                             })
