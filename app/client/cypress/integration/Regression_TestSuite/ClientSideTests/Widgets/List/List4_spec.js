@@ -117,6 +117,7 @@ describe("Container Widget Functionality", function () {
     cy.PublishtheApp();
     cy.wait(2000);
     // Verify Widget Button by clicking on it
+    cy.get(widgetsPage.widgetBtn).should("have.length", 2);
     cy.get(widgetsPage.widgetBtn).closest("div").first().click({ force: true });
     // Verify the click on first button
     cy.get(commonlocators.toastmsg).contains(items[0].last_name);

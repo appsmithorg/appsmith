@@ -128,8 +128,6 @@ jobs:
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
@@ -146,8 +144,6 @@ jobs:
 
       - name: Run Appsmith & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
@@ -158,17 +154,18 @@ jobs:
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -v "$PWD/stacks:/appsmith-stacks" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
             
-      - name: Setup MSSQL & Arango docker containers
+      - name: Setup MSSQL & Arango docker & ElasticSearch containers
         working-directory : app/client/cypress
         run : |
           docker run --name=mssqldb -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Root@123" -p 1433:1433 -d mcr.microsoft.com/azure-sql-edge
           docker run --name arangodb -e ARANGO_USERNAME=root -e ARANGO_ROOT_PASSWORD=Arango -p 8529:8529 -d arangodb
+          docker run --name elasticsearch -d -p 9200:9200 -e "discovery.type=single-node" -e "ELASTIC_USERNAME=elastic" -e "ELASTIC_PASSWORD=docker" -e "xpack.security.enabled=true" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
        # docker exec -i mssqldb /bin/bash -c "echo -e '[mysqld]\ntcpport=1433\ntcpnodelay=1' >> /var/opt/mssql/mssql.conf"
        # docker restart mssqldb
        # sudo ufw allow 1433/tcp
