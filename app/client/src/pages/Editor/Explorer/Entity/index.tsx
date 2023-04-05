@@ -86,19 +86,23 @@ export const EntityItem = styled.div<{
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
   background: ${(props) =>
-    props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
+    props.active
+      ? `var(--ads-v2-color-bg-muted)`
+      : props.isSticky
+      ? Colors.WHITE
+      : "none"};
   height: 36px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
   border-radius: 0;
-  color: ${Colors.GRAY_800};
+  color: var(--ads-v2-color-fg);
   font-weight: 500;
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.GREY_2};
+    background: var(--ads-v2-color-bg-subtle);
   }
 
   .${Classes.COLLAPSE_BODY} & {
