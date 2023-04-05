@@ -6,6 +6,7 @@ import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { get } from "lodash";
 import { isJSObjectVariable } from "./utils";
 import isDeepEqualES6 from "fast-deep-equal/es6";
+import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 export enum PatchType {
   "SET" = "SET",
@@ -27,11 +28,7 @@ class JSVariableUpdates {
     if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking)
       return;
     this.potentialUpdatedPathsMap[patch.path] = patch;
-    /**
-     *  For every update on variable, we register a task to check for update updates and apply
-     *  them to eval tree.
-     */
-    registerJSVarUpdateTask();
+    TriggerEmitter.emit(BatchKey.process_js_variable_updates);
   }
 
   static getMap() {
@@ -74,10 +71,8 @@ export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
   return updatedVariables;
 }
 
-let jsVarUpdateTaskRegistered = false;
-
 // executes when worker is idle
-function applyJSVariableUpdatesToEvalTree() {
+export function applyJSVariableUpdatesToEvalTree() {
   const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getMap());
 
   updateEvalTreeValueFromContext(modifiedVariablesList);
@@ -86,14 +81,4 @@ function applyJSVariableUpdatesToEvalTree() {
     evalTreeWithChanges(modifiedVariablesList);
   }
   JSVariableUpdates.clear();
-  jsVarUpdateTaskRegistered = false;
-}
-
-export function registerJSVarUpdateTask(
-  task = applyJSVariableUpdatesToEvalTree,
-) {
-  if (!jsVarUpdateTaskRegistered) {
-    jsVarUpdateTaskRegistered = true;
-    queueMicrotask(task);
-  }
 }

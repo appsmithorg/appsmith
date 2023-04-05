@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
+import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -10,6 +11,7 @@ export enum BatchKey {
   process_store_updates = "process_store_updates",
   process_batched_triggers = "process_batched_triggers",
   process_batched_fn_execution = "process_batched_fn_execution",
+  process_js_variable_updates = "process_js_variable_updates",
 }
 
 const TriggerEmitter = new EventEmitter();
@@ -115,6 +117,15 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
 TriggerEmitter.on(
   BatchKey.process_batched_fn_execution,
   fnExecutionDataHandler,
+);
+
+const jsVariableUpdatesHandler = priorityBatchedActionHandler(() => {
+  applyJSVariableUpdatesToEvalTree();
+});
+
+TriggerEmitter.on(
+  BatchKey.process_js_variable_updates,
+  jsVariableUpdatesHandler,
 );
 
 export default TriggerEmitter;
