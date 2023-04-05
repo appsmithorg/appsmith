@@ -62,8 +62,13 @@ sudo mv mkcert /usr/local/bin
 
    ```bash
    cd app/client
-   ./start-https.sh https://release.app.appsmith.com
+   ./start-https.sh
    ```
+   
+   Note:
+
+   - If you want to use the backend server running on your local, you do not need to pass a parameter when running `start-https.sh`. 
+   - If you want to use release.app.appsmith as your backend server, please check out the section - [If you would like to hit a different Appsmith server](#if-you-would-like-to-hit-a-different-appsmith-server)
 
 ### Steps to build & run the code:
 
