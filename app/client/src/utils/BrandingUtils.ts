@@ -13,8 +13,10 @@ import { toast } from "design-system";
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#D7D7D7";
-export const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
-export const APPSMITH_BRAND_BG_COLOR = "#F8F9FA";
+export const APPSMITH_BRAND_PRIMARY_COLOR = getComputedStyle(
+  document.documentElement,
+).getPropertyValue("--ads-v2-color-bg-brand");
+export const APPSMITH_BRAND_BG_COLOR = "#F1F5F9";
 export const APPSMITH_BRAND_FAVICON_URL =
   "https://assets.appsmith.com/appsmith-favicon-orange.ico";
 export const APPSMITH_BRAND_LOGO_URL =
@@ -23,7 +25,7 @@ export const APPSMITH_BRAND_LOGO_URL =
 /**
  * create brand colors from primary color
  *
- * @param color
+ * @param brand
  */
 export function createBrandColorsFromPrimaryColor(
   brand: string = DEFAULT_BRANDING_PRIMARY_COLOR,
