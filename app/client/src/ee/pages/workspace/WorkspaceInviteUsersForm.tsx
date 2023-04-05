@@ -46,6 +46,7 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
   USERS_HAVE_ACCESS_TO_ALL_APPS,
+  NO_USERS_INVITED,
 } from "@appsmith/constants/messages";
 import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
 import { isEmail } from "utils/formhelpers";
@@ -84,7 +85,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
-const { cloudHosting, mailEnabled } = getAppsmithConfigs();
+const { cloudHosting } = getAppsmithConfigs();
 
 const validateFormValues = (
   values: {
@@ -190,7 +191,6 @@ function WorkspaceInviteUsersForm(props: any) {
   const {
     allUsers,
     anyTouched,
-    disableEmailSetup = false,
     disableManageUsers = false,
     disableUserList = false,
     dropdownPlaceholder = "",
@@ -454,17 +454,10 @@ function WorkspaceInviteUsersForm(props: any) {
           <Loading size={30} />
         ) : (
           <>
-            {!mailEnabled && !disableEmailSetup && (
+            {allUsers.length === 0 && (
               <MailConfigContainer>
-                {allUsers.length === 0 && <NoEmailConfigImage />}
-                <span>You haven’t setup any email service yet</span>
-                <a
-                  href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Please configure your email service to invite people
-                </a>
+                <NoEmailConfigImage />
+                <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>
             )}
             {!disableUserList && (
