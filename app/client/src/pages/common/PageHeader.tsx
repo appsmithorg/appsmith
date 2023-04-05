@@ -32,6 +32,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -171,7 +172,11 @@ export function PageHeader(props: PageHeaderProps) {
       <HeaderSection>
         {tenantConfig.brandLogoUrl && (
           <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+            <img
+              alt="Logo"
+              className="h-6"
+              src={getAssetUrl(tenantConfig.brandLogoUrl)}
+            />
           </Link>
         )}
       </HeaderSection>
