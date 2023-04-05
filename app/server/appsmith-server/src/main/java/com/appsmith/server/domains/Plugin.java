@@ -113,7 +113,7 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Internal.class)
     boolean isSupportedForAirGap = true;
 
-    // If the plugin has any dependency on cloud-services
+    // Config to set if the plugin has any dependency on cloud-services
     @JsonView(Views.Internal.class)
     Boolean isDependentOnCS;
 

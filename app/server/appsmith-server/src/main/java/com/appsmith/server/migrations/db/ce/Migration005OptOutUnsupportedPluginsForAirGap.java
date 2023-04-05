@@ -26,8 +26,8 @@ public class Migration005OptOutUnsupportedPluginsForAirGap {
     @Execution
     public void optOutUnsupportedPluginsForAirGapInstance() {
         // By default, all the plugins will be supported in air-gap instance.
-        // One can opt out by adding isSupportedInAirGap: false in DB object.
-        // Generally SaaS plugins and DB which can't be self-hosted can be a candidate for opting out of air-gap as
+        // One can opt out the support for plugin by adding `isSupportedForAirGap:false` in DB object.
+        // Generally SaaS plugins and DBs which can't be self-hosted can be a candidate for opting out of air-gap as
         // these are dependent on external internet
         final Set<String> unsupportedPluginPackageNameInAirgap = Set.of(
                 "saas-plugin", "rapidapi-plugin", "firestore-plugin", "redshift-plugin", "dynamo-plugin",
