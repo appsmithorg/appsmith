@@ -449,6 +449,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
                                 // when authentication scope is other than specific sheets, we need to set authentication status as success
                                 // for specific sheets, it needs to remain in as in progress until files are selected
+                                // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
+                                // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
                                 if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
                                     datasource
                                             .getDatasourceConfiguration()
