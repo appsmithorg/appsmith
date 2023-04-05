@@ -27,7 +27,7 @@ public class DslActionDTO {
     @JsonView(Views.Internal.class)
     String defaultCollectionId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String name;
 
     @JsonView(Views.Public.class)
@@ -36,16 +36,16 @@ public class DslActionDTO {
     @JsonView(Views.Public.class)
     Boolean clientSideExecution;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean confirmBeforeExecute;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     PluginType pluginType;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Set<String> jsonPathKeys;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Integer timeoutInMillisecond = DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
     public void sanitiseForExport() {

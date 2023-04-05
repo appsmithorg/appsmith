@@ -97,10 +97,10 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
@@ -252,6 +252,7 @@ public class Application extends BaseDomain {
         }
     }
 
+    @JsonView(Views.Public.class)
     public ApplicationDetail getApplicationDetail() {
         return Boolean.TRUE.equals(viewMode) ? publishedApplicationDetail : unpublishedApplicationDetail;
     }

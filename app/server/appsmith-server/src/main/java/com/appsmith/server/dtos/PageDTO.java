@@ -3,6 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
 import com.appsmith.external.interfaces.DeletableResource;
+import com.appsmith.external.interfaces.NamedResource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -23,7 +24,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
-public class PageDTO implements DeletableResource {
+public class PageDTO implements DeletableResource, NamedResource {
 
     @Transient
     @JsonView(Views.Public.class)

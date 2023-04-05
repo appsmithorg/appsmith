@@ -68,10 +68,10 @@ public class ApplicationJson {
     @JsonView(Views.Public.class)
     String unpublishedDefaultPageName;
     
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<NewAction> actionList;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<ActionCollection> actionCollectionList;
 
     /**

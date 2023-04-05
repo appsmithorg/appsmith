@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-@JsonSerialize(using = ExportSerializer.class)
+@JsonSerialize(using = ActionSerializer.class)
 public class NewAction extends BranchAwareDomain implements PublishableResource {
 
     // Fields in action that are not allowed to change between published and unpublished versions
@@ -37,13 +37,13 @@ public class NewAction extends BranchAwareDomain implements PublishableResource 
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     PluginType pluginType;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String pluginId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String templateId; //If action is created via a template, store the id here.
 
     @JsonView(Views.Public.class)
@@ -53,8 +53,10 @@ public class NewAction extends BranchAwareDomain implements PublishableResource 
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
+    @JsonView(Views.Public.class)
     ActionDTO unpublishedAction;
 
+    @JsonView(Views.Public.class)
     ActionDTO publishedAction;
 
     @JsonView(Views.Import.class)
@@ -76,5 +78,11 @@ public class NewAction extends BranchAwareDomain implements PublishableResource 
                 throw new RuntimeException("Invalid mode");
             }
         }
+    }
+}
+
+class ActionSerializer extends ExportSerializer<NewAction> {
+    public ActionSerializer() {
+        super(NewAction.class, "action");
     }
 }

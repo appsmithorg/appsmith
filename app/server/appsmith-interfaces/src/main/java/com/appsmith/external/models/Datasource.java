@@ -27,10 +27,10 @@ public class Datasource extends BaseDomain {
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String name;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String pluginId;
 
     // name of the plugin. used to log analytics events where pluginName is a required attribute

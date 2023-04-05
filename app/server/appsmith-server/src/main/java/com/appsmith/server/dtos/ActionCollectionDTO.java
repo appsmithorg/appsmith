@@ -46,14 +46,14 @@ public class ActionCollectionDTO implements DeletableResource {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String name;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String pageId;
 
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String pluginId;
 
     //this attribute carries error messages while processing the actionCollection
@@ -62,7 +62,7 @@ public class ActionCollectionDTO implements DeletableResource {
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     PluginType pluginType;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
@@ -104,11 +104,11 @@ public class ActionCollectionDTO implements DeletableResource {
 
     // JS collection fields
     // This is the raw body that contains the entire JS object definition as the user has written it
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String body;
 
     // This list is currently used to record constants
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<JSValue> variables;
 
     // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as transient

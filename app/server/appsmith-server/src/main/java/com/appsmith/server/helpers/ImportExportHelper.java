@@ -2,6 +2,7 @@ package com.appsmith.server.helpers;
 
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static java.lang.Boolean.TRUE;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,7 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
@@ -31,6 +35,8 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
+import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -59,12 +65,15 @@ public class ImportExportHelper {
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPageService applicationPageService;
+    private final DatasourceService datasourceService;
+    private final SequenceService sequenceService;
     
     @Autowired
     public ImportExportHelper(ApplicationService applicationService, CustomJSLibService customJSLibService, ApplicationPermission applicationPermission,
             ActionCollectionRepository actionCollectionRepository, NewActionRepository newActionRepository, ActionPermission actionPermission,
             DatasourcePermission datasourcePermission, DatasourceRepository datasourceRepository, ThemeService themeService, NewPageRepository newPageRepository,
-            PagePermission pagePermission, WorkspaceService workspaceService, WorkspacePermission workspacePermission, ApplicationPageService applicationPageService) {
+            PagePermission pagePermission, WorkspaceService workspaceService, WorkspacePermission workspacePermission, ApplicationPageService applicationPageService,
+            DatasourceService datasourceService, SequenceService sequenceService) {
         this.applicationService = applicationService;
         this.customJSLibService = customJSLibService;
         this.applicationPermission = applicationPermission;
@@ -79,6 +88,8 @@ public class ImportExportHelper {
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.applicationPageService = applicationPageService;
+        this.datasourceService = datasourceService;
+        this.sequenceService = sequenceService;
     }
     /**
      * This function will get the template application, if exists, without permission, for the given application id.
@@ -212,5 +223,71 @@ public class ImportExportHelper {
             // If application id is not present, then create a new application
             return applicationPageService.createOrUpdateSuffixedApplication(applicationToImport, applicationToImport.getName(), 0);
         }));
+    }
+
+    /**
+     * This will check if the datasource is already present in the workspace and create a new one if unable to find one
+     *
+     * @param existingDatasourceFlux already present datasource in the workspace
+     * @param datasource             which will be checked against existing datasources
+     * @param workspaceId            workspace where duplicate datasource should be checked
+     * @return already present or brand new datasource depending upon the equality check
+     */
+    public Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
+                                                                Datasource datasource,
+                                                                String workspaceId) {
+        /*
+            1. If same datasource is present return
+            2. If unable to find the datasource create a new datasource with unique name and return
+         */
+        final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
+        AuthenticationResponse authResponse = new AuthenticationResponse();
+        if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+            copyNestedNonNullProperties(
+                    datasourceConfig.getAuthentication().getAuthenticationResponse(), authResponse);
+            datasourceConfig.getAuthentication().setAuthenticationResponse(null);
+            datasourceConfig.getAuthentication().setAuthenticationType(null);
+        }
+
+        return existingDatasourceFlux
+                // For git import exclude datasource configuration
+                .filter(ds -> ds.getName().equals(datasource.getName()) && datasource.getPluginId().equals(ds.getPluginId()))
+                .next()  // Get the first matching datasource, we don't need more than one here.
+                .switchIfEmpty(Mono.defer(() -> {
+                    if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+                        datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
+                    }
+                    // No matching existing datasource found, so create a new one.
+                    datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
+                    return datasourceService
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getEditPermission())
+                            .flatMap(duplicateNameDatasource ->
+                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
+                            )
+                            .map(suffix -> {
+                                datasource.setName(datasource.getName() + suffix);
+                                return datasource;
+                            })
+                            .then(datasourceService.create(datasource));
+                }));
+    }
+
+    /**
+     * This function will respond with unique suffixed number for the entity to avoid duplicate names
+     *
+     * @param sourceEntity for which the suffixed number is required to avoid duplication
+     * @param workspaceId  workspace in which entity should be searched
+     * @return next possible number in case of duplication
+     */
+    private Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String workspaceId) {
+        if (sourceEntity != null) {
+            return sequenceService
+                    .getNextAsSuffix(sourceEntity.getClass(), " for workspace with _id : " + workspaceId)
+                    .map(sequenceNumber -> {
+                        // sequence number will be empty if no duplicate is found
+                        return sequenceNumber.isEmpty() ? " #1" : " #" + sequenceNumber.trim();
+                    });
+        }
+        return Mono.just("");
     }
 }

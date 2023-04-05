@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Document
-@JsonSerialize(using = ExportSerializer.class)
+@JsonSerialize(using = NewPageSerializer.class)
 public class NewPage extends BranchAwareDomain implements PublishableResource {
 
     @JsonView(Views.Public.class)
@@ -51,5 +51,12 @@ public class NewPage extends BranchAwareDomain implements PublishableResource {
                 throw new RuntimeException("Invalid mode");
             }
         }
+    }
+}
+
+class NewPageSerializer extends ExportSerializer<NewPage> {
+
+    public NewPageSerializer() {
+        super(NewPage.class, "page");
     }
 }

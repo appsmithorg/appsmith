@@ -12,10 +12,19 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 
-public final class ExportSerializer<T extends PublishableResource> extends JsonSerializer<T> {
+public class ExportSerializer<T extends PublishableResource> extends JsonSerializer<T> {
+
+    private final Class<T> type;
+    private final String keyName;
+
+    public ExportSerializer(Class<T> type, String keyName) {
+        this.type = type;
+        this.keyName = keyName;
+    }
 
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
@@ -25,7 +34,7 @@ public final class ExportSerializer<T extends PublishableResource> extends JsonS
         serializeAllProperties(value, gen, serializers);
 
         // Serialize the page object
-        gen.writeFieldName("page");
+        gen.writeFieldName(keyName);
         if(serializers.getActiveView() == Views.ExportUnpublished.class) {
             serializers.defaultSerializeValue(value.select(ResourceModes.EDIT), gen);
         } else if(serializers.getActiveView() == Views.ExportPublished.class) {
@@ -39,10 +48,10 @@ public final class ExportSerializer<T extends PublishableResource> extends JsonS
 
     protected void serializeAllProperties(T value, JsonGenerator generator, SerializerProvider provider)
             throws JsonMappingException, IOException {
-        Type type = new TypeReference<T>() {}.getType();
         JavaType javaType = provider.constructType(type);
         BeanDescription beanDesc = provider.getConfig().introspect(javaType);
-        JsonSerializer<Object> serializer = BeanSerializerFactory.instance.findBeanOrAddOnSerializer(provider, javaType, beanDesc, false);
+        boolean staticTyping = provider.isEnabled(MapperFeature.USE_STATIC_TYPING);
+        JsonSerializer<Object> serializer = BeanSerializerFactory.instance.findBeanOrAddOnSerializer(provider, javaType, beanDesc, staticTyping);
         serializer.unwrappingSerializer(null).serialize(value, generator, provider);
     }
 }

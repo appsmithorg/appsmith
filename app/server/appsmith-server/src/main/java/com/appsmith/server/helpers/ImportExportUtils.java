@@ -47,10 +47,13 @@ public class ImportExportUtils {
      */
     public static Optional<AclPermission> getResourceAccessPermissionForObjective(Application application,
             SerialiseApplicationObjective serialiseFor, DomainPermission domainPermission, boolean isImport) {
+        if(isImport == true) {
+            return Optional.of(domainPermission.getEditPermission());
+        }
         if (ImportExportUtils.isGitSync(serialiseFor)) {
             return Optional.empty();
         } 
-        if (!isImport && Optional.ofNullable(application.getExportWithConfiguration()).orElse(false)) {
+        if (!isImport && application != null && Optional.ofNullable(application.getExportWithConfiguration()).orElse(false)) {
             return Optional.of(domainPermission.getReadPermission());
         }
         return Optional.of(domainPermission.getEditPermission());
@@ -217,5 +220,20 @@ public class ImportExportUtils {
 
     public static boolean isResourceDeleted(DeletableResource resource) {
         return resource == null || resource.getDeletedAt() != null;
+    }
+
+    public static Map<String, String> calculatePluginNameToPluginIdMap(List<Plugin> plugins) {
+        return plugins.stream()
+                .collect(Collectors.toMap(ImportExportUtils::getPluginName, BaseDomain::getId));
+    }
+
+    public static Map<String, String> calculatePageNameToPageIdMap(List<NewPage> pages, ResourceModes resourceMode) {
+        return pages.stream()
+                .map(page -> {
+                    PageDTO pageDTO = page.select(resourceMode);
+                    pageDTO.setId(page.getId());
+                    return pageDTO;
+                })
+                .collect(Collectors.toMap(PageDTO::getName, PageDTO::getId));
     }
 }

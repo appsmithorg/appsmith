@@ -50,23 +50,23 @@ public class ActionDTO implements DeletableResource {
     @JsonView(Views.Public.class)
     String pluginId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String name;
 
     // The FQN for an action will also include any collection it is a part of as collectionName.actionName
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String fullyQualifiedName;
 
     @JsonView(Views.Public.class)
     Datasource datasource;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String pageId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String collectionId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     ActionConfiguration actionConfiguration;
 
     //this attribute carries error messages while processing the actionCollection
@@ -75,17 +75,17 @@ public class ActionDTO implements DeletableResource {
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean executeOnLoad;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean clientSideExecution;
 
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
      */
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<Property> dynamicBindingPathList;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -105,7 +105,7 @@ public class ActionDTO implements DeletableResource {
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Set<String> jsonPathKeys;
 
     @JsonView(Views.Internal.class)
@@ -123,10 +123,10 @@ public class ActionDTO implements DeletableResource {
     @JsonView(Views.Public.class)
     ActionProvider provider;
 
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean userSetOnLoad = false;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean confirmBeforeExecute = false;
 
     @Transient
@@ -162,7 +162,7 @@ public class ActionDTO implements DeletableResource {
      *
      * @return
      */
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     public Datasource getDatasource() {
         if (this.datasource == null) {
             this.datasource = new Datasource();
