@@ -25,8 +25,8 @@ describe("Git sync modal: merge tab", function () {
     _.gitSync.CreateGitBranch(childBranchKey);
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
-    cy.get("[data-cy=t--tab-MERGE]").should("exist");
-    cy.get("[data-cy=t--tab-MERGE]")
+    cy.get("[data-testid=t--tab-MERGE]").should("exist");
+    cy.get("[data-testid=t--tab-MERGE]")
       .invoke("attr", "aria-selected")
       .should("eq", "true");
 

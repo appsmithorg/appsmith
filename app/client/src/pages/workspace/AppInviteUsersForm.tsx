@@ -120,7 +120,7 @@ function AppInviteUsersForm(props: any) {
       >
         <Button
           className="flex gap-1.5 cursor-pointer"
-          data-cy={"copy-application-url"}
+          data-testid={"copy-application-url"}
           onClick={copyToClipboard}
           startIcon="links-line"
         >

@@ -148,7 +148,7 @@ function GeneratePageSubmitBtn({
 }) {
   return showSubmitButton ? (
     <Button
-      data-cy="t--generate-page-form-submit"
+      data-testid="t--generate-page-form-submit"
       isDisabled={disabled}
       isLoading={isLoading}
       kind="secondary"
@@ -601,7 +601,7 @@ function GeneratePageForm() {
         <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
-            cypressSelector="t--datasource-dropdown"
+            data-testid="t--datasource-dropdown"
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             onSelect={onSelectDataSource}
@@ -614,7 +614,7 @@ function GeneratePageForm() {
               optionClickHandler,
             }: RenderDropdownOptionType) => (
               <DataSourceOption
-                cypressSelector="t--datasource-dropdown-option"
+                dataTestid="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
                 isHighlighted={isHighlighted}
                 isSelectedNode={isSelectedNode}
@@ -636,7 +636,7 @@ function GeneratePageForm() {
               <Bold>{selectedDatasource.label}</Bold>
             </Label>
             <Dropdown
-              cypressSelector="t--table-dropdown"
+              data-testid="t--table-dropdown"
               dropdownMaxHeight={"300px"}
               errorMsg={tableDropdownErrorMsg}
               height={DROPDOWN_DIMENSION.HEIGHT}
@@ -678,7 +678,7 @@ function GeneratePageForm() {
                   </TooltipWrapper>
                 </Row>
                 <Dropdown
-                  cypressSelector="t--searchColumn-dropdown"
+                  data-testid="t--searchColumn-dropdown"
                   disabled={selectedTableColumnOptions.length === 0}
                   dropdownMaxHeight={"300px"}
                   helperText={

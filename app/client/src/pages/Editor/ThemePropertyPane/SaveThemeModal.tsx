@@ -116,7 +116,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
       title="Save Theme"
     >
       <div id="save-theme-modal">
-        <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
+        <form data-testid="save-theme-form" noValidate onSubmit={onSubmit}>
           <div className="pb-6 space-y-3">
             <p>
               You can save your custom themes to use across applications and use

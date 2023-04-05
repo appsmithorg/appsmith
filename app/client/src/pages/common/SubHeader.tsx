@@ -81,7 +81,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
           <ControlGroup>
             <SearchInput
               border={isMobile}
-              cypressSelector={"t--application-search-input"}
+              data-testid={"t--application-search-input"}
               defaultValue={props.search.defaultValue}
               disabled={isFetchingApplications}
               onChange={query || noop}

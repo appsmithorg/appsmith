@@ -33,7 +33,7 @@ export class DataSources {
   private homePage = ObjectsRegistry.HomePage;
   private apiPage = ObjectsRegistry.ApiPage;
 
-  private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
+  private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
@@ -45,7 +45,7 @@ export class DataSources {
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
   private _sectionAuthentication =
-    "[data-cy=section-Authentication] .t--collapse-section-container";
+    "[data-testid=section-Authentication] .t--collapse-section-container";
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
@@ -53,7 +53,7 @@ export class DataSources {
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
-  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _reconnectDataSourceModal = "[data-testid=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
   _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
@@ -75,12 +75,12 @@ export class DataSources {
   _runQueryBtn = ".t--run-query";
   _newDatabases = "#new-datasources";
   _newDatasourceContainer = "#new-integrations-wrapper";
-  _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
-  _selectTableDropdown = "[data-cy=t--table-dropdown]";
-  _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
-  _selectTableHeaderIndexInput = "[data-cy=t--tableHeaderIndex]";
+  _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";
+  _selectTableDropdown = "[data-testid=t--table-dropdown]";
+  _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
+  _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
   _dropdownOption = ".bp3-popover-content .t--dropdown-option";
-  _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
+  _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
@@ -97,7 +97,7 @@ export class DataSources {
   _addIcon = "button .bp3-icon-add";
   _queryError = "span.t--query-error";
   _queryResponse = (responseType: string) =>
-    "li[data-cy='t--tab-" + responseType + "']";
+    "li[data-testid='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>
     `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
@@ -136,7 +136,7 @@ export class DataSources {
   _globalSearchInput = (inputText: string) =>
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
-    "[data-cy='datasourceConfiguration.authentication.scopeString']";
+    "[data-testid='datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
@@ -158,19 +158,20 @@ export class DataSources {
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
-  private _authType = "[data-cy=authType]";
+  private _authType = "[data-testid=authType]";
   private _oauth2 = ".t--dropdown-option:contains('OAuth 2.0')";
-  private _accessTokenUrl = "[data-cy='authentication.accessTokenUrl'] input";
-  private _scope = "[data-cy='authentication.scopeString'] input";
-  private _clientID = "[data-cy='authentication.clientId'] input";
-  private _clientSecret = "[data-cy='authentication.clientSecret'] input";
+  private _accessTokenUrl =
+    "[data-testid='authentication.accessTokenUrl'] input";
+  private _scope = "[data-testid='authentication.scopeString'] input";
+  private _clientID = "[data-testid='authentication.clientId'] input";
+  private _clientSecret = "[data-testid='authentication.clientSecret'] input";
   private _clientCredentails =
     ".t--dropdown-option:contains('Client Credentials')";
   private _authorizationCode =
     ".t--dropdown-option:contains('Authorization Code')";
-  private _grantType = "[data-cy='authentication.grantType']";
+  private _grantType = "[data-testid='authentication.grantType']";
   private _authorizationURL =
-    "[data-cy='authentication.authorizationUrl'] input";
+    "[data-testid='authentication.authorizationUrl'] input";
   private _consent = '[name="confirm"]';
   private _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
@@ -186,7 +187,7 @@ export class DataSources {
     index +
     "\\]\\.value";
   _whereDelete = (index: number) =>
-    "[data-cy='t--where-clause-delete-[" + index + "]']";
+    "[data-testid='t--where-clause-delete-[" + index + "]']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -199,7 +200,7 @@ export class DataSources {
     this.agHelper.GetNClick(this.locator._dropdownText, 1);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
     this.agHelper.GetNClick(this._selectTableDropdown);
-    this.agHelper.GetNClick("[data-cy='t--dropdown-option-public.users']");
+    this.agHelper.GetNClick("[data-testid='t--dropdown-option-public.users']");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));

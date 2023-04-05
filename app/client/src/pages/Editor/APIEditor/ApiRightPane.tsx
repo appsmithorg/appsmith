@@ -241,7 +241,7 @@ function ApiRightPane(props: any) {
     <DatasourceContainer>
       <TabbedViewContainer>
         <TabComponent
-          cypressSelector={"api-right-pane"}
+          data-testid={"api-right-pane"}
           onSelect={setSelectedTab}
           selectedIndex={isUndefined(selectedTab) ? 0 : selectedTab}
           tabs={[

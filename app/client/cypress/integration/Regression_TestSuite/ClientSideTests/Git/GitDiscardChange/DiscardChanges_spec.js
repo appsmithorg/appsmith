@@ -241,7 +241,7 @@ describe("Git discard changes:", function () {
     cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
     _.agHelper.Sleep(2000);
 
-    _.agHelper.AssertElementVisible("[data-cy='discard-error']");
+    _.agHelper.AssertElementVisible("[data-testid='discard-error']");
     _.agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
   });
 

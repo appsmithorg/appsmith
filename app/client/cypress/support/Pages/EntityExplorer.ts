@@ -58,7 +58,7 @@ export class EntityExplorer {
     "//div[contains(@class, 't--entity-name')][text()='" +
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
-  private _newPageOptions = (option: string) => `[data-cy='${option}']`;
+  private _newPageOptions = (option: string) => `[data-testid='${option}']`;
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,

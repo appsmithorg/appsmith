@@ -99,7 +99,7 @@ function EmbedSnippetTab() {
               <SwitchWrapper>
                 <Switch
                   className="mb-0"
-                  data-cy={"show-navigation-bar-toggle"}
+                  data-testid={"show-navigation-bar-toggle"}
                   defaultChecked={
                     embedSnippet.currentEmbedSetting?.showNavigationBar
                   }
@@ -144,7 +144,7 @@ function EmbedSnippetTab() {
         {/* TODO (tanvi): replace with Link*/}
         <StyledPreviewLink
           className="flex gap-1 items-center self-end"
-          data-cy="preview-embed"
+          data-testid="preview-embed"
           href={embedSnippet.appViewEndPoint}
           target={"_blank"}
         >

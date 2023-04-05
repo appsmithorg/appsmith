@@ -69,7 +69,7 @@ export function JSFunctionRun({
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Dropdown
         customBadge={<FlagBadge name="Async" />}
-        cypressSelector="function-select-dropdown"
+        data-testid="function-select-dropdown"
         height={RUN_BUTTON_DEFAULTS.HEIGHT}
         onSelect={onSelect}
         options={options}

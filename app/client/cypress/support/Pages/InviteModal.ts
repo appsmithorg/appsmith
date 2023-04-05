@@ -8,11 +8,11 @@ export class InviteModal {
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   private locators = {
-    _inviteTab: "[data-cy='t--tab-INVITE']",
-    _embedTab: "[data-cy='t--tab-EMBED']",
+    _inviteTab: "[data-testid='t--tab-INVITE']",
+    _embedTab: "[data-testid='t--tab-EMBED']",
     _shareButton: ".t--application-share-btn",
     _closeButton: ".t--close-form-dialog",
-    _previewEmbed: "[data-cy='preview-embed']",
+    _previewEmbed: "[data-testid='preview-embed']",
   };
 
   public SelectInviteTab() {

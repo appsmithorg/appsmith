@@ -47,7 +47,6 @@ function DeleteButton(
   return (
     <DangerMenuItem
       className="git-branch-more-menu-item danger t--branch-more-menu-delete"
-      data-cy="t--branch-more-menu-delete"
       data-testid="t--branch-more-menu-delete"
       icon="delete"
       key={"delete-branch-button"}

@@ -147,7 +147,7 @@ describe("Input Widget Functionality", function () {
   });
 
   it("Input label wrapper do not show if lable and tooltip is empty", () => {
-    cy.get("[data-cy='label-container']").should("not.exist");
+    cy.get("[data-testid='label-container']").should("not.exist");
   });
 
   it("Input label renders if label prop is not empty", () => {

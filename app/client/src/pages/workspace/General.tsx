@@ -168,7 +168,7 @@ export function GeneralSettings() {
             {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
               <TextInput
-                cypressSelector="t--workspace-name-input"
+                data-testid="t--workspace-name-input"
                 defaultValue={currentWorkspace && currentWorkspace.name}
                 fill
                 onChange={onWorkspaceNameChange}
@@ -211,7 +211,7 @@ export function GeneralSettings() {
             {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
               <TextInput
-                cypressSelector="t--workspace-website-input"
+                data-testid="t--workspace-website-input"
                 defaultValue={
                   (currentWorkspace && currentWorkspace.website) || ""
                 }
@@ -233,7 +233,7 @@ export function GeneralSettings() {
             {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
               <TextInput
-                cypressSelector="t--workspace-email-input"
+                data-testid="t--workspace-email-input"
                 defaultValue={
                   (currentWorkspace && currentWorkspace.email) || ""
                 }

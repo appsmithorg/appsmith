@@ -118,14 +118,14 @@ Cypress.Commands.add(
   "validateRequest",
   (apiName, baseurl, path, verb, error = false) => {
     cy.get(".react-tabs__tab").contains("Logs").click();
-    cy.get("[data-cy=t--debugger-search]").clear().type(apiName);
+    cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
 
     if (!error) {
       cy.get(".object-key").last().contains("request").click();
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.get("[data-cy=t--tab-response]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-response]").first().click({ force: true });
   },
 );
 

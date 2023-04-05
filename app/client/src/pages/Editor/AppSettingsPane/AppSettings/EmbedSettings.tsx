@@ -113,7 +113,7 @@ function EmbedSettings() {
           <div className="flex justify-between content-center pb-3">
             <div
               className="flex gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]"
-              data-cy={"frame-ancestors-setting"}
+              data-testid={"frame-ancestors-setting"}
             >
               <Icon name={embedSnippet.embedSettingContent.icon} size="md" />
               <StyledPropertyHelpLabel
@@ -146,7 +146,7 @@ function EmbedSettings() {
         <SwitchWrapper>
           <Switch
             className="mb-0"
-            data-cy="show-navigation-bar-toggle"
+            data-testid="show-navigation-bar-toggle"
             defaultChecked={embedSnippet.currentEmbedSetting?.showNavigationBar}
             large
             onChange={() =>

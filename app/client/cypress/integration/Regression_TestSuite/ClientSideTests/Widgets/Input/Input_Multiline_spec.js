@@ -43,7 +43,7 @@ describe("Input Widget Multiline feature", function () {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.datatype).last().click({ force: true });
-    cy.get("[data-cy='t--dropdown-option-Multi-line text']").click();
+    cy.get("[data-testid='t--dropdown-option-Multi-line text']").click();
 
     // verify height changes to auto height
 
@@ -135,7 +135,7 @@ describe("Input Widget Multiline feature", function () {
     cy.get(homePage.toastMessage).should("contain", "Success");
     // enter key with multiline
     cy.get(widgetsPage.datatype).last().click({ force: true });
-    cy.get("[data-cy='t--dropdown-option-Multi-line text']").click();
+    cy.get("[data-testid='t--dropdown-option-Multi-line text']").click();
     cy.get(".t--draggable-inputwidgetv2")
       .find("textarea")
       .first()

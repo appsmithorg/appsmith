@@ -6,7 +6,7 @@ export class CommonLocators {
   _runBtnSpinner = ".cs-spinner";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
-  _emptyCanvasCta = "[data-cy='canvas-ctas']";
+  _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
   _widgetName = (widgetName: string) =>
@@ -56,8 +56,8 @@ export class CommonLocators {
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
-  _errorTab = "[data-cy=t--tab-ERROR]";
-  _responseTab = "[data-cy=t--tab-response]";
+  _errorTab = "[data-testid=t--tab-ERROR]";
+  _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
@@ -159,22 +159,22 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
-  _widgetPane = "[data-cy='widget-sidebar-scrollable-wrapper']";
-  _sliderThumb = '[data-cy="slider-thumb"]';
+  _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
+  _sliderThumb = '[data-testid="slider-thumb"]';
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
     dropdownOption +
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
-  _omnibarDescription = "[data-cy='description']";
+  _omnibarDescription = "[data-testid='description']";
   _previewModeToggle = (currentMode: "preview" | "edit") =>
-    `[data-cy='${currentMode}-mode']`;
+    `[data-testid='${currentMode}-mode']`;
   _editModeToggle = ".t--switch-comment-mode-off";
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
-  _modalWrapper = "[data-cy='modal-wrapper']";
+  _modalWrapper = "[data-testid='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";

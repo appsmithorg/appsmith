@@ -79,7 +79,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
       />
       <div
         className="flex-grow px-3 overflow-y-scroll"
-        data-cy="widget-sidebar-scrollable-wrapper"
+        data-testid="widget-sidebar-scrollable-wrapper"
       >
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}

@@ -142,7 +142,7 @@ export default function RestartBanner() {
         </RestartMessageWrapper>
         {isRestartFailed && (
           <Button
-            data-cy="btn-refresh"
+            data-testid="btn-refresh"
             onClick={() => dispatch(retryServerRestart())}
             size="md"
           >

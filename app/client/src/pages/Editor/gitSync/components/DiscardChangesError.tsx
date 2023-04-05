@@ -32,7 +32,7 @@ export default function DiscardFailedWarning({
     },
   };
   return (
-    <Container data-cy={"discard-error"}>
+    <Container data-testid={"discard-error"}>
       <NotificationBanner {...notificationBannerOptions}>
         <Text color={Colors.ERROR_600} type={TextType.P3}>
           {error.message}

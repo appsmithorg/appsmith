@@ -5,12 +5,12 @@ export class EmbedSettings {
 
   public locators = {
     _getDimensionInput: (prefix: string) => `.t--${prefix}-dimension input`,
-    _snippet: "[data-cy='t--embed-snippet']",
-    _frameAncestorsSetting: "[data-cy='frame-ancestors-setting']",
+    _snippet: "[data-testid='t--embed-snippet']",
+    _frameAncestorsSetting: "[data-testid='frame-ancestors-setting']",
     _allowAllText: "Embedding enabled",
     _restrictedText: "Embedding restricted",
     _disabledText: "Embedding disabled",
-    _showNavigationBar: "[data-cy='show-navigation-bar-toggle']",
+    _showNavigationBar: "[data-testid='show-navigation-bar-toggle']",
     _controlIndicator: ".bp3-control-indicator",
   };
 

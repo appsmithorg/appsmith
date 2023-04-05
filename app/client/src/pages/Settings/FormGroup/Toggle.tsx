@@ -42,7 +42,7 @@ function FieldToggleWithToggleText(
     return (
       <ToggleWrapper>
         <Toggle
-          cypressSelector={id}
+          data-testid={id}
           onToggle={onToggle}
           value={isPropertyDisabled ? !val : val}
         />

@@ -4,10 +4,10 @@ describe("Checks for analytics for enableTelemtry", function () {
   before(() => {
     cy.visit("/applications");
     cy.get(".admin-settings-menu-option").click();
-    cy.get("[data-cy='APPSMITH_DISABLE_TELEMETRY'] > input").should(
+    cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY'] > input").should(
       "be.checked",
     ); //Bug 21191
-    cy.get("[data-cy='APPSMITH_DISABLE_TELEMETRY']")
+    cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']")
       .find("span")
       .last()
       .click(); //disabling sharing of anonymous data

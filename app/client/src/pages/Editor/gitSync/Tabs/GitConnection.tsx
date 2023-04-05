@@ -389,7 +389,7 @@ function GitConnection({ isImport }: Props) {
   }, []);
 
   return (
-    <Container data-test="t--git-connection-container" ref={scrollWrapperRef}>
+    <Container data-testid="t--git-connection-container" ref={scrollWrapperRef}>
       <Section>
         <StickyMenuWrapper>
           <Title>
@@ -399,7 +399,7 @@ function GitConnection({ isImport }: Props) {
             <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
           </Title>
         </StickyMenuWrapper>
-        <UrlOptionContainer data-test="t--remote-url-container">
+        <UrlOptionContainer data-testid="t--remote-url-container">
           <Text color={Colors.GREY_9} type={TextType.P1}>
             {createMessage(REMOTE_URL)}
           </Text>

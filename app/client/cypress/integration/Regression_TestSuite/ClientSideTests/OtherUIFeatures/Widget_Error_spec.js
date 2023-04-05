@@ -29,7 +29,7 @@ describe("Widget error state", function () {
   });
 
   it("3. Switch to error tab when clicked on the debug button", function () {
-    cy.get("[data-cy=t--tab-LOGS_TAB]").click();
+    cy.get("[data-testid=t--tab-LOGS_TAB]").click();
     cy.get(".t--property-control-onclick").find(".t--js-toggle").click();
     cy.EnableAllCodeEditors();
     cy.testJsontext("onclick", "{{testApi.run()}}");

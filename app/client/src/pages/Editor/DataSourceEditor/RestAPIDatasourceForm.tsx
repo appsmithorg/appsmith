@@ -428,7 +428,7 @@ class DatasourceRestAPIEditor extends React.Component<
     const { formData } = this.props;
 
     return (
-      <section data-cy="section-General" data-replay-id="section-General">
+      <section data-replay-id="section-General" data-testid="section-General">
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "url",

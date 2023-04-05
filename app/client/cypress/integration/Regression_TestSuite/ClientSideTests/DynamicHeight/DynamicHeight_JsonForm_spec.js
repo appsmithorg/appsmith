@@ -18,14 +18,14 @@ describe("Dynamic Height Width validation", function () {
             cy.get(".t--show-column-btn").eq(0).click({ force: true });
             cy.get(".t--show-column-btn").eq(1).click({ force: true });
             cy.get(".t--show-column-btn").eq(2).click({ force: true });
-            // cy.get("[data-cy='t--resizable-handle-TOP']")
+            // cy.get("[data-testid='t--resizable-handle-TOP']")
             //     .within(($el) => {
             //         cy.window().then((win) => {
             //             const after = win.getComputedStyle($el[0], "::after");
             //             expect(after).not.to.exist
             //         });
             //     });
-            // cy.get("[data-cy='t--resizable-handle-BOTTOM']").should("not.exist");
+            // cy.get("[data-testid='t--resizable-handle-BOTTOM']").should("not.exist");
             cy.changeLayoutHeight(commonlocators.fixed);
             cy.wait(5000);
             cy.get(".t--widget-jsonformwidget")
@@ -34,8 +34,8 @@ describe("Dynamic Height Width validation", function () {
                 expect(newformheight).to.not.equal(updatedformheight);
                 cy.get(".t--show-column-btn").eq(2).click({ force: true });
                 cy.get(".t--show-column-btn").eq(1).click({ force: true });
-                // cy.get("[data-cy='t--resizable-handle-TOP']").should("exist");
-                // cy.get("[data-cy='t--resizable-handle-BOTTOM']").should("exist");
+                // cy.get("[data-testid='t--resizable-handle-TOP']").should("exist");
+                // cy.get("[data-testid='t--resizable-handle-BOTTOM']").should("exist");
                 cy.changeLayoutHeight(commonlocators.autoHeight);
                 cy.wait(5000);
                 cy.get(".t--widget-jsonformwidget")

@@ -20,7 +20,7 @@ describe("Git disconnect modal:", function () {
   it("1. should be opened with proper components", function () {
     _.gitSync.AuthorizeKeyToGitea(repoName);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
     // after clicked disconnect on connection modal,
     // it should be closed and disconnect modal should be opened
     cy.get(gitSyncLocators.disconnectIcon).click();
@@ -61,7 +61,7 @@ describe("Git disconnect modal:", function () {
 
   it("2. should have disconnect repo button", function () {
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
 
     // after clicked disconnect on connection modal,
     // it should be closed and disconnect modal should be opened

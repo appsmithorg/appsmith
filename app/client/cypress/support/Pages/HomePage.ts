@@ -14,7 +14,7 @@ export class HomePage {
     "//span[text()='" +
     workspaceName +
     "']/ancestor::div[contains(@class, 't--workspace-section')]//span[contains(@class, 't--options-icon')]";
-  private _renameWorkspaceInput = "[data-cy=t--workspace-rename-input]";
+  private _renameWorkspaceInput = "[data-testid=t--workspace-rename-input]";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
@@ -51,7 +51,7 @@ export class HomePage {
   private _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item";
-  _buildFromDataTableActionCard = "[data-cy='generate-app']";
+  _buildFromDataTableActionCard = "[data-testid='generate-app']";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
@@ -71,7 +71,7 @@ export class HomePage {
   private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
-  private _workspaceImport = "[data-cy=t--workspace-import-app]";
+  private _workspaceImport = "[data-testid=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
@@ -80,10 +80,10 @@ export class HomePage {
     "//span[text()='" +
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
-  private _forkApp = '[data-cy="t--fork-app"]';
-  private _duplicateApp = '[data-cy="t--duplicate"]';
-  private _deleteApp = '[data-cy="t--delete-confirm"]';
-  private _deleteAppConfirm = '[data-cy="t--delete"]';
+  private _forkApp = '[data-testid="t--fork-app"]';
+  private _duplicateApp = '[data-testid="t--duplicate"]';
+  private _deleteApp = '[data-testid="t--delete-confirm"]';
+  private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
     "//span[text()='" + action + "']/ancestor::a";
   private _homeTab = ".t--apps-tab";

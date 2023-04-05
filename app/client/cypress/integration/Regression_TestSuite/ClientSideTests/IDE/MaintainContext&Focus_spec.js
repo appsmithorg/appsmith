@@ -44,7 +44,7 @@ describe("MaintainContext&Focus", function () {
 
     cy.SearchEntityandOpen("Rest_Api_1");
     cy.wait(1000);
-    cy.get('[data-cy="t--tab-PARAMS"]').click();
+    cy.get('[data-testid="t--tab-PARAMS"]').click();
     cy.focusCodeInput(apiwidget.queryKey);
     cy.wait("@saveAction");
 

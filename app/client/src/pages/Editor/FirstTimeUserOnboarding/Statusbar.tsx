@@ -238,7 +238,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         <StyledClose
           className="hover-icons"
           color={Colors.GREY_10}
-          data-cy="statusbar-skip"
+          data-testid="statusbar-skip"
           icon="cross"
           iconSize={14}
           onClick={endFirstTimeUserOnboarding}

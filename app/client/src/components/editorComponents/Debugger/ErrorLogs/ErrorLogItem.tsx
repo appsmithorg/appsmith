@@ -265,8 +265,8 @@ function ErrorLogItem(props: LogItemProps) {
           {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
             <Button
               className={`${Classes.ICON} debugger-toggle`}
-              data-cy="t--debugger-toggle"
               data-isOpen={isOpen}
+              data-testid="t--debugger-toggle"
               isDisabled={!collapsable}
               kind="tertiary"
               onClick={() => expandToggle()}
@@ -287,7 +287,7 @@ function ErrorLogItem(props: LogItemProps) {
           <div className="debugger-description">
             <span
               className="debugger-label"
-              data-cy="t--debugger-log-message"
+              data-testid="t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
               {props.pluginErrorDetails

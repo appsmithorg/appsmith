@@ -40,27 +40,27 @@ describe("Visual tests for datasources", () => {
       .type(postgres, { force: true })
       .should("have.value", postgres)
       .blur();
-    cy.get('[data-cy="section-Connection"]')
+    cy.get('[data-testid="section-Connection"]')
       .next()
       .matchImageSnapshot("postgresConnectionSection2");
-    cy.get('[data-cy="section-Connection"]').click();
-    cy.get('[data-cy="section-Authentication"]')
+    cy.get('[data-testid="section-Connection"]').click();
+    cy.get('[data-testid="section-Authentication"]')
       .scrollIntoView()
       .click();
     cy.wait(1000);
-    cy.get('[data-cy="section-Authentication"]')
+    cy.get('[data-testid="section-Authentication"]')
       .next()
       .matchImageSnapshot("postgresAuthenticationSection2");
-    cy.get('[data-cy="section-Authentication"]').click();
-    cy.get('[data-cy="section-SSL (optional)"]')
+    cy.get('[data-testid="section-Authentication"]').click();
+    cy.get('[data-testid="section-SSL (optional)"]')
       .scrollIntoView()
       .click();
     cy.wait(1000);
-    cy.get('[data-cy="section-SSL (optional)"]')
+    cy.get('[data-testid="section-SSL (optional)"]')
       .next()
       .matchImageSnapshot("postgresSSLSection2");
-    cy.get('[data-cy="section-SSL (optional)"]').click();
-    cy.get('[data-cy="section-SSL (optional)"]')
+    cy.get('[data-testid="section-SSL (optional)"]').click();
+    cy.get('[data-testid="section-SSL (optional)"]')
       .next()
       .next()
       .matchImageSnapshot("ctaButtons");
@@ -78,27 +78,27 @@ describe("Visual tests for datasources", () => {
       .type(mongo, { force: true })
       .should("have.value", mongo)
       .blur();
-    cy.get('[data-cy="section-Connection"]')
+    cy.get('[data-testid="section-Connection"]')
       .next()
       .matchImageSnapshot("mongoConnectionSection2");
-    cy.get('[data-cy="section-Connection"]').click();
-    cy.get('[data-cy="section-Authentication"]')
+    cy.get('[data-testid="section-Connection"]').click();
+    cy.get('[data-testid="section-Authentication"]')
       .scrollIntoView()
       .click();
     cy.wait(1000);
-    cy.get('[data-cy="section-Authentication"]')
+    cy.get('[data-testid="section-Authentication"]')
       .next()
       .matchImageSnapshot("mongoAuthenticationSection2");
-    cy.get('[data-cy="section-Authentication"]').click();
-    cy.get('[data-cy="section-SSL (optional)"]')
+    cy.get('[data-testid="section-Authentication"]').click();
+    cy.get('[data-testid="section-SSL (optional)"]')
       .scrollIntoView()
       .click();
     cy.wait(1000);
-    cy.get('[data-cy="section-SSL (optional)"]')
+    cy.get('[data-testid="section-SSL (optional)"]')
       .next()
       .matchImageSnapshot("mongoSSLSection2");
-    cy.get('[data-cy="section-SSL (optional)"]').click();
-    cy.get('[data-cy="section-SSL (optional)"]')
+    cy.get('[data-testid="section-SSL (optional)"]').click();
+    cy.get('[data-testid="section-SSL (optional)"]')
       .next()
       .next()
       .matchImageSnapshot("ctaButtons");

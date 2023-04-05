@@ -55,7 +55,7 @@ function General() {
       </FieldWrapper>
       <FieldWrapper>
         <Input
-          data-test-id="t--display-name"
+          data-testid="t--display-name"
           isRequired
           label="Display name"
           labelPosition="top"
@@ -69,7 +69,7 @@ function General() {
       </FieldWrapper>
       <FieldWrapper>
         <Input
-          data-test-id="t--display-name"
+          data-testid="t--display-name"
           isDisabled
           isReadOnly
           label="Email"
@@ -109,7 +109,7 @@ function General() {
           placeholder="Your website"
           onChange={() => null}
           defaultValue={""}
-          cypressSelector="t--profile-website"
+          data-testid="t--profile-website"
         />
       </InputWrapper> */}
     </Wrapper>

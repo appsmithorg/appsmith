@@ -89,12 +89,12 @@ const DatasourceImage = styled.img`
 `;
 
 interface DataSourceOptionType extends RenderDropdownOptionType {
-  cypressSelector: string;
+  dataTestid: string;
   optionWidth: string;
 }
 
 function DataSourceOption({
-  cypressSelector,
+  dataTestid,
   extraProps,
   isHighlighted,
   isSelectedNode,
@@ -117,7 +117,7 @@ function DataSourceOption({
     ? ".t--connectNewDatasource-option"
     : isSelectedNode
     ? ""
-    : cypressSelector;
+    : dataTestid;
   return (
     <TooltipComponent
       content="Not supported for template generation"
@@ -132,7 +132,7 @@ function DataSourceOption({
         className={`t--dropdown-option ${
           isHighlighted ? "highlight-option" : ""
         }`}
-        data-cy={optionCypressSelector}
+        data-testid={optionCypressSelector}
         disabled={isNotSupportedDatasource}
         key={(dropdownOption as DropdownOption).id}
         onClick={() => {

@@ -429,11 +429,11 @@ export function LeftPane(props: LeftPaneProps) {
         heading={createMessage(WORKSPACES_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
-        <WorkpsacesNavigator data-cy="t--left-panel">
+        <WorkpsacesNavigator data-testid="t--left-panel">
           {canCreateWorkspace && (
             <MenuItem
               color="var(--ads-v2-color-fg-emphasis)"
-              cypressSelector="t--workspace-new-workspace-auto-create"
+              data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
               onSelect={() =>
                 submitCreateWorkspaceForm(
@@ -780,7 +780,7 @@ export function ApplicationsSection(props: any) {
                         autoFocus={false}
                         className="t--workspace-name"
                         closeOnItemClick
-                        cypressSelector="t--workspace-name"
+                        data-testid="t--workspace-name"
                         disabled={isFetchingApplications}
                         isOpen={workspace.id === workspaceToOpenMenu}
                         onClose={() => {
@@ -808,7 +808,7 @@ export function ApplicationsSection(props: any) {
                           <>
                             <div className="px-3 py-2">
                               <WorkspaceRename
-                                cypressSelector="t--workspace-rename-input"
+                                data-testid="t--workspace-rename-input"
                                 defaultValue={workspace.name}
                                 editInteractionKind={EditInteractionKind.SINGLE}
                                 fill
@@ -830,7 +830,7 @@ export function ApplicationsSection(props: any) {
                               />
                             </div>
                             <MenuItem
-                              cypressSelector="t--workspace-setting"
+                              data-testid="t--workspace-setting"
                               icon="settings-2-line"
                               onSelect={() =>
                                 getOnSelectAction(
@@ -847,7 +847,7 @@ export function ApplicationsSection(props: any) {
                         {enableImportExport &&
                           hasCreateNewApplicationPermission && (
                             <MenuItem
-                              cypressSelector="t--workspace-import-app"
+                              data-testid="t--workspace-import-app"
                               icon="download"
                               onSelect={() =>
                                 setSelectedWorkspaceIdForImportApplication(

@@ -109,9 +109,9 @@ function CanvasTopSection() {
   };
 
   return (
-    <Wrapper data-cy="canvas-ctas">
+    <Wrapper data-testid="canvas-ctas">
       {!!featureFlags.TEMPLATES_PHASE_2 && (
-        <Card data-cy="start-from-template" onClick={showTemplatesModal}>
+        <Card data-testid="start-from-template" onClick={showTemplatesModal}>
           <Layout />
           <Content>
             <Text color={Colors.COD_GRAY} type={TextType.P1}>
@@ -125,7 +125,7 @@ function CanvasTopSection() {
       )}
       <Card
         centerAlign={!featureFlags.TEMPLATES_PHASE_2}
-        data-cy="generate-app"
+        data-testid="generate-app"
         onClick={onGeneratePageClick}
       >
         <Database />

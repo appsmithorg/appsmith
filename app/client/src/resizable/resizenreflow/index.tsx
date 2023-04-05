@@ -173,7 +173,7 @@ function ResizableHandle(props: ResizableHandleProps) {
 
   return (
     <props.component
-      data-cy={`t--resizable-handle-${props.direction}`}
+      data-testid={`t--resizable-handle-${props.direction}`}
       {...propsToPass}
     />
   );

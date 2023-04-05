@@ -16,7 +16,7 @@ describe("Progress Widget", function () {
     // enable infinite loading
     cy.togglebar(".t--property-control-infiniteloading input[type='checkbox']");
     // show indeterminate linear progress
-    cy.get("[data-cy='indeterminate-linear-progress']")
+    cy.get("[data-testid='indeterminate-linear-progress']")
       .should("exist")
       .should("have.css", "animation");
     // disable infinite loading
@@ -24,7 +24,7 @@ describe("Progress Widget", function () {
       ".t--property-control-infiniteloading input[type='checkbox']",
     );
     // show determinate linear progress
-    cy.get("[data-cy='50']").should("exist");
+    cy.get("[data-testid='50']").should("exist");
   });
   it("Property: value, Change progress value", function () {
     cy.updateCodeInput(".t--property-control-progress", "60");
@@ -34,41 +34,41 @@ describe("Progress Widget", function () {
       200,
     );
     // pass 60
-    cy.get("[data-cy='60']").should("exist");
+    cy.get("[data-testid='60']").should("exist");
   });
   it("Property: showResult, Toggle show result", function () {
     // enable show result
     cy.togglebar(".t--property-control-showresult input[type='checkbox']");
     // show label
-    cy.get("[data-cy='60']").first().next().should("contain.text", "60");
+    cy.get("[data-testid='60']").first().next().should("contain.text", "60");
     // disable show result
     cy.togglebarDisable(
       ".t--property-control-showresult input[type='checkbox']",
     );
     // does not show any label
-    cy.get("[data-cy='60']").first().next().should("not.exist");
+    cy.get("[data-testid='60']").first().next().should("not.exist");
   });
   it("Property: steps, Change steps", function () {
     cy.updateCodeInput(".t--property-control-numberofsteps", "2");
     // show progress with steps
-    cy.get("[data-cy='step']").should("have.length", 2);
+    cy.get("[data-testid='step']").should("have.length", 2);
     cy.updateCodeInput(".t--property-control-numberofsteps", "1");
     // does not show progress with steps
-    cy.get("[data-cy='step']").should("not.exist");
+    cy.get("[data-testid='step']").should("not.exist");
   });
 
   // Circular progress
   it("Property: type, Change type to Circular", function () {
     // Switch to circular mode
     cy.get(".t--button-group-circular").click({ force: true });
-    cy.get("[data-cy='circular']").should("exist");
+    cy.get("[data-testid='circular']").should("exist");
   });
   it("Property: isIndeterminate, Toggle infinite loading", function () {
     cy.openPropertyPane("progresswidget");
     // enable infinite loading
     cy.togglebar(".t--property-control-infiniteloading input[type='checkbox']");
     // show indeterminate linear progress
-    cy.get("[data-cy='circular']")
+    cy.get("[data-testid='circular']")
       .should("exist")
       .should("have.css", "animation");
     // disable infinite loading
@@ -95,21 +95,21 @@ describe("Progress Widget", function () {
     // enable show result
     cy.togglebar(".t--property-control-showresult input[type='checkbox']");
     // show label
-    cy.get("[data-cy='circular-label']").should("contain.text", "50");
+    cy.get("[data-testid='circular-label']").should("contain.text", "50");
     // disable show result
     cy.togglebarDisable(
       ".t--property-control-showresult input[type='checkbox']",
     );
     // does not show any label
-    cy.get("[data-cy='circular-label']").should("not.exist");
+    cy.get("[data-testid='circular-label']").should("not.exist");
   });
   it("Property: steps, Change steps", function () {
     cy.updateCodeInput(".t--property-control-numberofsteps", "2");
     // show circular progress with steps
-    cy.get("[data-cy='separator']").should("have.length", 2);
+    cy.get("[data-testid='separator']").should("have.length", 2);
     cy.updateCodeInput(".t--property-control-numberofsteps", "1");
     // does not show progress with steps
-    cy.get("[data-cy='separator']").should("not.exist");
+    cy.get("[data-testid='separator']").should("not.exist");
   });
   it("Property: counterClockwise,Change counterclockwise", function () {
     // enable counterclockwise

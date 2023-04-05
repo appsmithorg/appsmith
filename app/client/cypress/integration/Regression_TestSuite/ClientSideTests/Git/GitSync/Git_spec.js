@@ -218,8 +218,8 @@ describe.skip("Git sync:", function () {
   it("5. Clicking '+' icon on bottom bar should open deploy popup", function () {
     cy.get(gitSyncLocators.bottomBarCommitButton).click({ force: true });
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
-    cy.get("[data-cy=t--tab-DEPLOY]").should("exist");
-    cy.get("[data-cy=t--tab-DEPLOY]")
+    cy.get("[data-testid=t--tab-DEPLOY]").should("exist");
+    cy.get("[data-testid=t--tab-DEPLOY]")
       .invoke("attr", "aria-selected")
       .should("eq", "true");
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });

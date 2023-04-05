@@ -119,7 +119,7 @@ class HelpModal extends React.Component<Props> {
           <ModalComponent
             canEscapeKeyClose
             canOutsideClickClose
-            data-cy={"help-modal"}
+            data-testid={"help-modal"}
             hasBackDrop={false}
             height={MODAL_HEIGHT}
             isOpen

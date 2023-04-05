@@ -255,7 +255,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         <Wrapper
           $background={props.background}
           $borderRadius={props.borderRadius}
-          data-cy="modal-wrapper"
+          data-testid="modal-wrapper"
         >
           <Content
             $scroll={!!props.scrollContents}

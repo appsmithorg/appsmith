@@ -247,7 +247,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <TagInputField
-                      data-cy="t--tag-input"
+                      data-testid="t--tag-input"
                       intent="success"
                       label={setting.label}
                       name={setting.name || setting.id}

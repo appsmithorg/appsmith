@@ -117,7 +117,7 @@ export default function AutoHeightContainer({
         style={{ backgroundColor }}
       >
         <CenterContainer
-          data-cy={`t--centered-${widgetProps.widgetName}-${widgetProps.widgetId}`}
+          data-testid={`t--centered-${widgetProps.widgetName}-${widgetProps.widgetId}`}
           shouldBeCentered={shouldBeCentered}
         >
           <SimpleContainer className="auto-height-container" ref={ref}>
@@ -130,7 +130,7 @@ export default function AutoHeightContainer({
 
   return (
     <CenterContainer
-      data-cy={`t--centered-${widgetProps.widgetName}-${widgetProps.widgetId}`}
+      data-testid={`t--centered-${widgetProps.widgetName}-${widgetProps.widgetId}`}
       shouldBeCentered={shouldBeCentered}
     >
       <SimpleContainer className="auto-height-container" ref={ref}>

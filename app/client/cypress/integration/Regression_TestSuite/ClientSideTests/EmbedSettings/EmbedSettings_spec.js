@@ -41,7 +41,7 @@ describe("Embed settings options", function () {
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
-    cy.get("[data-cy='copy-application-url']").last().click();
+    cy.get("[data-testid='copy-application-url']").last().click();
     agHelper.GiveChromeCopyPermission();
     cy.window()
       .its("navigator.clipboard")
@@ -59,7 +59,7 @@ describe("Embed settings options", function () {
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
-    cy.get("[data-cy='copy-application-url']").last().click();
+    cy.get("[data-testid='copy-application-url']").last().click();
     cy.window().its("navigator.clipboard").invoke("readText").as("deployUrl");
     cy.enablePublicAccess();
     cy.wait(6000);

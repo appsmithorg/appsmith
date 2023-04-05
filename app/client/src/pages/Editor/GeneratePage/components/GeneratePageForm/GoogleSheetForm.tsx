@@ -302,7 +302,7 @@ function GoogleSheetForm(props: Props) {
             Select sheet from <Bold>{selectedSpreadsheet.label}</Bold>
           </Label>
           <Dropdown
-            cypressSelector="t--sheetName-dropdown"
+            data-testid="t--sheetName-dropdown"
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             isLoading={isFetchingSheetsList}
@@ -335,7 +335,7 @@ function GoogleSheetForm(props: Props) {
               </TooltipWrapper>
             </Row>
             <TextInput
-              cypressSelector="t--tableHeaderIndex"
+              data-testid="t--tableHeaderIndex"
               dataType="text"
               fill
               onChange={tableHeaderIndexChangeHandler}

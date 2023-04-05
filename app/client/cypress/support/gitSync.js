@@ -430,7 +430,7 @@ Cypress.Commands.add(
   (repo, generateKey = true, protocol = "ECDSA") => {
     let generatedKey;
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
     cy.wait(2000);
     cy.get(gitSyncLocators.SSHKeycontextmenu).click();
     if (protocol === "ECDSA") {

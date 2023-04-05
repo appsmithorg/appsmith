@@ -12,14 +12,14 @@ describe("Dynamic Height Width validation with limits", function () {
     //cy.checkMinDefaultValue(commonlocators.minHeight,"4")
     //cy.testJsontext(commonlocators.minHeight, "5");
     //cy.get(commonlocators.overlayMin).should("be.visible");
-    cy.get("[data-cy='t--auto-height-overlay-handles-min']").trigger(
+    cy.get("[data-testid='t--auto-height-overlay-handles-min']").trigger(
       "mouseover",
     );
     cy.contains("Min-Height: 10 rows");
-    cy.get("[data-cy='t--auto-height-overlay-handles-min']").should(
+    cy.get("[data-testid='t--auto-height-overlay-handles-min']").should(
       "be.visible",
     );
-    cy.get("[data-cy='t--auto-height-overlay-handles-min'] div")
+    cy.get("[data-testid='t--auto-height-overlay-handles-min'] div")
       .eq(0)
       .should("have.css", "background-color", "rgb(243, 43, 139)");
     /*cy.get(commonlocators.overlayMin).should(
@@ -27,16 +27,16 @@ describe("Dynamic Height Width validation with limits", function () {
             "background-color",
             "rgba(243, 43, 139, 0.1)",
         );*/
-    cy.get("[data-cy='t--auto-height-overlay-handles-max']").trigger(
+    cy.get("[data-testid='t--auto-height-overlay-handles-max']").trigger(
       "mouseover",
     );
     cy.contains("Max-Height: 12 rows");
     //cy.checkMaxDefaultValue(commonlocators.maxHeight,"40")
     //cy.testJsontext(commonlocators.maxHeight, "60");
-    cy.get("[data-cy='t--auto-height-overlay-handles-max']").should(
+    cy.get("[data-testid='t--auto-height-overlay-handles-max']").should(
       "be.visible",
     );
-    cy.get("[data-cy='t--auto-height-overlay-handles-max'] div")
+    cy.get("[data-testid='t--auto-height-overlay-handles-max'] div")
       .eq(0)
       .should("have.css", "background-color", "rgb(243, 43, 139)");
     //cy.contains("Max-Height: 60 rows");

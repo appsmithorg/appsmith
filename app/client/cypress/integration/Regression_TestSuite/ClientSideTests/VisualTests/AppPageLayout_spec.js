@@ -18,7 +18,7 @@ describe("Visual regression tests", () => {
   });
 
   it("Layout validation for Quick page wizard", () => {
-    cy.get("[data-cy='generate-app']").click();
+    cy.get("[data-testid='generate-app']").click();
     cy.wait(2000);
     // taking screenshot of generate crud page
     cy.get("#root").matchImageSnapshot("quickPageWizard");

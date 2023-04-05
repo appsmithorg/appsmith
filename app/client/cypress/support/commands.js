@@ -1980,17 +1980,17 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("CreatePage", () => {
   cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-cy='add-page']").click();
+  cy.get("[data-testid='add-page']").click();
 });
 
 Cypress.Commands.add("GenerateCRUD", () => {
   cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-cy='generate-page']").click();
+  cy.get("[data-testid='generate-page']").click();
 });
 
 Cypress.Commands.add("AddPageFromTemplate", () => {
   cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-cy='add-page-from-template']").click();
+  cy.get("[data-testid='add-page-from-template']").click();
 });
 
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {

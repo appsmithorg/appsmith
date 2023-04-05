@@ -68,7 +68,7 @@ const Header = ({ onClose }: { onClose: () => void }) => {
         </Heading>
         <HeaderRight>
           <Button
-            data-cy="t--product-updates-close-btn"
+            data-testid="t--product-updates-close-btn"
             isIconButton
             kind="tertiary"
             onClick={onClose}

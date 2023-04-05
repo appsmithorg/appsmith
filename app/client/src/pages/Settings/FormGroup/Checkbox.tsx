@@ -58,7 +58,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
     return (
       <CheckboxWrapper>
         <Checkbox
-          cypressSelector={props.id}
+          data-testid={props.id}
           disabled={props.isDisabled}
           isDefaultChecked={isPropertyDisabled ? !val : val}
           label={props.text}

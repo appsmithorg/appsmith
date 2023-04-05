@@ -23,8 +23,8 @@ export default {
   loginWithGoogle: "[data-testid='login-with-Google']",
   loginWithGithub: "[data-testid='login-with-Github']",
   disconnectBtn: "[data-testid='disconnect-service-button']",
-  formSignupDisabled: "[data-cy='APPSMITH_SIGNUP_DISABLED']",
-  formLoginDisabled: "[data-cy='APPSMITH_FORM_LOGIN_DISABLED']",
+  formSignupDisabled: "[data-testid='APPSMITH_SIGNUP_DISABLED']",
+  formLoginDisabled: "[data-testid='APPSMITH_FORM_LOGIN_DISABLED']",
   embedSettings: ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS",
   upgrade: "//span[text()='UPGRADE']",
   accessControl:

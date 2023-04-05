@@ -327,7 +327,7 @@ function ratingwidgetAndReset() {
 
 function checkboxGroupAndReset() {
   cy.wait(2000);
-  cy.get("[data-cy=checkbox-group-container] > :nth-child(3)")
+  cy.get("[data-testid=checkbox-group-container] > :nth-child(3)")
     .last()
     .should("be.visible")
     .click({ force: true });

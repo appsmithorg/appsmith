@@ -206,7 +206,7 @@ Cypress.Commands.add(
   },
 );
 
-// targeting multiselect dropdowns, we target the data-cy value of the options
+// targeting multiselect dropdowns, we target the data-testid value of the options
 Cypress.Commands.add(
   "TargetMultiSelectDropdownAndSelectOptions",
   (dropdownIdentifier, options, isDynamic = false) => {
@@ -280,6 +280,6 @@ Cypress.Commands.add("NavigateToAction", (actionName) => {
 });
 Cypress.Commands.add("SelecJSFunctionAndRun", (functionName) => {
   cy.xpath("//span[@name='expand-more']").first().click();
-  cy.get(`[data-cy='t--dropdown-option-${functionName}']`).click();
+  cy.get(`[data-testid='t--dropdown-option-${functionName}']`).click();
   cy.get(jsEditorLocators.runButton).first().click();
 });

@@ -49,7 +49,7 @@ const UpdatesButtonTextContainer = styled.div`
 
 function UpdatesButton({ newReleasesCount }: { newReleasesCount: string }) {
   return (
-    <StyledUpdatesButton data-cy="t--product-updates-btn">
+    <StyledUpdatesButton data-testid="t--product-updates-btn">
       <div style={{ display: "flex", alignItems: "center" }}>
         <Icon name="gift-line" size="sm" />
         <UpdatesButtonTextContainer>

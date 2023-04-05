@@ -113,7 +113,7 @@ describe("Checkbox Group Widget Functionality", function () {
     );
 
     cy.get(
-      ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
+      ".t--draggable-checkboxgroupwidget div[data-testid^='checkbox-group-container']",
     ).should("have.css", "justify-content", "space-between");
 
     // change alignment
@@ -124,7 +124,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.get(".t--dropdown-option").contains("Start").click({ force: true });
     cy.wait(400);
     cy.get(
-      ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
+      ".t--draggable-checkboxgroupwidget div[data-testid^='checkbox-group-container']",
     ).should("have.css", "justify-content", "flex-start");
   });
 

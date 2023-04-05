@@ -22,7 +22,7 @@ describe("Confirm run action", function () {
       .focus()
       .type("select * from configs");
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=confirmBeforeExecute]").find("span").click();
+    cy.get("[data-testid=confirmBeforeExecute]").find("span").click();
     cy.xpath(queryEditor.runQuery).last().click({ force: true }).wait(1000);
     cy.get(".bp3-dialog").find("button").contains("Yes").click();
     cy.wait("@postExecute").should(

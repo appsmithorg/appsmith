@@ -39,18 +39,18 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             // check db type
             cy.get(".t--ds-list").contains("PostgreSQL");
             // check the postgres form config with default value
-            cy.get("[data-cy='section-Connection']").should("be.visible");
+            cy.get("[data-testid='section-Connection']").should("be.visible");
             cy.get(datasource.authenticationSettingsSection).should(
               "be.visible",
             );
             cy.get(datasource.sslSettingsSection).should("be.visible");
             cy.get(
-              "[data-cy='datasourceConfiguration.connection.mode']",
+              "[data-testid='datasourceConfiguration.connection.mode']",
             ).should("contain", "Read / Write");
             cy.get(datasource.sslSettingsSection).click({ force: true });
             // should expand ssl pan
             cy.get(
-              "[data-cy='datasourceConfiguration.connection.ssl.authType']",
+              "[data-testid='datasourceConfiguration.connection.ssl.authType']",
             ).should("contain", "Default");
 
             cy.ReconnectDatasource("Untitled Datasource");

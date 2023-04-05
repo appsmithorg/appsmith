@@ -452,7 +452,7 @@ export default function MemberSettings(props: PageProps) {
         return (
           <Button
             className="t--deleteUser"
-            data-cy="t--deleteUser"
+            data-testid="t--deleteUser"
             isIconButton
             isLoading={
               deletingUserInfo &&
@@ -555,7 +555,7 @@ export default function MemberSettings(props: PageProps) {
                   <DeleteIcon
                     className="t--deleteUser"
                     color={Colors.DANGER_SOLID}
-                    data-cy="t--deleteUser"
+                    data-testid="t--deleteUser"
                     isIconButton
                     kind="tertiary"
                     name="trash-outline"

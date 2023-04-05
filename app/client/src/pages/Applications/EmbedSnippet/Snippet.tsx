@@ -38,7 +38,7 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   return (
     <div
       className="flex flex-1 select-all bg-[color:var(--appsmith-color-black-100)]"
-      data-cy="t--embed-snippet"
+      data-testid="t--embed-snippet"
       onClick={onClick}
     >
       <StyledText

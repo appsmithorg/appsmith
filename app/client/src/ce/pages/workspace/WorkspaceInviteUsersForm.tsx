@@ -459,7 +459,7 @@ function WorkspaceInviteUsersForm(props: any) {
             <TagListField
               autofocus
               customError={(err: string) => errorHandler(err)}
-              data-cy="t--invite-email-input"
+              data-testid="t--invite-email-input"
               intent="success"
               label="Emails"
               name="users"
@@ -468,7 +468,7 @@ function WorkspaceInviteUsersForm(props: any) {
             />
             <SelectField
               allowDeselection={isMultiSelectDropdown}
-              data-cy="t--invite-role-input"
+              data-testid="t--invite-role-input"
               disabled={props.disableDropdown}
               dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}

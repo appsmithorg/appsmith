@@ -12,7 +12,7 @@ describe("Check for product updates button and modal", function () {
       .then((state) => {
         const { newReleasesCount, releaseItems } = state.ui.releases;
         if (Array.isArray(releaseItems) && releaseItems.length > 0) {
-          cy.get("[data-cy=t--product-updates-btn]")
+          cy.get("[data-testid=t--product-updates-btn]")
             .contains("What's New?")
             .click({ force: true });
           //eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -23,7 +23,7 @@ describe("Check for product updates button and modal", function () {
           cy.wait(500); // modal transition
           cy.get(".bp3-dialog-container").should("not.exist");
         } else {
-          cy.get("[data-cy=t--product-updates-btn]").should("not.exist");
+          cy.get("[data-testid=t--product-updates-btn]").should("not.exist");
         }
       });
   });

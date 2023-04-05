@@ -64,7 +64,7 @@ const ShareButton = (props: ShareButtonProps) => {
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           className="h-8 t--app-viewer-share-button"
-          data-cy="viewmode-share"
+          data-testid="viewmode-share"
           icon={
             <Icon
               fillColor={getApplicationNameTextColor(

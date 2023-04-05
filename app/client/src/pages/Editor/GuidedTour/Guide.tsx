@@ -301,7 +301,7 @@ function GuideStepsContent(props: {
   };
 
   return (
-    <div data-cy={"guided-tour-banner"}>
+    <div data-testid={"guided-tour-banner"}>
       <ContentWrapper>
         <SubContentWrapper>
           <div className="header">

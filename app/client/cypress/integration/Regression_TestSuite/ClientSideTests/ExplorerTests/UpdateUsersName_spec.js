@@ -11,8 +11,8 @@ describe("Update a user's name", function () {
 
     cy.generateUUID().then((uid) => {
       username = uid;
-      cy.get("[data-cy=t--display-name]").clear();
-      cy.get("[data-cy=t--display-name]").click().type(username);
+      cy.get("[data-testid=t--display-name]").clear();
+      cy.get("[data-testid=t--display-name]").click().type(username);
       // Waiting as the input onchange has a debounce
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);

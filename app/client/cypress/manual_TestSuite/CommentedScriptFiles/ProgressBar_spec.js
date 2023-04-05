@@ -16,7 +16,7 @@
 //     });
 //     cy.testJsontext("showresult", "true");
 //     cy.wait(200);
-//     cy.get(`.t--progressbar-widget > div[data-cy='${30}']`).should("exist");
+//     cy.get(`.t--progressbar-widget > div[data-testid='${30}']`).should("exist");
 
 //     cy.get(".t--progressbar-widget > div")
 //       .eq(1)

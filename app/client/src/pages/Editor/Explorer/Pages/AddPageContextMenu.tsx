@@ -91,14 +91,14 @@ function AddPageContextMenu({
         title: createMessage(CREATE_PAGE),
         icon: FileAddIcon,
         onClick: createPageCallback,
-        "data-cy": "add-page",
+        "data-testid": "add-page",
         key: "CREATE_PAGE",
       },
       {
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: Database2LineIcon,
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
-        "data-cy": "generate-page",
+        "data-testid": "generate-page",
         key: "GENERATE_PAGE",
       },
     ];
@@ -108,7 +108,7 @@ function AddPageContextMenu({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: Layout2LineIcon,
         onClick: () => dispatch(showTemplatesModal(true)),
-        "data-cy": "add-page-from-template",
+        "data-testid": "add-page-from-template",
         key: "ADD_PAGE_FROM_TEMPLATE",
       });
     }
@@ -166,7 +166,7 @@ function AddPageContextMenu({
               return (
                 <MenuItem
                   active={idx === activeItemIdx}
-                  data-cy={item["data-cy"]}
+                  data-testid={item["data-testid"]}
                   key={item.title}
                   onClick={() => onMenuItemClick(item)}
                 >

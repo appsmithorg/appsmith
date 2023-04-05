@@ -162,7 +162,7 @@ describe("Verify various Table property bugs", function () {
     propPane.OpenTableColumnSettings("dateValue");
     // select date option from column type setting field
     cy.get(".t--property-control-columntype").click();
-    cy.get('[data-cy="t--dropdown-option-Date"]').click();
+    cy.get('[data-testid="t--dropdown-option-Date"]').click();
 
     // select ISO 8601 date format
     cy.get(".t--property-control-originaldateformat").click();

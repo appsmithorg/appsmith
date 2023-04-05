@@ -20,7 +20,7 @@ export function getMenuItems(
   return supportedKeys.map((supportedKey: SupportedKeyType) => {
     return (
       <MenuItem
-        cypressSelector={`t--regenerate-sshkey-${supportedKey.protocolName}`}
+        data-testid={`t--regenerate-sshkey-${supportedKey.protocolName}`}
         key={`supported-key-${supportedKey.protocolName}-menu-item`}
         label={supportedKey.generated && <Icon name="check-line" size="lg" />}
         onSelect={() => {

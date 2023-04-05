@@ -57,7 +57,7 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
 
   render() {
     return (
-      <SwitchWrapped data-cy={this.props.input.name}>
+      <SwitchWrapped data-testid={this.props.input.name}>
         <Switch
           checked={this.value}
           className="switch-control"

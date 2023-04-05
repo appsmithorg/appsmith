@@ -72,7 +72,7 @@ describe("Image Widget Functionality", function () {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(".t--property-control-enabledownload input[type='checkbox']");
     cy.get(publish.imageWidget).trigger("mouseover");
-    cy.get(`${publish.imageWidget} a[data-cy=t--image-download]`).should(
+    cy.get(`${publish.imageWidget} a[data-testid=t--image-download]`).should(
       "have.attr",
       "href",
       this.data.NewImage,

@@ -77,7 +77,10 @@ function Collapsible(props: Props) {
   }, [defaultIsOpen, isOpen]);
 
   return (
-    <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
+    <section
+      data-replay-id={`section-${title}`}
+      data-testid={`section-${title}`}
+    >
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
       {showSection && (
         <SectionContainer

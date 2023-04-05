@@ -40,11 +40,11 @@ describe("Table Widget empty row color validation", function () {
     //Test 2. Validate empty row background
     // first cell of first row should be transparent
     cy.get(
-      ".t--widget-tablewidget .tbody div[data-cy='empty-row-0-cell-0']",
+      ".t--widget-tablewidget .tbody div[data-testid='empty-row-0-cell-0']",
     ).should("have.css", "background-color", "rgb(99, 102, 241)");
     // second cell of first row should be transparent
     cy.get(
-      ".t--widget-tablewidget .tbody div[data-cy='empty-row-0-cell-1']",
+      ".t--widget-tablewidget .tbody div[data-testid='empty-row-0-cell-1']",
     ).should("have.css", "background-color", "rgb(30, 58, 138)");
   });
 });

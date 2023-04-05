@@ -76,7 +76,7 @@ describe("Shopping cart App", function () {
       formControls.commandDropdown,
       "Insert Document(s)",
     );
-    // cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
+    // cy.get("[data-testid='actionConfiguration.formData.command.data']").click();
     // cy.get(".t--dropdown-option")
     //   .eq(1)
     //   .click();
@@ -106,7 +106,7 @@ describe("Shopping cart App", function () {
       formControls.commandDropdown,
       "Delete Document(s)",
     );
-    // cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
+    // cy.get("[data-testid='actionConfiguration.formData.command.data']").click();
     // cy.get(".t--dropdown-option")
     //   .eq(3)
     //   .click();

@@ -39,7 +39,7 @@ function HelpBar({ toggleShowModal }: Props) {
   return (
     <StyledHelpBar
       className="t--global-search-modal-trigger"
-      data-cy="global-search-modal-trigger"
+      data-testid="global-search-modal-trigger"
       onClick={toggleShowModal}
     >
       <Text color={Colors.GRAY_400} type={TextType.P2}>

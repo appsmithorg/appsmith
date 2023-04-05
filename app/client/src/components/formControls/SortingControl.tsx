@@ -216,7 +216,7 @@ function SortingComponent(props: any) {
               />
               {/* Component to render the delete icon */}
               <CenteredButton
-                data-cy={`t--sorting-delete-[${index}]`}
+                data-testid={`t--sorting-delete-[${index}]`}
                 isIconButton
                 kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
@@ -230,7 +230,7 @@ function SortingComponent(props: any) {
           );
         })}
       <StyledBottomLabelContainer
-        data-cy={`t--sorting-add-field`}
+        data-testid={`t--sorting-add-field`}
         onClick={() =>
           props.fields.push({
             column: "",

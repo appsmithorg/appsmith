@@ -68,7 +68,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
       content={!!configPropertyPathJsonValue ? JS_TOGGLE_DISABLED_MESSAGE : ""}
     >
       <JSToggleButton
-        cypressSelector={`t--${props.configProperty}-JS`}
+        data-testid={`t--${props.configProperty}-JS`}
         handleClick={handleViewTypeSwitch}
         isActive={viewType === ViewTypes.JSON}
         isToggleDisabled={!!configPropertyPathJsonValue}

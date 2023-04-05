@@ -454,7 +454,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: shareApp,
         text: "Share",
         icon: "share",
-        cypressSelector: "t--share",
+        "data-testid": "t--share",
       });
     }
     if (
@@ -466,7 +466,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: duplicateApp,
         text: "Duplicate",
         icon: "duplicate",
-        cypressSelector: "t--duplicate",
+        "data-testid": "t--duplicate",
       });
     }
     // add fork app option to menu
@@ -475,7 +475,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: forkApplicationInitiate,
         text: "Fork",
         icon: "fork-2",
-        cypressSelector: "t--fork-app",
+        "data-testid": "t--fork-app",
       });
     }
     if (!!props.enableImportExport && hasExportPermission) {
@@ -483,7 +483,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: exportApplicationAsJSONFile,
         text: "Export",
         icon: "download",
-        cypressSelector: "t--export-app",
+        "data-testid": "t--export-app",
       });
     }
     const updatedMoreActionItems: MenuItemProps[] = addItemsInContextMenu(
@@ -576,7 +576,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       text: "Are you sure?",
       icon: "delete-blank",
       type: "warning",
-      cypressSelector: "t--delete",
+      "data-testid": "t--delete",
     });
     setMoreActionItems(updatedActionItems);
   };
@@ -592,7 +592,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: askForConfirmation,
         text: "Delete",
         icon: "delete-blank",
-        cypressSelector: "t--delete-confirm",
+        "data-testid": "t--delete-confirm",
       });
       setMoreActionItems(moreActionItems);
     }
@@ -609,7 +609,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   const appNameText = (
-    <Text cypressSelector="t--app-card-name" type={TextType.H3}>
+    <Text data-testid="t--app-card-name" type={TextType.H3}>
       {props.application.name}
     </Text>
   );
