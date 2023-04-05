@@ -201,8 +201,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         tableHeaders: generateTypeDef(widget.tableHeaders),
         newRow: generateTypeDef(widget.newRow),
         isAddRowInProgress: "bool",
-        previousPageVisited: generateTypeDef(widget.previousPageVisited),
-        nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
       };
       return config;
     };

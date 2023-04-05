@@ -141,10 +141,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                 string,
                 unknown
               >,
-              // get(entityDefinitions, `${widgetType}`) as Record<
-              //   string,
-              //   unknown
-              // >,
               ["!doc", "!url"],
             ),
           );
