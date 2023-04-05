@@ -7,8 +7,6 @@ import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
-import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
 import {
   EDIT_DATASOURCE_MESSAGE,
   OAUTH_2_0,
@@ -22,6 +20,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { Icon } from "design-system";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -62,7 +61,15 @@ const DescriptionText = styled(Text)`
 function OAuthLabel(props: ErrorProps) {
   return (
     <OAuthContainer>
-      {props.hasError ? <SheildError /> : <SheildSuccess />}
+      <Icon
+        color={
+          props.hasError
+            ? "var(--ads-v2-color-fg-error)"
+            : "var(--ads-v2-color-fg-success)"
+        }
+        name="shield"
+        size="md"
+      />
       <OAuthText hasError={props.hasError}>
         {props.hasError ? OAUTH_ERROR() : OAUTH_2_0()}
       </OAuthText>

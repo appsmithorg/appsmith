@@ -3,7 +3,6 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { AppState } from "@appsmith/reducers";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import type { InputType } from "components/constants";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
@@ -14,7 +13,7 @@ import { Input } from "design-system";
 export const StyledInfo = styled.span`
   font-weight: normal;
   line-height: normal;
-  color: ${Colors.DOVE_GRAY};
+  color: var(--ads-v2-color-fg);
   font-size: 12px;
   margin-left: 1px;
 `;

@@ -45,7 +45,7 @@ const LabelIconWrapper = styled.span`
 `;
 
 const RequiredFieldWrapper = styled.span`
-  color: var(--appsmith-color-red-500);
+  color: var(--ads-v2-color-fg-error);
 `;
 
 // TODO: replace condition with props.config.dataType === "TOGGLE"
@@ -63,7 +63,7 @@ interface FormConfigProps extends FormControlProps {
   changesViewType: boolean;
 }
 
-// top contains label, subtitle, urltext, tooltip, dispaly type
+// top contains label, subtitle, urltext, tooltip, display type
 // bottom contains the info and error text
 // props.children will render the form element
 export default function FormConfig(props: FormConfigProps) {
