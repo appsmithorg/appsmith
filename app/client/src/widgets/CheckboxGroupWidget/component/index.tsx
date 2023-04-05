@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Alignment } from "@blueprintjs/core";
+import type { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
@@ -20,6 +20,7 @@ import LabelWithTooltip, {
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import type { ThemeProp } from "widgets/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -106,7 +107,7 @@ function SelectAll(props: SelectAllProps) {
       inline={inline}
       labelElement={
         <CheckboxLabel
-          alignment={Alignment.LEFT}
+          alignment={AlignWidgetTypes.LEFT}
           className="t--checkbox-widget-label"
           disabled={disabled}
         >
@@ -240,7 +241,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
               key={`${widgetId}-checkbox-${index}`}
               labelElement={
                 <CheckboxLabel
-                  alignment={Alignment.LEFT}
+                  alignment={AlignWidgetTypes.LEFT}
                   className="t--checkbox-widget-label"
                   disabled={isDisabled}
                 >

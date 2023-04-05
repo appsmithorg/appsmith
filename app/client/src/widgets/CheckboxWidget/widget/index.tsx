@@ -6,7 +6,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { Alignment } from "@blueprintjs/core";
+import { AlignWidgetTypes } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -53,11 +53,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             options: [
               {
                 startIcon: "skip-left-line",
-                value: Alignment.LEFT,
+                value: AlignWidgetTypes.LEFT,
               },
               {
                 startIcon: "skip-right-line",
-                value: Alignment.RIGHT,
+                value: AlignWidgetTypes.RIGHT,
               },
             ],
             validation: { type: ValidationTypes.TEXT },
@@ -349,7 +349,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   isRequired?: boolean;
   accentColor: string;
   borderRadius: string;
-  alignWidget: Alignment;
+  alignWidget: AlignWidgetTypes;
   labelPosition: LabelPosition;
   labelTextColor?: string;
   labelTextSize?: string;

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { Alignment } from "@blueprintjs/core";
+import { AlignWidgetTypes } from "widgets/constants";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -33,7 +33,7 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
 
 export const CheckboxLabel = styled.div<{
   disabled?: boolean;
-  alignment: Alignment;
+  alignment: AlignWidgetTypes;
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
@@ -101,7 +101,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           inputRef={this.props.inputRef}
           labelElement={
             <CheckboxLabel
-              alignment={this.props.alignWidget || Alignment.LEFT}
+              alignment={this.props.alignWidget || AlignWidgetTypes.LEFT}
               className="t--checkbox-widget-label"
               disabled={this.props.isDisabled}
               isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
@@ -124,7 +124,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 }
 
 export interface CheckboxComponentProps extends ComponentProps {
-  alignWidget?: Alignment;
+  alignWidget?: AlignWidgetTypes;
   noContainerPadding?: boolean;
   isChecked: boolean;
   isLoading: boolean;
