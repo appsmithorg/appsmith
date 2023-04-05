@@ -80,7 +80,7 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.commonLocators._responseTab);
   }
 
-  Close() {
+  CloseBottomBar() {
     this.agHelper.GetNClick(this.locators._closeButton);
   }
 

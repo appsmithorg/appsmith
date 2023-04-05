@@ -12,7 +12,7 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertSelectedTab("Errors");
     _.debuggerHelper.AssertSelectedTab("0");
     // verify if bottom bar is closed on clicking close icon in canvas.
-    _.debuggerHelper.Close();
+    _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
   });
 
@@ -26,7 +26,7 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.AssertSelectedTab("Errors");
       _.debuggerHelper.AssertSelectedTab("0");
       //Verify if bottom bar is closed on clicking close icon in API page.
-      _.debuggerHelper.Close();
+      _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Verify if bottom bar opens on clicking debugger icon in api page.
       _.debuggerHelper.ClickDebuggerIcon();
@@ -47,7 +47,7 @@ describe("Entity bottom bar", () => {
     // Verify if selected tab context is reatined on changing from api to JSEditor.
     _.debuggerHelper.AssertSelectedTab("Response");
     //Verify if bottom bar is closed on clicking close icon in JSEditor.
-    _.debuggerHelper.Close();
+    _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar is open on executing JSFunction.
     _.jsEditor.RunJSObj();
@@ -64,7 +64,7 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertSelectedTab("Errors");
     _.debuggerHelper.AssertSelectedTab("0");
     //Verify if bottom bar is closed on clicking close icon in datasource page.
-    _.debuggerHelper.Close();
+    _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in datasource page.
     _.debuggerHelper.ClickDebuggerIcon();
@@ -79,14 +79,14 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.AssertSelectedTab("Errors");
       _.debuggerHelper.AssertSelectedTab("0");
       //Verify if bottom bar is closed on clicking close icon in active datasource page.
-      _.debuggerHelper.Close();
+      _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Verify if bottom bar opens on clicking debugger icon in query page.
       _.dataSources.CreateQueryFromActiveTab(dbName, false);
       _.debuggerHelper.ClickDebuggerIcon();
       _.debuggerHelper.AssertOpen(PageType.Query);
       //Verify if bottom bar is closed on clicking close icon in query page.
-      _.debuggerHelper.Close();
+      _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Create and run query.
       _.agHelper.GetNClick(_.dataSources._templateMenu);
