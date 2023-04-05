@@ -2,11 +2,9 @@ import { dataTreeEvaluator } from "../handlers/evalTree";
 import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
 import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
-import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { get } from "lodash";
 import { isJSObjectVariable } from "./utils";
 import isDeepEqualES6 from "fast-deep-equal/es6";
-import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 export enum PatchType {
   "SET" = "SET",
@@ -20,27 +18,6 @@ export type Patch = {
 };
 
 export type UpdatedPathsMap = Record<string, Patch>;
-
-class JSVariableUpdates {
-  private static potentialUpdatedPathsMap: UpdatedPathsMap = {};
-
-  static add(patch: Patch) {
-    if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking)
-      return;
-    this.potentialUpdatedPathsMap[patch.path] = patch;
-    TriggerEmitter.emit(BatchKey.process_js_variable_updates);
-  }
-
-  static getMap() {
-    return this.potentialUpdatedPathsMap;
-  }
-
-  static clear() {
-    this.potentialUpdatedPathsMap = {};
-  }
-}
-
-export default JSVariableUpdates;
 
 export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
   // store exact path to diff
@@ -72,13 +49,12 @@ export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
 }
 
 // executes when worker is idle
-export function applyJSVariableUpdatesToEvalTree() {
-  const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getMap());
+export function applyJSVariableUpdatesToEvalTree(updatesMap: UpdatedPathsMap) {
+  const modifiedVariablesList = getUpdatedPaths(updatesMap);
 
   updateEvalTreeValueFromContext(modifiedVariablesList);
 
   if (modifiedVariablesList.length > 0) {
     evalTreeWithChanges(modifiedVariablesList);
   }
-  JSVariableUpdates.clear();
 }

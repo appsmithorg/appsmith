@@ -1,7 +1,22 @@
 import JSFactory from "../JSVariableFactory";
-import JSVariableUpdates from "../JSVariableUpdates";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
+import TriggerEmitter, {
+  jsVariableUpdatesHandlerWrapper,
+} from "workers/Evaluation/fns/utils/TriggerEmitter";
+
+const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
+jest.mock("../JSVariableUpdates.ts", () => ({
+  ...jest.requireActual("../JSVariableUpdates.ts"),
+  applyJSVariableUpdatesToEvalTree: (...args: any[]) => {
+    applyJSVariableUpdatesToEvalTreeMock(args);
+  },
+}));
+
+TriggerEmitter.on(
+  "process_js_variable_updates",
+  jsVariableUpdatesHandlerWrapper,
+);
 
 describe("JSVariableFactory", () => {
   it("trigger setters with JSVariableUpdates enabled", async () => {
@@ -29,33 +44,40 @@ describe("JSVariableFactory", () => {
     proxiedJSObject.map.set("a", 1);
     proxiedJSObject.set.add("hello");
 
-    // weakMap: new WeakMap(),
-    // weakSet: new WeakSet(),
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(applyJSVariableUpdatesToEvalTreeMock).toBeCalledTimes(1);
+    expect(applyJSVariableUpdatesToEvalTreeMock).toBeCalledWith([
+      {
+        "JSObject1.number": {
+          method: "SET",
+          path: "JSObject1.number",
+          value: 5,
+        },
+        "JSObject1.string": {
+          method: "SET",
+          path: "JSObject1.string",
+          value: "hello world",
+        },
+        "JSObject1.object": {
+          method: "GET",
+          path: "JSObject1.object",
+        },
+        "JSObject1.array": {
+          method: "GET",
+          path: "JSObject1.array",
+        },
+        "JSObject1.map": {
+          method: "GET",
+          path: "JSObject1.map",
+        },
+        "JSObject1.set": {
+          method: "GET",
+          path: "JSObject1.set",
+        },
+      },
+    ]);
 
-    expect(JSVariableUpdates.getMap()).toEqual({
-      "JSObject1.number": { method: "SET", path: "JSObject1.number", value: 5 },
-      "JSObject1.string": {
-        method: "SET",
-        path: "JSObject1.string",
-        value: "hello world",
-      },
-      "JSObject1.object": {
-        method: "GET",
-        path: "JSObject1.object",
-      },
-      "JSObject1.array": {
-        method: "GET",
-        path: "JSObject1.array",
-      },
-      "JSObject1.map": {
-        method: "GET",
-        path: "JSObject1.map",
-      },
-      "JSObject1.set": {
-        method: "GET",
-        path: "JSObject1.set",
-      },
-    });
+    applyJSVariableUpdatesToEvalTreeMock.mockClear();
   });
   it("trigger setters with JSVariableUpdates disabled", async () => {
     const jsObject = {
@@ -82,10 +104,9 @@ describe("JSVariableFactory", () => {
     proxiedJSObject.map.set("a", 1);
     proxiedJSObject.set.add("hello");
 
-    // weakMap: new WeakMap(),
-    // weakSet: new WeakSet(),
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(JSVariableUpdates.getMap()).toEqual({});
+    expect(applyJSVariableUpdatesToEvalTreeMock).toBeCalledTimes(0);
   });
   it("trigger getters with JSVariableUpdates enabled", async () => {
     const jsObject = {
@@ -112,31 +133,35 @@ describe("JSVariableFactory", () => {
     proxiedJSObject.map.set;
     proxiedJSObject.set.add;
 
-    expect(JSVariableUpdates.getMap()).toEqual({
-      "JSObject1.array": {
-        method: "GET",
-        path: "JSObject1.array",
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(applyJSVariableUpdatesToEvalTreeMock).toBeCalledWith([
+      {
+        "JSObject1.array": {
+          method: "GET",
+          path: "JSObject1.array",
+        },
+        "JSObject1.map": {
+          method: "GET",
+          path: "JSObject1.map",
+        },
+        "JSObject1.number": {
+          method: "GET",
+          path: "JSObject1.number",
+        },
+        "JSObject1.object": {
+          method: "GET",
+          path: "JSObject1.object",
+        },
+        "JSObject1.set": {
+          method: "GET",
+          path: "JSObject1.set",
+        },
+        "JSObject1.string": {
+          method: "GET",
+          path: "JSObject1.string",
+        },
       },
-      "JSObject1.map": {
-        method: "GET",
-        path: "JSObject1.map",
-      },
-      "JSObject1.number": {
-        method: "GET",
-        path: "JSObject1.number",
-      },
-      "JSObject1.object": {
-        method: "GET",
-        path: "JSObject1.object",
-      },
-      "JSObject1.set": {
-        method: "GET",
-        path: "JSObject1.set",
-      },
-      "JSObject1.string": {
-        method: "GET",
-        path: "JSObject1.string",
-      },
-    });
+    ]);
   });
 });

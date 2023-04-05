@@ -1,15 +1,25 @@
-import JSVariableUpdates, { getUpdatedPaths } from "../JSVariableUpdates";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
+import TriggerEmitter, {
+  jsVariableUpdatesHandlerWrapper,
+} from "workers/Evaluation/fns/utils/TriggerEmitter";
 
 jest.mock("../../evalTreeWithChanges.ts", () => {
   return {
     evalTreeWithChanges: () => ({}),
   };
 });
+
+const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
+jest.mock("../JSVariableUpdates.ts", () => ({
+  ...jest.requireActual("../JSVariableUpdates.ts"),
+  applyJSVariableUpdatesToEvalTree: (...args: any[]) => {
+    applyJSVariableUpdatesToEvalTreeMock(args);
+  },
+}));
 
 jest.mock("../../handlers/evalTree", () => {
   const evalTree = {
@@ -41,6 +51,11 @@ jest.mock("../../handlers/evalTree", () => {
     },
   };
 });
+
+TriggerEmitter.on(
+  "process_js_variable_updates",
+  jsVariableUpdatesHandlerWrapper,
+);
 
 describe("Mutation", () => {
   it("Global scope value mutation tracking", async () => {
@@ -82,23 +97,17 @@ describe("Mutation", () => {
     JSObject1.var2.add(3);
     `);
 
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     ExecutionMetaData.setExecutionMetaData({
       enableJSVarUpdateTracking: false,
     });
 
-    expect(JSVariableUpdates.getMap()).toEqual({
-      "JSObject1.var": { path: "JSObject1.var", method: "GET" },
-      "JSObject1.var2": {
-        path: "JSObject1.var2",
-        method: "GET",
+    expect(applyJSVariableUpdatesToEvalTreeMock).toBeCalledWith([
+      {
+        "JSObject1.var": { method: "GET", path: "JSObject1.var" },
+        "JSObject1.var2": { method: "GET", path: "JSObject1.var2" },
       },
-    });
-
-    const modifiedVariablesList = getUpdatedPaths(JSVariableUpdates.getMap());
-
-    expect(modifiedVariablesList).toEqual([
-      ["JSObject1", "var"],
-      ["JSObject1", "var2"],
     ]);
   });
 });

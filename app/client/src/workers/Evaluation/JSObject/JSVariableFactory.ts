@@ -1,6 +1,7 @@
-import JSVariableUpdates, { PatchType } from "./JSVariableUpdates";
+import { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
+import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 class JSFactory {
   static create(
@@ -17,14 +18,14 @@ class JSFactory {
         enumerable: true,
         configurable: true,
         get() {
-          JSVariableUpdates.add({
+          TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
             path: `${jsObjectName}.${varName}`,
             method: PatchType.GET,
           });
           return variable;
         },
         set(value) {
-          JSVariableUpdates.add({
+          TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
             path: `${jsObjectName}.${varName}`,
             method: PatchType.SET,
             value,
