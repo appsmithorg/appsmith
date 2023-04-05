@@ -45,6 +45,7 @@ import {
 import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 export function* fetchCurrentTenantConfigSaga(): any {
@@ -163,9 +164,6 @@ export function* validateLicenseSaga(
           localStorage.removeItem("showLicenseBanner");
           yield put(setBEBanner(false));
         }
-        if (shouldRedirectOnUpdate) {
-          window.location.assign(redirectUrl);
-        }
         if (shouldEnableFirstTimeUserOnboarding) {
           let urlObj;
           try {
@@ -190,9 +188,13 @@ export function* validateLicenseSaga(
               firstTimeUserOnboardingInit(applicationId, pageId as string),
             );
           }
+        } else if (
+          shouldRedirectOnUpdate &&
+          getIsSafeRedirectURL(redirectUrl)
+        ) {
+          window.location.assign(redirectUrl);
         }
       }
-      yield delay(2000);
       initLicenseStatusCheckSaga();
       yield put({
         type: ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS,
