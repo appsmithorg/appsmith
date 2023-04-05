@@ -661,7 +661,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
     dataSources.RunQuery({ expectedStatus: false });
-    cy.get(dataSources._queryError).contains("ns not found.");
+    agHelper.AssertContains("ns not found.");
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
