@@ -2,7 +2,7 @@ import { get, isEmpty, merge, set } from "lodash";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
+import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import evaluateSync from "workers/Evaluation/evaluate";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -19,7 +19,9 @@ import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import { jsPropertiesState } from "./jsPropertiesState";
 import type { JSActionEntity } from "entities/DataTree/types";
+import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -83,96 +85,105 @@ export function saveResolvedFunctionsAndJSUpdates(
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
+  jsPropertiesState.delete(entityName);
   const correctFormat = regex.test(entity.body);
 
   if (correctFormat) {
-    const body = entity.body.replace(/export default/g, "");
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
 
       const parseStartTime = performance.now();
-      const parsedObject = parseJSObjectWithAST(body);
+      const { parsedObject, success } = parseJSObject(entity.body);
       const parseEndTime = performance.now();
-      const JSObjectASTParseTime = parseEndTime - parseStartTime;
+      const JSObjectASTParseTime = getFixedTimeDifference(
+        parseEndTime,
+        parseStartTime,
+      );
       dataTreeEvalRef.logs.push({
         JSObjectName: entityName,
         JSObjectASTParseTime,
       });
       const actions: any = [];
       const variables: any = [];
-      if (!!parsedObject) {
-        parsedObject.forEach((parsedElement) => {
-          if (isTypeOfFunction(parsedElement.type)) {
-            ExecutionMetaData.setExecutionMetaData({
-              enableJSVarUpdateTracking: false,
-              enableJSFnPostProcessors: false,
-            });
-            const { errors, result } = evaluateSync(
-              parsedElement.value,
-              unEvalDataTree,
-              false,
-              undefined,
-              undefined,
-            );
-            ExecutionMetaData.setExecutionMetaData({
-              enableJSVarUpdateTracking: true,
-              enableJSFnPostProcessors: true,
-            });
-            if (errors.length) return;
+      if (success) {
+        if (!!parsedObject) {
+          jsPropertiesState.update(entityName, parsedObject);
+          parsedObject.forEach((parsedElement) => {
+            if (isJSFunctionProperty(parsedElement)) {
+              try {
+                ExecutionMetaData.setExecutionMetaData({
+                  enableJSVarUpdateTracking: false,
+                  enableJSFnPostProcessors: false,
+                });
+                const { result } = evaluateSync(
+                  parsedElement.value,
+                  unEvalDataTree,
+                  false,
+                );
 
-            let params: Array<{ key: string; value: unknown }> = [];
+                ExecutionMetaData.setExecutionMetaData({
+                  enableJSVarUpdateTracking: true,
+                  enableJSFnPostProcessors: true,
+                });
+                if (!!result) {
+                  let params: Array<{ key: string; value: unknown }> = [];
 
-            if (parsedElement.arguments) {
-              params = parsedElement.arguments.map(
-                ({ defaultValue, paramName }) => ({
-                  key: paramName,
-                  value: defaultValue,
-                }),
+                  if (parsedElement.arguments) {
+                    params = parsedElement.arguments.map(
+                      ({ defaultValue, paramName }) => ({
+                        key: paramName,
+                        value: defaultValue,
+                      }),
+                    );
+                  }
+
+                  const functionString = parsedElement.value;
+                  JSObjectCollection.updateResolvedFunctions(
+                    `${entityName}.${parsedElement.key}`,
+                    result,
+                  );
+                  JSObjectCollection.updateUnEvalState(
+                    `${entityName}.${parsedElement.key}`,
+                    functionString,
+                  );
+                  actions.push({
+                    name: parsedElement.key,
+                    body: functionString,
+                    arguments: params,
+                    parsedFunction: result,
+                    isAsync: false,
+                  });
+                }
+              } catch {
+                // in case we need to handle error state
+              }
+            } else if (parsedElement.type !== "literal") {
+              variables.push({
+                name: parsedElement.key,
+                value: parsedElement.value,
+              });
+              JSObjectCollection.updateUnEvalState(
+                `${entityName}.${parsedElement.key}`,
+                parsedElement.value,
               );
             }
-
-            const functionString = parsedElement.value;
-            JSObjectCollection.updateResolvedFunctions(
-              `${entityName}.${parsedElement.key}`,
-              result,
-            );
-            JSObjectCollection.updateUnEvalState(
-              `${entityName}.${parsedElement.key}`,
-              functionString,
-            );
-            actions.push({
-              name: parsedElement.key,
-              body: functionString,
-              arguments: params,
-              parsedFunction: result,
-              isAsync: false,
-            });
-          } else {
-            variables.push({
-              name: parsedElement.key,
-              value: parsedElement.value,
-            });
-            JSObjectCollection.updateUnEvalState(
-              `${entityName}.${parsedElement.key}`,
-              parsedElement.value,
-            );
-          }
-        });
-        const parsedBody = {
-          body: entity.body,
-          actions: actions,
-          variables,
-        };
-        set(jsUpdates, entityName, {
-          parsedBody,
-          id: entity.actionId,
-        });
-      } else {
-        set(jsUpdates, entityName, {
-          parsedBody: undefined,
-          id: entity.actionId,
-        });
+          });
+          const parsedBody = {
+            body: entity.body,
+            actions: actions,
+            variables,
+          };
+          set(jsUpdates, `${entityName}`, {
+            parsedBody,
+            id: entity.actionId,
+          });
+        } else {
+          set(jsUpdates, `${entityName}`, {
+            parsedBody: undefined,
+            id: entity.actionId,
+          });
+        }
       }
     } catch (e) {
       //if we need to push error as popup in case
@@ -200,6 +211,7 @@ export function parseJSActions(
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
   const unEvalState = JSObjectCollection.getUnEvalState();
   let jsUpdates: Record<string, JSUpdate> = {};
+  jsPropertiesState.startUpdate();
   if (!!differences && !!oldUnEvalTree) {
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -249,6 +261,7 @@ export function parseJSActions(
   }
 
   functionDeterminer.setupEval(unEvalDataTree);
+  jsPropertiesState.stopUpdate();
 
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;

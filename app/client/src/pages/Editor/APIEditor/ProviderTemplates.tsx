@@ -10,7 +10,7 @@ import type { ProviderViewerRouteParams } from "constants/routes";
 import {
   getProviderTemplates,
   getProvidersTemplatesLoadingState,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { ProviderTemplateArray } from "constants/providerConstants";

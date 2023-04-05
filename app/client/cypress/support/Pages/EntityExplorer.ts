@@ -12,7 +12,9 @@ type templateActions =
   | "Delete"
   | "Count"
   | "Distinct"
-  | "Aggregate";
+  | "Aggregate"
+  | "Select"
+  | "Create";
 
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -47,7 +49,7 @@ export class EntityExplorer {
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
   private _visibleTextSpan = (spanText: string) =>
-    "//span[text()='" + spanText + " Query']";
+    "//span[text()='" + spanText + "']";
   _createNewPopup = ".bp3-overlay-content";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _pinEntityExplorer = ".t--pin-entity-explorer";
@@ -191,9 +193,12 @@ export class EntityExplorer {
     this.agHelper.ValidateNetworkStatus("@clonePage", 201);
   }
 
-  public CreateNewDsQuery(dsName: string) {
+  public CreateNewDsQuery(dsName: string, isQuery = true) {
     cy.get(this.locator._createNew).last().click({ force: true });
-    cy.xpath(this._visibleTextSpan(dsName)).click({ force: true });
+    let overlayItem = isQuery
+      ? this._visibleTextSpan(dsName + " Query")
+      : this._visibleTextSpan(dsName);
+    this.agHelper.GetNClick(overlayItem);
   }
 
   public CopyPasteWidget(widgetName: string) {

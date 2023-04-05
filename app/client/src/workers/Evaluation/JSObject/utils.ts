@@ -223,7 +223,6 @@ export const removeFunctionsAndVariableJSCollection = (
     JSObjectCollection.removeVariable(`${entityName}.${varName}`);
   }
   //remove functions
-
   const reactivePaths = entity.reactivePaths;
   const meta = entity.meta;
 
