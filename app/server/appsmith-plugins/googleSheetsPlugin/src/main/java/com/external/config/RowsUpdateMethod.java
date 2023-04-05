@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
@@ -155,7 +156,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
                     // This is the object with the original values in the referred row
                     final JsonNode jsonNode = rowsGetMethod
-                            .transformExecutionResponse(jsonNodeBody, methodConfig)
+                            .transformExecutionResponse(jsonNodeBody, methodConfig, null)
                             .get(0);
 
                     if (jsonNode == null) {
@@ -221,7 +222,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,

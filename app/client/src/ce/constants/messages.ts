@@ -1498,6 +1498,8 @@ export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
+  "Google sheets authorised file ids key";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
