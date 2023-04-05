@@ -12,7 +12,6 @@ import type { BuilderRouteParams } from "constants/routes";
 import type { curlImportFormValues } from "./helpers";
 import { curlImportSubmitHandler } from "./helpers";
 import { createNewApiName } from "utils/AppsmithUtils";
-import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { Button } from "design-system";
@@ -42,8 +41,6 @@ const CurlIconWrapper = styled.div`
   height: 24px;
   margin-right: ${(props) => props.theme.spaces[3]}px;
   align-self: center;
-  background-color: ${Colors.GREY_2};
-  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,17 +52,16 @@ const CurlImportText = styled.p`
   flex: 0 1 auto;
   font-size: ${(props) => props.theme.fontSizes[5]}px;
   font-weight: ${(props) => props.theme.fontWeights[1]};
-  color: ${Colors.CODE_GRAY};
+  color: var(--ads-v2-color-fg);
 `;
 
 const StyledForm = styled(Form)`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: ${(props) => props.theme.spaces[7]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
-  color: var(--appsmith-color-black-800);
+  color: var(--ads-v2-color-fg);
   label {
     font-size: ${(props) => props.theme.fontSizes[4]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
@@ -77,6 +73,7 @@ const CurlHintText = styled.div`
   font-weight: ${(props) => props.theme.fontWeights[1]};
   margin: ${(props) => props.theme.spaces[2]}px 0px
     ${(props) => props.theme.spaces[9]}px 0px;
+  color: var(--ads-v2-color-fg);
 `;
 
 const CurlImportFormContainer = styled.div`
@@ -93,7 +90,8 @@ const CurlImportFormContainer = styled.div`
     min-width: 100%;
     max-width: 100%;
     overflow: auto;
-    border: 1px solid ${Colors.GREY_5};
+    border: 1px solid var(--ads-v2-color-border);
+    border-radius: var(--ads-v2-border-radius);
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
 `;
@@ -148,6 +146,7 @@ class CurlImportForm extends React.Component<Props> {
             https://mock-api.appsmith.com/users
           </CurlHintText>
           <CurlImportFormContainer>
+            {/*TODO: use ds text-area here? */}
             <Field
               autoFocus
               className="textAreaStyles"
