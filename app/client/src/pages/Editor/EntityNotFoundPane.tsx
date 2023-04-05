@@ -67,10 +67,6 @@ function EntityNotFoundPane(props: Props) {
       <div className="page-details">
         <p className="bold-text">{createMessage(INVALID_URL_ERROR)}</p>
         <p className="page-message">{createMessage(PAGE_NOT_FOUND_ERROR)}</p>
-        <p>Pathname: {history.location.pathname}</p>
-        <p>Search: {history.location.search}</p>
-        <p>Hash: {history.location.hash}</p>
-        <p>Action: {history.action}</p>
         <Button
           category={Category.secondary}
           className="button-position"
