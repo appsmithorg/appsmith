@@ -383,6 +383,8 @@ export default function* executePluginActionTriggerSaga(
     },
     state: action.actionConfiguration,
   });
+  // open response tab in debugger on triggered exection of action from widget.
+  yield call(openDebugger);
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
     action.id,
@@ -390,8 +392,6 @@ export default function* executePluginActionTriggerSaga(
     params,
   );
   const { isError, payload } = executePluginActionResponse;
-  // open response tab in debugger on triggered exection of action from widget.
-  yield call(openDebugger);
 
   if (isError) {
     AppsmithConsole.addErrors([
@@ -568,6 +568,8 @@ function* runActionSaga(
   });
 
   const { id, paginationField } = reduxAction.payload;
+  // open response tab in debugger on exection of action.
+  yield call(openDebugger);
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
@@ -583,11 +585,7 @@ function* runActionSaga(
     );
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
-    // open response tab in debugger on exection of action.
-    yield call(openDebugger);
   } catch (e) {
-    // open response tab in debugger on exection of action.
-    yield call(openDebugger);
     // When running from the pane, we just want to end the saga if the user has
     // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
@@ -837,16 +835,14 @@ function* executePageLoadAction(pageAction: PageAction) {
       name: "PluginExecutionError",
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
+    // open response tab in debugger on exection of action on page load.
+    yield call(openDebugger);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
         yield call(executePluginActionSaga, pageAction);
       payload = executePluginActionResponse.payload;
       isError = executePluginActionResponse.isError;
-      // open response tab in debugger on exection of action on page load.
-      yield call(openDebugger);
     } catch (e) {
-      // open response tab in debugger on exection of action on page load.
-      yield call(openDebugger);
       log.error(e);
 
       if (e instanceof UserCancelledActionExecutionError) {

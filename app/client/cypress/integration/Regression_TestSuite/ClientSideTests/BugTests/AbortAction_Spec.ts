@@ -11,7 +11,6 @@ const largeResponseApiUrl = "https://api.publicapis.org/entries";
 describe("Abort Action Execution", function () {
   it("1. Bug #14006, #16093 - Cancel Request button should abort API action execution", function () {
     _.apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
-    _.debuggerHelper.ClickDebuggerIcon();
     _.apiPage.RunAPI(false, 0);
     _.agHelper.GetNClick(_.locators._cancelActionExecution, 0, true);
     _.agHelper.AssertContains(
