@@ -1297,6 +1297,7 @@ Cypress.Commands.add("createSuperUser", () => {
 
   //Submit also not working
   cy.get(welcomePage.createSuperUser).submit();
+  cy.wait(5000); //waiting a bit before attempting logout
 
   // cy.get("body").then(($ele) => {
   //   if ($ele.find(locator._spanButton("Next").length) > 0) {
@@ -1317,7 +1318,7 @@ Cypress.Commands.add("createSuperUser", () => {
   //   );
   //   expect(interception.request.body).contains("signupForNewsletter=true");
   // });
-  cy.LogOut();
+  //cy.LogOut();//commenting since its done outside when createSuperUser() called in index.js
   cy.wait(2000);
 });
 
