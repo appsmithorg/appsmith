@@ -80,8 +80,9 @@ export const DropdownWrapper = styled(StyledFormGroup)`
     }
   } */
 
-  .ads-dropdown-errorMsg {
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
+  .dropdown-errorMsg {
+    font-size: 12px;
+    color: var(--ads-v2-color-fg-error);
   }
 `;
 
@@ -109,25 +110,26 @@ export function withDropdown(options: OptionType[]) {
     const selected = options.find(
       (option) => option.value == componentProps.input.value,
     ) || { label: componentProps.placeholder };
-    // const hasError = componentProps.meta.invalid && componentProps.meta.touched;
+    const hasError = componentProps.meta.invalid && componentProps.meta.touched;
 
     return (
-      <Select
-        className={DROPDOWN_CLASSNAME}
-        defaultValue={selected}
-        // errorMsg={hasError ? componentProps.meta.error : ""}
-        // fillOptions
-        onSelect={onSelect}
-        // options={options}
-        // showLabelOnly
-        // width={width}
-      >
-        {options.map((role, index) => (
-          <Option key={index} value={role.value}>
-            {role.label}
-          </Option>
-        ))}
-      </Select>
+      <>
+        <Select
+          className={DROPDOWN_CLASSNAME}
+          defaultValue={selected}
+          isValid={!hasError}
+          onSelect={onSelect}
+        >
+          {options.map((role, index) => (
+            <Option key={index} value={role.value}>
+              {role.label}
+            </Option>
+          ))}
+        </Select>
+        {hasError && (
+          <div className="dropdown-errorMsg">{componentProps.meta.error}</div>
+        )}
+      </>
     );
   };
 }
