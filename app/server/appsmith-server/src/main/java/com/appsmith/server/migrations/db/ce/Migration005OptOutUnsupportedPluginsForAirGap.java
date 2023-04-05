@@ -10,6 +10,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.constants.PluginConstants.PackageName.AMAZON_S3_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.DYNAMO_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.FIRESTORE_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.GOOGLE_SHEETS_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.RAPID_API_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REDSHIFT_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.SAAS_PLUGIN;
+
 @ChangeUnit(order = "005", id="opt-out-unsupported-plugins-airgap-instance", author = " ")
 public class Migration005OptOutUnsupportedPluginsForAirGap {
 
@@ -30,8 +38,8 @@ public class Migration005OptOutUnsupportedPluginsForAirGap {
         // Generally SaaS plugins and DBs which can't be self-hosted can be a candidate for opting out of air-gap as
         // these are dependent on external internet
         final Set<String> unsupportedPluginPackageNameInAirgap = Set.of(
-                "saas-plugin", "rapidapi-plugin", "firestore-plugin", "redshift-plugin", "dynamo-plugin",
-                "amazons3-plugin", "google-sheets-plugin"
+                SAAS_PLUGIN, RAPID_API_PLUGIN, FIRESTORE_PLUGIN, REDSHIFT_PLUGIN, DYNAMO_PLUGIN,
+                AMAZON_S3_PLUGIN, GOOGLE_SHEETS_PLUGIN
         );
 
         final Set<PluginType> cloudServicesDependentPluginTypes = Set.of(PluginType.SAAS, PluginType.REMOTE);
