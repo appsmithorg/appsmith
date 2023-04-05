@@ -2,9 +2,12 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 
-const regex = /\${ASSETS_CDN_URL}\/\S+(?<!;)(?<!`)(?<!,)(?<!})(?<!\))/g;
-const rootDir = path.resolve(__dirname, "src");
-console.log(rootDir);
+const regex = /(?:\${ASSETS_CDN_URL}|https:\/\/assets\.appsmith\.com)[^`"]+/g;
+
+const rootDir = [
+  path.resolve(__dirname, "src"),
+  path.join(path.resolve(__dirname, "../"), "server", "appsmith-server"),
+];
 
 function searchFiles(dir) {
   fs.readdirSync(dir).forEach((file) => {
@@ -52,4 +55,6 @@ function searchFiles(dir) {
   });
 }
 
-searchFiles(rootDir);
+for (const dir of rootDir) {
+  searchFiles(dir);
+}
