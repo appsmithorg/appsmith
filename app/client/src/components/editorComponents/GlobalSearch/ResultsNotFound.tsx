@@ -5,7 +5,7 @@ import { NO_SEARCH_DATA_TEXT } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "design-system-old";
 import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { isAirgapped } from "ce/utils/airgapHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Container = styled.div`
   display: flex;
