@@ -64,6 +64,7 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -381,8 +382,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
-              gsheetProjectID={gsheetProjectID}
-              gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
@@ -400,6 +399,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onSave={this.onSave}
           saveButtonText={createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
         />
+        {!!gsheetToken ? (
+          <GoogleSheetFilePicker
+            datasourceId={datasourceId}
+            gsheetProjectID={gsheetProjectID}
+            gsheetToken={gsheetToken}
+          />
+        ) : null}
       </>
     );
   };
