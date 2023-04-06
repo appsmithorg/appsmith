@@ -28,6 +28,8 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentAppPositioningType,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
@@ -36,7 +38,6 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import {
   getLeftColumn,
@@ -52,6 +53,7 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import type { AppState } from "ce/reducers";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -63,7 +65,8 @@ export function* updateLayoutForMobileCheckpoint(
 ) {
   try {
     const start = performance.now();
-
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    if (!isAutoLayout) return;
     //Do not recalculate columns and update layout while converting layout
     const isCurrentlyConvertingLayout: boolean = yield select(
       getIsCurrentlyConvertingLayout,
@@ -87,7 +90,7 @@ export function* updateLayoutForMobileCheckpoint(
 
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
-      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
+      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -190,7 +193,7 @@ let autoLayoutWidgetDimensionUpdateBatch: Record<
   { width: number; height: number }
 > = {};
 
-function addWidgetToAutoLayoutDimensionUpdateBatch(
+function batchWidgetDimensionsUpdateForAutoLayout(
   widgetId: string,
   width: number,
   height: number,
@@ -205,11 +208,14 @@ function* updateWidgetDimensionsSaga(
   const { widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isMobile: boolean = yield select(getIsMobile);
-  const isResizing: boolean = yield select(getIsResizing);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const isWidgetResizing: boolean = yield select(getIsResizing);
+  const isCanvasResizing: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
 
   const widget = allWidgets[widgetId];
-  if (!widget || isResizing) return;
+  if (!widget) return;
 
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
     widget,
@@ -249,10 +255,13 @@ function* updateWidgetDimensionsSaga(
     width = widgetMinMaxDimensions.maxWidth;
   }
 
-  addWidgetToAutoLayoutDimensionUpdateBatch(widgetId, width, height);
-  yield put({
-    type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
-  });
+  batchWidgetDimensionsUpdateForAutoLayout(widgetId, width, height);
+
+  if (!isWidgetResizing && !isCanvasResizing) {
+    yield put({
+      type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+    });
+  }
 }
 
 /**
@@ -261,9 +270,11 @@ function* updateWidgetDimensionsSaga(
  * It also updates the position of other affected widgets as well.
  */
 function* processAutoLayoutDimensionUpdatesSaga() {
+  if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
+
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
   let widgets = allWidgets;
   const widgetsOld = { ...widgets };

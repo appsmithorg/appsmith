@@ -403,8 +403,10 @@ export const handlers = {
       isSavingAppName = true;
     }
     if (state.currentApplication && action.payload.applicationDetail) {
-      state.currentApplication.applicationDetail =
-        action.payload.applicationDetail;
+      state.currentApplication.applicationDetail = {
+        ...state.currentApplication.applicationDetail,
+        ...action.payload.applicationDetail,
+      };
     }
 
     if (action.payload.applicationDetail?.navigationSetting) {

@@ -21,7 +21,7 @@ export type WorkspaceUserRoles = {
   id: string;
   name: string;
   description: string;
-  entityType: string;
+  entityType: ENTITY_TYPE;
   entityName: string;
   entityId: string;
   autoCreated: boolean;
@@ -44,3 +44,8 @@ export type Workspaces = {
   workspace: Workspace;
   users: WorkspaceUser[];
 };
+
+export enum ENTITY_TYPE {
+  WORKSPACE = "Workspace",
+  APPLICATION = "Application",
+}

@@ -58,6 +58,7 @@ import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import type { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import WidgetFactory from "utils/WidgetFactory";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -73,47 +74,6 @@ export const getProviderCategories = (state: AppState) =>
 
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
-export const getDimensionMap = (state: AppState) => {
-  return state.ui.mainCanvas?.isMobile
-    ? {
-        leftColumn: "mobileLeftColumn",
-        rightColumn: "mobileRightColumn",
-        topRow: "mobileTopRow",
-        bottomRow: "mobileBottomRow",
-      }
-    : DefaultDimensionMap;
-};
-
-export const getWidgetsForBreakpoint = createSelector(
-  getDimensionMap,
-  getWidgets,
-  (
-    dimensionMap: any,
-    widgets: CanvasWidgetsReduxState,
-  ): CanvasWidgetsReduxState => {
-    const dimensions = Object.keys(dimensionMap);
-    const proxyHandler = {
-      get(target: any, prop: any) {
-        if (dimensions.includes(prop)) {
-          const actualMap = dimensionMap[prop];
-          if (!!target[actualMap]) {
-            return target[actualMap];
-          }
-        }
-        return Reflect.get(target, prop);
-      },
-    };
-    return Object.keys(widgets).reduce((allWidgets, each) => {
-      const widget = { ...allWidgets[each] };
-      const proxyWidget = new Proxy(widget, proxyHandler);
-      allWidgets = {
-        ...allWidgets,
-        [each]: proxyWidget,
-      };
-      return allWidgets;
-    }, widgets);
-  },
-);
 
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
@@ -380,22 +340,29 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
-  (widgetConfigs: WidgetConfigReducerState) => {
+  getIsAutoLayout,
+  (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
     const cards = Object.values(widgetConfigs.config).filter(
       (config) => !config.hideCard,
     );
 
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
-        columns,
         detachFromLayout = false,
         displayName,
         iconSVG,
         key,
-        rows,
         searchTags,
         type,
       } = config;
+      let { columns, rows } = config;
+      const autoLayoutConfig = WidgetFactory.getWidgetAutoLayoutConfig(type);
+
+      if (isAutoLayout && autoLayoutConfig) {
+        rows = autoLayoutConfig?.defaults?.rows ?? rows;
+        columns = autoLayoutConfig?.defaults?.columns ?? columns;
+      }
+
       return {
         key,
         type,
@@ -410,6 +377,70 @@ export const getWidgetCards = createSelector(
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
     return sortedCards;
+  },
+);
+const getIsMobileBreakPoint = (state: AppState) => state.ui.mainCanvas.isMobile;
+export const getIsAutoLayoutMobileBreakPoint = createSelector(
+  getIsAutoLayout,
+  getIsMobileBreakPoint,
+  (isAutoLayout, isMobileBreakPoint) => {
+    return isAutoLayout && isMobileBreakPoint;
+  },
+);
+
+export const getDimensionMap = createSelector(
+  getIsAutoLayoutMobileBreakPoint,
+  (isAutoLayoutMobileBreakPoint: boolean) => {
+    return isAutoLayoutMobileBreakPoint
+      ? {
+          leftColumn: "mobileLeftColumn",
+          rightColumn: "mobileRightColumn",
+          topRow: "mobileTopRow",
+          bottomRow: "mobileBottomRow",
+        }
+      : DefaultDimensionMap;
+  },
+);
+const addWidgetDimensionProxy = (
+  dimensionMap: any,
+  widgets: CanvasWidgetsReduxState,
+) => {
+  const dimensions = Object.keys(dimensionMap);
+  const proxyHandler = {
+    get(target: any, prop: any) {
+      if (dimensions.includes(prop)) {
+        const actualMap = dimensionMap[prop];
+        if (!!target[actualMap]) {
+          return target[actualMap];
+        }
+      }
+      return Reflect.get(target, prop);
+    },
+  };
+  return Object.keys(widgets).reduce((allWidgets, each) => {
+    const widget = { ...allWidgets[each] };
+    const proxyWidget = new Proxy(widget, proxyHandler);
+    allWidgets = {
+      ...allWidgets,
+      [each]: proxyWidget,
+    };
+    return allWidgets;
+  }, widgets);
+};
+export const getWidgetsForBreakpoint = createSelector(
+  getDimensionMap,
+  getIsAutoLayoutMobileBreakPoint,
+  getWidgets,
+  (
+    dimensionMap: any,
+    isAutoLayoutMobileBreakPoint: boolean,
+    widgets: CanvasWidgetsReduxState,
+  ): CanvasWidgetsReduxState => {
+    if (isAutoLayoutMobileBreakPoint) {
+      return addWidgetDimensionProxy(dimensionMap, widgets);
+    } else {
+      return widgets;
+    }
   },
 );
 

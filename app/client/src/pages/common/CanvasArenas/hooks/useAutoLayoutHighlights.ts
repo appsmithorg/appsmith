@@ -1,7 +1,6 @@
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -9,6 +8,7 @@ import type { Point } from "utils/autoLayout/highlightSelectionUtils";
 import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";
+import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
@@ -32,7 +32,7 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
-  const isMobile = useSelector(getIsMobile);
+  const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
   const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;

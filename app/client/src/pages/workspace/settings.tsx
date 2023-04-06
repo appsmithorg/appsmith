@@ -36,6 +36,7 @@ import {
   SEARCH_USERS,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -108,11 +109,26 @@ export default function Settings() {
 
   const currentTab = location.pathname.split("/").pop();
 
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
+
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   useEffect(() => {
+    if (
+      (!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+      (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)
+    ) {
+      history.replace(APPLICATIONS_URL);
+    }
     if (currentWorkspace) {
       setPageTitle(`${currentWorkspace?.name}`);
     }
@@ -156,11 +172,6 @@ export default function Settings() {
       setSearchValue("");
     }
   }, 300);
-
-  const isMemberofTheWorkspace = isPermitted(
-    currentWorkspace?.userPermissions || [],
-    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-  );
 
   const tabArr: TabProp[] = [
     isMemberofTheWorkspace && {

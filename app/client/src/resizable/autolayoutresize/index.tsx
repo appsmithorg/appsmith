@@ -46,6 +46,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import { isFunction } from "lodash";
 
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
@@ -600,9 +601,12 @@ export function ReflowResizable(props: ResizableProps) {
     let disableResizing = false;
 
     if (widget && widget.type) {
-      const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+      let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
         widget.type,
       );
+      if (isFunction(disableResizeHandles)) {
+        disableResizeHandles = disableResizeHandles(widget);
+      }
 
       disableResizing = isResizingDisabled(
         disableResizeHandles,
@@ -651,6 +655,7 @@ export function ReflowResizable(props: ResizableProps) {
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     props.topRow <= 2,
     props.showResizeBoundary,
+    props.allowResize,
     props.isHovered,
   );
   return (

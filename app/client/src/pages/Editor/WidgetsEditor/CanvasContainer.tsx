@@ -142,21 +142,22 @@ function CanvasContainer(props: CanvasContainerProps) {
    * - 3. bottom bar (footer with debug/logs buttons)
    */
   const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
-
   const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
   const smallHeaderHeight = showCanvasTopSection
     ? theme.smallHeaderHeight
     : "0px";
+  const scrollBarHeight =
+    isPreviewMode || isPreviewingNavigation ? "8px" : "40px";
   // calculating exact height to not allow scroll at this component,
-  // calculating total height minus margin on top, top bar and bottom bar
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight})`;
+  // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
   const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
       <Container
         $isAutoLayout={isAutoLayout}
         background={
-          isPreviewMode
+          isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
             ? selectedTheme.properties.colors.backgroundColor
             : "initial"
         }

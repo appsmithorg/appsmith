@@ -32,7 +32,11 @@ import {
   checkContainersForAutoHeightAction,
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 type DropTargetComponentProps = PropsWithChildren<{
@@ -126,9 +130,8 @@ function useUpdateRows(
    */
   const isParentAutoHeightEnabled = useSelector((state: AppState) => {
     return parentId
-      ? !isAutoHeightEnabledForWidget(
+      ? !isAutoHeightEnabledForWidgetWithLimits(
           state.entities.canvasWidgets[parentId],
-          true,
         ) &&
           isAutoHeightEnabledForWidget(state.entities.canvasWidgets[parentId])
       : false;
