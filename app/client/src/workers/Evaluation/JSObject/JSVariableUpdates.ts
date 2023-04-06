@@ -21,13 +21,14 @@ export type UpdatedPathsMap = Record<string, Patch>;
 
 export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
   // store exact path to diff
-  const updatedVariables = [];
+  const updatedVariables: string[][] = [];
 
   const patches = Object.entries(potentialUpdatedPathsMap);
 
+  if (!dataTreeEvaluator) return updatedVariables;
+
   for (const [fullPath, patch] of patches) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-    if (!dataTreeEvaluator) continue;
     const configTree = dataTreeEvaluator?.oldConfigTree;
 
     if (!isJSObjectVariable(entityName, propertyPath, configTree)) continue;

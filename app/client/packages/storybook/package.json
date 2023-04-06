@@ -13,7 +13,6 @@
   "devDependencies": {
     "@babel/core": "^7.20.12",
     "@storybook/addon-actions": "^6.5.16",
-    "@storybook/addon-docs": "^6.5.16",
     "@storybook/addon-essentials": "^6.5.16",
     "@storybook/addon-interactions": "^6.5.16",
     "@storybook/addon-links": "^6.5.16",
@@ -39,9 +38,9 @@
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
     "@capsizecss/metrics": "^1.0.1",
-    "@design-system/wds": "*",
     "colorjs.io": "^0.4.3",
     "react": "^17.0.2",
+    "react-docgen-typescript": "^2.2.2",
     "react-dom": "^17.0.2"
   }
 }
