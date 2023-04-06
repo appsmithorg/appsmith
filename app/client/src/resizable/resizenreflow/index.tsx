@@ -446,6 +446,7 @@ export function ReflowResizable(props: ResizableProps) {
           className={props.className}
           id={`resize-${props.widgetId}`}
           ref={resizableRef}
+          showBoundaries={props.showResizeBoundary}
           style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}
