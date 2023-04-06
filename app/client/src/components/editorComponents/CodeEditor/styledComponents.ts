@@ -118,6 +118,8 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: 0px;
+      font-family: ${(props) => props.theme.fonts.code};
+      font-size: 13px;
       border: 1px solid
         ${(props) => {
           switch (true) {
@@ -139,6 +141,114 @@ export const EditorWrapper = styled.div<{
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
         }
+      }
+      .cm-property {
+        color: hsl(21, 70%, 53%);
+      }
+      .cm-keyword {
+        color: #304eaa;
+      }
+
+      /* gutter arrow to collapse or expand code */
+      .CodeMirror-guttermarker-subtle {
+        color: #442334;
+      }
+
+      /* Text selection */
+      .cm-s-duotone-light div.CodeMirror-selected {
+        background: #d8e8fd;
+      }
+      .cm-string,
+      .token.string {
+        color: #1659df;
+      }
+
+      /* json response in the debugger */
+      .cm-string.cm-property {
+        color: hsl(21, 70%, 53%);
+      }
+
+      /* +, =>, -, etc. operators */
+      span.cm-operator {
+        /*color: #3676F2;*/
+        /* color: #689dd5; */
+        color: #009595;
+      }
+
+      /* function arguments */
+      .cm-def {
+        color: #364252; /* This is gray-7 from our new shades of gray */
+      }
+
+      /* variable declarations */
+      .cm-keyword + span + .cm-def {
+        color: #364252;
+      }
+
+      /* function arguments */
+      .cm-def,
+      .cm-property + span + .cm-def,
+      .cm-def + span + .cm-def {
+        /* color: peru; */
+        color: hsl(288, 44%, 44%);
+      }
+
+      /* object keys */
+      /* .cm-variable + span+ .cm-property, .cm-property + span + .cm-property {
+          color: #364562;
+      } */
+
+      .cm-atom + span + .cm-property,
+      .cm-variable-2 + span + .cm-property {
+        color: #364252;
+      }
+
+      /* object keys, object methods */
+      .cm-keyword + span + .cm-property,
+      .cm-variable + span + .cm-property,
+      .cm-property + span + .cm-property,
+      .cm-number + span + .cm-property,
+      .cm-string + span + .cm-property,
+      .cm-operator + span + .cm-property {
+        color: hsl(30, 77%, 40%);
+      }
+
+      span.cm-number {
+        color: #555;
+      }
+
+      .cm-s-duotone-light span.cm-variable-2,
+      .cm-s-duotone-light span.cm-variable-3 {
+        color: #364252;
+      }
+
+      .cm-positive,
+      .cm-string-2,
+      .cm-type,
+      .cm-url {
+        color: #364252;
+      }
+
+      .binding-brackets,
+      .CodeMirror-matchingbracket,
+      .binding-highlight {
+        font-weight: 400;
+      }
+
+      .navigable-entity-highlight:hover {
+        background-color: #ededed;
+        font-weight: 600;
+      }
+
+      .binding-brackets {
+        letter-spacing: -1.8px;
+        color: hsl(222, 70%, 77%);
+      }
+
+      /* some sql fixes */
+      .cm-m-sql.cm-keyword {
+        font-weight: 600;
+        text-transform: uppercase;
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
