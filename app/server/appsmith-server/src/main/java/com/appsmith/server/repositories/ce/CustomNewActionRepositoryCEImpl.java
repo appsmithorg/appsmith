@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.QActionConfiguration;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
@@ -304,5 +305,18 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria defaultActionIdCriteria = where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
         Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return queryOne(List.of(defaultActionIdCriteria, branchCriteria), permission);
+    }
+
+    @Override
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
 }
