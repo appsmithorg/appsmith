@@ -110,8 +110,17 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Flux<UserGroupCompactDTO> getAllWithAddUserPermission() {
-        return this.getAll(ADD_USERS_TO_USER_GROUPS).map(this::generateUserGroupCompactDTO);
+    public Mono<List<UserGroupCompactDTO>> getAllWithAddUserPermission() {
+        return this.getAll(ADD_USERS_TO_USER_GROUPS)
+                .map(this::generateUserGroupCompactDTO)
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<UserGroupCompactDTO>> getAllReadableGroups() {
+        return this.getAll(READ_USER_GROUPS)
+                .map(this::generateUserGroupCompactDTO)
+                .collectList();
     }
 
     @Override

@@ -75,7 +75,7 @@ export class AclApi extends Api {
   static roles = "/v1/roles";
   static userGroups = "/v1/user-groups";
   static inviteViaRoles = "/v1/roles/assign";
-  static inviteViaGroups = "/v1/user-groups/for-invite";
+  static inviteViaGroups = "/v1/user-groups/add-member";
   static iconLocation = "/v1/plugins/icon-location";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {

@@ -8,6 +8,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
+import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
@@ -34,6 +35,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -821,5 +823,64 @@ public class UserGroupServiceTest {
         Optional<UserCompactDTO> user = users.stream().filter(_user -> createdUser1.getId().equals(_user.getId())).findFirst();
         assertThat(user.isPresent()).isTrue();
         assertThat(user.get().getPhotoId()).isEqualTo(testName);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testGetAllReadableGroups() {
+        String testName = "testGetAllReadableGroups";
+
+        PermissionGroup role = new PermissionGroup();
+        role.setName(testName);
+        role.setAssignedToUserIds(Set.of(api_user.getId()));
+        PermissionGroup createdRole = permissionGroupService.create(role).block();
+
+        UserGroup group1 = new UserGroup();
+        group1.setName(testName + 1);
+        group1.setDescription(testName);
+        // Policy of this group have been updated to only be read by createdRole.
+        UserGroup createdGroup1 = userGroupService.createGroup(group1)
+                .flatMap(groupDTO -> userGroupRepository.findById(groupDTO.getId()))
+                .flatMap(group -> {
+                    Set<Policy> policies = group.getPolicies();
+                    Optional<Policy> optionalReadGroupPolicy = policies.stream()
+                            .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue())).findFirst();
+                    if (optionalReadGroupPolicy.isPresent()) {
+                        Policy readGroupPolicy = optionalReadGroupPolicy.get();
+                        readGroupPolicy.setPermissionGroups(Set.of(createdRole.getId()));
+                    } else {
+                        Policy readGroupPolicy = Policy.builder()
+                                .permission(READ_USER_GROUPS.getValue())
+                                .permissionGroups(Set.of(createdRole.getId()))
+                                .build();
+                        policies.add(readGroupPolicy);
+                    }
+                    return userGroupRepository.save(group);
+                })
+                .block();
+
+        UserGroup group2 = new UserGroup();
+        group2.setName(testName + 2);
+        group2.setDescription(testName);
+        UserGroup createdGroup2 = userGroupService.createGroup(group2)
+                .flatMap(groupDTO -> userGroupRepository.findById(groupDTO.getId()))
+                .block();
+
+        List<UserGroupCompactDTO> readableGroups = userGroupService.getAllReadableGroups().block();
+        assertThat(readableGroups).isNotEmpty();
+        // Assert that api_user can read createdGroup1. (Read User Group ability provided only to createdRole.)
+        Optional<UserGroupCompactDTO> groupCompactDTOReadable1 = readableGroups.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group1.getId())).findFirst();
+        assertThat(groupCompactDTOReadable1.isPresent()).isTrue();
+        assertThat(groupCompactDTOReadable1.get().getName()).isEqualTo(createdGroup1.getName());
+
+        // Assert that api_user can read createdGroup2. (api_user is super admin.)
+        Optional<UserGroupCompactDTO> groupCompactDTOReadable2 = readableGroups.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group2.getId())).findFirst();
+        assertThat(groupCompactDTOReadable2.isPresent()).isTrue();
+        assertThat(groupCompactDTOReadable2.get().getName()).isEqualTo(createdGroup2.getName());
+
+        // Test cleanup
+        userGroupRepository.delete(createdGroup1).block();
+        userGroupRepository.delete(createdGroup2).block();
+
     }
 }
