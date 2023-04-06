@@ -11,6 +11,8 @@ const StyledContainer = styled.div`
   padding: 8px;
   align-items: center;
   justify-content: center;
+  background: var(--color-bg);
+  color: var(--color-fg);
 `;
 const { fontFaces } = createGlobalFontStack();
 
@@ -51,6 +53,19 @@ export const theming = (Story, args) => {
   }, [args.globals.accentColor]);
 
   useEffect(() => {
+    if (args.globals.colorScheme) {
+      tokensAccessor.updateColorScheme(args.globals.colorScheme);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getColors(),
+        };
+      });
+    }
+  }, [args.globals.colorScheme]);
+
+  useEffect(() => {
     if (args.globals.borderRadius) {
       tokensAccessor.updateBorderRadius({
         1: args.globals.borderRadius,
@@ -66,11 +81,11 @@ export const theming = (Story, args) => {
   }, [args.globals.borderRadius]);
 
   return (
-    <StyledContainer>
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme} UNSAFE_style={{ height: "100%" }}>
+      <StyledContainer>
         <GlobalStyles />
         <Story fontFamily={args.globals.fontFamily} />
-      </ThemeProvider>
-    </StyledContainer>
+      </StyledContainer>
+    </ThemeProvider>
   );
 };

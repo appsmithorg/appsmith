@@ -13,30 +13,41 @@ type TokenType =
   | "borderWidth"
   | "opacity";
 
+type ColorScheme = "light" | "dark";
+
 type Token = {
   value: string | number;
   type: TokenType;
 };
 
-type ThemeTokens = {
+export type ThemeTokens = {
   [key in TokenType]: { [key: string]: Token };
 };
 
 type TokenObj = { [key: string]: string | number };
 
 export class TokensAccessor {
+  private accentColor;
+
   constructor(
     private color: ColorTypes = defaultTokens.seedColor,
+    private colorScheme: ColorScheme = defaultTokens.colorScheme as ColorScheme,
     private rootUnit: number = defaultTokens.rootUnit,
     private borderRadius: TokenObj = defaultTokens.borderRadius,
     private boxShadow: TokenObj = defaultTokens.boxShadow,
     private borderWidth: TokenObj = defaultTokens.borderWidth,
     private opacity: TokenObj = defaultTokens.opacity,
     private colorsAccessor: ColorsAccessor = new ColorsAccessor(color),
-  ) {}
+  ) {
+    this.accentColor = this.colorsAccessor.getHex();
+  }
 
   updateSeedColor = (color: ColorTypes) => {
-    this.colorsAccessor.updateColor(color);
+    this.accentColor = this.colorsAccessor.updateColor(color).getHex();
+  };
+
+  updateColorScheme = (colorScheme: ColorScheme) => {
+    this.colorScheme = colorScheme;
   };
 
   updateBorderRadius = (borderRadius: TokenObj) => {
@@ -55,6 +66,8 @@ export class TokensAccessor {
       fgAccent: this.getFgAccent(),
       fgOnAccent: this.getFgOnAccent(),
       bdFocus: this.getBdFocus(),
+      bg: this.getBg(),
+      fg: this.getFg(),
     };
 
     return this.createTokenObject(colors, "color");
@@ -127,31 +140,129 @@ export class TokensAccessor {
   };
 
   private getBgAccent = () => {
-    return this.colorsAccessor.getHex();
+    return this.accentColor;
   };
 
   private getBgAccentHover = () => {
-    return this.colorsAccessor.lighten(this.getBgAccent());
+    if (this.isLightMode) {
+      this.colorsAccessor.lighten(this.getBgAccent(), 1.06);
+    }
+
+    return this.colorsAccessor.lighten(this.getBgAccent(), 1.04);
   };
 
   private getBgAccentActive = () => {
-    return this.colorsAccessor.lighten(this.getBgAccentHover());
+    if (this.isLightMode) {
+      return this.colorsAccessor.lighten(this.getBgAccentHover(), 0.98);
+    }
+
+    return this.colorsAccessor.lighten(this.getBgAccentHover(), 0.94);
+  };
+
+  private getAccentSubtle = () => {
+    let currentColor = this.accentColor;
+
+    if (this.isLightMode) {
+      if (this.colorsAccessor.getLightness() > 100) {
+        currentColor = this.colorsAccessor.setColor(currentColor, {
+          l: 100,
+        });
+      }
+
+      if (this.colorsAccessor.getLightness() < 90) {
+        currentColor = this.colorsAccessor.setColor(currentColor, {
+          l: 90,
+        });
+      }
+
+      if (this.colorsAccessor.getChroma() > 20) {
+        currentColor = this.colorsAccessor.setColor(currentColor, {
+          c: 14,
+        });
+      }
+
+      return currentColor;
+    }
+
+    if (this.colorsAccessor.getLightness() > 20) {
+      currentColor = this.colorsAccessor.setColor(currentColor, {
+        l: 20,
+      });
+    }
+
+    if (this.colorsAccessor.getChroma() > 14) {
+      currentColor = this.colorsAccessor.setColor(currentColor, {
+        c: 14,
+      });
+    }
+
+    return currentColor;
   };
 
   private getBgAccentSubtleHover = () => {
-    return this.colorsAccessor.lighten(this.getBgAccent(), 0.3);
+    if (this.isLightMode) {
+      this.colorsAccessor.lighten(this.getAccentSubtle(), 0.98);
+    }
+
+    return this.colorsAccessor.lighten(this.getAccentSubtle(), 1.03);
   };
 
   private getAccentSubtleActive = () => {
-    return this.colorsAccessor.lighten(this.getBgAccentSubtleHover());
+    if (this.isLightMode) {
+      this.colorsAccessor.lighten(this.getAccentSubtle(), 1.03);
+    }
+
+    return this.colorsAccessor.lighten(this.getAccentSubtle(), 0.98);
   };
 
   private getBdAccent = () => {
-    return this.colorsAccessor.getHex();
+    if (this.isLightMode) {
+      if (
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) >= 15
+      ) {
+        return this.colorsAccessor.setColor(this.accentColor, {
+          l: 15,
+          c: 8,
+        });
+      }
+
+      return this.accentColor;
+    }
+
+    if (
+      this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= -15
+    ) {
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 98.5,
+        c: 2,
+      });
+    }
+
+    return this.accentColor;
   };
 
   private getFgAccent = () => {
-    return this.colorsAccessor.getHex();
+    if (this.isLightMode) {
+      if (
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= -60
+      ) {
+        return this.colorsAccessor.setColor(this.accentColor, {
+          l: 45,
+          c: 30,
+        });
+      }
+
+      return this.accentColor;
+    }
+
+    if (this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= 60) {
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 79,
+        c: 17,
+      });
+    }
+
+    return this.accentColor;
   };
 
   private getFgOnAccent = () => {
@@ -159,6 +270,38 @@ export class TokensAccessor {
   };
 
   private getBdFocus = () => {
-    return this.colorsAccessor.getFocus();
+    return defaultTokens.focusColor;
   };
+
+  private getBg = () => {
+    if (this.isLightMode) {
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 98.5,
+        c: 2,
+      });
+    }
+
+    return this.colorsAccessor.setColor(this.accentColor, {
+      l: 15,
+      c: 8,
+    });
+  };
+
+  private getFg = () => {
+    if (this.isLightMode) {
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 12,
+        c: 4,
+      });
+    }
+
+    return this.colorsAccessor.setColor(this.accentColor, {
+      l: 96.5,
+      c: 3,
+    });
+  };
+
+  private get isLightMode() {
+    return this.colorScheme === "light";
+  }
 }

@@ -1,0 +1,59 @@
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { TestComponent } from "./TestComponent";
+import { Button } from "../Button";
+
+<Meta
+  title="Design-system/widgets/Tertiary button test"
+  component={TestComponent}
+/>
+
+export const Template = (args) => (
+  <>
+    <h3>{args.title}</h3>
+    <TestComponent>
+      <Button {...args}>Test</Button>
+    </TestComponent>
+  </>
+);
+
+<Canvas>
+  <Story
+    name="tertiary"
+    args={{
+      title: "Tertiary",
+      variant: "tertiary",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary hover"
+    args={{
+      title: "Tertiary hover",
+      variant: "tertiary",
+      isHover: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary active"
+    args={{
+      title: "Tertiary active",
+      variant: "tertiary",
+      isActive: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary disabled"
+    args={{
+      title: "Tertiary disabled",
+      variant: "tertiary",
+      isDisabled: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>

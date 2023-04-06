@@ -2,6 +2,11 @@ import Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
 import defaultsTokens from "../tokens/defaultTokens.json";
 
+// Ratio to replace chroma values from Figma(0-50) to colorjs(0-0.4)
+const CHROMA_RATIO = 0.008;
+// Ratio to replace lightness values from Figma(0-100) to colorjs(0-1)
+const LIGHTNESS_RATIO = 0.01;
+
 export class ColorsAccessor {
   private color: Color;
 
@@ -19,6 +24,8 @@ export class ColorsAccessor {
 
   updateColor = (color: ColorTypes) => {
     this.color = this.parse(color);
+
+    return this;
   };
 
   getHex = () => {
@@ -64,15 +71,9 @@ export class ColorsAccessor {
     return this.color.oklch.h >= 29 && this.color.oklch.h <= 50;
   };
 
-  lighten = (color: ColorTypes, lightness = 0.1) => {
+  lighten = (color: ColorTypes, lightness: number) => {
     return this.parse(color)
-      .set("oklch.l", (l) => l + lightness)
-      .toString({ format: "hex" });
-  };
-
-  darken = (color: ColorTypes, lightness = 0.1) => {
-    return this.parse(color)
-      .set("oklch.l", (l) => l - lightness)
+      .set("oklch.l", (l) => l * lightness)
       .toString({ format: "hex" });
   };
 
@@ -89,7 +90,57 @@ export class ColorsAccessor {
     return "#000";
   };
 
-  getFocus = () => {
-    return defaultsTokens.focusColor;
+  getLightness = () => {
+    return this.color.oklch.l;
+  };
+
+  getChroma = () => {
+    return this.color.oklch.c;
+  };
+
+  getHue = () => {
+    return this.color.oklch.h;
+  };
+
+  getContrast = (color1: ColorTypes, color2: ColorTypes) => {
+    return Color.contrast(color1, color2, "APCA");
+  };
+
+  setColor = (
+    color: ColorTypes,
+    lch: {
+      l?: number;
+      c?: number;
+      h?: number;
+    },
+  ) => {
+    const { c, h, l } = lch;
+    let currentColor = this.parse(color);
+
+    if (l) {
+      currentColor = this.setLightness(currentColor, l);
+    }
+
+    if (c) {
+      currentColor = this.setChroma(currentColor, c);
+    }
+
+    if (h) {
+      currentColor = this.setHue(currentColor, h);
+    }
+
+    return currentColor.toString({ format: "hex" });
+  };
+
+  private setLightness = (color: Color, lightness: number) => {
+    return color.set("oklch.l", lightness * LIGHTNESS_RATIO);
+  };
+
+  private setChroma = (color: Color, chroma: number) => {
+    return color.set("oklch.c", chroma * CHROMA_RATIO);
+  };
+
+  private setHue = (color: Color, hue: number) => {
+    return color.set("oklch.h", hue);
   };
 }

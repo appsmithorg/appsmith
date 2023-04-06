@@ -27,8 +27,10 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
+      isActive,
       isDisabled,
       isFitContainer = false,
+      isHover,
       isLoading,
       onBlur,
       onFocus,
@@ -48,7 +50,9 @@ export const Button = forwardRef(
         data-fit-container={isFitContainer}
         data-loading={isLoading}
         data-variant={variant}
+        isActive={isActive}
         isDisabled={isDisabled}
+        isHover={isHover}
         onBlur={onBlur}
         onFocus={onFocus}
         onFocusChange={onFocusChange}
