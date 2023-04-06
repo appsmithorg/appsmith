@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "iSatVeerSingh",
+      "name": "SatVeer Singh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/85070570?v=4",
+      "profile": "https://www.linkedin.com/in/isatveersingh/",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "appsmith",
+  "projectOwner": "appsmithorg"
+}
