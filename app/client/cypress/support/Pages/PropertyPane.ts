@@ -232,7 +232,7 @@ export class PropertyPane {
         cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
       });
     } else {
-      cy.xpath(this.locator._codeMirrorCode).click();
+      this.agHelper.GetNClick(this.locator._codeMirrorCode);
       val = cy
         .xpath(
           "//div[@class='CodeMirror-code']//span[contains(@class,'cm-m-javascript')]",
