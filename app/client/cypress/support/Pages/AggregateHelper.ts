@@ -858,6 +858,14 @@ export class AggregateHelper {
     this.Sleep(500); //for value set to settle
   }
 
+  public TypeIntoTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
+    this.Sleep(500); //for value set to settle
+  }
+
   public UpdateInputValue(selector: string, value: string) {
     this.GetElement(selector)
       .closest("input")
