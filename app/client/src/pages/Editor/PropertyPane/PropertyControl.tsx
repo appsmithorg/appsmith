@@ -66,6 +66,7 @@ type Props = PropertyPaneControlConfig & {
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
+const tooltipModifier = { preventOverflow: { enabled: true } };
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -743,6 +744,7 @@ const PropertyControl = memo((props: Props) => {
                   content={JS_TOGGLE_DISABLED_MESSAGE}
                   disabled={!isToggleDisabled}
                   hoverOpenDelay={200}
+                  modifiers={tooltipModifier}
                   openOnTargetFocus={false}
                   position="auto"
                 >
