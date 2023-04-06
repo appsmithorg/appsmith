@@ -7,7 +7,6 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { initiateLinting } from "workers/Linting/utils";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
@@ -20,8 +19,12 @@ import type {
   EvalWorkerSyncRequest,
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
+import type { TJSPropertiesState } from "../JSObject/jsPropertiesState";
 import { jsPropertiesState } from "../JSObject/jsPropertiesState";
 import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
+import type { LintTreeSagaRequestData } from "workers/Linting/types";
+import { WorkerMessenger } from "../fns/utils/Messenger";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -265,4 +268,35 @@ export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
   return true;
+}
+
+interface initiateLintingProps {
+  asyncJSFunctionsInDataFields: DependencyMap;
+  lintOrder: string[];
+  unevalTree: DataTree;
+  requiresLinting: boolean;
+  jsPropertiesState: TJSPropertiesState;
+  configTree: ConfigTree;
+}
+
+export function initiateLinting({
+  asyncJSFunctionsInDataFields,
+  configTree,
+  jsPropertiesState,
+  lintOrder,
+  requiresLinting,
+  unevalTree,
+}: initiateLintingProps) {
+  const data = {
+    pathsToLint: lintOrder,
+    unevalTree,
+    jsPropertiesState,
+    asyncJSFunctionsInDataFields,
+    configTree,
+  } as LintTreeSagaRequestData;
+  if (!requiresLinting) return;
+  WorkerMessenger.ping({
+    data,
+    method: MAIN_THREAD_ACTION.LINT_TREE,
+  });
 }
