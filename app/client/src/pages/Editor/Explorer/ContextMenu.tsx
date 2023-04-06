@@ -15,6 +15,7 @@ export type TreeDropdownOption = {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
   confirmDelete?: boolean;
   intent?: string;
+  disabled?: boolean;
 };
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
@@ -55,6 +56,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     return (
       <MenuItem
         className={option.className}
+        disabled={option.disabled}
         onClick={() => handleSelect(option)}
       >
         {option.label}
