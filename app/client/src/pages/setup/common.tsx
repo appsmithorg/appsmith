@@ -71,13 +71,6 @@ export const DropdownWrapper = styled(StyledFormGroup)`
     color: var(--ads-v2-color-fg);
   }
 
-  /* .${DROPDOWN_CLASSNAME} {
-    .ads-dropdown-options-wrapper {
-      padding: 0;
-      border: 1px solid rgba(0, 0, 0, 8%);
-    }
-  } */
-
   .dropdown-errorMsg {
     font-size: 12px;
     color: var(--ads-v2-color-fg-error);

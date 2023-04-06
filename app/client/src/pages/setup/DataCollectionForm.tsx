@@ -16,6 +16,7 @@ import {
   WELCOME_FORM_DATA_COLLECTION_BODY,
   WELCOME_FORM_DATA_COLLECTION_HEADER,
   WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE,
+  WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
   WELCOME_FORM_DATA_COLLECTION_LINK,
 } from "@appsmith/constants/messages";
 
@@ -57,14 +58,11 @@ export default memo(function DataCollectionForm() {
                 name="allowCollectingAnonymousData"
                 onChange={(value: boolean) => setAllowCollection(value)}
               >
-                {/* Removed the below condition because it had a confusing behaviour */}
-                {/* <AllowToggleLabel>
-                      {allowCollection
-                        ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
-                        : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
-                    </AllowToggleLabel>
-                 */}
-                {createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)}
+                {/* TODO: (Albin) this behaviour of changing the text on toggle looks very odd. */}
+                {/* Check with product if this is intended to be like this. */}
+                {allowCollection
+                  ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
+                  : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
               </Switch>
             </AllowToggle>
           </AllowToggleWrapper>
