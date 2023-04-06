@@ -14,6 +14,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -38,8 +39,10 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -127,9 +130,15 @@ public class ApplicationShareTest {
     @Autowired
     ThemeService themeService;
     @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+    @Autowired
+    ApplicationMemberService applicationMemberService;
+    @Autowired
     UserGroupService userGroupService;
     @Autowired
     UserService userService;
+    @Autowired
+    UserWorkspaceService userWorkspaceService;
     @Autowired
     WorkspaceService workspaceService;
 
@@ -2585,5 +2594,240 @@ public class ApplicationShareTest {
         PermissionGroupInfoDTO viewerRole = defaultRoleDescriptionDTOs.get(1);
         assertThat(developerRole.getName()).isEqualTo(APPLICATION_DEVELOPER);
         assertThat(viewerRole.getName()).isEqualTo(APPLICATION_VIEWER);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testGetAllApplicationMembers() {
+        String testName = "testGetAllApplicationMembers";
+
+        Set<String> usersToInvite = IntStream.range(0, 20)
+                .mapToObj(index -> testName + index + "@applicationShareTest.com")
+                .map(String::toLowerCase).collect(Collectors.toSet());
+        userUtils.makeSuperUser(List.of(testUser)).block();
+        List<UserGroup> groups = IntStream.range(0, 20)
+                .mapToObj(index -> testName + " - " + index)
+                .map(String::toLowerCase)
+                .map(groupName -> {
+                    UserGroup group = new UserGroup();
+                    group.setName(groupName);
+                    return userGroupService.createGroup(group)
+                            .flatMap(group1 -> userGroupService.findById(group1.getId(), MANAGE_USER_GROUPS)).block();
+                }).toList();
+        userUtils.removeSuperUser(List.of(testUser)).block();
+        Set<String> groupIdsToInvite = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        InviteUsersToApplicationDTO inviteToDevRoleApplicationDTO = new InviteUsersToApplicationDTO();
+        inviteToDevRoleApplicationDTO.setApplicationId(createdApplication.getId());
+        inviteToDevRoleApplicationDTO.setRoleType(APPLICATION_DEVELOPER);
+        inviteToDevRoleApplicationDTO.setUsernames(usersToInvite);
+
+        InviteUsersToApplicationDTO inviteToViewRoleApplicationDTO = new InviteUsersToApplicationDTO();
+        inviteToViewRoleApplicationDTO.setApplicationId(createdApplication.getId());
+        inviteToViewRoleApplicationDTO.setRoleType(APPLICATION_VIEWER);
+        inviteToViewRoleApplicationDTO.setGroups(groupIdsToInvite);
+
+        applicationService.inviteToApplication(inviteToDevRoleApplicationDTO).block();
+        applicationService.inviteToApplication(inviteToViewRoleApplicationDTO).block();
+
+        List<MemberInfoDTO> defaultApplicationMembers = applicationMemberService.getAllMembersForApplication(createdApplication.getId()).block();
+        assertThat(defaultApplicationMembers).hasSize(usersToInvite.size() + groups.size());
+        List<MemberInfoDTO> groupsWhichAreMembers = defaultApplicationMembers.stream().filter(member -> StringUtils.isNotEmpty(member.getUserGroupId())).toList();
+        List<MemberInfoDTO> usersWhoAreMembers = defaultApplicationMembers.stream().filter(member -> StringUtils.isNotEmpty(member.getUserId())).toList();
+        assertThat(groupsWhichAreMembers).isNotNull();
+        assertThat(groupsWhichAreMembers).hasSize(groups.size());
+        assertThat(groupsWhichAreMembers.stream().map(member -> member.getUserGroupId()).collect(Collectors.toSet()))
+                .containsAll(groupIdsToInvite);
+        assertThat(usersWhoAreMembers).isNotNull();
+        assertThat(usersWhoAreMembers).hasSize(usersToInvite.size());
+        assertThat(usersWhoAreMembers.stream().map(member -> member.getUsername()).collect(Collectors.toSet()))
+                .containsAll(usersToInvite);
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void getAllWorkspaceAndApplicationMembers_usersAndUserGroups() {
+        String testName = "getAllWorkspaceAndApplicationMembers_usersAndUserGroups";
+
+        Set<String> usersToInviteToApplication = Set.of("a+" + testName + "@applicationShareTest.com");
+        List<String> usersToInviteToWorkspace = List.of("b+" + testName + "@applicationShareTest.com");
+        Set<String> usersToInviteToApplicationAndWorkspaceSet = Set.of("c+" + testName + "@applicationShareTest.com");
+        List<String> usersToInviteToApplicationAndWorkspaceList = List.of("c+" + testName + "@applicationShareTest.com");
+
+        userUtils.makeSuperUser(List.of(testUser)).block();
+        UserGroup group1 = new UserGroup();
+        group1.setName("a" + testName);
+        UserGroup createdGroup1 = userGroupService.createGroup(group1)
+                .flatMap(group -> userGroupService.findById(group.getId(), MANAGE_USER_GROUPS)).block();
+        UserGroup group2 = new UserGroup();
+        group2.setName("b" + testName);
+        UserGroup createdGroup2 = userGroupService.createGroup(group2)
+                .flatMap(group -> userGroupService.findById(group.getId(), MANAGE_USER_GROUPS)).block();
+        UserGroup group3 = new UserGroup();
+        group3.setName("c" + testName);
+        UserGroup createdGroup3 = userGroupService.createGroup(group3)
+                .flatMap(group -> userGroupService.findById(group.getId(), MANAGE_USER_GROUPS)).block();
+        userUtils.removeSuperUser(List.of(testUser)).block();
+        Set<String> groupIdsToInviteToApplication = Set.of(createdGroup1.getId());
+        Set<String> groupIdsToInviteToWorkspace = Set.of(createdGroup2.getId());
+        Set<String> groupIdsToInviteToApplicationAndWorkspace = Set.of(createdGroup3.getId());
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        PermissionGroup adminWorkspaceRole = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR)).collectList().block().get(0);
+
+        PermissionGroup devWorkspaceRole = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .filter(role -> role.getName().startsWith(DEVELOPER)).collectList().block().get(0);
+
+        Application application1 = new Application();
+        application1.setName(testName + 1);
+        application1.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication1 = applicationPageService.createApplication(application1).block();
+
+        Application application2 = new Application();
+        application2.setName(testName + 2);
+        application2.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication2 = applicationPageService.createApplication(application2).block();
+
+        InviteUsersToApplicationDTO inviteToApplicationDTO = new InviteUsersToApplicationDTO();
+        inviteToApplicationDTO.setApplicationId(createdApplication1.getId());
+        inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
+        inviteToApplicationDTO.setUsernames(usersToInviteToApplication);
+        inviteToApplicationDTO.setGroups(groupIdsToInviteToApplication);
+
+        InviteUsersToApplicationDTO inviteToApplicationAndWorkspaceDTO1 = new InviteUsersToApplicationDTO();
+        inviteToApplicationAndWorkspaceDTO1.setApplicationId(createdApplication2.getId());
+        inviteToApplicationAndWorkspaceDTO1.setRoleType(APPLICATION_DEVELOPER);
+        inviteToApplicationAndWorkspaceDTO1.setUsernames(usersToInviteToApplicationAndWorkspaceSet);
+        inviteToApplicationAndWorkspaceDTO1.setGroups(groupIdsToInviteToApplicationAndWorkspace);
+
+        InviteUsersDTO inviteToWorkspaceDTO = new InviteUsersDTO();
+        inviteToWorkspaceDTO.setPermissionGroupId(devWorkspaceRole.getId());
+        inviteToWorkspaceDTO.setUsernames(usersToInviteToWorkspace);
+        inviteToWorkspaceDTO.setGroups(groupIdsToInviteToWorkspace);
+
+        InviteUsersDTO inviteToApplicationAndWorkspaceDTO2 = new InviteUsersDTO();
+        inviteToApplicationAndWorkspaceDTO2.setPermissionGroupId(devWorkspaceRole.getId());
+        inviteToApplicationAndWorkspaceDTO2.setUsernames(usersToInviteToApplicationAndWorkspaceList);
+        inviteToApplicationAndWorkspaceDTO2.setGroups(groupIdsToInviteToApplicationAndWorkspace);
+
+        applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        applicationService.inviteToApplication(inviteToApplicationAndWorkspaceDTO1).block();
+        userAndAccessManagementService.inviteUsers(inviteToWorkspaceDTO, "test").block();
+        userAndAccessManagementService.inviteUsers(inviteToApplicationAndWorkspaceDTO2, "test").block();
+
+        PermissionGroup appViewerRole = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(createdApplication1.getId(), Application.class.getSimpleName())
+                .collectList().block().stream().filter(role -> role.getName().startsWith(APPLICATION_VIEWER)).findFirst().get();
+
+        PermissionGroup devViewerRole = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(createdApplication2.getId(), Application.class.getSimpleName())
+                .collectList().block().stream().filter(role -> role.getName().startsWith(APPLICATION_DEVELOPER)).findFirst().get();
+
+
+        /*
+         * Below assertions check for the workspace and application members.
+         * It checks for the total number of members in the workspace.
+         * It also checks for the order in which the members are returned.
+         * For individual member, it asserts for the member id or username.
+         * It also checks for the order of roles present inside each member.
+         * Also, it checks for the individual roles which are present inside each member
+         */
+        List<MemberInfoDTO> members = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId()).block();
+        assertThat(members).hasSize(7);
+        MemberInfoDTO member1 = members.get(0);
+        assertThat(member1.getName()).isEqualTo(testUser.getName());
+        assertThat(member1.getUsername()).isEqualTo(testUser.getUsername());
+        assertThat(member1.getRoles()).hasSize(1);
+        PermissionGroupInfoDTO member1Role1 = member1.getRoles().get(0);
+        assertThat(member1Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member1Role1.getId()).isEqualTo(adminWorkspaceRole.getId());
+        assertThat(member1Role1.getName()).isEqualTo(adminWorkspaceRole.getName());
+
+        MemberInfoDTO member2 = members.get(1);
+        assertThat(member2.getUsername()).isEqualToIgnoringCase("b+" + testName + "@applicationShareTest.com");
+        assertThat(member2.getRoles()).hasSize(1);
+        PermissionGroupInfoDTO member2Role1 = member2.getRoles().get(0);
+        assertThat(member2Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member2Role1.getId()).isEqualTo(devWorkspaceRole.getId());
+        assertThat(member2Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+
+        MemberInfoDTO member3 = members.get(2);
+        assertThat(member3.getName()).isEqualTo("b" + testName);
+        assertThat(member3.getUserGroupId()).isEqualTo(createdGroup2.getId());
+        assertThat(member3.getRoles()).hasSize(1);
+        PermissionGroupInfoDTO member3Role1 = member3.getRoles().get(0);
+        assertThat(member3Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member3Role1.getId()).isEqualTo(devWorkspaceRole.getId());
+        assertThat(member3Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+        System.out.println();
+
+        MemberInfoDTO member4 = members.get(3);
+        assertThat(member4.getUsername()).isEqualToIgnoringCase("c+" + testName + "@applicationShareTest.com");
+        assertThat(member4.getRoles()).hasSize(2);
+        PermissionGroupInfoDTO member4Role1 = member4.getRoles().get(0);
+        assertThat(member4Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member4Role1.getId()).isEqualTo(devWorkspaceRole.getId());
+        assertThat(member4Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+        PermissionGroupInfoDTO member4Role2 = member4.getRoles().get(1);
+        assertThat(member4Role2.getEntityType()).isEqualTo(Application.class.getSimpleName());
+        assertThat(member4Role2.getEntityName()).isEqualTo(createdApplication2.getName());
+        assertThat(member4Role2.getEntityId()).isEqualTo(createdApplication2.getId());
+        assertThat(member4Role2.getId()).isEqualTo(devViewerRole.getId());
+        assertThat(member4Role2.getName()).isEqualTo(devViewerRole.getName());
+
+        MemberInfoDTO member5 = members.get(4);
+        assertThat(member5.getName()).isEqualTo("c" + testName);
+        assertThat(member5.getUserGroupId()).isEqualTo(createdGroup3.getId());
+        PermissionGroupInfoDTO member5Role1 = member5.getRoles().get(0);
+        assertThat(member5Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member5Role1.getId()).isEqualTo(devWorkspaceRole.getId());
+        assertThat(member5Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+        PermissionGroupInfoDTO member5Role2 = member5.getRoles().get(1);
+        assertThat(member5Role2.getEntityType()).isEqualTo(Application.class.getSimpleName());
+        assertThat(member5Role2.getEntityName()).isEqualTo(createdApplication2.getName());
+        assertThat(member5Role2.getEntityId()).isEqualTo(createdApplication2.getId());
+        assertThat(member5Role2.getId()).isEqualTo(devViewerRole.getId());
+        assertThat(member5Role2.getName()).isEqualTo(devViewerRole.getName());
+
+        MemberInfoDTO member6 = members.get(5);
+        assertThat(member6.getUsername()).isEqualToIgnoringCase("a+" + testName + "@applicationShareTest.com");
+        assertThat(member6.getRoles()).hasSize(2);
+        PermissionGroupInfoDTO member6Role1 = member6.getRoles().get(0);
+        assertThat(member6Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member6Role1.getId()).isNull();
+        PermissionGroupInfoDTO member6Role2 = member6.getRoles().get(1);
+        assertThat(member6Role2.getEntityType()).isEqualTo(Application.class.getSimpleName());
+        assertThat(member6Role2.getEntityName()).isEqualTo(createdApplication1.getName());
+        assertThat(member6Role2.getEntityId()).isEqualTo(createdApplication1.getId());
+        assertThat(member6Role2.getId()).isEqualTo(appViewerRole.getId());
+        assertThat(member6Role2.getName()).isEqualTo(appViewerRole.getName());
+
+        MemberInfoDTO member7 = members.get(6);
+        assertThat(member7.getName()).isEqualTo("a" + testName);
+        assertThat(member7.getUserGroupId()).isEqualTo(createdGroup1.getId());
+        PermissionGroupInfoDTO member7Role1 = member7.getRoles().get(0);
+        assertThat(member7Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
+        assertThat(member7Role1.getId()).isNull();
+        PermissionGroupInfoDTO member7Role2 = member7.getRoles().get(1);
+        assertThat(member7Role2.getEntityType()).isEqualTo(Application.class.getSimpleName());
+        assertThat(member7Role2.getEntityName()).isEqualTo(createdApplication1.getName());
+        assertThat(member7Role2.getEntityId()).isEqualTo(createdApplication1.getId());
+        assertThat(member7Role2.getId()).isEqualTo(appViewerRole.getId());
+        assertThat(member7Role2.getName()).isEqualTo(appViewerRole.getName());
     }
 }

@@ -12,6 +12,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -34,17 +35,21 @@ import java.util.List;
 @RequestMapping(Url.APPLICATION_URL)
 public class ApplicationController extends ApplicationControllerCE {
 
+    private final ApplicationMemberService applicationMemberService;
+
     public ApplicationController(ApplicationService service,
                                  ApplicationPageService applicationPageService,
                                  ApplicationFetcher applicationFetcher,
                                  ApplicationForkingService applicationForkingService,
                                  ImportExportApplicationService importExportApplicationService,
                                  ThemeService themeService,
-                                 ApplicationSnapshotService applicationSnapshotService) {
+                                 ApplicationSnapshotService applicationSnapshotService,
+                                 ApplicationMemberService applicationMemberService) {
 
         super(service, applicationPageService, applicationFetcher, applicationForkingService,
                 importExportApplicationService, themeService, applicationSnapshotService);
 
+        this.applicationMemberService = applicationMemberService;
     }
 
     @GetMapping("/{applicationId}/roles")
@@ -69,6 +74,14 @@ public class ApplicationController extends ApplicationControllerCE {
         Mono<MemberInfoDTO> memberInfoDTOMono = service.updateRoleForMember(applicationId, updateApplicationRoleDTO);
         return memberInfoDTOMono
                 .map(memberInfoDTO -> new ResponseDTO<>(HttpStatus.OK.value(), memberInfoDTO, null));
+    }
+
+    @GetMapping("/{applicationId}/members")
+    public Mono<ResponseDTO<List<MemberInfoDTO>>> getAllApplicationMembers(@PathVariable String applicationId) {
+        log.debug("Fetching all members for application id: {}", applicationId);
+        Mono<List<MemberInfoDTO>> applicationMemberInfoDTOListMono = applicationMemberService.getAllMembersForApplication(applicationId);
+        return applicationMemberInfoDTOListMono
+                .map(applicationMemberInfoDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), applicationMemberInfoDTOS, null));
     }
 
     @JsonView(Views.Public.class)

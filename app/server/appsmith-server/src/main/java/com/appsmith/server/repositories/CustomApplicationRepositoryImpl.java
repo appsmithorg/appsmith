@@ -1,6 +1,8 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.NonNull;
@@ -9,9 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -179,4 +184,9 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
         return new BasicQuery(sb.toString());
     }
 
+    @Override
+    public Flux<Application> getAllApplicationsInWorkspace(String workspaceId, Optional<AclPermission> aclPermission) {
+        Criteria workspaceIdCriteria = Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return queryAll(List.of(workspaceIdCriteria), aclPermission);
+    }
 }

@@ -95,17 +95,15 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTOList.get(0).getUserId()).isEqualTo(apiUser.getId());
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
-                .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
+                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
+
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
                 .findFirst().get();
 
         // Assign permissions to a UserGroup created above
-        PermissionGroup permissionGroupWithUserGroupAssigned1 = permissionGroupService
-                .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
-                .block();
-        PermissionGroup permissionGroupWithUserGroupAssigned2 = permissionGroupService
+        PermissionGroup permissionGroupWithUserGroupAssigned = permissionGroupService
                 .assignToUserGroup(developerPermissionGroup, createdUserGroup)
                 .block();
 
@@ -113,21 +111,16 @@ public class UserWorkspaceServiceTest {
                 .getWorkspaceMembers(createdWorkspace.getId())
                 .block();
 
-        // Now the workspace will contain 3 members, 2 UserGroup and 1 User
-        // Also tested that the UserGroup members will come before User members.
-        //
-        // This test is also to show that we are not filtering any user group based on any duplication happening
-        // due to having assigned to multiple auto created permission groups of the same workspace.
-        assertThat(memberInfoDTOList).hasSize(3);
+        // Now the workspace will contain 2 members, 1 UserGroup and 1 User
+        assertThat(memberInfoDTOList).hasSize(2);
         MemberInfoDTO memberInfoDTO1 = memberInfoDTOList.get(0);
         assertThat(memberInfoDTO1.getUserId()).isEqualTo(apiUser.getId());
+        assertThat(memberInfoDTO1.getRoles()).hasSize(1);
+        assertThat(memberInfoDTO1.getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
         MemberInfoDTO memberInfoDTO2 = memberInfoDTOList.get(1);
         assertThat(memberInfoDTO2.getUserGroupId()).isEqualTo(createdUserGroup.getId());
         assertThat(memberInfoDTO2.getRoles()).hasSize(1);
-        assertThat(memberInfoDTO2.getRoles().get(0).getId()).isEqualTo(administratorPermissionGroup.getId());
-        MemberInfoDTO memberInfoDTO3 = memberInfoDTOList.get(2);
-        assertThat(memberInfoDTO3.getUserGroupId()).isEqualTo(createdUserGroup.getId());
-        assertThat(memberInfoDTO3.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+        assertThat(memberInfoDTO2.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
     }
 
     @Test
