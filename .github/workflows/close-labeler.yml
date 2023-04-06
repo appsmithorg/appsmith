@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.CLOSE_LABELER_GITHUB_TOKEN }}
           script: |
             console.log("PR Details", context.issue)
 
@@ -25,6 +26,12 @@ jobs:
                       closingIssuesReferences(first: 10) {
                         nodes {
                           number
+                          repository {
+                            name
+                            owner {
+                              login
+                            }
+                          }
                           labels(first: 50) {
                             edges {
                               node {
@@ -47,16 +54,15 @@ jobs:
             console.log("GraphQL result", JSON.stringify(result, null, 2));
 
             for (const node of result.repository.pullRequest.closingIssuesReferences.nodes) {
-              const issueNum = node.number;
               const shouldQA = node.labels.edges.find(edge => edge.node.name === "Enhancement" || edge.node.name === "Bug") != null
               if (!shouldQA) {
                 break
               }
-              console.log("Adding QA to", issueNum)
+              console.log("Adding QA to", node.repository.owner.login, node.repository.name, node.number)
               github.rest.issues.addLabels({
-                issue_number: issueNum,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                issue_number: node.number,
+                owner: node.repository.owner.login,
+                repo: node.repository.name,
                 labels: ["QA"],
               })
             }
