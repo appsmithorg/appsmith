@@ -42,7 +42,7 @@ function Page(props: PageProps) {
         </ErrorIconContainer>
       )}
       {errorCode && (
-        <div className="-mt-8 flex items-center font-bold text-3xl justify-center w-28 bg-white border aspect-square text-[color:var(--ads-color-brand)]">
+        <div className="-mt-8 flex items-center font-bold text-3xl justify-center w-auto h-28 px-2 bg-white border aspect-square text-[color:var(--ads-color-brand)]">
           {errorCode}
         </div>
       )}
