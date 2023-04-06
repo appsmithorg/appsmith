@@ -351,7 +351,6 @@ export const Resizable = function Resizable(props: ResizableProps) {
         <ResizeWrapper
           $prevents={pointerEvents}
           className={props.className}
-          showBoundaries
           style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}
