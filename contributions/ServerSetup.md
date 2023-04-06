@@ -114,7 +114,9 @@ mvn clean compile
 
 This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 
-4. Create a copy of the `envs/dev.env.example`
+#### 4. Setup Environment file
+
+Create a copy of the `envs/dev.env.example`
 
 ```console
 cp envs/dev.env.example .env
@@ -124,7 +126,7 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 
 5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
-6.  **Update the replica set name with correct value in the mongo connection string in the .env file.**
+6.  **Update the replica set name with correct value in the mongo connection string in the [.env](#setup-environment-file) file.** The replica name is the same as passed [here](#setting-up-a-local-mongodb-instance)
 ```bash
 APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith?replicaSet=<replica-set-name>"
 ```
@@ -186,7 +188,7 @@ Note that as you have installed Docker Desktop with WSL based engine, you can ex
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
 ```
 
 Please change the `/path/to/store/data` to a valid path on your C drive (C:/) of your system (e.g. C:\mongodata). This is where MongoDB will persist it's data across runs of this container.
