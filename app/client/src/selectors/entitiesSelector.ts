@@ -40,6 +40,7 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -309,11 +310,9 @@ export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
 
 export const getPluginImages = createSelector(getPlugins, (plugins) => {
   const pluginImages: Record<string, string> = {};
-
   plugins.forEach((plugin) => {
-    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
+    pluginImages[plugin.id] = getAssetUrl(plugin?.iconLocation) ?? ImageAlt;
   });
-
   return pluginImages;
 });
 

@@ -93,7 +93,6 @@ interface DataSourceOptionType extends RenderDropdownOptionType {
   cypressSelector: string;
   optionWidth: string;
 }
-
 function DataSourceOption({
   cypressSelector,
   extraProps,

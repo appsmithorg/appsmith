@@ -3,7 +3,6 @@ import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
 import type { BaseCellComponentProps, ImageSize } from "../Constants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 /*
  * Function to split the CSV of image url's
@@ -115,7 +114,7 @@ export function ImageCell(props: renderImageType) {
                 onClick();
               }}
             >
-              <img className="image-cell" src={getAssetUrl(item)} />
+              <img className="image-cell" src={item} />
             </div>
           );
         } else {
