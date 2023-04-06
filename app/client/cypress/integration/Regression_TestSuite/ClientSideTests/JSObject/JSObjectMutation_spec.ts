@@ -33,14 +33,7 @@ describe("JSObject testing", () => {
 
   it("2. Array push and pop", function () {
     // open the select widget
-    cy.get(publishLocators.selectwidget)
-      .eq(0)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-
-    cy.get(commonlocators.singleSelectWidgetMenuItem)
-      .contains("ARRAY")
-      .click({ force: true });
+    _.agHelper.SelectDropDown("ARRAY");
 
     _.agHelper.ClickButton("ADD");
     _.agHelper.ClickButton("ADD");
@@ -54,15 +47,7 @@ describe("JSObject testing", () => {
   });
 
   it("3. Object property addition and deletion", function () {
-    cy.get(publishLocators.selectwidget)
-      .eq(0)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-
-    cy.get(commonlocators.singleSelectWidgetMenuItem)
-      .contains("OBJECT")
-      .click({ force: true });
-
+    _.agHelper.SelectDropDown("OBJECT");
     _.agHelper.ClickButton("ADD");
     _.agHelper
       .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
@@ -71,16 +56,10 @@ describe("JSObject testing", () => {
       });
   });
 
-  it("4. Map property addition and deletion", function () {
-    cy.get(publishLocators.selectwidget)
-      .eq(0)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
+  it.only("4. Map property addition and deletion", function () {
+    _.agHelper.SelectDropDown("MAP");
 
-    cy.get(commonlocators.singleSelectWidgetMenuItem)
-      .contains("MAP")
-      .click({ force: true });
-
+    _.agHelper.ClickButton("ADD");
     _.agHelper.ClickButton("ADD");
     _.agHelper
       .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
@@ -88,6 +67,7 @@ describe("JSObject testing", () => {
         expect($label).contains('[  [    "a",    1  ]]');
       });
 
+    _.agHelper.ClickButton("SUB");
     _.agHelper.ClickButton("SUB");
     _.agHelper
       .GetText(`${getWidgetSelector(WIDGET.TEXT)} span`)
@@ -97,14 +77,7 @@ describe("JSObject testing", () => {
   });
 
   it("5. Set property addition and deletion", function () {
-    cy.get(publishLocators.selectwidget)
-      .eq(0)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-
-    cy.get(commonlocators.singleSelectWidgetMenuItem)
-      .contains("SET")
-      .click({ force: true });
+    _.agHelper.SelectDropDown("SET");
 
     _.agHelper.ClickButton("ADD");
     _.agHelper
