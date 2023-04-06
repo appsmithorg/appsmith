@@ -2,13 +2,13 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.solutions.LicenseValidator;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,8 +37,6 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private final ConfigService configService;
 
     private final CloudServicesConfig cloudServicesConfig;
-
-    private final LicenseValidator licenseValidator;
     
     private final CommonConfig commonConfig;
 
@@ -54,6 +51,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+
         Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
@@ -67,7 +65,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         Mono<?> startupProcess = checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
-                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache());
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
+                // Add cold publisher as we have dependency on the instance registration
+                .then(Mono.defer(this::performLicenseCheck));
+
         try {
             startupProcess.block();
         } catch(Exception e) {
@@ -190,6 +191,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     public boolean getIsRtsAccessible() {
         return this.isRtsAccessible;
+    }
+
+    private Mono<Tenant> performLicenseCheck() {
+        // TODO introduce license check for all the tenants once the multi-tenancy is introduced
+        return tenantService.checkAndUpdateDefaultTenantLicense();
     }
 
 }

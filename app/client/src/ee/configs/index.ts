@@ -5,7 +5,7 @@ import {
   getAppsmithConfigs as CE_getAppsmithConfigs,
   getConfigsFromEnvVars as CE_getConfigsFromEnvVars,
 } from "ce/configs/index";
-import type { EvaluationVersion } from "api/ApplicationApi";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
 export interface INJECTED_CONFIGS extends CE_INJECTED_CONFIGS {
   enableSamlOAuth: boolean;

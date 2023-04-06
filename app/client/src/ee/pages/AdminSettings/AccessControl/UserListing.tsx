@@ -54,7 +54,7 @@ import { LoaderContainer } from "pages/Settings/components";
 
 export const CellContainer = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
 
   &.user-email-column > span {
     text-decoration: underline;
@@ -189,8 +189,8 @@ export function UserListing() {
       Header: `Users (${data.length})`,
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
-        const { photoId, username } = cellProps.cell.row.values;
-        const { id } = cellProps.cell.row.original;
+        const { username } = cellProps.cell.row.values;
+        const { id, photoId } = cellProps.cell.row.original;
         return (
           <Link
             data-testid="acl-user-listing-link"

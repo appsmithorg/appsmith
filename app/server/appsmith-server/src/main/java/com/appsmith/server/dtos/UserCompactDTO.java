@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserCompactDTO {
 
@@ -15,4 +14,11 @@ public class UserCompactDTO {
 
     String name;
 
+    String photoId;
+
+    public UserCompactDTO(String id, String username, String name) {
+        this.id = id;
+        this.username = username;
+        this.name = name;
+    }
 }

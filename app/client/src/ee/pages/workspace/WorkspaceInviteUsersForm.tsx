@@ -14,7 +14,6 @@ import {
   UserList,
   UserName,
   UserRole,
-  WorkspaceInviteTitle,
   WorkspaceInviteWrapper,
 } from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import React, {
@@ -46,6 +45,7 @@ import {
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
+  USERS_HAVE_ACCESS_TO_ALL_APPS,
 } from "@appsmith/constants/messages";
 import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
 import { isEmail } from "utils/formhelpers";
@@ -70,7 +70,11 @@ import {
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import {
+  fetchRolesForWorkspace,
+  fetchUsersForWorkspace,
+  fetchWorkspace,
+} from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
@@ -78,6 +82,7 @@ import TagListField from "../../utils/TagInput";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
 const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
@@ -196,10 +201,8 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchUser,
     handleSubmit,
     isAclFlow = false,
-    isApplicationInvite,
     isLoading,
     isMultiSelectDropdown = false,
-    message = "",
     onSubmitHandler,
     placeholder = "",
     submitFailed,
@@ -335,13 +338,6 @@ function WorkspaceInviteUsersForm(props: any) {
   return (
     <WorkspaceInviteWrapper>
       <InviteModalStyles />
-      {isApplicationInvite && (
-        <WorkspaceInviteTitle>
-          <Text type={TextType.H5}>
-            Invite users to {currentWorkspace?.name}{" "}
-          </Text>
-        </WorkspaceInviteTitle>
-      )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values, isAclFlow);
@@ -396,7 +392,6 @@ function WorkspaceInviteUsersForm(props: any) {
           );
         })}
       >
-        <LabelText type={TextType.P0}>{message}</LabelText>
         <StyledInviteFieldGroupEE>
           <div className="wrapper">
             <TagListField
@@ -451,6 +446,10 @@ function WorkspaceInviteUsersForm(props: any) {
             width={InviteButtonWidth}
           />
         </StyledInviteFieldGroupEE>
+        <LabelText type={TextType.P0}>
+          <Icon name="user-3-line" size={IconSize.MEDIUM} />
+          {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+        </LabelText>
         {isLoading ? (
           <Loading size={30} />
         ) : (
@@ -477,12 +476,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   (user: {
                     username: string;
                     name: string;
-                    roles: {
-                      id: string;
-                      name: string;
-                      description: string;
-                      entityType: string;
-                    }[];
+                    roles: WorkspaceUserRoles[];
                     initials: string;
                     userGroupId: string;
                     userId: string;
@@ -578,21 +572,11 @@ export default connect(
   },
   (dispatch: any) => ({
     fetchAllRoles: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchRolesForWorkspace(workspaceId)),
     fetchCurrentWorkspace: (workspaceId: string) =>
       dispatch(fetchWorkspace(workspaceId)),
     fetchUser: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchUsersForWorkspace(workspaceId)),
     fetchGroupSuggestions: () =>
       dispatch({
         type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
@@ -602,7 +586,6 @@ export default connect(
   reduxForm<
     InviteUsersToWorkspaceFormValues,
     {
-      fetchAllRoles: (workspaceId: string) => void;
       roles?: any;
       applicationId?: string;
       workspaceId?: string;

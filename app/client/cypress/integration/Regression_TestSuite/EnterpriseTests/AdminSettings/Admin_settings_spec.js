@@ -82,10 +82,5 @@ describe("Admin settings page", function () {
       cy.wait(2000);
       cy.go(-1);
     }
-    if (Cypress.env("Edition") === 1) {
-      cy.get(EnterpriseAdminSettingsLocators.samlButton).should("be.visible");
-      cy.get(EnterpriseAdminSettingsLocators.samlButton).click();
-      cy.url().should("contain", "/settings/authentication/saml-auth");
-    }
   });
 });

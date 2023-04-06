@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -500,5 +501,58 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
 
     private boolean areAllStaticApplicationRolesPresent(Set<String> staticDefaultRoles) {
         return staticDefaultRoles.containsAll(Set.of(APPLICATION_DEVELOPER, APPLICATION_VIEWER));
+    }
+
+    /**
+     * The method is responsible for updating the application.
+     * It also updates the names of default application roles which are associated with the application, if name of the
+     * application is changed.
+     * @param applicationId ID of the application to be updated.
+     * @param application Resources to update.
+     * @param branchName updates application in a particular branch.
+     * @return
+     */
+    @Override
+    public Mono<Application> update(String applicationId, Application application, String branchName) {
+        Mono<Application> updateApplicationMono = super.update(applicationId, application, branchName);
+        if (StringUtils.isEmpty(application.getName())) {
+            return updateApplicationMono;
+        }
+        String newApplicationName = application.getName();
+        return updateApplicationMono
+                .flatMap(application1 -> {
+                    /*
+                     * Here we check if the application which has been updated is the application from default branch, or not.
+                     * If the application is from any other branch other than the default branch, we don't update
+                     * the names of default application role.
+                     */
+                    if (! isDefaultBranchApplication(application1)) {
+                        return Mono.just(application1);
+                    }
+                    Flux<PermissionGroup> defaultApplicationRoles = permissionGroupService
+                            .getAllDefaultRolesForApplication(application1, Optional.empty());
+                    Flux<PermissionGroup> updateDefaultApplicationRoles = defaultApplicationRoles
+                            .flatMap(role -> {
+                                role.setName(generateNewDefaultName(role.getName(), newApplicationName));
+                                return permissionGroupService.save(role);
+                            });
+                    return updateDefaultApplicationRoles.then(Mono.just(application1));
+                });
+    }
+
+    private String generateNewDefaultName(String oldName, String applicationName) {
+        if (oldName.startsWith(APPLICATION_DEVELOPER)) {
+            return generateDefaultRoleNameForResource(APPLICATION_DEVELOPER, applicationName);
+        } else if (oldName.startsWith(APPLICATION_VIEWER)) {
+            return generateDefaultRoleNameForResource(APPLICATION_VIEWER, applicationName);
+        }
+        // If this is not a default group i.e. does not start with the expected prefix, don't update it.
+        return oldName;
+    }
+
+    private boolean isDefaultBranchApplication(Application application) {
+        return Objects.isNull(application.getGitApplicationMetadata())
+                || application.getGitApplicationMetadata().getDefaultApplicationId().equals(application.getId());
+
     }
 }

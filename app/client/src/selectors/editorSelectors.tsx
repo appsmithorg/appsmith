@@ -13,7 +13,7 @@ import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetCon
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 // import { Positioning } from "utils/autoLayout/constants";
 import type {
   OccupiedSpace,

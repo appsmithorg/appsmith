@@ -782,7 +782,7 @@ Cypress.Commands.add("DeleteUser", (User) => {
 Cypress.Commands.add(
   "InviteGroupToWorkspace",
   (workspaceName, groupName, role) => {
-    const successMessage = "The user has been invited successfully";
+    const successMessage = "The user/group have been invited successfully";
     const _email =
       "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
     cy.stubPostHeaderReq();
