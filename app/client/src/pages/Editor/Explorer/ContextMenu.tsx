@@ -57,7 +57,10 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       <MenuItem
         className={option.className}
         disabled={option.disabled}
-        onClick={() => handleSelect(option)}
+        onClick={(e) => {
+          handleSelect(option);
+          e.stopPropagation();
+        }}
       >
         {option.label}
       </MenuItem>

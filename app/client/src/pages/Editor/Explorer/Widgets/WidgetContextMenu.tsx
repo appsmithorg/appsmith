@@ -1,10 +1,5 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { TreeDropdownOption } from "pages/Editor/Explorer/TreeDropdown";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import ContextMenuTrigger from "../ContextMenuTrigger";
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
-import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -15,6 +10,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function WidgetContextMenu(props: {
@@ -61,19 +58,17 @@ export function WidgetContextMenu(props: {
     });
   }, [dispatch, widgetId, parentId, widget, parentWidget]);
 
-  const showBinding = useCallback(
-    (widgetId, widgetName) =>
-      dispatch({
-        type: ReduxActionTypes.SET_ENTITY_INFO,
-        payload: {
-          entityId: widgetId,
-          entityName: widgetName,
-          entityType: ENTITY_TYPE.WIDGET,
-          show: true,
-        },
-      }),
-    [],
-  );
+  const showBinding = useCallback((widgetId, widgetName) => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENTITY_INFO,
+      payload: {
+        entityId: widgetId,
+        entityName: widgetName,
+        entityType: ENTITY_TYPE.WIDGET,
+        show: true,
+      },
+    });
+  }, []);
 
   const editWidgetName = useCallback(() => {
     if (guidedTourEnabled) {
@@ -110,15 +105,11 @@ export function WidgetContextMenu(props: {
 
     optionTree.push(option);
   }
+
   return optionTree.length > 0 ? (
-    <TreeDropdown
+    <ContextMenu
       className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onSelect={noop}
       optionTree={optionTree as TreeDropdownOption[]}
-      selectedValue=""
-      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   ) : null;
 }
