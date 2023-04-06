@@ -45,6 +45,7 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
   USERS_HAVE_ACCESS_TO_ALL_APPS,
+  USERS_HAVE_ACCESS_TO_ONLY_THIS_APP,
   NO_USERS_INVITED,
 } from "@appsmith/constants/messages";
 import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
@@ -80,8 +81,17 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 import TagListField from "../../utils/TagInput";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import {
+  getAllAppUsers,
+  getAppRolesForField,
+} from "@appsmith/selectors/applicationSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import {
+  fetchRolesForApplication,
+  fetchUsersForApplication,
+} from "@appsmith/actions/applicationActions";
+import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -194,6 +204,8 @@ function WorkspaceInviteUsersForm(props: any) {
     disableUserList = false,
     dropdownPlaceholder = "",
     error,
+    fetchAllAppRoles,
+    fetchAllAppUsers,
     fetchAllRoles,
     fetchCurrentWorkspace,
     fetchGroupSuggestions,
@@ -215,6 +227,7 @@ function WorkspaceInviteUsersForm(props: any) {
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const groupSuggestions: any[] = useSelector(getGroupSuggestions);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
@@ -222,11 +235,18 @@ function WorkspaceInviteUsersForm(props: any) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
   const isEEFeature = (!isAclFlow && !cloudHosting) || false;
+  const isAppLevelInvite =
+    (!cloudHosting && isApplicationInvite && featureFlags.RBAC) || false;
 
   useEffect(() => {
     if (!isAclFlow) {
-      fetchUser(props.workspaceId);
-      fetchAllRoles(props.workspaceId);
+      if (isAppLevelInvite) {
+        fetchAllAppUsers(props.applicationId);
+        fetchAllAppRoles(props.applicationId);
+      } else {
+        fetchUser(props.workspaceId);
+        fetchAllRoles(props.workspaceId);
+      }
       fetchCurrentWorkspace(props.workspaceId);
       fetchGroupSuggestions();
     }
@@ -236,6 +256,10 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchAllRoles,
     fetchCurrentWorkspace,
     fetchGroupSuggestions,
+    fetchAllAppRoles,
+    fetchAllAppUsers,
+    props.applicationId,
+    isAppLevelInvite,
   ]);
 
   useEffect(() => {
@@ -387,6 +411,13 @@ function WorkspaceInviteUsersForm(props: any) {
               permissionGroupId: isMultiSelectDropdown
                 ? selectedOption.map((group: any) => group.id).join(",")
                 : selectedOption[0].id,
+              isApplicationInvite: isAppLevelInvite,
+              ...(isAppLevelInvite
+                ? {
+                    applicationId: props.applicationId,
+                    roleType: selectedOption[0].value,
+                  }
+                : {}),
             },
             dispatch,
           );
@@ -448,7 +479,9 @@ function WorkspaceInviteUsersForm(props: any) {
         </StyledInviteFieldGroupEE>
         <LabelText type={TextType.P0}>
           <Icon name="user-3-line" size={IconSize.MEDIUM} />
-          {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+          {isAppLevelInvite
+            ? createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)
+            : createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
         </LabelText>
         {isLoading ? (
           <Loading size={30} />
@@ -475,7 +508,13 @@ function WorkspaceInviteUsersForm(props: any) {
                     userId: string;
                     photoId?: string;
                   }) => {
-                    return (
+                    const showUser =
+                      (isAppLevelInvite
+                        ? user.roles?.[0]?.entityType ===
+                          ENTITY_TYPE.APPLICATION
+                        : user.roles?.[0]?.entityType ===
+                          ENTITY_TYPE.WORKSPACE) && user.roles?.[0]?.id;
+                    return showUser ? (
                       <Fragment
                         key={
                           user?.userGroupId ? user.userGroupId : user.username
@@ -520,7 +559,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserRole>
                         </User>
                       </Fragment>
-                    );
+                    ) : null;
                   },
                 )}
                 <ScrollIndicator containerRef={userRef} mode="DARK" />
@@ -556,11 +595,24 @@ function WorkspaceInviteUsersForm(props: any) {
 }
 
 export default connect(
-  (state: AppState, { formName }: { formName?: string }) => {
+  (
+    state: AppState,
+    {
+      formName,
+      isApplicationInvite,
+    }: { formName?: string; isApplicationInvite?: boolean },
+  ): any => {
+    const featureFlags = state.ui.users.featureFlag.data;
+    const isAppLevelInvite =
+      (!cloudHosting && isApplicationInvite && featureFlags.RBAC) || false;
     return {
-      roles: getRolesForField(state),
-      allUsers: getAllUsers(state),
-      isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
+      roles: isAppLevelInvite
+        ? getAppRolesForField(state)
+        : getRolesForField(state),
+      allUsers: isAppLevelInvite ? getAllAppUsers(state) : getAllUsers(state),
+      isLoading: isAppLevelInvite
+        ? state.ui.applications.loadingStates.isFetchAllUsers
+        : state.ui.workspaces.loadingStates.isFetchAllUsers,
       form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
     };
   },
@@ -575,6 +627,10 @@ export default connect(
       dispatch({
         type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
       }),
+    fetchAllAppRoles: (applicationId: string) =>
+      dispatch(fetchRolesForApplication(applicationId)),
+    fetchAllAppUsers: (applicationId: string) =>
+      dispatch(fetchUsersForApplication(applicationId)),
   }),
 )(
   reduxForm<
