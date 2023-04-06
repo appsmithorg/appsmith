@@ -196,12 +196,14 @@ function* readBlob(blobUrl: string): any {
     if (fileType === FileDataTypes.Base64) {
       reader.readAsDataURL(file);
     } else if (fileType === FileDataTypes.Binary) {
-      //check size of the file, if less than 5mb, go with binary string method
-      // else go with array buffer method
       if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
+        //check size of the file, if less than 5mb, go with binary string method
         // TODO: this method is deprecated, use readAsText instead
         reader.readAsBinaryString(file);
       } else {
+        // For files greater than 5 mb, use array buffer method
+        // This is to remove the bloat from the file which is added
+        // when using read as binary string method
         reader.readAsArrayBuffer(file);
       }
     } else {
@@ -351,7 +353,8 @@ function* evaluateActionParams(
     const blobMap: Array<string> = [];
 
     if (typeof value === "object") {
-      // This is used in cases of large files
+      // This is used in cases of large files, we store the bloburls with the path they were set in
+      // This helps in creating a unique map of blob urls to blob data when passing to the server
       if (value.hasOwnProperty("blobUrlPaths")) {
         Object.entries(value.blobUrlPaths as Record<string, string>).forEach(
           // blobUrl: string eg: blob:1234-1234-1234?type=binary
