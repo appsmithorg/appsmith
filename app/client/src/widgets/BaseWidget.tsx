@@ -696,9 +696,9 @@ abstract class BaseWidget<
       // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
-        if (this.props.isFlexChild) content = this.makeFlex(content);
-        else if (!this.props.detachFromLayout) {
-          content = this.makePositioned(content);
+        if (!this.props.detachFromLayout) {
+          if (this.props.isFlexChild) content = this.makeFlex(content);
+          else content = this.makePositioned(content);
         }
         return content;
       default:
