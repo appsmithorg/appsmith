@@ -438,29 +438,9 @@ Lets build great software together.
 [![nzidol](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13618973?v=4&w=50&h=50&mask=circle)](https://github.com/nzidol)
 [![onifs10](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48095055?v=4&w=50&h=50&mask=circle)](https://github.com/onifs10)
 [![ps-xaf](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/4478450?v=4&w=50&h=50&mask=circle)](https://github.com/ps-xaf)
+[![isatveersingh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/85070570?v=4&w=50&h=50&mask=circle)](https://github.com/isatveersingh)
 
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=841c3402-679b-456d-b528-537480a57269" />
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/isatveersingh/"><img src="https://avatars.githubusercontent.com/u/85070570?v=4?s=100" width="100px;" alt="SatVeer Singh"/><br /><sub><b>SatVeer Singh</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=iSatVeerSingh" title="Code">💻</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
