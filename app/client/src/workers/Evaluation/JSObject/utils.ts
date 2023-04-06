@@ -157,7 +157,7 @@ export const updateJSCollectionInUnEvalTree = (
         const dynamicBindingPathList = jsEntityConfig.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: newVar.name });
 
-        set(jsEntityConfig, `${entityName}.variables`, varList);
+        set(jsEntityConfig, "variables", varList);
         set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
       }
     }
@@ -181,7 +181,7 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
     if (newVarList.length) {
-      set(jsEntityConfig, `${entityName}.variables`, newVarList);
+      set(jsEntityConfig, "variables", newVarList);
     }
   }
   return modifiedUnEvalTree;
