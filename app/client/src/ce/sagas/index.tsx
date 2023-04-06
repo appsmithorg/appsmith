@@ -46,11 +46,9 @@ import utilSagas from "sagas/UtilSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
-import appEngineSaga from "sagas/AppEngineSaga";
 
 export const sagas = [
   initSagas,
-  appEngineSaga,
   pageSagas,
   watchActionSagas,
   watchJSActionSagas,
