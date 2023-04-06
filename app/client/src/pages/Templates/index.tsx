@@ -1,14 +1,8 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-// import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-// import {
-//   // getTypographyByKey,
-//   // SearchInput,
-//   // SearchVariant,
-// } from "design-system-old";
 import { SearchInput, Text } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
@@ -190,16 +184,13 @@ export function TemplatesContent(props: TemplatesContentProps) {
   return (
     <>
       <SearchWrapper sticky={props.stickySearchBar}>
-        {/* <ControlGroup> */}
         <SearchInput
           data-test-id={"t--application-search-input"}
-          // isDisabled={isLoading}
+          isDisabled={isLoading}
           onChange={debouncedOnChange || noop}
           placeholder={createMessage(SEARCH_TEMPLATES)}
           value={templateSearchQuery}
-          // variant={SearchVariant.BACKGROUND}
         />
-        {/* </ControlGroup> */}
       </SearchWrapper>
       <ResultsCount kind="heading-m" renderAs="h1">
         {resultsText}

@@ -1,11 +1,9 @@
 import type { ReactNode } from "react";
 import React from "react";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import { SearchInput, SearchVariant } from "design-system-old";
-import { Button } from "design-system";
+import { Button, SearchInput } from "design-system";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
@@ -78,18 +76,13 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     >
       <SearchContainer>
         {props.search && (
-          <ControlGroup>
-            <SearchInput
-              border={isMobile}
-              cypressSelector={"t--application-search-input"}
-              defaultValue={props.search.defaultValue}
-              disabled={isFetchingApplications}
-              onChange={query || noop}
-              placeholder={props.search.placeholder}
-              variant={SearchVariant.BACKGROUND}
-              width={isMobile ? "100%" : "228px"}
-            />
-          </ControlGroup>
+          <SearchInput
+            data-testid="t--application-search-input"
+            defaultValue={props.search.defaultValue}
+            isDisabled={isFetchingApplications}
+            onChange={query || noop}
+            placeholder={props.search.placeholder}
+          />
         )}
       </SearchContainer>
 
