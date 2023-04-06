@@ -56,7 +56,7 @@ describe("JSObject testing", () => {
       });
   });
 
-  it.only("4. Map property addition and deletion", function () {
+  it("4. Map property addition and deletion", function () {
     _.agHelper.SelectDropDown("MAP");
 
     _.agHelper.ClickButton("ADD");
