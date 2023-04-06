@@ -2595,14 +2595,14 @@ describe("getSelectOptions", () => {
         ],
         [
           {
-            label: "abc",
-            value: "abc",
+            label: "efg",
+            value: "efg",
           },
         ],
         [
           {
-            label: "abc",
-            value: "abc",
+            label: "xyz",
+            value: "xyz",
           },
         ],
       ],
