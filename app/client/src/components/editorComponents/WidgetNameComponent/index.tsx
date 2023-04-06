@@ -50,7 +50,7 @@ const PositionStyle = styled.div<{
       ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
       : `calc(100% - ${1 + props.positionOffset[0]}px)`};
   height: ${WidgetNameComponentHeight}px;
-  right: ${(props) => props.positionOffset[1]}px;
+  margin-left: ${(props) => props.positionOffset[1]}px;
   z-index: ${Layers.widgetName};
 `;
 
@@ -184,7 +184,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const getPositionOffset = (): [number, number] => {
     return isAutoLayout
       ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
-      : [0, 0];
+      : [0, -RESIZE_BORDER_BUFFER];
   };
 
   // bottom offset is RESIZE_BORDER_BUFFER - 1 because bottom border is none for the widget name
