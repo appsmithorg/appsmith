@@ -38,10 +38,28 @@ export class WorkerMessenger {
   }
 
   static ping(payload: any) {
-    sendMessage.call(self, {
-      messageType: MessageType.DEFAULT,
-      body: payload,
-    });
+    try {
+      sendMessage.call(self, {
+        messageType: MessageType.DEFAULT,
+        body: payload,
+      });
+    } catch (e) {
+      // TODO: Pass in a error handler to allow custom error handling.
+      console.error(e);
+      sendMessage.call(self, {
+        messageType: MessageType.DEFAULT,
+        body: {
+          data: {
+            errors: [
+              {
+                type: WorkerErrorTypes.CLONE_ERROR,
+                message: (e as Error)?.message,
+              },
+            ],
+          },
+        },
+      });
+    }
   }
 
   static respond(messageId: string, data: unknown, timeTaken: number) {
@@ -52,6 +70,7 @@ export class WorkerMessenger {
         body: { data, timeTaken },
       });
     } catch (e) {
+      // TODO: Remove hardcoded error handling.
       console.error(e);
       sendMessage.call(self, {
         messageId,
