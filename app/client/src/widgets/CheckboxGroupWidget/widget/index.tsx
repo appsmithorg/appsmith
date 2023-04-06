@@ -292,7 +292,7 @@ class CheckboxGroupWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the check state is changed",
+            helpText: "when the check state is changed",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
