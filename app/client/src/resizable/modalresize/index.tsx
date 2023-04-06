@@ -325,7 +325,6 @@ export const Resizable = function Resizable(props: ResizableProps) {
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     false,
     showResizeBoundary,
-    props.allowResize,
     showResizeBoundary,
   );
 
