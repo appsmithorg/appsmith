@@ -58,6 +58,7 @@ import type { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -338,10 +339,9 @@ export const getCurrentPageName = createSelector(
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   (widgetConfigs: WidgetConfigReducerState) => {
-    const cards = Object.values(widgetConfigs.config).filter(
-      (config) => !config.hideCard,
-    );
-
+    const cards = Object.values(widgetConfigs.config).filter((config) => {
+      return isAirgapped() ? config.widgetName !== "Map" : !config.hideCard;
+    });
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
