@@ -279,9 +279,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // field is JsonIgnored. Also remove any ids those are present in the page objects
 
                                 Set<String> updatedPageSet = new HashSet<String>();
+
+                                // check the application object for the page reference in the page list
+                                // Exclude the deleted pages that are present in view mode  because the app is not published yet
+                                newPageList.removeIf(newPage -> !unPublishedPages.contains(newPage.getId()));
+
                                 newPageList.forEach(newPage -> {
-                                    // check the application object for the page reference in the page list
-                                    if (newPage.getUnpublishedPage() != null && unPublishedPages.contains(newPage.getId())) {
+                                    if (newPage.getUnpublishedPage() != null) {
                                         validPages.add(newPage.getUnpublishedPage().getName());
                                         pageIdToNameMap.put(
                                                 newPage.getId() + EDIT, newPage.getUnpublishedPage().getName()
@@ -314,8 +318,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                     newPage.sanitiseToExportDBObject();
                                 });
-                                // Exclude the deleted pages that are present in view mode  because the app is not published yet
-                                newPageList.removeIf(newPage -> !validPages.contains(newPage.getUnpublishedPage().getName()));
+
                                 applicationJson.setPageList(newPageList);
                                 applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
                                     put(FieldName.PAGE_LIST, updatedPageSet);
