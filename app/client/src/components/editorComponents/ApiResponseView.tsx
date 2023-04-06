@@ -29,17 +29,9 @@ import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import {
-  Callout,
-  Classes,
-  TAB_MIN_HEIGHT,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
+import { Button, Callout, Icon } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -64,7 +56,7 @@ type TextStyleProps = {
 export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -105,7 +97,7 @@ const TabbedViewWrapper = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
+      margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
@@ -141,7 +133,7 @@ const NoResponseContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   .${Classes.ICON} {
-    margin-right: 0px;
+    margin-right: 0;
     svg {
       width: 150px;
       height: 150px;
@@ -150,27 +142,6 @@ const NoResponseContainer = styled.div`
 
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
-  }
-`;
-
-const FailedMessage = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 5px;
-
-  .api-debugcta {
-    margin-top: 0px;
-    height: 26px;
-  }
-`;
-
-const StyledCallout = styled(Callout)`
-  .${Classes.TEXT} {
-    line-height: normal;
-    font-size: 12px;
-  }
-  .${Classes.ICON} {
-    width: 16px;
   }
 `;
 
@@ -421,24 +392,26 @@ function ApiResponseView(props: Props) {
           {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
-                <Callout fill key={i} text={msg} variant={Variant.warning} />
+                <Callout key={i} kind="warning">
+                  {msg}
+                </Callout>
               ))}
             </HelpSection>
           )}
           {hasFailed && !isRunning && (
-            <StyledCallout
-              fill
-              label={
-                <FailedMessage>
-                  <DebugButton
-                    className="api-debugcta"
-                    onClick={onDebugClick}
-                  />
-                </FailedMessage>
-              }
-              text={createMessage(CHECK_REQUEST_BODY)}
-              variant={Variant.danger}
-            />
+            <Callout
+              kind="error"
+              links={[
+                {
+                  children: "Debug",
+                  endIcon: "bug",
+                  onClick: () => onDebugClick,
+                  to: "",
+                },
+              ]}
+            >
+              {createMessage(CHECK_REQUEST_BODY)}
+            </Callout>
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
@@ -490,19 +463,19 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           {hasFailed && !isRunning && (
-            <StyledCallout
-              fill
-              label={
-                <FailedMessage>
-                  <DebugButton
-                    className="api-debugcta"
-                    onClick={onDebugClick}
-                  />
-                </FailedMessage>
-              }
-              text={createMessage(CHECK_REQUEST_BODY)}
-              variant={Variant.danger}
-            />
+            <Callout
+              kind="error"
+              links={[
+                {
+                  children: "Debug",
+                  endIcon: "bug",
+                  onClick: () => onDebugClick,
+                  to: "",
+                },
+              ]}
+            >
+              {createMessage(CHECK_REQUEST_BODY)}
+            </Callout>
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
