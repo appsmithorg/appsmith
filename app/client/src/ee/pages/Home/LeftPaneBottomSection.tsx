@@ -43,14 +43,17 @@ import capitalize from "lodash/capitalize";
 const StyledWrapper = styled(Wrapper)`
   .business-plan-menu-option {
     .cs-text {
-      color: var(--appsmith-color-orange-700);
+      color: var(--appsmith-color-orange-500);
     }
     svg path {
-      fill: var(--appsmith-color-orange-700);
+      fill: var(--appsmith-color-orange-500);
     }
     &:hover {
+      .cs-text {
+        color: var(--appsmith-color-orange-800);
+      }
       svg path {
-        fill: var(--appsmith-color-orange-700);
+        fill: var(--appsmith-color-orange-800);
       }
     }
   }
