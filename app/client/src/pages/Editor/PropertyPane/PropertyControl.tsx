@@ -65,6 +65,7 @@ type Props = PropertyPaneControlConfig & {
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
+const tooltipModifier = { preventOverflow: { enabled: true } };
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -743,6 +744,7 @@ const PropertyControl = memo((props: Props) => {
               <>
                 <TooltipComponent
                   content="Value deviated from theme"
+                  modifiers={tooltipModifier}
                   openOnTargetFocus={false}
                 >
                   <div className="w-2 h-2 rounded-full bg-primary-500" />
