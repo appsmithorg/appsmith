@@ -19,6 +19,7 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -30,8 +31,9 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 
-// import { ObjectsRegistry } from "../support/Objects/Registry";
-// let agHelper = ObjectsRegistry.AggregateHelper;
+import { ObjectsRegistry } from "../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
+let locator = ObjectsRegistry.CommonLocators;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -230,8 +232,10 @@ Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.LogOutUser();
   cy.LoginUser(uname, pword);
-  cy.get(".t--applications-container .createnew").should("be.visible");
-  cy.get(".t--applications-container .createnew").should("be.enabled");
+  if (CURRENT_REPO === REPO.CE) {
+    cy.get(".t--applications-container .createnew").should("be.visible");
+    cy.get(".t--applications-container .createnew").should("be.enabled");
+  }
   initLocalstorage();
 });
 
@@ -1286,9 +1290,29 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   //cy.wait(1000); //for toggles to settle
   cy.get(welcomePage.createButton).should("be.visible");
-  //cy.get(welcomePage.createButton).trigger("mouseover").click();
+
+  cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
-  cy.get(welcomePage.createButton).click({ multiple: true });
+  //cy.get(welcomePage.createButton).click({ multiple: true });
+  //cy.get(welcomePage.createButton).trigger("click");
+
+  //Submit also not working
+  //cy.get(welcomePage.createSuperUser).submit();
+  //cy.wait(5000); //waiting a bit before attempting logout
+
+  // cy.get("body").then(($ele) => {
+  //   if ($ele.find(locator._spanButton("Next").length) > 0) {
+  //     agHelper.GetNClick(locator._spanButton("Next"));
+  //   } else agHelper.GetNClick(locator._spanButton("Make your first App"));
+  // });
+
+  //trying jquery way - also not working
+  // cy.get(welcomePage.createButton).then(($createBtn) => {
+  //   const $jQueryButton = Cypress.$($createBtn); // wrap the button element in jQuery
+  //   $jQueryButton.trigger("click"); // click on the button using jQuery
+  // });
+
+  //uncommenting below to analyse
   cy.wait("@createSuperUser").then((interception) => {
     expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",
