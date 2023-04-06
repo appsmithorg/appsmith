@@ -126,15 +126,15 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNClick(_.propPane._actionCard, 1);
-    _.agHelper.ValidateCodeEditorContent(".text-view", "Hello world!");
-    _.agHelper.GetNAssertElementText(".selector-view .bp3-button-text", "Info");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "Hello world!");
+    _.agHelper.GetNAssertElementText(_.propPane._selectorViewButton, "Info");
 
     _.agHelper.GetNClick(_.propPane._actionCard, 2);
-    _.agHelper.ValidateCodeEditorContent(".text-view", "a{{18}}");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "a{{18}}");
 
     _.agHelper.GetNClick(_.propPane._actionCard, 3);
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "Select Modal",
     );
   });
@@ -217,7 +217,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNClick(_.propPane._actionCard, 1);
-    _.agHelper.ValidateCodeEditorContent(".text-view", "hi");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "hi");
   });
 
   it("8. should show Api related fields appropriately with platform functions with catch callback", () => {
@@ -312,7 +312,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
-    _.agHelper.ValidateCodeEditorContent(".text-view", "{{18}}{{26}}");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "{{18}}{{26}}");
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
       "a",
@@ -495,7 +495,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       "have.text",
       0,
     );
-    _.agHelper.ValidateCodeEditorContent(".text-view", "hi");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "hi");
 
     _.propPane.EnterJSContext(
       "onClick",
@@ -560,14 +560,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      "#switcher--page-name",
+      _.propPane._pageNameSwitcher,
       "Page Name",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-Page",
+      _.propPane._actionOpenDropdownSelectPage,
       "Select Page",
       "have.text",
       0,
@@ -581,7 +581,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Same-window",
+      _.propPane._sameWindowDropdownOption,
       "Same window",
       "have.text",
       0,
@@ -604,14 +604,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      "#switcher--page-name",
+      _.propPane._pageNameSwitcher,
       "Page Name",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-Page",
+      _.propPane._actionOpenDropdownSelectPage,
       "Page1",
       "have.text",
       0,
@@ -625,7 +625,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Same-window",
+      _.propPane._sameWindowDropdownOption,
       "New window",
       "have.text",
       0,
@@ -647,7 +647,12 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.GetNAssertElementText("#switcher--url", "URL", "have.text", 0);
+    _.agHelper.GetNAssertElementText(
+      _.propPane._urlSwitcher,
+      "URL",
+      "have.text",
+      0,
+    );
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
@@ -664,7 +669,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Same-window",
+      _.propPane._sameWindowDropdownOption,
       "Same window",
       "have.text",
       0,
@@ -694,7 +699,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-type",
+      _.propPane._dropdownSelectType,
       "Select type",
       "have.text",
       0,
@@ -722,10 +727,10 @@ describe("JS to non-JS mode in Action Selector", () => {
       "have.text",
       0,
     );
-    _.agHelper.ValidateCodeEditorContent(".text-view", "hello");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "hello");
 
     _.agHelper.GetNAssertElementText(
-      ".t--open-dropdown-Select-type",
+      _.propPane._dropdownSelectType,
       "Info",
       "have.text",
       0,
@@ -881,7 +886,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.ValidateCodeEditorContent(".text-view", "a{{1}}");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "a{{1}}");
 
     _.propPane.EnterJSContext("onClick", "{{storeValue('', 1)}}", true, false);
     _.jsEditor.DisableJSContext("onClick");
@@ -928,7 +933,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.ValidateCodeEditorContent(".text-view", "a");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "a");
   });
 
   it("17. shows fields appropriately for the download function", () => {
@@ -959,14 +964,14 @@ describe("JS to non-JS mode in Action Selector", () => {
       1,
     );
     _.agHelper.GetNAssertElementText(
-      '[data-testId="selector-view-label"]',
+      _.propPane._selectorViewLabel,
       "Type",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "Select file type (optional)",
     );
 
@@ -1015,10 +1020,10 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
-    _.agHelper.ValidateCodeEditorContent(".text-view", "ab");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "ab");
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "PNG",
       "have.text",
       0,
@@ -1063,7 +1068,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.ValidateCodeEditorContent(".text-view", "a");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "a");
     _.agHelper.TypeText(
       _.propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "line1{enter}line2{enter}line3",
@@ -1093,28 +1098,28 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="selector-view-label"]',
+      _.propPane._selectorViewLabel,
       "Widget",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      '[data-testId="selector-view-label"]',
+      _.propPane._selectorViewLabel,
       "Reset Children",
       "have.text",
       1,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "Select Widget",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "true",
       "have.text",
       1,
@@ -1137,14 +1142,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "Modal1",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "false",
       "have.text",
       1,
@@ -1167,14 +1172,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "Modal1",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "true",
       "have.text",
       1,
@@ -1197,14 +1202,14 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "Select Widget",
       "have.text",
       0,
     );
 
     _.agHelper.GetNAssertElementText(
-      ".selector-view .bp3-button-text",
+      _.propPane._selectorViewButton,
       "false",
       "have.text",
       1,
@@ -1263,8 +1268,6 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    // _.agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}");
-
     _.propPane.EnterJSContext(
       "onClick",
       "{{setInterval(() => {showAlert('hi')}, 200, 'id1')}}",
@@ -1280,8 +1283,6 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
-
-    // _.agHelper.ValidateCodeEditorContent(".text-view", "{{() => {}}}{{200}}id1");
   });
 
   it("21. should show fields appropriately for clearInterval", () => {
@@ -1322,7 +1323,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.ValidateCodeEditorContent(".text-view", "Id1");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "Id1");
   });
 
   it("22. should show no fields for clear store", () => {
@@ -1340,8 +1341,8 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.AssertElementAbsence(".text-view");
-    _.agHelper.AssertElementAbsence(".selector-view");
+    _.agHelper.AssertElementAbsence(_.propPane._textView);
+    _.agHelper.AssertElementAbsence(_.propPane._selectorView);
   });
 
   it("23. should show no fields for watch geolocation position", () => {
@@ -1364,8 +1365,8 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.AssertElementAbsence(".text-view");
-    _.agHelper.AssertElementAbsence(".selector-view");
+    _.agHelper.AssertElementAbsence(_.propPane._textView);
+    _.agHelper.AssertElementAbsence(_.propPane._selectorView);
   });
 
   it("24. should show no fields for stop watching geolocation position", () => {
@@ -1388,8 +1389,8 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.AssertElementAbsence(".text-view");
-    _.agHelper.AssertElementAbsence(".selector-view");
+    _.agHelper.AssertElementAbsence(_.propPane._textView);
+    _.agHelper.AssertElementAbsence(_.propPane._selectorView);
   });
 
   it("25. should show appropriate fields for get geolocation", () => {
@@ -1494,6 +1495,6 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.ValidateCodeEditorContent(".text-view", "hellowindow*");
+    _.agHelper.ValidateCodeEditorContent(_.propPane._textView, "hellowindow*");
   });
 });
