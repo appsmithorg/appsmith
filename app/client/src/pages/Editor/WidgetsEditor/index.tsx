@@ -45,7 +45,6 @@ import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import classNames from "classnames";
 import { APP_MODE } from "entities/App";
-import useGoogleFont from "utils/hooks/useGoogleFont";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 function WidgetsEditor() {
@@ -70,7 +69,7 @@ function WidgetsEditor() {
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
+  const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
