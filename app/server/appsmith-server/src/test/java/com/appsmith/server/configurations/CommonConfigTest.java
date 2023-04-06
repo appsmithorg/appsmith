@@ -23,7 +23,7 @@ public class CommonConfigTest {
     public void objectMapper_BeanCreated_WithPublicJsonViewAsDefault() throws JsonProcessingException {
         UserData userData = new UserData();
         userData.setRole("abcd"); // this is public field
-        userData.setAccessToken("token"); // this is internal field
+        userData.setUserId("userId"); // this is internal field
         userData.setUserPermissions(null);
 
         String value = objectMapper.writeValueAsString(userData);
