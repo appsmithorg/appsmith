@@ -5,12 +5,16 @@ import {
   MenuItem,
   MenuContent,
   Button,
+  MenuSub,
+  MenuSubTrigger,
+  MenuSubContent,
 } from "design-system";
 import { EntityClassNames } from "./Entity";
 
 export type TreeDropdownOption = {
   label: string;
   value: string;
+  children?: TreeDropdownOption[];
   className?: string;
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
   confirmDelete?: boolean;
@@ -53,6 +57,17 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   };
 
   function renderTreeOption(option: TreeDropdownOption) {
+    if (option.children) {
+      return (
+        <MenuSub>
+          <MenuSubTrigger>{option.label}</MenuSubTrigger>
+          <MenuSubContent width="220px">
+            {option.children.map(renderTreeOption)}
+          </MenuSubContent>
+        </MenuSub>
+      );
+    }
+
     return (
       <MenuItem
         className={option.className}
