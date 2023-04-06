@@ -335,7 +335,7 @@ describe("UI to Code", () => {
     ).type("eeee");
 
     // Edit the failure callback of the nested Api2.run
-    cy.get(locators._openNavigationTab("onFailure")).click();
+    agHelper.GetNClick(locators._openNavigationTab("onFailure"));
     cy.get(
       jsEditor._lineinPropertyPaneJsEditor(
         2,
@@ -400,8 +400,8 @@ describe("UI to Code", () => {
 
     // Click on the callback button
     agHelper.GetNClick(propPane._actionCallbacks);
-    cy.get(propPane._actionAddCallback("success")).click();
-    cy.get(locators._dropDownValue("Store value")).click().wait(500);
+    agHelper.GetNClick(propPane._actionAddCallback("success"));
+    agHelper.GetNClick(locators._dropDownValue("Store value")).wait(500);
 
     propPane.ValidateJSFieldValue(
       "onClick",
