@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let dsName: any, cities: any, losAngelesPath: any, insertedRecordId: any;
+let dsName: any, cities: any, losAngelesPath: any;
 describe("Validate Firestore DS", () => {
   before("Create a new Firestore DS", () => {
     _.dataSources.CreateDataSource("Firestore");
@@ -28,6 +28,14 @@ describe("Validate Firestore DS", () => {
       directInput: false,
       inputFieldName: "Collection Name",
     });
+    _.agHelper.TypeDynamicInputValueNValidate(
+      "name",
+      _.dataSources._nestedWhereClauseKey(0),
+    );
+    _.agHelper.TypeDynamicInputValueNValidate(
+      "San Francisco",
+      _.dataSources._nestedWhereClauseValue(0),
+    );
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       cities = JSON.parse(JSON.stringify(resObj.response.body.data.body));
@@ -35,9 +43,10 @@ describe("Validate Firestore DS", () => {
       cy.wrap(cities)
         .should("be.an", "array")
         .its(0)
-        .should("have.property", "name", "San Francisco"); //making sure inserted record is returned
+        .should("have.property", "name", "San Francisco"); //making sure already inserted record is returned
     });
 
+    _.agHelper.GetNClick(_.dataSources._whereDelete(0)); //removign where clause, add new
     _.agHelper.TypeDynamicInputValueNValidate(
       "capital",
       _.dataSources._nestedWhereClauseKey(0),
@@ -201,7 +210,6 @@ describe("Validate Firestore DS", () => {
       directInput: false,
       inputFieldName: "Collection Name",
     });
-
     _.agHelper.EnterValue('["population"]', {
       propFieldName: "",
       directInput: false,
