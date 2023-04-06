@@ -318,7 +318,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             {" Back"}
           </span>
           <br />
-
+          {/* TODO: Check image URls */}
           <ProviderInfo>
             {providerDetails.imageUrl ? (
               <img

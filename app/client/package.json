@@ -7,12 +7,13 @@
     "npm": "^8.5.5"
   },
   "workspaces": [
-    "packages/*"
+    "packages/**/*"
   ],
   "cracoConfig": "craco.dev.config.js",
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
     "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
+    "prebuild": "if [ \"$IS_AIR_GAP_INSTANCE\" = \"true\" ]; then node download-assets.js; fi",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -41,7 +42,7 @@
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
-    "@design-system/wds": "*",
+    "@design-system/widgets": "*",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@googlemaps/markerclusterer": "^2.0.14",

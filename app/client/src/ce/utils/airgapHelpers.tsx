@@ -1,4 +1,4 @@
-export const getAssetUrl = (src: string) => {
+export const getAssetUrl = (src = "") => {
   return src;
 };
 
