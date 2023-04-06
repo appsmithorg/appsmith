@@ -39,16 +39,17 @@ export const getWrapperStyle = memoize(
   (
     inverted: boolean,
     showBoundaries: boolean,
+    allowResize: boolean,
     isHovered: boolean,
   ): CSSProperties => {
     return {
-      borderRadius: inverted ? "4px 4px 4px 0px" : "0px 4px 4px 4px",
+      borderRadius: allowResize
+        ? inverted
+          ? "4px 4px 0px 4px"
+          : "4px 0px 4px 4px"
+        : "4px",
       border: `${resizeBorder}px solid`,
       padding: `${resizeBorderPadding}px`,
-      outline: `${resizeOutline}px solid !important`,
-      outlineColor: `${
-        showBoundaries ? Colors.GREY_1 : "transparent"
-      } !important`,
       borderColor: `${showBoundaries ? Colors.GREY_1 : "transparent"}`,
       boxShadow: `${
         showBoundaries

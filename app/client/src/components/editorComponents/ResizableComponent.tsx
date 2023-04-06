@@ -360,7 +360,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isAutoHeightEnabledForWidget(props) ||
     !props.isCanvas;
 
-  const allowResize: boolean = !isMultiSelected || !props.isFlexChild;
+  const allowResize: boolean =
+    !isMultiSelected || (isAutoLayout && !props.isFlexChild);
 
   const isHovered = isFocused && !isSelected;
   const showResizeBoundary =
