@@ -34,7 +34,7 @@ describe("UI to Code", () => {
       propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
-    agHelper.GetNClick(`${propPane._actionSelectorPopup} .t--close`);
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
