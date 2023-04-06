@@ -160,7 +160,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Map<String, String> pageIdToNameMap = new HashMap<>();
         Map<String, String> actionIdToNameMap = new HashMap<>();
         Map<String, String> collectionIdToNameMap = new HashMap<>();
-        List<String> validPages = new ArrayList<>();
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
@@ -286,7 +285,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 newPageList.forEach(newPage -> {
                                     if (newPage.getUnpublishedPage() != null) {
-                                        validPages.add(newPage.getUnpublishedPage().getName());
                                         pageIdToNameMap.put(
                                                 newPage.getId() + EDIT, newPage.getUnpublishedPage().getName()
                                         );
