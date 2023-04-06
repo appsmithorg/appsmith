@@ -6,7 +6,6 @@ import {
   LabelText,
   Loading,
   MailConfigContainer,
-  RoleDivider,
   StyledForm,
   StyledInviteFieldGroup,
   User,
@@ -201,6 +200,7 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchUser,
     handleSubmit,
     isAclFlow = false,
+    isApplicationInvite = false,
     isLoading,
     isMultiSelectDropdown = false,
     onSubmitHandler,
@@ -481,7 +481,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           user?.userGroupId ? user.userGroupId : user.username
                         }
                       >
-                        <User>
+                        <User isApplicationInvite={isApplicationInvite}>
                           <UserInfo>
                             {user?.userGroupId ? (
                               <>
@@ -519,8 +519,6 @@ function WorkspaceInviteUsersForm(props: any) {
                             </Text>
                           </UserRole>
                         </User>
-
-                        <RoleDivider />
                       </Fragment>
                     );
                   },
@@ -547,7 +545,10 @@ function WorkspaceInviteUsersForm(props: any) {
           )}
         </ErrorBox>
         {canManage && !disableManageUsers && (
-          <ManageUsers workspaceId={props.workspaceId} />
+          <ManageUsers
+            isApplicationInvite={isApplicationInvite}
+            workspaceId={props.workspaceId}
+          />
         )}
       </StyledForm>
     </WorkspaceInviteWrapper>
