@@ -5,20 +5,27 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -27,6 +34,7 @@ import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -37,6 +45,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +53,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER;
@@ -51,6 +61,9 @@ import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER_DESC
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.GROUP_ID;
+import static com.appsmith.server.constants.FieldName.ROLE;
+import static com.appsmith.server.constants.FieldName.USERNAME;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static com.appsmith.server.helpers.AppsmithComparators.permissionGroupInfoWithEntityTypeComparator;
@@ -66,6 +79,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     private final PermissionGroupPermission permissionGroupPermission;
     private final RoleConfigurationSolution roleConfigurationSolution;
     private final PolicyGenerator policyGenerator;
+    private final UserService userService;
+    private final UserGroupRepository userGroupRepository;
+    private final ApplicationPermission applicationPermission;
 
     public ApplicationServiceImpl(Scheduler scheduler,
                                   Validator validator,
@@ -86,7 +102,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   PermissionGroupRepository permissionGroupRepository,
                                   PermissionGroupPermission permissionGroupPermission,
                                   RoleConfigurationSolution roleConfigurationSolution,
-                                  PolicyGenerator policyGenerator) {
+                                  PolicyGenerator policyGenerator,
+                                  UserService userService,
+                                  UserGroupRepository userGroupRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
                 configService, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
@@ -97,6 +115,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         this.permissionGroupPermission = permissionGroupPermission;
         this.roleConfigurationSolution = roleConfigurationSolution;
         this.policyGenerator = policyGenerator;
+        this.userService = userService;
+        this.userGroupRepository = userGroupRepository;
+        this.applicationPermission = applicationPermission;
     }
     /**
      * <p>
@@ -554,5 +575,281 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         return Objects.isNull(application.getGitApplicationMetadata())
                 || application.getGitApplicationMetadata().getDefaultApplicationId().equals(application.getId());
 
+    }
+
+    /**
+     * The method is responsible for inviting users and user groups to a specific application.
+     * This will also create User for usernames, if they don't already exist in the appsmith ecosystem.
+     * <br>
+     * Restrictions:
+     * <ol>
+     *     <li>Both usernames and groupsIds can't be null. One of them should be non-empty.</li>
+     *     <li>applicationId can't be empty</li>
+     *     <li>roleType should be either App Viewer or Developer</li>
+     * </ol>
+     * @param inviteToApplicationDTO
+     * @return {@link Mono}<{@link List}<{@link MemberInfoDTO}>> which contains details about the invited users and
+     * user groups who have been invited.
+     */
+    @Override
+    public Mono<List<MemberInfoDTO>> inviteToApplication(InviteUsersToApplicationDTO inviteToApplicationDTO) {
+        Set<String> usernames = inviteToApplicationDTO.getUsernames();
+        Set<String> groupIds = inviteToApplicationDTO.getGroups();
+        String applicationId = inviteToApplicationDTO.getApplicationId();
+        String appRoleType = inviteToApplicationDTO.getRoleType();
+
+
+        if (CollectionUtils.isEmpty(usernames) && CollectionUtils.isEmpty(groupIds)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, USERNAME + " or " + GROUP_ID));
+        }
+
+        if (StringUtils.isEmpty(appRoleType)
+                || !(appRoleType.equals(APPLICATION_VIEWER) ||  appRoleType.equals(APPLICATION_DEVELOPER))) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ROLE));
+        }
+
+        if (StringUtils.isEmpty(applicationId)){
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION));
+        }
+
+        Mono<PermissionGroup> defaultAppRoleMono = getOrCreateDefaultAppRole(applicationId, appRoleType);
+
+        /*
+         * We are initialising the User and UserGroup Mono Lists with empty lists, so that they can be zipped with
+         * other non-empty Mono, without any hidden Mono.empty() being returned.
+         */
+        Mono<List<User>> userListMono = Mono.just(List.of());
+        Mono<List<UserGroup>> groupListMono = Mono.just(List.of());
+
+        if (CollectionUtils.isNotEmpty(usernames)) {
+            userListMono = Flux.fromIterable(usernames)
+                    .flatMap(username -> {
+                        User newUser = new User();
+                        newUser.setEmail(username.toLowerCase());
+                        newUser.setIsEnabled(false);
+                        /* TODO: Use method createNewUserAndSendInviteEmail instead of userCreate once the Email templates are ready.
+                         * Note: Currently we are just creating a non-admin user if the username already doesn't exist.
+                         * But going forward we will be receiving email templates for inviting users to applications,
+                         * who already don't exist on the instance. We will need to update the above mentioned method,
+                         * and use that to create users and send appropriate mails.
+                         */
+                        return userService.findByEmail(username)
+                                .switchIfEmpty(userService.userCreate(newUser, false));
+                    })
+                    .collectList()
+                    .cache();
+        }
+
+        if (CollectionUtils.isNotEmpty(groupIds)) {
+            groupListMono = userGroupRepository.findAllById(groupIds).collectList().cache();
+        }
+
+        Mono<PermissionGroup> roleAfterInvitation = Mono.zip(defaultAppRoleMono, userListMono, groupListMono)
+                .flatMap(tuple -> permissionGroupService.bulkAssignToUsersAndGroups(tuple.getT1(), tuple.getT2(), tuple.getT3()));
+
+
+        return Mono.zip(roleAfterInvitation, userListMono, groupListMono)
+                .map(tuple -> {
+                    PermissionGroup role = tuple.getT1();
+                    PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(),
+                            role.getDescription(), role.getDefaultDomainId(), role.getDefaultDomainType(), null);
+                    List<MemberInfoDTO> userMembers = tuple.getT2().stream().map(user -> MemberInfoDTO.builder()
+                            .username(user.getUsername()).userId(user.getId()).name(user.getName())
+                            .roles(List.of(roleInfoDTO))
+                            .build()).toList();
+                    List<MemberInfoDTO> groupMembers = tuple.getT3().stream().map(group -> MemberInfoDTO.builder()
+                            .userGroupId(group.getId()).name(group.getName())
+                            .roles(List.of(roleInfoDTO))
+                            .build()).toList();
+
+                    return Stream.of(userMembers, groupMembers)
+                            .flatMap(Collection::stream).toList();
+                });
+    }
+
+    /**
+     * The method will either get or create a default application role, based on applicationId and roleType.
+     * Firstly we check if the role with the requested roleType exists for the applicationId. This is done, with the
+     * assign permission filter, which will check if the user has the ability to assign the role or not.
+     * We such a role exists, we return the role as is.
+     * Else, we fetch all the static application roles the user has access to.
+     * With these 2 conditions, we can determine whether the role needs to be created, or not and throw an error that
+     * the user doesn't have permission to invite a user.
+     * @param applicationId
+     * @param roleType
+     * @return
+     */
+    private Mono<PermissionGroup> getOrCreateDefaultAppRole(String applicationId, String roleType) {
+        if (StringUtils.isEmpty(roleType)
+                || !(roleType.equals(APPLICATION_VIEWER) ||  roleType.equals(APPLICATION_DEVELOPER))) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ROLE));
+        }
+        Mono<Application> applicationMono = findById(applicationId, Optional.of(applicationPermission.getReadPermission()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, applicationId)))
+                .cache();
+        Flux<PermissionGroup> defaultAppRoleFlux = applicationMono
+                .flatMapMany(application -> permissionGroupService
+                        .getAllDefaultRolesForApplication(application, Optional.of(permissionGroupPermission.getAssignPermission())))
+                .filter(role -> role.getName().startsWith(roleType))
+                .cache();
+        return defaultAppRoleFlux.hasElements()
+                .flatMap(defaultAppRoleExist -> {
+                    if (defaultAppRoleExist) {
+                        return defaultAppRoleFlux.single();
+                    }
+
+                    // This will get a list of all static default application roles, the user has access to.
+                    Mono<List<PermissionGroupInfoDTO>> userAssignableStaticApplicationRolesMono = fetchAllDefaultRoles(applicationId);
+                    return Mono.zip(userAssignableStaticApplicationRolesMono, applicationMono)
+                            .flatMap(tuple -> {
+                                List<PermissionGroupInfoDTO> staticApplicationRoles = tuple.getT1();
+                                Application application = tuple.getT2();
+                                boolean requiredApplicationRoleCanBeCreated = staticApplicationRoles.stream()
+                                        .anyMatch(staticRole -> staticRole.getName().startsWith(roleType));
+                                if (requiredApplicationRoleCanBeCreated) {
+                                    return createDefaultRole(application, roleType);
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                            });
+                });
+    }
+
+    /**
+     * The method is used to update the default application roles for default application members.
+     * Also, once the member has been unassigned from the oldRole, then if the oldRole, doesn't contain any more members
+     * to which it has been assigned, then oldRole is deleted.
+     * <br>
+     * Restrictions:
+     * <ol>
+     *     <li>Both username and groupsId can't be null. One of them should be non-empty.</li>
+     *     <li>oldRole should not be empty and have one of the 2 values: App Viewer or Developer</li>
+     *     <li>If newRole is not empty, it should either be App Viewer or Developer</li>
+     * </ol>
+     * @param applicationId
+     * @param updateApplicationRoleDTO
+     * @return {@link Mono}<{@link MemberInfoDTO}> updated member info
+     */
+    @Override
+    public Mono<MemberInfoDTO> updateRoleForMember(String applicationId, UpdateApplicationRoleDTO updateApplicationRoleDTO) {
+        String username = updateApplicationRoleDTO.getUsername();
+        String groupId = updateApplicationRoleDTO.getUserGroupId();
+        String newRole = updateApplicationRoleDTO.getNewRole();
+
+        if (StringUtils.isNotEmpty(newRole) &&
+                !(newRole.equals(APPLICATION_DEVELOPER) || newRole.equals(APPLICATION_VIEWER))) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "New " + ROLE));
+        }
+
+        if ((StringUtils.isEmpty(username) && StringUtils.isEmpty(groupId))
+                || (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(groupId))) {
+            String errorString = "Either" + USERNAME + " or " + GROUP_ID + " should be present.";
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, errorString));
+        }
+
+        Mono<PermissionGroup> unAssignUserFromOldRole_deleteRoleIfRequired_thenRole = Mono.empty();
+        Mono<PermissionGroup> unAssignGroupFromOldRole_deleteRoleIfRequired_thenRole = Mono.empty();
+        MemberInfoDTO memberInfoForUnassignedMember = MemberInfoDTO.builder().build();
+
+        if (StringUtils.isNotEmpty(username)) {
+            Mono<User> userMono = userService.findByEmail(username)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, username)))
+                    .cache();
+            Mono<PermissionGroup> oldDefaultRoleMono = userMono
+                    .flatMap(user -> permissionGroupRepository.findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(user.getId(), applicationId, Application.class.getSimpleName(), Optional.of(permissionGroupPermission.getAssignPermission()))
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
+                            .single());
+            unAssignUserFromOldRole_deleteRoleIfRequired_thenRole = oldDefaultRoleMono
+                    .zipWith(userMono)
+                    .flatMap(pair -> {
+                        User user = pair.getT2();
+                        memberInfoForUnassignedMember.setUserId(user.getId());
+                        memberInfoForUnassignedMember.setUsername(user.getUsername());
+                        memberInfoForUnassignedMember.setName(user.getName());
+                        return permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2());
+                    })
+                    .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
+        } else if (StringUtils.isNotEmpty(groupId)) {
+            Mono<PermissionGroup> oldDefaultRoleMono = permissionGroupRepository.findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(groupId, applicationId, Application.class.getSimpleName(), Optional.of(permissionGroupPermission.getAssignPermission()))
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
+                            .single();
+            Mono<UserGroup> groupMono = userGroupRepository.findById(groupId)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP, groupId)))
+                    .cache();
+            unAssignGroupFromOldRole_deleteRoleIfRequired_thenRole = oldDefaultRoleMono
+                    .zipWith(groupMono)
+                    .flatMap(pair -> {
+                        UserGroup userGroup = pair.getT2();
+                        memberInfoForUnassignedMember.setUserGroupId(userGroup.getId());
+                        memberInfoForUnassignedMember.setName(userGroup.getName());
+                        return permissionGroupService.unassignFromUserGroup(pair.getT1(), pair.getT2());
+                    })
+                    .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
+        }
+
+        Mono<Long> oldDefaultRolePostUnAssignAndDeleteIfRequired = Mono
+                .when(unAssignUserFromOldRole_deleteRoleIfRequired_thenRole, unAssignGroupFromOldRole_deleteRoleIfRequired_thenRole)
+                .thenReturn(1L);
+
+        Mono<List<MemberInfoDTO>> invitedToNewRoleMono = Mono.empty();
+        if (StringUtils.isNotEmpty(newRole)) {
+            InviteUsersToApplicationDTO inviteToApplicationDTO = new InviteUsersToApplicationDTO();
+            inviteToApplicationDTO.setApplicationId(applicationId);
+            inviteToApplicationDTO.setRoleType(newRole);
+            if (StringUtils.isNotEmpty(username)) {
+                inviteToApplicationDTO.setUsernames(Set.of(username));
+            }
+            else if (StringUtils.isNotEmpty(groupId)) {
+                inviteToApplicationDTO.setGroups(Set.of(groupId));
+            }
+            invitedToNewRoleMono = this.inviteToApplication(inviteToApplicationDTO);
+        }
+
+        return Mono.when(oldDefaultRolePostUnAssignAndDeleteIfRequired)
+                .then(invitedToNewRoleMono
+                        .map(invitedToNewRole -> invitedToNewRole.stream().findFirst().get()))
+                .switchIfEmpty(Mono.just(memberInfoForUnassignedMember));
+    }
+
+    /**
+     * The method deletes the role, if there are no users or user groups to which the defaultRole has been assigned.
+     * @param defaultRole
+     * @return
+     */
+    private Mono<PermissionGroup> deleteDefaultRoleIfNoUserOrUserGroupAssigned(PermissionGroup defaultRole) {
+        Mono<PermissionGroup> roleMono = permissionGroupService.findById(defaultRole.getId());
+        return roleMono
+                .flatMap(role -> {
+                    if (CollectionUtils.isEmpty(role.getAssignedToUserIds())
+                            && CollectionUtils.isEmpty(role.getAssignedToGroupIds())) {
+                        return permissionGroupService.deleteWithoutPermission(role.getId()).thenReturn(role);
+                    }
+                    return Mono.just(role);
+                });
+    }
+
+    /**
+     * The method returns a hard coded list of all application default roles.
+     * Note: We haven't used List.of() and instead used an ArrayList, because we are sorting the order of the roles.
+     * @return
+     */
+    @Override
+    public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRolesWithoutPermissions() {
+            List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
+
+            PermissionGroupInfoDTO roleDescriptionDTODeveloper = new PermissionGroupInfoDTO();
+            roleDescriptionDTODeveloper.setName(APPLICATION_DEVELOPER);
+            roleDescriptionDTODeveloper.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
+            roleDescriptionDTODeveloper.setAutoCreated(Boolean.TRUE);
+            roleDescriptionDTOS.add(roleDescriptionDTODeveloper);
+
+            PermissionGroupInfoDTO roleDescriptionDTOViewer = new PermissionGroupInfoDTO();
+            roleDescriptionDTOViewer.setName(APPLICATION_VIEWER);
+            roleDescriptionDTOViewer.setDescription(APPLICATION_VIEWER_DESCRIPTION);
+            roleDescriptionDTOViewer.setAutoCreated(Boolean.TRUE);
+            roleDescriptionDTOS.add(roleDescriptionDTOViewer);
+
+            roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
+
+            return Mono.just(roleDescriptionDTOS);
     }
 }

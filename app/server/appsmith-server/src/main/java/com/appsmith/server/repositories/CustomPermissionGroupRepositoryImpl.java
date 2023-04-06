@@ -119,4 +119,26 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)).is(Application.class.getSimpleName());
         return queryAll(List.of(defaultApplicationIdsCriteria, defaultDomainTypeCriteria), permission);
     }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(String userId,
+                                                                                                 String defaultDomainId,
+                                                                                                 String defaultDomainType,
+                                                                                                 Optional<AclPermission> aclPermission) {
+        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(userId);
+        Criteria defaultApplicationIdsCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).is(defaultDomainId);
+        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)).is(defaultDomainType);
+        return queryAll(List.of(assignedToUserIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(String groupId,
+                                                                                                  String defaultDomainId,
+                                                                                                  String defaultDomainType,
+                                                                                                  Optional<AclPermission> aclPermission) {
+        Criteria assignedToGroupIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds)).in(groupId);
+        Criteria defaultApplicationIdsCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)).is(defaultDomainId);
+        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)).is(defaultDomainType);
+        return queryAll(List.of(assignedToGroupIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria), aclPermission);
+    }
 }
