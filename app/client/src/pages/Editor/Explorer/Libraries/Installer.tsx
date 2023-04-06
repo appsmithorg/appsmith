@@ -48,6 +48,7 @@ import {
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
@@ -413,7 +414,11 @@ export function Installer(props: { left: number }) {
   );
 
   return !isOpen ? null : (
-    <Wrapper className="bp3-popover" left={left} ref={installerRef}>
+    <Wrapper
+      className={`bp3-popover ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      left={left}
+      ref={installerRef}
+    >
       <div className="installation-header">
         <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
