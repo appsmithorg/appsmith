@@ -28,13 +28,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
 
   & [data-component="text"] {
     width: 100%;
-
-    span {
-      display: block;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
   }
 
   &[data-variant="primary"] {
