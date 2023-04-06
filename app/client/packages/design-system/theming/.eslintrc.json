@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "../../../../.eslintrc.base.json",
+    "plugin:storybook/recommended"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.stories.*"],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ]
+}

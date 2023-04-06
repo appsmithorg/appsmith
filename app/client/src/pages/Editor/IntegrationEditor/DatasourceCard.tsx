@@ -416,7 +416,11 @@ function DatasourceCard(props: DatasourceCardProps) {
             e.stopPropagation();
           }}
         >
-          <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
+          <CollapseComponent
+            openTitle="Show Less"
+            title="Show More"
+            titleStyle={{ maxWidth: 120 }}
+          >
             <DatasourceInfo>
               <RenderDatasourceInformation
                 config={currentFormConfig[0]}

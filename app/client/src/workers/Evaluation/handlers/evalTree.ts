@@ -19,14 +19,12 @@ import type {
   EvalWorkerSyncRequest,
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
+import type { TJSPropertiesState } from "../JSObject/jsPropertiesState";
 import { jsPropertiesState } from "../JSObject/jsPropertiesState";
 import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
-import { MAIN_THREAD_ACTION } from "ce/workers/Evaluation/evalWorkerActions";
-import type {
-  initiateLintingProps,
-  LintTreeSagaRequestData,
-} from "workers/Linting/types";
+import type { LintTreeSagaRequestData } from "workers/Linting/types";
 import { WorkerMessenger } from "../fns/utils/Messenger";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -270,6 +268,15 @@ export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
   return true;
+}
+
+interface initiateLintingProps {
+  asyncJSFunctionsInDataFields: DependencyMap;
+  lintOrder: string[];
+  unevalTree: DataTree;
+  requiresLinting: boolean;
+  jsPropertiesState: TJSPropertiesState;
+  configTree: ConfigTree;
 }
 
 export function initiateLinting({
