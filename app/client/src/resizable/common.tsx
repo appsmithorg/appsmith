@@ -31,7 +31,8 @@ export const ResizeWrapper = styled(animated.div)<{
   outline-offset: 1px;
   outline: 1px solid !important;
   will-change: outline-color;
-  outline-color: ${Colors.GREY_1} !important;
+  outline-color: ${({ showBoundaries }) =>
+    showBoundaries ? Colors.GREY_1 : "transparent"} !important;
   & {
     * {
       pointer-events: ${(props) => !props.$prevents && "none"};
