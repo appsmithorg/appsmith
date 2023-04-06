@@ -211,7 +211,7 @@ function renderDropdown(
       }
 
       const isOptionDynamic = options.some((opt) => "disabled" in opt);
-      if (isOptionDynamic) {
+      if (isOptionDynamic && !!props?.isRequired) {
         const isCurrentOptionDisabled = options.some(
           (opt) => opt?.value === selectedValue && opt.disabled,
         );
