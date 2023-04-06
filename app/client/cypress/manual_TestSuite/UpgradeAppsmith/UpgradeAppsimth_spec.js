@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-const testdata = require("../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-import { CURRENT_REPO, REPO } from "../../../fixtures/REPO";
+const testdata = require("../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../support/Objects/Registry";
+import { CURRENT_REPO, REPO } from "../../fixtures/REPO";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 const tedUrl = "http://localhost:5001/v1/parent/cmd";
