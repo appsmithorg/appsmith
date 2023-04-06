@@ -560,7 +560,6 @@ function ApiResponseView(props: Props) {
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      <SectionDivider />
       {isRunning && (
         <>
           <LoadingOverlayScreen theme={props.theme} />
