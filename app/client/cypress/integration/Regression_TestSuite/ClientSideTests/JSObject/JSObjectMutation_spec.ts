@@ -1,7 +1,4 @@
 import { WIDGET, getWidgetSelector } from "../../../../locators/WidgetLocators";
-import publishLocators from "../../../../locators/publishWidgetspage.json";
-import widgetLocators from "../../../../locators/Widgets.json";
-import commonlocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("JSObject testing", () => {
