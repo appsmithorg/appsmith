@@ -3,7 +3,7 @@ import { Colors } from "constants/Colors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import React from "react";
 import type { CSSProperties, ReactNode } from "react";
-// import { animated } from "react-spring";
+import { animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import type { GridProps, ReflowDirection } from "reflow/reflowTypes";
 import type { StyledComponent } from "styled-components";
@@ -23,7 +23,7 @@ const resizeOutline = 1;
 export const RESIZE_BORDER_BUFFER =
   resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
 
-export const ResizeWrapper = styled.div<{
+export const ResizeWrapper = styled(animated.div)<{
   $prevents: boolean;
   showBoundaries: boolean;
 }>`
