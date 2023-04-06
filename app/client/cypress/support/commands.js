@@ -1291,12 +1291,14 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.wait(1000); //for toggles to settle
   cy.get(welcomePage.createButton).should("be.visible");
 
-  //cy.get(welcomePage.createButton).trigger("mouseover").click();
+  cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
   //cy.get(welcomePage.createButton).click({ multiple: true });
+  //cy.get(welcomePage.createButton).trigger("click");
 
   //Submit also not working
-  cy.get(welcomePage.createSuperUser).submit();
+  //cy.get(welcomePage.createSuperUser).submit();
+  //cy.wait(5000); //waiting a bit before attempting logout
 
   // cy.get("body").then(($ele) => {
   //   if ($ele.find(locator._spanButton("Next").length) > 0) {
@@ -1310,13 +1312,13 @@ Cypress.Commands.add("createSuperUser", () => {
   //   $jQueryButton.trigger("click"); // click on the button using jQuery
   // });
 
-  //commenting below until solved
-  // cy.wait("@createSuperUser").then((interception) => {
-  //   expect(interception.request.body).contains(
-  //     "allowCollectingAnonymousData=true",
-  //   );
-  //   expect(interception.request.body).contains("signupForNewsletter=true");
-  // });
+  //uncommenting below to analyse
+  cy.wait("@createSuperUser").then((interception) => {
+    expect(interception.request.body).contains(
+      "allowCollectingAnonymousData=true",
+    );
+    expect(interception.request.body).contains("signupForNewsletter=true");
+  });
   cy.LogOut();
   cy.wait(2000);
 });
