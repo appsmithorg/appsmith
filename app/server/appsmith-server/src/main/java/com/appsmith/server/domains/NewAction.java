@@ -52,10 +52,7 @@ public class NewAction extends BaseDomain {
         if (unpublishedAction != null) {
             unpublishedAction.sanitiseToExportDBObject();
         }
-        ActionDTO publishedAction = this.getPublishedAction();
-        if (publishedAction != null) {
-            publishedAction.sanitiseToExportDBObject();
-        }
+        this.setPublishedAction(null);
         this.sanitiseToExportBaseObject();
     }
 

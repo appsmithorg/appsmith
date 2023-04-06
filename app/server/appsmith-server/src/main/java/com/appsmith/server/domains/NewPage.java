@@ -26,7 +26,7 @@ public class NewPage extends BaseDomain {
             this.getUnpublishedPage().sanitiseToExportDBObject();
         }
         if (this.getPublishedPage() != null) {
-            this.getPublishedPage().sanitiseToExportDBObject();
+            this.setPublishedPage(null);
         }
         this.sanitiseToExportBaseObject();
     }
