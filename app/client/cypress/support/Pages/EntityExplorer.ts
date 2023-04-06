@@ -118,6 +118,7 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
+    this.agHelper.AssertElementVisible(this._expandCollapseArrow(entityName));
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
       .invoke("attr", "name")
