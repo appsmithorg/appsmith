@@ -827,8 +827,9 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
+      .clear()
       //.type(this.selectAll)
-      .type(value, { delay: 1 });
+      .type(value, { delay: 1, parseSpecialCharSequences: false });
     // .type(selectAllJSObjectContentShortcut)
     // .then((ins: any) => {
     //   //const input = ins[0].input;
@@ -840,12 +841,28 @@ export class AggregateHelper {
     // });
   }
 
+  public UpdateFieldLongInput(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("input")
+      .invoke("attr", "value", value)
+      .trigger("input");
+    this.Sleep(); //for value set to settle
+  }
+
   public UpdateTextArea(selector: string, value: string) {
     this.GetElement(selector)
       .find("textarea")
       .first()
       .invoke("val", value)
       .trigger("input");
+    this.Sleep(500); //for value set to settle
+  }
+
+  public TypeIntoTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
     this.Sleep(500); //for value set to settle
   }
 
