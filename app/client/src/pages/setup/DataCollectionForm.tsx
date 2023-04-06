@@ -1,25 +1,22 @@
 import React, { memo, useState } from "react";
 import styled from "styled-components";
-import { Toggle } from "design-system-old";
+import { Switch, Link } from "design-system";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import {
   AllowToggle,
-  AllowToggleLabel,
   AllowToggleWrapper,
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderSubtext,
-  FormHeaderWrapper,
-  StyledLink as Link,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
   WELCOME_FORM_DATA_COLLECTION_BODY,
   WELCOME_FORM_DATA_COLLECTION_HEADER,
-  WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
   WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE,
+  WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
   WELCOME_FORM_DATA_COLLECTION_LINK,
 } from "@appsmith/constants/messages";
 
@@ -38,7 +35,7 @@ export default memo(function DataCollectionForm() {
   const [allowCollection, setAllowCollection] = useState(true);
   return (
     <DataCollectionFormWrapper>
-      <FormHeaderWrapper className="relative flex flex-col items-start">
+      <div className="relative flex flex-col items-start">
         <FormHeaderIndex className="absolute -left-6">2.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_DATA_COLLECTION_HEADER)}
@@ -46,27 +43,28 @@ export default memo(function DataCollectionForm() {
         <FormHeaderSubtext>
           {createMessage(WELCOME_FORM_DATA_COLLECTION_BODY)}
           <br />
-          <StyledLink href={TELEMETRY_URL} target="_blank">
+          <StyledLink kind="primary" target="_blank" to={TELEMETRY_URL}>
             {createMessage(WELCOME_FORM_DATA_COLLECTION_LINK)}
           </StyledLink>
         </FormHeaderSubtext>
-      </FormHeaderWrapper>
+      </div>
       <FormBodyWrapper>
         <ControlWrapper>
           <AllowToggleWrapper>
             <AllowToggle>
-              <Toggle
+              <Switch
                 className="t--welcome-form-datacollection"
+                defaultSelected={allowCollection}
                 name="allowCollectingAnonymousData"
-                onToggle={(value: boolean) => setAllowCollection(value)}
-                value={allowCollection}
-              />
+                onChange={(value: boolean) => setAllowCollection(value)}
+              >
+                {/* TODO: (Albin) this behaviour of changing the text on toggle looks very odd. */}
+                {/* Check with product if this is intended to be like this. */}
+                {allowCollection
+                  ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
+                  : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
+              </Switch>
             </AllowToggle>
-            <AllowToggleLabel>
-              {allowCollection
-                ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
-                : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
-            </AllowToggleLabel>
           </AllowToggleWrapper>
         </ControlWrapper>
       </FormBodyWrapper>
