@@ -1,11 +1,12 @@
-import type { RefObject, PropsWithChildren } from "react";
-import React, { useRef, useCallback } from "react";
+import type { PropsWithChildren, RefObject } from "react";
+import React, { useCallback, useRef } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import type { ActionResponse } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import type { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
@@ -14,6 +15,7 @@ import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { isArray, isEmpty, isString } from "lodash";
 import {
+  ACTION_EXECUTION_MESSAGE,
   CHECK_REQUEST_BODY,
   createMessage,
   DEBUGGER_ERRORS,
@@ -21,10 +23,10 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
-  ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
+import NoResponse from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
@@ -39,7 +41,6 @@ import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonAp
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
-import ActionAPI from "api/ActionAPI";
 import {
   getApiPaneResponsePaneHeight,
   getApiPaneResponseSelectedTab,
@@ -270,6 +271,11 @@ export const handleCancelActionExecution = () => {
   ActionAPI.abortActionExecutionTokenSource.cancel();
 };
 
+const StyledText = styled(Text)`
+  &&&& {
+    margin-top: 0;
+  }
+`;
 function ApiResponseView(props: Props) {
   const {
     disabled,
@@ -416,9 +422,11 @@ function ApiResponseView(props: Props) {
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
               <NoResponseContainer>
-                <Icon name="no-response" />
-                <Text type={TextType.P1}>
-                  {EMPTY_RESPONSE_FIRST_HALF()}
+                <img alt="no-response-yet" src={NoResponse} />
+                <div className="flex gap-2 items-center mt-4">
+                  <StyledText type={TextType.P1}>
+                    {EMPTY_RESPONSE_FIRST_HALF()}
+                  </StyledText>
                   <Button
                     isDisabled={disabled}
                     isLoading={isRunning}
@@ -427,8 +435,10 @@ function ApiResponseView(props: Props) {
                   >
                     Run
                   </Button>
-                  {EMPTY_RESPONSE_LAST_HALF()}
-                </Text>
+                  <StyledText type={TextType.P1}>
+                    {EMPTY_RESPONSE_LAST_HALF()}
+                  </StyledText>
+                </div>
               </NoResponseContainer>
             ) : (
               <ResponseBodyContainer>
