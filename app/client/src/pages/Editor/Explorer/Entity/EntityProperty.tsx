@@ -4,16 +4,15 @@ import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import { Classes, Collapse } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import CollapseToggle from "./CollapseToggle";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -70,15 +69,6 @@ const Wrapper = styled.div<{ step: number }>`
       }
     }
 
-    & .${Classes.POPOVER_WRAPPER} {
-      display: inline;
-      vertical-align: middle;
-      margin-left: 4px;
-      cursor: pointer;
-    }
-    & .${Classes.POPOVER_TARGET} {
-      display: inline;
-    }
     .type-text {
       font-size: 12px;
       color: #716e6e;
@@ -90,15 +80,9 @@ const CopyBox = styled.div`
   cursor: pointer;
   position: relative;
   padding: 0 8px;
-  .${Classes.POPOVER_WRAPPER} {
-    position: absolute;
+  .copy-icon {
+    margin-right: 5px;
     opacity: 0;
-    z-index: 2;
-    right: 12px;
-    fill: ${Colors.TUNDORA};
-    &:hover {
-      opacity: 1;
-    }
   }
   &:hover {
     &:before {
@@ -112,7 +96,7 @@ const CopyBox = styled.div`
       width: 100%;
       z-index: -1;
     }
-    .${Classes.POPOVER_WRAPPER} {
+    .copy-icon {
       opacity: 1;
     }
   }
@@ -176,14 +160,9 @@ export const EntityProperty = memo((props: any) => {
             ref={propertyRef}
             skin={Skin.LIGHT}
           />
-          <TooltipComponent
-            boundary="viewport"
-            content={createMessage(COPY_ELEMENT)}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position="right"
-          >
-            <CopyIcon onClick={copyBindingToClipboard} />
-          </TooltipComponent>
+          <Tooltip content={createMessage(COPY_ELEMENT)} placement="right">
+            <CopyIcon className="copy-icon" onClick={copyBindingToClipboard} />
+          </Tooltip>
         </div>
       </CopyBox>
       <Collapse className="px-4" isOpen={isOpen}>
