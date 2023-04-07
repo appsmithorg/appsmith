@@ -30,7 +30,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Menu button widget is used to represent a set of actions in a group.",

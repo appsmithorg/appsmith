@@ -50,7 +50,7 @@ class CategorySliderWidget extends BaseWidget<
     return styleConfig;
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Category slider widget is used to capture user feedback from a range of categories",

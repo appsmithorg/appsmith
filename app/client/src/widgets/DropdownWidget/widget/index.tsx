@@ -33,7 +33,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
 }
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",

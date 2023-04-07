@@ -119,7 +119,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {};
   }
 

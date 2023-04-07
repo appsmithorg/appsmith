@@ -11,7 +11,7 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return (widget: any) => ({
       "!doc": "Iframe widget is used to display iframes in your app.",
       "!url": "https://docs.appsmith.com/widget-reference/iframe",

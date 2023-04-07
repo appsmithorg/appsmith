@@ -16,7 +16,7 @@ import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",

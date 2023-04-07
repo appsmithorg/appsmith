@@ -415,7 +415,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "‌Text widget is used to display textual information. Whether you want to display a paragraph or information or add a heading to a container, a text widget makes it easy to style and display text",

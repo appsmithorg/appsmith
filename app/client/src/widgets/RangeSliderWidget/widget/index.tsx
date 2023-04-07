@@ -58,7 +58,7 @@ class RangeSliderWidget extends BaseWidget<
     return styleConfig;
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Range slider widget is used to capture user feedback from a range of values",

@@ -34,7 +34,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
-    autocompleteConfig: Widget.getAutocompleteConfig(),
+    autocompleteConfig: Widget.getAutocompleteDefinitions(),
   },
 };
 

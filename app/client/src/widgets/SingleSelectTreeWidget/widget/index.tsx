@@ -469,7 +469,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     ];
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",

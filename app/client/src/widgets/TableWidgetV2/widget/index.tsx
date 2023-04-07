@@ -175,7 +175,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return (widget: any, extraDefsToDefine?: ExtraDef) => {
       const config = {
         "!doc":

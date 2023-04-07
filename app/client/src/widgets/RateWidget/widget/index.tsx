@@ -91,7 +91,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Rating widget is used to display ratings in your app.",
       "!url": "https://docs.appsmith.com/widget-reference/rate",

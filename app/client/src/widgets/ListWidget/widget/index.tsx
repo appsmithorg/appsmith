@@ -57,7 +57,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     page: 1,
   };
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return (widget: any, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",

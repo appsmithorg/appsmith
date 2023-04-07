@@ -35,7 +35,7 @@ class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       text: "string",

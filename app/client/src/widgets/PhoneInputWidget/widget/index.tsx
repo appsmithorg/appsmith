@@ -166,7 +166,7 @@ class PhoneInputWidget extends BaseInputWidget<
     );
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",

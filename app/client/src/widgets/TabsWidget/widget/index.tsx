@@ -312,7 +312,7 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       selectedTab: "string",

@@ -132,7 +132,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     ];
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",

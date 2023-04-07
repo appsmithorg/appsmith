@@ -30,7 +30,7 @@ class AudioRecorderWidget extends BaseWidget<
   AudioRecorderWidgetProps,
   WidgetState
 > {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",

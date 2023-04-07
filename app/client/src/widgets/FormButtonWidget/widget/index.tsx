@@ -28,7 +28,7 @@ class FormButtonWidget extends ButtonWidget {
     super(props);
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Form button is provided by default to every form. It is used for form submission and resetting form inputs",

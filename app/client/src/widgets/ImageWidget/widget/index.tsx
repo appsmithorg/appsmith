@@ -18,7 +18,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     this.onImageClick = this.onImageClick.bind(this);
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",

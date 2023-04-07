@@ -39,7 +39,7 @@ export class ContainerWidget extends BaseWidget<
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",

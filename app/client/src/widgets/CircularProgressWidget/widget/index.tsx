@@ -98,7 +98,7 @@ class CircularProgressWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Circular Progress is a simple UI widget used to show progress",
       "!url": "https://docs.appsmith.com/widget-reference/circular-progress",

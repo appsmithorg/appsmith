@@ -381,7 +381,7 @@ class SwitchGroupWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Switch group widget allows users to create many switch components which can easily by used in a form",

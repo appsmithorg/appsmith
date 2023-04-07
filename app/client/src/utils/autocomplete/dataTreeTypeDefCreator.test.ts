@@ -72,7 +72,7 @@ describe("dataTreeTypeDefCreator", () => {
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
     expect(JSON.stringify(def.Input1)).toBe(
-      JSON.stringify(InputWidget.getAutocompleteConfig()),
+      JSON.stringify(InputWidget.getAutocompleteDefinitions()),
     );
 
     expect(def).toHaveProperty("Input1.isDisabled");

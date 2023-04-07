@@ -49,7 +49,7 @@ type Center = {
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static defaultProps = {};
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       center: {

@@ -131,7 +131,7 @@ class StatboxWidget extends ContainerWidget {
     return "STATBOX_WIDGET";
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Show and highlight stats from your data sources",
       "!url": "https://docs.appsmith.com/widget-reference/stat-box",

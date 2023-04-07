@@ -19,7 +19,7 @@ class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
   WidgetState
 > {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",

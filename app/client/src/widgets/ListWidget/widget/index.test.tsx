@@ -43,8 +43,8 @@ describe("Autocomplete suggestions test", () => {
       pageSize: "?",
     };
 
-    expect(ListWidget.getAutocompleteConfig()(listWidgetProps)).toStrictEqual(
-      output,
-    );
+    expect(
+      ListWidget.getAutocompleteDefinitions()(listWidgetProps),
+    ).toStrictEqual(output);
   });
 });

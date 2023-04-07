@@ -30,7 +30,7 @@ import ModalComponent from "../component";
 const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
     };

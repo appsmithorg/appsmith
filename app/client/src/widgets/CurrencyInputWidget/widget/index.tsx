@@ -134,7 +134,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
   WidgetState
 > {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",

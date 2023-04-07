@@ -16,7 +16,7 @@ import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Checkbox is a simple UI widget you can use when you want users to make a binary choice",

@@ -135,7 +135,7 @@ class DocumentViewerWidget extends BaseWidget<
     ];
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Document viewer widget is used to show documents on a page",
       "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",

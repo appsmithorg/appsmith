@@ -9,7 +9,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Divider is a simple UI widget used as a separator",
       "!url": "https://docs.appsmith.com/widget-reference/divider",

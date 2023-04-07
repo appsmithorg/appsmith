@@ -16,7 +16,7 @@ class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,
   WidgetState
 > {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Progress bar is a simple UI widget used to show progress",
       "!url": "https://docs.appsmith.com/widget-reference/progressbar",

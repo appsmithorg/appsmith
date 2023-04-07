@@ -27,7 +27,7 @@ class CodeScannerWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc": "Scan a Code",
       "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",

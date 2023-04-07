@@ -131,7 +131,7 @@ class FormWidget extends ContainerWidget {
     };
   }
 
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return (widget: any, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",

@@ -29,7 +29,7 @@ const ChartComponent = lazy(() =>
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
-  static getAutocompleteConfig(): any {
+  static getAutocompleteDefinitions(): any {
     return {
       "!doc":
         "Chart widget is used to view the graphical representation of your data. Chart is the go-to widget for your data visualisation needs.",
