@@ -13,6 +13,11 @@ on:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
         type: string
+      airgap:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
 
   pull_request:
     branches: [release, master]
@@ -99,7 +104,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
-      
+
       - name: Run Eslint
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run lint:ci
@@ -122,6 +127,11 @@ jobs:
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
               echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
+          fi
+          if [[ "${{ inputs.airgap }}" == "true" ]]; then
+              echo "REACT_APP_AIRGAP_ENABLED=true" >> $GITHUB_OUTPUT
+          else
+              echo "REACT_APP_AIRGAP_ENABLED=false" >> $GITHUB_OUTPUT
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
@@ -151,6 +161,7 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
+            REACT_APP_AIRGAP_ENABLED=${{steps.vars.outputs.REACT_APP_AIRGAP_ENABLED}} \
             yarn build
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
