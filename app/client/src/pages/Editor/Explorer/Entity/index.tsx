@@ -41,9 +41,8 @@ export enum EntityClassNames {
   TOOLTIP = "t--entity-tooltp",
 }
 
-const ContextMenuWrapper = styled.div`
+export const ContextMenuWrapper = styled.div`
   height: 100%;
-  width: 100%;
 `;
 
 const Wrapper = styled.div<{ active: boolean }>`
@@ -192,6 +191,11 @@ const IconWrapper = styled.span`
   margin-right: 4px;
 `;
 
+export const AddButtonWrapper = styled.div`
+  height: 100%:
+  width: 100%:
+`;
+
 export type EntityProps = {
   entityId: string;
   showAddButton?: boolean;
@@ -306,12 +310,12 @@ export const Entity = forwardRef(
 
     const addButton = props.customAddButton || (
       <Tooltip content={props.addButtonHelptext || ""} placement="right">
-        <ContextMenuWrapper>
+        <AddButtonWrapper>
           <AddButton
             className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
             onClick={props.onCreate}
           />
-        </ContextMenuWrapper>
+        </AddButtonWrapper>
       </Tooltip>
     );
 

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import {
   comboHelpText,
@@ -22,9 +21,7 @@ import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Colors } from "constants/Colors";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { EntityClassNames } from "../Entity";
-import { TooltipComponent } from "design-system-old";
+import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   ADD_QUERY_JS_TOOLTIP,
   createMessage,
@@ -32,6 +29,7 @@ import {
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
+import { Menu, MenuContent, MenuTrigger, Tooltip } from "design-system";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -80,8 +78,8 @@ export default function ExplorerSubMenu({
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const [activeItemIdx, setActiveItemIdx] = useState(0);
-  useEffect(() => setShow(openMenu), [openMenu]);
-  useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
+  useEffect(() => handleOpenChange(openMenu), [openMenu]);
+  useCloseMenuOnScroll(SIDEBAR_ID, show, () => handleOpenChange(false));
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -125,6 +123,17 @@ export default function ExplorerSubMenu({
     handleClick(item);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      // handle open
+    } else {
+      // handle close
+      onMenuClose();
+    }
+
+    setShow(open);
+  };
+
   const handleClick = useCallback(
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
@@ -133,16 +142,40 @@ export default function ExplorerSubMenu({
       } else if (item.redirect) {
         item.redirect(pageId, "SUBMENU");
       }
-      setShow(false);
+      handleOpenChange(false);
     },
-    [pageId, dispatch, setShow],
+    [pageId, dispatch, handleOpenChange],
   );
 
   return (
-    <Popover2
-      canEscapeKeyClose
-      className="file-ops"
-      content={
+    <Menu open={show}>
+      <MenuTrigger asChild={false}>
+        {canCreateActions && (
+          <Tooltip
+            content={
+              (
+                <>
+                  {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+                  {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+                </>
+              ) as unknown as string
+            }
+            placement="right"
+          >
+            <AddButtonWrapper>
+              <EntityAddButton
+                className={`${className} ${show ? "selected" : ""}`}
+                onClick={() => handleOpenChange(true)}
+              />
+            </AddButtonWrapper>
+          </Tooltip>
+        )}
+      </MenuTrigger>
+      <MenuContent
+        align="start"
+        onInteractOutside={() => handleOpenChange(false)}
+        side="right"
+      >
         <SubmenuHotKeys
           handleDownKey={handleDownKey}
           handleSubmitKey={handleSelect}
@@ -210,36 +243,7 @@ export default function ExplorerSubMenu({
             </div>
           </SubMenuContainer>
         </SubmenuHotKeys>
-      }
-      isOpen={show}
-      minimal
-      onClose={() => {
-        setShow(false);
-        onMenuClose();
-      }}
-      placement="right-start"
-      transitionDuration={0}
-    >
-      {canCreateActions && (
-        <TooltipComponent
-          boundary="viewport"
-          className={EntityClassNames.TOOLTIP}
-          content={
-            <>
-              {createMessage(ADD_QUERY_JS_TOOLTIP)} (
-              {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-            </>
-          }
-          disabled={show}
-          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position="right"
-        >
-          <EntityAddButton
-            className={`${className} ${show ? "selected" : ""}`}
-            onClick={() => setShow(true)}
-          />
-        </TooltipComponent>
-      )}
-    </Popover2>
+      </MenuContent>
+    </Menu>
   );
 }
