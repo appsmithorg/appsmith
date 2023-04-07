@@ -1,5 +1,4 @@
 import React from "react";
-import { Popover, Position, PopoverInteractionKind } from "@blueprintjs/core";
 import {
   DATASOURCE_FIELD_ICONS_MAP,
   datasourceColumnIcon,
@@ -8,6 +7,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { Menu, MenuContent, MenuTrigger } from "design-system";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${(props) =>
@@ -102,22 +102,18 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
   );
 
   return (
-    <Popover
-      boundary={"viewport"}
-      hoverCloseDelay={0}
-      interactionKind={PopoverInteractionKind.HOVER}
-      minimal
-      position={Position.RIGHT_TOP}
-    >
-      {content}
-      <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
-        {icon}
-        <PopoverContent>
-          <PopupValue>{fieldName}</PopupValue>
-          <PopupValue>{fieldType}</PopupValue>
-        </PopoverContent>
-      </Container>
-    </Popover>
+    <Menu>
+      <MenuTrigger>{content}</MenuTrigger>
+      <MenuContent align="start" side="right">
+        <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
+          {icon}
+          <PopoverContent>
+            <PopupValue>{fieldName}</PopupValue>
+            <PopupValue>{fieldType}</PopupValue>
+          </PopoverContent>
+        </Container>
+      </MenuContent>
+    </Menu>
   );
 }
 
