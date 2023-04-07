@@ -6,21 +6,14 @@ import {
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { useSelector } from "react-redux";
+import { getPagePermissions } from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
-import classNames from "classnames";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
-import SubmenuHotKeys from "./SubmenuHotkeys";
-import scrollIntoView from "scroll-into-view-if-needed";
-import { Colors } from "constants/Colors";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   ADD_QUERY_JS_TOOLTIP,
@@ -29,28 +22,20 @@ import {
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
-import { Menu, MenuContent, MenuTrigger, Tooltip } from "design-system";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tooltip,
+} from "design-system";
 
 const SubMenuContainer = styled.div`
   width: 250px;
   .ops-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      display: none;
-      -webkit-appearance: none;
-    }
     max-height: 220px;
     overflow: hidden;
     overflow-y: auto;
-    div.active {
-      background: ${Colors.GREY_2};
-    }
-    > div:not(.section-title) {
-      &: hover {
-        background: ${Colors.GREY_2};
-      }
-    }
   }
 `;
 
@@ -71,13 +56,10 @@ export default function ExplorerSubMenu({
   const filteredFileOperations = fileOperations.filter(
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
-  const pageId = useSelector(getCurrentPageId);
-  const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const [activeItemIdx, setActiveItemIdx] = useState(0);
   useEffect(() => handleOpenChange(openMenu), [openMenu]);
   useCloseMenuOnScroll(SIDEBAR_ID, show, () => handleOpenChange(false));
 
@@ -89,39 +71,9 @@ export default function ExplorerSubMenu({
     setQuery("");
   }, [show]);
 
-  useEffect(() => {
-    const element = document.getElementById(`file-op-${activeItemIdx}`);
-    if (element)
-      scrollIntoView(element, {
-        scrollMode: "if-needed",
-      });
-  }, [activeItemIdx]);
-
-  const handleUpKey = useCallback(() => {
-    setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex <= 0) return filteredFileOperations.length - 1;
-      return Math.max(currentActiveIndex - 1, 0);
-    });
-  }, [filteredFileOperations]);
-
-  const handleDownKey = useCallback(() => {
-    setActiveItemIdx((currentActiveIndex) => {
-      if (currentActiveIndex >= filteredFileOperations.length - 1) return 0;
-      return Math.min(
-        currentActiveIndex + 1,
-        filteredFileOperations.length - 1,
-      );
-    });
-  }, [filteredFileOperations]);
-
   const onChange = useCallback((e) => {
     setQuery(e.target.value);
   }, []);
-
-  const handleSelect = () => {
-    const item = filteredFileOperations[activeItemIdx];
-    handleClick(item);
-  };
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
@@ -133,19 +85,6 @@ export default function ExplorerSubMenu({
 
     setShow(open);
   };
-
-  const handleClick = useCallback(
-    (item: any) => {
-      if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
-      if (item.action) {
-        dispatch(item.action(pageId, "SUBMENU"));
-      } else if (item.redirect) {
-        item.redirect(pageId, "SUBMENU");
-      }
-      handleOpenChange(false);
-    },
-    [pageId, dispatch, handleOpenChange],
-  );
 
   return (
     <Menu open={show}>
@@ -176,73 +115,55 @@ export default function ExplorerSubMenu({
         onInteractOutside={() => handleOpenChange(false)}
         side="right"
       >
-        <SubmenuHotKeys
-          handleDownKey={handleDownKey}
-          handleSubmitKey={handleSelect}
-          handleUpKey={handleUpKey}
+        <SubMenuContainer
+          className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
         >
-          <SubMenuContainer
-            className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
-          >
-            <div className="px-4 py-2 text-sm font-medium text-gray">
-              Create New
-            </div>
-            <div className="flex items-center space-x-2 px-4">
-              <SearchIcon className="box-content w-4 h-4" />
-              <input
-                autoComplete="off"
-                autoFocus
-                className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
-                onChange={onChange}
-                placeholder="Search datasources"
-                type="text"
-                value={query}
-              />
-              {query && (
-                <button
-                  className="p-1 hover:bg-trueGray-200"
-                  onClick={() => setQuery("")}
-                >
-                  <CrossIcon className="w-3 h-3 text-trueGray-100" />
-                </button>
-              )}
-            </div>
-            <div className="ops-container">
-              {filteredFileOperations.map((item: any, idx: number) => {
-                const icon =
-                  item.icon ||
-                  (item.pluginId && (
-                    <EntityIcon>
-                      {getPluginIcon(pluginGroups[item.pluginId])}
-                    </EntityIcon>
-                  ));
-                return (
-                  <div
-                    className={classNames({
-                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation":
-                        true,
-                      "cursor-pointer":
-                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                      active:
-                        activeItemIdx === idx &&
-                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                      "font-medium text-gray section-title":
-                        item.kind === SEARCH_ITEM_TYPES.sectionTitle,
-                    })}
-                    id={`file-op-${idx}`}
-                    key={`file-op-${idx}`}
-                    onClick={() => handleClick(item)}
-                  >
+          <div className="px-4 py-2 text-sm font-medium text-gray">
+            Create New
+          </div>
+          <div className="flex items-center space-x-2 px-4">
+            <SearchIcon className="box-content w-4 h-4" />
+            <input
+              autoComplete="off"
+              autoFocus
+              className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
+              onChange={onChange}
+              placeholder="Search datasources"
+              type="text"
+              value={query}
+            />
+            {query && (
+              <button
+                className="p-1 hover:bg-trueGray-200"
+                onClick={() => setQuery("")}
+              >
+                <CrossIcon className="w-3 h-3 text-trueGray-100" />
+              </button>
+            )}
+          </div>
+          <div className="ops-container">
+            {filteredFileOperations.map((item: any, idx: number) => {
+              const icon =
+                item.icon ||
+                (item.pluginId && (
+                  <EntityIcon>
+                    {getPluginIcon(pluginGroups[item.pluginId])}
+                  </EntityIcon>
+                ));
+
+              return (
+                <MenuItem key={`file-op-${idx}`}>
+                  <div className="flex gap-2 items-center">
                     {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
                       {item.shortTitle || item.title}
                     </span>
                   </div>
-                );
-              })}
-            </div>
-          </SubMenuContainer>
-        </SubmenuHotKeys>
+                </MenuItem>
+              );
+            })}
+          </div>
+        </SubMenuContainer>
       </MenuContent>
     </Menu>
   );
