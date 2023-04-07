@@ -76,7 +76,6 @@ server {
   # If the path has an extension at the end, then respond with 404 status if the file not found.
   location ~ ^/(?!supervisor/).*\.[a-z]+$ {
     try_files \$uri =404;
-    add_header Cache-Control "max-age=31104000, immutable";  # 360 days
   }
 
   location /api {
