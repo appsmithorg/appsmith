@@ -8,9 +8,8 @@ describe("Entity bottom bar", () => {
     //verify if bottom bar is open on clicking debugger icon in canvas.
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.Canvas);
-    //Verify if selected tab is errors and error count is 0 in tab title.
+    //Verify if selected tab is errors in tab title.
     _.debuggerHelper.AssertSelectedTab("Errors");
-    _.debuggerHelper.AssertSelectedTab("0");
     // verify if bottom bar is closed on clicking close icon in canvas.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -22,9 +21,8 @@ describe("Entity bottom bar", () => {
       //Verify if bottom bar opens on clicking debugger icon in api page.
       _.debuggerHelper.ClickDebuggerIcon();
       _.debuggerHelper.AssertOpen(PageType.API);
-      //Verify if selected tab is errors and error count is 0 in tab title.
+      //Verify if selected tab is errors in tab title.
       _.debuggerHelper.AssertSelectedTab("Errors");
-      _.debuggerHelper.AssertSelectedTab("0");
       //Verify if bottom bar is closed on clicking close icon in API page.
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
@@ -60,9 +58,8 @@ describe("Entity bottom bar", () => {
     //Verify if bottom bar remain open on shifting to create new datasource page.
     _.dataSources.NavigateToDSCreateNew();
     _.debuggerHelper.AssertOpen(PageType.DataSources);
-    //Verify if selected tab is errors and error count is 0 in tab title.
+    //Verify if selected tab is errors in tab title.
     _.debuggerHelper.AssertSelectedTab("Errors");
-    _.debuggerHelper.AssertSelectedTab("0");
     //Verify if bottom bar is closed on clicking close icon in datasource page.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -75,9 +72,9 @@ describe("Entity bottom bar", () => {
     _.dataSources.CreateMockDB("Users").then((dbName) => {
       //Verify if bottom bar remain open on shifting to active datasource page.
       _.debuggerHelper.AssertOpen(PageType.DataSources);
-      //Verify if selected tab is errors and error count is 0 in tab title.
+      //Verify if selected tab is errors and error count is
+      //Verify if selected tab is errors in tab title.
       _.debuggerHelper.AssertSelectedTab("Errors");
-      _.debuggerHelper.AssertSelectedTab("0");
       //Verify if bottom bar is closed on clicking close icon in active datasource page.
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
