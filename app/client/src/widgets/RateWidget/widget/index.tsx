@@ -11,7 +11,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -95,7 +95,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return {
       "!doc": "Rating widget is used to display ratings in your app.",
       "!url": "https://docs.appsmith.com/widget-reference/rate",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       value: "number",
       maxCount: "number",
     };

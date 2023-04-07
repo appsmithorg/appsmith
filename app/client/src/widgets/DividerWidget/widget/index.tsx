@@ -6,14 +6,14 @@ import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getAutocompleteConfig(): any {
     return {
       "!doc": "Divider is a simple UI widget used as a separator",
       "!url": "https://docs.appsmith.com/widget-reference/divider",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       orientation: "string",
       capType: "string",
       capSide: "number",

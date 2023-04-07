@@ -31,7 +31,7 @@ import {
 import { LabelPosition } from "components/constants";
 import type { Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -136,7 +136,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         "!url": "https://docs.appsmith.com/widget-reference/input",
       },
       isValid: "bool",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
       countryCode: {
         "!type": "string",

@@ -27,7 +27,10 @@ import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -179,7 +182,7 @@ class PhoneInputWidget extends BaseInputWidget<
         "!url": "https://docs.appsmith.com/widget-reference/phone-input",
       },
       isValid: "bool",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
       countryCode: {
         "!type": "string",

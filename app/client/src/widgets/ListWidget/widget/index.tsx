@@ -25,7 +25,7 @@ import React from "react";
 import shallowEqual from "shallowequal";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import WidgetFactory from "utils/WidgetFactory";
@@ -66,7 +66,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         "!type": "string",
         "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
       },
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       gridGap: "number",
       selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
       items: generateTypeDef(widget.items, extraDefsToDefine),

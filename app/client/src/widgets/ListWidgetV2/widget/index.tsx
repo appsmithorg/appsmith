@@ -39,7 +39,7 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
@@ -163,7 +163,7 @@ class ListWidget extends BaseWidget<
         "!type": "string",
         "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
       },
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       itemSpacing: "number",
       selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
       selectedItemView: generateTypeDef(

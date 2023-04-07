@@ -76,7 +76,10 @@ import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
-import { sanitizeKey, isVisible } from "widgets/WidgetUtils";
+import {
+  sanitizeKey,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
@@ -187,7 +190,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
         pageNo: "number",
         pageSize: "number",
-        isVisible: isVisible,
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
         searchText: "string",
         totalRecordsCount: "number",
         sortOrder: {

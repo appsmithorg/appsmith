@@ -21,7 +21,10 @@ import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import ModalComponent from "../component";
 
 const minSize = 100;
@@ -29,7 +32,7 @@ const minSize = 100;
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getAutocompleteConfig(): any {
     return {
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
     };
   }
 

@@ -7,7 +7,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Positioning } from "utils/autoLayout/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneContentConfig() {
@@ -135,7 +135,7 @@ class StatboxWidget extends ContainerWidget {
     return {
       "!doc": "Show and highlight stats from your data sources",
       "!url": "https://docs.appsmith.com/widget-reference/stat-box",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
     };
   }
 

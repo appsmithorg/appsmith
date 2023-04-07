@@ -9,7 +9,7 @@ import styleConfig from "./propertyConfig/styleConfig";
 import type { SliderComponentProps } from "../../NumberSliderWidget/component/Slider";
 import SliderComponent from "../../NumberSliderWidget/component/Slider";
 import type { Stylesheet } from "entities/AppTheming";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 export type SliderOption = {
   label: string;
@@ -55,7 +55,7 @@ class CategorySliderWidget extends BaseWidget<
       "!doc":
         "Category slider widget is used to capture user feedback from a range of categories",
       "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       value: "string",
     };
   }

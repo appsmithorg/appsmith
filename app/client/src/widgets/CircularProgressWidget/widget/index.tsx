@@ -7,7 +7,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { CircularProgressComponentProps } from "../component";
 import CircularProgressComponent from "../component";
 import type { Stylesheet } from "entities/AppTheming";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 interface CircularProgressWidgetProps
   extends WidgetProps,
     CircularProgressComponentProps {
@@ -102,7 +102,7 @@ class CircularProgressWidget extends BaseWidget<
     return {
       "!doc": "Circular Progress is a simple UI widget used to show progress",
       "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       progress: "number",
     };
   }

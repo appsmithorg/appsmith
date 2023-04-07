@@ -17,7 +17,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 const ChartComponent = lazy(() =>
   retryPromise(
@@ -34,7 +34,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       "!doc":
         "Chart widget is used to view the graphical representation of your data. Chart is the go-to widget for your data visualisation needs.",
       "!url": "https://docs.appsmith.com/widget-reference/chart",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       chartData: {
         seriesName: "string",
         data: "[$__chartDataPoint__$]",

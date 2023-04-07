@@ -14,7 +14,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -51,7 +51,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
   static getAutocompleteConfig(): any {
     return {
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       center: {
         lat: "number",
         long: "number",

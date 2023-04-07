@@ -17,7 +17,10 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -204,7 +207,7 @@ class MultiSelectWidget extends BaseWidget<
       "!doc":
         "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       filterText: {
         "!type": "string",
         "!doc": "The filter text for Server side filtering",

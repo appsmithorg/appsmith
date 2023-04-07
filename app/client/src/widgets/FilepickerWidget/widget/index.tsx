@@ -17,7 +17,7 @@ import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -36,7 +36,7 @@ class FilePickerWidget extends BaseWidget<
       "!doc":
         "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
       "!url": "https://docs.appsmith.com/widget-reference/filepicker",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       files: "[$__file__$]",
       isDisabled: "bool",
     };

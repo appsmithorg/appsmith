@@ -26,7 +26,7 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   isAutoHeightEnabledForWidget,
-  isVisible,
+  DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 
@@ -48,7 +48,7 @@ export class ContainerWidget extends BaseWidget<
         "!type": "string",
         "!url": "https://docs.appsmith.com/widget-reference/container",
       },
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
     };
   }
 

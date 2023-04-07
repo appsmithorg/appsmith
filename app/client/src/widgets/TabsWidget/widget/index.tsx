@@ -20,7 +20,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
-  isVisible,
+  DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
@@ -314,7 +314,7 @@ class TabsWidget extends BaseWidget<
 
   static getAutocompleteConfig(): any {
     return {
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       selectedTab: "string",
     };
   }

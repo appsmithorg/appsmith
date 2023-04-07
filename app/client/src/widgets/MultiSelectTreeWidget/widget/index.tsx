@@ -17,7 +17,10 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import MultiTreeSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -54,7 +57,7 @@ class MultiSelectTreeWidget extends BaseWidget<
       "!doc":
         "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       selectedOptionValues: {
         "!type": "[string]",
         "!doc": "The array of values selected in a treeselect dropdown",

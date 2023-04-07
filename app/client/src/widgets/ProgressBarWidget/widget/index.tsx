@@ -3,7 +3,7 @@ import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 import ProgressBarComponent from "../component";
 
@@ -20,7 +20,7 @@ class ProgressBarWidget extends BaseWidget<
     return {
       "!doc": "Progress bar is a simple UI widget used to show progress",
       "!url": "https://docs.appsmith.com/widget-reference/progressbar",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       progress: "number",
     };
   }

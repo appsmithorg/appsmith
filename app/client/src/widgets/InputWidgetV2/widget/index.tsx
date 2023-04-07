@@ -28,7 +28,10 @@ import {
 } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
@@ -267,7 +270,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         "!url": "https://docs.appsmith.com/widget-reference/input",
       },
       isValid: "bool",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
     };
   }

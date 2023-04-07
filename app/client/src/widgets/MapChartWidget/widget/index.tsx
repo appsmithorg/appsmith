@@ -25,7 +25,7 @@ import {
   dataSetForWorldWithAntarctica,
   MapTypes,
 } from "../constants";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 const MapChartComponent = lazy(() =>
   retryPromise(
@@ -68,7 +68,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       "!doc":
         "Map Chart widget shows the graphical representation of your data on the map.",
       "!url": "https://docs.appsmith.com/widget-reference/map-chart",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       selectedDataPoint: {
         id: "string",
         label: "string",

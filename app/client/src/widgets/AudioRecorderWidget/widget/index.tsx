@@ -11,7 +11,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 import AudioRecorderComponent from "../component";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
@@ -35,7 +35,7 @@ class AudioRecorderWidget extends BaseWidget<
       "!doc":
         "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
       "!url": "https://docs.appsmith.com/widget-reference/recorder",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       blobURL: "string",
       dataURL: "string",
       rawBinary: "string",

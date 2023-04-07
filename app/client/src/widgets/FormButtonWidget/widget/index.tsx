@@ -21,7 +21,7 @@ import type { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { Stylesheet } from "entities/AppTheming";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {
@@ -33,7 +33,7 @@ class FormButtonWidget extends ButtonWidget {
       "!doc":
         "Form button is provided by default to every form. It is used for form submission and resetting form inputs",
       "!url": "https://docs.appsmith.com/widget-reference/form",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       text: "string",
       isDisabled: "bool",
       recaptchaToken: "string",

@@ -8,7 +8,7 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Positioning } from "utils/autoLayout/constants";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
@@ -136,7 +136,7 @@ class FormWidget extends ContainerWidget {
       "!doc":
         "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
       "!url": "https://docs.appsmith.com/widget-reference/form",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       data: generateTypeDef(widget.data, extraDefsToDefine),
       hasChanges: "bool",
     });

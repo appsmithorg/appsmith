@@ -16,7 +16,10 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -471,7 +474,7 @@ class SingleSelectTreeWidget extends BaseWidget<
       "!doc":
         "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       selectedOptionValue: {
         "!type": "string",
         "!doc": "The value selected in a treeselect dropdown",

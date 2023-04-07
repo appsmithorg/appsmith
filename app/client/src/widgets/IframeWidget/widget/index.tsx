@@ -8,14 +8,14 @@ import BaseWidget from "widgets/BaseWidget";
 import IframeComponent from "../component";
 import type { IframeWidgetProps } from "../constants";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getAutocompleteConfig(): any {
     return (widget: any) => ({
       "!doc": "Iframe widget is used to display iframes in your app.",
       "!url": "https://docs.appsmith.com/widget-reference/iframe",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       source: "string",
       title: "string",
       message: generateTypeDef(widget.message),

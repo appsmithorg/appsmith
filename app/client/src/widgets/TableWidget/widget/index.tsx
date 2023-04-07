@@ -62,7 +62,7 @@ import { Colors } from "constants/Colors";
 import {
   borderRadiusUtility,
   boxShadowMigration,
-  isVisible,
+  DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 import type { Stylesheet } from "entities/AppTheming";
@@ -97,7 +97,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ),
       pageNo: "number",
       pageSize: "number",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       searchText: "string",
       totalRecordsCount: "number",
       sortOrder: {

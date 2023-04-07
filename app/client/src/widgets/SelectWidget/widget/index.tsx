@@ -13,7 +13,10 @@ import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
@@ -129,7 +132,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       "!doc":
         "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       filterText: {
         "!type": "string",
         "!doc": "The filter text for Server side filtering",

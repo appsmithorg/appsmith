@@ -16,7 +16,10 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget, isVisible } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
@@ -61,7 +64,7 @@ class CheckboxGroupWidget extends BaseWidget<
       "!doc":
         "Checkbox group widget allows users to easily configure multiple checkboxes together.",
       "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
       isValid: "bool",
       options: "[$__dropdownOption__$]",

@@ -8,7 +8,7 @@ import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { CodeScannerWidgetProps } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
@@ -31,7 +31,7 @@ class CodeScannerWidget extends BaseWidget<
     return {
       "!doc": "Scan a Code",
       "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
       value: "string",
     };

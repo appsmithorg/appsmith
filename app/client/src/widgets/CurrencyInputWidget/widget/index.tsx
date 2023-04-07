@@ -32,7 +32,7 @@ import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
   isAutoHeightEnabledForWidget,
-  isVisible,
+  DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import type { Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
@@ -150,7 +150,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         "!url": "https://docs.appsmith.com/widget-reference/currency-input",
       },
       isValid: "bool",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
       countryCode: {
         "!type": "string",

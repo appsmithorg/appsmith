@@ -11,7 +11,7 @@ import type { MenuButtonWidgetProps, MenuItem } from "../constants";
 import { MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import { isVisible } from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -35,7 +35,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       "!doc":
         "Menu button widget is used to represent a set of actions in a group.",
       "!url": "https://docs.appsmith.com/widget-reference/menu-button",
-      isVisible: isVisible,
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
       label: "string",
     };
   }
