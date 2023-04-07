@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
-import { Popover, Position } from "@blueprintjs/core";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
@@ -18,6 +17,7 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
+import { Menu, MenuTrigger } from "design-system";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -70,60 +70,48 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   ]);
 
   const lightningMenu = canCreateDatasourceActions ? (
-    <Wrapper
-      className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
-      onClick={() => setActive(!active)}
-    >
-      <IconWrapper {...iconProps}>
-        <LightningIcon />
-      </IconWrapper>
-      <span>Add</span>
-    </Wrapper>
+    <Menu>
+      <MenuTrigger onClick={() => setActive(!active)}>
+        <Wrapper
+          className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
+        >
+          <IconWrapper {...iconProps}>
+            <LightningIcon />
+          </IconWrapper>
+          <span>Add</span>
+        </Wrapper>
+      </MenuTrigger>
+      <QueryTemplates
+        datasourceId={props.datasourceId}
+        templates={dbStructure.templates}
+      />
+    </Menu>
   ) : null;
 
   if (dbStructure.templates) templateMenu = lightningMenu;
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
 
   return (
-    <Popover
-      boundary={"viewport"}
-      canEscapeKeyClose
-      className={`t--structure-template-menu`}
-      isOpen={active}
-      minimal
-      onInteraction={(nextOpenState: boolean) => {
-        if (!nextOpenState) {
-          setActive(false);
-        }
-      }}
-      popoverClassName="t--structure-template-menu-popover"
-      position={Position.RIGHT_TOP}
+    <StyledEntity
+      action={() => canCreateDatasourceActions && setActive(!active)}
+      active={active}
+      className={`datasourceStructure`}
+      contextMenu={templateMenu}
+      entityId={"DatasourceStructure"}
+      icon={datasourceTableIcon}
+      name={dbStructure.name}
+      step={props.step}
     >
-      <StyledEntity
-        action={() => canCreateDatasourceActions && setActive(!active)}
-        active={active}
-        className={`datasourceStructure`}
-        contextMenu={templateMenu}
-        entityId={"DatasourceStructure"}
-        icon={datasourceTableIcon}
-        name={dbStructure.name}
-        step={props.step}
-      >
-        {columnsAndKeys.map((field, index) => {
-          return (
-            <DatasourceField
-              field={field}
-              key={`${field.name}${index}`}
-              step={props.step + 1}
-            />
-          );
-        })}
-      </StyledEntity>
-      <QueryTemplates
-        datasourceId={props.datasourceId}
-        templates={dbStructure.templates}
-      />
-    </Popover>
+      {columnsAndKeys.map((field, index) => {
+        return (
+          <DatasourceField
+            field={field}
+            key={`${field.name}${index}`}
+            step={props.step + 1}
+          />
+        );
+      })}
+    </StyledEntity>
   );
 }
 
