@@ -655,7 +655,7 @@ export function ReflowResizable(props: ResizableProps) {
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     props.topRow <= 2,
     props.showResizeBoundary,
-    props.allowResize,
+    !isResizing && props.allowResize,
     props.isHovered,
   );
 
