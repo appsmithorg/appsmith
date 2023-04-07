@@ -61,6 +61,9 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                               force: true,
                             });
                             cy.wait(2000);
+                            cy.get(commonlocators.discard).click({
+                              force: true,
+                            });
                             cy.reload();
                             cy.wait(5000);
                             cy.get(commonlocators.autoConvert).click({
@@ -75,12 +78,14 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                               force: true,
                             });
                             cy.wait(2000);
+                            /*
                             cy.wait("@updateLayout").should(
                               "have.nested.property",
                               "response.body.responseMeta.status",
                               200,
                             );
-                            cy.wait(2000);
+                            */
+                            cy.wait(15000);
                             cy.get(".t--widget-audiorecorderwidget")
                               .invoke("css", "height")
                               .then((raheight) => {

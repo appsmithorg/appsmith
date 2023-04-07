@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/ImageHugWidgetDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
@@ -11,10 +12,26 @@ describe("Validating Mobile Views", function () {
     agHelper.RestoreLocalStorageCache();
   });
   it("Validate change with height width for widgets", function () {
+    cy.wait(5000);
+    cy.get(commonlocators.autoConvert).click({
+      force: true,
+    });
+    cy.wait(2000);
+    cy.get(commonlocators.convert).click({
+      force: true,
+    });
+    cy.wait(2000);
+    cy.get(commonlocators.refreshApp).click({
+      force: true,
+    });
+    cy.wait(2000);
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     cy.PublishtheApp();
     cy.wait(2000);
+    cy.get(".t--widget-imagewidget")
+    .first()
+    .should("be.visible")
   });
 
   let phones = [

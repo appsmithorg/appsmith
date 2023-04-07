@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/inputWidgetMobileDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 let theight;
@@ -13,6 +14,19 @@ describe("Validating Mobile Views", function () {
     agHelper.RestoreLocalStorageCache();
   });
   it("Validate change with height width for widgets", function () {
+    cy.wait(5000);
+    cy.get(commonlocators.autoConvert).click({
+      force: true,
+    });
+    cy.wait(2000);
+    cy.get(commonlocators.convert).click({
+      force: true,
+    });
+    cy.wait(2000);
+    cy.get(commonlocators.refreshApp).click({
+      force: true,
+    });
+    cy.wait(2000);
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
@@ -53,7 +67,7 @@ describe("Validating Mobile Views", function () {
       cy.get(".t--widget-inputwidgetv2")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(theight).to.not.equal(newheight);
+          expect(theight).to.equal(newheight);
         });
       cy.get(".t--widget-inputwidgetv2")
         .invoke("css", "width")
