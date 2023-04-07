@@ -117,14 +117,18 @@ export const fetchGheetSpreadsheets = (payload: {
 export const fetchGheetSheets = (payload: {
   datasourceId: string;
   pluginId: string;
+  sheetUrl: string;
 }) => ({
-  type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+  type: ReduxActionTypes.FETCH_GSHEET_SHEETS,
   payload,
 });
 
 export const fetchGheetColumns = (payload: {
   datasourceId: string;
-  data: Record<string, unknown>;
+  pluginId: string;
+  sheetName: string;
+  sheetUrl: string;
+  headerIndex: number;
 }) => ({
   type: ReduxActionTypes.FETCH_GSHEET_COLUMNS,
   payload,

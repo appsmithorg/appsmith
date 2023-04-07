@@ -1,6 +1,6 @@
-import { getTypographyByKey } from "design-system-old";
+import { Button, getTypographyByKey } from "design-system-old";
 import styled from "styled-components";
-import { DROPDOWN_DIMENSION, DROPDOWN_TRIGGER_DIMENSION } from "./constants";
+import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
 export const Wrapper = styled.div``;
 
@@ -36,4 +36,28 @@ export const TooltipWrapper = styled.div`
 export const RowHeading = styled.p`
   ${getTypographyByKey("p1")};
   margin-right: 10px;
+`;
+
+export const StyledButton = styled(Button)`
+  padding: 15px 0px;
+  margin: 10px 0px;
+  width: 100%;
+`;
+
+export const CreateIconWrapper = styled.div`
+  margin: 0px 8px 0px 0px;
+  cursor: pointer;
+`;
+
+export const ImageWrapper = styled.div`
+  height: 20px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  margin: 0px 8px 0px 0px;
+`;
+
+export const DatasourceImage = styled.img`
+  height: 20px;
+  width: auto;
 `;

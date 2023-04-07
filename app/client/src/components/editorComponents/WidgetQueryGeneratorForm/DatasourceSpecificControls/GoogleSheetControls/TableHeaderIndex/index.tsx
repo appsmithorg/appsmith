@@ -31,36 +31,41 @@ const RoundBg = styled.div`
 `;
 
 export function TableHeaderIndex() {
-  const { onChange, value } = useTableHeaderIndex();
+  const { error, onChange, show, value } = useTableHeaderIndex();
 
-  return (
-    <SelectWrapper className="space-y-2">
-      <Row>
-        <RowHeading>{createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}</RowHeading>
-        <TooltipWrapper>
-          <Tooltip
-            content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
-            hoverOpenDelay={200}
-          >
-            <RoundBg>
-              <Icon
-                fillColor={Colors.WHITE}
-                hoverFillColor={Colors.WHITE}
-                name="help"
-                size={IconSize.XXS}
-              />
-            </RoundBg>
-          </Tooltip>
-        </TooltipWrapper>
-      </Row>
-      <TextInput
-        cypressSelector="t--tableHeaderIndex"
-        dataType="text"
-        fill
-        onChange={onChange}
-        placeholder="Table Header Index"
-        value={value}
-      />
-    </SelectWrapper>
-  );
+  if (show) {
+    return (
+      <SelectWrapper className="space-y-2">
+        <Row>
+          <RowHeading>{createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}</RowHeading>
+          <TooltipWrapper>
+            <Tooltip
+              content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
+              hoverOpenDelay={200}
+            >
+              <RoundBg>
+                <Icon
+                  fillColor={Colors.WHITE}
+                  hoverFillColor={Colors.WHITE}
+                  name="help"
+                  size={IconSize.XXS}
+                />
+              </RoundBg>
+            </Tooltip>
+          </TooltipWrapper>
+        </Row>
+        <TextInput
+          cypressSelector="t--tableHeaderIndex"
+          dataType="text"
+          errorMsg={error}
+          fill
+          onChange={onChange}
+          placeholder="Table Header Index"
+          value={value}
+        />
+      </SelectWrapper>
+    );
+  } else {
+    return null;
+  }
 }

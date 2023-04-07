@@ -103,6 +103,7 @@ export interface ControlFunctions {
     propertyName: string,
     propertyValue: string,
     isUpdatedViaKeyboard?: boolean,
+    isDynamicPropertyPath?: boolean,
   ) => void;
 
   onBatchUpdateWithAssociatedUpdates?: (

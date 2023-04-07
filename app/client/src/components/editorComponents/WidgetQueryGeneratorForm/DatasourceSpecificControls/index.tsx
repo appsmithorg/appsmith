@@ -1,11 +1,11 @@
 import { PluginPackageName } from "entities/Action";
 import React, { useContext } from "react";
-import { QueryGeneratorFormContext } from "..";
+import { WidgetQueryGeneratorFormContext } from "..";
 import { Section } from "../styles";
 import { GoogleSheetControls } from "./GoogleSheetControls";
 
 export function DatasourceSpecificControls() {
-  const { config } = useContext(QueryGeneratorFormContext);
+  const { config } = useContext(WidgetQueryGeneratorFormContext);
 
   return (
     <Section>

@@ -1,37 +1,67 @@
-import React, { useCallback, useContext } from "react";
-import type { AppState } from "ce/reducers";
-import { useSelector } from "react-redux";
-import { Bold } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
-import { QueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
+import React, { useCallback, useContext, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Bold,
+  Label,
+} from "components/editorComponents/WidgetQueryGeneratorForm/styles";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
+import { DEFAULT_DROPDOWN_OPTION } from "components/editorComponents/WidgetQueryGeneratorForm/constants";
+import { fetchGheetColumns } from "actions/datasourceActions";
+import {
+  getGsheetsSheets,
+  getisFetchingGsheetsSheets,
+} from "selectors/datasourceSelectors";
 
 export function useSheets() {
-  const { config, updateConfig } = useContext(QueryGeneratorFormContext);
+  const dispatch = useDispatch();
 
-  const options = useSelector((state: AppState) => {
-    if (config.table.id) {
-      return state.entities.datasources.gsheetStructure.sheets[config.table.id];
-    } else {
-      return [];
-    }
-  });
+  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
-  const isLoading = useSelector(
-    (state: AppState) =>
-      state.entities.datasources.gsheetStructure.isFetchingSheets,
-  );
+  const sheets = useSelector(getGsheetsSheets(config.table.id));
+
+  const options = useMemo(() => {
+    return (sheets?.value || []).map(({ label, value }) => ({
+      id: value,
+      label: label,
+      value: value,
+      data: {
+        sheetURL: config.table.value,
+      },
+    }));
+  }, [sheets, config]);
+
+  const isLoading = useSelector(getisFetchingGsheetsSheets);
 
   const onSelect = useCallback(
-    (value) => {
-      updateConfig("sheet", value);
+    (sheet, sheetObj) => {
+      updateConfig("sheet", sheetObj);
+
+      if (config.datasource.id) {
+        dispatch(
+          fetchGheetColumns({
+            datasourceId: config.datasource.id,
+            pluginId: config.datasource.data.pluginId,
+            sheetName: sheetObj.label,
+            sheetUrl: sheetObj.data.sheetURL || "",
+            headerIndex: config.tableHeaderIndex,
+          }),
+        );
+      }
     },
-    [config, updateConfig],
+    [config, updateConfig, dispatch],
   );
 
   return {
+    error: sheets?.error,
     options,
     isLoading,
-    label: `Select sheet from ${(<Bold>{config.table.label}</Bold>)}`,
+    label: (
+      <Label>
+        Select sheet from <Bold>{config.table.label}</Bold>
+      </Label>
+    ),
     onSelect,
     selected: config.sheet,
+    show: config.table.id !== DEFAULT_DROPDOWN_OPTION.id,
   };
 }

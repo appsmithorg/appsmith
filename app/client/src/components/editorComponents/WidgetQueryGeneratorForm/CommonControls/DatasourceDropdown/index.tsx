@@ -1,60 +1,68 @@
 import React from "react";
-import { Label, SelectWrapper } from "../../styles";
-import type {
-  DropdownOption,
-  RenderDropdownOptionType,
-} from "design-system-old";
-import { Dropdown } from "design-system-old";
-import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "./option";
-import {
-  DROPDOWN_DIMENSION,
-  DROPDOWN_TRIGGER_DIMENSION,
-} from "../../constants";
-import Option from "./option";
+import { SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
+import { Select, Option } from "design-system";
+import { DropdownOption } from "../../components/DropdownOption";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
-export const CONNECT_NEW_DATASOURCE_OPTION = {
-  id: CONNECT_NEW_DATASOURCE_OPTION_ID,
-  label: "Connect New Datasource",
-  value: "Connect New Datasource",
-  data: {
-    pluginId: "",
-  },
-};
+const SectionHeader = styled.div`
+  cursor: default;
+  font-weight: 500;
+  line-height: 19px;
+  color: ${Colors.GREY_900};
+`;
 
 function DatasourceDropdown() {
-  const { onSelect, options, routeToCreateNewDatasource, selected } =
-    useDatasource();
+  const { datasourceOptions, otherOptions } = useDatasource();
 
   return (
-    <SelectWrapper className="space-y-2">
-      <Dropdown
-        dropdownMaxHeight={DROPDOWN_DIMENSION.HEIGHT}
-        height={DROPDOWN_TRIGGER_DIMENSION.HEIGHT}
-        onSelect={onSelect}
-        optionWidth={DROPDOWN_DIMENSION.WIDTH}
-        options={options}
-        renderOption={({
-          isHighlighted,
-          isSelectedNode,
-          option,
-          optionClickHandler,
-        }: RenderDropdownOptionType) => (
-          <Option
-            cypressSelector="t--datasource-dropdown-option"
-            extraProps={{ routeToCreateNewDatasource }}
-            isHighlighted={isHighlighted}
-            isSelectedNode={isSelectedNode}
-            key={(option as DropdownOption).id}
-            option={option}
-            optionClickHandler={optionClickHandler}
-            optionWidth={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
-          />
-        )}
-        selected={selected}
-        showLabelOnly
-        width={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
-      />
+    <SelectWrapper>
+      <Select
+        dropdownStyle={{
+          minWidth: "350px",
+          maxHeight: "300px",
+        }}
+        onSelect={(value) => {
+          [...datasourceOptions, ...otherOptions].find((option) => {
+            if (option.id === value && option.onSelect) {
+              option.onSelect();
+            }
+          });
+        }}
+      >
+        <Option disabled>
+          <SectionHeader>Generate a query</SectionHeader>
+        </Option>
+
+        {datasourceOptions.map((option: any) => {
+          return (
+            <Option
+              key={option.id}
+              onClick={() => option.onSelect(option)}
+              value={option.id}
+            >
+              <DropdownOption label={option.label} leftIcon={option.icon} />
+            </Option>
+          );
+        })}
+
+        <Option disabled>
+          <SectionHeader>Other actions</SectionHeader>
+        </Option>
+
+        {otherOptions.map((option: any) => {
+          return (
+            <Option
+              key={option.id}
+              onClick={() => option.onSelect(option)}
+              value={option.id}
+            >
+              <DropdownOption label={option.label} leftIcon={option.icon} />
+            </Option>
+          );
+        })}
+      </Select>
     </SelectWrapper>
   );
 }

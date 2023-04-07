@@ -1,7 +1,4 @@
-import {
-  DROPDOWN_DIMENSION,
-  DROPDOWN_TRIGGER_DIMENSION,
-} from "components/editorComponents/WidgetQueryGeneratorForm/constants";
+import { DROPDOWN_TRIGGER_DIMENSION } from "components/editorComponents/WidgetQueryGeneratorForm/constants";
 import {
   Label,
   SelectWrapper,
@@ -11,23 +8,29 @@ import React from "react";
 import { useSheets } from "./useSheets";
 
 export function SheetsDropdown() {
-  const { isLoading, label, onSelect, options, selected } = useSheets();
+  const { error, isLoading, label, onSelect, options, selected, show } =
+    useSheets();
 
-  return (
-    <SelectWrapper className="space-y-2">
-      <Label>{label}</Label>
-      <Dropdown
-        cypressSelector="t--sheetName-dropdown"
-        dropdownMaxHeight={"300px"}
-        height={DROPDOWN_TRIGGER_DIMENSION.HEIGHT}
-        isLoading={isLoading}
-        onSelect={onSelect}
-        optionWidth={DROPDOWN_DIMENSION.WIDTH}
-        options={options}
-        selected={selected}
-        showLabelOnly
-        width={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
-      />
-    </SelectWrapper>
-  );
+  if (show) {
+    return (
+      <SelectWrapper className="space-y-2">
+        <Label>{label}</Label>
+        <Dropdown
+          cypressSelector="t--sheetName-dropdown"
+          dropdownMaxHeight={"300px"}
+          errorMsg={error}
+          fillOptions
+          height={DROPDOWN_TRIGGER_DIMENSION.HEIGHT}
+          isLoading={isLoading}
+          onSelect={onSelect}
+          options={options}
+          selected={selected}
+          showLabelOnly
+          width={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
+        />
+      </SelectWrapper>
+    );
+  } else {
+    return null;
+  }
 }

@@ -1,37 +1,39 @@
-import type { AppState } from "ce/reducers";
 import { Colors } from "constants/Colors";
 import { IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
+import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 import { useCallback, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { QueryGeneratorFormContext } from "../..";
+import {
+  getGsheetsColumns,
+  getIsFetchingGsheetsColumns,
+} from "selectors/datasourceSelectors";
+import { getDatasourceTableColumns } from "selectors/entitiesSelector";
+import { WidgetQueryGeneratorFormContext } from "../..";
+import { DEFAULT_DROPDOWN_OPTION } from "../../constants";
 
-export function useColumns() {
-  const { config, updateConfig } = useContext(QueryGeneratorFormContext);
+export function useColumns(alias: string) {
+  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
-  const isLoading = useSelector((state: AppState) => {
-    return state.entities.datasources.gsheetStructure.isFetchingColumns;
-  });
+  const isLoading = useSelector(getIsFetchingGsheetsColumns);
 
-  const columns = config.table.data.columns;
+  const columns = useSelector(
+    getDatasourceTableColumns(config.datasource.id, config.table.id),
+  );
 
-  const sheetColumns = useSelector((state: AppState) => {
-    if (config.sheet.id) {
-      return state.entities.datasources.gsheetStructure.columns[
-        config.sheet.id
-      ];
-    } else {
-      return [];
-    }
-  });
+  const sheetColumns = useSelector(
+    getGsheetsColumns(config.sheet.id + "_" + config.sheet.data.sheetURL),
+  );
 
   const options = useMemo(() => {
     if (
       config.datasource.data.pluginPackageName ===
-      PluginPackageName.GOOGLE_SHEETS
+        PluginPackageName.GOOGLE_SHEETS &&
+      sheetColumns &&
+      isArray(sheetColumns.value)
     ) {
-      return sheetColumns.map((column) => {
+      return sheetColumns.value.map((column: any) => {
         return {
           ...column,
           id: column.value,
@@ -40,15 +42,15 @@ export function useColumns() {
           iconColor: Colors.GOLD,
         };
       });
-    } else {
+    } else if (isArray(columns)) {
       return columns
-        .filter((column) => {
+        .filter((column: any) => {
           return (
             column.type &&
             ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
           );
         })
-        .map((column) => {
+        .map((column: any) => {
           return {
             id: column.name,
             label: column.name,
@@ -59,17 +61,30 @@ export function useColumns() {
             iconColor: Colors.GOLD,
           };
         });
+    } else {
+      return [];
     }
-  }, [columns, sheetColumns]);
+  }, [columns, sheetColumns, config]);
 
-  const onSelect = useCallback((alias, value) => {
-    updateConfig(alias, value);
-  }, []);
+  const onSelect = useCallback(
+    (column, columnObj) => {
+      updateConfig(alias, columnObj);
+    },
+    [updateConfig, alias],
+  );
 
   return {
+    error:
+      config.datasource.data.pluginPackageName ===
+        PluginPackageName.GOOGLE_SHEETS && sheetColumns?.error,
     options,
     isLoading,
     onSelect,
-    selected: config.column,
+    selected: get(config, alias, DEFAULT_DROPDOWN_OPTION),
+    show:
+      (config.datasource.data.pluginPackageName !==
+        PluginPackageName.GOOGLE_SHEETS ||
+        config.sheet.id !== DEFAULT_DROPDOWN_OPTION.id) &&
+      config.table.id !== DEFAULT_DROPDOWN_OPTION.id,
   };
 }

@@ -6,3 +6,7 @@ export type QueryGeneratorFromProps = any;
 export interface DatasourceTableDropdownOption extends DropdownOption {
   data: DatasourceTable;
 }
+
+export interface DropdownOptionType extends DropdownOption {
+  id: string;
+}

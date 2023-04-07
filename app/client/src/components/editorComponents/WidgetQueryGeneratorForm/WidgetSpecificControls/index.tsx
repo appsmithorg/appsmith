@@ -15,13 +15,21 @@ export default function WidgetSpecificControls(props: Props) {
 
   if (props.hasSearchableColumn) {
     searchableColumn = (
-      <ColumnDropdown label="Searchable column" onSelect={noop} />
+      <ColumnDropdown
+        alias="searchable_columns"
+        label="Select a searchable column"
+        onSelect={noop}
+      />
     );
   }
 
   if (props.hasAliasPicker && props.aliases) {
     aliasPicker = props.aliases.map((alias) => {
-      <ColumnDropdown label={alias} onSelect={noop} />;
+      <ColumnDropdown
+        alias={`column.${alias}`}
+        label={alias}
+        onSelect={noop}
+      />;
     });
   }
 

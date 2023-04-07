@@ -1,111 +1,117 @@
 import React from "react";
 import { fetchGheetSheets } from "actions/datasourceActions";
-import type { AppState } from "ce/reducers";
 import { Colors } from "constants/Colors";
 import type { DropdownOption } from "design-system-old";
 import { IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
-import { PluginFormInputFieldMap } from "pages/Editor/GeneratePage/components/constants";
 import { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getDatasourcesStructure,
+  getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
 } from "selectors/entitiesSelector";
-import { QueryGeneratorFormContext } from "../..";
-import { Bold } from "../../styles";
+import { WidgetQueryGeneratorFormContext } from "../..";
+import { Bold, Label } from "../../styles";
 import type { DatasourceTableDropdownOption } from "../../types";
+import {
+  DEFAULT_DROPDOWN_OPTION,
+  PluginFormInputFieldMap,
+} from "../../constants";
+import {
+  getGsheetSpreadsheets,
+  getIsFetchingGsheetSpreadsheets,
+} from "selectors/datasourceSelectors";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
 
-  const { config, updateConfig } = useContext(QueryGeneratorFormContext);
+  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
-  const DatasourceStructure = useSelector(getDatasourcesStructure);
-
-  const spreadSheets = useSelector((state: AppState) => {
-    if (config.datasource.id) {
-      return state.entities.datasources.gsheetStructure.spreadsheets[
-        config.datasource.id
-      ];
-    } else {
-      return [];
-    }
-  });
-  const isFetchingSpreadsheets = useSelector(
-    (state: AppState) =>
-      state.entities.datasources.gsheetStructure.isFetchingSpreadsheets,
+  const datasourceStructure = useSelector(
+    getDatasourceStructureById(config.datasource.id),
   );
 
-  const ifFetchingDatasourceStructure = useSelector(
+  const spreadSheets = useSelector(getGsheetSpreadsheets(config.datasource.id));
+
+  const isFetchingSpreadsheets = useSelector(getIsFetchingGsheetSpreadsheets);
+
+  const isFetchingDatasourceStructure = useSelector(
     getIsFetchingDatasourceStructure,
   );
 
   const selectedDatasourcePluginPackageName =
-    config.datasource.data.packageName;
+    config.datasource.data.pluginPackageName;
 
   const pluginField: {
     TABLE: string;
     COLUMN: string;
   } =
     selectedDatasourcePluginPackageName &&
-    PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
-      ? PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
-      : PluginFormInputFieldMap.DEFAULT;
+    (PluginFormInputFieldMap[selectedDatasourcePluginPackageName] ||
+      PluginFormInputFieldMap.DEFAULT);
 
   const options: DropdownOption[] = useMemo(() => {
-    let options: DropdownOption[] = [];
-
     if (
-      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
+      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
+      spreadSheets
     ) {
-      options = spreadSheets;
-    } else if (config.datasource.id) {
-      const selectedDatasourceStructure =
-        DatasourceStructure[config.datasource.id];
-
-      options = (selectedDatasourceStructure?.tables as DropdownOption[]) || [];
+      return (spreadSheets.value || []).map(({ label, value }) => ({
+        id: value,
+        label: label,
+        value: value,
+        icon: "tables",
+        iconSize: IconSize.LARGE,
+        iconColor: Colors.BURNING_ORANGE,
+      }));
+    } else if (datasourceStructure) {
+      return (datasourceStructure.tables || []).map(({ name }) => ({
+        id: name,
+        label: name,
+        value: name,
+        icon: "tables",
+        iconSize: IconSize.LARGE,
+        iconColor: Colors.BURNING_ORANGE,
+      }));
+    } else {
+      return [];
     }
-
-    return options.map(({ label }) => ({
-      id: label,
-      label: label,
-      value: label,
-      icon: "tables",
-      iconSize: IconSize.LARGE,
-      iconColor: Colors.BURNING_ORANGE,
-    }));
-  }, []);
+  }, [selectedDatasourcePluginPackageName, spreadSheets, datasourceStructure]);
 
   const onSelect = useCallback(
     (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
-      if (table && TableObj) {
-        updateConfig("table", TableObj);
+      updateConfig("table", TableObj);
 
-        if (
-          selectedDatasourcePluginPackageName ===
-            PluginPackageName.GOOGLE_SHEETS &&
-          config.datasource.id
-        ) {
-          dispatch(
-            fetchGheetSheets({
-              datasourceId: config.datasource.id,
-              pluginId: config.datasource.data.pluginId,
-            }),
-          );
-        }
+      if (
+        selectedDatasourcePluginPackageName ===
+          PluginPackageName.GOOGLE_SHEETS &&
+        config.datasource.id
+      ) {
+        dispatch(
+          fetchGheetSheets({
+            datasourceId: config.datasource.id,
+            pluginId: config.datasource.data.pluginId,
+            sheetUrl: TableObj.value || "",
+          }),
+        );
       }
     },
-    [],
+    [updateConfig, selectedDatasourcePluginPackageName, config, dispatch],
   );
 
   return {
-    label: `Select ${pluginField.TABLE} from ${(
-      <Bold>{config.datasource.label}</Bold>
-    )}`,
+    error:
+      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
+        ? spreadSheets?.error
+        : datasourceStructure?.error?.message,
+    label: (
+      <Label>
+        Select {pluginField?.TABLE} from <Bold>{config.datasource.label}</Bold>
+      </Label>
+    ),
     options,
-    isLoading: isFetchingSpreadsheets || ifFetchingDatasourceStructure,
+    isLoading: isFetchingSpreadsheets || isFetchingDatasourceStructure,
     onSelect,
-    selected: config.datasource,
+    selected: config.table,
+    show: config.datasource !== DEFAULT_DROPDOWN_OPTION,
   };
 }

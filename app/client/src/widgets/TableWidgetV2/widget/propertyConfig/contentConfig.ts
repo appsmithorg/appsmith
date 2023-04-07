@@ -31,6 +31,7 @@ export default [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
