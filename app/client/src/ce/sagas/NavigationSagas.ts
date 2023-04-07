@@ -18,8 +18,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { contextSwitchingSaga } from "ce/sagas/ContextSwitchingSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
-import type { NavigationMethod } from "../../utils/history";
-
+import type { NavigationMethod } from "utils/history";
 
 let previousPath: string;
 
