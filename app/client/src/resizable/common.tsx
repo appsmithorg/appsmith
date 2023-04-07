@@ -23,22 +23,7 @@ const resizeOutline = 1;
 export const RESIZE_BORDER_BUFFER =
   resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;
 
-export const ResizeWrapper = styled(animated.div)<{
-  $prevents: boolean;
-  showBoundaries: boolean;
-}>`
-  display: block;
-  outline-offset: 1px;
-  outline: 1px solid !important;
-  will-change: outline-color;
-  outline-color: ${({ showBoundaries }) =>
-    showBoundaries ? Colors.GREY_1 : "transparent"} !important;
-  & {
-    * {
-      pointer-events: ${(props) => !props.$prevents && "none"};
-    }
-  }
-`;
+export const ResizeWrapper = styled(animated.div)``;
 
 export const getWrapperStyle = memoize(
   (
