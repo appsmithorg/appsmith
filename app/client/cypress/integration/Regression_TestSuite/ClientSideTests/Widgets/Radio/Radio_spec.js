@@ -35,15 +35,15 @@ describe("Radio Widget Functionality", function () {
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
     cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
+    cy.get(formWidgetsPage.deleteradiovalue).eq(3).click({ force: true });
     cy.get(formWidgetsPage.labelradio).should("not.have.value", "test4");
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangeRadioselect);
+    cy.getAlert("onSelectionChange");
     cy.get(formWidgetsPage.defaultSelect);
-    cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
-      .get(commonlocators.dropdownSelectButton)
+    cy.get(".t--add-action-onSelectionChange")
+      .scrollIntoView()
       .click({ force: true })
       .type("2");
     cy.PublishtheApp();
