@@ -1046,7 +1046,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.state.isFocused) return;
     const entityInformation = this.getEntityInformation();
     const { blockCompletions } = this.props;
-    let hinterOpen = true;
+    let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         blockCompletions,

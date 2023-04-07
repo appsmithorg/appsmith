@@ -575,13 +575,3 @@ const datasourceReducer = createReducer(initialState, {
 });
 
 export default datasourceReducer;
-
-/* 
-
-spreadsheets: Record<string, DropdownOption[]>;
-sheets: Record<string, DropdownOption[]>;
-columns: Record<string, DropdownOption[]>;
-isFetchingSpreadsheets: boolean;
-isFetchingSheets: boolean;
-isFetchingColumns: boolean;
-*/
