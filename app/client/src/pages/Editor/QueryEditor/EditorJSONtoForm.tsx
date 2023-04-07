@@ -577,8 +577,6 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-    {
-    }
     return (
       <components.SingleValue {...props}>
         <Container>
