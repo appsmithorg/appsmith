@@ -93,6 +93,10 @@ export class JSEditor {
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
+  _lineinPropertyPaneJsEditor = (lineNumber: number, selector = "") =>
+    `${
+      selector ? `${selector} ` : ""
+    }.CodeMirror-line:nth-child(${lineNumber})`;
   _logsTab = "[data-cy=t--tab-LOGS_TAB]";
   //#endregion
 
@@ -219,6 +223,18 @@ export class JSEditor {
       .invoke("attr", "class")
       .then((classes: any) => {
         if (classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+  }
+
+  public EnableJSContext(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (!classes.includes("is-active"))
           cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
             .first()
             .click({ force: true });
