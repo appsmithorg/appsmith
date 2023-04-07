@@ -40,7 +40,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
-    autocompleteConfig: Widget.getAutocompleteDefinitions(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };
 

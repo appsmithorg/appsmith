@@ -1717,7 +1717,7 @@ class MetaWidgetGenerator {
     widgetType: string,
     blacklistedWidgetProperties?: string[],
   ) => {
-    const config = WidgetFactory.getAutocompleteConfig(widgetType);
+    const config = WidgetFactory.getAutocompleteDefinitions(widgetType);
     const entityDefinition = typeof config === "function" ? config({}) : config;
     const blacklistedKeys = ["!doc", "!url"].concat(
       blacklistedWidgetProperties || [],

@@ -42,14 +42,14 @@ export const dataTreeTypeDefCreator = (
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
-      const autocompleteConfig =
-        WidgetFactory.getAutocompleteConfig(widgetType);
+      const autocompleteDefinitions =
+        WidgetFactory.getAutocompleteDefinitions(widgetType);
 
-      if (autocompleteConfig) {
-        if (isFunction(autocompleteConfig)) {
-          def[entityName] = autocompleteConfig(entity, extraDefsToDefine);
+      if (autocompleteDefinitions) {
+        if (isFunction(autocompleteDefinitions)) {
+          def[entityName] = autocompleteDefinitions(entity, extraDefsToDefine);
         } else {
-          def[entityName] = autocompleteConfig;
+          def[entityName] = autocompleteDefinitions;
         }
         flattenDef(def, entityName);
         entityMap.set(entityName, {

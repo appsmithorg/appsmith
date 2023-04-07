@@ -137,7 +137,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         if (widgetType) {
           childrenEntityDefinitions[widgetType] = Object.keys(
             omit(
-              WidgetFactory.getAutocompleteConfig(widgetType) as Record<
+              WidgetFactory.getAutocompleteDefinitions(widgetType) as Record<
                 string,
                 unknown
               >,

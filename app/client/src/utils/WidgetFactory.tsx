@@ -62,7 +62,7 @@ class WidgetFactory {
   > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
   static stylesheetConfigMap: Map<WidgetType, Stylesheet> = new Map();
-  static autocompleteConfig: Map<WidgetType, any> = new Map();
+  static autocompleteDefinitions: Map<WidgetType, any> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -86,7 +86,7 @@ class WidgetFactory {
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
     stylesheetConfig?: Stylesheet,
-    autocompleteConfig?: any,
+    autocompleteDefinitions?: any,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -101,8 +101,8 @@ class WidgetFactory {
         this.loadingProperties.set(widgetType, loadingProperties);
       stylesheetConfig &&
         this.stylesheetConfigMap.set(widgetType, stylesheetConfig);
-      autocompleteConfig &&
-        this.autocompleteConfig.set(widgetType, autocompleteConfig);
+      autocompleteDefinitions &&
+        this.autocompleteDefinitions.set(widgetType, autocompleteDefinitions);
 
       if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -324,8 +324,8 @@ class WidgetFactory {
     return typeConfigMap;
   }
 
-  static getAutocompleteConfig(type: WidgetType): any | undefined {
-    return this.autocompleteConfig.get(type);
+  static getAutocompleteDefinitions(type: WidgetType): any | undefined {
+    return this.autocompleteDefinitions.get(type);
   }
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {

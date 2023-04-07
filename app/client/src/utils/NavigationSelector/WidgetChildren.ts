@@ -55,7 +55,7 @@ export const getWidgetChildrenNavData = (
       | "SKELETON_WIDGET"
       | "TABS_MIGRATOR_WIDGET"
     > = dataTreeWidget.type as any;
-    let config: any = WidgetFactory.getAutocompleteConfig(type);
+    let config: any = WidgetFactory.getAutocompleteDefinitions(type);
     if (config) {
       if (isFunction(config)) config = config(dataTreeWidget);
       const widgetProps = Object.keys(config).filter(

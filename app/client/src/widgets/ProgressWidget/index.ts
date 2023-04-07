@@ -32,7 +32,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
-    autocompleteConfig: Widget.getAutocompleteDefinitions(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };
 

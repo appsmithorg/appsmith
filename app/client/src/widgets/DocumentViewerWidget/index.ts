@@ -23,7 +23,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
-    autocompleteConfig: Widget.getAutocompleteDefinitions(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };
 

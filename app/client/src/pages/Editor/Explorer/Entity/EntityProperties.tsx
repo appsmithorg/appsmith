@@ -191,7 +191,7 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = WidgetFactory.getAutocompleteConfig(type);
+      config = WidgetFactory.getAutocompleteDefinitions(type);
       if (!config) {
         return null;
       }

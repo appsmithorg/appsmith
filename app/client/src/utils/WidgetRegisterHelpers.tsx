@@ -61,7 +61,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.features,
     config.properties.loadingProperties,
     config.properties.stylesheetConfig,
-    config.properties.autocompleteConfig,
+    config.properties.autocompleteDefinitions,
   );
   configureWidget(config);
 };
