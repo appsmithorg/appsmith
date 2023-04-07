@@ -198,7 +198,7 @@ describe("MaintainContext&Focus", function () {
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
     cy.get(locators._codeMirrorTextArea).type("showA");
-    agHelper.GetNAssertElementText(_.locators._hints, "showAlert()");
+    agHelper.GetNAssertElementText(locators._hints, "showAlert()");
     agHelper.PressEscape();
     cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
   });
