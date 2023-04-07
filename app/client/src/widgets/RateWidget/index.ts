@@ -2,6 +2,7 @@ import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { RateWidgetProps } from "./widget";
+import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   features: {
@@ -30,6 +31,7 @@ export const CONFIG = {
     isReadOnly: false,
     tooltips: ["Terrible", "Bad", "Neutral", "Good", "Great"],
     widgetName: "Rating",
+    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   },
   autoLayout: {
     disabledPropsDefaults: {
