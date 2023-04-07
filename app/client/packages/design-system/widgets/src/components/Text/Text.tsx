@@ -16,7 +16,6 @@ export type TextProps = {
   capHeight?: number;
   lineGap?: number;
   as?: keyof JSX.IntrinsicElements;
-  truncate?: boolean;
   lineClamp?: number;
 };
 

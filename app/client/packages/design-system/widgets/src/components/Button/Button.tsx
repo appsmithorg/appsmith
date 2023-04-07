@@ -64,7 +64,7 @@ export const Button = forwardRef(
         {isLoading && <Spinner />}
 
         {!isLoading && (
-          <Text data-component="text" fontFamily={fontFamily} truncate>
+          <Text fontFamily={fontFamily} lineClamp={1}>
             {children}
           </Text>
         )}

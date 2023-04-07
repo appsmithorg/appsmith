@@ -10,6 +10,7 @@ const shouldForwardProp = (prop: any) => {
     "color",
     "textAlign",
     "textDecoration",
+    "lineClamp",
   ];
 
   return !propsToOmit.includes(prop);
@@ -34,18 +35,7 @@ const typographyStyles = css`
  */
 const truncateStyles = css`
   ${(props: TextProps) => {
-    const { lineClamp, truncate } = props;
-
-    if (truncate) {
-      return css`
-        span {
-          display: block;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
-        }
-      `;
-    }
+    const { lineClamp } = props;
 
     if (typeof lineClamp === "number") {
       return css`
@@ -55,6 +45,7 @@ const truncateStyles = css`
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
+          word-break: break-all;
         }
       `;
     }
@@ -63,8 +54,9 @@ const truncateStyles = css`
   }}
 `;
 
-export const StyledText = styled.p.withConfig({ shouldForwardProp })<TextProps>`
-  margin: 0;
+export const StyledText = styled.div.withConfig({
+  shouldForwardProp,
+})<TextProps>`
   color: ${({ color }) => color};
   font-weight: ${({ fontWeight }) => fontWeight};
   text-decoration: ${({ textDecoration }) => textDecoration};
