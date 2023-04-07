@@ -56,43 +56,12 @@ const Container = styled.div`
   }
 `;
 
-const ErrorTitleContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-`;
-
-const ErrorCount = styled.div<{
-  errorCount: number;
-}>`
-  border: 1px solid;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  font-size: ${(props) =>
-    props.errorCount < 9 ? "11px" : props.errorCount < 100 ? "9px" : "6px"};
-  letter-spacing: -0.195px;
-  text-align: center;
-`;
-
-// error tab title component.
-export const ErrorTabTitle = () => {
-  // get the error count in debugger.
-  const errorCount = useSelector(getErrorCount);
-  return (
-    <ErrorTitleContainer>
-      <div>{createMessage(DEBUGGER_ERRORS)} </div>
-      <ErrorCount errorCount={errorCount}>
-        {errorCount > 99 ? "99+" : errorCount}
-      </ErrorCount>
-    </ErrorTitleContainer>
-  );
-};
-
 function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const selectedTab = useSelector(getDebuggerSelectedTab);
+  // fetch the error count from the store.
+  const errorCount = useSelector(getErrorCount);
   // get the height of the response pane.
   const responsePaneHeight = useSelector(getResponsePaneHeight);
   // set the height of the response pane.
@@ -112,7 +81,8 @@ function DebuggerTabs() {
   const DEBUGGER_TABS = [
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: ErrorTabTitle(),
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
       panelComponent: <Errors hasShortCut />,
     },
     {

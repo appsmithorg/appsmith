@@ -24,6 +24,7 @@ import {
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
   ACTION_EXECUTION_MESSAGE,
+  DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -64,7 +65,6 @@ import {
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
-import { ErrorTabTitle } from "./Debugger/DebuggerTabs";
 import LogAdditionalInfo from "./Debugger/ErrorLogs/components/LogAdditionalInfo";
 import {
   JsonWrapper,
@@ -232,6 +232,7 @@ export const LoadingOverlayContainer = styled.div`
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
+  errorCount: number;
 }
 interface ReduxDispatchProps {
   updateActionResponseDisplayFormat: ({
@@ -636,7 +637,8 @@ function ApiResponseView(props: Props) {
     },
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: ErrorTabTitle(),
+      title: createMessage(DEBUGGER_ERRORS),
+      count: props.errorCount,
       panelComponent: <ErrorLogs />,
     },
     {
@@ -754,6 +756,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
     responses: getActionResponses(state),
     isRunning: state.ui.apiPane.isRunning,
+    errorCount: state.ui.debugger.context.errorCount,
   };
 };
 

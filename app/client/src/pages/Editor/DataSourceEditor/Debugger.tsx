@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import {
   createMessage,
+  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "@appsmith/constants/messages";
@@ -21,9 +22,9 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import Errors from "components/editorComponents/Debugger/Errors";
 import DebbuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
-import { ErrorTabTitle } from "components/editorComponents/Debugger/DebuggerTabs";
 import {
   getDebuggerSelectedTab,
+  getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
@@ -89,11 +90,15 @@ export default function Debugger() {
   // fetch the selected tab from the store
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
 
+  // fetch the error count from the store.
+  const errorCount = useSelector(getErrorCount);
+
   // define the tabs for the debugger
   const DEBUGGER_TABS = [
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: ErrorTabTitle(),
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
       panelComponent: <Errors hasShortCut />,
     },
     {

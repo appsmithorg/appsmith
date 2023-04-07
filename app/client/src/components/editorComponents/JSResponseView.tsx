@@ -10,6 +10,7 @@ import type { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
   DEBUGGER_LOGS,
+  DEBUGGER_ERRORS,
   EXECUTING_FUNCTION,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
@@ -51,7 +52,6 @@ import {
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
-import { ErrorTabTitle } from "./Debugger/DebuggerTabs";
 import {
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
@@ -164,6 +164,7 @@ type Props = ReduxStateProps &
     currentFunction: JSAction | null;
     theme?: EditorTheme;
     jsObject: JSCollection;
+    errorCount: number;
     errors: Array<EvaluationError>;
     disabled: boolean;
     isLoading: boolean;
@@ -174,6 +175,7 @@ function JSResponseView(props: Props) {
   const {
     currentFunction,
     disabled,
+    errorCount,
     errors,
     isDirty,
     isExecuting,
@@ -339,7 +341,8 @@ function JSResponseView(props: Props) {
     },
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: ErrorTabTitle(),
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
       panelComponent: <ErrorLogs />,
     },
     {
@@ -399,6 +402,8 @@ const mapStateToProps = (
 ) => {
   const jsActions = state.entities.jsActions;
   const { jsObject } = props;
+
+  const errorCount = state.ui.debugger.context.errorCount;
   const seletedJsObject =
     jsObject &&
     jsActions.find(
@@ -412,6 +417,7 @@ const mapStateToProps = (
     isExecuting,
     isDirty,
     seletedJsObject,
+    errorCount,
   };
 };
 

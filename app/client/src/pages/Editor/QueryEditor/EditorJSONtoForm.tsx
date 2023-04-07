@@ -73,6 +73,7 @@ import {
   ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
   ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
   CREATE_NEW_DATASOURCE,
+  DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
@@ -131,9 +132,9 @@ import {
 } from "actions/debuggerActions";
 import {
   getDebuggerSelectedTab,
+  getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
-import { ErrorTabTitle } from "components/editorComponents/Debugger/DebuggerTabs";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
@@ -497,6 +498,9 @@ export function EditorJSONtoForm(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
+
+  // fetch the error count from the store.
+  const errorCount = useSelector(getErrorCount);
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -927,7 +931,8 @@ export function EditorJSONtoForm(props: Props) {
     },
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: ErrorTabTitle(),
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
       panelComponent: <ErrorLogs />,
     },
     {
