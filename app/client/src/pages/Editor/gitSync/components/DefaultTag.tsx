@@ -1,23 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import { Button } from "design-system";
+import { Tag } from "design-system";
 
-const StyledButton = styled(Button)`
+const StyledTag = styled(Tag)`
   display: inline-block;
   position: absolute;
   right: 16%;
+  padding-bottom: 20px;
 `;
 
-// TODO (tanvi): This should not be a button!!! This should be a tag. We have a tag. Use that.
 export default function DefaultTag() {
   return (
-    <StyledButton
-      data-testid="t--default-tag"
-      isDisabled
-      kind="secondary"
-      size="sm"
-    >
+    <StyledTag data-testid="t--default-tag" isClosable={false} size="sm">
       Default
-    </StyledButton>
+    </StyledTag>
   );
 }

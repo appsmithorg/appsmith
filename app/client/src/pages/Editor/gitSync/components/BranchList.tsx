@@ -29,9 +29,8 @@ import {
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
-import { Icon, Spinner } from "design-system";
+import { Icon, Spinner, Tooltip, Button } from "design-system";
 import { get } from "lodash";
-import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   isLocalBranch,
   isRemoteBranch,
@@ -190,30 +189,27 @@ export function Header({
             marginLeft: get(theme, "spaces[1]"),
           }}
         >
-          <Tooltip
-            content={createMessage(SYNC_BRANCHES)}
-            hoverOpenDelay={10}
-            modifiers={{
-              flip: { enabled: false },
-            }}
-            position="top"
-          >
-            <Icon
+          <Tooltip content={createMessage(SYNC_BRANCHES)} placement="top">
+            <Button
               className="t--sync-branches"
               color={get(theme, "colors.gitSyncModal.closeIcon")}
-              name="refresh"
+              isIconButton
+              kind="tertiary"
               onClick={fetchBranches}
-              size="lg"
+              size="md"
+              startIcon="refresh"
             />
           </Tooltip>
         </span>
       </div>
-      <Icon
+      <Button
         className="t--close-branch-list"
         color={get(theme, "colors.gitSyncModal.closeIcon")}
-        name="close-modal"
+        isIconButton
+        kind="tertiary"
         onClick={closePopup}
-        size="lg"
+        size="md"
+        startIcon="close-modal"
       />
     </div>
   );
@@ -337,7 +333,7 @@ export default function BranchList(props: {
           }}
           fetchBranches={pruneAndFetchBranches}
         />
-        <Space size={4} />
+        <Space size={2} />
         <div style={{ width: 300 }}>
           {fetchingBranches && (
             <div style={{ width: "100%", height: textInputHeight }}>

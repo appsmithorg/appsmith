@@ -17,7 +17,6 @@ import {
 import { matchBuilderPath } from "constants/routes";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 import { Button } from "design-system";
 
 function Debugger() {
@@ -37,7 +36,6 @@ const TriggerContainer = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  ${BottomBarCTAStyles}
 
   .debugger-count {
     color: ${Colors.WHITE};
@@ -114,9 +112,9 @@ export function DebuggerTrigger() {
         <Button
           isIconButton
           kind="tertiary"
-          name="bug-line"
           onClick={onClick}
           size="sm"
+          startIcon="bug-line"
         />
       </TooltipComponent>
       {!!messageCounters.errors && (

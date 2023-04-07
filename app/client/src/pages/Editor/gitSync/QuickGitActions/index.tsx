@@ -41,9 +41,9 @@ import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   getTypographyByKey,
-  TooltipComponent as Tooltip,
+  TooltipComponent as TooltipOld,
 } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
@@ -59,13 +59,7 @@ type QuickActionButtonProps = {
 const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   padding: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[2]}px;
-  margin: 0 ${(props) => props.theme.spaces[2]}px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-
-  &:hover {
-    background-color: ${(props) =>
-      props.theme.colors.editorBottomBar.buttonBackgroundHover};
-  }
 
   position: relative;
   overflow: visible;
@@ -104,7 +98,7 @@ function QuickActionButton({
   const content = capitalizeFirstLetter(tooltipText);
 
   return (
-    <Tooltip content={content} hoverOpenDelay={10}>
+    <Tooltip content={content}>
       <QuickActionButtonContainer
         className={className}
         disabled={disabled}
@@ -116,7 +110,7 @@ function QuickActionButton({
           </div>
         ) : (
           <div>
-            <Icon name={icon} size="md" />
+            <Button isIconButton kind="tertiary" size="sm" startIcon={icon} />
             {count > 0 && <span className="count">{count}</span>}
           </div>
         )}
@@ -245,7 +239,7 @@ function ConnectGitPlaceholder() {
 
   return (
     <Container>
-      <Tooltip
+      <TooltipOld
         autoFocus={false}
         content={tooltipContent}
         disabled={!isTooltipEnabled}
@@ -277,7 +271,7 @@ function ConnectGitPlaceholder() {
             </PlaceholderButton>
           )}
         </Container>
-      </Tooltip>
+      </TooltipOld>
     </Container>
   );
 }
