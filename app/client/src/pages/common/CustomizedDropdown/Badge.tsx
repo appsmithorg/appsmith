@@ -35,7 +35,7 @@ type BadgeProps = {
   text: string;
   subtext?: string;
 };
-//TODO: Check if image works correctly on airgapped instance
+
 export function Badge(props: BadgeProps) {
   return (
     <BadgeWrapper>

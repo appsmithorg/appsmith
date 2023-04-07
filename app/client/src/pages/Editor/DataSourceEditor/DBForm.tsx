@@ -127,7 +127,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <FormTitleContainer>
               <PluginImage
                 alt="Datasource"
-                src={getAssetUrl(this.props.pluginImage)} //TODO: check this because the url is not present in server codebase
+                src={getAssetUrl(this.props.pluginImage)}
               />
               <FormTitle
                 disabled={!createFlow && !canManageDatasource}
