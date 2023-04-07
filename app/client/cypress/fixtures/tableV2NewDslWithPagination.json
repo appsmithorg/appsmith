@@ -88,7 +88,7 @@
                         "key": "primaryColumns.orderAmount.computedValue"
                     }
                 ],
-                "leftColumn": 16,
+                "leftColumn": 1,
                 "delimiter": ",",
                 "defaultSelectedRowIndex": 0,
                 "accentColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -136,7 +136,7 @@
                 ],
                 "dynamicPropertyPathList": [],
                 "displayName": "Table",
-                "bottomRow": 111,
+                "bottomRow": 132,
                 "columnWidthMap": {
                     "task": 245,
                     "step": 62,
@@ -273,7 +273,7 @@
                 "rightColumn": 50,
                 "textSize": "0.875rem",
                 "widgetId": "8o3mdylmxa",
-                "tableData": "{{[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  }\n]}}",
+                "tableData": "{{[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  }, {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  },\n\t  {\n    \"id\": 7434532,\n    \"email\": \"byron.fields@reqres.in\",\n    \"userName\": \"Byron Fields\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 7434532,\n    \"email\": \"ryan.holmes@reqres.in\",\n    \"userName\": \"Ryan Holmes\",\n    \"productName\": \"Avocado Panini\",\n    \"orderAmount\": 7.99\n  }\n]}}",
                 "label": "Data",
                 "searchKey": "",
                 "parentId": "0",
@@ -282,6 +282,35 @@
                 "isVisibleSearch": true,
                 "isVisiblePagination": true,
                 "verticalAlignment": "CENTER"
+            },
+            {
+                "widgetName": "Text1",
+                "rightColumn": 60,
+                "textAlign": "LEFT",
+                "displayName": "Text",
+                "widgetId": "16zkg2v0na",
+                "topRow": 83,
+                "bottomRow": 87,
+                "parentRowSpace": 10,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "hideCard": false,
+                "parentId": "0",
+                "isLoading": false,
+                "parentColumnSpace": 17.28125,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 51,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    }
+                ],
+                "fontSize": "PARAGRAPH",
+                "text": "{{Table1.previousPageVisited}} {{Table1.nextPageVisited}}",
+                "key": "r76o6tqjaz"
             }
         ]
     }
