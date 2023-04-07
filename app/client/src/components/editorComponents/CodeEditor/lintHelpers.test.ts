@@ -1,6 +1,10 @@
 import { Severity } from "entities/AppsmithConsole";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import {
+  INVALID_JSOBJECT_START_STATEMENT,
+  INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
+} from "workers/Linting/constants";
 import { CODE_EDITOR_START_POSITION } from "./constants";
 import {
   getKeyPositionInString,
@@ -213,7 +217,23 @@ describe("getLintAnnotations()", () => {
 
     }
     `;
-    const errors: LintError[] = [];
+    const errors: LintError[] = [
+      {
+        errorType: PropertyEvaluationErrorType.LINT,
+        errorSegment: "",
+        originalBinding: value,
+        line: 0,
+        ch: 0,
+        code: INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
+        variables: [],
+        raw: value,
+        errorMessage: {
+          name: "LintingError",
+          message: INVALID_JSOBJECT_START_STATEMENT,
+        },
+        severity: Severity.ERROR,
+      },
+    ];
 
     const res = getLintAnnotations(value, errors, { isJSObject: true });
     expect(res).toEqual([

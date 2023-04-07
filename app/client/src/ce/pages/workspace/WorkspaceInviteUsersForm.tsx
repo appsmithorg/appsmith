@@ -33,6 +33,7 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
   USERS_HAVE_ACCESS_TO_ALL_APPS,
+  NO_USERS_INVITED,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -69,7 +70,7 @@ import { isEllipsisActive } from "utils/helpers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
-const { cloudHosting, mailEnabled } = getAppsmithConfigs();
+const { cloudHosting } = getAppsmithConfigs();
 
 export const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
@@ -137,13 +138,19 @@ export const UserList = styled.div`
   }
 `;
 
-export const User = styled.div`
+export const User = styled.div<{ isApplicationInvite?: boolean }>`
   display: flex;
   align-items: center;
   min-height: 54px;
   padding: 5px 0 5px 15px;
   justify-content: space-between;
   color: ${(props) => props.theme.colors.modal.user.textColor};
+  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
+
+  &:last-child {
+    ${({ isApplicationInvite }) =>
+      isApplicationInvite && `border-bottom: none;`}
+  }
 `;
 
 export const UserInfo = styled.div`
@@ -186,10 +193,6 @@ export const UserName = styled.div`
   }
 `;
 
-export const RoleDivider = styled.div`
-  border-top: 1px solid ${(props) => props.theme.colors.menuBorder};
-`;
-
 export const Loading = styled(Spinner)`
   padding-top: 10px;
   margin: auto;
@@ -206,11 +209,6 @@ export const MailConfigContainer = styled.div`
     color: ${(props) => props.theme.colors.modal.email.message};
     font-weight: 500;
     font-size: 14px;
-  }
-  && > a {
-    color: ${(props) => props.theme.colors.modal.email.desc};
-    font-size: 12px;
-    text-decoration: underline;
   }
 `;
 
@@ -334,7 +332,6 @@ function WorkspaceInviteUsersForm(props: any) {
   const {
     allUsers,
     anyTouched,
-    disableEmailSetup = false,
     disableManageUsers = false,
     disableUserList = false,
     error,
@@ -342,6 +339,7 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchCurrentWorkspace,
     fetchUser,
     handleSubmit,
+    isApplicationInvite = false,
     isLoading,
     isMultiSelectDropdown = false,
     placeholder = "",
@@ -520,17 +518,10 @@ function WorkspaceInviteUsersForm(props: any) {
           <Loading size={30} />
         ) : (
           <>
-            {!mailEnabled && !disableEmailSetup && (
+            {allUsers.length === 0 && (
               <MailConfigContainer>
-                {allUsers.length === 0 && <NoEmailConfigImage />}
-                <span>You haven’t setup any email service yet</span>
-                <a
-                  href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Please configure your email service to invite people
-                </a>
+                <NoEmailConfigImage />
+                <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>
             )}
             {!disableUserList && (
@@ -548,7 +539,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   }) => {
                     return (
                       <Fragment key={user.username}>
-                        <User>
+                        <User isApplicationInvite={isApplicationInvite}>
                           <UserInfo>
                             <ProfileImage
                               source={
@@ -569,8 +560,6 @@ function WorkspaceInviteUsersForm(props: any) {
                             </Text>
                           </UserRole>
                         </User>
-
-                        <RoleDivider />
                       </Fragment>
                     );
                   },
@@ -596,7 +585,10 @@ function WorkspaceInviteUsersForm(props: any) {
           )}
         </ErrorBox>
         {canManage && !disableManageUsers && (
-          <ManageUsers workspaceId={props.workspaceId} />
+          <ManageUsers
+            isApplicationInvite={isApplicationInvite}
+            workspaceId={props.workspaceId}
+          />
         )}
       </StyledForm>
     </WorkspaceInviteWrapper>
