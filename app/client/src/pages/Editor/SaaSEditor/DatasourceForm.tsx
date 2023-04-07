@@ -58,11 +58,11 @@ import {
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import {
-  GSHEET_AUTHORIZATION_ERROR,
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface StateProps extends JSONtoFormProps {
@@ -284,6 +284,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
 
+    /*
+      Currently we show error message banner for google sheets only, but in future
+      if we want to extend this functionality for other plugins, we should be able
+      to extend this function for other plugins
+    */
+    const authErrorMessage = getDatasourceErrorMessage(formData, plugin);
+
     return (
       <>
         <form
@@ -346,7 +353,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
                 <AuthMessage
                   datasource={datasource}
-                  description={GSHEET_AUTHORIZATION_ERROR}
+                  description={authErrorMessage}
                   pageId={pageId}
                   style={{
                     paddingTop: "24px",
@@ -366,7 +373,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   <AuthMessage
                     actionType="authorize"
                     datasource={datasource}
-                    description={GSHEET_AUTHORIZATION_ERROR}
+                    description={authErrorMessage}
                     pageId={pageId}
                   />
                 ) : null
