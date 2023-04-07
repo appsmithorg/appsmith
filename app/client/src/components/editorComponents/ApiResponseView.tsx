@@ -26,14 +26,14 @@ import {
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
-import NoResponse from "assets/images/no-response.svg";
+import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./Debugger/EntityDependecies";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
-import { Button, Callout, Icon } from "design-system";
+import { Button, Callout } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -374,6 +374,26 @@ function ApiResponseView(props: Props) {
     dispatch(setApiPaneResponsePaneHeight(height));
   }, []);
 
+  const NoResponse = () => (
+    <NoResponseContainer>
+      <img alt="no-response-yet" src={NoResponseSVG} />
+      <div className="flex gap-2 items-center mt-4">
+        <StyledText type={TextType.P1}>
+          {EMPTY_RESPONSE_FIRST_HALF()}
+        </StyledText>
+        <Button
+          isDisabled={disabled}
+          isLoading={isRunning}
+          onClick={onRunClick}
+          size="md"
+        >
+          Run
+        </Button>
+        <StyledText type={TextType.P1}>{EMPTY_RESPONSE_LAST_HALF()}</StyledText>
+      </div>
+    </NoResponseContainer>
+  );
+
   const responseTabs =
     filteredResponseDataTypes &&
     filteredResponseDataTypes.map((dataType, index) => {
@@ -421,25 +441,7 @@ function ApiResponseView(props: Props) {
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
-              <NoResponseContainer>
-                <img alt="no-response-yet" src={NoResponse} />
-                <div className="flex gap-2 items-center mt-4">
-                  <StyledText type={TextType.P1}>
-                    {EMPTY_RESPONSE_FIRST_HALF()}
-                  </StyledText>
-                  <Button
-                    isDisabled={disabled}
-                    isLoading={isRunning}
-                    onClick={onRunClick}
-                    size="md"
-                  >
-                    Run
-                  </Button>
-                  <StyledText type={TextType.P1}>
-                    {EMPTY_RESPONSE_LAST_HALF()}
-                  </StyledText>
-                </div>
-              </NoResponseContainer>
+              <NoResponse />
             ) : (
               <ResponseBodyContainer>
                 {isString(response?.body) && isHtml(response?.body) ? (
@@ -489,16 +491,7 @@ function ApiResponseView(props: Props) {
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
-              <NoResponseContainer>
-                <Icon name="no-response" />
-                <Text type={TextType.P1}>
-                  {EMPTY_RESPONSE_FIRST_HALF()}
-                  <Button isLoading={isRunning} onClick={onRunClick} size="md">
-                    Run
-                  </Button>
-                  {EMPTY_RESPONSE_LAST_HALF()}
-                </Text>
-              </NoResponseContainer>
+              <NoResponse />
             ) : (
               <ReadOnlyEditor
                 folding
