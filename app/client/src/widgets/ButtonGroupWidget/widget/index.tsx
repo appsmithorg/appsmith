@@ -162,8 +162,7 @@ class ButtonGroupWidget extends BaseWidget<
                             sectionName: "Events",
                             children: [
                               {
-                                helpText:
-                                  "Triggers an action when the menu item is clicked",
+                                helpText: "when the menu item is clicked",
                                 propertyName: "onClick",
                                 label: "onClick",
                                 controlType: "ACTION_SELECTOR",
@@ -305,7 +304,7 @@ class ButtonGroupWidget extends BaseWidget<
                   },
                   children: [
                     {
-                      helpText: "Triggers an action when the button is clicked",
+                      helpText: "when the button is clicked",
                       propertyName: "onClick",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",
