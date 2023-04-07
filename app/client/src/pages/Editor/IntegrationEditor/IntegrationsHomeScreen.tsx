@@ -77,7 +77,7 @@ const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
   flex: 1;
-  min-height: 0;
+  min-height: 100%;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};

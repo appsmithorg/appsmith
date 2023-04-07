@@ -6,16 +6,20 @@ import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
+export const DefaultDebuggerContext = {
+  scrollPosition: 0,
+  selectedDebuggerTab: "",
+  responseTabHeight: ActionExecutionResizerHeight,
+  errorCount: 0,
+};
+
 const initialState: DebuggerReduxState = {
   logs: [],
   isOpen: false,
   errors: {},
   expandId: "",
   hideErrors: true,
-  selectedDebuggerTab: "",
-  responseTabHeight: ActionExecutionResizerHeight,
-  errorCount: 0,
-  scrollPosition: 0,
+  context: DefaultDebuggerContext,
 };
 
 // check the last message from the current log and update the occurrence count
@@ -108,39 +112,27 @@ const debuggerReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SET_DEBUGGER_SELECTED_TAB]: (
     state: DebuggerReduxState,
-    action: { payload: string },
+    action: { selectedTab: string },
   ) => {
-    state.selectedDebuggerTab = action.payload;
+    state.context.selectedDebuggerTab = action.selectedTab;
   },
   [ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT]: (
     state: DebuggerReduxState,
-    action: ReduxAction<{ height: number }>,
+    action: { height: number },
   ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
-    };
+    state.context.responseTabHeight = action.height;
   },
   [ReduxActionTypes.SET_ERROR_COUNT]: (
     state: DebuggerReduxState,
-    action: ReduxAction<{ count: number }>,
+    action: { count: number },
   ) => {
-    const { count } = action.payload;
-    return {
-      ...state,
-      errorCount: count,
-    };
+    state.context.errorCount = action.count;
   },
   [ReduxActionTypes.SET_RESPONSE_PANE_SCROLL_POSITION]: (
     state: DebuggerReduxState,
-    action: ReduxAction<{ position: number }>,
+    action: { position: number },
   ) => {
-    const { position } = action.payload;
-    return {
-      ...state,
-      scrollPosition: position,
-    };
+    state.context.scrollPosition = action.position;
   },
   [ReduxActionTypes.TOGGLE_EXPAND_ERROR_LOG_ITEM]: (
     state: DebuggerReduxState,
@@ -154,6 +146,12 @@ const debuggerReducer = createImmerReducer(initialState, {
       errors,
     };
   },
+  [ReduxActionTypes.SET_DEBUGGER_CONTEXT]: (
+    state: DebuggerReduxState,
+    action: { context: DebuggerContext },
+  ) => {
+    state.context = action.context;
+  },
 });
 
 export interface DebuggerReduxState {
@@ -162,10 +160,14 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
+  context: DebuggerContext;
+}
+
+export type DebuggerContext = {
+  scrollPosition: number;
+  errorCount: number;
   selectedDebuggerTab: string;
   responseTabHeight: number;
-  errorCount: number;
-  scrollPosition: number;
-}
+};
 
 export default debuggerReducer;

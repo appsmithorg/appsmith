@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
+import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "utils/AnalyticsUtil";
 
 export interface LogDebuggerErrorAnalyticsPayload {
@@ -74,31 +75,31 @@ export const hideDebuggerErrors = (payload: boolean) => ({
 export const setDebuggerSelectedTab = (selectedTab: string) => {
   return {
     type: ReduxActionTypes.SET_DEBUGGER_SELECTED_TAB,
-    payload: selectedTab,
+    selectedTab,
   };
 };
 
 // set the height of the response pane in the debugger.
-export const setResponsePaneHeight = (payload: number) => {
+export const setResponsePaneHeight = (height: number) => {
   return {
     type: ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT,
-    payload: { height: payload },
+    height,
   };
 };
 
 // set the height of the response pane in the debugger.
-export const setErrorCount = (payload: number) => {
+export const setErrorCount = (count: number) => {
   return {
     type: ReduxActionTypes.SET_ERROR_COUNT,
-    payload: { count: payload },
+    count,
   };
 };
 
 // set the height of the response pane in the debugger.
-export const setResponsePaneScrollPosition = (payload: number) => {
+export const setResponsePaneScrollPosition = (position: number) => {
   return {
     type: ReduxActionTypes.SET_RESPONSE_PANE_SCROLL_POSITION,
-    payload: { position: payload },
+    position,
   };
 };
 
@@ -107,5 +108,13 @@ export const toggleExpandErrorLogItem = (id: string, isExpanded: boolean) => {
   return {
     type: ReduxActionTypes.TOGGLE_EXPAND_ERROR_LOG_ITEM,
     payload: { id, isExpanded },
+  };
+};
+
+//set the debugger context in store.
+export const setDebuggerContext = (context: DebuggerContext) => {
+  return {
+    type: ReduxActionTypes.SET_DEBUGGER_CONTEXT,
+    payload: { context },
   };
 };

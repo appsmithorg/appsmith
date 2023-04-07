@@ -131,12 +131,16 @@ export const hideDebuggerIconSelector = () =>
 
 // get selected tab in debugger.
 export const getDebuggerSelectedTab = (state: AppState) =>
-  state.ui.debugger.selectedDebuggerTab;
+  state.ui.debugger.context.selectedDebuggerTab;
 
 export const getResponsePaneHeight = (state: AppState) =>
-  state.ui.debugger.responseTabHeight;
+  state.ui.debugger.context.responseTabHeight;
 
-export const getErrorCount = (state: AppState) => state.ui.debugger.errorCount;
+export const getErrorCount = (state: AppState) =>
+  state.ui.debugger.context.errorCount;
 
 export const getScrollPosition = (state: AppState) =>
-  state.ui.debugger.scrollPosition;
+  state.ui.debugger.context.scrollPosition;
+
+export const getDebuggerContext = (state: AppState) =>
+  state.ui.debugger.context;

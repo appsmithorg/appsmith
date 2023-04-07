@@ -62,25 +62,22 @@ import {
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import { getDebuggerContext } from "selectors/debuggerSelectors";
+import { setDebuggerContext } from "actions/debuggerActions";
+import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
-  ApiPaneResponseTabs = "ApiPaneResponseTabs",
-  ApiPaneResponseHeight = "ApiPaneResponseHeight",
-  CanvasDebuggerTabs = "CanvasDebuggerTabs",
   CodeEditorHistory = "CodeEditorHistory",
   EntityCollapsibleState = "EntityCollapsibleState",
   EntityExplorerWidth = "EntityExplorerWidth",
   ExplorerSwitchIndex = "ExplorerSwitchIndex",
   DatasourceViewMode = "DatasourceViewMode",
   DatasourceAccordions = "DatasourceAccordions",
+  DebuggerContext = "DebuggerContext",
   ApiRightPaneTabs = "ApiRightPaneTabs",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
-  QueryPaneResponseTabs = "QueryPaneResponseTabs",
-  QueryPaneResponseHeight = "QueryPaneResponseHeight",
   JSPaneConfigTabs = "JSPaneConfigTabs",
-  JSPaneResponseTabs = "JSPaneResponseTabs",
-  JSPaneResponseHeight = "JSPaneResponseHeight",
   PropertySections = "PropertySections",
   PropertyField = "PropertyField",
   PropertyTabs = "PropertyTabs",
@@ -241,6 +238,14 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ApiRightPaneTabs,
       selector: getApiRightPaneSelectedTab,
       setter: setApiRightPaneSelectedTab,
+    },
+  ],
+  [FocusEntity.DEBUGGER]: [
+    {
+      name: FocusElement.DebuggerContext,
+      selector: getDebuggerContext,
+      setter: setDebuggerContext,
+      defaultValue: DefaultDebuggerContext,
     },
   ],
 };

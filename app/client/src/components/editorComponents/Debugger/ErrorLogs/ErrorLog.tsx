@@ -72,7 +72,7 @@ const ErrorLog = (props: {
     <ContainerWrapper>
       <ListWrapper
         className="debugger-list"
-        onScroll={debounceLogScrollFn}
+        onScroll={(e) => debounceLogScrollFn(e)}
         ref={errorScrollRef}
       >
         {!Object.values(props.errors).length ? (
