@@ -19,8 +19,6 @@ import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { TooltipComponent } from "design-system-old";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
@@ -28,6 +26,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
+import { Tooltip } from "design-system";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -44,6 +43,7 @@ export enum EntityClassNames {
 
 const ContextMenuWrapper = styled.div`
   height: 100%;
+  width: 100%;
 `;
 
 const Wrapper = styled.div<{ active: boolean }>`
@@ -216,7 +216,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
-  addButtonHelptext?: JSX.Element | string;
+  addButtonHelptext?: string;
   isBeta?: boolean;
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
@@ -305,19 +305,14 @@ export const Entity = forwardRef(
     useClick(itemRef, handleClick, noop);
 
     const addButton = props.customAddButton || (
-      <TooltipComponent
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={props.addButtonHelptext || ""}
-        disabled={!props.addButtonHelptext}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
-      >
-        <AddButton
-          className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-          onClick={props.onCreate}
-        />
-      </TooltipComponent>
+      <Tooltip content={props.addButtonHelptext || ""} placement="right">
+        <ContextMenuWrapper>
+          <AddButton
+            className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
+            onClick={props.onCreate}
+          />
+        </ContextMenuWrapper>
+      </Tooltip>
     );
 
     return (
