@@ -27,6 +27,7 @@ import {
   showAdminSettings,
 } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
@@ -63,7 +64,7 @@ function LeftPaneBottomSection() {
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
-
+  const isAirgappedInstance = isAirgapped();
   return (
     <Wrapper>
       {showAdminSettings(user) && !isFetchingApplications && (
@@ -81,13 +82,15 @@ function LeftPaneBottomSection() {
           text={createMessage(ADMIN_SETTINGS)}
         />
       )}
-      <MenuItem
-        icon="discord"
-        onSelect={() => {
-          window.open("https://discord.gg/rBTTVJp", "_blank");
-        }}
-        text={"Join our Discord"}
-      />
+      {isAirgappedInstance && (
+        <MenuItem
+          icon="discord"
+          onSelect={() => {
+            window.open("https://discord.gg/rBTTVJp", "_blank");
+          }}
+          text={"Join our Discord"}
+        />
+      )}
       <MenuItem
         icon="book"
         onSelect={() => {
@@ -108,7 +111,7 @@ function LeftPaneBottomSection() {
         text={createMessage(WELCOME_TOUR)}
       />
 
-      <ProductUpdatesModal />
+      {isAirgappedInstance && <ProductUpdatesModal />}
       <LeftPaneVersionData>
         <span>
           {createMessage(
