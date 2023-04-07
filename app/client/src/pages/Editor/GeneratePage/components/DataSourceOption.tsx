@@ -73,6 +73,7 @@ const OptionWrapper = styled.div<{
 const CreateIconWrapper = styled.div`
   margin: 0px 8px 0px 0px;
   cursor: pointer;
+  height: 20px;
 `;
 
 const ImageWrapper = styled.div`

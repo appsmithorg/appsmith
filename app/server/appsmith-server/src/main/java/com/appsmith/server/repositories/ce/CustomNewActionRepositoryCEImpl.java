@@ -319,4 +319,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
+    
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
 }

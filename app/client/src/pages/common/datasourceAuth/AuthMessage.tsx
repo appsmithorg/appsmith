@@ -8,7 +8,7 @@ import { getPluginTypeFromDatasourceId } from "selectors/entitiesSelector";
 import styled from "styled-components";
 
 const StyledAuthMessage = styled.div`
-  max-width: 560px;
+  width: fit-content;
   margin-bottom: 16px;
   & > div {
     margin: 0;

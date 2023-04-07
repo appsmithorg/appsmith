@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { locators } from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
 describe("Git Bugs", function () {
@@ -41,10 +42,14 @@ describe("Git Bugs", function () {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.SelectPropertiesDropDown("onClick", "Navigate to");
+    _.propPane.EnterJSContext(
+      "onClick",
+      "{{navigateTo('Page2', {testQP: 'Yes'}, 'SAME_WINDOW')}}",
+      true,
+      true,
+    );
+    _.jsEditor.DisableJSContext("onClick");
     _.agHelper.Sleep(500);
-    _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
-    _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
     _.entityExplorer.SelectEntityByName("Page2", "Pages");
     _.entityExplorer.SelectEntityByName("Text1", "Widgets");
     _.propPane.UpdatePropertyFieldValue(
