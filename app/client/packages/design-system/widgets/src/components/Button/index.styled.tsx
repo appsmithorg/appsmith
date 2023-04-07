@@ -8,7 +8,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   align-items: center;
   cursor: pointer;
   outline: 0;
-  overflow: hidden;
   gap: var(--spacing-4);
   padding: var(--spacing-2) var(--spacing-4);
   min-height: calc(var(--sizing-root-unit) * 8);
