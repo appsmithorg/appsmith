@@ -27,9 +27,8 @@ import {
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox, CheckboxType } from "design-system-old";
+import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { Colors } from "constants/Colors";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
 
@@ -215,11 +214,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             >
               <span className="mr-2">Editable</span>
               <Checkbox
-                backgroundColor={Colors.GREY_600}
-                isDefaultChecked={this.isAllColumnsEditable()}
-                label=""
-                onCheckChange={this.toggleAllColumnsEditability}
-                type={CheckboxType.SECONDARY}
+                isSelected={this.isAllColumnsEditable()}
+                onChange={this.toggleAllColumnsEditability}
               />
             </EdtiableCheckboxWrapper>
           )}

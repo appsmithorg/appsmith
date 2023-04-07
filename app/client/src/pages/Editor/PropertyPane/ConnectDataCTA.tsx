@@ -28,20 +28,9 @@ const StyledDiv = styled.div`
     margin-top: ${(props) => props.theme.spaces[2]}px;
     width: 100%;
   }
-  button:nth-child(2) {
-    border: none;
-    background-color: transparent;
-    text-transform: none;
-    justify-content: flex-start;
-    padding: 0px;
-    color: ${(props) => props.theme.colors.propertyPane.ctaLearnMoreTextColor};
-    ${getTypographyByKey("p3")}
-    margin-top: ${(props) => props.theme.spaces[2]}px;
 
-    :hover,
-    :focus {
-      text-decoration: underline;
-    }
+  button:nth-child(2) {
+    margin-top: ${(props) => props.theme.spaces[2]}px;
   }
 `;
 
