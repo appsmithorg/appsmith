@@ -31,12 +31,7 @@ function PropertyHelpLabel(props: Props) {
       // disabled={!toolTipDefined}
       // popoverClassName={props.className}
     >
-      <div
-        onClick={props.onClick}
-        style={{
-          height: "22px",
-        }}
-      >
+      <div onClick={props.onClick}>
         <Label
           className={`t--property-control-label`}
           style={{
