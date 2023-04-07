@@ -71,9 +71,7 @@ describe("dataTreeTypeDefCreator", () => {
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
-    expect(JSON.stringify(def.Input1)).toBe(
-      JSON.stringify(InputWidget.getAutocompleteDefinitions()),
-    );
+    expect(def.Input1).toStrictEqual(InputWidget.getAutocompleteDefinitions());
 
     expect(def).toHaveProperty("Input1.isDisabled");
     expect(entityInfo.get("Input1")).toStrictEqual({
