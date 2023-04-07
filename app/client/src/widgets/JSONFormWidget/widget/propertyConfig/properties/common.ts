@@ -382,11 +382,11 @@ const COMMON_PROPERTIES = {
         controlType: "BUTTON_GROUP",
         options: [
           {
-            startIcon: "bold-font",
+            icon: "bold-font",
             value: "BOLD",
           },
           {
-            startIcon: "italics-font",
+            icon: "italics-font",
             value: "ITALIC",
           },
         ],

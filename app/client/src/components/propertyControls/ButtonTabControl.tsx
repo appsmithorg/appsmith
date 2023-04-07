@@ -1,8 +1,8 @@
 import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { SegmentedControlOption } from "design-system";
-import { SegmentedControl } from "design-system";
+import type { ToggleGroupOption } from "design-system";
+import { ToggleGroup } from "design-system";
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -12,7 +12,7 @@ import {
 } from "utils/AppsmithUtils";
 
 export interface ButtonTabControlProps extends ControlProps {
-  options: SegmentedControlOption[];
+  options: ToggleGroupOption[];
   defaultValue: string;
 }
 
@@ -52,8 +52,10 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
       : defaultValue
       ? defaultValue.split(",")
       : [];
+
     if (values.includes(value)) {
       values.splice(values.indexOf(value), 1);
+
       this.updateProperty(
         this.props.propertyName,
         values.join(","),
@@ -63,6 +65,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
       const updatedValues: string[] = produce(values, (draft: string[]) => {
         draft.push(value);
       });
+
       this.updateProperty(
         this.props.propertyName,
         updatedValues.join(","),
@@ -73,15 +76,13 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   render() {
     return (
-      <SegmentedControl
-        defaultValue={
-          this.props.propertyValue ? this.props.propertyValue.split(",") : []
-        }
-        isFullWidth={false}
-        // @ts-expect-error: Type mismatch
-        onChange={this.selectButton}
+      <ToggleGroup
+        onSelect={this.selectButton}
         options={this.props.options}
         ref={this.componentRef}
+        values={
+          this.props.propertyValue ? this.props.propertyValue.split(",") : []
+        }
       />
     );
   }
