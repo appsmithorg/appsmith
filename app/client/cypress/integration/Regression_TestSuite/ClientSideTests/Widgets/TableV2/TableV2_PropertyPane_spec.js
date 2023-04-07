@@ -215,7 +215,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       cy.wait(500);
       cy.readTableV2dataPublish("1", "0").then((tabData2) => {
         expect(tabData2)
-          .to.equal("lindsay.ferguson@reqres.in")
+          .to.equal("michael.lawson@reqres.in")
           .to.eq(actualEmail);
         cy.log("computed value of URL is " + tabData2);
       });
