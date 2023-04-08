@@ -136,4 +136,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);
     }
+
+    @Override
+    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+        Criteria pageIdCriteria = where(
+                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(
+                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." +
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId)).in(pageIds);
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
 }

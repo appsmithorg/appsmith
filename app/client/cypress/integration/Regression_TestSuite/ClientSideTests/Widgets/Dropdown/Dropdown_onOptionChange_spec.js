@@ -5,6 +5,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
@@ -51,10 +52,9 @@ describe("Dropdown Widget Functionality", function () {
     cy.reload();
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
-    // Adding the api in the onClickAction of the button widget.
-    cy.addAPIFromLightningMenu("dropdownApi");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
+    cy.executeDbQuery("dropdownApi", "onOptionChange");
+    // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
+    cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
 
     cy.PublishtheApp();
 
@@ -103,10 +103,10 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("selectwidget");
-    // Adding the query in the onClickAction of the button widget.
-    cy.addQueryFromLightningMenu("Query1");
-    // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "onoptionchange");
+    // Adding the query in the onOptionChangeAction of the dropdown widget.
+    cy.executeDbQuery("Query1", "onOptionChange");
+    // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
+    cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
     cy.PublishtheApp();
 
@@ -162,20 +162,18 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("selectwidget");
-    // Click on onOptionChange JS button
-    cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
-    cy.get(commonlocators.dropdownSelectButton).eq(0).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("No action")
-      .click();
   });
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
+    // Clear the JS code
+    _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
+    cy.get(_.locators._jsToggle("onoptionchange")).click();
+
     // Dropdown On Option Change
-    cy.addEvent("Option Changed", ".t--property-control-onoptionchange");
+    _.jsEditor.DisableJSContext("onOptionChange");
+    cy.getAlert("onOptionChange", "Option Changed");
     cy.PublishtheApp();
     // Change the Option
     cy.get(formWidgetsPage.selectWidget)

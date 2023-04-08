@@ -37,7 +37,7 @@ describe("FilePicker Widget Functionality", function () {
   it("3. It checks the loading state of filepicker on call the action", function () {
     cy.SearchEntityandOpen("FilePicker1");
     const fixturePath = "testFile.mov";
-    cy.addAPIFromLightningMenu("FirstAPI");
+    cy.executeDbQuery("FirstAPI", "onFilesSelected");
     cy.get(commonlocators.filePickerButton).click();
     cy.get(commonlocators.filePickerInput).first().attachFile(fixturePath);
     cy.get(commonlocators.filePickerUploadButton).click();

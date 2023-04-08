@@ -7,6 +7,7 @@ const pageid = "MyPage";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Table Widget V2 and Navigate to functionality validation", function () {
   afterEach(() => {
@@ -43,12 +44,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.focused().blur();
-    cy.get(widgetsPage.tableOnRowSelect).scrollIntoView().should("be.visible");
-    cy.get(widgetsPage.tableOnRowSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Navigate to")
-      .click();
+    propPane.SelectPlatformFunction("onRowSelected", "Navigate to");
     cy.get(".t--open-dropdown-Select-Page").click();
     cy.get(commonlocators.singleSelectMenuItem)
       .contains(pageid)
