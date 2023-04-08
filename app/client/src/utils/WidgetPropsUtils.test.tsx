@@ -914,9 +914,9 @@ describe("Initial value migration test", () => {
         },
       };
     };
-    const migratedDslV2: any = extractCurrentDSL(tabsWidgetDSL());
+    const migratedDslV2: any = extractCurrentDSL(tabsWidgetDSL()).dsl;
     expect(migratedDslV2.children[0].children[0].leftColumn).toBeNaN();
-    const migratedDslV3: any = extractCurrentDSL(tabsWidgetDSL(2));
+    const migratedDslV3: any = extractCurrentDSL(tabsWidgetDSL(2)).dsl;
     expect(migratedDslV3.children[0].version).toBe(3);
     expect(migratedDslV3.children[0].children[0].leftColumn).not.toBeNaN();
     expect(migratedDslV3.children[0].children[0].leftColumn).toBe(0);

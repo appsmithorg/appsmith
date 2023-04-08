@@ -2,7 +2,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import IframeComponent from "../component";
@@ -69,7 +68,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

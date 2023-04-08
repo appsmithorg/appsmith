@@ -7,7 +7,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
@@ -288,7 +287,6 @@ class ButtonGroupWidget extends BaseWidget<
                     },
                   ],
                 },
-                ...getResponsiveLayoutConfig(this.getWidgetType()),
                 {
                   sectionName: "Events",
                   hidden: (

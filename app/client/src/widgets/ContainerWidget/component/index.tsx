@@ -13,6 +13,9 @@ import type { WidgetStyleContainerProps } from "components/designSystems/appsmit
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { useSelector } from "react-redux";
+import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledContainerComponent = styled.div<
@@ -54,6 +57,7 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -141,7 +145,12 @@ function ContainerComponentWrapper(
       backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)} container-with-scrollbar`}
+      } ${generateClassName(props.widgetId)} container-with-scrollbar ${
+        appPositioningType === AppPositioningTypes.AUTO &&
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? "auto-layout"
+          : ""
+      }`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={onClick}

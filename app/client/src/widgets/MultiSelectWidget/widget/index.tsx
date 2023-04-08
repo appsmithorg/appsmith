@@ -14,7 +14,6 @@ import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import MultiSelectComponent from "../component";
 
@@ -186,7 +185,6 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          ...getResponsiveLayoutConfig(this.getWidgetType()),
         ],
       },
       {

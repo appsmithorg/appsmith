@@ -10,7 +10,6 @@ import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 
 import type { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
@@ -79,7 +78,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

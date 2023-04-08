@@ -241,6 +241,7 @@ public class Application extends BaseDomain {
         }
     }
 
+    @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
         this.setOrganizationId(null);
@@ -254,9 +255,9 @@ public class Application extends BaseDomain {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
+        super.sanitiseToExportDBObject();
     }
 
     public List<ApplicationPage> getPages() {

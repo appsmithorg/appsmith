@@ -8,7 +8,6 @@ import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { MapType } from "../component";
@@ -207,7 +206,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
