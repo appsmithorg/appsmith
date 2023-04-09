@@ -29,11 +29,8 @@ describe("Validating Mobile Views", function () {
     cy.wait(5000); //for dsl to settle
     cy.PublishtheApp();
     cy.wait(2000);
-    cy.get(".t--widget-imagewidget")
-      .first()
-      .should("be.visible")
+    cy.get(".t--widget-imagewidget").first().should("be.visible");
   });
-
   let phones = [
     "iphone-4",
     "iphone-5",
