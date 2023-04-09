@@ -1474,11 +1474,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
     }
 
+    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
+
     /*
      * cellProperties order or size does not change when filter/sorting/grouping is applied
      * on the data thus original index is needed to identify the column's cell property.
      */
-    const cellProperties = getCellProperties(column, originalIndex);
+    const cellProperties = getCellProperties(column, originalIndex, isNewRow);
     let isSelected = false;
 
     if (this.props.transientTableData) {
@@ -1499,8 +1501,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
     const alias = props.cell.column.columnProperties.alias;
-
-    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
 
     const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
 

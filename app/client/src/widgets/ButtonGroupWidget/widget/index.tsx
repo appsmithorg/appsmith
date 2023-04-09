@@ -7,7 +7,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
@@ -173,8 +172,7 @@ class ButtonGroupWidget extends BaseWidget<
                             sectionName: "Events",
                             children: [
                               {
-                                helpText:
-                                  "Triggers an action when the menu item is clicked",
+                                helpText: "when the menu item is clicked",
                                 propertyName: "onClick",
                                 label: "onClick",
                                 controlType: "ACTION_SELECTOR",
@@ -300,7 +298,6 @@ class ButtonGroupWidget extends BaseWidget<
                     },
                   ],
                 },
-                ...getResponsiveLayoutConfig(this.getWidgetType()),
                 {
                   sectionName: "Events",
                   hidden: (
@@ -316,7 +313,7 @@ class ButtonGroupWidget extends BaseWidget<
                   },
                   children: [
                     {
-                      helpText: "Triggers an action when the button is clicked",
+                      helpText: "when the button is clicked",
                       propertyName: "onClick",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",

@@ -40,9 +40,10 @@ import type {
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { getMetaFlexLayers } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -560,6 +561,15 @@ class ListWidget extends BaseWidget<
         tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
+
+    //To Add Auto Layout flex layer for meta Canvas Widgets
+    if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
+      metaWidget.flexLayers = getMetaFlexLayers(
+        metaWidget.flexLayers,
+        options.rowReferences,
+      );
+    }
+
     if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
       metaWidget.dynamicHeight = "FIXED";
     }

@@ -16,7 +16,33 @@ import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
+export type WidgetSizeConfig = {
+  viewportMinWidth: number;
+  configuration: (props: any) => Record<string, string | number>;
+};
+
+type ResizableValues = { vertical?: boolean; horizontal?: boolean };
+type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
+type AutoDimensionValues = { width?: boolean; height?: boolean };
+type AutoDimensionOptions =
+  | AutoDimensionValues
+  | ((props: any) => AutoDimensionValues);
+
+export type AutoLayoutConfig = {
+  // Indicates if a widgets dimensions should be auto adjusted according to content inside it
+  autoDimension?: AutoDimensionOptions;
+  // min/max sizes for the widget
+  widgetSize?: Array<WidgetSizeConfig>;
+  // Indicates if the widgets resize handles should be disabled
+  disableResizeHandles?: ResizableOptions;
+  // default values for the widget specifi to auto layout
+  defaults?: Partial<WidgetConfigProps>;
+  // default values for the properties that are hidden/disabled in auto layout
+  disabledPropsDefaults?: Partial<WidgetProps>;
+};
+
 export interface WidgetConfiguration {
+  autoLayout?: AutoLayoutConfig;
   type: string;
   name: string;
   iconSVG?: string;
@@ -53,6 +79,7 @@ export enum BlueprintOperationTypes {
   BEFORE_DROP = "BEFORE_DROP",
   BEFORE_PASTE = "BEFORE_PASTE",
   BEFORE_ADD = "BEFORE_ADD",
+  UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {
