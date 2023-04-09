@@ -10,6 +10,7 @@ import type {
 import { Classes, Text, TextType, TooltipComponent } from "design-system-old";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
 
@@ -161,9 +162,9 @@ function DataSourceOption({
             <DatasourceImage
               alt=""
               className="dataSourceImage"
-              src={
-                pluginImages[(dropdownOption as DropdownOption).data.pluginId]
-              }
+              src={getAssetUrl(
+                pluginImages[(dropdownOption as DropdownOption).data.pluginId],
+              )}
             />
           </ImageWrapper>
         ) : null}
