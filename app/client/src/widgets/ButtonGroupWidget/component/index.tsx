@@ -639,12 +639,13 @@ class ButtonGroupComponent extends React.Component<
               disabled={isButtonDisabled}
               key={button.id}
               loading={!!loadedBtnId}
-              onClick={(e) => {
-                if (button.onClick) {
-                  e.stopPropagation();
-                }
-                this.onButtonClick(button.onClick, button.id);
-              }}
+              onClick={
+                button.onClick
+                  ? () => {
+                      this.onButtonClick(button.onClick, button.id);
+                    }
+                  : undefined
+              }
               renderMode={this.props.renderMode}
               style={{ flex: "1 1 auto" }}
             >

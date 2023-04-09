@@ -40,6 +40,7 @@ import type {
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
 import { getMetaFlexLayers } from "./helper";
+import { findReactInstanceProps } from "widgets/WidgetUtils";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1058,8 +1059,19 @@ class ListWidget extends BaseWidget<
     const hasControl = (target as HTMLLabelElement).control;
     const parentHasControl = (target.parentElement as HTMLLabelElement).control;
     const hasLink = (target as HTMLAnchorElement).href;
+    const widgetType = target.getAttribute("type");
+    const isContainerWidget = widgetType === "CONTAINER_WIDGET";
 
-    return !(isInput || hasControl || parentHasControl || hasLink);
+    const hasOnClick =
+      Boolean(findReactInstanceProps(target).onClick) && !isContainerWidget;
+
+    return !(
+      isInput ||
+      hasControl ||
+      parentHasControl ||
+      hasLink ||
+      hasOnClick
+    );
   };
 
   /**

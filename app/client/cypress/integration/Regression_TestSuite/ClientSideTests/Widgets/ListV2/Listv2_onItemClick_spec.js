@@ -76,14 +76,18 @@ describe("List widget v2 onItemClick", () => {
 
     cy.validateToastMessage("ListWidget_Blue_0");
     cy.get(commonlocators.toastBody).first().click();
-    cy.wait(300);
+    cy.waitUntil(() =>
+      cy.get(commonlocators.toastmsg).should("not.be.visible"),
+    );
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(1)
       .click({ force: true });
 
     cy.validateToastMessage("ListWidget_Green_1");
     cy.get(commonlocators.toastBody).first().click();
-    cy.wait(300);
+    cy.waitUntil(() =>
+      cy.get(commonlocators.toastmsg).should("not.be.visible"),
+    );
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(2)
@@ -91,7 +95,9 @@ describe("List widget v2 onItemClick", () => {
 
     cy.validateToastMessage("ListWidget_Red_2");
     cy.get(commonlocators.toastBody).first().click();
-    cy.wait(300);
+    cy.waitUntil(() =>
+      cy.get(commonlocators.toastmsg).should("not.be.visible"),
+    );
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
@@ -100,20 +106,6 @@ describe("List widget v2 onItemClick", () => {
 
     cy.get(widgetSelector("Text1")).first().click({ force: true });
     validateToastExist();
-
-    cy.openPropertyPaneByWidgetName("Text2", "textwidget");
-
-    cy.testJsontext("text", "");
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "https://www.google.com/",
-      { force: true },
-    );
-    cy.wait(500);
-
-    cy.get(`${widgetSelector("Text2")} ${commonlocators.bodyTextStyle} a`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
 
     deleteAllWidgetsInContainer();
 

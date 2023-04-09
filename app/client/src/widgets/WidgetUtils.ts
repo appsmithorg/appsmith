@@ -40,6 +40,8 @@ type SanitizeOptions = {
   existingKeys?: string[];
 };
 
+const REACT_ELEMENT_PROPS = "__reactProps$";
+
 export function getDisplayName(WrappedComponent: {
   displayName: any;
   name: any;
@@ -891,3 +893,12 @@ export const scrollCSS = css`
 
 export const widgetTypeClassname = (widgetType: string): string =>
   `t--widget-${widgetType.split("_").join("").toLowerCase()}`;
+
+export const findReactInstanceProps = (domElement: any) => {
+  for (const key in domElement) {
+    if (key.startsWith(REACT_ELEMENT_PROPS)) {
+      return domElement[key];
+    }
+  }
+  return null;
+};

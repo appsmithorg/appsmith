@@ -79,19 +79,16 @@ type DragContainerProps = ButtonContainerProps & {
 
 export function DragContainer(props: DragContainerProps) {
   if (props.renderMode === RenderModes.CANVAS || props.showInAllModes) {
+    const hasOnClick = Boolean(
+      props.onClick && !props.disabled && !props.loading,
+    );
     return (
       <ButtonContainer
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
         loading={props.loading}
-        onClick={(event) => {
-          if (props.disabled) return;
-          if (props.loading) return;
-          if (props.onClick) {
-            props.onClick(event);
-          }
-        }}
+        onClick={hasOnClick ? props.onClick : undefined}
         style={props.style}
       >
         {props.children}
