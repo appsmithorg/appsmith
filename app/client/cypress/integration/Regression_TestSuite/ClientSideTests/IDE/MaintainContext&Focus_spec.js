@@ -194,7 +194,7 @@ describe("MaintainContext&Focus", function () {
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 
-  it("11. Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
+  it("11. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
     cy.get(locators._codeMirrorTextArea).type("showA");
