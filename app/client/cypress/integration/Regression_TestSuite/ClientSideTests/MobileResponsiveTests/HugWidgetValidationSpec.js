@@ -30,8 +30,8 @@ describe("Validating Mobile Views", function () {
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-imagewidget")
-    .first()
-    .should("be.visible")
+      .first()
+      .should("be.visible")
   });
 
   let phones = [

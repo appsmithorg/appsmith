@@ -80,7 +80,7 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                             cy.wait(2000);
                             cy.get(commonlocators.convertanyways).click({
                               force: true,
-                            });                            
+                            });
                             cy.wait("@snapshotSuccess").should(
                               "have.nested.property",
                               "response.body.responseMeta.status",
