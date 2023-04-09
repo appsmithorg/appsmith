@@ -954,9 +954,10 @@ describe("App Theming funtionality", function () {
       .wait(2000);
 
     //Change individual widget properties for Button1
-    ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
-    ee.SelectEntityByName("Button1");
+    //ee.NavigateToSwitcher("explorer");
+    //ee.ExpandCollapseEntity("Widgets"); //to expand widgets
+    //ee.SelectEntityByName("Button1");
+    cy.SearchEntityandOpenFirstOccurance("Button1");
     cy.moveToStyleTab();
 
     //Change Color & verify
