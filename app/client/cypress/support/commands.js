@@ -473,7 +473,7 @@ Cypress.Commands.add("SearchEntityandOpenFirstOccurance", (apiname1) => {
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
   cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .failureThresholdType()
+    .first()
     .click({ force: true });
   //cy.get(".bp3-editable-text-content").should("contain.text", apiname1);
   //cy.get('.t--entity-name').click({multiple:true})
