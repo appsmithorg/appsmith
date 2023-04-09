@@ -20,8 +20,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
-
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -143,6 +142,7 @@ class CheckboxGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -288,7 +288,6 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

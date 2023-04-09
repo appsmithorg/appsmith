@@ -44,8 +44,9 @@ export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
   [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
-  (metaState, widget: WidgetProps) =>
-    metaState[widget.metaWidgetId || widget.widgetId],
+  (metaState, widget: WidgetProps) => {
+    return metaState[widget.metaWidgetId || widget.widgetId];
+  },
 );
 
 export const getWidgetByID = (widgetId: string) => {

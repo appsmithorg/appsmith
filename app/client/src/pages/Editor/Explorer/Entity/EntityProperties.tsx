@@ -53,7 +53,7 @@ export function EntityProperties() {
     );
   });
   const widgetEntity = useSelector((state: AppState) => {
-    const pageWidgets = state.ui.pageWidgets[pageId];
+    const pageWidgets = state.ui.pageWidgets[pageId]?.dsl;
     if (pageWidgets) {
       return pageWidgets[entityId];
     }

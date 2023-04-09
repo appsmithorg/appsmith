@@ -2,7 +2,7 @@ import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReduce
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
-import { call } from "redux-saga/effects";
+import { call, select } from "redux-saga/effects";
 import { get } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 
@@ -11,6 +11,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -59,6 +60,7 @@ export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   parent?: WidgetProps,
+  isAutoLayout?: boolean,
 ) => UpdatePropertyArgs[] | undefined;
 
 export interface ChildOperationFnResponse {
@@ -79,6 +81,7 @@ export type BlueprintBeforeOperationsFn = (
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
   parentId: string,
+  isAutoLayout?: boolean,
 ) => void;
 
 export type BlueprintOperationFunction =
@@ -99,6 +102,7 @@ export function* executeWidgetBlueprintOperations(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
 ) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   operations.forEach((operation: BlueprintOperation) => {
     const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
       ...widgets[widgetId],
@@ -117,6 +121,7 @@ export function* executeWidgetBlueprintOperations(
           widget as WidgetProps & { children?: WidgetProps[] },
           widgets,
           get(widgets, widget.parentId || "", undefined),
+          isAutoLayout,
         );
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
@@ -251,10 +256,12 @@ export function* executeWidgetBlueprintBeforeOperations(
     | BlueprintOperationTypes.BEFORE_ADD
     | BlueprintOperationTypes.BEFORE_DROP
     | BlueprintOperationTypes.BEFORE_PASTE
+    | BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD
   >,
   params: ExecuteWidgetBlueprintBeforeOperationsParams,
 ) {
   const { parentId, widgetId, widgets, widgetType } = params;
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   const blueprintOperations: BlueprintOperation[] =
     WidgetFactory.widgetConfigMap.get(widgetType)?.blueprint?.operations ?? [];
 
@@ -263,9 +270,10 @@ export function* executeWidgetBlueprintBeforeOperations(
   );
 
   if (beforeAddOperation)
-    (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
+    return (beforeAddOperation.fn as BlueprintBeforeOperationsFn)(
       widgets,
       widgetId,
       parentId,
+      isAutoLayout,
     );
 }
