@@ -177,7 +177,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: any, extraDefsToDefine?: ExtraDef) => {
+    return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
       const config = {
         "!doc":
           "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",

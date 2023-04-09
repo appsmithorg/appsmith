@@ -99,7 +99,7 @@ interface LayoutProps {
 }
 
 export type AutocompleteDefinitionFunction = (
-  widgetProps: WidgetProps,
+  widgetProps: { [props: string]: any },
   extraDefsToDefine?: ExtraDef,
 ) => { [propName: string]: any };
 export type AutocompletionDefinitions =
