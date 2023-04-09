@@ -31,6 +31,7 @@ import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -166,7 +167,7 @@ class PhoneInputWidget extends BaseInputWidget<
     );
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",

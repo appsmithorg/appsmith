@@ -44,6 +44,7 @@ import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -57,8 +58,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     page: 1,
   };
 
-  static getAutocompleteDefinitions(): any {
-    return (widget: any, extraDefsToDefine?: ExtraDef) => ({
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: WidgetProps, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
       "!url": "https://docs.appsmith.com/widget-reference/list",

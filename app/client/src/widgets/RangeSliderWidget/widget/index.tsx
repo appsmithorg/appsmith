@@ -11,6 +11,7 @@ import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,
@@ -58,7 +59,7 @@ class RangeSliderWidget extends BaseWidget<
     return styleConfig;
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Range slider widget is used to capture user feedback from a range of values",

@@ -12,7 +12,7 @@ import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 import AudioRecorderComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-
+import type { AutocompletionDefinitions } from "widgets/constants";
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
   borderRadius: string;
@@ -30,7 +30,7 @@ class AudioRecorderWidget extends BaseWidget<
   AudioRecorderWidgetProps,
   WidgetState
 > {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",

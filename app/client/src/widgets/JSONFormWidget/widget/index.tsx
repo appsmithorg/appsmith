@@ -29,6 +29,7 @@ import type {
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -221,7 +222,7 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: any) => ({
       "!doc":
         "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",

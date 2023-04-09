@@ -11,12 +11,13 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,
   WidgetState
 > {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Progress bar is a simple UI widget used to show progress",
       "!url": "https://docs.appsmith.com/widget-reference/progressbar",

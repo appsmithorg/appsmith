@@ -42,6 +42,7 @@ import type {
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -154,7 +155,7 @@ class ListWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: any, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",

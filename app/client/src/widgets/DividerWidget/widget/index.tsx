@@ -7,9 +7,10 @@ import DividerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Divider is a simple UI widget used as a separator",
       "!url": "https://docs.appsmith.com/widget-reference/divider",

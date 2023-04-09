@@ -11,6 +11,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -18,7 +19,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     this.onImageClick = this.onImageClick.bind(this);
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",

@@ -14,9 +14,10 @@ import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",

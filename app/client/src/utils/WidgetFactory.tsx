@@ -10,7 +10,10 @@ import type { RenderMode } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
 import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  CanvasWidgetStructure,
+} from "widgets/constants";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
@@ -62,7 +65,8 @@ class WidgetFactory {
   > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
   static stylesheetConfigMap: Map<WidgetType, Stylesheet> = new Map();
-  static autocompleteDefinitions: Map<WidgetType, any> = new Map();
+  static autocompleteDefinitions: Map<WidgetType, AutocompletionDefinitions> =
+    new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -86,7 +90,7 @@ class WidgetFactory {
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
     stylesheetConfig?: Stylesheet,
-    autocompleteDefinitions?: any,
+    autocompleteDefinitions?: AutocompletionDefinitions,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -324,8 +328,15 @@ class WidgetFactory {
     return typeConfigMap;
   }
 
-  static getAutocompleteDefinitions(type: WidgetType): any | undefined {
-    return this.autocompleteDefinitions.get(type);
+  static getAutocompleteDefinitions(
+    type: WidgetType,
+  ): AutocompletionDefinitions | undefined {
+    const autocompleteDefinition = this.autocompleteDefinitions.get(type);
+    if (!autocompleteDefinition) {
+      log.error("Widget autocomplete properties not defined: ", type);
+      return undefined;
+    }
+    return autocompleteDefinition;
   }
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {

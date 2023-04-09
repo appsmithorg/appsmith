@@ -9,6 +9,7 @@ import styleConfig from "./propertyConfig/styleConfig";
 import type { CodeScannerWidgetProps } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
@@ -27,7 +28,7 @@ class CodeScannerWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Scan a Code",
       "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",

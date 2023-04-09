@@ -66,6 +66,7 @@ import {
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { AutocompletionDefinitions } from "./constants";
 
 /***
  * BaseWidget
@@ -119,7 +120,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 

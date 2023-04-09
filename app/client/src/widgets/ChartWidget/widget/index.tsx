@@ -18,6 +18,7 @@ import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ChartComponent = lazy(() =>
   retryPromise(
@@ -29,7 +30,7 @@ const ChartComponent = lazy(() =>
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Chart widget is used to view the graphical representation of your data. Chart is the go-to widget for your data visualisation needs.",

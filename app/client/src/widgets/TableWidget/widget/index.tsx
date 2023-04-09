@@ -66,6 +66,7 @@ import {
 } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 import type { Stylesheet } from "entities/AppTheming";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -80,7 +81,7 @@ const defaultFilter = [
 ];
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: any, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",

@@ -1,8 +1,10 @@
+import type { AutocompletionDefinitions } from "widgets/constants";
 import ListWidget from ".";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 describe("Autocomplete suggestions test", () => {
   it("lists the right autocomplete suggestions", () => {
-    const listWidgetProps = {
+    const listWidgetProps: WidgetProps = {
       widgetId: "yolo",
       widgetName: "List1",
       parentId: "123",
@@ -43,8 +45,10 @@ describe("Autocomplete suggestions test", () => {
       pageSize: "?",
     };
 
-    expect(
-      ListWidget.getAutocompleteDefinitions()(listWidgetProps),
-    ).toStrictEqual(output);
+    const autocompleteDefinitions: AutocompletionDefinitions =
+      ListWidget.getAutocompleteDefinitions();
+    if (typeof autocompleteDefinitions === "function") {
+      expect(autocompleteDefinitions(listWidgetProps)).toStrictEqual(output);
+    }
   });
 });

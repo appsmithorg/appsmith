@@ -25,6 +25,7 @@ import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
 
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -59,7 +60,7 @@ class CheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
   WidgetState
 > {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Checkbox group widget allows users to easily configure multiple checkboxes together.",

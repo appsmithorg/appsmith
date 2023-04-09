@@ -9,6 +9,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -20,7 +21,7 @@ export enum PlayState {
 }
 
 class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",

@@ -22,6 +22,7 @@ import {
 } from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -469,7 +470,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     ];
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",

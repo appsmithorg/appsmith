@@ -11,6 +11,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -188,7 +189,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     };
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",

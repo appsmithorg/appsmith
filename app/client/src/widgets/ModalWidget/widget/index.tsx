@@ -26,11 +26,12 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
     };

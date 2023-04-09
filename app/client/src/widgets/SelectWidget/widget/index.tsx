@@ -22,6 +22,7 @@ import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
 import type { DropdownOption } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -127,7 +128,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     super(props);
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",

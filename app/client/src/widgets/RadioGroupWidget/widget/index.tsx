@@ -20,6 +20,7 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import type { RadioOption } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 /**
  * Validation rules:
@@ -180,7 +181,7 @@ function defaultOptionValidation(
 }
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",

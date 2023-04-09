@@ -11,6 +11,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -132,7 +133,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     ];
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",

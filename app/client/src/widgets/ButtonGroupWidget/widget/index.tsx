@@ -14,12 +14,13 @@ import { MinimumPopupRows } from "widgets/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
   WidgetState
 > {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",

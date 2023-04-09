@@ -17,6 +17,7 @@ import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -245,7 +246,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Switch is a simple UI widget you can use when you want users to make a binary choice",

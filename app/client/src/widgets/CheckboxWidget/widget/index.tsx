@@ -14,9 +14,10 @@ import {
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Checkbox is a simple UI widget you can use when you want users to make a binary choice",

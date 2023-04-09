@@ -26,6 +26,7 @@ import {
   MapTypes,
 } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const MapChartComponent = lazy(() =>
   retryPromise(
@@ -63,7 +64,7 @@ const updateDataSet = (
 };
 
 class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Map Chart widget shows the graphical representation of your data on the map.",

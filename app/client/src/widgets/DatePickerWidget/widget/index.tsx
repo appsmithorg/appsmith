@@ -11,6 +11,7 @@ import moment from "moment";
 import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultDateValidation(
   value: unknown,
@@ -177,7 +178,7 @@ function maxDateValidation(
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",

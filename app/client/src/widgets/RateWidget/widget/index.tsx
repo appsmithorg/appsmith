@@ -12,6 +12,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -91,7 +92,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Rating widget is used to display ratings in your app.",
       "!url": "https://docs.appsmith.com/widget-reference/rate",

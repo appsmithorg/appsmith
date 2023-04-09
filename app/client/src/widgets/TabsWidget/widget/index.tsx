@@ -22,6 +22,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -312,7 +313,7 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       selectedTab: "string",

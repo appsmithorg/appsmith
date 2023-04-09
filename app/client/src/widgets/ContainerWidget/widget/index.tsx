@@ -29,6 +29,7 @@ import {
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -39,7 +40,7 @@ export class ContainerWidget extends BaseWidget<
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",

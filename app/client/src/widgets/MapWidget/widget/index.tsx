@@ -15,6 +15,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -49,7 +50,7 @@ type Center = {
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static defaultProps = {};
 
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       center: {

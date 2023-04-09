@@ -36,6 +36,7 @@ import {
 } from "widgets/WidgetUtils";
 import type { Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -134,7 +135,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
   WidgetState
 > {
-  static getAutocompleteDefinitions(): any {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
         "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
