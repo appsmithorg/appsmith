@@ -13,9 +13,9 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
-import useUpdateEmbedSnippet from "../../../pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
-import EmbedCodeSnippet from "../../../pages/Applications/EmbedSnippet/Snippet";
-import TooltipWrapper from "../../../pages/Applications/EmbedSnippet/TooltipWrapper";
+import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
+import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
+import TooltipWrapper from "pages/Applications/EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
@@ -26,7 +26,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import PrivateEmbeddingContent from "../../../pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
+import PrivateEmbeddingContent from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 
 export const StyledLink = styled.a`
   position: relative;
