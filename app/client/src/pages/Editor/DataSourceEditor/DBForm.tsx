@@ -29,6 +29,7 @@ import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -115,7 +116,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     } = this.props;
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
-
     return (
       <form
         onSubmit={(e) => {
@@ -125,7 +125,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         {!this.props.hiddenHeader && (
           <Header>
             <FormTitleContainer>
-              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <PluginImage
+                alt="Datasource"
+                src={getAssetUrl(this.props.pluginImage)}
+              />
               <FormTitle
                 disabled={!createFlow && !canManageDatasource}
                 focusOnMount={this.props.isNewDatasource}
