@@ -32,6 +32,10 @@ const EmbedSnippetContainer = styled.div`
   display: flex;
   align-items: flex-start;
   background: var(--appsmith-color-black-100);
+
+  .icon {
+    flex-shrink: 0;
+  }
 `;
 
 type EmbedCodeSnippetProps = {
@@ -59,7 +63,7 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
         {props.snippet}
       </StyledText>
       <Icon
-        className="break-all max-h-32 overflow-y-auto p-2 mr-0.5"
+        className="break-all max-h-32 overflow-y-auto p-2 mr-0.5 icon"
         name="copy-to-clipboard"
         onClick={onClick}
         size={IconSize.XXL}

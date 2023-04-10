@@ -13,12 +13,16 @@ import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 
 const appsmithConfigs = getAppsmithConfigs();
 
-const Container = styled.div`
+const Container = styled.div<{ isAppSettings: boolean }>`
   text-align: center;
+
+  ${({ isAppSettings }) => isAppSettings && `padding: 16px;`}
 `;
 
-const SubContainer = styled.div`
+const SubContainer = styled.div<{ isAppSettings?: boolean }>`
   margin: 16px 0;
+
+  ${({ isAppSettings }) => isAppSettings && `flex-direction: column;`}
 
   > span {
     margin: 8px 0;
@@ -34,10 +38,10 @@ const Image = styled.img`
 `;
 
 function PrivateEmbeddingContent(props: any) {
-  const { canMakeAppPublic } = props;
+  const { canMakeAppPublic = false, isAppSettings = false } = props;
 
   return (
-    <Container>
+    <Container isAppSettings={isAppSettings}>
       <Image
         alt={"Upgrade"}
         className="no-sub-img"
@@ -53,7 +57,10 @@ function PrivateEmbeddingContent(props: any) {
           Apps in community edition need to be public before embedding.
         </StyledText>
       </SubContainer>
-      <SubContainer className="flex justify-center gap-4">
+      <SubContainer
+        className="flex justify-center gap-4"
+        isAppSettings={isAppSettings}
+      >
         {canMakeAppPublic && (
           <Button
             category={Category.secondary}

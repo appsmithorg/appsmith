@@ -131,7 +131,9 @@ export function EmbedSnippetTab() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Text type={TextType.P1}>Embed URL</Text>
+          <Text type={TextType.P1}>
+            {createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}
+          </Text>
           <EmbedCodeSnippet snippet={embedSnippet.snippet} />
         </div>
       </div>
