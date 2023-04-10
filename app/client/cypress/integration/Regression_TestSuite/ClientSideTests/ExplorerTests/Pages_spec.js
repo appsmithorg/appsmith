@@ -30,18 +30,15 @@ describe("Pages", function () {
     });
   });
 
-  it("3. Check for Refrsh page and validate", () => {
+  it("3. Check for Refrsh page and validate and 404 is showing correct route", () => {
+    //Automated as part Bug19654
     cy.get(publish.backToEditor).click();
     cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
     cy.reload();
-  });
-
-  it("4. Checks if 404 is showing correct route", () => {
+    //Checks if 404 is showing correct route
     cy.visit("/route-that-does-not-exist");
     cy.get(locators.errorPageTitle).should(($x) => {
       expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());
     });
   });
-
- 
 });
