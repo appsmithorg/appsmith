@@ -59,6 +59,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -379,7 +380,7 @@ class DatasourceRestAPIEditor extends React.Component<
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
-          <PluginImage alt="Datasource" src={pluginImage} />
+          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
           <FormTitle
             disabled={!createMode && !canManageDatasource}
             focusOnMount={isNewDatasource}
