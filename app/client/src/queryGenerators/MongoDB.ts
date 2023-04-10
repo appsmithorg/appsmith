@@ -1,32 +1,57 @@
-import type { CombinedConfig, GetQueryGenerationConfigResponse } from "./types";
-import { BaseQueryGenerator } from "./baseQueryGenerator";
+import { BaseQueryGenerator, COMMAND_TYPES } from "./BaseQueryGenerator";
+import type { CombinedConfig } from "./types";
 
 export default class MongoDB extends BaseQueryGenerator {
-  buildSelectQuery(combinedConfig: CombinedConfig) {
+  buildSelect(combinedConfig: CombinedConfig) {
     const { config, select } = combinedConfig;
-    //what should we do about columns
-    const buildCommand = Object.keys(select)
-      .map((key) => {
-        const value = select[key];
+    //TODO: what should we do about columns?
+    const buildCommand = Object.keys(select).reduce(
+      (acc: Record<string, any>, key: string) => {
+        const value = select[key as keyof typeof select];
         if (key === "offset") {
-          return { skip: value };
+          acc["skip"] = { data: value };
         }
-        // TODO: the equaivalent key for where is filter but the app is generating query
         if (key === "where") {
-          return { filter: { [config.searchableColumn]: value } };
+          acc["query"] = { data: `{ ${config.searchableColumn}: ${value} }` };
         }
         if (key === "orderBy") {
-          return { sort: { [value]: select["sortOrder"] } };
+          acc["sort"] = { data: `{ ${value}: ${select["sortOrder"]} }` };
         }
-        if (key === "sortOrder") {
-          return;
+        if (key === "limit") {
+          acc["limit"] = { data: value };
         }
-        //all other keys do not require translation like limit
-        return { [key]: value };
-      })
-      .filter((val) => !!val);
-    return buildCommand;
+        return acc;
+      },
+      {},
+    );
+    return {
+      find: buildCommand,
+      ...super.build(COMMAND_TYPES.FIND, config.tableName),
+    };
   }
+  buildUpdate(combinedConfig: CombinedConfig) {
+    const { config, insert } = combinedConfig;
 
-  build() {}
+    if (insert?.where) {
+      return {
+        updateMany: {
+          query: { data: insert.where },
+          update: { data: insert.value },
+        },
+        ...super.build(COMMAND_TYPES.UPDATE, config.tableName),
+      };
+    }
+  }
+  buildInsert(combinedConfig: CombinedConfig) {
+    const { config, create } = combinedConfig;
+
+    if (create?.value) {
+      return {
+        insert: {
+          documents: { data: create.value },
+        },
+        ...super.build(COMMAND_TYPES.INSERT, config.tableName),
+      };
+    }
+  }
 }
