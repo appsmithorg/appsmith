@@ -241,7 +241,7 @@ function ErrorLogItem(props: LogItemProps) {
             <Button
               className={`${Classes.ICON} debugger-toggle`}
               data-cy="t--debugger-toggle"
-              data-isOpen={isOpen}
+              data-isopen={isOpen}
               isDisabled={!collapsable}
               isIconButton
               kind="tertiary"
