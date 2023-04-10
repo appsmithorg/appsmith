@@ -17,7 +17,6 @@ import {
 } from "design-system-old";
 import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
-import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -60,22 +59,7 @@ export function EvaluatedValueDebugButton(props: {
 }) {
   return (
     <Wrapper>
-      <ContextualMenu
-        entity={props.entity}
-        error={props.error}
-        modifiers={{
-          offset: {
-            enabled: true,
-            options: {
-              offset: [0, 5],
-            },
-          },
-          arrow: {
-            enabled: false,
-          },
-        }}
-        position={Position.BOTTOM_RIGHT}
-      >
+      <ContextualMenu entity={props.entity} error={props.error}>
         <EVDebugButton>
           DEBUG
           <Icon
