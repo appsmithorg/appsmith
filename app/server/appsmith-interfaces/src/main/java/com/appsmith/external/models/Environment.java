@@ -19,6 +19,6 @@ public class Environment extends BaseDomain {
 
 
     public void sanitiseToExportDBObject() {
-        this.sanitiseToExportBaseObject();
+        super.sanitiseToExportDBObject();
     }
 }

@@ -100,10 +100,10 @@ export function windowMessageListener(...args: TWindowMessageListenerArgs) {
     const { body } = message;
     if (message.messageId !== windowMessageListenerId || body.origin !== origin)
       return;
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: metaData.triggerMeta,
+      eventType: metaData.eventType,
+    });
     typeof callback === "function" && callback(body.data);
   };
   self.addEventListener("message", messageHandler);
