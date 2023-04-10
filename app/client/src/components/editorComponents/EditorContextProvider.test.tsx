@@ -40,6 +40,7 @@ describe("EditorContextProvider", () => {
       "updateWidget",
       "updateWidgetProperty",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
     ].sort();
 
@@ -73,6 +74,7 @@ describe("EditorContextProvider", () => {
       "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
     ].sort();
 

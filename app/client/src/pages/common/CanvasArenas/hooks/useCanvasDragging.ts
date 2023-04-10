@@ -14,7 +14,7 @@ import type {
   SpaceMap,
 } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
+import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
 import { getCanvasScale } from "selectors/editorSelectors";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getNearestParentCanvas } from "utils/generators";
@@ -60,7 +60,8 @@ export const useCanvasDragging = (
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
-  const parentOffsetTop = useSelector(getParentOffsetTop(widgetId));
+  const parentOffsetTop = useSelector(getTotalTopOffset(widgetId));
+  const mainCanvas = document.querySelector("#canvas-viewport");
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -406,8 +407,8 @@ export const useCanvasDragging = (
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding:
-                useAutoLayout ||
-                (!dropDisabled &&
+                !dropDisabled &&
+                (useAutoLayout ||
                   noCollision(
                     { x: each.left, y: each.top },
                     snapColumnSpace,
@@ -445,6 +446,7 @@ export const useCanvasDragging = (
               widgetId === MAIN_CONTAINER_WIDGET_ID,
               parentOffsetTop,
               useAutoLayout,
+              mainCanvas?.scrollTop,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
