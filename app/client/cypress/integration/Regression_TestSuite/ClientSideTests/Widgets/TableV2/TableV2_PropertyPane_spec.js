@@ -62,7 +62,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
-    cy.onTableAction(1, "onrowselected", "Row is selected");
+    cy.getAlert("onRowSelected", "Row is selected");
     cy.PublishtheApp();
     // Select 1st row
     cy.isSelectRow(2);
@@ -76,7 +76,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
-    cy.onTableAction(0, "onsearchtextchanged", "Search Text Changed");
+    cy.getAlert("onSearchTextChanged", "Search Text Changed");
     cy.PublishtheApp();
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
@@ -93,7 +93,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       force: true,
     });
     // Select show message in the "on selected row" dropdown
-    cy.onTableAction(0, "onpagechange", "Page Changed");
+    cy.getAlert("onPageChange", "Page Changed");
     cy.PublishtheApp();
     cy.wait(2000);
     // Change the page

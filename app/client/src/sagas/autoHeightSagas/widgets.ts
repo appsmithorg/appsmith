@@ -10,7 +10,6 @@ import type {
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
-import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import {
@@ -44,6 +43,11 @@ import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
+import {
+  getDimensionMap,
+  getIsAutoLayout,
+  getWidgetsForBreakpoint,
+} from "selectors/editorSelectors";
 
 /* TODO(abhinav)
   hasScroll is no longer needed, as the only way we will be computing for hasScroll, is when we get the updates
@@ -87,7 +91,9 @@ export function* updateWidgetAutoHeightSaga(
   const widgetCanvasOffsets: Record<string, number> = {};
 
   // Get all widgets from canvasWidgetsReducer
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(
+    getWidgetsForBreakpoint,
+  );
 
   if (action?.payload) {
     const offset = getCanvasHeightOffset(
@@ -583,12 +589,43 @@ export function* updateWidgetAutoHeightSaga(
   log.debug("Auto height: Widgets to update:", { widgetsToUpdate });
 
   if (Object.keys(widgetsToUpdate).length > 0) {
+    let enhancedWidgetUpdates = widgetsToUpdate;
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    if (isAutoLayout) {
+      // Enhance widget updates based on breakpoint
+      const dimensionMap: {
+        leftColumn: string;
+        rightColumn: string;
+        topRow: string;
+        bottomRow: string;
+      } = yield select(getDimensionMap);
+      const dimensions = Object.keys(dimensionMap);
+      enhancedWidgetUpdates = Object.keys(widgetsToUpdate).reduce(
+        (allWidgetsToUpdate, updatingWidget) => {
+          const widget = widgetsToUpdate[updatingWidget];
+          const enhancedUpdates = widget.map((eachUpdate) => {
+            if (dimensions.includes(eachUpdate.propertyPath)) {
+              eachUpdate.propertyPath = (dimensionMap as any)[
+                eachUpdate.propertyPath
+              ];
+            }
+            return eachUpdate;
+          });
+          return {
+            ...allWidgetsToUpdate,
+            [updatingWidget]: enhancedUpdates,
+          };
+        },
+        widgetsToUpdate,
+      );
+    }
+
     if (!action?.payload) {
       // Push all updates to the CanvasWidgetsReducer.
       // Note that we're not calling `UPDATE_LAYOUT`
       // as we don't need to trigger an eval
       yield put(
-        updateMultipleWidgetPropertiesAction(widgetsToUpdate, shouldEval),
+        updateMultipleWidgetPropertiesAction(enhancedWidgetUpdates, shouldEval),
       );
       resetAutoHeightUpdateQueue();
       yield put(
@@ -600,7 +637,7 @@ export function* updateWidgetAutoHeightSaga(
       );
     }
     directlyMutateDOMNodes(
-      widgetsToUpdate as Record<
+      enhancedWidgetUpdates as Record<
         string,
         Array<{ propertyPath: string; propertyValue: number }>
       >,
