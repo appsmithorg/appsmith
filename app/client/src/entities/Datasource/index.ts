@@ -13,6 +13,12 @@ export enum AuthenticationStatus {
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE",
 }
+
+export enum FilePickerActionStatus {
+  CANCEL = "cancel",
+  PICKED = "picked",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -108,6 +114,7 @@ export interface Datasource extends BaseDatasource {
 export interface TokenResponse {
   datasource: Datasource;
   token: string;
+  projectID: string;
 }
 
 export interface MockDatasource {

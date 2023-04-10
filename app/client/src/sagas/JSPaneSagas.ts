@@ -81,7 +81,7 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
@@ -393,21 +393,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-    // Function execution data in Async functions are handled by the JSProxy (see JSProxy.ts)
-    if (!action.actionConfiguration.isAsync) {
-      yield put({
-        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-        payload: {
-          [collectionId]: [
-            {
-              data: result,
-              collectionId,
-              actionId,
-            },
-          ],
-        },
-      });
-    }
+
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
       Toaster.show({

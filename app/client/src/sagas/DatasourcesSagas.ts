@@ -37,6 +37,7 @@ import {
   getPluginPackageFromDatasourceId,
   getDatasources,
   getDatasourceActionRouteInfo,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -58,7 +59,7 @@ import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
 import type { Datasource, TokenResponse } from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
-
+import { FilePickerActionStatus } from "entities/Datasource";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
@@ -80,6 +81,7 @@ import {
   DATASOURCE_DELETE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
+  GSHEET_AUTHORISED_FILE_IDS_KEY,
   OAUTH_APPSMITH_TOKEN_NOT_FOUND,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
@@ -95,14 +97,14 @@ import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "selectors/applicationSelectors";
+import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -346,8 +348,11 @@ function* updateDatasourceSaga(
       );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
+        pluginName: plugin?.name || "",
+        pluginPackageName: plugin?.packageName || "",
       });
       Toaster.show({
         text: createMessage(DATASOURCE_UPDATE, response.data.name),
@@ -479,6 +484,7 @@ function* getOAuthAccessTokenSaga(
           type: ReduxActionTypes.SET_GSHEET_TOKEN,
           payload: {
             gsheetToken: response.data.token,
+            gsheetProjectID: response.data.projectID,
           },
         });
       } else {
@@ -1163,29 +1169,53 @@ function* initializeFormWithDefaults(
 }
 
 function* filePickerActionCallbackSaga(
-  actionPayload: ReduxAction<{ action: string; datasourceId: string }>,
+  actionPayload: ReduxAction<{
+    action: FilePickerActionStatus;
+    datasourceId: string;
+    fileIds: Array<string>;
+  }>,
 ) {
   try {
-    const { action, datasourceId } = actionPayload.payload;
+    const { action, datasourceId, fileIds } = actionPayload.payload;
     yield put({
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
       payload: {
         gsheetToken: "",
+        gsheetProjectID: "",
       },
     });
 
-    if (action === "cancel") {
-      const datasource: Datasource = yield select(getDatasource, datasourceId);
-      set(
-        datasource,
-        "datasourceConfiguration.authentication.authenticationStatus",
-        AuthenticationStatus.FAILURE,
-      );
-      yield put(updateDatasource(datasource));
-    }
-  } catch (error) {}
-}
+    const datasource: Datasource = yield select(getDatasource, datasourceId);
 
+    // update authentication status based on whether files were picked or not
+    const authStatus =
+      action === FilePickerActionStatus.PICKED
+        ? AuthenticationStatus.SUCCESS
+        : AuthenticationStatus.FAILURE;
+    set(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationStatus",
+      authStatus,
+    );
+
+    // Once users selects/cancels the file selection,
+    // Sending sheet ids selected as part of datasource
+    // config properties in order to save it in database
+    set(datasource, "datasourceConfiguration.properties[0]", {
+      key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+      value: fileIds,
+    });
+    yield put(updateDatasource(datasource));
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.SET_GSHEET_TOKEN,
+      payload: {
+        gsheetToken: "",
+        gsheetProjectID: "",
+      },
+    });
+  }
+}
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),

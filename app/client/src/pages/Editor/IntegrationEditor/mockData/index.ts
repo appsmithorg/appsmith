@@ -1,3 +1,5 @@
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
 
 export const mockPlugins = [
@@ -7,7 +9,7 @@ export const mockPlugins = [
     name: "PostgreSQL",
     type: "DB",
     packageName: PluginPackageName.POSTGRES,
-    iconLocation: "https://assets.appsmith.com/logo/postgresql.svg",
+    iconLocation: getAssetUrl(`${ASSETS_CDN_URL}/logo/postgresql.svg`),
     documentationLink:
       "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres",
     responseType: "TABLE",
@@ -25,7 +27,7 @@ export const mockPlugins = [
     name: "REST API",
     type: "API",
     packageName: PluginPackageName.REST_API,
-    iconLocation: "https://assets.appsmith.com/RestAPI.png",
+    iconLocation: getAssetUrl(`${ASSETS_CDN_URL}/RestAPI.png`),
     uiComponent: "ApiEditorForm",
     datasourceComponent: "RestAPIDatasourceForm",
     defaultInstall: true,

@@ -2,16 +2,18 @@ import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+
 import type {
+  ConfigTree,
   DataTreeEntity,
-  DataTreeJSAction,
-  DataTreeWidget,
+  WidgetEntity,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
@@ -40,7 +42,6 @@ import InputWidget, {
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
 import type { WidgetConfiguration } from "widgets/constants";
-import { createNewEntity } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
@@ -49,8 +50,7 @@ import { PluginType } from "entities/Action";
 // use jest.unmock, if the mock needs to be removed.
 jest.mock("loglevel");
 
-const BASE_WIDGET: DataTreeWidget = {
-  logBlackList: {},
+const BASE_WIDGET: WidgetEntity = {
   widgetId: "randomID",
   widgetName: "randomWidgetName",
   bottomRow: 0,
@@ -64,6 +64,14 @@ const BASE_WIDGET: DataTreeWidget = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  meta: {},
+};
+
+const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
+  logBlackList: {},
+  widgetId: "randomID",
+  type: "SKELETON_WIDGET",
   bindingPaths: {},
   reactivePaths: {},
   triggerPaths: {},
@@ -72,73 +80,41 @@ const BASE_WIDGET: DataTreeWidget = {
   privateWidgets: {},
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
-  meta: {},
+  defaultMetaProps: [],
 };
 
-const testDataTree: Record<string, DataTreeWidget> = {
+const testDataTree: Record<string, WidgetEntity> = {
   Text1: {
     ...BASE_WIDGET,
     widgetName: "Text1",
     text: "Label",
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
   Text2: {
     ...BASE_WIDGET,
     widgetName: "Text2",
     text: "{{Text1.text}}",
-    dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
   Text3: {
     ...BASE_WIDGET,
     widgetName: "Text3",
     text: "{{Text1.text}}",
-    dynamicBindingPathList: [{ key: "text" }],
+
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
   Text4: {
     ...BASE_WIDGET,
     widgetName: "Text4",
     text: "{{Text1.text}}",
-    dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    reactivePaths: {
-      text: EvaluationSubstitutionType.TEMPLATE,
-    },
-    validationPaths: {
-      text: { type: ValidationTypes.TEXT },
-    },
   },
 
   List1: {
     ...BASE_WIDGET,
-    privateWidgets: {
-      Text2: true,
-    },
   },
   List2: {
     ...BASE_WIDGET,
-    privateWidgets: {
-      Text3: true,
-    },
   },
   Button1: {
     ...BASE_WIDGET,
@@ -148,6 +124,67 @@ const testDataTree: Record<string, DataTreeWidget> = {
         text: [],
       },
     },
+  },
+};
+
+const testConfigTree: ConfigTree = {
+  Text1: {
+    ...BASE_WIDGET_CONFIG,
+    type: "TEXT_WIDGET",
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text2: {
+    ...BASE_WIDGET_CONFIG,
+    type: "TEXT_WIDGET",
+    dynamicBindingPathList: [{ key: "text" }],
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  Text3: {
+    ...BASE_WIDGET_CONFIG,
+    dynamicBindingPathList: [{ key: "text" }],
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+    type: "TEXT_WIDGET",
+  },
+  Text4: {
+    ...BASE_WIDGET_CONFIG,
+    dynamicBindingPathList: [{ key: "text" }],
+    type: "TEXT_WIDGET",
+    reactivePaths: {
+      text: EvaluationSubstitutionType.TEMPLATE,
+    },
+    validationPaths: {
+      text: { type: ValidationTypes.TEXT },
+    },
+  },
+  List1: {
+    ...BASE_WIDGET_CONFIG,
+    privateWidgets: {
+      Text2: true,
+    },
+  },
+  List2: {
+    ...BASE_WIDGET_CONFIG,
+    privateWidgets: {
+      Text3: true,
+    },
+  },
+  Button1: {
+    ...BASE_WIDGET_CONFIG,
   },
 };
 
@@ -168,6 +205,7 @@ describe("1. Correctly handle paths", () => {
             ["1", "2"],
           ],
         },
+        stringProperty: new String("Hello"),
       },
     };
     const result = {
@@ -184,6 +222,7 @@ describe("1. Correctly handle paths", () => {
       "WidgetName.objectProperty.childObjectProperty[3]": true,
       "WidgetName.objectProperty.childObjectProperty[3][0]": true,
       "WidgetName.objectProperty.childObjectProperty[3][1]": true,
+      "WidgetName.stringProperty": true,
     };
 
     const actual = getAllPaths(myTree);
@@ -216,69 +255,50 @@ describe("2. privateWidgets", () => {
       Text3: true,
     };
 
-    const actualPrivateWidgetsList =
-      getAllPrivateWidgetsInDataTree(testDataTree);
+    const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
+      testDataTree,
+      testConfigTree,
+    );
 
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
   });
 
   it("3. Returns data tree without privateWidgets", () => {
-    const expectedDataTreeWithoutPrivateWidgets: Record<
-      string,
-      DataTreeWidget
-    > = {
-      Text1: {
-        ...BASE_WIDGET,
-        widgetName: "Text1",
-        text: "Label",
-        type: "TEXT_WIDGET",
-        reactivePaths: {
-          text: EvaluationSubstitutionType.TEMPLATE,
+    const expectedDataTreeWithoutPrivateWidgets: Record<string, WidgetEntity> =
+      {
+        Text1: {
+          ...BASE_WIDGET,
+          widgetName: "Text1",
+          text: "Label",
+          type: "TEXT_WIDGET",
         },
-        validationPaths: {
-          text: { type: ValidationTypes.TEXT },
-        },
-      },
 
-      Text4: {
-        ...BASE_WIDGET,
-        widgetName: "Text4",
-        text: "{{Text1.text}}",
-        dynamicBindingPathList: [{ key: "text" }],
-        type: "TEXT_WIDGET",
-        reactivePaths: {
-          text: EvaluationSubstitutionType.TEMPLATE,
+        Text4: {
+          ...BASE_WIDGET,
+          widgetName: "Text4",
+          text: "{{Text1.text}}",
+          type: "TEXT_WIDGET",
         },
-        validationPaths: {
-          text: { type: ValidationTypes.TEXT },
-        },
-      },
 
-      List1: {
-        ...BASE_WIDGET,
-        privateWidgets: {
-          Text2: true,
+        List1: {
+          ...BASE_WIDGET,
         },
-      },
-      List2: {
-        ...BASE_WIDGET,
-        privateWidgets: {
-          Text3: true,
+        List2: {
+          ...BASE_WIDGET,
         },
-      },
-      Button1: {
-        ...BASE_WIDGET,
-        text: "undefined",
-        __evaluation__: {
-          errors: {
-            text: [],
+        Button1: {
+          ...BASE_WIDGET,
+          text: "undefined",
+          __evaluation__: {
+            errors: {
+              text: [],
+            },
           },
         },
-      },
-    };
+      };
 
     const actualDataTreeWithoutPrivateWidgets =
-      getDataTreeWithoutPrivateWidgets(testDataTree);
+      getDataTreeWithoutPrivateWidgets(testDataTree, testConfigTree);
 
     expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
       actualDataTreeWithoutPrivateWidgets,
@@ -586,6 +606,7 @@ describe("5. overrideWidgetProperties", () => {
 
   describe("1. Input widget ", () => {
     const currentTree: DataTree = {};
+    const configTree: ConfigTree = {};
     beforeAll(() => {
       const inputWidgetDataTree = generateDataTreeWidget(
         {
@@ -605,17 +626,21 @@ describe("5. overrideWidgetProperties", () => {
         },
         {},
       );
-      currentTree["Input1"] = createNewEntity(inputWidgetDataTree);
+      currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
+      configTree["Input1"] = inputWidgetDataTree.configEntity;
     });
     // When default text is re-evaluated it will override values of meta.text and text in InputWidget
     it("1. defaultText updating meta.text and text", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
-        entity: currentTree.Input1 as DataTreeWidget,
+        entity: currentTree.Input1 as WidgetEntity,
         propertyPath: "defaultText",
         value: "abcde",
+
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Input1.defaultText",
         isNewWidget: false,
       });
 
@@ -646,11 +671,13 @@ describe("5. overrideWidgetProperties", () => {
     it("2. meta.text updating text", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
-        entity: currentTree.Input1 as DataTreeWidget,
+        entity: currentTree.Input1 as WidgetEntity,
         propertyPath: "meta.text",
         value: "abcdefg",
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Input1.meta.text",
         isNewWidget: false,
       });
 
@@ -665,6 +692,7 @@ describe("5. overrideWidgetProperties", () => {
 
   describe("2. Table widget ", () => {
     const currentTree: DataTree = {};
+    const configTree: ConfigTree = {};
     beforeAll(() => {
       const tableWidgetDataTree = generateDataTreeWidget(
         {
@@ -684,17 +712,20 @@ describe("5. overrideWidgetProperties", () => {
         },
         {},
       );
-      currentTree["Table1"] = createNewEntity(tableWidgetDataTree);
+      currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
+      configTree["Table1"] = tableWidgetDataTree.configEntity;
     });
     // When default defaultSelectedRow is re-evaluated it will override values of meta.selectedRowIndices, selectedRowIndices, meta.selectedRowIndex & selectedRowIndex.
     it("1. On change of defaultSelectedRow ", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
-        entity: currentTree.Table1 as DataTreeWidget,
+        entity: currentTree.Table1 as WidgetEntity,
         propertyPath: "defaultSelectedRow",
         value: [0, 1],
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Table1.defaultSelectedRow",
         isNewWidget: false,
       });
 
@@ -724,11 +755,13 @@ describe("5. overrideWidgetProperties", () => {
     it("2. meta.selectedRowIndex updating selectedRowIndex", () => {
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        currentTree,
-        entity: currentTree.Table1 as DataTreeWidget,
+        entity: currentTree.Table1 as WidgetEntity,
         propertyPath: "meta.selectedRowIndex",
         value: 0,
+        currentTree,
+        configTree,
         evalMetaUpdates,
+        fullPropertyPath: "Table1.meta.selectedRowIndex",
         isNewWidget: false,
       });
 
@@ -808,6 +841,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
       dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
+      configTree: dataTreeEvaluator.oldConfigTree,
     });
 
     expect(
@@ -824,12 +858,9 @@ describe("convertJSFunctionsToString", () => {
   const JSObject2MyFun2 = new String("async () => {}");
   set(JSObject2MyFun2, "data", {});
 
-  const jsCollections: Record<string, DataTreeJSAction> = {
+  const configTree = {
     JSObject1: {
-      myFun1: JSObject1MyFun1,
-      body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-
+      variables: [],
       meta: {
         myFun1: {
           arguments: [],
@@ -839,6 +870,7 @@ describe("convertJSFunctionsToString", () => {
       },
       name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       pluginType: PluginType.JS,
       bindingPaths: {
         body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -856,19 +888,12 @@ describe("convertJSFunctionsToString", () => {
           key: "myFun1",
         },
       ],
-      variables: [],
       dependencyMap: {
         body: ["myFun1"],
       },
     },
     JSObject2: {
-      myVar1: "[]",
-      myVar2: "{}",
-      myFun1: JSObject2MyFun1,
-      myFun2: JSObject2MyFun2,
-      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-
       meta: {
         myFun1: {
           arguments: [],
@@ -920,6 +945,26 @@ describe("convertJSFunctionsToString", () => {
         body: ["myFun1", "myFun2"],
       },
     },
+  } as unknown as ConfigTree;
+
+  const jsCollections: Record<string, JSActionEntity> = {
+    JSObject1: {
+      myFun1: JSObject1MyFun1,
+      body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+
+      actionId: "63ef4cb1a01b764626f2a6e5",
+    },
+    JSObject2: {
+      myVar1: "[]",
+      myVar2: "{}",
+      myFun1: JSObject2MyFun1,
+      myFun2: JSObject2MyFun2,
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+
+      actionId: "63f78437d1a4ef55755952f1",
+    },
   };
   const expectedResult = {
     JSObject1: {
@@ -927,36 +972,7 @@ describe("convertJSFunctionsToString", () => {
       body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
       ENTITY_TYPE: "JSACTION",
       "myFun1.data": {},
-      meta: {
-        myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-      },
-      name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
-      pluginType: PluginType.JS,
-      bindingPaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
-        },
-        {
-          key: "myFun1",
-        },
-      ],
-      variables: [],
-      dependencyMap: {
-        body: ["myFun1"],
-      },
     },
     JSObject2: {
       myVar1: "[]",
@@ -967,59 +983,10 @@ describe("convertJSFunctionsToString", () => {
       ENTITY_TYPE: "JSACTION",
       "myFun1.data": {},
       "myFun2.data": {},
-      meta: {
-        myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
-        },
-        myFun2: {
-          arguments: [],
-          isAsync: true,
-          confirmBeforeExecute: false,
-        },
-      },
-      name: "JSObject2",
       actionId: "63f78437d1a4ef55755952f1",
-      pluginType: PluginType.JS,
-      bindingPaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      reactivePaths: {
-        body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myVar2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        myFun2: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
-        },
-        {
-          key: "myVar1",
-        },
-        {
-          key: "myVar2",
-        },
-        {
-          key: "myFun1",
-        },
-        {
-          key: "myFun2",
-        },
-      ],
-      variables: ["myVar1", "myVar2"],
-      dependencyMap: {
-        body: ["myFun1", "myFun2"],
-      },
     },
   };
-  const actualResult = convertJSFunctionsToString(jsCollections);
+  const actualResult = convertJSFunctionsToString(jsCollections, configTree);
 
   expect(expectedResult).toStrictEqual(actualResult);
 });

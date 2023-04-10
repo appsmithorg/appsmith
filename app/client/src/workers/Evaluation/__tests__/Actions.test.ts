@@ -9,6 +9,7 @@ import {
   addPlatformFunctionsToEvalContext,
 } from "@appsmith/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
+import type { ActionEntity } from "entities/DataTree/types";
 
 jest.mock("lodash/uniqueId");
 
@@ -37,11 +38,10 @@ describe("Add functions", () => {
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       dependencyMap: {},
       logBlackList: {},
-    },
+    } as ActionEntity,
   };
   const evalContext = createEvaluationContext({
     dataTree,
-    resolvedFunctions: {},
     isTriggerBased: true,
     context: {},
   });
@@ -65,6 +65,8 @@ describe("Add functions", () => {
     expect(arg).toEqual(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "CLEAR_PLUGIN_ACTION",
             payload: {
@@ -93,6 +95,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "NAVIGATE_TO",
             payload: {
@@ -119,6 +123,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "SHOW_ALERT",
             payload: {
@@ -144,6 +150,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "SHOW_MODAL_BY_NAME",
             payload: {
@@ -167,6 +175,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "CLOSE_MODAL",
             payload: {
@@ -248,6 +258,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "DOWNLOAD",
             payload: {
@@ -273,6 +285,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "COPY_TO_CLIPBOARD",
             payload: {
@@ -301,6 +315,8 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
         data: {
+          enableJSFnPostProcessors: true,
+          enableJSVarUpdateTracking: true,
           trigger: {
             type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
             payload: {

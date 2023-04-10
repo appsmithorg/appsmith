@@ -30,6 +30,7 @@ import Connected from "../DataSourceEditor/Connected";
 
 import {
   getCurrentApplicationId,
+  getGsheetProjectID,
   getGsheetToken,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -57,11 +58,12 @@ import {
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import {
-  GSHEET_AUTHORIZATION_ERROR,
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getDatasourceErrorMessage } from "./errorUtils";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -86,6 +88,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
   gsheetToken?: string;
+  gsheetProjectID?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -258,6 +261,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       formData,
+      gsheetProjectID,
       gsheetToken,
       hiddenHeader,
       pageId,
@@ -268,7 +272,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
 
-    /* 
+    /*
       TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
       Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
     */
@@ -280,6 +284,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
 
+    /*
+      Currently we show error message banner for google sheets only, but in future
+      if we want to extend this functionality for other plugins, we should be able
+      to extend this function for other plugins
+    */
+    const authErrorMessage = getDatasourceErrorMessage(formData, plugin);
+
     return (
       <>
         <form
@@ -290,7 +301,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           {!hiddenHeader && (
             <Header>
               <FormTitleContainer>
-                <PluginImage alt="Datasource" src={this.props.pluginImage} />
+                <PluginImage
+                  alt="Datasource"
+                  src={getAssetUrl(this.props.pluginImage)}
+                />
                 <FormTitle
                   disabled={!createFlow && !canManageDatasource}
                   focusOnMount={this.props.isNewDatasource}
@@ -339,7 +353,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
                 <AuthMessage
                   datasource={datasource}
-                  description={GSHEET_AUTHORIZATION_ERROR}
+                  description={authErrorMessage}
                   pageId={pageId}
                   style={{
                     paddingTop: "24px",
@@ -359,7 +373,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   <AuthMessage
                     actionType="authorize"
                     datasource={datasource}
-                    description={GSHEET_AUTHORIZATION_ERROR}
+                    description={authErrorMessage}
                     pageId={pageId}
                   />
                 ) : null
@@ -375,6 +389,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              gsheetProjectID={gsheetProjectID}
               gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
@@ -437,6 +452,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   ]);
 
   const gsheetToken = getGsheetToken(state);
+  const gsheetProjectID = getGsheetProjectID(state);
 
   return {
     datasource,
@@ -467,6 +483,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     canCreateDatasourceActions,
     featureFlags: selectFeatureFlags(state),
     gsheetToken,
+    gsheetProjectID,
   };
 };
 

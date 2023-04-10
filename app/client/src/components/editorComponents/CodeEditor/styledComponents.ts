@@ -11,7 +11,7 @@ import {
   NAVIGATION_CLASSNAME,
   PEEKABLE_CLASSNAME,
   PEEK_STYLE_PERSIST_CLASS,
-} from "./markHelpers";
+} from "./MarkHelpers/entityMarker";
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -410,6 +410,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     font-style: italic;
     padding: 0 0 3px;
     margin: 0 !important;
+    top: -2px;
     &:hover {
       background: #f86a2b;
       color: white;

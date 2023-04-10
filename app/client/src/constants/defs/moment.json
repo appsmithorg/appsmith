@@ -1,733 +1,732 @@
 {
-    "!name": "LIB/moment",
-    "!define":{
-        "Moment": {
-            "startOf": {
-                "!type": "fn(unitOfTime: ?) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/start-of/",
-                "!doc": "Mutates the original moment by setting it to the start of a unit of time"
-            },
-            "endOf": {
-                "!type": "fn(unitOfTime: ?) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/end-of/",
-                "!doc": "Mutates the original moment by setting it to the end of a unit of time"
-            },
-            "isValid": {
-                "!type": "fn() -> bool",
-                "!url": "https://momentjs.com/docs/#/parsing/is-valid/",
-                "!doc": "Check whether the Moment considers the date invalid"
-            },
-            "invalidAt": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/parsing/is-valid/",
-                "!doc": "Returns which date unit overflowed"
-            },
-            "hasAlignedHourOffset": {
-                "!type": "fn(other?: MomentInput) -> boolean"
-            },
-            "creationData": {
-                "!type": "fn() -> MomentCreationData",
-                "!url": "https://momentjs.com/docs/#/parsing/creation-data/",
-                "!doc": "After a moment object is created, all of the inputs can be accessed with creationData() method"
-            },
-            "parsingFlags": {
-                "!type": "fn() -> MomentParsingFlags",
-                "!url": "https://momentjs.com/docs/#/parsing/is-valid/",
-                "!doc": "You can check the metrics used by #isValid using moment#parsingFlags, which returns an object"
-            },
-            "add": {
-                "!type": "fn(amount?: DurationInputArg1, unit?: DurationInputArg2) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/add/",
-                "!doc": "Mutates the original moment by adding time."
-            },
-            "subtract": {
-                "!type": "fn(amount?: DurationInputArg1, unit?: DurationInputArg2) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/subtract/",
-                "!doc": "Mutates the original moment by subtracting time"
-            },
-            "calender": {
-                "!type": "fn(fntime?: MomentInput, formats?: CalendarSpec) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/calendar-time/",
-                "!doc": "Calendar time displays time relative to a given referenceDay (defaults to the start of today)"
-            },
-            "valueOf": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/",
-                "!doc": "Unix timestamp in milliseconds"
-            },
-            "local": {
-                "!type": "fn(keepLocalTime?: boolean) -> Moment",
-                "!doc": "Current date/time in local mode"
-            },
-            "isLocal": {
-                "!type": "fn() -> bool"
-            },
-            "utc": {
-                "!type": "fn(keepLocalTime?: boolean) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/utc/",
-                "!doc": "Current date/time in UTC mode"
-            },
-            "isUTC": {
-                "!type": "fn() -> bool"
-            },
-            "parseZone": {
-                "!type": "fn() -> Moment"
-            },
-            "format": {
-                "!type": "fn(format?: string) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/format/",
-                "!doc": "Takes a string of tokens and replaces them with their corresponding values"
-            },
-            "isAfter": {
-                "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-after/",
-                "!doc": "Check if a moment is after another moment."
-            },
-            "isSame": {
-                "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-same/",
-                "!doc": "Check if a moment is the same as another moment."
-            },
-            "isBefore": {
-                "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-before/",
-                "!doc": "Check if a moment is before another moment"
-            },
-            "fromNow": {
-                "!type": "fn(withoutSuffix?: bool) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/fromnow/",
-                "!doc": "Get relative time"
-            },
-            "from": {
-                "!type": "fn(inp: MomentInput, suffix?: boolean) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/from/",
-                "!doc": "Returns a moment in relation to a time other than now"
-            },
-            "to": {
-                "!type": "fn(inp: MomentInput, suffix?: boolean) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/to/",
-                "!doc": "Display a moment in relation to a time other than now"
-            },
-            "toNow": {
-                "!type": "fn(withoutPrefix?: boolean) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/tonow/",
-                "!doc": "Display relative time"
-            },
-            "diff": {
-                "!type": "fn(b: MomentInput, unitOfTime?: unitOfTime.Diff, precise?: boolean) -> number",
-                "!url": "https://momentjs.com/docs/#/displaying/difference/",
-                "!doc": "Get the difference in milliseconds"
-            },
-            "toArray": {
-                "!type": "fn() -> [number]",
-                "!url": "https://momentjs.com/docs/#/displaying/as-array/",
-                "!doc": "Returns an array that mirrors the parameters from new Date()"
-            },
-            "clone": {
-                "!type": "fn() -> Moment",
-                "!url": "https://momentjs.com/docs/#/parsing/moment-clone/",
-                "!doc": "Returns the clone of a moment,"
-            },
-            "year": {
-                "!type": "fn(y: number) -> Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/year/",
-                "!doc": "Gets or sets the year"
-            },
-            "quarter": {
-                "!type": "fn() -> number|fn(q: number) -> Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/quarter/",
-                "!doc": "Gets or sets the quarter"
-            },
-            "quarters": {
-                "!type": "fn() -> number|fn(q: number) -> Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/quarter/",
-                "!doc": "Gets or sets the quarter"
-            },
-            "month": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/month/",
-                "!doc": "Gets or sets the month"
-            },
-            "day": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/day/",
-                "!doc": "Gets or sets the day of the week."
-            },
-            "days": {
-                "!type": "fn(d?: number|string) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/day/"
-            },
-            "date": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/date/",
-                "!doc": "Gets or sets the day of the month."
-            },
-            "hour": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/hour/",
-                "!doc": "Gets or sets the hour."
-            },
-            "hours": {
-                "!type": "fn(h?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/hour/",
-                "!doc": "Gets or sets the hour."
-            },
-            "minute": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/minute/",
-                "!doc": "Gets or sets the minutes."
-            },
-            "minutes": {
-                "!type": "fn(m?: number) -> Moment|number",
-                "!url": "https://momentjs.com/docs/#/get-set/minute/",
-                "!doc": "Gets or sets the minutes."
-            },
-            "second": {
-                "!type": "fn([s])",
-                "!url": "https://momentjs.com/docs/#/get-set/second/",
-                "!doc": "Gets or sets the seconds."
-            },
-            "seconds": {
-                "!type": "fn([s])",
-                "!url": "https://momentjs.com/docs/#/get-set/second/",
-                "!doc": "Gets or sets the seconds."
-            },
-            "millisecond": {
-                "!type": "fn([ms])",
-                "!url": "https://momentjs.com/docs/#/get-set/millisecond/",
-                "!doc": "Gets or sets the milliseconds."
-            },
-            "milliseconds": {
-                "!type": "fn([ms])",
-                "!url": "https://momentjs.com/docs/#/get-set/millisecond/",
-                "!doc": "Gets or sets the milliseconds."
-            },
-            "weekday": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/weekday/",
-                "!doc": "Gets or sets the day of the week according to the locale"
-            },
-            "isoWeekday": {
-                "!type": "fn(d?: number|string) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/iso-weekday/",
-                "!doc": "Gets or sets the ISO day of the week with 1 being Monday and 7 being Sunday"
-            },
-            "weekYear": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/week-year/",
-                "!doc": "Gets or sets the week-year according to the locale"
-            },
-            "isoWeekYear": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/iso-week-year/",
-                "!doc": "Gets or sets the ISO week-year"
-            },
-            "week": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/week/",
-                "!doc": "Gets or sets the week of the year"
-            },
-            "weeks": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/week/",
-                "!doc": "Gets or sets the week of the year"
-            },
-            "isoWeek": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/iso-week/",
-                "!doc": "Gets or sets the ISO week of the year"
-            },
-            "isoWeeks": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/iso-week/",
-                "!doc": "Gets or sets the ISO week of the year"
-            },
-            "weeksInYear": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/weeks-in-year/",
-                "!doc": "Gets the number of weeks according to locale in the current moment's year"
-            },
-            "weeksInWeekYear": {
-                "!type": "fn() -> number"
-            },
-            "isoWeeksInYear": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/iso-weeks-in-year/",
-                "!doc": "Gets the number of weeks in the current moment's year, according to ISO weeks"
-            },
-            "isoWeeksInISOWeekYear": {
-                "!type": "fn() -> number"
-            },
-            "dayOfYear": {
-                "!type": "fn(d?: number) -> number|Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/day-of-year/",
-                "!doc": "Gets or sets the day of the year"
-            },
-            "get": {
-                "!type": "fn(unit: ?) -> number",
-                "!url": "https://momentjs.com/docs/#/get-set/get/",
-                "!doc": "String getter"
-            },
-            "set": {
-                "!type": "fn(unit: ?, value: number) -> Moment",
-                "!url": "https://momentjs.com/docs/#/get-set/set/",
-                "!doc": "Generic setter, accepting unit as first argument, and value as second"
-            },
-            "toDate": {
-                "!type": "fn()",
-                "!url": "https://momentjs.com/docs/#/displaying/as-javascript-date/",
-                "!doc": "Get a copy of the native Date object that Moment.js wraps"
-            },
-            "toISOString": {
-                "!type": "fn(keepOffset?: boolean) -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/as-iso-string/",
-                "!doc": "Formats a string to the ISO8601 standard"
-            },
-            "inspect": {
-                "!type": "fn() -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/inspect/",
-                "!doc": "Returns a machine readable string, that can be evaluated to produce the same moment"
-            },
-            "toJSON": {
-                "!type": "fn() -> string",
-                "!url": "https://momentjs.com/docs/#/displaying/as-json/",
-                "!doc": "When serializing an object to JSON, if there is a Moment object, it will be represented as an ISO8601 string, adjusted to UTC"
-            },
-            "unix": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/displaying/unix-timestamp/",
-                "!doc": "Outputs a Unix timestamp (the number of seconds since the Unix Epoch)"
-            },
-            "isLeapYear": {
-                "!type": "fn() -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-leap-year/",
-                "!doc": "Returns true if that year is a leap year, and false if it is not"
-            },
-            "zone": {
-                "!type": "fn(b: number|string) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/timezone-offset/",
-                "!doc": "Get the time zone offset in minutes"
-            },
-            "utcOffset": {
-                "!type": "fn(b?: number|string, keepLocalTime?: boolean) -> Moment",
-                "!url": "https://momentjs.com/docs/#/manipulating/utc-offset/",
-                "!doc": "Get or set the UTC offset in minutes"
-            },
-            "isUtcOffset": {
-                "!type": "fn() -> boolean"
-            },
-            "daysInMonth": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/displaying/days-in-month/",
-                "!doc": "Get the number of days in the current month"
-            },
-            "isDST": {
-                "!type": "fn() -> boolean",
-                "!url": "https://momentjs.com/docs/#/query/is-daylight-saving-time/",
-                "!doc": "Get the number of days in the current month"
-            },
-            "zoneAbbr": {
-                "!type": "fn() -> string"
-            },
-            "zoneName": {
-                "!type": "fn() -> string"
-            },
-            "isSameOrAfter": {
-                "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-same-or-after/",
-                "!doc": "Check if a moment is after or the same as another moment"
-            },
-            "isSameOrBefore": {
-                "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-same-or-before/",
-                "!doc": "Check if a moment is before or the same as another moment"
-            },
-            "isBetween": {
-                "!type": "fn(a: MomentInput, b: MomentInput, granularity?: ?, inclusivity?: ?) -> bool",
-                "!url": "https://momentjs.com/docs/#/query/is-between/",
-                "!doc": "Check if a moment is between two other moments,"
-            },
-            "locale": {
-                "!type": "fn(locale: LocaleSpecifier) -> string|Moment",
-                "!url": "https://momentjs.com/docs/#/i18n/instance-locale/",
-                "!doc": "A global locale configuration can be problematic when passing around moments that may need to be formatted into different locale"
-            },
-            "localeData": {
-                "!type": "fn() -> Locale"
-            },
-            "toObject": {
-                "!type": "fn() -> MomentObjectOutput",
-                "!url": "https://momentjs.com/docs/#/displaying/as-object/",
-                "!doc": "Returns an object containing year, month, day-of-month, hour, minute, seconds, milliseconds"
-            }
-        },
-        "Duration": {
-            "clone": {
-                "!type": "fn() -> Duration",
-                "!url": "https://momentjs.com/docs/#/durations/clone/",
-                "!doc": "Create a clone of a duration"
-            },
-            "humanize": {
-                "!type": "fn(argWithSuffix?: boolean, argThresholds?: argThresholdOpts) -> string",
-                "!url": "https://momentjs.com/docs/#/durations/humanize/"
-            },
-            "abs": {
-                "!type": "fn() -> Duration"
-            },
-            "as": {
-                "!type": "fn(units: ?) -> number",
-                "!url": "https://momentjs.com/docs/#/durations/as/"
-            },
-            "get": {
-                "!type": "fn(units: ?) -> number",
-                "!url": "https://momentjs.com/docs/#/durations/get/",
-                "!doc": "Alternate to Duration#x() getters"
-            },
-            "milliseconds": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/milliseconds/",
-                "!doc": "Get the number of milliseconds in a duration"
-            },
-            "asMilliseconds": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/milliseconds/",
-                "!doc": "Get the length of the duration in milliseconds"
-            },
-            "seconds": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/seconds/",
-                "!doc": "Get the number of seconds in a duration"
-            },
-            "asSeconds": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/seconds/",
-                "!doc": "Get the length of the duration in seconds"
-            },
-            "minutes": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/minutes/",
-                "!doc": "Gets the minutes (0 - 59)"
-            },
-            "asMinutes": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/minutes/",
-                "!doc": "Gets the length of the duration in minutes"
-            },
-            "hours": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/hours/",
-                "!doc": "Gets the hours (0 - 23)"
-            },
-            "asHours": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/hours/",
-                "!doc": "Gets the length of the duration in hours"
-            },
-            "days": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/days/",
-                "!doc": "Gets the days (0 - 30)"
-            },
-            "asDays": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/days/",
-                "!doc": "Gets the length of the duration in days"
-            },
-            "weeks": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/weeks/",
-                "!doc": "Gets the weeks (0 - 4)"
-            },
-            "asWeeks": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/weeks/",
-                "!doc": "Gets the length of the duration in weeks"
-            },
-            "months": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/months/",
-                "!doc": "Gets the months (0 - 11)."
-            },
-            "asMonths": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/months/",
-                "!doc": "Gets the length of the duration in months"
-            },
-            "years": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/years/",
-                "!doc": "Gets the years"
-            },
-            "asYears": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/durations/years/",
-                "!doc": "Gets the length of the duration in years"
-            },
-            "add": {
-                "!type": "fn(inp?: DurationInputArg1, unit?: DurationInputArg2) -> Duration",
-                "!url": "https://momentjs.com/docs/#/durations/add/",
-                "!doc": "Mutates the original duration by adding time"
-            },
-            "subtract": {
-                "!type": "fn(inp?: DurationInputArg1, unit?: DurationInputArg2) -> Duration",
-                "!url": "https://momentjs.com/docs/#/durations/subtract/",
-                "!doc": "Mutates the original duration by subtracting time"
-            },
-            "locale": {
-                "!type": "fn(locale: LocaleSpecifier) -> Duration",
-                "!url": "https://momentjs.com/docs/#/durations/locale/",
-                "!doc": "Get or set the locale of a duration"
-            },
-            "localeData": {
-                "!type": "fn() -> Locale"
-            },
-            "toISOString": {
-                "!type": "fn() -> string",
-                "!url": "https://momentjs.com/docs/#/durations/as-iso-string/",
-                "!doc": "Returns duration in string as specified by ISO 8601 standard"
-            },
-            "toJSON": {
-                "!type": "fn() -> string",
-                "!url": "https://momentjs.com/docs/#/durations/as-json/",
-                "!doc": "When serializing a duration object to JSON, it will be represented as an ISO8601 string"
-            },
-            "isValid": {
-                "!type": "fn() -> boolean"
-            }
-        },
-        "Locale": {
-            "calendar": {
-                "!type": "fn(key?: CalendarKey, m?: Moment, now?: Moment) -> string",
-                "!url": "https://momentjs.com/docs/#/customization/calendar/"
-            },
-            "longDateFormat": {
-                "!type": "fn(key: LongDateFormatKey) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns the full format of abbreviated date-time formats LT, L, LL and so on"
-            },
-            "invalidDate": {
-                "!type": "fn() -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns a translation of 'Invalid date'"
-            },
-            "ordinal": {
-                "!type": "fn(n: number) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Convert number to ordinal string 1 -> 1st"
-            },
-            "preparse": {
-                "!type": "fn(inp: string) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Called before parsing on every input string"
-            },
-            "postformat": {
-                "!type": "fn(inp: string) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Called after formatting on every string"
-            },
-            "relativeTime": {
-                "!type": "fn(n: number, withoutSuffix: boolean, key: RelativeTimeKey, isFuture: boolean) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns relative time string, key is on of 's', 'm', 'mm', 'h', 'hh', 'd', 'dd', 'M', 'MM', 'y', 'yy'"
-            },
-            "pastFuture": {
-                "!type": "fn(diff: number, absRelTime: string) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Convert relTime string to past or future string depending on diff"
-            },
-            "set": {
-                "!type": "fn(config: Object) -> void",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Convert relTime string to past or future string depending on diff"
-            },
-            "months": {
-                "!type": "fn(m?: Moment, format?: string) -> string|[string]",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Full month name of m"
-            },
-            "monthsShort": {
-                "!type": "fn(m?: Moment, format?: string) -> string|[string]",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Short month name of m"
-            },
-            "monthsParse": {
-                "!type": "fn(monthName: string, format: string, strict: bool) -> number",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns month id (0 to 11) of input"
-            },
-            "monthsRegex": {
-                "!type": "fn(strict: bool) -> RegExp"
-            },
-            "monthsShortRegex": {
-                "!type": "fn(strict: boolean) -> RegExp"
-            },
-            "week": {
-                "!type": "fn(m: Moment) -> number",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "returns week-of-year of m"
-            },
-            "firstDayOfYear": {
-                "!type": "fn() -> number",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "0-15 Used to determine first week of the year"
-            },
-            "weekdays": {
-                "!type": "fn(m: Moment, format?: string) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Full weekday name of m"
-            },
-            "weekdaysMin": {
-                "!type": "fn(m: Moment, format?: string) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "min weekday name of m"
-            },
-            "weekdaysShort": {
-                "!type": "fn(m: Moment) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Short weekday name of m"
-            },
-            "weekdaysParse": {
-                "!type": "fn(weekdayName: string, format: string, strict: boolean) -> number",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns weekday id (0 to 6) of input"
-            },
-            "weekdaysRegex": {
-                "!type": "fn(strict: bool) -> RegExp"
-            },
-            "weekdaysShortRegex": {
-                "!type": "fn(strict: bool) -> RegExp"
-            },
-            "weekdaysMinRegex": {
-                "!type": "fn(strict: bool) -> RegExp"
-            },
-            "isPM": {
-                "!type": "fn(input: string) -> bool",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns true if input represents PM"
-            },
-            "meridiem": {
-                "!type": "fn(hour: number, minute: number, isLower: bool) -> string",
-                "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-                "!doc": "Returns am/pm string for particular time-of-day in upper/lower case"
-            }
-        }
+  "!name": "LIB/moment",
+  "!define": {
+    "Moment": {
+      "startOf": {
+        "!type": "fn(unitOfTime: ?) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/start-of/",
+        "!doc": "Mutates the original moment by setting it to the start of a unit of time"
+      },
+      "endOf": {
+        "!type": "fn(unitOfTime: ?) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/end-of/",
+        "!doc": "Mutates the original moment by setting it to the end of a unit of time"
+      },
+      "isValid": {
+        "!type": "fn() -> bool",
+        "!url": "https://momentjs.com/docs/#/parsing/is-valid/",
+        "!doc": "Check whether the Moment considers the date invalid"
+      },
+      "invalidAt": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/parsing/is-valid/",
+        "!doc": "Returns which date unit overflowed"
+      },
+      "hasAlignedHourOffset": {
+        "!type": "fn(other?: MomentInput) -> boolean"
+      },
+      "creationData": {
+        "!type": "fn() -> MomentCreationData",
+        "!url": "https://momentjs.com/docs/#/parsing/creation-data/",
+        "!doc": "After a moment object is created, all of the inputs can be accessed with creationData() method"
+      },
+      "parsingFlags": {
+        "!type": "fn() -> MomentParsingFlags",
+        "!url": "https://momentjs.com/docs/#/parsing/is-valid/",
+        "!doc": "You can check the metrics used by #isValid using moment#parsingFlags, which returns an object"
+      },
+      "add": {
+        "!type": "fn(amount?: DurationInputArg1, unit?: DurationInputArg2) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/add/",
+        "!doc": "Mutates the original moment by adding time."
+      },
+      "subtract": {
+        "!type": "fn(amount?: DurationInputArg1, unit?: DurationInputArg2) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/subtract/",
+        "!doc": "Mutates the original moment by subtracting time"
+      },
+      "calender": {
+        "!type": "fn(fntime?: MomentInput, formats?: CalendarSpec) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/calendar-time/",
+        "!doc": "Calendar time displays time relative to a given referenceDay (defaults to the start of today)"
+      },
+      "valueOf": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/displaying/unix-timestamp-milliseconds/",
+        "!doc": "Unix timestamp in milliseconds"
+      },
+      "local": {
+        "!type": "fn(keepLocalTime?: boolean) -> Moment",
+        "!doc": "Current date/time in local mode"
+      },
+      "isLocal": {
+        "!type": "fn() -> bool"
+      },
+      "utc": {
+        "!type": "fn(keepLocalTime?: boolean) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/utc/",
+        "!doc": "Current date/time in UTC mode"
+      },
+      "isUTC": {
+        "!type": "fn() -> bool"
+      },
+      "parseZone": {
+        "!type": "fn() -> Moment"
+      },
+      "format": {
+        "!type": "fn(format?: string) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/format/",
+        "!doc": "Takes a string of tokens and replaces them with their corresponding values"
+      },
+      "isAfter": {
+        "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-after/",
+        "!doc": "Check if a moment is after another moment."
+      },
+      "isSame": {
+        "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-same/",
+        "!doc": "Check if a moment is the same as another moment."
+      },
+      "isBefore": {
+        "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-before/",
+        "!doc": "Check if a moment is before another moment"
+      },
+      "fromNow": {
+        "!type": "fn(withoutSuffix?: bool) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/fromnow/",
+        "!doc": "Get relative time"
+      },
+      "from": {
+        "!type": "fn(inp: MomentInput, suffix?: boolean) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/from/",
+        "!doc": "Returns a moment in relation to a time other than now"
+      },
+      "to": {
+        "!type": "fn(inp: MomentInput, suffix?: boolean) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/to/",
+        "!doc": "Display a moment in relation to a time other than now"
+      },
+      "toNow": {
+        "!type": "fn(withoutPrefix?: boolean) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/tonow/",
+        "!doc": "Display relative time"
+      },
+      "diff": {
+        "!type": "fn(b: MomentInput, unitOfTime?: unitOfTime.Diff, precise?: boolean) -> number",
+        "!url": "https://momentjs.com/docs/#/displaying/difference/",
+        "!doc": "Get the difference in milliseconds"
+      },
+      "toArray": {
+        "!type": "fn() -> [number]",
+        "!url": "https://momentjs.com/docs/#/displaying/as-array/",
+        "!doc": "Returns an array that mirrors the parameters from new Date()"
+      },
+      "clone": {
+        "!type": "fn() -> Moment",
+        "!url": "https://momentjs.com/docs/#/parsing/moment-clone/",
+        "!doc": "Returns the clone of a moment,"
+      },
+      "year": {
+        "!type": "fn(y: number) -> Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/year/",
+        "!doc": "Gets or sets the year"
+      },
+      "quarter": {
+        "!type": "fn() -> number|fn(q: number) -> Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/quarter/",
+        "!doc": "Gets or sets the quarter"
+      },
+      "quarters": {
+        "!type": "fn() -> number|fn(q: number) -> Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/quarter/",
+        "!doc": "Gets or sets the quarter"
+      },
+      "month": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/month/",
+        "!doc": "Gets or sets the month"
+      },
+      "day": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/day/",
+        "!doc": "Gets or sets the day of the week."
+      },
+      "days": {
+        "!type": "fn(d?: number|string) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/day/"
+      },
+      "date": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/date/",
+        "!doc": "Gets or sets the day of the month."
+      },
+      "hour": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/hour/",
+        "!doc": "Gets or sets the hour."
+      },
+      "hours": {
+        "!type": "fn(h?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/hour/",
+        "!doc": "Gets or sets the hour."
+      },
+      "minute": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/minute/",
+        "!doc": "Gets or sets the minutes."
+      },
+      "minutes": {
+        "!type": "fn(m?: number) -> Moment|number",
+        "!url": "https://momentjs.com/docs/#/get-set/minute/",
+        "!doc": "Gets or sets the minutes."
+      },
+      "second": {
+        "!type": "fn([s])",
+        "!url": "https://momentjs.com/docs/#/get-set/second/",
+        "!doc": "Gets or sets the seconds."
+      },
+      "seconds": {
+        "!type": "fn([s])",
+        "!url": "https://momentjs.com/docs/#/get-set/second/",
+        "!doc": "Gets or sets the seconds."
+      },
+      "millisecond": {
+        "!type": "fn([ms])",
+        "!url": "https://momentjs.com/docs/#/get-set/millisecond/",
+        "!doc": "Gets or sets the milliseconds."
+      },
+      "milliseconds": {
+        "!type": "fn([ms])",
+        "!url": "https://momentjs.com/docs/#/get-set/millisecond/",
+        "!doc": "Gets or sets the milliseconds."
+      },
+      "weekday": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/weekday/",
+        "!doc": "Gets or sets the day of the week according to the locale"
+      },
+      "isoWeekday": {
+        "!type": "fn(d?: number|string) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/iso-weekday/",
+        "!doc": "Gets or sets the ISO day of the week with 1 being Monday and 7 being Sunday"
+      },
+      "weekYear": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/week-year/",
+        "!doc": "Gets or sets the week-year according to the locale"
+      },
+      "isoWeekYear": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/iso-week-year/",
+        "!doc": "Gets or sets the ISO week-year"
+      },
+      "week": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/week/",
+        "!doc": "Gets or sets the week of the year"
+      },
+      "weeks": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/week/",
+        "!doc": "Gets or sets the week of the year"
+      },
+      "isoWeek": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/iso-week/",
+        "!doc": "Gets or sets the ISO week of the year"
+      },
+      "isoWeeks": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/iso-week/",
+        "!doc": "Gets or sets the ISO week of the year"
+      },
+      "weeksInYear": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/weeks-in-year/",
+        "!doc": "Gets the number of weeks according to locale in the current moment's year"
+      },
+      "weeksInWeekYear": {
+        "!type": "fn() -> number"
+      },
+      "isoWeeksInYear": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/iso-weeks-in-year/",
+        "!doc": "Gets the number of weeks in the current moment's year, according to ISO weeks"
+      },
+      "isoWeeksInISOWeekYear": {
+        "!type": "fn() -> number"
+      },
+      "dayOfYear": {
+        "!type": "fn(d?: number) -> number|Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/day-of-year/",
+        "!doc": "Gets or sets the day of the year"
+      },
+      "get": {
+        "!type": "fn(unit: ?) -> number",
+        "!url": "https://momentjs.com/docs/#/get-set/get/",
+        "!doc": "String getter"
+      },
+      "set": {
+        "!type": "fn(unit: ?, value: number) -> Moment",
+        "!url": "https://momentjs.com/docs/#/get-set/set/",
+        "!doc": "Generic setter, accepting unit as first argument, and value as second"
+      },
+      "toDate": {
+        "!type": "fn()",
+        "!url": "https://momentjs.com/docs/#/displaying/as-javascript-date/",
+        "!doc": "Get a copy of the native Date object that Moment.js wraps"
+      },
+      "toISOString": {
+        "!type": "fn(keepOffset?: boolean) -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/as-iso-string/",
+        "!doc": "Formats a string to the ISO8601 standard"
+      },
+      "inspect": {
+        "!type": "fn() -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/inspect/",
+        "!doc": "Returns a machine readable string, that can be evaluated to produce the same moment"
+      },
+      "toJSON": {
+        "!type": "fn() -> string",
+        "!url": "https://momentjs.com/docs/#/displaying/as-json/",
+        "!doc": "When serializing an object to JSON, if there is a Moment object, it will be represented as an ISO8601 string, adjusted to UTC"
+      },
+      "unix": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/displaying/unix-timestamp/",
+        "!doc": "Outputs a Unix timestamp (the number of seconds since the Unix Epoch)"
+      },
+      "isLeapYear": {
+        "!type": "fn() -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-leap-year/",
+        "!doc": "Returns true if that year is a leap year, and false if it is not"
+      },
+      "zone": {
+        "!type": "fn(b: number|string) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/timezone-offset/",
+        "!doc": "Get the time zone offset in minutes"
+      },
+      "utcOffset": {
+        "!type": "fn(b?: number|string, keepLocalTime?: boolean) -> Moment",
+        "!url": "https://momentjs.com/docs/#/manipulating/utc-offset/",
+        "!doc": "Get or set the UTC offset in minutes"
+      },
+      "isUtcOffset": {
+        "!type": "fn() -> boolean"
+      },
+      "daysInMonth": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/displaying/days-in-month/",
+        "!doc": "Get the number of days in the current month"
+      },
+      "isDST": {
+        "!type": "fn() -> boolean",
+        "!url": "https://momentjs.com/docs/#/query/is-daylight-saving-time/",
+        "!doc": "Get the number of days in the current month"
+      },
+      "zoneAbbr": {
+        "!type": "fn() -> string"
+      },
+      "zoneName": {
+        "!type": "fn() -> string"
+      },
+      "isSameOrAfter": {
+        "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-same-or-after/",
+        "!doc": "Check if a moment is after or the same as another moment"
+      },
+      "isSameOrBefore": {
+        "!type": "fn(inp?: MomentInput, granularity?: ?) -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-same-or-before/",
+        "!doc": "Check if a moment is before or the same as another moment"
+      },
+      "isBetween": {
+        "!type": "fn(a: MomentInput, b: MomentInput, granularity?: ?, inclusivity?: ?) -> bool",
+        "!url": "https://momentjs.com/docs/#/query/is-between/",
+        "!doc": "Check if a moment is between two other moments,"
+      },
+      "locale": {
+        "!type": "fn(locale: LocaleSpecifier) -> string|Moment",
+        "!url": "https://momentjs.com/docs/#/i18n/instance-locale/",
+        "!doc": "A global locale configuration can be problematic when passing around moments that may need to be formatted into different locale"
+      },
+      "localeData": {
+        "!type": "fn() -> Locale"
+      },
+      "toObject": {
+        "!type": "fn() -> MomentObjectOutput",
+        "!url": "https://momentjs.com/docs/#/displaying/as-object/",
+        "!doc": "Returns an object containing year, month, day-of-month, hour, minute, seconds, milliseconds"
+      }
     },
-    "moment": {
-        "!type": "fn(inp?: MomentInput, format?: MomentFormatSpecification, strict?: boolean) -> Moment",
-        "!url": "https://momentjs.com/docs/#/parsing/",
-        "!doc": "Returns a wrapper for the Date object",
-        "now": {
-            "!type": "fn() -> number",
-            "!doc": "Returns unix time in milliseconds."
-        },
-        "version": {
-            "!type": "string"
-        },
-        "invalid": {
-            "!type": "fn(flags?: MomentParsingFlagsOpt) -> Moment",
-            "!url": "https://momentjs.com/docs/#/utilities/invalid/",
-            "!doc": "Create your own invalid Moment objects"
-        },
-        "isMoment": {
-            "!type": "fn(m: any) -> bool",
-            "!url": "https://momentjs.com/docs/#/query/is-a-moment/",
-            "!doc": "To check if a variable is a moment object"
-        },
-        "isDate": {
-            "!type": "fn(m: any) -> bool",
-            "!url": "https://momentjs.com/docs/#/query/is-a-date/",
-            "!doc": "To check if a variable is a native js Date object"
-        },
-        "isDuration": {
-            "!type": "fn(m: any) -> bool",
-            "!url": "https://momentjs.com/docs/#/durations/is-a-duration/",
-            "!doc": "To check if a variable is a moment duration object"
-        },
-        "locale": {
-            "!type": "fn(language?: string, definition?: LocaleSpecification|void) -> string",
-            "!url": "https://momentjs.com/docs/#/i18n/changing-locale/",
-            "!doc": "To load a locale, pass the key and the string values to moment.locale"
-        },
-        "localeData": {
-            "!type": "fn(key?: string|[string]) -> Locale",
-            "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
-            "!doc": "Returns the current locale or a locale with the given key"
-        },
-        "duration": {
-            "!type": "fn(inp?: DurationInputArg1, unit?: DurationInputArg2) -> Duration",
-            "!url": "https://momentjs.com/docs/#/durations/creating/",
-            "!doc": "To create a duration, call moment.duration() with the length of time in milliseconds"
-        },
-        "parseZone": {
-            "!type": "fn(inp?: MomentInput, format?: MomentFormatSpecification, language?: string, strict?: boolean) -> Moment"
-        },
-        "months": {
-            "!type": "fn(format: string, index: number) -> string",
-            "!url": "https://momentjs.com/docs/#/get-set/month/",
-            "!doc": "Gets or sets the month."
-        },
-        "monthsShort": {
-            "!type": "fn(format?: string, index?: number) -> string|[string]",
-            "!url": "https://momentjs.com/docs/#/customization/month-abbreviations/",
-            "!doc": "Returns abbreviated month names"
-        },
-        "weekdays": {
-            "!type": "fn(localeSorted?: bool, format?: string, index?: number) -> string|[string]",
-            "!url": "https://momentjs.com/docs/#/customization/weekday-names/"
-        },
-        "weekdaysShort": {
-            "!type": "fn(localeSorted?: bool, format?: string, index?: number) -> string|[string]",
-            "!url": "https://momentjs.com/docs/#/customization/weekday-abbreviations/",
-            "!doc": "Returns abbreviated weekday names"
-        },
-        "weekdaysMin": {
-            "!type": "fn(localeSorted?: bool, format?: string, index?: number) -> string|[string]",
-            "!url": "https://momentjs.com/docs/#/customization/weekday-abbreviations/",
-            "!doc": "Returns abbreviated weekday names"
-        },
-        "min": {
-            "!type": "fn(moments: [Moment]) -> Moment",
-            "!url": "https://momentjs.com/docs/#/get-set/min/",
-            "!doc": "Returns the minimum (most distant past) of the given moment instances"
-        },
-        "max": {
-            "!type": "fn(moments: [Moment]) -> Moment",
-            "!url": "https://momentjs.com/docs/#/get-set/max/",
-            "!doc": "Returns the maximum (most distant future) of the given moment instances"
-        },
-        "defineLocale": {
-            "!type": "fn(language: string, localeSpec: LocaleSpecification|void) -> Locale",
-            "!url": "https://momentjs.com/docs/#/customization/",
-            "!doc": "Create a locale that inherits from a parent locale"
-        },
-        "updateLocale": {
-            "!type": "fn(language: string, localeSpec: LocaleSpecification|void) -> Locale",
-            "!url": "https://momentjs.com/docs/#/customization/",
-            "!doc": "Update a locale's properties"
-        },
-        "locales": {
-            "!type": "fn() -> [string]",
-            "!url": "https://momentjs.com/docs/#/i18n/getting-locale/",
-            "!doc": "List all locales that have been loaded and are available to use"
-        },
-        "normalizeUnits": {
-            "!type": "fn(unit: ?) -> string",
-            "!url": "https://momentjs.com/docs/#/utilities/normalize-units/",
-            "!doc": "If you're extending the library, you may want access to Moment's facilities for that in order to better align your functionality with Moment's"
-        },
-        "relativeTimeThreshold": {
-            "!type": "fn(threshold: string) -> number|bool",
-            "!url": "https://momentjs.com/docs/#/customization/relative-time-threshold/"
-        },
-        "calendarFormat": {
-            "!type": "fn(m: Moment, now: Moment) -> string",
-            "!url": "https://momentjs.com/docs/#/customization/calendar-format/",
-            "!doc": "Lets you modify the tokens used by calendar"
-        },
-        "parseTwoDigitYear": {
-            "!type": "fn(input: string) -> number",
-            "!url": "https://momentjs.com/docs/#/parsing/string-format/"
-        }
+    "Duration": {
+      "clone": {
+        "!type": "fn() -> Duration",
+        "!url": "https://momentjs.com/docs/#/durations/clone/",
+        "!doc": "Create a clone of a duration"
+      },
+      "humanize": {
+        "!type": "fn(argWithSuffix?: boolean, argThresholds?: argThresholdOpts) -> string",
+        "!url": "https://momentjs.com/docs/#/durations/humanize/"
+      },
+      "abs": {
+        "!type": "fn() -> Duration"
+      },
+      "as": {
+        "!type": "fn(units: ?) -> number",
+        "!url": "https://momentjs.com/docs/#/durations/as/"
+      },
+      "get": {
+        "!type": "fn(units: ?) -> number",
+        "!url": "https://momentjs.com/docs/#/durations/get/",
+        "!doc": "Alternate to Duration#x() getters"
+      },
+      "milliseconds": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/milliseconds/",
+        "!doc": "Get the number of milliseconds in a duration"
+      },
+      "asMilliseconds": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/milliseconds/",
+        "!doc": "Get the length of the duration in milliseconds"
+      },
+      "seconds": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/seconds/",
+        "!doc": "Get the number of seconds in a duration"
+      },
+      "asSeconds": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/seconds/",
+        "!doc": "Get the length of the duration in seconds"
+      },
+      "minutes": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/minutes/",
+        "!doc": "Gets the minutes (0 - 59)"
+      },
+      "asMinutes": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/minutes/",
+        "!doc": "Gets the length of the duration in minutes"
+      },
+      "hours": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/hours/",
+        "!doc": "Gets the hours (0 - 23)"
+      },
+      "asHours": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/hours/",
+        "!doc": "Gets the length of the duration in hours"
+      },
+      "days": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/days/",
+        "!doc": "Gets the days (0 - 30)"
+      },
+      "asDays": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/days/",
+        "!doc": "Gets the length of the duration in days"
+      },
+      "weeks": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/weeks/",
+        "!doc": "Gets the weeks (0 - 4)"
+      },
+      "asWeeks": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/weeks/",
+        "!doc": "Gets the length of the duration in weeks"
+      },
+      "months": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/months/",
+        "!doc": "Gets the months (0 - 11)."
+      },
+      "asMonths": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/months/",
+        "!doc": "Gets the length of the duration in months"
+      },
+      "years": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/years/",
+        "!doc": "Gets the years"
+      },
+      "asYears": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/durations/years/",
+        "!doc": "Gets the length of the duration in years"
+      },
+      "add": {
+        "!type": "fn(inp?: DurationInputArg1, unit?: DurationInputArg2) -> Duration",
+        "!url": "https://momentjs.com/docs/#/durations/add/",
+        "!doc": "Mutates the original duration by adding time"
+      },
+      "subtract": {
+        "!type": "fn(inp?: DurationInputArg1, unit?: DurationInputArg2) -> Duration",
+        "!url": "https://momentjs.com/docs/#/durations/subtract/",
+        "!doc": "Mutates the original duration by subtracting time"
+      },
+      "locale": {
+        "!type": "fn(locale: LocaleSpecifier) -> Duration",
+        "!url": "https://momentjs.com/docs/#/durations/locale/",
+        "!doc": "Get or set the locale of a duration"
+      },
+      "localeData": {
+        "!type": "fn() -> Locale"
+      },
+      "toISOString": {
+        "!type": "fn() -> string",
+        "!url": "https://momentjs.com/docs/#/durations/as-iso-string/",
+        "!doc": "Returns duration in string as specified by ISO 8601 standard"
+      },
+      "toJSON": {
+        "!type": "fn() -> string",
+        "!url": "https://momentjs.com/docs/#/durations/as-json/",
+        "!doc": "When serializing a duration object to JSON, it will be represented as an ISO8601 string"
+      },
+      "isValid": {
+        "!type": "fn() -> boolean"
+      }
+    },
+    "Locale": {
+      "calendar": {
+        "!type": "fn(key?: CalendarKey, m?: Moment, now?: Moment) -> string",
+        "!url": "https://momentjs.com/docs/#/customization/calendar/"
+      },
+      "longDateFormat": {
+        "!type": "fn(key: LongDateFormatKey) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns the full format of abbreviated date-time formats LT, L, LL and so on"
+      },
+      "invalidDate": {
+        "!type": "fn() -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns a translation of 'Invalid date'"
+      },
+      "ordinal": {
+        "!type": "fn(n: number) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Convert number to ordinal string 1 -> 1st"
+      },
+      "preparse": {
+        "!type": "fn(inp: string) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Called before parsing on every input string"
+      },
+      "postformat": {
+        "!type": "fn(inp: string) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Called after formatting on every string"
+      },
+      "relativeTime": {
+        "!type": "fn(n: number, withoutSuffix: boolean, key: RelativeTimeKey, isFuture: boolean) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns relative time string, key is on of 's', 'm', 'mm', 'h', 'hh', 'd', 'dd', 'M', 'MM', 'y', 'yy'"
+      },
+      "pastFuture": {
+        "!type": "fn(diff: number, absRelTime: string) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Convert relTime string to past or future string depending on diff"
+      },
+      "set": {
+        "!type": "fn(config: Object) -> void",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Convert relTime string to past or future string depending on diff"
+      },
+      "months": {
+        "!type": "fn(m?: Moment, format?: string) -> string|[string]",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Full month name of m"
+      },
+      "monthsShort": {
+        "!type": "fn(m?: Moment, format?: string) -> string|[string]",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Short month name of m"
+      },
+      "monthsParse": {
+        "!type": "fn(monthName: string, format: string, strict: bool) -> number",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns month id (0 to 11) of input"
+      },
+      "monthsRegex": {
+        "!type": "fn(strict: bool) -> RegExp"
+      },
+      "monthsShortRegex": {
+        "!type": "fn(strict: boolean) -> RegExp"
+      },
+      "week": {
+        "!type": "fn(m: Moment) -> number",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "returns week-of-year of m"
+      },
+      "firstDayOfYear": {
+        "!type": "fn() -> number",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "0-15 Used to determine first week of the year"
+      },
+      "weekdays": {
+        "!type": "fn(m: Moment, format?: string) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Full weekday name of m"
+      },
+      "weekdaysMin": {
+        "!type": "fn(m: Moment, format?: string) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "min weekday name of m"
+      },
+      "weekdaysShort": {
+        "!type": "fn(m: Moment) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Short weekday name of m"
+      },
+      "weekdaysParse": {
+        "!type": "fn(weekdayName: string, format: string, strict: boolean) -> number",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns weekday id (0 to 6) of input"
+      },
+      "weekdaysRegex": {
+        "!type": "fn(strict: bool) -> RegExp"
+      },
+      "weekdaysShortRegex": {
+        "!type": "fn(strict: bool) -> RegExp"
+      },
+      "weekdaysMinRegex": {
+        "!type": "fn(strict: bool) -> RegExp"
+      },
+      "isPM": {
+        "!type": "fn(input: string) -> bool",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns true if input represents PM"
+      },
+      "meridiem": {
+        "!type": "fn(hour: number, minute: number, isLower: bool) -> string",
+        "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+        "!doc": "Returns am/pm string for particular time-of-day in upper/lower case"
+      }
     }
-    
+  },
+  "moment": {
+    "!type": "fn(inp?: MomentInput, format?: MomentFormatSpecification, strict?: boolean) -> Moment",
+    "!url": "https://momentjs.com/docs/#/parsing/",
+    "!doc": "Returns a wrapper for the Date object",
+    "now": {
+      "!type": "fn() -> number",
+      "!doc": "Returns unix time in milliseconds."
+    },
+    "version": {
+      "!type": "string"
+    },
+    "invalid": {
+      "!type": "fn(flags?: MomentParsingFlagsOpt) -> Moment",
+      "!url": "https://momentjs.com/docs/#/utilities/invalid/",
+      "!doc": "Create your own invalid Moment objects"
+    },
+    "isMoment": {
+      "!type": "fn(m: any) -> bool",
+      "!url": "https://momentjs.com/docs/#/query/is-a-moment/",
+      "!doc": "To check if a variable is a moment object"
+    },
+    "isDate": {
+      "!type": "fn(m: any) -> bool",
+      "!url": "https://momentjs.com/docs/#/query/is-a-date/",
+      "!doc": "To check if a variable is a native js Date object"
+    },
+    "isDuration": {
+      "!type": "fn(m: any) -> bool",
+      "!url": "https://momentjs.com/docs/#/durations/is-a-duration/",
+      "!doc": "To check if a variable is a moment duration object"
+    },
+    "locale": {
+      "!type": "fn(language?: string, definition?: LocaleSpecification|void) -> string",
+      "!url": "https://momentjs.com/docs/#/i18n/changing-locale/",
+      "!doc": "To load a locale, pass the key and the string values to moment.locale"
+    },
+    "localeData": {
+      "!type": "fn(key?: string|[string]) -> Locale",
+      "!url": "https://momentjs.com/docs/#/i18n/locale-data/",
+      "!doc": "Returns the current locale or a locale with the given key"
+    },
+    "duration": {
+      "!type": "fn(inp?: DurationInputArg1, unit?: DurationInputArg2) -> Duration",
+      "!url": "https://momentjs.com/docs/#/durations/creating/",
+      "!doc": "To create a duration, call moment.duration() with the length of time in milliseconds"
+    },
+    "parseZone": {
+      "!type": "fn(inp?: MomentInput, format?: MomentFormatSpecification, language?: string, strict?: boolean) -> Moment"
+    },
+    "months": {
+      "!type": "fn(format: string, index: number) -> string",
+      "!url": "https://momentjs.com/docs/#/get-set/month/",
+      "!doc": "Gets or sets the month."
+    },
+    "monthsShort": {
+      "!type": "fn(format?: string, index?: number) -> string|[string]",
+      "!url": "https://momentjs.com/docs/#/customization/month-abbreviations/",
+      "!doc": "Returns abbreviated month names"
+    },
+    "weekdays": {
+      "!type": "fn(localeSorted?: bool, format?: string, index?: number) -> string|[string]",
+      "!url": "https://momentjs.com/docs/#/customization/weekday-names/"
+    },
+    "weekdaysShort": {
+      "!type": "fn(localeSorted?: bool, format?: string, index?: number) -> string|[string]",
+      "!url": "https://momentjs.com/docs/#/customization/weekday-abbreviations/",
+      "!doc": "Returns abbreviated weekday names"
+    },
+    "weekdaysMin": {
+      "!type": "fn(localeSorted?: bool, format?: string, index?: number) -> string|[string]",
+      "!url": "https://momentjs.com/docs/#/customization/weekday-abbreviations/",
+      "!doc": "Returns abbreviated weekday names"
+    },
+    "min": {
+      "!type": "fn(moments: [Moment]) -> Moment",
+      "!url": "https://momentjs.com/docs/#/get-set/min/",
+      "!doc": "Returns the minimum (most distant past) of the given moment instances"
+    },
+    "max": {
+      "!type": "fn(moments: [Moment]) -> Moment",
+      "!url": "https://momentjs.com/docs/#/get-set/max/",
+      "!doc": "Returns the maximum (most distant future) of the given moment instances"
+    },
+    "defineLocale": {
+      "!type": "fn(language: string, localeSpec: LocaleSpecification|void) -> Locale",
+      "!url": "https://momentjs.com/docs/#/customization/",
+      "!doc": "Create a locale that inherits from a parent locale"
+    },
+    "updateLocale": {
+      "!type": "fn(language: string, localeSpec: LocaleSpecification|void) -> Locale",
+      "!url": "https://momentjs.com/docs/#/customization/",
+      "!doc": "Update a locale's properties"
+    },
+    "locales": {
+      "!type": "fn() -> [string]",
+      "!url": "https://momentjs.com/docs/#/i18n/getting-locale/",
+      "!doc": "List all locales that have been loaded and are available to use"
+    },
+    "normalizeUnits": {
+      "!type": "fn(unit: ?) -> string",
+      "!url": "https://momentjs.com/docs/#/utilities/normalize-units/",
+      "!doc": "If you're extending the library, you may want access to Moment's facilities for that in order to better align your functionality with Moment's"
+    },
+    "relativeTimeThreshold": {
+      "!type": "fn(threshold: string) -> number|bool",
+      "!url": "https://momentjs.com/docs/#/customization/relative-time-threshold/"
+    },
+    "calendarFormat": {
+      "!type": "fn(m: Moment, now: Moment) -> string",
+      "!url": "https://momentjs.com/docs/#/customization/calendar-format/",
+      "!doc": "Lets you modify the tokens used by calendar"
+    },
+    "parseTwoDigitYear": {
+      "!type": "fn(input: string) -> number",
+      "!url": "https://momentjs.com/docs/#/parsing/string-format/"
+    }
+  }
 }

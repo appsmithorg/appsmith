@@ -347,14 +347,19 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.ClickButton("No");
     _.agHelper.AssertContains("was cancelled");
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
+    cy.fixture("datasources").then((datasourceFormData) => {
+      _.apiPage.CreateAndFillApi(
+        datasourceFormData.randomCatfactUrl,
+        "CatFacts",
+      );
+    });
     _.apiPage.ToggleOnPageLoadRun(true);
     _.apiPage.ToggleConfirmBeforeRunningApi(true);
 
     _.entityExplorer.SelectEntityByName("Image1", "Widgets");
     _.propPane.EnterJSContext(
       "onClick",
-      `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`,
+      `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data,'success'), () => showAlert('Oh No!','error'))}}`,
     );
 
     _.entityExplorer.SelectEntityByName("Quotes", "Queries/JS");

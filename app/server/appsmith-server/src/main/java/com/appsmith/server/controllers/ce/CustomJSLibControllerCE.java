@@ -1,10 +1,13 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CustomJSLibService;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,7 @@ public class CustomJSLibControllerCE {
         this.customJSLibService = customJSLibService;
     }
 
+    @JsonView(Views.Public.class)
     @PatchMapping("/{applicationId}/add")
     public Mono<ResponseDTO<Boolean>> addJSLibToApplication(@RequestBody @Valid CustomJSLib customJSLib,
                                                             @PathVariable String applicationId, @RequestHeader(name =
@@ -38,6 +42,7 @@ public class CustomJSLibControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
+    @JsonView(Views.Public.class)
     @PatchMapping("/{applicationId}/remove")
     public Mono<ResponseDTO<Boolean>> removeJSLibFromApplication(@RequestBody @Valid CustomJSLib customJSLib,
                                                                  @PathVariable String applicationId,
@@ -51,6 +56,7 @@ public class CustomJSLibControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{applicationId}")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplication(@PathVariable String applicationId,
                                                                                       @RequestHeader(name =
@@ -61,6 +67,7 @@ public class CustomJSLibControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/{applicationId}/view")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationForViewMode(@PathVariable String applicationId,
                                                                                                  @RequestHeader(name =FieldName.BRANCH_NAME,

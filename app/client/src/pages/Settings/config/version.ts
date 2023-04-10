@@ -1,11 +1,17 @@
 import type { Dispatch } from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type {
+  AdminConfigType,
+  Setting,
+} from "@appsmith/pages/AdminSettings/config/types";
 import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export const config: AdminConfigType = {
   icon: "timer-2-line",
@@ -33,5 +39,7 @@ export const config: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label: "Release Notes",
     },
-  ],
+  ].filter((setting) =>
+    isAirgappedInstance ? setting.id !== "APPSMITH_VERSION_READ_MORE" : true,
+  ) as Setting[],
 };
