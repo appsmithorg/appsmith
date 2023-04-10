@@ -84,7 +84,8 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName) {
   }
 
   await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
-    '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt);
+    '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
 
   console.log('Restoring docker environment file completed');
 }
