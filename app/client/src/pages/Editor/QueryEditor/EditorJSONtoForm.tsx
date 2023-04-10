@@ -128,6 +128,7 @@ import {
 } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -582,7 +583,7 @@ export function EditorJSONtoForm(props: Props) {
           <img
             alt="Datasource"
             className="plugin-image"
-            src={props.data.image}
+            src={getAssetUrl(props.data.image)}
           />
           <div className="selected-value">{props.children}</div>
         </Container>
@@ -597,7 +598,7 @@ export function EditorJSONtoForm(props: Props) {
           <img
             alt="Datasource"
             className="plugin-image"
-            src={props.data.image}
+            src={getAssetUrl(props.data.image)}
           />
           <div style={{ marginLeft: "6px" }}>{props.children}</div>
         </Container>

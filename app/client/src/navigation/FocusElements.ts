@@ -85,6 +85,7 @@ import {
   getQueryPaneResponsePaneHeight,
   getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
+import { NavigationMethod } from "../utils/history";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -180,7 +181,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
       setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds),
+        selectWidgetInitAction(
+          SelectionRequestType.Multiple,
+          widgetIds,
+          NavigationMethod.ContextSwitching,
+        ),
       defaultValue: [],
     },
     {

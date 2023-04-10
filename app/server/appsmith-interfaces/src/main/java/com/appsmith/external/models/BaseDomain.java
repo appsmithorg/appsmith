@@ -1,9 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -80,18 +78,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
-    // This field will be used to store the default/root resource IDs for branched resources generated for git
-    // connected applications and will be used to connect resources across the branches
-    @JsonView(Views.Internal.class)
-    DefaultResources defaultResources;
-
-    // This field will only be used for git related functionality to sync the action object across different instances.
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
-    String gitSyncId;
-
-    public void sanitiseToExportBaseObject() {
-        this.setDefaultResources(null);
+    @Deprecated
+    public void sanitiseToExportDBObject() {
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
         this.setUserPermissions(null);
