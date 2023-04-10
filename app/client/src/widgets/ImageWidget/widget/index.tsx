@@ -8,7 +8,6 @@ import ImageComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
@@ -156,12 +155,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when user clicks on an image",
+            helpText: "when user clicks on an image",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",

@@ -14,6 +14,7 @@ describe("Text view component", () => {
     set: () => {
       return 1;
     },
+    exampleText: "storeValue('a','1')",
   };
   test("Renders Text view component correctly", () => {
     render(<TextView {...props} />);
