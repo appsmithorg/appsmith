@@ -7,14 +7,16 @@ import { Button } from "../Button";
   component={TestComponent}
 />
 
-export const Template = (args) => (
-  <>
-    <h3>{args.title}</h3>
-    <TestComponent>
-      <Button {...args}>Test</Button>
-    </TestComponent>
-  </>
-);
+export const Template = (args, { globals: { colorScheme } }) => {
+  return (
+    <>
+      <h3>{args.title}</h3>
+      <TestComponent colorScheme={colorScheme}>
+        <Button {...args}>Test</Button>
+      </TestComponent>
+    </>
+  );
+};
 
 <Canvas>
   <Story
