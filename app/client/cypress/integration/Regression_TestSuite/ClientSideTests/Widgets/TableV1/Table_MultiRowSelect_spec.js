@@ -31,7 +31,7 @@ describe("Table Widget row multi select validation", function () {
   });
   it("Test action configured on onRowSelected get triggered whenever a table row is selected", function () {
     cy.openPropertyPane("tablewidget");
-    cy.onTableAction(0, "onrowselected", "Row Selected");
+    cy.getAlert("onRowSelected", "Row Selected");
     // un select first row
     cy.get(".t--table-multiselect").first().click({ force: true });
     cy.get(commonlocators.toastmsg).should("not.exist");

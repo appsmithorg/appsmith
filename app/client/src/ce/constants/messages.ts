@@ -346,6 +346,8 @@ export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const GSHEET_AUTHORIZATION_ERROR =
   "Data source is not authorized, please authorize to continue.";
+export const GSHEET_FILES_NOT_SELECTED =
+  "Datasource does not have access to any files, please authorize google sheets to use this data source";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -435,8 +437,8 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_MESSAGE = () => `Show message`;
-export const OPEN_MODAL = () => `Open modal`;
+export const SHOW_ALERT = () => `Show Alert`;
+export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const CLOSE = () => `CLOSE`;
 export const STORE_VALUE = () => `Store value`;

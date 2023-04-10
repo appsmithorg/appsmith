@@ -655,9 +655,16 @@ export function ReflowResizable(props: ResizableProps) {
   const resizeWrapperStyle: CSSProperties = getWrapperStyle(
     props.topRow <= 2,
     props.showResizeBoundary,
-    props.allowResize,
+    !isResizing && props.allowResize,
     props.isHovered,
   );
+
+  const wrapperClassName = useMemo(() => {
+    return `${props.className} resize-wrapper ${
+      props.showResizeBoundary ? "show-boundary" : ""
+    } ${pointerEvents ? "" : "pointer-event-none"}`;
+  }, [props.className, pointerEvents, props.showResizeBoundary]);
+
   return (
     <Spring
       config={{
@@ -701,11 +708,9 @@ export function ReflowResizable(props: ResizableProps) {
     >
       {(_props) => (
         <ResizeWrapper
-          $prevents={pointerEvents}
-          className={props.className}
+          className={wrapperClassName}
           id={`resize-${props.widgetId}`}
           ref={resizableRef}
-          showBoundaries={props.showResizeBoundary}
           style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}

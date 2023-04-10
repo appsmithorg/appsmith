@@ -18,11 +18,7 @@ describe("Input widget V2 - ", () => {
 
   it("2. Validate input widget resets OnSubmit", () => {
     cy.openPropertyPane(widgetName);
-    cy.get(
-      ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-    ).click();
-    cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
+    cy.getAlert("onSubmit", "Submitted!!");
     cy.get(widgetInput).clear();
     cy.wait(300);
     cy.get(widgetInput).type("test{enter}"); //Clicking enter submits the form here

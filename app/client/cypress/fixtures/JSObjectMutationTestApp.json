@@ -1,0 +1,3186 @@
+{
+  "clientSchemaVersion": 1.0,
+  "serverSchemaVersion": 6.0,
+  "exportedApplication": {
+    "name": "RCA App (1)",
+    "isPublic": false,
+    "pages": [{ "id": "Mutation_Test", "isDefault": true }],
+    "publishedPages": [{ "id": "Mutation_Test", "isDefault": true }],
+    "viewMode": false,
+    "appIsExample": false,
+    "unreadCommentThreads": 0.0,
+    "clonedFromApplicationId": "6421378cece19e1adde15ceb",
+    "unpublishedApplicationDetail": {},
+    "publishedApplicationDetail": {},
+    "color": "#FBF4ED",
+    "icon": "lotus",
+    "slug": "rca-app-1",
+    "unpublishedAppLayout": { "type": "DESKTOP" },
+    "publishedAppLayout": { "type": "DESKTOP" },
+    "unpublishedCustomJSLibs": [],
+    "publishedCustomJSLibs": [],
+    "evaluationVersion": 2.0,
+    "applicationVersion": 2.0,
+    "isManualUpdate": false,
+    "deleted": false
+  },
+  "datasourceList": [],
+  "customJSLibList": [],
+  "pageList": [
+    {
+      "unpublishedPage": {
+        "name": "Mutation_Test",
+        "slug": "mutation-test",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224.0,
+              "snapColumns": 64.0,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0.0,
+              "bottomRow": 380.0,
+              "containerStyle": "none",
+              "snapRows": 124.0,
+              "parentRowSpace": 1.0,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 77.0,
+              "minHeight": 1250.0,
+              "parentColumnSpace": 1.0,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0.0,
+              "children": [
+                {
+                  "resetFormOnClick": false,
+                  "boxShadow": "none",
+                  "widgetName": "Button3",
+                  "onClick": "{{utils.decrementSelector()}}",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "displayName": "Button",
+                  "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                  "searchTags": ["click", "submit"],
+                  "topRow": 7.0,
+                  "bottomRow": 11.0,
+                  "parentRowSpace": 10.0,
+                  "type": "BUTTON_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 18.1875,
+                  "dynamicTriggerPathList": [{ "key": "onClick" }],
+                  "leftColumn": 12.0,
+                  "dynamicBindingPathList": [
+                    { "key": "buttonColor" },
+                    { "key": "borderRadius" }
+                  ],
+                  "text": "SUB",
+                  "isDisabled": false,
+                  "key": "qlrzspfmgw",
+                  "isDeprecated": false,
+                  "rightColumn": 28.0,
+                  "isDefaultClickDisabled": true,
+                  "widgetId": "3249wpxdso",
+                  "isVisible": true,
+                  "recaptchaType": "V3",
+                  "version": 1.0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 16.0,
+                  "disabledWhenInvalid": false,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "originalBottomRow": 20.0,
+                  "buttonVariant": "PRIMARY",
+                  "placement": "CENTER"
+                },
+                {
+                  "resetFormOnClick": false,
+                  "boxShadow": "none",
+                  "widgetName": "Button4",
+                  "onClick": "{{utils.incrementSelector()}}",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "dynamicPropertyPathList": [{ "key": "onClick" }],
+                  "displayName": "Button",
+                  "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                  "searchTags": ["click", "submit"],
+                  "topRow": 7.0,
+                  "bottomRow": 11.0,
+                  "parentRowSpace": 10.0,
+                  "type": "BUTTON_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 18.1875,
+                  "dynamicTriggerPathList": [{ "key": "onClick" }],
+                  "leftColumn": 28.0,
+                  "dynamicBindingPathList": [
+                    { "key": "buttonColor" },
+                    { "key": "borderRadius" }
+                  ],
+                  "text": "ADD",
+                  "isDisabled": false,
+                  "key": "qlrzspfmgw",
+                  "isDeprecated": false,
+                  "rightColumn": 44.0,
+                  "isDefaultClickDisabled": true,
+                  "widgetId": "bzw9zysb7z",
+                  "isVisible": true,
+                  "recaptchaType": "V3",
+                  "version": 1.0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 16.0,
+                  "disabledWhenInvalid": false,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "originalBottomRow": 20.0,
+                  "buttonVariant": "PRIMARY",
+                  "placement": "CENTER"
+                },
+                {
+                  "widgetName": "Text1",
+                  "displayName": "Text",
+                  "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                  "searchTags": ["typography", "paragraph", "label"],
+                  "topRow": 2.0,
+                  "bottomRow": 6.0,
+                  "parentRowSpace": 10.0,
+                  "type": "TEXT_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "overflow": "NONE",
+                  "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                  "parentColumnSpace": 18.1875,
+                  "dynamicTriggerPathList": [],
+                  "leftColumn": 12.0,
+                  "dynamicBindingPathList": [
+                    { "key": "truncateButtonColor" },
+                    { "key": "fontFamily" },
+                    { "key": "borderRadius" },
+                    { "key": "text" }
+                  ],
+                  "shouldTruncate": false,
+                  "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "text": "{{utils.valueSelector()}}",
+                  "key": "ts0qs52fnt",
+                  "isDeprecated": false,
+                  "rightColumn": 44.0,
+                  "textAlign": "CENTER",
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "widgetId": "ngb50ag4eh",
+                  "isVisible": true,
+                  "fontStyle": "BOLD",
+                  "textColor": "#231F20",
+                  "version": 1.0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 2.0,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "maxDynamicHeight": 9000.0,
+                  "originalBottomRow": 15.0,
+                  "fontSize": "1rem",
+                  "minDynamicHeight": 4.0
+                },
+                {
+                  "boxShadow": "none",
+                  "widgetName": "Select1",
+                  "isFilterable": true,
+                  "displayName": "Select",
+                  "iconSVG": "/static/media/icon.bd99caba5853ad71e4b3d8daffacb3a2.svg",
+                  "labelText": "Label",
+                  "searchTags": ["dropdown"],
+                  "topRow": 12.0,
+                  "bottomRow": 19.0,
+                  "parentRowSpace": 10.0,
+                  "labelWidth": 5.0,
+                  "type": "SELECT_WIDGET",
+                  "serverSideFiltering": false,
+                  "hideCard": false,
+                  "defaultOptionValue": "{{ ((options, serverSideFiltering) => ( `NUMBER`))(Select1.options, Select1.serverSideFiltering) }}",
+                  "animateLoading": true,
+                  "parentColumnSpace": 17.9375,
+                  "dynamicTriggerPathList": [],
+                  "leftColumn": 18.0,
+                  "dynamicBindingPathList": [
+                    { "key": "accentColor" },
+                    { "key": "borderRadius" },
+                    { "key": "defaultOptionValue" }
+                  ],
+                  "labelPosition": "Top",
+                  "options": "[\n  {\n    \"label\": \"MAP\",\n    \"value\": \"MAP\"\n  },\n  {\n    \"label\": \"SET\",\n    \"value\": \"SET\"\n  },\n  {\n    \"label\": \"NUMBER\",\n    \"value\": \"NUMBER\"\n  },\n\t{\n    \"label\": \"ARRAY\",\n    \"value\": \"ARRAY\"\n  },\n  {\n    \"label\": \"OBJECT\",\n    \"value\": \"OBJECT\"\n  }\n]",
+                  "placeholderText": "Select option",
+                  "isDisabled": false,
+                  "key": "oy7j5j05od",
+                  "labelTextSize": "0.875rem",
+                  "isRequired": false,
+                  "isDeprecated": false,
+                  "rightColumn": 38.0,
+                  "dynamicHeight": "FIXED",
+                  "widgetId": "neb1zsm0mr",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "isVisible": true,
+                  "version": 1.0,
+                  "parentId": "0",
+                  "labelAlignment": "left",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 21.0,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "maxDynamicHeight": 9000.0,
+                  "originalBottomRow": 28.0,
+                  "minDynamicHeight": 4.0
+                }
+              ]
+            },
+            "layoutOnLoadActions": [],
+            "layoutOnLoadActionErrors": [],
+            "validOnPageLoadActions": true,
+            "id": "Mutation_Test",
+            "deleted": false,
+            "policies": [],
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": [],
+        "isHidden": false
+      },
+      "publishedPage": {
+        "name": "Mutation_Test",
+        "slug": "mutation-test",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224.0,
+              "snapColumns": 64.0,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0.0,
+              "bottomRow": 380.0,
+              "containerStyle": "none",
+              "snapRows": 124.0,
+              "parentRowSpace": 1.0,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 77.0,
+              "minHeight": 1250.0,
+              "parentColumnSpace": 1.0,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0.0,
+              "children": [
+                {
+                  "resetFormOnClick": false,
+                  "boxShadow": "none",
+                  "widgetName": "Button3",
+                  "onClick": "{{utils.decrementSelector()}}",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "displayName": "Button",
+                  "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                  "searchTags": ["click", "submit"],
+                  "topRow": 7.0,
+                  "bottomRow": 11.0,
+                  "parentRowSpace": 10.0,
+                  "type": "BUTTON_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 18.1875,
+                  "dynamicTriggerPathList": [{ "key": "onClick" }],
+                  "leftColumn": 12.0,
+                  "dynamicBindingPathList": [
+                    { "key": "buttonColor" },
+                    { "key": "borderRadius" }
+                  ],
+                  "text": "SUB",
+                  "isDisabled": false,
+                  "key": "qlrzspfmgw",
+                  "isDeprecated": false,
+                  "rightColumn": 28.0,
+                  "isDefaultClickDisabled": true,
+                  "widgetId": "3249wpxdso",
+                  "isVisible": true,
+                  "recaptchaType": "V3",
+                  "version": 1.0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 16.0,
+                  "disabledWhenInvalid": false,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "originalBottomRow": 20.0,
+                  "buttonVariant": "PRIMARY",
+                  "placement": "CENTER"
+                },
+                {
+                  "resetFormOnClick": false,
+                  "boxShadow": "none",
+                  "widgetName": "Button4",
+                  "onClick": "{{utils.incrementSelector()}}",
+                  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "dynamicPropertyPathList": [{ "key": "onClick" }],
+                  "displayName": "Button",
+                  "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                  "searchTags": ["click", "submit"],
+                  "topRow": 7.0,
+                  "bottomRow": 11.0,
+                  "parentRowSpace": 10.0,
+                  "type": "BUTTON_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 18.1875,
+                  "dynamicTriggerPathList": [{ "key": "onClick" }],
+                  "leftColumn": 28.0,
+                  "dynamicBindingPathList": [
+                    { "key": "buttonColor" },
+                    { "key": "borderRadius" }
+                  ],
+                  "text": "ADD",
+                  "isDisabled": false,
+                  "key": "qlrzspfmgw",
+                  "isDeprecated": false,
+                  "rightColumn": 44.0,
+                  "isDefaultClickDisabled": true,
+                  "widgetId": "bzw9zysb7z",
+                  "isVisible": true,
+                  "recaptchaType": "V3",
+                  "version": 1.0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 16.0,
+                  "disabledWhenInvalid": false,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "originalBottomRow": 20.0,
+                  "buttonVariant": "PRIMARY",
+                  "placement": "CENTER"
+                },
+                {
+                  "widgetName": "Text1",
+                  "displayName": "Text",
+                  "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                  "searchTags": ["typography", "paragraph", "label"],
+                  "topRow": 2.0,
+                  "bottomRow": 6.0,
+                  "parentRowSpace": 10.0,
+                  "type": "TEXT_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "overflow": "NONE",
+                  "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                  "parentColumnSpace": 18.1875,
+                  "dynamicTriggerPathList": [],
+                  "leftColumn": 12.0,
+                  "dynamicBindingPathList": [
+                    { "key": "truncateButtonColor" },
+                    { "key": "fontFamily" },
+                    { "key": "borderRadius" },
+                    { "key": "text" }
+                  ],
+                  "shouldTruncate": false,
+                  "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "text": "{{utils.valueSelector()}}",
+                  "key": "ts0qs52fnt",
+                  "isDeprecated": false,
+                  "rightColumn": 44.0,
+                  "textAlign": "CENTER",
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "widgetId": "ngb50ag4eh",
+                  "isVisible": true,
+                  "fontStyle": "BOLD",
+                  "textColor": "#231F20",
+                  "version": 1.0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 2.0,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "maxDynamicHeight": 9000.0,
+                  "originalBottomRow": 15.0,
+                  "fontSize": "1rem",
+                  "minDynamicHeight": 4.0
+                },
+                {
+                  "boxShadow": "none",
+                  "widgetName": "Select1",
+                  "isFilterable": true,
+                  "displayName": "Select",
+                  "iconSVG": "/static/media/icon.bd99caba5853ad71e4b3d8daffacb3a2.svg",
+                  "labelText": "Label",
+                  "searchTags": ["dropdown"],
+                  "topRow": 12.0,
+                  "bottomRow": 19.0,
+                  "parentRowSpace": 10.0,
+                  "labelWidth": 5.0,
+                  "type": "SELECT_WIDGET",
+                  "serverSideFiltering": false,
+                  "hideCard": false,
+                  "defaultOptionValue": "{{ ((options, serverSideFiltering) => ( `NUMBER`))(Select1.options, Select1.serverSideFiltering) }}",
+                  "animateLoading": true,
+                  "parentColumnSpace": 17.9375,
+                  "dynamicTriggerPathList": [],
+                  "leftColumn": 18.0,
+                  "dynamicBindingPathList": [
+                    { "key": "accentColor" },
+                    { "key": "borderRadius" },
+                    { "key": "defaultOptionValue" }
+                  ],
+                  "labelPosition": "Top",
+                  "options": "[\n  {\n    \"label\": \"MAP\",\n    \"value\": \"MAP\"\n  },\n  {\n    \"label\": \"SET\",\n    \"value\": \"SET\"\n  },\n  {\n    \"label\": \"NUMBER\",\n    \"value\": \"NUMBER\"\n  },\n\t{\n    \"label\": \"ARRAY\",\n    \"value\": \"ARRAY\"\n  },\n  {\n    \"label\": \"OBJECT\",\n    \"value\": \"OBJECT\"\n  }\n]",
+                  "placeholderText": "Select option",
+                  "isDisabled": false,
+                  "key": "oy7j5j05od",
+                  "labelTextSize": "0.875rem",
+                  "isRequired": false,
+                  "isDeprecated": false,
+                  "rightColumn": 38.0,
+                  "dynamicHeight": "FIXED",
+                  "widgetId": "neb1zsm0mr",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "isVisible": true,
+                  "version": 1.0,
+                  "parentId": "0",
+                  "labelAlignment": "left",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "originalTopRow": 21.0,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "maxDynamicHeight": 9000.0,
+                  "originalBottomRow": 28.0,
+                  "minDynamicHeight": 4.0
+                }
+              ]
+            },
+            "layoutOnLoadActions": [
+              [
+                {
+                  "id": "Mutation_Test_number_.increment",
+                  "name": "number_.increment",
+                  "collectionId": "Mutation_Test_number_",
+                  "confirmBeforeExecute": false,
+                  "pluginType": "JS",
+                  "jsonPathKeys": [],
+                  "timeoutInMillisecond": 10000.0
+                }
+              ]
+            ],
+            "layoutOnLoadActionErrors": [],
+            "validOnPageLoadActions": true,
+            "id": "Mutation_Test",
+            "deleted": false,
+            "policies": [],
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": [],
+        "isHidden": false
+      },
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaada"
+    }
+  ],
+  "actionList": [
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "map_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_map_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  map_.counterObj.set(\"a\", map_.counterObj.size);\n  return [...map_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": true,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "map_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_map_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  map_.counterObj.set(\"a\", map_.counterObj.size);\n  return [...map_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": true,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_map_.increment",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaadc"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "object_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_object_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  delete object_.counterObj.a;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  delete object_.counterObj.a;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "object_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_object_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  delete object_.counterObj.a;\n  return object_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_object_.decrement",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae2"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "printValue",
+        "fullyQualifiedName": "utils.printValue",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => ({\n  actualA: utils.value.a\n})",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["() => ({\n  actualA: utils.value.a\n})"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:41:53Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "printValue",
+        "fullyQualifiedName": "utils.printValue",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => ({\n  actualA: utils.value.a\n})",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils.printValue",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae5"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "array_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_array_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  array_.counterObj.pop();\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["function () {\n  array_.counterObj.pop();\n}"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "array_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_array_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  array_.counterObj.pop();\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_array_.decrement",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaadf"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "print",
+        "fullyQualifiedName": "array_.print",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_array_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => array_.counterObj",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["() => array_.counterObj"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:40:48Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "print",
+        "fullyQualifiedName": "array_.print",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_array_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => array_.counterObj",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_array_.print",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaade"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "updateVariableMethod",
+        "fullyQualifiedName": "utils.updateVariableMethod",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n  utils.myVar1 = [1, 2, 3, 4];\n  utils.staticValueVar = getAllUsers.data.users;\n  return utils.staticValueVar;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async () => {\n  utils.myVar1 = [1, 2, 3, 4];\n  utils.staticValueVar = getAllUsers.data.users;\n  return utils.staticValueVar;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:42:00Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "updateVariableMethod",
+        "fullyQualifiedName": "utils.updateVariableMethod",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n  utils.myVar1 = [1, 2, 3, 4];\n  utils.staticValueVar = getAllUsers.data.users;\n  return utils.staticValueVar;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils.updateVariableMethod",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae1"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "set_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_set_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  set_.counterObj.add(set_.counterObj.size);\n  return [...set_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  set_.counterObj.add(set_.counterObj.size);\n  return [...set_.counterObj];\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "set_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_set_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 0.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  console.log([...set_.counterObj]);\n  set_.counterObj.add(set_.counterObj.size);\n  return [...set_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_set_.increment",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae3"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "valueSelector",
+        "fullyQualifiedName": "utils.valueSelector",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return [...map_.counterObj];\n    case \"SET\":\n      return [...set_.counterObj];\n    case \"NUMBER\":\n      return number_.counterObj;\n    case \"ARRAY\":\n      return array_.counterObj;\n    case \"OBJECT\":\n      return object_.counterObj;\n    default:\n      break;\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return [...map_.counterObj];\n    case \"SET\":\n      return [...set_.counterObj];\n    case \"NUMBER\":\n      return number_.counterObj;\n    case \"ARRAY\":\n      return array_.counterObj;\n    case \"OBJECT\":\n      return object_.counterObj;\n    default:\n      break;\n  }\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "valueSelector",
+        "fullyQualifiedName": "utils.valueSelector",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return [...map_.counterObj];\n    case \"SET\":\n      return [...set_.counterObj];\n    case \"NUMBER\":\n      return number_.counterObj;\n    case \"ARRAY\":\n      return array_.counterObj;\n    case \"OBJECT\":\n      return object_.counterObj;\n    default:\n      break;\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils.valueSelector",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae6"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "set_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_set_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  set_.counterObj.delete(set_.counterObj.size - 1);\n  return [...set_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  set_.counterObj.delete(set_.counterObj.size - 1);\n  return [...set_.counterObj];\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "set_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_set_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 0.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  set_.counterObj.delete(set_.counterObj.size - 1);\n  return [...set_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_set_.decrement",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae9"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "number_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_number_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  number_.counterObj = number_.counterObj + 1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  number_.counterObj = number_.counterObj + 1;\n}"
+        ],
+        "userSetOnLoad": true,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "number_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_number_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  number_.counterObj = number_.counterObj + 1;\n  console.log(number_.counterObj);\n  return number_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": true,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_number_.increment",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbaaec"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "mutateValue",
+        "fullyQualifiedName": "utils.mutateValue",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  const localA = utils.value.a;\n  localA.b = 5;\n  return {\n    localA: localA,\n    actualA: utils.value.a\n  };\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  const localA = utils.value.a;\n  localA.b = 5;\n  return {\n    localA: localA,\n    actualA: utils.value.a\n  };\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:41:53Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "mutateValue",
+        "fullyQualifiedName": "utils.mutateValue",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  const localA = utils.value.a;\n  localA.b = 5;\n  return {\n    localA: localA,\n    actualA: utils.value.a\n  };\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils.mutateValue",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae7"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "decrementSelector",
+        "fullyQualifiedName": "utils.decrementSelector",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return map_.decrement();\n    case \"SET\":\n      return set_.decrement();\n    case \"NUMBER\":\n      return number_.decrement();\n    case \"ARRAY\":\n      return array_.decrement();\n    case \"OBJECT\":\n      return object_.decrement();\n    default:\n      break;\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return map_.decrement();\n    case \"SET\":\n      return set_.decrement();\n    case \"NUMBER\":\n      return number_.decrement();\n    case \"ARRAY\":\n      return array_.decrement();\n    case \"OBJECT\":\n      return object_.decrement();\n    default:\n      break;\n  }\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "decrementSelector",
+        "fullyQualifiedName": "utils.decrementSelector",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return map_.decrement();\n    case \"SET\":\n      return set_.decrement();\n    case \"NUMBER\":\n      return number_.decrement();\n    case \"ARRAY\":\n      return array_.decrement();\n    case \"OBJECT\":\n      return object_.decrement();\n    default:\n      break;\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils.decrementSelector",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae4"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "number_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_number_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  number_.counterObj = number_.counterObj - 1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "function () {\n  number_.counterObj = number_.counterObj - 1;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "number_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_number_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  number_.counterObj = number_.counterObj - 1;\n  return number_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_number_.decrement",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbaaf4"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "map_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_map_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  map_.counterObj.delete(\"a\");\n  return [...map_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "decrement",
+        "fullyQualifiedName": "map_.decrement",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_map_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  map_.counterObj.delete(\"a\");\n  return [...map_.counterObj];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_map_.decrement",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaae0"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "object_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_object_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  object_.counterObj.a.b = 1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  object_.counterObj.a.b = 1;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "object_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_object_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  object_.counterObj.a.b = 1;\n  return object_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_object_.increment",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbaaf9"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "print",
+        "fullyQualifiedName": "object_.print",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_object_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return object_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["function () {\n  return object_.counterObj;\n}"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:41:30Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "print",
+        "fullyQualifiedName": "object_.print",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_object_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return object_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_object_.print",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbaafa"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun1",
+        "fullyQualifiedName": "date_.myFun1",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_date_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  console.log(\"myFun1\", date_.myVar1);\n  date_.myVar1.setFullYear(\"1998\");\n  return date_.myVar1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "clientSideExecution": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:40:51Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "myFun1",
+        "fullyQualifiedName": "date_.myFun1",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_date_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  console.log(\"myFun1\", date_.myVar1);\n  date_.myVar1.setFullYear(\"1998\");\n  return date_.myVar1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "clientSideExecution": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_date_.myFun1",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbaafd"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "incrementSelector",
+        "fullyQualifiedName": "utils.incrementSelector",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return map_.increment();\n    case \"SET\":\n      return set_.increment();\n    case \"NUMBER\":\n      return number_.increment();\n    case \"ARRAY\":\n      return array_.increment();\n    case \"OBJECT\":\n      return object_.increment();\n    default:\n      break;\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return map_.increment();\n    case \"SET\":\n      return set_.increment();\n    case \"NUMBER\":\n      return number_.increment();\n    case \"ARRAY\":\n      return array_.increment();\n    case \"OBJECT\":\n      return object_.increment();\n    default:\n      break;\n  }\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "incrementSelector",
+        "fullyQualifiedName": "utils.incrementSelector",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  switch (Select1.selectedOptionValue) {\n    case \"MAP\":\n      return map_.increment();\n    case \"SET\":\n      return set_.increment();\n    case \"NUMBER\":\n      return number_.increment();\n    case \"ARRAY\":\n      return array_.increment();\n    case \"OBJECT\":\n      return object_.increment();\n    default:\n      break;\n  }\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils.incrementSelector",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbaafb"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun2",
+        "fullyQualifiedName": "date_.myFun2",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_date_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n  date_.myVar1 = date_.myVar1 + 1;\n  const a = date_.myVar1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "clientSideExecution": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:40:51Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "myFun2",
+        "fullyQualifiedName": "date_.myFun2",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_date_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n  date_.myVar1 = date_.myVar1 + 1;\n  const a = date_.myVar1;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "clientSideExecution": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_date_.myFun2",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbab00"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "print",
+        "fullyQualifiedName": "number_.print",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_number_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return number_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["function () {\n  return number_.counterObj;\n}"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "deletedAt": "2023-03-27T08:41:08Z",
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "print",
+        "fullyQualifiedName": "number_.print",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_number_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "function () {\n  return number_.counterObj;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_number_.print",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213852b89e6f42ebcbab03"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "array_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_array_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  array_.counterObj.push(array_.counterObj.length);\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async function () {\n  array_.counterObj.push(array_.counterObj.length);\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "increment",
+        "fullyQualifiedName": "array_.increment",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "invalids": [
+            "No datasource configuration found. Please configure it and try again."
+          ],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Mutation_Test",
+        "collectionId": "Mutation_Test_array_",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async function () {\n  array_.counterObj.push(array_.counterObj.length);\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_array_.increment",
+      "deleted": false,
+      "gitSyncId": "64213851b89e6f42ebcbaad6_64213851b89e6f42ebcbaadd"
+    }
+  ],
+  "actionCollectionList": [
+    {
+      "unpublishedCollection": {
+        "name": "utils",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tvalueSelector: () => {\n\t\t// \n\t\tswitch(Select1.selectedOptionValue){\n     \tcase \"MAP\":\n\t\t\t\treturn [...map_.counterObj]\n\t\t   case \"SET\":\n\t\t\t\treturn [...set_.counterObj]\n\t\t\t\tcase \"NUMBER\":\n\t\t\t  return number_.counterObj\n\t\t\t\tcase \"ARRAY\":\n     \t\treturn array_.counterObj\n\t\t\t\tcase \"OBJECT\":\n     \t\treturn object_.counterObj\n     \tdefault:\n     \t\tbreak;\n     }\n\t},\n\tincrementSelector: () => {\n\t\tswitch(Select1.selectedOptionValue){\n     \tcase \"MAP\":\n\t\t\t\treturn map_.increment()\n\t\t   case \"SET\":\n\t\t\t\treturn set_.increment()\n\t\t\t\tcase \"NUMBER\":\n\t\t\t  return number_.increment()\n\t\t\t\tcase \"ARRAY\":\n     \t\treturn array_.increment()\n\t\t\t\tcase \"OBJECT\":\n     \t\treturn object_.increment()\n     \tdefault:\n     \t\tbreak;\n     }\n\t},\n\tdecrementSelector: () => {\n\t\tswitch(Select1.selectedOptionValue){\n     \tcase \"MAP\":\n\t\t\t\treturn map_.decrement()\n\t\t   case \"SET\":\n\t\t\t\treturn set_.decrement()\n\t\t\t\tcase \"NUMBER\":\n\t\t\t  return number_.decrement()\n\t\t\t\tcase \"ARRAY\":\n     \t\treturn array_.decrement()\n\t\t\t\tcase \"OBJECT\":\n     \t\treturn object_.decrement()\n     \tdefault:\n     \t\tbreak;\n     }\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "utils",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tmyVar1: getAllUsers.data.users,\n\tstaticValueVar: new Array([1,2,3,4]),\n\tupdateVariableMethod: async () => {\n\t\tthis.myVar1 = [1,2,3,4];\n\t\tthis.staticValueVar = getAllUsers.data.users;\n\t\treturn this.staticValueVar;\n\t},\n\tvalueSelector: () => {\n\t\t// \n\t\tswitch(Select1.selectedOptionValue){\n     \tcase \"MAP\":\n\t\t\t\treturn [...map_.counterObj]\n\t\t   case \"SET\":\n\t\t\t\treturn [...set_.counterObj]\n\t\t\t\tcase \"NUMBER\":\n\t\t\t  return number_.counterObj\n\t\t\t\tcase \"ARRAY\":\n     \t\treturn array_.counterObj\n\t\t\t\tcase \"OBJECT\":\n     \t\treturn object_.counterObj\n     \tdefault:\n     \t\tbreak;\n     }\n\t},\n\tincrementSelector: () => {\n\t\tswitch(Select1.selectedOptionValue){\n     \tcase \"MAP\":\n\t\t\t\treturn map_.increment()\n\t\t   case \"SET\":\n\t\t\t\treturn set_.increment()\n\t\t\t\tcase \"NUMBER\":\n\t\t\t  return number_.increment()\n\t\t\t\tcase \"ARRAY\":\n     \t\treturn array_.increment()\n\t\t\t\tcase \"OBJECT\":\n     \t\treturn object_.increment()\n     \tdefault:\n     \t\tbreak;\n     }\n\t},\n\tdecrementSelector: () => {\n\t\tswitch(Select1.selectedOptionValue){\n     \tcase \"MAP\":\n\t\t\t\treturn map_.decrement()\n\t\t   case \"SET\":\n\t\t\t\treturn set_.decrement()\n\t\t\t\tcase \"NUMBER\":\n\t\t\t  return number_.decrement()\n\t\t\t\tcase \"ARRAY\":\n     \t\treturn array_.decrement()\n\t\t\t\tcase \"OBJECT\":\n     \t\treturn object_.decrement()\n     \tdefault:\n     \t\tbreak;\n     }\n\t},\n\tvalue: {\n\t\ta: { b: 1 }\n\t},\n\tmutateValue: () => {\n\t\tconst localA = this.value.a;\n\t\tlocalA.b = 5;\n\t\treturn {localA: localA , actualA: this.value.a}\n\t},\n\tprintValue: () =>  ({ actualA: this.value.a})\n}",
+        "variables": [
+          { "name": "myVar1", "value": "getAllUsers.data.users" },
+          { "name": "staticValueVar", "value": "new Array([1, 2, 3, 4])" },
+          { "name": "value", "value": "{\n  a: {\n    b: 1\n  }\n}" }
+        ],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_utils",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_63db6ef3a4f76c3c7710a87e"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "set_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: new Set([]),\n\tincrement: function(){\n\t\tthis.counterObj.add(this.counterObj.size)\n\t\treturn [...this.counterObj]\n\t},\n\tdecrement: function(){\n\t this.counterObj.delete(this.counterObj.size - 1)\n\t\treturn [...this.counterObj]\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "new Set([])" }],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "set_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: new Set([]),\n\tincrement: function(){\n\t\tconsole.log([...this.counterObj]);\n\t\tthis.counterObj.add(this.counterObj.size)\n\t\treturn [...this.counterObj]\n\t},\n\tdecrement: function(){\n\t this.counterObj.delete(this.counterObj.size - 1)\n\t\treturn [...this.counterObj]\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "new Set([])" }],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_set_",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_63e3cc2effeeec6865f5db9d"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "number_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: 1, // initial assignment\n\tincrement: async function(){\n\t\tthis.counterObj = this.counterObj + 1\n\t},\n\tdecrement: function(){\n\t\tthis.counterObj = this.counterObj - 1;\n\t}\n}",
+        "variables": [{ "name": "counterObj", "value": "1" }],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "number_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: 1, // initial assignment\n\tincrement: async function(){\n\t\tthis.counterObj = this.counterObj + 1\n\t\tconsole.log(this.counterObj);\n\t\treturn this.counterObj\n\t},\n\tdecrement: function(){\n\t\tthis.counterObj = this.counterObj - 1;\n\t\treturn this.counterObj\n\t},\n\tprint() {return this.counterObj}\n}",
+        "variables": [{ "name": "counterObj", "value": "1" }],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_number_",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_63e3b083ed434b415f86ec8b"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "object_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: {\n\t\ta: {}\n\t},\n\tincrement: async function(){\n\t\tthis.counterObj.a.b = 1\n\t},\n\tdecrement: async function(){\n\t delete this.counterObj.a\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "{\n  a: {}\n}" }],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "object_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: {\n\t\ta: {}\n\t},\n\tincrement: async function(){\n\t\tthis.counterObj.a.b = 1\n\t\treturn this.counterObj\n\t},\n\tdecrement: async function(){\n\t delete this.counterObj.a\n   return this.counterObj\n\t},\n\tprint() {return this.counterObj}\n }",
+        "variables": [{ "name": "counterObj", "value": "{\n  a: {}\n}" }],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_object_",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_63e3ccfe37eb393412c8fedc"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "array_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: [],\n\tincrement: async function(){\n\t  this.counterObj.push(this.counterObj.length) \n\t},\n\tdecrement: function(){\n\t this.counterObj.pop()\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "[]" }],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "array_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: [],\n\tincrement: async function(){\n\t  this.counterObj.push(this.counterObj.length) \n\t},\n\tdecrement: function(){\n\t this.counterObj.pop()\n\t},\n\tprint: () => this.counterObj\n }",
+        "variables": [{ "name": "counterObj", "value": "[]" }],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_array_",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_63db78189223a02bd0d2e1ef"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "map_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: new Map(),\n\tincrement: async function(){\n\t\t// async \n\t  this.counterObj.set(\"a\", this.counterObj.size)\n\t  return [...this.counterObj]\n\t},\n\tdecrement: function(){\n\t this.counterObj.delete(\"a\")\n\t\treturn [...this.counterObj]\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "new Map()" }],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "map_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tcounterObj: new Map(),\n\tincrement: async function(){\n\t\t// async \n\t  this.counterObj.set(\"a\", this.counterObj.size)\n\t  return [...this.counterObj]\n\t},\n\tdecrement: function(){\n\t this.counterObj.delete(\"a\")\n\t\treturn [...this.counterObj]\n\t}\n }",
+        "variables": [{ "name": "counterObj", "value": "new Map()" }],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_map_",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_63e4f6ac0530d019e324b02c"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "date_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "deletedAt": "2023-03-27T08:40:51Z",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tmyVar1: new Date(),\n\tmyFun1: function () {\n\t\tconsole.log(\"myFun1\", this.myVar1);\n\t\tthis.myVar1.setFullYear(\"1998\");\n\t\treturn this.myVar1;\n\t},\n\tmyFun2: async () => {\n\t\tthis.myVar1 = this.myVar1 + 1;\n\t\tconst a = this.myVar1;\n\t}\n}",
+        "variables": [{ "name": "myVar1", "value": "new Date()" }],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "date_",
+        "pageId": "Mutation_Test",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tmyVar1: new Date(),\n\tmyFun1: function () {\n\t\tconsole.log(\"myFun1\", this.myVar1);\n\t\tthis.myVar1.setFullYear(\"1998\");\n\t\treturn this.myVar1;\n\t},\n\tmyFun2: async () => {\n\t\tthis.myVar1 = this.myVar1 + 1;\n\t\tconst a = this.myVar1;\n\t}\n}",
+        "variables": [{ "name": "myVar1", "value": "new Date()" }],
+        "userPermissions": []
+      },
+      "id": "Mutation_Test_date_",
+      "deleted": false,
+      "gitSyncId": "62ad2c5678c5ed4cdfd8da55_6405b66e5b74ec55f9320b23"
+    }
+  ],
+  "updatedResources": {
+    "actionList": [
+      "map_.increment##ENTITY_SEPARATOR##Mutation_Test",
+      "number_.print##ENTITY_SEPARATOR##Mutation_Test",
+      "object_.increment##ENTITY_SEPARATOR##Mutation_Test",
+      "set_.decrement##ENTITY_SEPARATOR##Mutation_Test",
+      "number_.increment##ENTITY_SEPARATOR##Mutation_Test",
+      "utils.printValue##ENTITY_SEPARATOR##Mutation_Test",
+      "array_.print##ENTITY_SEPARATOR##Mutation_Test",
+      "object_.print##ENTITY_SEPARATOR##Mutation_Test",
+      "number_.decrement##ENTITY_SEPARATOR##Mutation_Test",
+      "utils.valueSelector##ENTITY_SEPARATOR##Mutation_Test",
+      "date_.myFun1##ENTITY_SEPARATOR##Mutation_Test",
+      "utils.incrementSelector##ENTITY_SEPARATOR##Mutation_Test",
+      "date_.myFun2##ENTITY_SEPARATOR##Mutation_Test",
+      "utils.updateVariableMethod##ENTITY_SEPARATOR##Mutation_Test",
+      "utils.mutateValue##ENTITY_SEPARATOR##Mutation_Test",
+      "map_.decrement##ENTITY_SEPARATOR##Mutation_Test",
+      "set_.increment##ENTITY_SEPARATOR##Mutation_Test",
+      "utils.decrementSelector##ENTITY_SEPARATOR##Mutation_Test",
+      "array_.increment##ENTITY_SEPARATOR##Mutation_Test",
+      "array_.decrement##ENTITY_SEPARATOR##Mutation_Test",
+      "object_.decrement##ENTITY_SEPARATOR##Mutation_Test"
+    ],
+    "pageList": ["Mutation_Test"],
+    "actionCollectionList": [
+      "utils##ENTITY_SEPARATOR##Mutation_Test",
+      "set_##ENTITY_SEPARATOR##Mutation_Test",
+      "number_##ENTITY_SEPARATOR##Mutation_Test",
+      "date_##ENTITY_SEPARATOR##Mutation_Test",
+      "map_##ENTITY_SEPARATOR##Mutation_Test",
+      "object_##ENTITY_SEPARATOR##Mutation_Test",
+      "array_##ENTITY_SEPARATOR##Mutation_Test"
+    ]
+  },
+  "editModeTheme": {
+    "name": "Modern",
+    "displayName": "Modern",
+    "config": {
+      "colors": { "primaryColor": "#553DE9", "backgroundColor": "#F6F6F6" },
+      "borderRadius": {
+        "appBorderRadius": { "none": "0px", "M": "0.375rem", "L": "1.5rem" }
+      },
+      "boxShadow": {
+        "appBoxShadow": {
+          "none": "none",
+          "S": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          "M": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "L": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+        }
+      },
+      "fontFamily": {
+        "appFont": [
+          "System Default",
+          "Nunito Sans",
+          "Poppins",
+          "Inter",
+          "Montserrat",
+          "Noto Sans",
+          "Open Sans",
+          "Roboto",
+          "Rubik",
+          "Ubuntu"
+        ]
+      }
+    },
+    "properties": {
+      "colors": { "primaryColor": "#553DE9", "backgroundColor": "#F6F6F6" },
+      "borderRadius": { "appBorderRadius": "0.375rem" },
+      "boxShadow": {
+        "appBoxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      },
+      "fontFamily": { "appFont": "Nunito Sans" }
+    },
+    "stylesheet": {
+      "AUDIO_RECORDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "BUTTON_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "BUTTON_GROUP_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none",
+        "childStylesheet": {
+          "button": { "buttonColor": "{{appsmith.theme.colors.primaryColor}}" }
+        }
+      },
+      "CAMERA_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "CHART_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
+      },
+      "CHECKBOX_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CHECKBOX_GROUP_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CONTAINER_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "CIRCULAR_PROGRESS_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CURRENCY_INPUT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "PHONE_INPUT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "DATE_PICKER_WIDGET2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "FILE_PICKER_WIDGET_V2": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "FORM_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "FORM_BUTTON_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "ICON_BUTTON_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "IFRAME_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "IMAGE_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "INPUT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "INPUT_WIDGET_V2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "JSON_FORM_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "submitButtonStyles": {
+          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          "boxShadow": "none"
+        },
+        "resetButtonStyles": {
+          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          "boxShadow": "none"
+        },
+        "childStylesheet": {
+          "ARRAY": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none",
+            "cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "cellBoxShadow": "none"
+          },
+          "OBJECT": {
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none",
+            "cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "cellBoxShadow": "none"
+          },
+          "CHECKBOX": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+          },
+          "CURRENCY_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "DATEPICKER": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "EMAIL_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "MULTISELECT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "MULTILINE_TEXT_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "NUMBER_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "PASSWORD_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "PHONE_NUMBER_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "RADIO_GROUP": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "boxShadow": "none"
+          },
+          "SELECT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "SWITCH": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "boxShadow": "none"
+          },
+          "TEXT_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          }
+        }
+      },
+      "LIST_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "MAP_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "MAP_CHART_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
+      },
+      "MENU_BUTTON_WIDGET": {
+        "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MODAL_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MULTI_SELECT_TREE_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MULTI_SELECT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MULTI_SELECT_WIDGET_V2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "DROP_DOWN_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "PROGRESSBAR_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "PROGRESS_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CODE_SCANNER_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "RATE_WIDGET": {
+        "activeColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RADIO_GROUP_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "boxShadow": "none"
+      },
+      "RICH_TEXT_EDITOR_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "STATBOX_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "SWITCH_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "boxShadow": "none"
+      },
+      "SWITCH_GROUP_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "SELECT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "TABLE_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "childStylesheet": {
+          "button": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "menuButton": {
+            "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "iconButton": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          }
+        }
+      },
+      "TABLE_WIDGET_V2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "childStylesheet": {
+          "button": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "menuButton": {
+            "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "iconButton": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "editActions": {
+            "saveButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "saveBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "discardButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "discardBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+          }
+        }
+      },
+      "TABS_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "TEXT_WIDGET": {
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "VIDEO_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "SINGLE_SELECT_TREE_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      }
+    },
+    "isSystemTheme": false,
+    "deleted": false
+  },
+  "publishedTheme": {
+    "name": "Modern",
+    "displayName": "Modern",
+    "config": {
+      "colors": { "primaryColor": "#553DE9", "backgroundColor": "#F6F6F6" },
+      "borderRadius": {
+        "appBorderRadius": { "none": "0px", "M": "0.375rem", "L": "1.5rem" }
+      },
+      "boxShadow": {
+        "appBoxShadow": {
+          "none": "none",
+          "S": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+          "M": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "L": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+        }
+      },
+      "fontFamily": {
+        "appFont": [
+          "System Default",
+          "Nunito Sans",
+          "Poppins",
+          "Inter",
+          "Montserrat",
+          "Noto Sans",
+          "Open Sans",
+          "Roboto",
+          "Rubik",
+          "Ubuntu"
+        ]
+      }
+    },
+    "properties": {
+      "colors": { "primaryColor": "#553DE9", "backgroundColor": "#F6F6F6" },
+      "borderRadius": { "appBorderRadius": "0.375rem" },
+      "boxShadow": {
+        "appBoxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      },
+      "fontFamily": { "appFont": "Nunito Sans" }
+    },
+    "stylesheet": {
+      "AUDIO_RECORDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "BUTTON_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "BUTTON_GROUP_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none",
+        "childStylesheet": {
+          "button": { "buttonColor": "{{appsmith.theme.colors.primaryColor}}" }
+        }
+      },
+      "CAMERA_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "CHART_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
+      },
+      "CHECKBOX_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CHECKBOX_GROUP_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CONTAINER_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "CIRCULAR_PROGRESS_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CURRENCY_INPUT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "PHONE_INPUT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "DATE_PICKER_WIDGET2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "FILE_PICKER_WIDGET_V2": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "FORM_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "FORM_BUTTON_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "ICON_BUTTON_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "IFRAME_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "IMAGE_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "INPUT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "INPUT_WIDGET_V2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "JSON_FORM_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "submitButtonStyles": {
+          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          "boxShadow": "none"
+        },
+        "resetButtonStyles": {
+          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          "boxShadow": "none"
+        },
+        "childStylesheet": {
+          "ARRAY": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none",
+            "cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "cellBoxShadow": "none"
+          },
+          "OBJECT": {
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none",
+            "cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "cellBoxShadow": "none"
+          },
+          "CHECKBOX": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+          },
+          "CURRENCY_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "DATEPICKER": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "EMAIL_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "MULTISELECT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "MULTILINE_TEXT_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "NUMBER_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "PASSWORD_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "PHONE_NUMBER_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "RADIO_GROUP": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "boxShadow": "none"
+          },
+          "SELECT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "SWITCH": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "boxShadow": "none"
+          },
+          "TEXT_INPUT": {
+            "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          }
+        }
+      },
+      "LIST_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "MAP_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "MAP_CHART_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
+      },
+      "MENU_BUTTON_WIDGET": {
+        "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MODAL_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MULTI_SELECT_TREE_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MULTI_SELECT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "MULTI_SELECT_WIDGET_V2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "DROP_DOWN_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "PROGRESSBAR_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "PROGRESS_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "CODE_SCANNER_WIDGET": {
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "RATE_WIDGET": {
+        "activeColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RADIO_GROUP_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "boxShadow": "none"
+      },
+      "RICH_TEXT_EDITOR_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "STATBOX_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "SWITCH_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "boxShadow": "none"
+      },
+      "SWITCH_GROUP_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "SELECT_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "TABLE_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "childStylesheet": {
+          "button": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "menuButton": {
+            "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "iconButton": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          }
+        }
+      },
+      "TABLE_WIDGET_V2": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "childStylesheet": {
+          "button": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "menuButton": {
+            "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "iconButton": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "boxShadow": "none"
+          },
+          "editActions": {
+            "saveButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "saveBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "discardButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+            "discardBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+          }
+        }
+      },
+      "TABS_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "TEXT_WIDGET": {
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "VIDEO_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+      },
+      "SINGLE_SELECT_TREE_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      }
+    },
+    "isSystemTheme": false,
+    "deleted": false
+  }
+}

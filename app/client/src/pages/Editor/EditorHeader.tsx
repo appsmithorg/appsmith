@@ -30,10 +30,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import {
-  setShowAppInviteUsersDialog,
-  updateApplication,
-} from "@appsmith/actions/applicationActions";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
@@ -371,10 +368,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     ];
   }, []);
 
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
@@ -499,7 +492,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               isOpen={showAppInviteUsersDialog}
               noModalBodyMarginTop
-              onOpenOrClose={handleFormOpenOrClose}
               placeholder={createMessage(
                 INVITE_USERS_PLACEHOLDER,
                 cloudHosting,

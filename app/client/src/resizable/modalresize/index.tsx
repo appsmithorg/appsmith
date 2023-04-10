@@ -1,6 +1,6 @@
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 import type { CSSProperties, ReactNode } from "react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { ReflowDirection } from "reflow/reflowTypes";
@@ -9,6 +9,7 @@ import type { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import "../styles.css";
 
 const getSnappedValues = (
   x: number,
@@ -329,6 +330,12 @@ export const Resizable = function Resizable(props: ResizableProps) {
     showResizeBoundary,
   );
 
+  const wrapperClassName = useMemo(() => {
+    return `${props.className} resize-wrapper show-boundary ${
+      pointerEvents ? "" : "pointer-event-none"
+    }`;
+  }, [props.className, pointerEvents]);
+
   return (
     <Spring
       config={{
@@ -349,9 +356,7 @@ export const Resizable = function Resizable(props: ResizableProps) {
     >
       {(_props) => (
         <ResizeWrapper
-          $prevents={pointerEvents}
-          className={props.className}
-          showBoundaries
+          className={wrapperClassName}
           style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}

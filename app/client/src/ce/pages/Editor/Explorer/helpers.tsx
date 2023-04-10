@@ -9,6 +9,7 @@ import {
   BUILDER_PATH,
   BUILDER_CUSTOM_PATH,
   matchBuilderPath,
+  matchViewerPath,
 } from "constants/routes";
 
 import {
@@ -80,6 +81,10 @@ export const getActionIdFromURL = () => {
 
 export const isEditorPath = (path: string) => {
   return !!matchBuilderPath(path, { end: false });
+};
+
+export const isViewerPath = (path: string) => {
+  return !!matchViewerPath(path);
 };
 
 export const getJSCollectionIdFromURL = () => {
