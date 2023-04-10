@@ -18,7 +18,7 @@ import EntityLink, { DebuggerLinkUI } from "../../EntityLink";
 const EntityLinkWrapper = styled.div`
   display: flex;
   align-items: center;
-  line-height: "14px";
+  line-height: 14px;
 `;
 
 const IconWrapper = styled.span`
