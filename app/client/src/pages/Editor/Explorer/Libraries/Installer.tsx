@@ -6,14 +6,8 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import {
-  FormGroup,
-  MenuDivider,
-  Text,
-  TextInput,
-  TextType,
-} from "design-system-old";
-import { Button, Icon, Spinner, toast } from "design-system";
+import { FormGroup, MenuDivider, TextInput } from "design-system-old";
+import { Button, Icon, Spinner, toast, Text } from "design-system";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -375,7 +369,7 @@ export function Installer(props: { left: number }) {
       ref={installerRef}
     >
       <div className="installation-header">
-        <Text type={TextType.H1} weight={"bold"}>
+        <Text kind="heading-m">
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </Text>
         <Button
@@ -438,7 +432,7 @@ export function Installer(props: { left: number }) {
         <SectionDivider color="red" />
         <InstallationProgress />
         <div className="pb-2 sticky top-0 z-2 bg-white">
-          <Text type={TextType.P1} weight={"600"}>
+          <Text kind="heading-xs">
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>
         </div>
@@ -479,9 +473,7 @@ function LibraryCard({
     >
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row gap-2 items-center">
-          <Text type={TextType.P0} weight="500">
-            {lib.name}
-          </Text>
+          <Text kind="heading-s">{lib.name}</Text>
           <Button
             isIconButton
             kind="tertiary"
@@ -501,7 +493,7 @@ function LibraryCard({
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
         <ProfileImage size={20} source={lib.icon} />
-        <Text type={TextType.P3}>{lib.author}</Text>
+        <Text kind="action-s">{lib.author}</Text>
       </div>
     </div>
   );
