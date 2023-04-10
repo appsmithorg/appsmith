@@ -5,7 +5,7 @@ import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { useLocation } from "react-router-dom";
 
 const StyledManageUsers = styled("a")<{ isApplicationInvite?: boolean }>`
-  display: inline-flex;
+  display: flex;
 
   ${(props) =>
     props.isApplicationInvite
@@ -23,6 +23,7 @@ const StyledManageUsers = styled("a")<{ isApplicationInvite?: boolean }>`
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.6px;
+    line-height: normal;
   }
   .${Classes.ICON} {
     svg path {
