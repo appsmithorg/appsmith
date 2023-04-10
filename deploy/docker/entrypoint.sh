@@ -271,6 +271,9 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  
+  # Copy Supervisor Listiner confs to conf.d
+  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -377,7 +380,20 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+init_loading_pages(){
+  STARTING_PAGE="/opt/appsmith/templates/appsmith_starting.html"
+  INITIALIZING_PAGE="/opt/appsmith/templates/appsmith_initializing.html"
+  EDITOR_LOAD_PAGE="/opt/appsmith/editor/loading.html" 
+  # rm /var/www/html/index.nginx-debian.html
+  cp $INITIALIZING_PAGE /var/www/html/index.nginx-debian.html
+  cp $STARTING_PAGE $EDITOR_LOAD_PAGE
+  # Start nginx page to display the Appsmith is Initializing
+  nginx
+  cp $STARTING_PAGE $EDITOR_LOAD_PAGE
+}
+
 # Main Section
+init_loading_pages
 init_env_file
 setup_proxy_variables
 unset_unused_variables
@@ -413,7 +429,10 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+
+# Stop nginx gracefully
+nginx -s quit
 
 # Handle CMD command
-exec "$@"
+exec "$@" 
