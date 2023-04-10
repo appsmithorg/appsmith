@@ -8,7 +8,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: evalContext,
-      resolvedFunctions: {},
     };
   },
 }));
@@ -26,7 +25,10 @@ jest.mock("../utils/Messenger.ts", () => ({
 describe("Tests for run function in callback styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     addPlatformFunctionsToEvalContext(evalContext);
   });
 
@@ -46,6 +48,8 @@ describe("Tests for run function in callback styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -78,6 +82,8 @@ describe("Tests for run function in callback styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -139,7 +145,10 @@ describe("Tests for run function in callback styled", () => {
 describe("Tests for run function in promise styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     addPlatformFunctionsToEvalContext(evalContext);
   });
 
@@ -155,6 +164,8 @@ describe("Tests for run function in promise styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -185,6 +196,8 @@ describe("Tests for run function in promise styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {

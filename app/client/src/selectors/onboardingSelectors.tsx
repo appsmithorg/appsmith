@@ -286,9 +286,7 @@ export const buttonWidgetHasOnSuccessBinding = createSelector(
       return (
         widget.type === "BUTTON_WIDGET" &&
         widget.onClick &&
-        widget.onClick.includes(
-          "{{updateCustomerInfo.run(() => getCustomers.run(), () => {})}}",
-        )
+        widget.onClick.includes("getCustomers.run()")
       );
     });
 

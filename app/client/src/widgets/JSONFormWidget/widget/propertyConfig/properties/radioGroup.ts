@@ -108,7 +108,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onSelectionChange",
-        helpText: "Triggers an action when a user changes the selected option",
+        helpText: "when a user changes the selected option",
         label: "onSelectionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
