@@ -134,6 +134,7 @@ import {
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -142,6 +143,7 @@ export type CodeEditorExpected = {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
+  openExampleTextByDefault?: boolean;
 };
 
 export type EditorStyleProps = {
@@ -1318,7 +1320,7 @@ class CodeEditor extends Component<Props, State> {
               <img
                 alt="img"
                 className="leftImageStyles"
-                src={this.props.leftImage}
+                src={getAssetUrl(this.props.leftImage)}
               />
             )}
             <div

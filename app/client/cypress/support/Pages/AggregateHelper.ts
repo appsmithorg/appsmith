@@ -462,6 +462,7 @@ export class AggregateHelper {
     value: string,
     paste = true,
     index = 0,
+    parseSpecialCharacters = false,
   ) {
     cy.xpath(this.locator._actionTextArea(actionName))
       .eq(index)
@@ -491,7 +492,7 @@ export class AggregateHelper {
             this.Paste(el, value);
           } else {
             cy.get(el).type(value, {
-              parseSpecialCharSequences: false,
+              parseSpecialCharSequences: parseSpecialCharacters,
             });
           }
         });
@@ -581,7 +582,7 @@ export class AggregateHelper {
     return locator.eq(index).focus().wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       //delay: 3,
-      //force: true,
+      force: true,
     });
   }
 

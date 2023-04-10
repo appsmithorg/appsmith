@@ -38,6 +38,13 @@ span.bp3-popover-target {
 
 span.bp3-popover-target > * {
   flex-grow: 1;
+  max-width: 100%;
+}
+
+.bp3-button-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
 }
 
 div.bp3-popover-arrow {
@@ -85,6 +92,10 @@ div.bp3-popover-arrow {
 
 .bp3-popover.bp3-minimal {
   margin-top: 8px !important;
+}
+
+.bp3-popover.bp3-minimal.action-selector-dropdown {
+  margin-top: 0px !important;
 }
 
 .layout-control.bp3-popover.bp3-minimal {

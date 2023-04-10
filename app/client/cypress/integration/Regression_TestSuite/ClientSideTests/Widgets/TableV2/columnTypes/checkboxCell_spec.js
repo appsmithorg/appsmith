@@ -117,13 +117,13 @@ describe("Checkbox column type funtionality test", () => {
       cy.get(selector).should("be.checked");
 
       // Check if onCheckChange is availabe when Editable is true and hidden on false
-      cy.get(".t--property-control-oncheckchange").should("be.visible");
+      cy.get(".t--add-action-onCheckChange").should("be.visible");
       propPane.ToggleOnOrOff("Editable", "off");
-      cy.get(".t--property-control-oncheckchange").should("not.exist");
+      cy.get(".t--add-action-onCheckChange").should("not.exist");
 
       // Verify on check change handler
       propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPropertiesDropDown("oncheckchange", "Show message");
+      propPane.SelectPlatformFunction("onCheckChange", "Show Alert");
       agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
