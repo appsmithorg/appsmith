@@ -1,14 +1,13 @@
-import { PopoverPosition } from "@blueprintjs/core";
+import React from "react";
+import styled from "styled-components";
 import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import {
   APP_SETTINGS_CLOSE_TOOLTIP,
   APP_SETTINGS_PANE_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { TooltipComponent } from "design-system-old";
-import React from "react";
+import { Tooltip } from "design-system";
 import { useDispatch } from "react-redux";
-import styled from "styled-components";
 import { Button } from "design-system";
 
 const StyledHeader = styled.div`
@@ -19,16 +18,15 @@ const StyledHeader = styled.div`
 
 const StyledText = styled.div`
   font-size: 16px;
+  margin-left: 10px;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 function PaneHeader() {
   const dispatch = useDispatch();
   return (
     <StyledHeader className="flex justify-start items-center">
-      <TooltipComponent
-        content={APP_SETTINGS_CLOSE_TOOLTIP()}
-        position={PopoverPosition.BOTTOM}
-      >
+      <Tooltip content={APP_SETTINGS_CLOSE_TOOLTIP()} placement="bottom">
         <Button
           className="pr-2"
           id="t--close-app-settings-pane"
@@ -38,7 +36,7 @@ function PaneHeader() {
           size="sm"
           startIcon="double-arrow-right"
         />
-      </TooltipComponent>
+      </Tooltip>
       <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>
     </StyledHeader>
   );

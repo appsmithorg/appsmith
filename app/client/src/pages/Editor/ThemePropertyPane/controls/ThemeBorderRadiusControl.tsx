@@ -1,9 +1,15 @@
 import React, { useCallback } from "react";
 
 import type { AppTheme } from "entities/AppTheming";
-import { Tooltip } from "design-system";
+import { Icon } from "design-system";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
 import { SegmentedControl } from "design-system";
+
+const optionLabels = {
+  S: "sm",
+  M: "md",
+  L: "lg",
+};
 
 interface ThemeBorderRadiusControlProps {
   options: {
@@ -42,12 +48,14 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
     label: (
-      <Tooltip content={optionKey} key={optionKey}>
-        <div
-          className="w-5 h-5 border-t-2 border-l-2 border-gray-500 t--theme-appBorderRadius"
-          style={{ borderTopLeftRadius: options[optionKey] }}
-        />
-      </Tooltip>
+      <div className="w-5 h-5">
+        {optionKey === "none" ? (
+          <Icon name="close-x" size="8px" />
+        ) : (
+          // @ts-expect-error: object key type mismatch
+          optionLabels[optionKey]
+        )}
+      </div>
     ),
     value: optionKey,
   }));

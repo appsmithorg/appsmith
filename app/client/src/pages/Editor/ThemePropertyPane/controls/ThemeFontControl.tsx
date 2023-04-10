@@ -11,51 +11,31 @@ interface ThemeFontControlProps {
 }
 
 function ThemeFontControl(props: ThemeFontControlProps) {
-  const { options, selectedOption } = props;
-  // const renderOption: RenderOption = ({
-  //   isHighlighted,
-  //   isSelectedNode,
-  //   option,
-  // }) => (
-  //   <Option>
-  //     <div
-  //       className={`flex space-x-2  w-full cursor-pointer ${
-  //         isSelectedNode ? "px-2 py-2" : "px-2 py-2 hover:bg-gray-200"
-  //       } ${isHighlighted ? "bg-gray-200" : ""}`}
-  //       onClick={() => {
-  //         if (!isSelectedNode) {
-  //           updateTheme({
-  //             ...theme,
-  //             properties: {
-  //               ...theme.properties,
-  //               fontFamily: {
-  //                 ...theme.properties.fontFamily,
-  //                 [sectionName]:
-  //                   (option as DropdownOption).value || selectedOption,
-  //               },
-  //             },
-  //           });
-  //         }
-  //       }}
-  //     >
-  //       <div className="flex items-center justify-center w-6 h-6 bg-white border">
-  //         Aa
-  //       </div>
-  //       <div className="leading-normal">{(option as DropdownOption).label}</div>
-  //     </div>
-  //   </Option>
-  // );
+  const { options, sectionName, selectedOption, theme, updateTheme } = props;
+
+  const onSelect = (value: string) => {
+    updateTheme({
+      ...theme,
+      properties: {
+        ...theme.properties,
+        fontFamily: {
+          ...theme.properties.fontFamily,
+          [sectionName]: value || selectedOption,
+        },
+      },
+    });
+  };
 
   return (
     <section className="space-y-2">
-      <Select defaultValue={selectedOption}>
+      <Select defaultValue={selectedOption} onSelect={onSelect}>
         {options.map((option, index) => (
-          <Option key={index} value={option.label}>
+          <Option key={index} value={option}>
             <div className="flex space-x-2  w-full cursor-pointer">
               <div className="flex items-center justify-center w-6 h-6 bg-white border">
                 Aa
               </div>
-              <div className="leading-normal">{option.label}</div>
+              <div className="leading-normal">{option}</div>
             </div>
           </Option>
         ))}

@@ -1,6 +1,5 @@
 import { changeAppViewAccessInit } from "@appsmith/actions/applicationActions";
-import { TextType, Text, Case, Classes } from "design-system-old";
-import { Switch } from "design-system";
+import { Switch, Link, Divider, Icon } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -10,7 +9,6 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "pages/Applications/EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
@@ -24,19 +22,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { Icon } from "design-system";
-
-const StyledLink = styled.a`
-  position: relative;
-  top: 1px;
-  :hover {
-    text-decoration: none;
-  }
-
-  .${Classes.TEXT} {
-    border-bottom: 1px solid ${Colors.GRAY_700};
-  }
-`;
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -45,6 +30,19 @@ const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
     display: flex;
     align-items: center;
   }
+`;
+
+const Title = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  line-height: 1.2rem;
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
+`;
+
+const Text = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-normal);
+  color: var(--ads-v2-color-fg);
 `;
 
 function EmbedSettings() {
@@ -63,10 +61,10 @@ function EmbedSettings() {
     <div>
       {canShareWithPublic && (
         <>
-          <div className="px-4">
-            <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+          <div className="px-4 mt-4 mb-2">
+            <Title>
               {createMessage(IN_APP_EMBED_SETTING.sectionContentHeader)}
-            </div>
+            </Title>
           </div>
           <div className="px-4">
             <div className="flex justify-between content-center pb-4">
@@ -93,16 +91,12 @@ function EmbedSettings() {
               </Switch>
             </div>
           </div>
-          <div
-            className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
-          />
+          <Divider />
         </>
       )}
 
-      <div className="px-4">
-        <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
-          {createMessage(IN_APP_EMBED_SETTING.embed)}
-        </div>
+      <div className="px-4 mt-4 mb-2">
+        <Title>{createMessage(IN_APP_EMBED_SETTING.embed)}</Title>
       </div>
 
       {embedSnippet.isSuperUser && (
@@ -120,18 +114,13 @@ function EmbedSettings() {
                 tooltip={embedSnippet.embedSettingContent.tooltip}
               />
             </div>
-            <StyledLink
-              href="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
+            <Link
+              kind="secondary"
               target="_blank"
+              to="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
             >
-              <Text
-                case={Case.UPPERCASE}
-                color={Colors.GRAY_700}
-                type={TextType.BUTTON_SMALL}
-              >
-                {createMessage(IN_APP_EMBED_SETTING.change)}
-              </Text>
-            </StyledLink>
+              {createMessage(IN_APP_EMBED_SETTING.change)}
+            </Link>
           </div>
         </div>
       )}
@@ -152,9 +141,7 @@ function EmbedSettings() {
       </div>
 
       <div className="px-4">
-        <Text type={TextType.P1}>
-          {createMessage(IN_APP_EMBED_SETTING.embedSize)}
-        </Text>
+        <Text>{createMessage(IN_APP_EMBED_SETTING.embedSize)}</Text>
         <div className="flex gap-2 pt-1 pb-4">
           <DimensionsInput
             icon="w-line"
@@ -172,9 +159,7 @@ function EmbedSettings() {
       </div>
 
       <div className="px-4">
-        <Text type={TextType.P1}>
-          {createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}
-        </Text>
+        <Text>{createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}</Text>
         <EmbedCodeSnippet snippet={embedSnippet.snippet} />
       </div>
     </div>

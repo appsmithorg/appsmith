@@ -1,36 +1,21 @@
-import {
-  TextType,
-  Text,
-  Case,
-  TooltipComponent,
-  Classes,
-} from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Switch } from "design-system";
+import { Switch, Tooltip } from "design-system";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
-import TooltipWrapper from "./EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
-import { PopoverPosition } from "@blueprintjs/core";
-import { Icon } from "design-system";
+import { Icon, Link } from "design-system";
 
-const StyledLink = styled.a`
-  position: relative;
-  top: 1px;
-  :hover {
-    text-decoration: none;
-  }
-
-  .${Classes.TEXT} {
-    border-bottom: 1px solid ${Colors.GRAY_700};
-  }
+const Text = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-normal);
+  color: var(--ads-v2-color-fg);
 `;
 
 const StyledPreviewLink = styled.a`
@@ -53,34 +38,22 @@ function EmbedSnippetTab() {
                     name={embedSnippet.embedSettingContent.icon}
                     size="md"
                   />
-                  <Text type={TextType.P1}>
-                    {embedSnippet.embedSettingContent.label}
-                  </Text>
+                  <Text>{embedSnippet.embedSettingContent.label}</Text>
 
-                  <TooltipComponent
-                    boundary="viewport"
-                    content={
-                      <TooltipWrapper className="text-center max-h-11">
-                        {embedSnippet.embedSettingContent.tooltip}
-                      </TooltipWrapper>
-                    }
-                    position={PopoverPosition.TOP}
+                  <Tooltip
+                    content={embedSnippet.embedSettingContent.tooltip}
+                    placement="top"
                   >
                     <Icon className={`ml-1`} name={"question-fill"} size="md" />
-                  </TooltipComponent>
+                  </Tooltip>
                 </div>
-                <StyledLink
-                  href="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
+                <Link
+                  kind="secondary"
                   target="_blank"
+                  to="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
                 >
-                  <Text
-                    case={Case.UPPERCASE}
-                    color={Colors.GRAY_700}
-                    type={TextType.BUTTON_SMALL}
-                  >
-                    {createMessage(IN_APP_EMBED_SETTING.change)}
-                  </Text>
-                </StyledLink>
+                  {createMessage(IN_APP_EMBED_SETTING.change)}
+                </Link>
               </div>
             </div>
           )}
@@ -110,7 +83,7 @@ function EmbedSnippetTab() {
           </div>
 
           <div className="flex justify-between pt-3.5">
-            <Text className="self-center" type={TextType.P1}>
+            <Text className="self-center">
               {createMessage(IN_APP_EMBED_SETTING.embedSize)}
             </Text>
             <div className="flex gap-2">
@@ -145,9 +118,7 @@ function EmbedSnippetTab() {
           target={"_blank"}
         >
           <Icon name="external-link-line" size="md" />
-          <Text color={Colors.GRAY_700} type={TextType.P4}>
-            {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
-          </Text>
+          <Text>{createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}</Text>
         </StyledPreviewLink>
       </div>
     </div>

@@ -8,7 +8,7 @@ import {
 import classNames from "classnames";
 import type { AppIconName } from "design-system-old";
 import { Input } from "design-system";
-import { IconSelector, Text, TextType } from "design-system-old";
+import { IconSelector } from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -38,6 +38,12 @@ const IconSelectorWrapper = styled.div`
   .icon-selector::-webkit-scrollbar {
     width: 0px;
   }
+`;
+
+const Text = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  font-weight: var(--ads-v2-font-weight-normal);
+  color: var(--ads-v2-color-fg);
 `;
 
 function GeneralSettings() {
@@ -118,7 +124,7 @@ function GeneralSettings() {
         />
       </div>
 
-      <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
+      <Text>{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
       <IconSelectorWrapper className="pt-1" id="t--general-settings-app-icon">
         <IconSelector
           className="icon-selector"

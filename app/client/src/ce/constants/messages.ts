@@ -1457,7 +1457,7 @@ export const IN_APP_EMBED_SETTING = {
     "This app cannot be embedded anywhere on the Internet",
   embed: () => "Embed",
   embedSnippetTitle: () => "Copy embed code",
-  change: () => "Change",
+  change: () => "CHANGE",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
   previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",

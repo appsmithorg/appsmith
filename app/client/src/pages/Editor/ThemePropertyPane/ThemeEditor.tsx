@@ -35,12 +35,14 @@ import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
-import { Colors } from "constants/Colors";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
 
-const Title = styled.h3`
-  color: ${Colors.GRAY_800};
+const SubText = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  line-height: 1rem;
+  font-weight: var(--ads-v2-font-weight-normal);
+  color: var(--ads-v2-color-fg);
 `;
 
 const PopoverStyles = createGlobalStyle`
@@ -124,9 +126,7 @@ function ThemeEditor() {
       <header className="px-4 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Title className="text-sm font-normal capitalize">
-              Theme Properties
-            </Title>
+            <SubText>Theme Properties</SubText>
             <BetaCard />
           </div>
           <div>
@@ -180,7 +180,7 @@ function ThemeEditor() {
             (fontFamilySectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <h3>{startCase(fontFamilySectionName)}</h3>
+                  <SubText>{startCase(fontFamilySectionName)}</SubText>
                   <ThemeFontControl
                     options={get(
                       selectedTheme,
@@ -224,7 +224,7 @@ function ThemeEditor() {
             (borderRadiusSectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <h3>{startCase(borderRadiusSectionName)}</h3>
+                  <SubText>{startCase(borderRadiusSectionName)}</SubText>
                   <ThemeBorderRadiusControl
                     options={get(
                       selectedTheme,
@@ -255,7 +255,7 @@ function ThemeEditor() {
             (boxShadowSectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <h3>{startCase(boxShadowSectionName)}</h3>
+                  <SubText>{startCase(boxShadowSectionName)}</SubText>
                   <ThemeBoxShadowControl
                     options={get(
                       selectedTheme,
