@@ -5,7 +5,7 @@ import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { useLocation } from "react-router-dom";
 
 const StyledManageUsers = styled("a")<{ isApplicationInvite?: boolean }>`
-  display: flex;
+  display: inline-flex;
 
   ${(props) =>
     props.isApplicationInvite
