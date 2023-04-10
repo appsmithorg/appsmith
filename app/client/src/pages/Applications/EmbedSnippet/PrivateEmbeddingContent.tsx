@@ -9,6 +9,7 @@ import {
   TextType,
 } from "design-system-old";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 
 const appsmithConfigs = getAppsmithConfigs();
 
@@ -68,7 +69,7 @@ function PrivateEmbeddingContent(props: any) {
           icon="external-link-line"
           iconPosition={IconPositions.left}
           target="_blank"
-          text="UPGRADE"
+          text={createMessage(UPGRADE)}
         />
       </SubContainer>
     </Container>

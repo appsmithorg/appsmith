@@ -7,17 +7,15 @@ import {
   TooltipComponent,
   Classes,
   Icon,
-  IconWrapper,
 } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
-import ExternaLink from "remixicon-react/ExternalLinkLineIcon";
-import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
-import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
-import TooltipWrapper from "./EmbedSnippet/TooltipWrapper";
+import useUpdateEmbedSnippet from "../../../pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
+import EmbedCodeSnippet from "../../../pages/Applications/EmbedSnippet/Snippet";
+import TooltipWrapper from "../../../pages/Applications/EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
@@ -28,9 +26,9 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import PrivateEmbeddingContent from "./EmbedSnippet/PrivateEmbeddingContent";
+import PrivateEmbeddingContent from "../../../pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 
-const StyledLink = styled.a`
+export const StyledLink = styled.a`
   position: relative;
   top: 1px;
   :hover {
@@ -42,13 +40,13 @@ const StyledLink = styled.a`
   }
 `;
 
-const StyledPreviewLink = styled.a`
+export const StyledPreviewLink = styled.a`
   :hover {
     text-decoration: none;
   }
 `;
 
-function EmbedSnippetTab() {
+export function EmbedSnippetTab() {
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const embedSnippet = useUpdateEmbedSnippet();
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
@@ -146,9 +144,11 @@ function EmbedSnippetTab() {
           href={embedSnippet.appViewEndPoint}
           target={"_blank"}
         >
-          <IconWrapper fillColor={Colors.GRAY_700} size={IconSize.XL}>
-            <ExternaLink />
-          </IconWrapper>
+          <Icon
+            fillColor={Colors.GRAY_700}
+            name="external-link-line"
+            size={IconSize.XL}
+          />
           <Text color={Colors.GRAY_700} type={TextType.P4}>
             {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
           </Text>
