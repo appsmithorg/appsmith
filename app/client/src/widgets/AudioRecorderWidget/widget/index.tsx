@@ -5,7 +5,6 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -71,7 +70,6 @@ class AudioRecorderWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

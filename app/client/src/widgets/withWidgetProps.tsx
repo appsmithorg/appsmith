@@ -25,8 +25,8 @@ import {
   getMetaWidget,
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
+  getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
@@ -85,8 +85,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
       equal,
     );
-    const isMobile = useSelector(getIsMobile);
+    const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
+    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -196,12 +197,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
-
       if (defaultAutoLayoutWidgets.includes(props.type)) {
-        widgetProps.positioning =
-          appPositioningType && appPositioningType === AppPositioningTypes.AUTO
-            ? Positioning.Vertical
-            : Positioning.Fixed;
+        widgetProps.positioning = isAutoLayout
+          ? Positioning.Vertical
+          : Positioning.Fixed;
       }
 
       widgetProps.children = children;

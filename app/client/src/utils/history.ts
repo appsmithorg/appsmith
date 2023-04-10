@@ -12,7 +12,7 @@ export enum NavigationMethod {
   Debugger = "Debugger",
   CanvasClick = "CanvasClick",
   ActionBackButton = "ActionBackButton",
-  BrowserNav = "BrowserNav",
+  ContextSwitching = "ContextSwitching",
 }
 
 export type AppsmithLocationState = {
