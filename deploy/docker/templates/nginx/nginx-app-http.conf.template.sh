@@ -70,7 +70,7 @@ server {
   proxy_set_header X-Forwarded-Host  \$origin_host;
 
   location / {
-    try_files \$uri /index.html =404;
+    try_files /loading.html \$uri /index.html =404;
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.
