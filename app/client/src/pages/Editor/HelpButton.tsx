@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
@@ -17,21 +17,12 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
-import { BottomBarCTAStyles } from "./BottomBar/styles";
-import { Icon } from "design-system";
+import { Button } from "design-system";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
     margin-top: 0 !important;
   }
-`;
-
-const StyledTrigger = styled.div`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  ${BottomBarCTAStyles}
 `;
 
 type TriggerProps = {
@@ -49,9 +40,12 @@ const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
       }}
       position={"bottom"}
     >
-      <StyledTrigger>
-        <Icon name="question-line" size="lg" />
-      </StyledTrigger>
+      <Button
+        isIconButton
+        kind="tertiary"
+        size="sm"
+        startIcon="question-line"
+      />
     </TooltipComponent>
   );
 };

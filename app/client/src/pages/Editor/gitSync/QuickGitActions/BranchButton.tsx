@@ -51,7 +51,7 @@ function BranchButton() {
     >
       <Tooltip content={currentBranch || ""} placement="topLeft">
         <ButtonContainer
-          className="t--branch-button "
+          className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}
           kind="secondary"
           ref={labelTarget}

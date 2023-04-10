@@ -43,4 +43,6 @@ export const BranchListItemContainer = styled.div<{
   & .bp3-overlay .bp3-popover.bp3-minimal .cs-text {
     width: fit-content;
   }
+
+  height: 45px;
 `;

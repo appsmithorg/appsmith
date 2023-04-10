@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey, TextInput } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import styled, { useTheme } from "styled-components";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,8 +28,7 @@ import {
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
-import { Space } from "./StyledComponents";
-import { Icon, Spinner, Tooltip, Button } from "design-system";
+import { Icon, Spinner, Tooltip, Button, SearchInput } from "design-system";
 import { get } from "lodash";
 import {
   isLocalBranch,
@@ -57,6 +56,7 @@ const BranchDropdownContainer = styled.div`
 
   & .title {
     ${getTypographyByKey("p1")};
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
 
   padding: ${(props) => props.theme.spaces[5]}px;
@@ -333,7 +333,6 @@ export default function BranchList(props: {
           }}
           fetchBranches={pruneAndFetchBranches}
         />
-        <Space size={2} />
         <div style={{ width: 300 }}>
           {fetchingBranches && (
             <div style={{ width: "100%", height: textInputHeight }}>
@@ -341,7 +340,7 @@ export default function BranchList(props: {
             </div>
           )}
           {!fetchingBranches && (
-            <TextInput
+            <SearchInput
               autoFocus
               className="branch-search t--branch-search-input"
               fill
