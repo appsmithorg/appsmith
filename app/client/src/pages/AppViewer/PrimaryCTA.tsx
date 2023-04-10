@@ -119,8 +119,10 @@ function PrimaryCTA(props: Props) {
         />
       );
     }
-
-    if (!currentUser) return;
+    // We wait for the url to be available here to avoid showing the fork
+    // button for a moment and then showing the edit button i.e show one of the buttons once
+    // the data is available
+    if (!currentUser || !url) return;
     if (
       currentApplication?.forkingEnabled &&
       currentUser?.username === ANONYMOUS_USERNAME
