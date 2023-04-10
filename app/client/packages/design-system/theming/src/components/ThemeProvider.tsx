@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import kebabCase from "lodash/kebabCase";
 import type { ReactNode, CSSProperties } from "react";
-import type { ThemeTokens } from "../utils/TokensAccessor";
+import type { ThemeTokens } from "../";
 
 export interface ThemeProviderProps {
   theme: ThemeTokens;
