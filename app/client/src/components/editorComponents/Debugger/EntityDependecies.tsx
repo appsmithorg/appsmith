@@ -161,8 +161,12 @@ export function Connection(props: ConnectionProps) {
   const entityInfo = getEntityInfo();
   const entityDescription = getEntityDescription(entityInfo?.type);
 
-  return entityDescription ? (
-    <Tooltip content={`Open ${entityDescription}`} key={props.entityName}>
+  return (
+    <Tooltip
+      content={`Open ${entityDescription}`}
+      // isDisabled={!entityDescription}
+      key={props.entityName}
+    >
       <ConnectionWrapper className="t--dependencies-item">
         <span
           className="connection"
@@ -174,7 +178,7 @@ export function Connection(props: ConnectionProps) {
         </span>
       </ConnectionWrapper>
     </Tooltip>
-  ) : null;
+  );
 }
 
 function Dependencies(props: any) {
