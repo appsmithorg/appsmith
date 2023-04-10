@@ -1,10 +1,9 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system-old";
-import { Button, Icon, Spinner, toast } from "design-system";
+import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
-import Entity, { EntityClassNames } from "../Entity";
+import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -24,7 +23,6 @@ import {
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -243,7 +241,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           className={isOpen ? "open-collapse" : ""}
           color={Colors.GREY_7}
           name="right-arrow-2"
-          size="lg"
+          size={"md"}
         />
         <div className="flex items-center flex-start flex-1 overflow-hidden">
           <Name>{lib.name}</Name>
@@ -306,21 +304,20 @@ function JSDependencies() {
     <Entity
       className={"libraries"}
       customAddButton={
-        <TooltipComponent
-          boundary="viewport"
-          className={EntityClassNames.TOOLTIP}
+        <Tooltip
           content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-          disabled={isOpen}
-          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position="right"
+          placement="right"
+          {...(isOpen ? { visible: false } : {})}
         >
-          <EntityAddButton
-            className={`${EntityClassNames.ADD_BUTTON} group libraries h-100 ${
-              isOpen ? "selected" : ""
-            }`}
-            onClick={openInstaller}
-          />
-        </TooltipComponent>
+          <AddButtonWrapper>
+            <EntityAddButton
+              className={`${
+                EntityClassNames.ADD_BUTTON
+              } group libraries h-100 ${isOpen ? "selected" : ""}`}
+              onClick={openInstaller}
+            />
+          </AddButtonWrapper>
+        </Tooltip>
       }
       entityId="library_section"
       icon={null}
