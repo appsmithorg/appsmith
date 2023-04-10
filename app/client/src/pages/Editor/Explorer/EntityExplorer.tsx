@@ -1,7 +1,6 @@
-import type { MutableRefObject } from "react";
-import React, { useRef, useCallback, useEffect, useState } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { SearchInput, Divider } from "design-system";
+import { Divider } from "design-system";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {
@@ -22,7 +21,7 @@ import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import { SEARCH_ENTITY } from "constants/Explorer";
+// import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
@@ -66,9 +65,9 @@ const NoResult = styled(NonIdealState)`
 
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const searchInputRef: MutableRefObject<HTMLInputElement | null> =
-    useRef(null);
+  // const [searchKeyword, setSearchKeyword] = useState("");
+  // const searchInputRef: MutableRefObject<HTMLInputElement | null> =
+  //   useRef(null);
   PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -100,15 +99,16 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       }`}
       ref={explorerRef}
     >
-      <SearchInput
+      {/* <SearchInput
         id={SEARCH_ENTITY}
         isHidden
         onChange={(value: string) => setSearchKeyword(value)}
         ref={searchInputRef}
-      />
+      /> */}
       <ExplorerWidgetGroup
         addWidgetsFn={showWidgetsSidebar}
-        searchKeyword={searchKeyword}
+        searchKeyword=""
+        // searchKeyword={searchKeyword}
         step={0}
       />
       <Files />

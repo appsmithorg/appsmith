@@ -19,27 +19,31 @@ type DimensionsInputProp = {
   icon: string;
 };
 
-export function cssDimensionValidator(value: string) {
-  let isValid = false;
-  const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
-  if (value) {
-    isValid = regex.test(value);
-  }
-  return {
-    isValid: isValid,
-    message: "",
-  };
-}
+const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
 function DimensionsInput(props: DimensionsInputProp) {
+  const [isValid, setIsValid] = React.useState(true);
+
+  const onChange = (value: string) => {
+    if (!regex.test(value)) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+    }
+
+    if (props.onChange) {
+      props.onChange(value);
+    }
+  };
+
   return (
     <div className={`t--${props.prefix}-dimension`}>
       <StyledInput
-        onChange={props.onChange}
+        isValid={isValid}
+        onChange={onChange}
         renderAs="input"
         size="md"
         startIcon={props.icon}
-        // validator={cssDimensionValidator}
         value={props.value}
       />
     </div>

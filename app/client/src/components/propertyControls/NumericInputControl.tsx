@@ -9,8 +9,6 @@ export interface NumericInputControlProps extends ControlProps {
   propertyValue: string;
   min?: number;
   max?: number;
-  minorStepSize?: number | null;
-  majorStepSize?: number | null;
   placeholderText?: string;
   stepSize?: number;
   onFocus?: () => void;
@@ -38,10 +36,8 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
 
   public render() {
     const {
-      // majorStepSize,
       max,
       min,
-      // minorStepSize,
       onBlur,
       onFocus,
       placeholderText,

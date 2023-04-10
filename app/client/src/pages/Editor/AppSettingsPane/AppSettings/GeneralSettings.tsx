@@ -72,6 +72,18 @@ function GeneralSettings() {
     [applicationName, application, applicationId],
   );
 
+  const onChange = (value: string) => {
+    if (!value || value.trim().length === 0) {
+      setIsAppNameValid(false);
+    } else {
+      if (!isSavingAppName) {
+        setIsAppNameValid(true);
+      }
+    }
+
+    setApplicationName(value);
+  };
+
   return (
     <>
       <div
@@ -83,14 +95,16 @@ function GeneralSettings() {
         {isSavingAppName && <TextLoaderIcon />}
         <Input
           defaultValue={applicationName}
+          errorMessage={
+            isAppNameValid ? undefined : GENERAL_SETTINGS_NAME_EMPTY_MESSAGE()
+          }
+          // undefined sent implicitly - parameter "icon"
           // @ts-expect-error: Type mismatch
           id="t--general-settings-app-name"
-          // undefined sent implicitly - parameter "icon"
+          isValid={isAppNameValid}
           label={GENERAL_SETTINGS_APP_NAME_LABEL()}
           onBlur={() => updateAppSettings()}
-          onChange={(value: string) =>
-            !isSavingAppName && setApplicationName(value)
-          }
+          onChange={onChange}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               // undefined sent implicitly - parameter "icon"
@@ -100,20 +114,6 @@ function GeneralSettings() {
           placeholder="App name"
           size="md"
           type="text"
-          validator={(value: string) => {
-            let result: { isValid: boolean; message?: string } = {
-              isValid: true,
-            };
-            if (!value || value.trim().length === 0) {
-              setIsAppNameValid(false);
-              result = {
-                isValid: false,
-                message: GENERAL_SETTINGS_NAME_EMPTY_MESSAGE(),
-              };
-            }
-            setIsAppNameValid(result.isValid);
-            return result;
-          }}
           value={applicationName}
         />
       </div>
