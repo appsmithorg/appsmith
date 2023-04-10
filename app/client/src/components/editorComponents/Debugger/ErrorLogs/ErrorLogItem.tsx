@@ -2,13 +2,7 @@ import React, { useState } from "react";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
-import {
-  Classes,
-  getTypographyByKey,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
+import { Classes, getTypographyByKey } from "design-system-old";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,
@@ -23,7 +17,7 @@ import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Tooltip } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -36,19 +30,14 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   flex-direction: column;
   padding: 8px 16px 8px 16px;
   cursor: default;
-
-  &.${Severity.INFO} {
-    border-bottom: 1px solid var(--ads-v2-color-border-info);
-  }
+  border-bottom: 1px solid var(--ads-v2-color-border);
 
   &.${Severity.ERROR} {
     background-color: var(--ads-v2-color-bg-error);
-    border-bottom: 1px solid var(--ads-v2-color-border-error);
   }
 
   &.${Severity.WARNING} {
     background-color: var(--ads-v2-color-bg-warning);
-    border-bottom: 1px solid var(--ads-v2-color-border-warning);
   }
 
   .${Classes.ICON} {
@@ -305,17 +294,9 @@ function ErrorLogItem(props: LogItemProps) {
                 entity={props.source}
                 error={{ message: { name: "", message: "" } }}
               >
-                <TooltipComponent
-                  content={
-                    <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                      {createMessage(TROUBLESHOOT_ISSUE)}
-                    </Text>
-                  }
-                  minimal
-                  position="bottom-right"
-                >
+                <Tooltip content={createMessage(TROUBLESHOOT_ISSUE)}>
                   <Icon className={`${Classes.ICON}`} name={"help"} size="sm" />
-                </TooltipComponent>
+                </Tooltip>
               </ContextualMenu>
             </ContextWrapper>
           )}

@@ -1,19 +1,13 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
 import type { DropdownOption } from "design-system-old";
-import {
-  Classes,
-  Dropdown,
-  TextInput,
-  TooltipComponent,
-} from "design-system-old";
+import { Classes, Dropdown, TextInput } from "design-system-old";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -68,11 +62,10 @@ function FilterHeader(props: FilterHeaderProps) {
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
   return (
     <Wrapper>
-      <TooltipComponent
+      <Tooltip
         className="debugger-clear-logs"
         content={createMessage(CLEAR_LOG_TOOLTIP)}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="bottom"
+        placement="bottom"
       >
         <Button
           className="t--debugger-clear-logs"
@@ -82,7 +75,7 @@ function FilterHeader(props: FilterHeaderProps) {
           size="sm"
           startIcon="cancel"
         />
-      </TooltipComponent>
+      </Tooltip>
       <div className="input-container">
         <TextInput
           className="debugger-search"

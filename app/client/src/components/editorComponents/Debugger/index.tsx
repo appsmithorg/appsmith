@@ -15,10 +15,10 @@ import {
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 function Debugger() {
   const showDebugger = useSelector(
@@ -105,12 +105,7 @@ export function DebuggerTrigger() {
       errorCount={messageCounters.errors}
       warningCount={messageCounters.warnings}
     >
-      <TooltipComponent
-        content={tooltipContent}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
-      >
+      <Tooltip content={tooltipContent}>
         <Button
           isIconButton
           kind="tertiary"
@@ -118,7 +113,7 @@ export function DebuggerTrigger() {
           onClick={onClick}
           size="sm"
         />
-      </TooltipComponent>
+      </Tooltip>
       {!!messageCounters.errors && (
         <div className="debugger-count t--debugger-count">
           {totalMessageCount > 9 ? "9+" : totalMessageCount}

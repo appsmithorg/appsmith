@@ -3,13 +3,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import {
-  Classes,
-  getTypographyByKey,
-  Text,
-  TextType,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { Classes, getTypographyByKey, Text, TextType } from "design-system-old";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import {
@@ -26,7 +20,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
@@ -167,13 +161,8 @@ export function Connection(props: ConnectionProps) {
   const entityInfo = getEntityInfo();
   const entityDescription = getEntityDescription(entityInfo?.type);
 
-  return (
-    <Tooltip
-      content={`Open ${entityDescription}`}
-      disabled={!entityDescription}
-      hoverOpenDelay={1000}
-      key={props.entityName}
-    >
+  return entityDescription ? (
+    <Tooltip content={`Open ${entityDescription}`} key={props.entityName}>
       <ConnectionWrapper className="t--dependencies-item">
         <span
           className="connection"
@@ -185,7 +174,7 @@ export function Connection(props: ConnectionProps) {
         </span>
       </ConnectionWrapper>
     </Tooltip>
-  );
+  ) : null;
 }
 
 function Dependencies(props: any) {

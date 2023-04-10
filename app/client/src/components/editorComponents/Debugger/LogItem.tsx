@@ -8,19 +8,13 @@ import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import {
-  Classes,
-  getTypographyByKey,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
+import { Classes, getTypographyByKey } from "design-system-old";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Tooltip } from "design-system";
 import moment from "moment";
 
 const InnerWrapper = styled.div`
@@ -320,21 +314,16 @@ function LogItem(props: LogItemProps) {
                     entity={props.source}
                     error={{ message: { name: "", message: "" } }}
                   >
-                    <TooltipComponent
-                      content={
-                        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                          {createMessage(TROUBLESHOOT_ISSUE)}
-                        </Text>
-                      }
-                      minimal
-                      position="bottom-left"
+                    <Tooltip
+                      content={createMessage(TROUBLESHOOT_ISSUE)}
+                      placement="bottomLeft"
                     >
                       <Icon
                         className={`${Classes.ICON}`}
                         name={"help"}
                         size="sm"
                       />
-                    </TooltipComponent>
+                    </Tooltip>
                   </ContextualMenu>
                 </ContextWrapper>
               )}

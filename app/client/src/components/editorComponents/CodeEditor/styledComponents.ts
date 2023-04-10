@@ -100,7 +100,7 @@ export const EditorWrapper = styled.div<{
       }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
-        border-radius: 0px;
+        border-radius: var(--ads-v2-border-radius);
         background: ${Colors.GREY_1};
       }
     }
@@ -117,7 +117,7 @@ export const EditorWrapper = styled.div<{
     }
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
-      border-radius: 0px;
+      border-radius: var(--ads-v2-border-radius);
       border: 1px solid
         ${(props) => {
           switch (true) {
@@ -390,7 +390,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       display: flex;
     }
   }
-  border-radius: 0px;
+  border-radius: var(--ads-v2-border-radius);
   .lightning-menu {
     z-index: 1 !important;
   }
