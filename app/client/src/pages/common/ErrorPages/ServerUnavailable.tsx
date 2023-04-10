@@ -8,7 +8,7 @@ import {
   PAGE_SERVER_UNAVAILABLE_ERROR_CODE,
   PAGE_SERVER_UNAVAILABLE_TITLE,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
 
