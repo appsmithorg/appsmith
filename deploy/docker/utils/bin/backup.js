@@ -6,6 +6,7 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
+const { constants } = require('buffer');
 
 const command_args = process.argv.slice(3);
 
@@ -155,7 +156,7 @@ function removeSensitiveEnvData(content) {
 
 function getBackupArchiveLimit(backupArchivesLimit) {
   if (!backupArchivesLimit)
-    backupArchivesLimit = 4;
+    backupArchivesLimit = Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
   return backupArchivesLimit
 }
 
