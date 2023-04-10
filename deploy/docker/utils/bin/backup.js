@@ -21,8 +21,6 @@ async function run() {
       }
     });
 
-    utils.stop(['backend', 'rts']);
-
     console.log('Available free space at /appsmith-stacks');
     const availSpaceInBytes = getAvailableBackupSpaceInBytes();
     console.log('\n');
@@ -46,7 +44,6 @@ async function run() {
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
     logger.backup_info('Finished taking a backup at' + archivePath);
-    await postBackupCleanup();
 
   } catch (err) {
     errorCode = 1;
@@ -61,7 +58,7 @@ async function run() {
       }
     }
   } finally {
-    utils.start(['backend', 'rts']);
+    await postBackupCleanup();
     process.exit(errorCode);
   }
 }
@@ -91,7 +88,7 @@ async function createManifestFile(path) {
 async function exportDockerEnvFile(destFolder) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  const cleaned_content = removeEncryptionEnvData(content)
+  const cleaned_content = removeSensitiveEnvData(content)
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
@@ -145,10 +142,12 @@ function getBackupContentsPath(backupRootPath, timestamp) {
   return backupRootPath + '/appsmith-backup-' + timestamp;
 }
 
-function removeEncryptionEnvData(content) {
+function removeSensitiveEnvData(content) {
+    // Remove encryption and Mongodb env data
+
   const output_lines = []
   content.split(/\r?\n/).forEach(line => {
-    if (!line.startsWith("APPSMITH_ENCRYPTION")) {
+    if (!line.startsWith("APPSMITH_ENCRYPTION")||!line.startsWith("APPSMITH_MONGO")) {
       output_lines.push(line)
     }
   });
@@ -195,7 +194,7 @@ module.exports = {
   executeMongoDumpCMD,
   getGitRoot,
   executeCopyCMD,
-  removeEncryptionEnvData,
+  removeSensitiveEnvData,
   getBackupArchiveLimit,
   removeOldBackups
 };
