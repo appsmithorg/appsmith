@@ -29,17 +29,17 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 8px 16px 8px 16px;
 
   &.${Severity.INFO} {
-    border-bottom: 1px solid var(--ads-v2-color-border-info);
+    border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
   &.${Severity.ERROR} {
     background-color: #fff8f8;
-    border-bottom: 1px solid var(--ads-v2-color-border-error);
+    border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
   &.${Severity.WARNING} {
     background-color: var(--ads-v2-color-bg-warning);
-    border-bottom: 1px solid var(--ads-v2-color-border-warning);
+    border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
   .${Classes.ICON} {
