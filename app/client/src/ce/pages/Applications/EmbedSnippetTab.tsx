@@ -27,6 +27,11 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import PrivateEmbeddingContent from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+
+export const EmbedSnippetContainer = styled.div<{ isAppSettings?: boolean }>`
+  ${({ isAppSettings }) => isAppSettings && `padding: 0 16px;`}
+`;
 
 export const StyledLink = styled.a`
   position: relative;
@@ -46,7 +51,20 @@ export const StyledPreviewLink = styled.a`
   }
 `;
 
-export function EmbedSnippetTab() {
+export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
+  .bp3-popover-content > div {
+    text-align: center;
+    max-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+`;
+
+export function EmbedSnippetTab({
+  isAppSettings,
+}: {
+  isAppSettings?: boolean;
+}) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const embedSnippet = useUpdateEmbedSnippet();
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
@@ -57,7 +75,14 @@ export function EmbedSnippetTab() {
   const isPublicApp = currentApplicationDetails?.isPublic || false;
 
   return isPublicApp ? (
-    <div>
+    <EmbedSnippetContainer isAppSettings={isAppSettings}>
+      {isAppSettings && (
+        <div>
+          <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+            {createMessage(IN_APP_EMBED_SETTING.embed)}
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-6">
         <div className="flex flex-1 flex-col gap-6 pt-2">
           {embedSnippet.isSuperUser && (
@@ -68,26 +93,38 @@ export function EmbedSnippetTab() {
                     name={embedSnippet.embedSettingContent.icon}
                     size={IconSize.XXL}
                   />
-                  <Text type={TextType.P1}>
-                    {embedSnippet.embedSettingContent.label}
-                  </Text>
 
-                  <TooltipComponent
-                    boundary="viewport"
-                    content={
-                      <TooltipWrapper className="text-center max-h-11">
-                        {embedSnippet.embedSettingContent.tooltip}
-                      </TooltipWrapper>
-                    }
-                    position={PopoverPosition.TOP}
-                  >
-                    <Icon
-                      className={`ml-1`}
-                      fillColor={Colors.GRAY2}
-                      name={"question-fill"}
-                      size={IconSize.XL}
+                  {isAppSettings ? (
+                    <StyledPropertyHelpLabel
+                      label={embedSnippet.embedSettingContent.label}
+                      lineHeight="1.17"
+                      maxWidth="217px"
+                      tooltip={embedSnippet.embedSettingContent.tooltip}
                     />
-                  </TooltipComponent>
+                  ) : (
+                    <>
+                      <Text type={TextType.P1}>
+                        {embedSnippet.embedSettingContent.label}
+                      </Text>
+
+                      <TooltipComponent
+                        boundary="viewport"
+                        content={
+                          <TooltipWrapper className="text-center max-h-11">
+                            {embedSnippet.embedSettingContent.tooltip}
+                          </TooltipWrapper>
+                        }
+                        position={PopoverPosition.TOP}
+                      >
+                        <Icon
+                          className={`ml-1`}
+                          fillColor={Colors.GRAY2}
+                          name={"question-fill"}
+                          size={IconSize.XL}
+                        />
+                      </TooltipComponent>
+                    </>
+                  )}
                 </div>
                 <StyledLink
                   href="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
@@ -137,28 +174,33 @@ export function EmbedSnippetTab() {
           <EmbedCodeSnippet snippet={embedSnippet.snippet} />
         </div>
       </div>
-      <div
-        className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
-      >
-        <StyledPreviewLink
-          className="flex gap-1 items-center self-end"
-          data-cy="preview-embed"
-          href={embedSnippet.appViewEndPoint}
-          target={"_blank"}
+      {!isAppSettings && (
+        <div
+          className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
         >
-          <Icon
-            fillColor={Colors.GRAY_700}
-            name="external-link-line"
-            size={IconSize.XL}
-          />
-          <Text color={Colors.GRAY_700} type={TextType.P4}>
-            {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
-          </Text>
-        </StyledPreviewLink>
-      </div>
-    </div>
+          <StyledPreviewLink
+            className="flex gap-1 items-center self-end"
+            data-cy="preview-embed"
+            href={embedSnippet.appViewEndPoint}
+            target={"_blank"}
+          >
+            <Icon
+              fillColor={Colors.GRAY_700}
+              name="external-link-line"
+              size={IconSize.XL}
+            />
+            <Text color={Colors.GRAY_700} type={TextType.P4}>
+              {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
+            </Text>
+          </StyledPreviewLink>
+        </div>
+      )}
+    </EmbedSnippetContainer>
   ) : (
-    <PrivateEmbeddingContent canMakeAppPublic={canShareWithPublic} />
+    <PrivateEmbeddingContent
+      canMakeAppPublic={isAppSettings ? false : canShareWithPublic}
+      isAppSettings={isAppSettings}
+    />
   );
 }
 
