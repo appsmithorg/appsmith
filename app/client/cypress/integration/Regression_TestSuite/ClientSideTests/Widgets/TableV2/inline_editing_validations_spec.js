@@ -212,11 +212,7 @@ describe("Table widget inline editing validation functionality", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       propPane.ToggleOnOrOff("Editable", "On");
-      cy.get(
-        ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-      ).click();
-      cy.selectShowMsg();
-      cy.addSuccessMessage("Saved!!", ".t--property-control-onsubmit");
+      cy.getAlert("onSubmit", "Saved!!");
       propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");

@@ -503,8 +503,9 @@ export const Steps: StepsType = {
         text: (
           <>
             Select the button widget to see the properties in the property pane.
-            From the onClick dropdown, select <b>Execute a query</b> {"&"} then
-            select <b>updateCustomerInfo</b> query
+            Click the <b>+</b> button beside the onClick property to add an
+            action, select <b>Execute a query</b> {"&"} then select{" "}
+            <b>updateCustomerInfo</b> query
           </>
         ),
       },
@@ -516,8 +517,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            Click the onSuccess dropdown, select <b>Execute a query</b> {"&"}{" "}
-            then choose <b>getCustomers</b> Query
+            Click the <b>+</b> button beside On success, select{" "}
+            <b>Execute a query</b> {"&"} then choose <b>getCustomers</b> Query
           </>
         ),
       },
