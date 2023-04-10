@@ -118,7 +118,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     //   : "0px",
 
     // Vertical gap between widgets
-    marginBottom: props.isMobile ? "4px" : "8px",
+    marginBottom: props.isMobile ? "8px" : "12px",
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
