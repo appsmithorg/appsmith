@@ -143,6 +143,7 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -584,7 +585,7 @@ export function EditorJSONtoForm(props: Props) {
           <img
             alt="Datasource"
             className="plugin-image"
-            src={props.data.image}
+            src={getAssetUrl(props.data.image)}
           />
           <div className="selected-value">{props.children}</div>
         </Container>
@@ -599,7 +600,7 @@ export function EditorJSONtoForm(props: Props) {
           <img
             alt="Datasource"
             className="plugin-image"
-            src={props.data.image}
+            src={getAssetUrl(props.data.image)}
           />
           <div style={{ marginLeft: "6px" }}>{props.children}</div>
         </Container>

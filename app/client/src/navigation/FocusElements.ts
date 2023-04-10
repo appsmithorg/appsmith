@@ -65,6 +65,7 @@ import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
+import { NavigationMethod } from "../utils/history";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -154,7 +155,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
       setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds),
+        selectWidgetInitAction(
+          SelectionRequestType.Multiple,
+          widgetIds,
+          NavigationMethod.ContextSwitching,
+        ),
       defaultValue: [],
     },
     {

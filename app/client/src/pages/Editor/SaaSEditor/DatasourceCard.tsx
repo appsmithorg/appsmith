@@ -17,6 +17,7 @@ import history from "utils/history";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -124,7 +125,7 @@ function DatasourceCard(props: DatasourceCardProps) {
             <DatasourceImage
               alt="Datasource"
               className="dataSourceImage"
-              src={pluginImages[datasource.pluginId]}
+              src={getAssetUrl(pluginImages[datasource.pluginId])}
             />
             <DatasourceName>{datasource.name}</DatasourceName>
           </DatasourceNameWrapper>

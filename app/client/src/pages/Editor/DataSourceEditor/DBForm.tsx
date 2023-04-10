@@ -33,6 +33,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "./Debugger";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -134,7 +135,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     } = this.props;
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
-
     return (
       <Form
         onSubmit={(e) => {
@@ -144,7 +144,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         {!this.props.hiddenHeader && (
           <Header>
             <FormTitleContainer>
-              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <PluginImage
+                alt="Datasource"
+                src={getAssetUrl(this.props.pluginImage)}
+              />
               <FormTitle
                 disabled={!createFlow && !canManageDatasource}
                 focusOnMount={this.props.isNewDatasource}

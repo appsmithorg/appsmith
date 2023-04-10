@@ -63,6 +63,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "./Debugger";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -393,7 +394,7 @@ class DatasourceRestAPIEditor extends React.Component<
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
-          <PluginImage alt="Datasource" src={pluginImage} />
+          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
           <FormTitle
             disabled={!createMode && !canManageDatasource}
             focusOnMount={isNewDatasource}

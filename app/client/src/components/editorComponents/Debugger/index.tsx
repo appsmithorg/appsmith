@@ -94,6 +94,7 @@ export function DebuggerTrigger() {
   const onClick = (e: any) => {
     //Removed canavs condition
     //Because we want to show debugger in all pages.
+    //Updated in PR #21753 and commit id ee87fa2
     dispatch(showDebuggerAction(!showDebugger));
     if (!showDebugger)
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
