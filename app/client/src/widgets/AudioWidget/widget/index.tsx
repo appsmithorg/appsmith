@@ -6,7 +6,6 @@ import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 
@@ -86,12 +85,11 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the audio is played",
+            helpText: "when the audio is played",
             propertyName: "onPlay",
             label: "onPlay",
             controlType: "ACTION_SELECTOR",
@@ -100,7 +98,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the audio is paused",
+            helpText: "when the audio is paused",
             propertyName: "onPause",
             label: "onPause",
             controlType: "ACTION_SELECTOR",
@@ -109,7 +107,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the audio ends",
+            helpText: "when the audio ends",
             propertyName: "onEnd",
             label: "onEnd",
             controlType: "ACTION_SELECTOR",

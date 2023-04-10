@@ -462,6 +462,7 @@ export class AggregateHelper {
     value: string,
     paste = true,
     index = 0,
+    parseSpecialCharacters = false,
   ) {
     cy.xpath(this.locator._actionTextArea(actionName))
       .eq(index)
@@ -491,7 +492,7 @@ export class AggregateHelper {
             this.Paste(el, value);
           } else {
             cy.get(el).type(value, {
-              parseSpecialCharSequences: false,
+              parseSpecialCharSequences: parseSpecialCharacters,
             });
           }
         });
@@ -581,7 +582,7 @@ export class AggregateHelper {
     return locator.eq(index).focus().wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       //delay: 3,
-      //force: true,
+      force: true,
     });
   }
 
@@ -827,6 +828,7 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
+      .clear()
       //.type(this.selectAll)
       .type(value, { delay: 1, parseSpecialCharSequences: false });
     // .type(selectAllJSObjectContentShortcut)
@@ -854,6 +856,14 @@ export class AggregateHelper {
       .first()
       .invoke("val", value)
       .trigger("input");
+    this.Sleep(500); //for value set to settle
+  }
+
+  public TypeIntoTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
     this.Sleep(500); //for value set to settle
   }
 
