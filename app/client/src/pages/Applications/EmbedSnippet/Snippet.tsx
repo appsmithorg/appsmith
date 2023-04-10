@@ -1,6 +1,13 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Toaster, Variant, Text, TextType } from "design-system-old";
+import {
+  Toaster,
+  Variant,
+  Text,
+  TextType,
+  Icon,
+  IconSize,
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
@@ -21,6 +28,12 @@ const StyledText = styled(Text)`
   }
 `;
 
+const EmbedSnippetContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  background: var(--appsmith-color-black-100);
+`;
+
 type EmbedCodeSnippetProps = {
   snippet: string;
 };
@@ -36,11 +49,7 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   };
 
   return (
-    <div
-      className="flex flex-1 select-all bg-[color:var(--appsmith-color-black-100)]"
-      data-cy="t--embed-snippet"
-      onClick={onClick}
-    >
+    <EmbedSnippetContainer data-cy="t--embed-snippet">
       <StyledText
         className="break-all max-h-32 overflow-y-auto p-2 mr-0.5"
         color={Colors.GREY_900}
@@ -49,7 +58,13 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
       >
         {props.snippet}
       </StyledText>
-    </div>
+      <Icon
+        className="break-all max-h-32 overflow-y-auto p-2 mr-0.5"
+        name="copy-to-clipboard"
+        onClick={onClick}
+        size={IconSize.XXL}
+      />
+    </EmbedSnippetContainer>
   );
 }
 

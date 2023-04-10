@@ -10,6 +10,7 @@ import {
   IconWrapper,
 } from "design-system-old";
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
@@ -22,6 +23,12 @@ import {
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import { PopoverPosition } from "@blueprintjs/core";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import PrivateEmbeddingContent from "./EmbedSnippet/PrivateEmbeddingContent";
 
 const StyledLink = styled.a`
   position: relative;
@@ -42,8 +49,16 @@ const StyledPreviewLink = styled.a`
 `;
 
 function EmbedSnippetTab() {
+  const currentApplicationDetails = useSelector(getCurrentApplication);
   const embedSnippet = useUpdateEmbedSnippet();
-  return (
+  const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
+  const canShareWithPublic = isPermitted(
+    userAppPermissions,
+    PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
+  );
+  const isPublicApp = currentApplicationDetails?.isPublic || false;
+
+  return isPublicApp ? (
     <div>
       <div className="flex flex-col gap-6">
         <div className="flex flex-1 flex-col gap-6 pt-2">
@@ -140,6 +155,8 @@ function EmbedSnippetTab() {
         </StyledPreviewLink>
       </div>
     </div>
+  ) : (
+    <PrivateEmbeddingContent canMakeAppPublic={canShareWithPublic} />
   );
 }
 
