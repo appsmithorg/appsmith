@@ -21,7 +21,7 @@ public class ApplicationPage {
     @JsonView({Views.Public.class, Views.Export.class})
     String id;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean isDefault;
 
     @Transient
@@ -33,7 +33,7 @@ public class ApplicationPage {
     String customSlug;
 
     // This field will represent the root pageId in git system where we are connecting resources among the branches
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String defaultPageId;
 
     @JsonView({Views.Public.class, Views.Export.class})

@@ -1,6 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
+import java.util.Optional;
+
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.SerialiseApplicationObjective;
 
 public interface DomainPermissionCE {
     /**
@@ -14,4 +17,6 @@ public interface DomainPermissionCE {
      * @return The permission required to read the domain.
      */
     AclPermission getReadPermission();
+
+    Optional<AclPermission> getAccessPermissionForImportExport(boolean isExport, SerialiseApplicationObjective serialiseFor);
 }

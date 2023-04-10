@@ -67,12 +67,16 @@ public class ImportExportHelper {
     private final ApplicationPageService applicationPageService;
     private final DatasourceService datasourceService;
     private final SequenceService sequenceService;
-    
+
     @Autowired
-    public ImportExportHelper(ApplicationService applicationService, CustomJSLibService customJSLibService, ApplicationPermission applicationPermission,
-            ActionCollectionRepository actionCollectionRepository, NewActionRepository newActionRepository, ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission, DatasourceRepository datasourceRepository, ThemeService themeService, NewPageRepository newPageRepository,
-            PagePermission pagePermission, WorkspaceService workspaceService, WorkspacePermission workspacePermission, ApplicationPageService applicationPageService,
+    public ImportExportHelper(ApplicationService applicationService, CustomJSLibService customJSLibService,
+            ApplicationPermission applicationPermission,
+            ActionCollectionRepository actionCollectionRepository, NewActionRepository newActionRepository,
+            ActionPermission actionPermission,
+            DatasourcePermission datasourcePermission, DatasourceRepository datasourceRepository,
+            ThemeService themeService, NewPageRepository newPageRepository,
+            PagePermission pagePermission, WorkspaceService workspaceService, WorkspacePermission workspacePermission,
+            ApplicationPageService applicationPageService,
             DatasourceService datasourceService, SequenceService sequenceService) {
         this.applicationService = applicationService;
         this.customJSLibService = customJSLibService;
@@ -91,43 +95,48 @@ public class ImportExportHelper {
         this.datasourceService = datasourceService;
         this.sequenceService = sequenceService;
     }
+
     /**
-     * This function will get the template application, if exists, without permission, for the given application id.
+     * This function will get the template application, if exists, without
+     * permission, for the given application id.
      * This is required to fetch template applications without permission.
      * Template application has exportWithConfiguration set to true.
+     * 
      * @param applicationId application id
      * @return Mono of Application object
      */
     public Mono<Application> fetchApplication(String applicationId) {
-        return applicationService.findByIdAndExportWithConfiguration(applicationId, TRUE);
+        return applicationService.findByIdAndExportWithConfiguration(applicationId, TRUE)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION,
+                                applicationId)));
     }
 
     /**
-     * This function will find Application object from the given applicationId and objective.
+     * This function will find Application object from the given applicationId and
+     * objective.
+     * 
      * @param applicationId application id
-     * @param serialiseFor objective of serialisation
+     * @param serialiseFor  objective of serialisation
      * @return
      */
-    public Mono<Application> fetchApplication(String applicationId, SerialiseApplicationObjective serialiseFor, boolean isImport) {
-        AclPermission permission = applicationPermission.getExportPermission();
-        if(ImportExportUtils.isGitSync(serialiseFor)) {
-            permission = applicationPermission.getEditPermission();
-        }
-        if(isImport) {
-            permission = applicationPermission.getEditPermission();
-        }
-        return applicationService.findById(applicationId, permission)
+    public Mono<Application> fetchApplication(String applicationId, boolean isExport,
+            SerialiseApplicationObjective serialiseFor) {
+        Optional<AclPermission> permission = applicationPermission.getAccessPermissionForImportExport(isExport,
+                serialiseFor);
+        // TODO should handle a case where this function returns empty?
+        return applicationService.findById(applicationId, permission.get())
                 // Find the application without permissions if it is a template application
                 .switchIfEmpty(Mono.defer(
-                        () -> fetchApplication(applicationId))
-                )
+                        () -> fetchApplication(applicationId)))
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
-                );
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID,
+                                applicationId)));
     }
 
     /**
      * This function gets all custom JS libs for export
+     * 
      * @param application
      * @return Flux of CustomJSLib
      */
@@ -135,8 +144,10 @@ public class ImportExportHelper {
         return customJSLibService.getAllJSLibsInApplication(application.getId(), null, false)
                 .map(unpublishedCustomJSLibList -> {
                     /**
-                     * Previously it was a Set and as Set is an unordered collection of elements that
-                     * resulted in uncommitted changes. Making it a list and sorting it by the UidString
+                     * Previously it was a Set and as Set is an unordered collection of elements
+                     * that
+                     * resulted in uncommitted changes. Making it a list and sorting it by the
+                     * UidString
                      * ensure that the order will be maintained. And this solves the issue.
                      */
                     Collections.sort(unpublishedCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
@@ -147,98 +158,138 @@ public class ImportExportHelper {
 
     /**
      * This function gets all action collections for export
-     * @param application application object
+     * 
+     * @param application  application object
      * @param serialiseFor objective of serialisation
      * @return Flux of ActionCollection
      */
-    public Flux<ActionCollection> fetchCollectionsForApplication(Application application, SerialiseApplicationObjective serialiseFor, boolean isImport) {
-        Optional<AclPermission> optionalPermission = ImportExportUtils.getResourceAccessPermissionForObjective(application, serialiseFor, actionPermission, isImport);
-        return actionCollectionRepository.findByApplicationId(application.getId(), optionalPermission, Optional.empty());
+    public Flux<ActionCollection> fetchCollectionsForApplication(Application application, boolean isExport,
+            SerialiseApplicationObjective serialiseFor) {
+        Optional<AclPermission> optionalPermission = actionPermission.getAccessPermissionForImportExport(isExport,
+                serialiseFor);
+        return actionCollectionRepository.findByApplicationId(application.getId(), optionalPermission,
+                Optional.empty());
     }
 
-    public Mono<Workspace> fetchWorkspace(String workspaceId) {
-        return workspaceService.findById(workspaceId, workspacePermission.getApplicationCreatePermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+    public Mono<Workspace> fetchWorkspace(String workspaceId, boolean isExport,
+            SerialiseApplicationObjective serialiseFor) {
+        return workspaceService
+                .findById(workspaceId, workspacePermission.getAccessPermissionForImportExport(true, serialiseFor))
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
     }
 
     /**
      * This function gets all actions for export
-     * @param application application object
+     * 
+     * @param application  application object
      * @param serialiseFor objective of serialisation
      * @return Flux of NewAction
      */
-    public Flux<NewAction> fetchActionsForApplication(Application application, SerialiseApplicationObjective serialiseFor, boolean isImport) {
-        Optional<AclPermission> optionalPermission = ImportExportUtils.getResourceAccessPermissionForObjective(application, serialiseFor, actionPermission, isImport);
+    public Flux<NewAction> fetchActionsForApplication(Application application, boolean isExport,
+            SerialiseApplicationObjective serialiseFor) {
+        Optional<AclPermission> optionalPermission = actionPermission.getAccessPermissionForImportExport(isExport,
+                serialiseFor);
         return newActionRepository.findByApplicationId(application.getId(), optionalPermission, Optional.empty());
     }
 
     /**
      * This function returns a set of Datasources for a given workspace
-     * @param application application object
+     * 
+     * @param application  application object
      * @param serialiseFor objective of serialisation
      * @return Flux of Datasource
      */
-    public Flux<Datasource> fetchDatasourcesForWorkspace(String workspaceId, SerialiseApplicationObjective serialiseFor, boolean isImport) {
-        Optional<AclPermission> optionalPermission = ImportExportUtils.getResourceAccessPermissionForObjective(null, serialiseFor, datasourcePermission, isImport);
+    public Flux<Datasource> fetchDatasourcesForWorkspace(String workspaceId, boolean isExport,
+            SerialiseApplicationObjective serialiseFor) {
+        Optional<AclPermission> optionalPermission = datasourcePermission.getAccessPermissionForImportExport(isExport,
+                serialiseFor);
         return datasourceRepository.findAllByWorkspaceId(workspaceId, optionalPermission);
     }
 
     /**
-     * This function returns edit mode theme for the given application, if not found then returns default theme
+     * This function returns edit mode theme for the given application, if not found
+     * then returns default theme
+     * 
      * @param application application object
      * @return Mono of Theme
      */
     public Mono<Theme> getApplicationEditModeThemeOrDefault(Application application) {
         return themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                .switchIfEmpty(Mono.defer(() -> themeService.getDefaultTheme()));
+                .switchIfEmpty(Mono.defer(() -> themeService.getDefaultTheme()))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, "default")));
     }
 
     /**
-     * This function returns published mode theme for the given application, if not found then returns default theme
+     * This function returns published mode theme for the given application, if not
+     * found then returns default theme
+     * 
      * @param application application object
      * @return Mono of Theme
      */
     public Mono<Theme> getAplicationPublishedThemeOrDefault(Application application) {
         return themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
-                .switchIfEmpty(Mono.defer(() -> themeService.getDefaultTheme()));
+                .switchIfEmpty(Mono.defer(() -> themeService.getDefaultTheme()))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, "default")));
     }
 
     /**
      * This function exports all the pages of the given application
-     * @param application application object
+     * 
+     * @param application  application object
      * @param serialiseFor objective of serialisation
      * @return Flux of NewPage
      */
-    public Flux<NewPage> fetchPagesForApplication(Application application, SerialiseApplicationObjective serialiseFor, boolean isImport) {
-        Optional<AclPermission> optionalPermission = ImportExportUtils.getResourceAccessPermissionForObjective(application, serialiseFor, pagePermission, isImport);
-        return newPageRepository.findByApplicationId(application.getId(), optionalPermission).log();
+    public Flux<NewPage> fetchPagesForApplication(String applicationId, boolean isExport,
+            SerialiseApplicationObjective serialiseFor) {
+        Optional<AclPermission> optionalPermission = pagePermission.getAccessPermissionForImportExport(isExport,
+                serialiseFor);
+        return newPageRepository.findByApplicationId(applicationId, optionalPermission).log();
     }
 
-    public Mono<Application> fetchOrCreateApplicationForImport(String applicationId, Application applicationToImport) {
+    public Mono<Application> fetchOrCreateApplicationForImport(String applicationId, Application applicationToImport,
+            SerialiseApplicationObjective serialiseFor) {
         Mono<Application> applicationMono = Mono.empty();
-        if(StringUtils.isNotBlank(applicationId)) {
-            applicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission());
+
+        if (StringUtils.isNotBlank(applicationId)) {
+            applicationMono = applicationService.findById(applicationId,
+                    applicationPermission.getAccessPermissionForImportExport(false, serialiseFor));
         }
-        return applicationMono.switchIfEmpty(Mono.defer(() -> {
+
+        applicationMono = applicationMono.switchIfEmpty(Mono.defer(() -> {
             // If application id is not present, then create a new application
-            return applicationPageService.createOrUpdateSuffixedApplication(applicationToImport, applicationToImport.getName(), 0);
+            applicationToImport.setPages(null);
+            applicationToImport.setPublishedPages(null);
+            return applicationPageService.createOrUpdateSuffixedApplication(applicationToImport,
+                    applicationToImport.getName(), 0);
         }));
+
+        return applicationMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION_ID, applicationId)));
     }
 
     /**
-     * This will check if the datasource is already present in the workspace and create a new one if unable to find one
+     * This will check if the datasource is already present in the workspace and
+     * create a new one if unable to find one
      *
      * @param existingDatasourceFlux already present datasource in the workspace
-     * @param datasource             which will be checked against existing datasources
-     * @param workspaceId            workspace where duplicate datasource should be checked
-     * @return already present or brand new datasource depending upon the equality check
+     * @param datasource             which will be checked against existing
+     *                               datasources
+     * @param workspaceId            workspace where duplicate datasource should be
+     *                               checked
+     * @return already present or brand new datasource depending upon the equality
+     *         check
      */
     public Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
-                                                                Datasource datasource,
-                                                                String workspaceId) {
+            Datasource datasource,
+            String workspaceId) {
         /*
-            1. If same datasource is present return
-            2. If unable to find the datasource create a new datasource with unique name and return
+         * 1. If same datasource is present return
+         * 2. If unable to find the datasource create a new datasource with unique name
+         * and return
          */
         final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
@@ -251,19 +302,21 @@ public class ImportExportHelper {
 
         return existingDatasourceFlux
                 // For git import exclude datasource configuration
-                .filter(ds -> ds.getName().equals(datasource.getName()) && datasource.getPluginId().equals(ds.getPluginId()))
-                .next()  // Get the first matching datasource, we don't need more than one here.
+                .filter(ds -> ds.getName().equals(datasource.getName())
+                        && datasource.getPluginId().equals(ds.getPluginId()))
+                .next() // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
                         datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
-                    datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
+                    datasource
+                            .setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getEditPermission())
-                            .flatMap(duplicateNameDatasource ->
-                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
-                            )
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId,
+                                    datasourcePermission.getEditPermission())
+                            .flatMap(duplicateNameDatasource -> getUniqueSuffixForDuplicateNameEntity(
+                                    duplicateNameDatasource, workspaceId))
                             .map(suffix -> {
                                 datasource.setName(datasource.getName() + suffix);
                                 return datasource;
@@ -273,9 +326,11 @@ public class ImportExportHelper {
     }
 
     /**
-     * This function will respond with unique suffixed number for the entity to avoid duplicate names
+     * This function will respond with unique suffixed number for the entity to
+     * avoid duplicate names
      *
-     * @param sourceEntity for which the suffixed number is required to avoid duplication
+     * @param sourceEntity for which the suffixed number is required to avoid
+     *                     duplication
      * @param workspaceId  workspace in which entity should be searched
      * @return next possible number in case of duplication
      */
@@ -289,5 +344,12 @@ public class ImportExportHelper {
                     });
         }
         return Mono.just("");
+    }
+
+    public Mono<Workspace> fetchWorkspace(String workspaceId, SerialiseApplicationObjective serializeFor) {
+        return workspaceService
+                .findById(workspaceId, workspacePermission.getAccessPermissionForImportExport(false, serializeFor))
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
     }
 }

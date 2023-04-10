@@ -3,16 +3,18 @@ package com.appsmith.server.helpers;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.appsmith.external.interfaces.DeletableResource;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -24,7 +26,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.solutions.DomainPermission;
 
 public class ImportExportUtils {
 
@@ -39,24 +40,13 @@ public class ImportExportUtils {
     }
 
     /**
-     * This function gets resource access permission for the given objective
+     * This function checks whether serialisation is for file export
      * 
-     * @param application      application object
-     * @param serialiseFor     objective of serialisation
-     * @param domainPermission domain permission object
+     * @param serialiseFor objective of serialisation
+     * @return true if serialisation is for file export, false otherwise
      */
-    public static Optional<AclPermission> getResourceAccessPermissionForObjective(Application application,
-            SerialiseApplicationObjective serialiseFor, DomainPermission domainPermission, boolean isImport) {
-        if(isImport == true) {
-            return Optional.of(domainPermission.getEditPermission());
-        }
-        if (ImportExportUtils.isGitSync(serialiseFor)) {
-            return Optional.empty();
-        } 
-        if (!isImport && application != null && Optional.ofNullable(application.getExportWithConfiguration()).orElse(false)) {
-            return Optional.of(domainPermission.getReadPermission());
-        }
-        return Optional.of(domainPermission.getEditPermission());
+    public static boolean isFileExport(SerialiseApplicationObjective serialiseFor) {
+        return SerialiseApplicationObjective.SHARE.equals(serialiseFor);
     }
 
     /**
@@ -141,7 +131,7 @@ public class ImportExportUtils {
      * @param actionCollections list of action collections
      * @return set of updated collection names
      */
-    public static Set<String> getUpdatedActionCollectionsForApplication(Application application,
+    public static Set<String> getUpdatedCollectionsForApplication(Application application,
             List<ActionCollection> actionCollections, ResourceModes resourceMode) {
         return actionCollections
                 .stream()
@@ -152,30 +142,47 @@ public class ImportExportUtils {
     }
 
     /**
-     * This function calculates the map of page id to name
+     * This function computes the map of page id to name
      * 
      * @param pages list of pages
      * @return map of page id to name
      */
-    public static Map<String, String> calculatePageIdToNameMap(List<NewPage> pages, ResourceModes resourceMode) {
-        return pages.stream()
+    public static Map<String, PageDTO> computePageIdToPageDTOMap(List<NewPage> pages, ResourceModes resourceMode) {
+        Map<String, PageDTO> map = pages.stream()
                 .map(page -> {
                     PageDTO pageDTO = page.select(resourceMode);
                     pageDTO.setId(page.getId());
                     return pageDTO;
                 })
-                .collect(Collectors.toMap(PageDTO::getId, PageDTO::getName));
+                .collect(Collectors.toMap(PageDTO::getId, Function.identity()));
+        
+        return Collections.unmodifiableMap(map);
     }
 
     /**
-     * This function calculates the map of plugin id to name
+     * This function calculates the map of plugin id to plugin object
      * 
      * @param plugins list of plugins
-     * @return map of plugin id to name
+     * @return map of plugin id to plugin object
      */
-    public static Map<String, String> calculatePluginIdToNameMap(List<Plugin> plugins) {
-        return plugins.stream()
-                .collect(Collectors.toMap(BaseDomain::getId, ImportExportUtils::getPluginName));
+    public static Map<String, Plugin> computePluginIdToPluginMap(List<Plugin> plugins) {
+        Map<String, Plugin> map = plugins.stream()
+                .collect(Collectors.toMap(BaseDomain::getId, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * This function calculates the map of plugin id to plugin object
+     * 
+     * @param plugins list of plugins
+     * @return map of plugin id to plugin object
+     */
+    public static Map<String, Plugin> computePluginReferenceToPluginMap(List<Plugin> plugins) {
+        Map<String, Plugin> map = plugins.stream()
+                .collect(Collectors.toMap(ImportExportUtils::getPluginReference, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
     }
 
     /**
@@ -184,9 +191,18 @@ public class ImportExportUtils {
      * @param datasource list of datasources
      * @return map of datasource id to name
      */
-    public static Map<String, String> calculateDatasourceIdToNameMap(List<Datasource> datasource) {
-        return datasource.stream()
-                .collect(Collectors.toMap(Datasource::getId, Datasource::getName));
+    public static Map<String, Datasource> computeDatasourceIdToDatasourceMap(List<Datasource> datasource) {
+        Map<String, Datasource> map = datasource.stream()
+                .collect(Collectors.toMap(Datasource::getId, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, Datasource> computeDatasourceNameToDatasourceMap(List<Datasource> datasource) {
+        Map<String, Datasource> map = datasource.stream()
+                .collect(Collectors.toMap(Datasource::getName, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
     }
 
     /**
@@ -195,15 +211,46 @@ public class ImportExportUtils {
      * @param actionCollections list of action collections
      * @return map of action collection id to name
      */
-    public static Map<String, String> calculateActionCollectionIdToNameMap(List<ActionCollection> actionCollections,
+    public static Map<String, ActionCollectionDTO> computeCollectionIdToCollectionDTOMap(List<ActionCollection> actionCollections,
             ResourceModes resourceMode) {
-        return actionCollections.stream()
+                Map<String, ActionCollectionDTO> map = actionCollections.stream()
                 .map(actionCollection -> {
                     ActionCollectionDTO actionCollectionDTO = actionCollection.select(resourceMode);
                     actionCollectionDTO.setId(actionCollection.getId());
                     return actionCollectionDTO;
                 })
-                .collect(Collectors.toMap(ActionCollectionDTO::getId, ActionCollectionDTO::getName));
+                .collect(Collectors.toMap(ActionCollectionDTO::getId, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+    /**
+     * This function calculates the map of action id to name
+     * 
+     * @param actions list of actions
+     * @return map of action id to name
+     */
+    public static Map<String, ActionDTO> computeActionIdToActionDTOMap(List<NewAction> actions, ResourceModes resourceMode) {
+        Map<String, ActionDTO> map = actions.stream()
+                .map(action -> {
+                    ActionDTO actionDTO = action.select(resourceMode);
+                    actionDTO.setId(action.getId());
+                    return actionDTO;
+                })
+                .collect(Collectors.toMap(ActionDTO::getId, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, PageDTO> computePageNameToPageDTOMap(List<NewPage> pages, ResourceModes resourceMode) {
+        Map<String, PageDTO> map = pages.stream()
+                .map(page -> {
+                    PageDTO pageDTO = page.select(resourceMode);
+                    pageDTO.setId(page.getId());
+                    return pageDTO;
+                })
+                .collect(Collectors.toMap(PageDTO::getName, Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
     }
 
     /**
@@ -214,26 +261,11 @@ public class ImportExportUtils {
      * @param plugin plugin object
      * @return plugin name
      */
-    public static String getPluginName(Plugin plugin) {
+    public static String getPluginReference(Plugin plugin) {
         return Optional.ofNullable(plugin.getPluginName()).orElse(plugin.getPackageName());
     }
 
     public static boolean isResourceDeleted(DeletableResource resource) {
         return resource == null || resource.getDeletedAt() != null;
-    }
-
-    public static Map<String, String> calculatePluginNameToPluginIdMap(List<Plugin> plugins) {
-        return plugins.stream()
-                .collect(Collectors.toMap(ImportExportUtils::getPluginName, BaseDomain::getId));
-    }
-
-    public static Map<String, String> calculatePageNameToPageIdMap(List<NewPage> pages, ResourceModes resourceMode) {
-        return pages.stream()
-                .map(page -> {
-                    PageDTO pageDTO = page.select(resourceMode);
-                    pageDTO.setId(page.getId());
-                    return pageDTO;
-                })
-                .collect(Collectors.toMap(PageDTO::getName, PageDTO::getId));
     }
 }

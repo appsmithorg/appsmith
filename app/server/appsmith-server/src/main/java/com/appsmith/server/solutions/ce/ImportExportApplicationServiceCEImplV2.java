@@ -1,17 +1,16 @@
 package com.appsmith.server.solutions.ce;
 
-import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static java.lang.Boolean.TRUE;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,15 +23,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -76,27 +82,17 @@ import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.writer.CollectionMapper.ListClass;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -136,112 +132,71 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     /**
      * This function processed Theme object for export
      * @param theme theme object
-     * @return Mono of Theme
+     * @return Theme object
      */
-    public Mono<Theme> processThemeForExport(Theme theme) {
+    public Theme processThemeForExport(Theme theme) {
         if(theme.isSystemTheme()) {
             // for system theme, we only need theme name and isSystemTheme properties so set null to others
             theme.setProperties(null);
             theme.setConfig(null);
             theme.setStylesheet(null);
         }
-        return Mono.just(theme);
-    }
-
-    /**
-     * This function processed action collection object for export
-     * @param actionCollection action collection object
-     * @return Mono of ActionCollection
-     */
-    public Mono<ActionCollection> processActionCollectionForExport(ActionCollection actionCollection) {
-        return Mono.just(actionCollection);
-    }
-
-    /**
-     * This function process datasource object for export
-     */
-    public Mono<Datasource> processDatasourceForExport(Datasource datasource) {
-        return Mono.just(datasource);
-    }
-
-    /**
-     * This function processed action object for export
-     * @param action action object
-     * @return Mono of NewAction
-     */
-    public Mono<NewAction> processActionForExport(NewAction action) {
-        return Mono.just(action);
-    }
-
-    /**
-     * This function processed page object for export
-     * @param page page object
-     * @return Mono of NewPage
-     */
-    public Mono<NewPage> processPageForExport(NewPage page, ResourceModes resourceMode) {
-        return Mono.just(page);
-    }
-
-    /**
-     * This function processed application object for export
-     * @param application application object
-     * @return Mono of Application
-     */
-    public Mono<Application> processApplicationForExport(Application application) {
-        return Mono.just(application);
+        return theme;
     }
 
     /**
      * This function fixes the references for export
      * @param pages list of pages
-     * @param actionCollections list of action collections
+     * @param collections list of action collections
      * @param actions list of actions
      * @param plugins list of plugins
      * @param datasources list of datasources
      */
-    public void fixReferencesForExport(Application application, List<NewPage> pages, List<ActionCollection> actionCollections, List<NewAction> actions, List<Plugin> plugins, List<Datasource> datasources, ResourceModes resourceMode) {
+    public void fixReferencesForExport(Application application, List<NewPage> pages, List<ActionCollection> collections, List<NewAction> actions, List<Plugin> plugins, List<Datasource> datasources, ResourceModes resourceMode) {
         // Calculate pageId to name map
-        Map<String, String> pageIdToNameMap = ImportExportUtils.calculatePageIdToNameMap(pages.stream().collect(Collectors.toList()), resourceMode);
+        Map<String, PageDTO> pageIdToPageDTOMap = ImportExportUtils.computePageIdToPageDTOMap(pages.stream().collect(Collectors.toList()), resourceMode);
         // Calculate pluginId to name map
-        Map<String, String> pluginIdToNameMap = ImportExportUtils.calculatePluginIdToNameMap(plugins);
+        Map<String, Plugin> pluginIdToPluginMap = ImportExportUtils.computePluginIdToPluginMap(plugins);
         // Calculate collectionId to name map
-        Map<String, String> actionCollectionIdToNameMap = ImportExportUtils.calculateActionCollectionIdToNameMap(actionCollections, resourceMode);
+        Map<String, ActionCollectionDTO> collectionIdToCollectionDTOMap = ImportExportUtils.computeCollectionIdToCollectionDTOMap(collections, resourceMode);
         // Calculate datasourceId to name map
-        Map<String, String> datasourceIdToNameMap = ImportExportUtils.calculateDatasourceIdToNameMap(datasources);
+        Map<String, Datasource> datasourceIdToDatasourceMap = ImportExportUtils.computeDatasourceIdToDatasourceMap(datasources);
+        // Calculate actionId to name map
+        Map<String, ActionDTO> actionIdToActionMap = ImportExportUtils.computeActionIdToActionDTOMap(actions, resourceMode);
 
         // Fix references for action collections
-        actionCollections.stream()
-                .forEach(actionCollection -> {
-                    ActionCollectionDTO actionCollectionDTO = actionCollection.select(resourceMode);
-                    actionCollectionDTO.setPageId(pageIdToNameMap.get(actionCollectionDTO.getPageId()));
-                    actionCollectionDTO.setPluginId(pluginIdToNameMap.get(actionCollectionDTO.getPluginId()));
+        collections.stream()
+                .forEach(collection -> {
+                    ActionCollectionDTO collectionDTO = collection.select(resourceMode);
+                    collectionDTO.setPageId(pageIdToPageDTOMap.get(collectionDTO.getPageId()).getName());
+                    collectionDTO.setPluginId(ImportExportUtils.getPluginReference(pluginIdToPluginMap.get(collectionDTO.getPluginId())));
                 });
         
         // Fix references for actions
         actions.stream()
                 .forEach(action -> {
                     ActionDTO actionDTO = action.select(resourceMode);
-                    actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId()));
+                    actionDTO.setPageId(pageIdToPageDTOMap.get(actionDTO.getPageId()).getName());
                     if (!StringUtils.isEmpty(actionDTO.getCollectionId())
-                            && actionCollectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
-                                actionDTO.setCollectionId(actionCollectionIdToNameMap.get(actionDTO.getCollectionId()));
+                            && collectionIdToCollectionDTOMap.containsKey(actionDTO.getCollectionId())) {
+                                actionDTO.setCollectionId(collectionIdToCollectionDTOMap.get(actionDTO.getCollectionId()).getName());
                     }
                     Datasource ds = actionDTO.getDatasource();
                     if(ds != null) {
                         if(ds.getId() != null) {
-                            ds.setId(datasourceIdToNameMap.get(ds.getId()));
+                            ds.setId(datasourceIdToDatasourceMap.get(ds.getId()).getName());
                         }
                         if (ds.getPluginId() != null) {
-                            ds.setPluginId(pluginIdToNameMap.get(ds.getPluginId()));
+                            ds.setPluginId(pluginIdToPluginMap.get(ds.getPluginId()).getName());
                         }
                     }
-                    action.setPluginId(pluginIdToNameMap.get(action.getPluginId()));
+                    action.setPluginId(pluginIdToPluginMap.get(action.getPluginId()).getName());
                     action.setId(actionDTO.getName());
                 });
 
         application.getPages()
                 .forEach(page -> {
-                    page.setId(pageIdToNameMap.get(page.getId()));
+                    page.setId(pageIdToPageDTOMap.get(page.getId()).getName());
                 });
 
         pages.forEach(page -> {
@@ -249,13 +204,84 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             if (!CollectionUtils.isEmpty(pageDTO.getLayouts())) {
                 pageDTO.getLayouts().forEach(layout -> {
                     layout.setId(pageDTO.getName());
+                    if(!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
+                        layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
+                            .forEach(actionDTO -> {
+                                if (actionIdToActionMap.containsKey(actionDTO.getId())) {
+                                    actionDTO.setId(actionIdToActionMap.get(actionDTO.getId()).getName());
+                                }
+                                if (collectionIdToCollectionDTOMap.containsKey(actionDTO.getCollectionId())) {
+                                    actionDTO.setCollectionId(collectionIdToCollectionDTOMap.get(actionDTO.getCollectionId()).getName());
+                                }
+                            })
+                        );
+                    }
                 });
             }
         });
 
         datasources.forEach(datasource -> {
-            datasource.setPluginId(pluginIdToNameMap.get(datasource.getPluginId()));
+            datasource.setPluginId(ImportExportUtils.getPluginReference(pluginIdToPluginMap.get(datasource.getPluginId())));
         });
+    }
+
+    /**
+     * This will be used to dehydrate sensitive fields from the datasource while exporting the application
+     *
+     * @param datasource entity from which sensitive fields need to be dehydrated
+     * @return sensitive fields which then will be deserialized and exported in JSON file
+     */
+    private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
+
+        if(datasource.getDatasourceConfiguration() != null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
+            return null;
+        }
+
+        AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+
+        DecryptedSensitiveFields dsDecryptedFields = null;
+
+        if(authentication.getAuthenticationResponse() != null && authentication.getAuthenticationResponse() != null) {
+            dsDecryptedFields = new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
+        } else {
+
+            dsDecryptedFields = new DecryptedSensitiveFields();
+        }
+
+        if (authentication instanceof DBAuth auth) {
+            dsDecryptedFields.setPassword(auth.getPassword());
+            dsDecryptedFields.setDbAuth(auth);
+
+        } else if (authentication instanceof OAuth2 auth) {
+            dsDecryptedFields.setPassword(auth.getClientSecret());
+            dsDecryptedFields.setOpenAuth2(auth);
+
+        } else if (authentication instanceof BasicAuth auth) {
+            dsDecryptedFields.setPassword(auth.getPassword());
+            dsDecryptedFields.setBasicAuth(auth);
+            
+        } else if (authentication instanceof BearerTokenAuth auth) {
+            dsDecryptedFields.setBearerTokenAuth(auth);
+        }
+
+        dsDecryptedFields.setAuthType(authentication.getClass().getName());
+        return dsDecryptedFields;
+    }
+    
+    List<Datasource> processDatasourceConfigurationForExport(ApplicationJson applicationJson, Application application, List<Datasource> datasources, SerialiseApplicationObjective serialiseFor) {
+        if (TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+            // Save decrypted fields for datasources
+            Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
+            datasources.forEach(datasource -> {
+                decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
+            });
+            applicationJson.setDecryptedFields(decryptedFields);
+            return datasources;
+        }
+        return datasources.stream()
+                // Remove the datasourceConfiguration object as user will configure it once imported to other instance
+                .peek(datasource -> datasource.setDatasourceConfiguration(null))
+                .collect(Collectors.toList());
     }
 
     boolean shouldIncludeResourceForExport(PublishableResource resource, ResourceModes resourceMode) {
@@ -271,15 +297,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor, ResourceModes resourceMode) {
 
         // Start the stopwatch to log the execution time
-        // Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
-        /*
-            1. Fetch application by id
-            2. Fetch pages from the application
-            3. Fetch datasources from workspace
-            4. Fetch actions from the application
-            5. Filter out relevant datasources using actions reference
-            6. Fetch action collections from the application
-         */
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
@@ -287,8 +305,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
-        Mono<Application> applicationMono = importExportHelper.fetchApplication(applicationId, serialiseFor, false)
-                .flatMap(this::processApplicationForExport)
+        Mono<Application> applicationMono = importExportHelper.fetchApplication(applicationId, true, serialiseFor)
                 .cache();
 
         /**
@@ -300,38 +317,33 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 .cache();
 
         Mono<Theme> editModeThemeMono = applicationMono
-                .flatMap(application -> importExportHelper.getApplicationEditModeThemeOrDefault(application))
-                .flatMap(this::processThemeForExport);
+                .flatMap(application -> importExportHelper.getApplicationEditModeThemeOrDefault(application));
 
         Mono<Theme> publishedThemeMono = applicationMono
-                .flatMap(application -> importExportHelper.getAplicationPublishedThemeOrDefault(application))
-                .flatMap(this::processThemeForExport);
+                .flatMap(application -> importExportHelper.getAplicationPublishedThemeOrDefault(application));
 
         Flux<NewPage> pagesFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchPagesForApplication(application, serialiseFor, false))
+                .flatMapMany(application -> importExportHelper.fetchPagesForApplication(application.getId(), true,serialiseFor))
                 // Filter out pages which are deleted or does not exist
                 .filter(page -> shouldIncludeResourceForExport(page, resourceMode))
                 .cache();
 
-        Flux<ActionCollection> actionCollectionFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchCollectionsForApplication(application, serialiseFor, false))
+        Flux<ActionCollection> collectionFlux = applicationMono
+                .flatMapMany(application -> importExportHelper.fetchCollectionsForApplication(application, true, serialiseFor))
                 // Filter out action collections which are deleted or does not exist
                 .filter(collection -> shouldIncludeResourceForExport(collection, resourceMode))
-                .flatMap(this::processActionCollectionForExport)
                 .cache();
 
         Flux<NewAction> actionFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchActionsForApplication(application, serialiseFor, false))
+                .flatMapMany(application -> importExportHelper.fetchActionsForApplication(application, true, serialiseFor))
                 // Filter out actions which are deleted or does not exist
                 .filter(action -> shouldIncludeResourceForExport(action, resourceMode))
-                .flatMap(this::processActionForExport)
                 .cache();
         
         Flux<Plugin> pluginFlux = pluginRepository.findAll();
 
         Flux<Datasource> datasourceFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchDatasourcesForWorkspace(application.getWorkspaceId(), serialiseFor, false))
-                .flatMap(this::processDatasourceForExport)
+                .flatMapMany(application -> importExportHelper.fetchDatasourcesForWorkspace(application.getWorkspaceId(), true, serialiseFor))
                 .cache();
 
         return Mono.zip(
@@ -341,22 +353,26 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 publishedThemeMono,
                 applicationMono,
                 pagesFlux.collectList(),
-                actionCollectionFlux.collectList(),
+                collectionFlux.collectList(),
                 Mono.zip(
                         actionFlux.collectList(),
-                        datasourceFlux.collectList())
+                        datasourceFlux.collectList(),
+                        currentUserMono)
                 )
                 .map(tuple -> {
+                    // Unwrap all the values from the tuple
                     List<CustomJSLib> allCustomJSLibs = tuple.getT1();
                     List<Plugin> plugins = tuple.getT2();
                     Theme editModeTheme = tuple.getT3();
                     Theme publishedTheme = tuple.getT4();
                     Application application = tuple.getT5();
                     List<NewPage> pages = tuple.getT6();
-                    List<ActionCollection> actionCollections = tuple.getT7();
+                    List<ActionCollection> collections = tuple.getT7();
                     List<NewAction> actions = tuple.getT8().getT1();
                     List<Datasource> datasources = tuple.getT8().getT2();
+                    User currentUser = tuple.getT8().getT3();
 
+                    // Map to store the set of updated resource ids
                     Map<String, Set<String>> updatedResources = new HashMap<>();
                     
                     ApplicationJson applicationJson = new ApplicationJson();
@@ -365,26 +381,28 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
                     applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
-                    // Populate custom JS libs
+                    // Populate custom JS libs with set of updated ids
                     applicationJson.setCustomJSLibList(allCustomJSLibs);
                     updatedResources.put(FieldName.CUSTOM_JS_LIB_LIST, ImportExportUtils.getUpdatedCustomJSLibsForApplication(application, allCustomJSLibs));
 
-                    // Populate themes
+                    // Populate edit mode and published mode theme
+                    processThemeForExport(editModeTheme);
+                    processThemeForExport(publishedTheme);
                     applicationJson.setEditModeTheme(editModeTheme);
                     applicationJson.setPublishedTheme(publishedTheme);
 
                     // Populate application
                     applicationJson.setExportedApplication(application);
 
-                    // Populate pages
+                    // Populate pages with set of updated ids
                     applicationJson.setPageList(pages);
                     updatedResources.put(FieldName.PAGE_LIST, ImportExportUtils.getUpdatedPagesForApplication(application, pages, resourceMode));
 
-                    // Populate action collections
-                    applicationJson.setActionCollectionList(actionCollections);
-                    updatedResources.put(FieldName.ACTION_COLLECTION_LIST, ImportExportUtils.getUpdatedActionCollectionsForApplication(application, actionCollections, resourceMode));
+                    // Populate action collections with set of updated ids
+                    applicationJson.setActionCollectionList(collections);
+                    updatedResources.put(FieldName.ACTION_COLLECTION_LIST, ImportExportUtils.getUpdatedCollectionsForApplication(application, collections, resourceMode));
 
-                    // Populate actions
+                    // Populate actions with set of updated ids
                     applicationJson.setActionList(actions);
                     updatedResources.put(FieldName.ACTION_LIST, ImportExportUtils.getUpdatedActionsForApplication(application, actions, resourceMode));
 
@@ -398,14 +416,36 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             .filter(datasource -> datasourceIds.contains(datasource.getId()))
                             .collect(Collectors.toList());
 
+                    datasources = processDatasourceConfigurationForExport(applicationJson, application, datasources, serialiseFor);
+
                     applicationJson.setDatasourceList(datasources);
 
-                    // Fix references
-                    fixReferencesForExport(application, pages, actionCollections, actions, plugins, datasources, resourceMode);
+                    // Fix references, this basically replaces the ids of resources and the reference fields with curresponding name
+                    // of the resource
+                    fixReferencesForExport(application, pages, collections, actions, plugins, datasources, resourceMode);
 
+                    // Set the updated resources
                     applicationJson.setUpdatedResources(updatedResources);
 
-                    return applicationJson;
+                    return Tuples.of(applicationJson, currentUser);
+                }).flatMap(tuple -> {
+
+                    ApplicationJson applicationJson = tuple.getT1();
+                    User currentUser = tuple.getT2();
+
+                    // When we land here, we have the applicationJson object with all the resources populated.
+                    // So we will stop the timer and send the analytics event
+                    stopwatch.stopTimer();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, applicationId,
+                            "pageCount", applicationJson.getPageList().size(),
+                            "actionCount", applicationJson.getActionList().size(),
+                            "JSObjectCount", applicationJson.getActionCollectionList().size(),
+                            FieldName.FLOW_NAME, stopwatch.getFlow(),
+                            "executionTime", stopwatch.getExecutionTime()
+                    );
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data)
+                            .thenReturn(applicationJson);
                 });
     }
 
@@ -413,90 +453,12 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getExportPermission())
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
-
-    // private void updateIdsForLayoutOnLoadAction(PageDTO page,
-    //                                             Map<String, String> actionIdToNameMap,
-    //                                             Map<String, String> collectionIdToNameMap) {
-
-    //     if (page != null && !CollectionUtils.isEmpty(page.getLayouts())) {
-    //         for (Layout layout : page.getLayouts()) {
-    //             if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
-    //                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-    //                         .forEach(actionDTO -> {
-    //                             if (actionIdToNameMap.containsKey(actionDTO.getId())) {
-    //                                 actionDTO.setId(actionIdToNameMap.get(actionDTO.getId()));
-    //                             }
-    //                             if (collectionIdToNameMap.containsKey(actionDTO.getCollectionId())) {
-    //                                 actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
-    //                             }
-    //                         })
-    //                 );
-    //             }
-    //         }
-    //     }
-    // }
-
-    public static class JSONObjectSerializer extends StdSerializer<JSONObject> {
-
-        public JSONObjectSerializer() {
-            this(null);
-        }
-      
-        public JSONObjectSerializer(Class<JSONObject> t) {
-            super(t);
-        }
-
-        @Override
-        public void serialize(JSONObject value, JsonGenerator generator, SerializerProvider provider) throws IOException {
-            generator.writeStartObject();
-            for (Object key : value.keySet()) {
-                log.debug("key: {}, value: {}", key, value.get(key));
-                generator.writeObjectField((String) key,  value.get(key));
-            }
-            generator.writeEndObject();
-        }
-    }
-
-    public static class JSONObjectDeserializer extends JsonDeserializer<JSONObject> {
-
-        @Override
-        public JSONObject deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-            JSONObject jsonObject = new JSONObject();
-            JsonNode node = parser.getCodec().readTree(parser);
-            Iterator<Entry<String, JsonNode>> fields = node.fields();
-            while (fields.hasNext()) {
-                Entry<String, JsonNode> field = fields.next();
-                String key = field.getKey();
-                JsonNode value = field.getValue();
-                if (value.isObject()) {
-                    jsonObject.put(key, deserialize(parser, context));
-                } else if (value.isArray()) {
-                    JSONArray jsonArray = new JSONArray();
-                    for (JsonNode jsonNode : (ArrayNode) value) {
-                        if (jsonNode.isObject()) {
-                            jsonArray.add(deserialize(parser, context));
-                        } else {
-                            jsonArray.add(jsonNode.asText());
-                        }
-                    }
-                    jsonObject.put(key, jsonArray);
-                } else {
-                    jsonObject.put(key, value.asText());
-                }
-            }
-            return jsonObject;
-        }
-    }
     
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
         return this.exportApplicationById(applicationId, branchName)
                 .map(applicationJson -> {
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.setSerializationInclusion(Include.NON_NULL);
-                    SimpleModule module = new SimpleModule();
-                    module.addSerializer(JSONObject.class, new JSONObjectSerializer());
-                    module.addDeserializer(JSONObject.class, new JSONObjectDeserializer());
-                    mapper.registerModule(module);
                     String stringifiedFile = "";
                     try {
                         stringifiedFile = mapper.writerWithView(Views.ExportUnpublished.class).writeValueAsString(applicationJson);
@@ -572,9 +534,9 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.setSerializationInclusion(Include.NON_NULL);
                     SimpleModule module = new SimpleModule();
-                    module.addSerializer(JSONObject.class, new JSONObjectSerializer());
-                    module.addDeserializer(JSONObject.class, new JSONObjectDeserializer());
-                    mapper.registerModule(module);
+                    //module.addSerializer(JSONObject.class, new JSONObjectSerializer());
+                    //module.addDeserializer(JSONObject.class, new JSONObjectDeserializer());
+                    //mapper.registerModule(module);
                     ApplicationJson jsonFile = null;
                     try {
                         jsonFile = mapper.readerWithView(Views.Import.class).readValue(data, ApplicationJson.class);
@@ -607,8 +569,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
     @Override
     public Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'importApplicationInWorkspace'");
+        return importApplicationInWorkspace(workspaceId, null, importedDoc, SerialiseApplicationObjective.SHARE);
     }
 
     @Override
@@ -618,160 +579,259 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         throw new UnsupportedOperationException("Unimplemented method 'importApplicationInWorkspace'");
     }
 
-    @Override
-    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findDatasourceByApplicationId'");
-    }
+    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
+        // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
+        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, Optional.empty()).collectList();
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, Optional.empty(), Optional.empty())
+                .collectList()
+                .zipWith(listMono)
+                .flatMap(objects -> {
+                    List<Datasource> datasourceList = objects.getT2();
+                    List<NewAction> actionList = objects.getT1();
+                    List<String> usedDatasource = actionList.stream()
+                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
+                            .collect(Collectors.toList());
 
-    @Override
-    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId,
-            Application application) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getApplicationImportDTO'");
-    }
+                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
 
-    public Mono<Application> importApplicationInWorkspace(String workspaceId, String applicationId, ApplicationJson applicationJson, SerialiseApplicationObjective serialiseFor) {
-        
-        // TODO migration and data validation
-
-        //Following data has to be imported
-        
-
-        // fetch the workspace
-        Mono<Workspace> workspaceMono = importExportHelper.fetchWorkspace(workspaceId);
-
-        // fetch the current user
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
-
-        // fetch the application from DB if present or create one
-        Mono<Application> applicationMono = importExportHelper.fetchOrCreateApplicationForImport(applicationId, applicationJson.getExportedApplication())
-                .cache();
-
-        // fetch datasources from DB
-        Flux<Datasource> existingDatasourceFlux = importExportHelper.fetchDatasourcesForWorkspace(workspaceId, serialiseFor, true)
-                .cache();
-
-        // fetch pages from DB
-        Flux<NewPage> existingPageFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchPagesForApplication(application, serialiseFor, true))
-                .cache();
-
-        // fetch plugins from DB
-        Flux<Plugin> pluginFlux = pluginRepository.findAll();
-
-        return Mono.zip(pluginFlux.collectList(), workspaceMono, existingPageFlux.collectList())
-                .flatMap(tuple -> {
-                    List<Plugin> plugins = tuple.getT1();
-                    Workspace workspace = tuple.getT2();
-                    List<NewPage> existingPages = tuple.getT3();
-
-                    Application applicationToImport = applicationJson.getExportedApplication();
-                    List<Datasource> datasourcesToImport = applicationJson.getDatasourceList();
-                    List<NewPage> pagesToImport = applicationJson.getPageList();
-                    List<NewAction> actionsToImport = applicationJson.getActionList();
-                    List<ActionCollection> collectionsToImport = applicationJson.getActionCollectionList();
-                    List<CustomJSLib> customJSLibsToImport = applicationJson.getCustomJSLibList();
-
-                    // Create maps
-                    Map<String, String> pluginNameToPluginIdMap = ImportExportUtils.calculatePluginNameToPluginIdMap(plugins);
-
-                    // Check if the destination org have all the required plugins installed
-                    for (Datasource datasource : datasourcesToImport) {
-                        if (StringUtils.isEmpty(pluginNameToPluginIdMap.get(datasource.getPluginId()))) {
-                            log.error("Unable to find the plugin {}, available plugins are: {}", datasource.getPluginId(), pluginNameToPluginIdMap.keySet());
-                            return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
-                        }
-                    }
-
-                    datasourcesToImport.forEach(datasource -> {
-                        datasource.setWorkspaceId(workspaceId);
-                        datasource.setPluginId(pluginNameToPluginIdMap.get(datasource.getPluginId()));
-                    });
-
-                    Map<String, String> existingViewModePageNameToPageIdMap = existingPages.stream()
-                            .filter(page -> !ImportExportUtils.isResourceDeleted(page.select(ResourceModes.VIEW)))
-                            .collect(Collectors.toMap(page -> page.select(ResourceModes.VIEW).getName(), page -> page.getId()));
-
-                    Map<String, String> existingEditModePageNameToPageIdMap = existingPages.stream()
-                            .filter(page -> !ImportExportUtils.isResourceDeleted(page.select(ResourceModes.EDIT)))
-                            .collect(Collectors.toMap(page -> page.select(ResourceModes.EDIT).getName(), page -> page.getId()));
-
-                    Set<String> existingEditModePageNames = existingPages.stream()
-                            .filter(page -> !ImportExportUtils.isResourceDeleted(page.select(ResourceModes.EDIT)))
-                            .map(page -> page.select(ResourceModes.EDIT).getName())
-                            .collect(Collectors.toSet());
-
-                    Set<String> existingViewModePageNames = existingPages.stream()
-                            .filter(page -> !ImportExportUtils.isResourceDeleted(page.select(ResourceModes.VIEW)))
-                            .map(page -> page.select(ResourceModes.VIEW).getName())
-                            .collect(Collectors.toSet());
-
-                    Set<String> existingViewModeOnlyPageNames = existingPages.stream()
-                            .filter(page -> ImportExportUtils.isResourceDeleted(page.select(ResourceModes.EDIT)) 
-                                    && !ImportExportUtils.isResourceDeleted(page.select(ResourceModes.VIEW)))
-                            .map(page -> page.select(ResourceModes.VIEW).getName())
-                            .collect(Collectors.toSet());
-                    
-                    Set<String> toImportPageNames = pagesToImport.stream()
-                            .map(page -> page.select(ResourceModes.EDIT).getName())
-                            .collect(Collectors.toSet());
-
-                    Map<String, NewPage> existingPageIdToPageMap = existingPages.stream()
-                            .collect(Collectors.toMap(page -> page.getId(), page -> page));
-
-                    // This list will contain existing pages that are marked for update
-                    List<NewPage> existingPagesMarkedForUpdate = new ArrayList<>();
-
-                    // This list will contain existing pages that are marked for delete
-                    List<NewPage> existingPagesMarkedForDelete = new ArrayList<>();
-
-                    for(NewPage pageToImport : pagesToImport) {
-                        String existingPageName = pageToImport.select(ResourceModes.EDIT).getName();
-
-                        if(existingEditModePageNames.contains(existingPageName)) {
-                            // If the page of same name exists in the edit mode
-                            String existingPageId = existingEditModePageNameToPageIdMap.get(existingPageName);
-                            NewPage existingPage = existingPageIdToPageMap.get(existingPageId);
-
-                            // Adding this page to update list
-                            existingPagesMarkedForUpdate.add(existingPage);
-
-                            copyNestedNonNullProperties(pageToImport.select(ResourceModes.EDIT), existingPage.select(ResourceModes.EDIT));
-
-                        } else if(existingViewModeOnlyPageNames.contains(existingPageName)) {
-                            // Page with same name exists in view mode (but not in edit mode)
-                            String existingPageId = existingViewModePageNameToPageIdMap.get(existingPageName);
-                            NewPage existingPage = existingPageIdToPageMap.get(existingPageId);
-
-                            // Adding this page to update list
-                            existingPagesMarkedForUpdate.add(existingPage);
-
-                            copyNestedNonNullProperties(pageToImport.select(ResourceModes.EDIT), existingPage.select(ResourceModes.EDIT));
-
-                        } else {
-
-                            //newPageService.
-                        }
-                    }
-
-                    Set<String> existingPageIdsMarkedForUpdate = existingPagesMarkedForUpdate.stream()
-                            .map(page -> page.getId())
-                            .collect(Collectors.toSet());
-
-                    for(NewPage existingPage : existingPages) {
-                        if(!existingPageIdsMarkedForUpdate.contains(existingPage.getId())) {
-                            existingPagesMarkedForDelete.add(existingPage);
-                        }
-                    }
-
-                    //List<ApplicationPage> toImportpplicationPages = applicationToImport.getPages();
-                    applicationToImport.setPublishedPages(List.of()); //TODO not sure why it was set to null, changed it to empty list
-
-
-                    return applicationMono;
+                    return Mono.just(datasourceList);
                 });
     }
+
+    @Override
+    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application) {
+        return findDatasourceByApplicationId(applicationId, workspaceId)
+                .map(datasources -> {
+                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                    applicationImportDTO.setApplication(application);
+                    Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured()));
+                    if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
+                        applicationImportDTO.setIsPartialImport(true);
+                        applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                    } else {
+                        applicationImportDTO.setIsPartialImport(false);
+                    }
+                    return applicationImportDTO;
+                });
+    }
+
+    Mono<List<Datasource>> checkIfAllPluginInstalled(List<Datasource> datasourceToImportList, Mono<Map<String, Plugin>> installedPluginReferenceToPluginMapMono) {
+        return Flux.fromIterable(datasourceToImportList)
+                .zipWith(installedPluginReferenceToPluginMapMono.repeat())
+                .flatMap(tuple -> {
+                    Datasource datasourceToImport = tuple.getT1();
+                    Map<String, Plugin> installedPluginReferenceToPluginMap = tuple.getT2();
+                    if (!installedPluginReferenceToPluginMap.containsKey(datasourceToImport.getPluginId())) {
+                        log.error("Unable to find the plugin {}, available plugins are: {}", datasourceToImport.getPluginId(), installedPluginReferenceToPluginMap.keySet());
+                        return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasourceToImport.getPluginId()));
+                    }
+                    return Mono.just(datasourceToImport);
+                })
+                .collectList();
+    }
+
+    public Mono<Application> importApplicationInWorkspace(final String workspaceId, String applicationId, final ApplicationJson applicationJson, SerialiseApplicationObjective serialiseFor) {
+
+        // Read plugins from DB
+        Mono<List<Plugin>> installedPluginListMono = pluginRepository.findAll().collectList().cache();
+        // Create maps for further processing
+        Mono<Map<String, Plugin>> installedPluginIdToPluginMapMono = installedPluginListMono.map(ImportExportUtils::computePluginIdToPluginMap).cache();
+        Mono<Map<String, Plugin>> installedPluginReferenceToPluginMapMono = installedPluginListMono.map(ImportExportUtils::computePluginReferenceToPluginMap).cache();
+
+        // Everything to import
+        Mono<Application> applicationToImportMono = Mono.just(applicationJson.getExportedApplication()).cache();
+        Mono<List<NewPage>> pageToImportListMono = Mono.just(applicationJson.getPageList()).map(Collections::unmodifiableList).cache();
+        Mono<List<NewAction>> actionToImportListMono = Mono.just(applicationJson.getActionList()).map(Collections::unmodifiableList).cache();
+        Mono<List<ActionCollection>> collectionToImportListMono = Mono.just(applicationJson.getActionCollectionList()).map(Collections::unmodifiableList).cache();
+        Mono<List<Datasource>> datasourceToImportListMono = Mono.just(applicationJson.getDatasourceList()).map(Collections::unmodifiableList).cache()
+                .flatMap(datasourceToImportList -> {
+                    return checkIfAllPluginInstalled(datasourceToImportList, installedPluginReferenceToPluginMapMono);
+                }).cache();
+
+        // fetch workspace
+        Mono<Workspace> workspaceMono = importExportHelper.fetchWorkspace(workspaceId, serialiseFor);
+
+        //fetch or create application
+        Mono<Application> importedApplicationMono = applicationToImportMono
+                .flatMap(applicationToImport -> {
+                    applicationToImport.setWorkspaceId(workspaceId);
+                    return importExportHelper.fetchOrCreateApplicationForImport(applicationId, applicationToImport, serialiseFor);
+                }).cache();
+        
+        // Fetch existing datasources
+        Mono<List<Datasource>> existingDatasourcesMono = importExportHelper.fetchDatasourcesForWorkspace(workspaceId, false, serialiseFor)
+                .collectList().cache();
+
+        Mono<Map<String, Datasource>> existingDatasourceNameToDatasourceMapMono = existingDatasourcesMono.map(ImportExportUtils::computeDatasourceNameToDatasourceMap).cache();
+
+        Mono<List<Datasource>> importedDatasourceListMono = Mono.zip(datasourceToImportListMono, existingDatasourceNameToDatasourceMapMono, installedPluginReferenceToPluginMapMono)
+                .flatMap((tuple) -> {
+                    List<Datasource> datasourceToImportList = tuple.getT1();
+                    Map<String, Datasource> existingDatasourceNameToDatasourceMap = tuple.getT2();
+                    Map<String, Plugin> installedPluginReferenceToPluginMap = tuple.getT3();
+                    return importDatasources(workspaceId, datasourceToImportList, existingDatasourceNameToDatasourceMap, installedPluginReferenceToPluginMap);
+                }).cache();
+
+        return importedDatasourceListMono.map(it -> {return it;}).then(importedApplicationMono);
+    }
+
+    private Mono<List<Datasource>> importDatasources(String workspaceId, List<Datasource> datasourcesToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+        return Flux.fromIterable(datasourcesToImport)
+                .flatMap(datasource -> importDatasource(workspaceId, datasource, existingDatasourceNameToDatasourceMap, pluginReferenceToPluginMap))
+                .collectList();
+    }
+
+    private Mono<List<NewPage>> importPages(String applicationId, List<NewPage> pagesToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+        return importPages(applicationId, pagesToImport, null, null, null);
+    }
+
+    private Mono<List<ActionCollection>> importCollections(String applicationId, List<ActionCollection> collectionsToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+        return importCollections(applicationId, collectionsToImport, null, null, null);
+    }
+
+    private Mono<List<NewAction>> importActions(String applicationId, List<NewAction> actionsToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+        return importActions(applicationId, actionsToImport, null, null, null);
+    }
+
+    private Mono<Datasource> importDatasource(String workspaceId, Datasource datasourceToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+
+        Datasource existingDatasource = existingDatasourceNameToDatasourceMap.get(datasourceToImport.getName());
+        if(existingDatasource != null && datasourceToImport.getPluginName().equals(existingDatasource.getPluginName())) {
+            // If the datasource exists, update it
+            copyNestedNonNullProperties(datasourceToImport, existingDatasource);
+            return datasourceService.update(existingDatasource.getId(), existingDatasource)
+                    .as(transactionalOperator::transactional);
+        } else {
+            // If the datasource does not exist, create it
+            datasourceToImport.setWorkspaceId(workspaceId);
+            return datasourceService.create(datasourceToImport)
+                    .as(transactionalOperator::transactional).log();
+        }
+    }
+
+    private Mono<Datasource> importPage(String workspaceId, NewPage pageToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, NewPage> existingPageNameToPageMap) {
+
+        NewPage existingPage = existingPageNameToPageMap.get(pageToImport.getId());
+        if(existingPage != null) {
+            // If the datasource exists, update it
+            copyNestedNonNullProperties(pageToImport, existingPage);
+            return applicationPageService.addPageToApplication(null, null, TRUE).update(existingPage.getId(), existingPage)
+                    .as(transactionalOperator::transactional);
+        } else {
+            // If the datasource does not exist, create it
+            return applicationPageService.createPage(pageToImport).as(transactionalOperator::transactional);
+        }
+    }
+
+    private Mono<Datasource> importCollection(String workspaceId, ActionCollection actionCollection, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+
+        NewPage existingPage = existingPageNameToPageMap.get(pageToImport.getId());
+        if(existingPage != null) {
+            // If the datasource exists, update it
+            copyNestedNonNullProperties(pageToImport, existingPage);
+            return applicationPageService.addPageToApplication(null, null, TRUE).update(existingPage.getId(), existingPage)
+                    .as(transactionalOperator::transactional);
+        } else {
+            // If the datasource does not exist, create it
+            return applicationPageService.createPage(pageToImport).as(transactionalOperator::transactional);
+        }
+    }
+
+    private Mono<Datasource> importAction(String workspaceId, NewAction actionToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+
+        Datasource existingDatasource = existingDatasourceNameToDatasourceMap.get(datasourceToImport.getName());
+        if(existingDatasource != null && datasourceToImport.getPluginName().equals(existingDatasource.getPluginName())) {
+            // If the datasource exists, update it
+            copyNestedNonNullProperties(datasourceToImport, existingDatasource);
+            return datasourceService.update(existingDatasource.getId(), existingDatasource)
+                    .as(transactionalOperator::transactional);
+        } else {
+            // If the datasource does not exist, create it
+            datasourceToImport.setWorkspaceId(workspaceId);
+            return datasourceService.create(datasourceToImport)
+                    .as(transactionalOperator::transactional).log();
+        }
+    }
+
+//     Mono<Void> importPages(List<NewPage> pagesToImport, List<NewPage> existingPages, List<Datasource> existingDatasources) {
+//         Map<String, NewPage> existingPageIdToPageMap = existingPages.stream()
+//         .collect(Collectors.toMap(page -> page.getId(), page -> page));
+
+//         // This list will contain existing pages that are marked for update
+//         List<NewPage> existingPagesMarkedForUpdate = new ArrayList<>();
+
+//         // This list will contain existing pages that are marked for delete
+//         List<NewPage> existingPagesMarkedForDelete = new ArrayList<>();
+
+// for(NewPage pageToImport : pagesToImport) {
+//     String existingPageName = pageToImport.select(ResourceModes.EDIT).getName();
+
+//     if(existingEditModePageNames.contains(existingPageName)) {
+//         // If the page of same name exists in the edit mode
+//         String existingPageId = existingEditModePageNameToPageIdMap.get(existingPageName);
+//         NewPage existingPage = existingPageIdToPageMap.get(existingPageId);
+
+//         // Adding this page to update list
+//         existingPagesMarkedForUpdate.add(existingPage);
+
+//         copyNestedNonNullProperties(pageToImport.select(ResourceModes.EDIT), existingPage.select(ResourceModes.EDIT));
+
+//     } else if(existingViewModeOnlyPageNames.contains(existingPageName)) {
+//         // Page with same name exists in view mode (but not in edit mode)
+//         String existingPageId = existingViewModePageNameToPageIdMap.get(existingPageName);
+//         NewPage existingPage = existingPageIdToPageMap.get(existingPageId);
+
+//         // Adding this page to update list
+//         existingPagesMarkedForUpdate.add(existingPage);
+
+//         copyNestedNonNullProperties(pageToImport.select(ResourceModes.EDIT), existingPage.select(ResourceModes.EDIT));
+
+//     } else {
+
+//         //newPageService.
+//     }
+// }
+
+// Set<String> existingPageIdsMarkedForUpdate = existingPagesMarkedForUpdate.stream()
+//         .map(page -> page.getId())
+//         .collect(Collectors.toSet());
+
+// for(NewPage existingPage : existingPages) {
+//     if(!existingPageIdsMarkedForUpdate.contains(existingPage.getId())) {
+//         existingPagesMarkedForDelete.add(existingPage);
+//     }
+// }
+
+// //List<ApplicationPage> toImportpplicationPages = applicationToImport.getPages();
+// applicationToImport.setPublishedPages(List.of()); //TODO not sure why it was set to null, changed it to empty list
+//     }
+
+//     Mono<NewPage> importPageInEditMode(NewPage pageToImport, List<NewPage> existingPages, List<Plugin> plugins) {
+//         // Strategy for importing pages
+//         // 1. If page with same name exists in edit mode, we update that page, also undelete if page is deleted
+//         // 2. If a page with same name exists in view mode and edit mode page is deleted, we update that page
+//         // 3. If a page with same name does not exist in edit mode or view mode, we create a new page
+//         Map<String, Plugin> pluginNameToPluginMap = ImportExportUtils.calculatePluginIdToPluginMap(plugins);
+//         existingDatasources.stream()
+//                 .forEach(pageToImport -> {
+
+//                 });
+//         return Mono.just(pageToImport)
+//                 .flatMap(page -> {
+//                     // Check if the page already exists
+//                     Optional<NewPage> existingPage = existingPages.stream()
+//                             .filter(page1 -> page1.getName().equals(page.getName()))
+//                             .findFirst();
+
+//                     if(existingPage.isPresent()) {
+//                         // If the page exists, update it
+//                         return newPageService.update(page.getId(), page);
+//                     } else {
+//                         // If the page does not exist, create it
+//                         return newPageService.create(page);
+//                     }
+//                 });
+//     }
 
     @Override
     public Mono<ApplicationJson> exportApplicationById(String applicationId,
