@@ -178,7 +178,7 @@ function getAvailableBackupSpaceInBytes() {
 
 function checkAvailableBackupSpace(availSpaceInBytes) {
   if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
-    throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.');
+    throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 2GB to backup successfully.');
   }
 }
 
