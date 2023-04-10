@@ -6,11 +6,12 @@ import {
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
-import { useSelector } from "react-redux";
-import { getPagePermissions } from "selectors/editorSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
-import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
-import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
@@ -28,6 +29,7 @@ import {
   MenuItem,
   MenuTrigger,
   Tooltip,
+  SearchInput,
 } from "design-system";
 
 const SubMenuContainer = styled.div`
@@ -53,6 +55,9 @@ export default function ExplorerSubMenu({
   const [query, setQuery] = useState("");
   const [show, setShow] = useState(openMenu);
   const fileOperations = useFilteredFileOperations(query);
+
+  const pageId = useSelector(getCurrentPageId);
+  const dispatch = useDispatch();
   const filteredFileOperations = fileOperations.filter(
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
@@ -71,8 +76,8 @@ export default function ExplorerSubMenu({
     setQuery("");
   }, [show]);
 
-  const onChange = useCallback((e) => {
-    setQuery(e.target.value);
+  const onChange = useCallback((value) => {
+    setQuery(value);
   }, []);
 
   const handleOpenChange = (open: boolean) => {
@@ -85,6 +90,19 @@ export default function ExplorerSubMenu({
 
     setShow(open);
   };
+
+  const handleClick = useCallback(
+    (item: any) => {
+      if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
+      if (item.action) {
+        dispatch(item.action(pageId, "SUBMENU"));
+      } else if (item.redirect) {
+        item.redirect(pageId, "SUBMENU");
+      }
+      handleOpenChange(false);
+    },
+    [pageId, dispatch, handleOpenChange],
+  );
 
   return (
     <Menu open={show}>
@@ -121,26 +139,11 @@ export default function ExplorerSubMenu({
           <div className="px-4 py-2 text-sm font-medium text-gray">
             Create New
           </div>
-          <div className="flex items-center space-x-2 px-4">
-            <SearchIcon className="box-content w-4 h-4" />
-            <input
-              autoComplete="off"
-              autoFocus
-              className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
-              onChange={onChange}
-              placeholder="Search datasources"
-              type="text"
-              value={query}
-            />
-            {query && (
-              <button
-                className="p-1 hover:bg-trueGray-200"
-                onClick={() => setQuery("")}
-              >
-                <CrossIcon className="w-3 h-3 text-trueGray-100" />
-              </button>
-            )}
-          </div>
+          <SearchInput
+            onChange={onChange}
+            placeholder="Search datasources"
+            value={query}
+          />
           <div className="ops-container">
             {filteredFileOperations.map((item: any, idx: number) => {
               const icon =
@@ -152,7 +155,10 @@ export default function ExplorerSubMenu({
                 ));
 
               return (
-                <MenuItem key={`file-op-${idx}`}>
+                <MenuItem
+                  key={`file-op-${idx}`}
+                  onClick={() => handleClick(item)}
+                >
                   <div className="flex gap-2 items-center">
                     {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
