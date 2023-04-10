@@ -20,6 +20,7 @@ import { updateDependencyMap } from "workers/common/DependencyMap";
 import { parseJSActions } from "workers/Evaluation/JSObject";
 import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { WidgetConfiguration } from "widgets/constants";
+import { setEvalContext } from "workers/Evaluation/evaluate";
 
 const widgetConfigMap: Record<
   string,
@@ -229,6 +230,12 @@ describe("DataTreeEvaluator", () => {
         {} as unknown as ConfigTree,
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
+
+      setEvalContext({
+        dataTree: dataTreeEvaluator.evalTree,
+        isDataField: false,
+        isTriggerBased: true,
+      });
       self.postMessage = postMessageMock;
     });
     it("set's isAsync tag for cross JsObject references", () => {

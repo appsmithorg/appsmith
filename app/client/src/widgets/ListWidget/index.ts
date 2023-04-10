@@ -1,11 +1,10 @@
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
@@ -30,7 +29,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     positioning: Positioning.Fixed,
     enhancements: {
@@ -416,6 +415,19 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "300px",
+          };
+        },
+      },
+    ],
   },
 };
 
