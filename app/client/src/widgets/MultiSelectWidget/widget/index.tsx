@@ -222,13 +222,14 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                startIcon: "arrow-left-s-line",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "arrow-right-s-line",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],

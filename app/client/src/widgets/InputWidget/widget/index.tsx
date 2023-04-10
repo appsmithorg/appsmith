@@ -432,13 +432,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                startIcon: "skip-left-line",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "skip-right-line",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],

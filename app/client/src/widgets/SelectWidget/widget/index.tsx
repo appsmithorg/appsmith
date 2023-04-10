@@ -212,7 +212,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: true,
+            fullWidth: false,
             options: [
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
@@ -228,13 +228,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                startIcon: "skip-left-line",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "skip-right-line",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],

@@ -217,7 +217,7 @@ export const discardButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the discard button",
           controlType: "ICON_TABS",
-          fullWidth: true,
+          fullWidth: false,
           defaultValue: "left",
           options: [
             {

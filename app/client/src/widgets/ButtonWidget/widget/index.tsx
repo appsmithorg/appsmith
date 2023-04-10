@@ -255,7 +255,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Position",
             helpText: "Sets the icon alignment of the button",
             controlType: "ICON_TABS",
-            fullWidth: true,
+            fullWidth: false,
             options: [
               {
                 startIcon: "skip-left-line",

@@ -53,13 +53,14 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             isBindProperty: true,
             isTriggerProperty: false,
+            fullWidth: false,
             options: [
               {
-                startIcon: "skip-left-line",
+                startIcon: "align-left",
                 value: AlignWidgetTypes.LEFT,
               },
               {
-                startIcon: "skip-right-line",
+                startIcon: "align-right",
                 value: AlignWidgetTypes.RIGHT,
               },
             ],

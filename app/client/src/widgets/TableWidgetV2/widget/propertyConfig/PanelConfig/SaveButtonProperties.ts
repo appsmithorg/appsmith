@@ -216,7 +216,7 @@ export const saveButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the save button",
           controlType: "ICON_TABS",
-          fullWidth: true,
+          fullWidth: false,
           defaultValue: "left",
           options: [
             {

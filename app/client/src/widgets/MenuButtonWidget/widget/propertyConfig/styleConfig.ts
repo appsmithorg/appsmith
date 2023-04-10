@@ -78,6 +78,7 @@ export default [
         label: "Position",
         helpText: "Sets the icon alignment of the menu button",
         controlType: "ICON_TABS",
+        fullWidth: false,
         options: [
           {
             startIcon: "skip-left-line",

@@ -195,7 +195,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 helpText:
                                   "Sets the icon alignment of a menu item",
                                 controlType: "ICON_TABS",
-                                fullWidth: true,
+                                fullWidth: false,
                                 options: [
                                   {
                                     startIcon: "skip-left-line",
@@ -335,7 +335,7 @@ class ButtonGroupWidget extends BaseWidget<
                       label: "Position",
                       helpText: "Sets the icon alignment of a button",
                       controlType: "ICON_TABS",
-                      fullWidth: true,
+                      fullWidth: false,
                       options: [
                         {
                           startIcon: "skip-left-line",

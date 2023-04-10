@@ -155,7 +155,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: true,
+            fullWidth: false,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -171,13 +171,14 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                startIcon: "skip-left-line",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                startIcon: "skip-right-line",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],

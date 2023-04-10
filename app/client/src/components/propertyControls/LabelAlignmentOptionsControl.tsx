@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 import type { SegmentedControlOption } from "design-system";
 import { SegmentedControl } from "design-system";
@@ -12,16 +11,11 @@ import {
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-const StyledSegmentedControl = styled(SegmentedControl)`
-  > .ads-v2-segmented-control__segments-container {
-    flex: 1 1 0%;
-  }
-`;
-
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;
   options: SegmentedControlOption[];
   defaultValue: Alignment;
+  fullWidth?: boolean;
 }
 
 class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsControlProps> {
@@ -65,8 +59,9 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
   public render() {
     const { options, propertyValue } = this.props;
     return (
-      <StyledSegmentedControl
+      <SegmentedControl
         defaultValue={propertyValue || Alignment.LEFT}
+        isFullWidth={this.props.fullWidth}
         // @ts-expect-error: type mismatch
         onChange={this.handleAlign}
         options={options}

@@ -16,14 +16,11 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 }
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
-  label:
-    optionKey === "none" ? (
-      <div className="w-5 h-5">
-        <Icon name="close-x" size="8px" />
-      </div>
-    ) : (
-      <div className="w-5 h-5">{optionKey}</div>
-    ),
+  label: (
+    <div className="w-5 h-5">
+      {optionKey === "none" ? <Icon name="close-x" size="8px" /> : optionKey}
+    </div>
+  ),
   value: borderRadiusOptions[optionKey],
 }));
 
