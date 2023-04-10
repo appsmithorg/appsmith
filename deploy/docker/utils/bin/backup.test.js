@@ -24,7 +24,7 @@ it('Checkx the constant is 2 GB', () => {
 });
 it('Should throw Error when the available size is below MIN_REQUIRED_DISK_SPACE_IN_BYTES', () => {
   let size = Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES - 1;
-  expect(() => {backup.checkAvailableBackupSpace(size)}).toThrow('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.');
+  expect(() => {backup.checkAvailableBackupSpace(size)}).toThrow('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 2GB to backup successfully.');
 });
 
 it('Should not hould throw Error when the available size is >= MIN_REQUIRED_DISK_SPACE_IN_BYTES', () => {
@@ -88,10 +88,21 @@ it('Checks for the current Appsmith Version.', async () => {
   console.log(res)
 })
 
-test('If encriytpion env values are being removed', () => {
-  expect(backup.removeEncryptionEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+test('If Encryption env values are being removed', () => {
+  expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
 });
+
+test('If MONGODB env values are being removed', () => {
+  expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_MONGODB_URI=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
+});
+
+test('If MONGODB and Encryption env values are being removed', () => {
+  expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_MONGODB_URI=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
+});
+
 
 test('Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is null', () => {
   expect(backup.getBackupArchiveLimit()).toBe(4)
