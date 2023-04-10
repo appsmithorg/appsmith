@@ -27,7 +27,7 @@
   •
   <b><a href="https://www.youtube.com/appsmith">YouTube</a></b>
   •
-  <b><a href="https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=top">Templates</a></b> 
+  <b><a href="https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=top">Templates</a></b>
 </h3>
 
 <br />

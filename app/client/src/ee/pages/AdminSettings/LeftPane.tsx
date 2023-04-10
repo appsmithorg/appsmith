@@ -25,6 +25,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { LICENSE_ORIGIN } from "../Billing/types";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 function getAclCategory() {
   return Array.from(AclFactory.categories);
@@ -52,6 +53,16 @@ export default function LeftPane() {
     tenantPermissions,
     PERMISSION_TYPE.READ_AUDIT_LOGS,
   );
+  const isAirgappedInstance = isAirgapped();
+
+  const filteredGeneralCategories = categories
+    ?.map((category) => {
+      if (isAirgappedInstance && category.slug === "google-maps") {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
 
   const filteredAclCategories = aclCategories
     ?.map((category) => {
@@ -80,7 +91,7 @@ export default function LeftPane() {
         <HeaderContainer>
           <StyledHeader>Admin Settings</StyledHeader>
           <Categories
-            categories={categories}
+            categories={filteredGeneralCategories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />

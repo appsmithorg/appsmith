@@ -3,6 +3,7 @@ import type {
   Setting,
   AdminConfigType,
 } from "@appsmith/pages/AdminSettings/config/types";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 import {
   config as CE_config,
@@ -20,6 +21,8 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   isDisabled: () => false,
 };
 
+const isAirgappedInstance = isAirgapped();
+
 export const config: AdminConfigType = {
   ...CE_config,
   settings: [
@@ -29,5 +32,7 @@ export const config: AdminConfigType = {
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
-  ],
+  ].filter((setting) =>
+    isAirgappedInstance ? setting !== APPSMITH_DISABLE_TELEMETRY_SETTING : true,
+  ),
 } as AdminConfigType;

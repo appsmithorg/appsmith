@@ -42,6 +42,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 import { showLicenseModal } from "@appsmith/actions/tenantActions";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
@@ -66,8 +67,11 @@ export function Billing() {
 
   const isOpen = useSelector(isLicenseModalOpen);
   const dispatch = useDispatch();
+  const isAirgappedInstance = isAirgapped();
+
   const cards: BillingDashboardCard[] = [
     {
+      name: "portal-card",
       icon: "money-dollar-circle-line",
       title: (
         <Text
@@ -90,6 +94,7 @@ export function Billing() {
       ),
     },
     {
+      name: "license-key-card",
       icon: "key-2-line",
       title: (
         <FlexWrapper align="center" dir="row">
@@ -136,7 +141,9 @@ export function Billing() {
         />
       ),
     },
-  ];
+  ].filter((card) =>
+    isAirgappedInstance ? card.name !== "portal-card" : true,
+  );
 
   return (
     <BillingPageWrapper>

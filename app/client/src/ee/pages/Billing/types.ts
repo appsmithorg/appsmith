@@ -12,6 +12,7 @@ export type BillingDashboardCard = {
   content?: ReactNode;
   icon: string;
   action?: ReactNode;
+  name: string;
 };
 
 export type CTAButtonType = {

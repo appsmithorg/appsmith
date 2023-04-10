@@ -39,6 +39,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 import capitalize from "lodash/capitalize";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledWrapper = styled(Wrapper)`
   .business-plan-menu-option {
@@ -69,6 +70,7 @@ function LeftPaneBottomSection() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const isTrial = useSelector(isTrialLicense);
   const isAdmin = useSelector(isAdminUser);
+  const isAirgappedInstance = isAirgapped();
 
   return (
     <StyledWrapper>
@@ -96,14 +98,16 @@ function LeftPaneBottomSection() {
           text={createMessage(ADMIN_SETTINGS)}
         />
       )}
-      <MenuItem
-        className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-        icon="discord"
-        onSelect={() => {
-          window.open("https://discord.gg/rBTTVJp", "_blank");
-        }}
-        text={"Join our Discord"}
-      />
+      {!isAirgappedInstance && (
+        <MenuItem
+          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+          icon="discord"
+          onSelect={() => {
+            window.open("https://discord.gg/rBTTVJp", "_blank");
+          }}
+          text={"Join our Discord"}
+        />
+      )}
       <MenuItem
         containerClassName={
           isFetchingApplications ? BlueprintClasses.SKELETON : ""
@@ -129,7 +133,7 @@ function LeftPaneBottomSection() {
           text={createMessage(WELCOME_TOUR)}
         />
       )}
-      <ProductUpdatesModal />
+      {!isAirgappedInstance && <ProductUpdatesModal />}
       <LeftPaneVersionData>
         <span>
           {createMessage(

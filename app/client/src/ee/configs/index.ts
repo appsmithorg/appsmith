@@ -10,6 +10,7 @@ import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 export interface INJECTED_CONFIGS extends CE_INJECTED_CONFIGS {
   enableSamlOAuth: boolean;
   enableOidcOAuth: boolean;
+  airGapped: boolean;
 }
 
 declare global {
@@ -30,6 +31,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableOidcOAuth: process.env.REACT_APP_OAUTH2_OIDC_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_OIDC_CLIENT_ID.length > 0
       : false,
+    airGapped: process.env.REACT_APP_AIRGAP_ENABLED
+      ? process.env.REACT_APP_AIRGAP_ENABLED.length > 0
+      : false,
   };
 };
 
@@ -43,5 +47,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableOidcOAuth:
       ENV_CONFIG.enableOidcOAuth || APPSMITH_FEATURE_CONFIGS.enableOidcOAuth,
     enableAuditLogs: false,
+    airGapped: ENV_CONFIG.airGapped || APPSMITH_FEATURE_CONFIGS.airGapped,
   };
 };
