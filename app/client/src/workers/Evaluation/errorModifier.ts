@@ -104,14 +104,14 @@ export class ActionCalledInSyncFieldError extends Error {
   }
 }
 
-export const getErrorMessage = (error: Error) => {
+export const getErrorMessage = (error: Error, name = "ValidationError") => {
   return error.name
     ? {
         name: error.name,
         message: error.message,
       }
     : {
-        name: "ValidationError",
+        name,
         message: error.message,
       };
 };
