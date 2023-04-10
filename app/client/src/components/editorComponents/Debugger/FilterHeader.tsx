@@ -1,13 +1,13 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
 import type { DropdownOption } from "design-system-old";
-import { Classes, Dropdown, TextInput } from "design-system-old";
+import { Classes, Dropdown } from "design-system-old";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import { Button, Tooltip } from "design-system";
+import { Button, SearchInput, Tooltip } from "design-system";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -77,16 +77,13 @@ function FilterHeader(props: FilterHeaderProps) {
         />
       </Tooltip>
       <div className="input-container">
-        <TextInput
+        <SearchInput
           className="debugger-search"
-          cypressSelector="t--debugger-search"
-          defaultValue={props.defaultValue}
-          height="32px"
+          data-testid="t--debugger-search"
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
-          value={props.value}
-          width="100%"
+          value={props.value || props.defaultValue}
         />
         {props.searchQuery && (
           <Button
