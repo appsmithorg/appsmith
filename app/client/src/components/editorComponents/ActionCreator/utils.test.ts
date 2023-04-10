@@ -18,7 +18,9 @@ import {
   textSetter,
   isValueValidURL,
   objectSetter,
+  sortSubMenuOptions,
 } from "./utils";
+import type { TreeDropdownOption } from "design-system-old";
 
 describe("Test argStringToArray", () => {
   const cases = [
@@ -699,6 +701,635 @@ describe("Test isValueValidURL", () => {
     "test case %d",
     (_, input, expected) => {
       const result = isValueValidURL(input as string);
+      expect(result).toStrictEqual(expected);
+    },
+  );
+});
+
+describe("sortSubMenuOptions", () => {
+  const cases = [
+    {
+      index: 0,
+      input: [
+        {
+          label: "xxx",
+          id: "6433afbd7bd3732ec0823759",
+          value: "'xxx'",
+        },
+        {
+          label: "1",
+          id: "6433b0017bd3732ec082375c",
+          value: "'1'",
+        },
+        {
+          label: "21",
+          id: "6433b0017bd3732ec082375csdsdsdssdsds",
+          value: "'12'",
+        },
+        {
+          label: "abcd",
+          id: "6433afb27b3b0460f824b84d",
+          value: "'abcd'",
+        },
+        {
+          label: "Page1",
+          id: "6398aba6b8c4dd68403825a3",
+          value: "'Page1'",
+        },
+        {
+          label: "12",
+          id: "6433b0017bd3732ec082375csdsdsds",
+          value: "'12'",
+        },
+        {
+          label: "2",
+          id: "6433b0017bd3732ec082375csdsdsdssdsds",
+          value: "'12'",
+        },
+        {
+          label: "Page10",
+          id: "6426cd4646c8f921c25eb1b3",
+          value: "'Page10'",
+        },
+        {
+          label: "Page11",
+          id: "6433ae277b3b0460f824b849",
+          value: "'Page11'",
+        },
+        {
+          label: "Page2",
+          id: "6399a035b8c4dd684038282e",
+          value: "'Page2'",
+        },
+        {
+          label: "Page21",
+          id: "6433ae241013bd6c9fd9ca30",
+          value: "'Page21'",
+        },
+      ],
+      expected: [
+        {
+          label: "1",
+          id: "6433b0017bd3732ec082375c",
+          value: "'1'",
+        },
+        {
+          label: "2",
+          id: "6433b0017bd3732ec082375csdsdsdssdsds",
+          value: "'12'",
+        },
+        {
+          label: "12",
+          id: "6433b0017bd3732ec082375csdsdsds",
+          value: "'12'",
+        },
+        {
+          label: "21",
+          id: "6433b0017bd3732ec082375csdsdsdssdsds",
+          value: "'12'",
+        },
+        {
+          label: "abcd",
+          id: "6433afb27b3b0460f824b84d",
+          value: "'abcd'",
+        },
+        {
+          label: "Page1",
+          id: "6398aba6b8c4dd68403825a3",
+          value: "'Page1'",
+        },
+        {
+          label: "Page2",
+          id: "6399a035b8c4dd684038282e",
+          value: "'Page2'",
+        },
+        {
+          label: "Page10",
+          id: "6426cd4646c8f921c25eb1b3",
+          value: "'Page10'",
+        },
+        {
+          label: "Page11",
+          id: "6433ae277b3b0460f824b849",
+          value: "'Page11'",
+        },
+        {
+          label: "Page21",
+          id: "6433ae241013bd6c9fd9ca30",
+          value: "'Page21'",
+        },
+        {
+          label: "xxx",
+          id: "6433afbd7bd3732ec0823759",
+          value: "'xxx'",
+        },
+      ],
+    },
+    {
+      index: 1,
+      input: [
+        {
+          label: "New window",
+          value: "'NEW_WINDOW'",
+          id: "NEW_WINDOW",
+        },
+        {
+          label: "Same window",
+          value: "'SAME_WINDOW'",
+          id: "SAME_WINDOW",
+        },
+      ],
+      expected: [
+        {
+          label: "New window",
+          value: "'NEW_WINDOW'",
+          id: "NEW_WINDOW",
+        },
+        {
+          label: "Same window",
+          value: "'SAME_WINDOW'",
+          id: "SAME_WINDOW",
+        },
+      ],
+    },
+    {
+      index: 2,
+      input: [
+        {
+          label: "Error",
+          value: "'error'",
+          id: "error",
+        },
+        {
+          label: "Info",
+          value: "'info'",
+          id: "info",
+        },
+        {
+          label: "Success",
+          value: "'success'",
+          id: "success",
+        },
+        {
+          label: "Warning",
+          value: "'warning'",
+          id: "warning",
+        },
+      ],
+      expected: [
+        {
+          label: "Error",
+          value: "'error'",
+          id: "error",
+        },
+        {
+          label: "Info",
+          value: "'info'",
+          id: "info",
+        },
+        {
+          label: "Success",
+          value: "'success'",
+          id: "success",
+        },
+        {
+          label: "Warning",
+          value: "'warning'",
+          id: "warning",
+        },
+      ],
+    },
+    {
+      index: 3,
+      input: [
+        {
+          label: "CSV",
+          value: "'text/csv'",
+          id: "text/csv",
+        },
+        {
+          label: "Select file type (optional)",
+          value: "",
+          id: "",
+        },
+        {
+          label: "HTML",
+          value: "'text/html'",
+          id: "text/html",
+        },
+        {
+          label: "Plain text",
+          value: "'text/plain'",
+          id: "text/plain",
+        },
+        {
+          label: "PNG",
+          value: "'image/png'",
+          id: "image/png",
+        },
+        {
+          label: "JPEG",
+          value: "'image/jpeg'",
+          id: "image/jpeg",
+        },
+        {
+          label: "SVG",
+          value: "'image/svg+xml'",
+          id: "image/svg+xml",
+        },
+        {
+          label: "JSON",
+          value: "'application/json'",
+          id: "application/json",
+        },
+      ],
+      expected: [
+        {
+          label: "Select file type (optional)",
+          value: "",
+          id: "",
+        },
+        {
+          label: "CSV",
+          value: "'text/csv'",
+          id: "text/csv",
+        },
+        {
+          label: "HTML",
+          value: "'text/html'",
+          id: "text/html",
+        },
+        {
+          label: "JPEG",
+          value: "'image/jpeg'",
+          id: "image/jpeg",
+        },
+        {
+          label: "JSON",
+          value: "'application/json'",
+          id: "application/json",
+        },
+        {
+          label: "Plain text",
+          value: "'text/plain'",
+          id: "text/plain",
+        },
+        {
+          label: "PNG",
+          value: "'image/png'",
+          id: "image/png",
+        },
+        {
+          label: "SVG",
+          value: "'image/svg+xml'",
+          id: "image/svg+xml",
+        },
+      ],
+    },
+    {
+      index: 4,
+      input: [
+        {
+          label: "adc",
+          id: "adc",
+          value: '"adc"',
+        },
+        {
+          label: "Container1",
+          id: "Container1",
+          value: '"Container1"',
+        },
+        {
+          label: "IconButton1",
+          id: "IconButton1",
+          value: '"IconButton1"',
+        },
+        {
+          label: "IconButton10",
+          id: "IconButton10",
+          value: '"IconButton10"',
+        },
+        {
+          label: "DatePicker1",
+          id: "DatePicker1",
+          value: '"DatePicker1"',
+        },
+        {
+          label: "fsfsdg",
+          id: "fsfsdg",
+          value: '"fsfsdg"',
+        },
+        {
+          label: "IconButton2",
+          id: "IconButton2",
+          value: '"IconButton2"',
+        },
+        {
+          label: "IconButton6",
+          id: "IconButton6",
+          value: '"IconButton6"',
+        },
+        {
+          label: "IconButton7",
+          id: "IconButton7",
+          value: '"IconButton7"',
+        },
+        {
+          label: "IconButton8",
+          id: "IconButton8",
+          value: '"IconButton8"',
+        },
+        {
+          label: "Text6",
+          id: "Text6",
+          value: '"Text6"',
+        },
+        {
+          label: "Text7",
+          id: "Text7",
+          value: '"Text7"',
+        },
+        {
+          label: "Text8",
+          id: "Text8",
+          value: '"Text8"',
+        },
+        {
+          label: "Iframe1",
+          id: "Iframe1",
+          value: '"Iframe1"',
+        },
+        {
+          label: "Input1",
+          id: "Input1",
+          value: '"Input1"',
+        },
+        {
+          label: "Modal6",
+          id: "Modal6",
+          value: '"Modal6"',
+        },
+        {
+          label: "Modal7",
+          id: "Modal7",
+          value: '"Modal7"',
+        },
+        {
+          label: "Modal8",
+          id: "Modal8",
+          value: '"Modal8"',
+        },
+        {
+          label: "MultiSelect1",
+          id: "MultiSelect1",
+          value: '"MultiSelect1"',
+        },
+        {
+          label: "Select1",
+          id: "Select1",
+          value: '"Select1"',
+        },
+        {
+          label: "Select2",
+          id: "Select2",
+          value: '"Select2"',
+        },
+        {
+          label: "Table1",
+          id: "Table1",
+          value: '"Table1"',
+        },
+        {
+          label: "Text1",
+          id: "Text1",
+          value: '"Text1"',
+        },
+        {
+          label: "Text2",
+          id: "Text2",
+          value: '"Text2"',
+        },
+      ],
+      expected: [
+        {
+          label: "adc",
+          id: "adc",
+          value: '"adc"',
+        },
+        {
+          label: "Container1",
+          id: "Container1",
+          value: '"Container1"',
+        },
+        {
+          label: "DatePicker1",
+          id: "DatePicker1",
+          value: '"DatePicker1"',
+        },
+        {
+          label: "fsfsdg",
+          id: "fsfsdg",
+          value: '"fsfsdg"',
+        },
+        {
+          label: "IconButton1",
+          id: "IconButton1",
+          value: '"IconButton1"',
+        },
+        {
+          label: "IconButton2",
+          id: "IconButton2",
+          value: '"IconButton2"',
+        },
+        {
+          label: "IconButton6",
+          id: "IconButton6",
+          value: '"IconButton6"',
+        },
+        {
+          label: "IconButton7",
+          id: "IconButton7",
+          value: '"IconButton7"',
+        },
+        {
+          label: "IconButton8",
+          id: "IconButton8",
+          value: '"IconButton8"',
+        },
+        {
+          label: "IconButton10",
+          id: "IconButton10",
+          value: '"IconButton10"',
+        },
+        {
+          label: "Iframe1",
+          id: "Iframe1",
+          value: '"Iframe1"',
+        },
+        {
+          label: "Input1",
+          id: "Input1",
+          value: '"Input1"',
+        },
+        {
+          label: "Modal6",
+          id: "Modal6",
+          value: '"Modal6"',
+        },
+        {
+          label: "Modal7",
+          id: "Modal7",
+          value: '"Modal7"',
+        },
+        {
+          label: "Modal8",
+          id: "Modal8",
+          value: '"Modal8"',
+        },
+        {
+          label: "MultiSelect1",
+          id: "MultiSelect1",
+          value: '"MultiSelect1"',
+        },
+        {
+          label: "Select1",
+          id: "Select1",
+          value: '"Select1"',
+        },
+        {
+          label: "Select2",
+          id: "Select2",
+          value: '"Select2"',
+        },
+        {
+          label: "Table1",
+          id: "Table1",
+          value: '"Table1"',
+        },
+        {
+          label: "Text1",
+          id: "Text1",
+          value: '"Text1"',
+        },
+        {
+          label: "Text2",
+          id: "Text2",
+          value: '"Text2"',
+        },
+        {
+          label: "Text6",
+          id: "Text6",
+          value: '"Text6"',
+        },
+        {
+          label: "Text7",
+          id: "Text7",
+          value: '"Text7"',
+        },
+        {
+          label: "Text8",
+          id: "Text8",
+          value: '"Text8"',
+        },
+      ],
+    },
+    {
+      index: 5,
+      input: [
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
+          label: "New Modal",
+          value: "Modal",
+          id: "create",
+          icon: "plus",
+          className: "t--create-modal-btn",
+        },
+        {
+          id: "3mivhw26s1",
+          label: "Modal6",
+          value: "Modal6",
+        },
+        {
+          id: "lz8id1xnk7",
+          label: "Modal1",
+          value: "Modal1",
+        },
+        {
+          id: "j5gg12lloy",
+          label: "Modal2",
+          value: "Modal2",
+        },
+        {
+          id: "9grmocvg9g",
+          label: "Modal7",
+          value: "Modal7",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "bfv7i1qt72",
+          label: "Modal10",
+          value: "Modal10",
+        },
+      ],
+      expected: [
+        {
+          label: "New Modal",
+          value: "Modal",
+          id: "create",
+          icon: "plus",
+          className: "t--create-modal-btn",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
+          id: "lz8id1xnk7",
+          label: "Modal1",
+          value: "Modal1",
+        },
+        {
+          id: "j5gg12lloy",
+          label: "Modal2",
+          value: "Modal2",
+        },
+        {
+          id: "3mivhw26s1",
+          label: "Modal6",
+          value: "Modal6",
+        },
+        {
+          id: "9grmocvg9g",
+          label: "Modal7",
+          value: "Modal7",
+        },
+        {
+          id: "bfv7i1qt72",
+          label: "Modal10",
+          value: "Modal10",
+        },
+      ],
+    },
+  ];
+
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (_, input, expected) => {
+      const result = sortSubMenuOptions(input as TreeDropdownOption[]);
       expect(result).toStrictEqual(expected);
     },
   );
