@@ -13,19 +13,19 @@ export type FormConfig = {
   version: number;
 };
 
-export type GetQueryGenerationConfigResponse = {
-  select: {
+export type WidgetQueryGenerationConfig = {
+  select?: {
     limit: string;
     offset: string;
     where: string;
     orderBy: string;
     sortOrder: string;
   };
-  create: {
+  create?: {
     // we just the property name, since different Db generates query differently
     value: string;
   };
-  insert: {
+  insert?: {
     // we just the property name, since different Db generates query differently
     value: string;
     where: string;
@@ -34,4 +34,4 @@ export type GetQueryGenerationConfigResponse = {
   recordsCount: boolean; //whether we need to query to find total record
   version: number; //version of the config object
 };
-export type CombinedConfig = FormConfig & GetQueryGenerationConfigResponse;
+export type CombinedConfig = FormConfig & WidgetQueryGenerationConfig;
