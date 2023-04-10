@@ -451,7 +451,7 @@ function renderImportedDatasButton(
         onClick(!showInheritedAttributes);
       }}
       size="sm"
-      startIcon={showInheritedAttributes ? "eye-line" : "eye-off-line"}
+      startIcon={showInheritedAttributes ? "eye-on" : "eye-off"}
     >
       {showInheritedAttributes
         ? `${attributeName}`
