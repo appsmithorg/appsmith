@@ -1,7 +1,7 @@
 const testdata = require("../../../fixtures/testdata.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   apiPage = ObjectsRegistry.ApiPage,

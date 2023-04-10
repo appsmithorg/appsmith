@@ -3,6 +3,7 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
+  EvaluationVersion,
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
@@ -12,7 +13,12 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type {
+  AppLayoutConfig,
+  AppPositioningTypeConfig,
+} from "reducers/entityReducers/pageListReducer";
+import type { DSLWidget } from "widgets/constants";
+
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
   WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL: "WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL",
@@ -281,6 +287,7 @@ export const ReduxActionTypes = {
   CHANGE_APPVIEW_ACCESS_INIT: "CHANGE_APPVIEW_ACCESS_INIT",
   CHANGE_APPVIEW_ACCESS_SUCCESS: "CHANGE_APPVIEW_ACCESS_SUCCESS",
   CREATE_PAGE_INIT: "CREATE_PAGE_INIT",
+  CREATE_NEW_PAGE_FROM_ENTITIES: "CREATE_NEW_PAGE_FROM_ENTITIES",
   CREATE_PAGE_SUCCESS: "CREATE_PAGE_SUCCESS",
   FETCH_PAGE_LIST_INIT: "FETCH_PAGE_LIST_INIT",
   FETCH_PAGE_LIST_SUCCESS: "FETCH_PAGE_LIST_SUCCESS",
@@ -357,6 +364,7 @@ export const ReduxActionTypes = {
   SET_DRAGGING_CANVAS: "SET_DRAGGING_CANVAS",
   SET_NEW_WIDGET_DRAGGING: "SET_NEW_WIDGET_DRAGGING",
   SET_WIDGET_RESIZING: "SET_WIDGET_RESIZING",
+  SET_AUTO_CANVAS_RESIZING: "SET_AUTO_CANVAS_RESIZING",
   ADD_SUGGESTED_WIDGET: "ADD_SUGGESTED_WIDGET",
   MODIFY_META_WIDGETS: "MODIFY_META_WIDGETS",
   DELETE_META_WIDGETS: "DELETE_META_WIDGETS",
@@ -490,6 +498,7 @@ export const ReduxActionTypes = {
   BATCH_UPDATES_SUCCESS: "BATCH_UPDATES_SUCCESS",
   UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
   SET_SELECTED_WIDGET_ANCESTRY: "SET_SELECTED_WIDGET_ANCESTRY",
+  SET_ENTITY_EXPLORER_WIDGET_ANCESTRY: "SET_ENTITY_EXPLORER_WIDGET_ANCESTRY",
   START_EVALUATION: "START_EVALUATION",
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
   CURRENT_APPLICATION_LAYOUT_UPDATE: "CURRENT_APPLICATION_LAYOUT_UPDATE",
@@ -769,6 +778,21 @@ export const ReduxActionTypes = {
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
   RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
+  UPDATE_LAYOUT_POSITIONING: "UPDATE_LAYOUT_POSITIONING",
+  SET_LAYOUT_CONVERSION_STATE: "SET_LAYOUT_CONVERSION_STATE",
+  START_CONVERSION_FLOW: "START_CONVERSION_FLOW",
+  STOP_CONVERSION_FLOW: "STOP_CONVERSION_FLOW",
+  UPDATE_SNAPSHOT_DETAILS: "UPDATE_SNAPSHOT_DETAILS",
+  CONVERT_AUTO_TO_FIXED: "CONVERT_AUTO_TO_FIXED",
+  CONVERT_FIXED_TO_AUTO: "CONVERT_FIXED_TO_AUTO",
+  REFRESH_THE_APP: "REFRESH_THE_APP",
+  LOG_LAYOUT_CONVERSION_ERROR: "LOG_LAYOUT_CONVERSION_ERROR",
+  RESTORE_SNAPSHOT: "RESTORE_SNAPSHOT",
+  FETCH_SNAPSHOT: "FETCH_SNAPSHOT",
+  DELETE_SNAPSHOT: "DELETE_SNAPSHOT",
+  UPDATE_WIDGET_DIMENSIONS: "UPDATE_WIDGET_DIMENSIONS",
+  PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES:
+    "PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES",
   SET_GSHEET_TOKEN: "SET_GSHEET_TOKEN",
   FILE_PICKER_CALLBACK_ACTION: "FILE_PICKER_CALLBACK_ACTION",
 };
@@ -1025,6 +1049,7 @@ export interface UpdateCanvasPayload {
   currentPageId: string;
   currentPageName: string;
   currentApplicationId: string;
+  dsl: Partial<DSLWidget>;
   pageActions: PageAction[][];
   updatedWidgetIds?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
@@ -1081,9 +1106,11 @@ export interface ApplicationPayload {
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
+    appPositioning?: AppPositioningTypeConfig;
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;
+  evaluationVersion?: EvaluationVersion;
 }
 
 export type WorkspaceDetails = {
