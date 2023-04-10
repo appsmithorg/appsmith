@@ -140,6 +140,7 @@ export type CodeEditorExpected = {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
+  openExampleTextByDefault?: boolean;
 };
 
 export type EditorStyleProps = {
