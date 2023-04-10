@@ -35,9 +35,10 @@ import {
 const SubMenuContainer = styled.div`
   width: 250px;
   .ops-container {
-    max-height: 220px;
+    max-height: 250px;
     overflow: hidden;
     overflow-y: auto;
+    padding-top: 4px;
   }
 `;
 
@@ -134,7 +135,7 @@ export default function ExplorerSubMenu({
         side="right"
       >
         <SubMenuContainer
-          className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+          className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
         >
           <div className="px-4 py-2 text-sm font-medium text-gray">
             Create New
