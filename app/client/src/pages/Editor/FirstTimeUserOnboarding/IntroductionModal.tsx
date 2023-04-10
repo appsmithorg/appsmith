@@ -22,6 +22,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   display: flex;
@@ -170,7 +171,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getConnectDataImg()} />
+                  <StyledImg
+                    alt="connect-data-image"
+                    src={getAssetUrl(getConnectDataImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow border>
@@ -186,7 +190,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getDragAndDropImg()} />
+                  <StyledImg
+                    alt="drag-and-drop-img"
+                    src={getAssetUrl(getDragAndDropImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow className="border-b-0">
@@ -202,7 +209,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getPublishAppsImg()} />
+                  <StyledImg
+                    alt="publish-image"
+                    src={getAssetUrl(getPublishAppsImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
             </ModalContentWrapper>

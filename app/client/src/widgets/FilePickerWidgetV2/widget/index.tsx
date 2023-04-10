@@ -21,7 +21,6 @@ import React from "react";
 import shallowequal from "shallowequal";
 import { createGlobalStyle } from "styled-components";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -426,14 +425,13 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
 
       {
         sectionName: "Events",
         children: [
           {
             helpText:
-              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
+              "when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
             propertyName: "onFilesSelected",
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",
