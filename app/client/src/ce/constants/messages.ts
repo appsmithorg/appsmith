@@ -1549,6 +1549,7 @@ export const APP_NAVIGATION_SETTING = {
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
+// Datasource/New Query
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
@@ -1558,6 +1559,10 @@ export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
   "Google sheets authorised file ids key";
+export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
+  "Appsmith will require access to your google drive to access google sheets.";
+export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
+export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 
 //Layout Conversion flow
 export const CONVERT = () => "CONVERT";
