@@ -1,7 +1,6 @@
 import type { MutableRefObject } from "react";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
@@ -10,6 +9,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
 import { ScrollIndicator } from "design-system-old";
+import { Divider } from "design-system";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
@@ -63,10 +63,6 @@ const NoResult = styled(NonIdealState)`
       color: ${(props) => props.theme.colors.textOnWhiteBG};
     }
   }
-`;
-
-const StyledDivider = styled(Divider)`
-  border-bottom-color: #f0f0f0;
 `;
 
 function EntityExplorer({ isActive }: { isActive: boolean }) {
@@ -142,7 +138,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <StyledDivider />
+      <Divider />
       <Datasources />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />
