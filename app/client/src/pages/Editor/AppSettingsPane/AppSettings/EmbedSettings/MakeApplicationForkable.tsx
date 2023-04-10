@@ -51,12 +51,13 @@ function ConfirmEnableForkingModal({
     <DialogComponent
       isOpen={isOpen}
       onClose={onClose}
-      title={"Allow developers to fork this app to their workspace?"}
+      title={createMessage(
+        IN_APP_EMBED_SETTING.forkApplicationConfirmation.title,
+      )}
     >
       <div id="confirm-fork-modal">
         <Text type={TextType.P1}>
-          Forking allows developers to copy your app to their workspace. The
-          user will also get access to any connected datasources.
+          {createMessage(IN_APP_EMBED_SETTING.forkApplicationConfirmation.body)}
         </Text>
 
         <ButtonWrapper>
@@ -65,7 +66,9 @@ function ConfirmEnableForkingModal({
             onClick={onClose}
             size={Size.large}
             tag="button"
-            text="CANCEL"
+            text={createMessage(
+              IN_APP_EMBED_SETTING.forkApplicationConfirmation.cancel,
+            )}
             width={"142px"}
           />
           <Button
@@ -74,7 +77,9 @@ function ConfirmEnableForkingModal({
             onClick={onConfirm}
             size={Size.large}
             tag="button"
-            text="ALLOW FORKING"
+            text={createMessage(
+              IN_APP_EMBED_SETTING.forkApplicationConfirmation.confirm,
+            )}
           />
         </ButtonWrapper>
       </div>

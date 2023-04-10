@@ -1456,6 +1456,13 @@ export const IN_APP_EMBED_SETTING = {
   allowEmbeddingLabel: () => "Embedding enabled",
   allowEmbeddingTooltip: () =>
     "This app can be embedded in all domains, including malicious ones",
+  forkApplicationConfirmation: {
+    title: () => "Allow developers to fork this app to their workspace?",
+    body: () =>
+      "Forking allows developers to copy your app to their workspace. The user will also get access to any connected datasources.",
+    cancel: () => "CANCEL",
+    confirm: () => "ALLOW FORKING",
+  },
   copy: () => "Copy",
   copied: () => "Copied",
   limitEmbeddingLabel: () => "Embedding restricted",
