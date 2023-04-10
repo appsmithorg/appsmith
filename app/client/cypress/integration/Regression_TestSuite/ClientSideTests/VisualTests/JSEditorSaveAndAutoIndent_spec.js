@@ -45,15 +45,16 @@ myFun2: async () => {
         prettify: false,
       },
     );
+
     _.agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeSaveAndPrettify");
 
-    cy.get("div.CodeMirror").type("{cmd+s}").wait(500);
+    cy.get("div.CodeMirror").type("{cmd+s}").wait(2000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterSaveAndPrettify");
     _.agHelper.AssertAutoSave();
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(26));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterSaveAndPrettify");
   });
 });
