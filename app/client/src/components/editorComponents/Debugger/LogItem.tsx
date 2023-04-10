@@ -9,12 +9,13 @@ import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import { Classes, getTypographyByKey } from "design-system-old";
-import {
-  createMessage,
-  TROUBLESHOOT_ISSUE,
-} from "@appsmith/constants/messages";
+// import {
+//   createMessage,
+//   TROUBLESHOOT_ISSUE,
+// } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon } from "design-system";
+// import { Tooltip } from "design-system";
 import moment from "moment";
 
 const InnerWrapper = styled.div`
@@ -58,6 +59,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     margin-left: 4px;
     margin-right: 4px;
     color: var(--ads-v2-color-fg-muted);
+    width: max-content;
   }
   .debugger-occurences {
     height: 16px;
@@ -314,16 +316,17 @@ function LogItem(props: LogItemProps) {
                     entity={props.source}
                     error={{ message: { name: "", message: "" } }}
                   >
-                    <Tooltip
-                      content={createMessage(TROUBLESHOOT_ISSUE)}
-                      placement="bottomLeft"
-                    >
-                      <Icon
-                        className={`${Classes.ICON}`}
-                        name={"help"}
-                        size="sm"
-                      />
-                    </Tooltip>
+                    {/* TODO: fix bug where menu component doesn't open if it's trigger is wrapped in a tooltip */}
+                    {/*<Tooltip*/}
+                    {/*  content={createMessage(TROUBLESHOOT_ISSUE)}*/}
+                    {/*  placement="bottomLeft"*/}
+                    {/*>*/}
+                    <Icon
+                      className={`${Classes.ICON}`}
+                      name={"help"}
+                      size="sm"
+                    />
+                    {/*</Tooltip>*/}
                   </ContextualMenu>
                 </ContextWrapper>
               )}

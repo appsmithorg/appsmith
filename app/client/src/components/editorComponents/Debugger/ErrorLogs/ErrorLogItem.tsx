@@ -3,10 +3,10 @@ import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
 import { Classes, getTypographyByKey } from "design-system-old";
-import {
-  createMessage,
-  TROUBLESHOOT_ISSUE,
-} from "@appsmith/constants/messages";
+// import {
+//   createMessage,
+//   TROUBLESHOOT_ISSUE,
+// } from "@appsmith/constants/messages";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
@@ -17,7 +17,8 @@ import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon } from "design-system";
+// import { Tooltip } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -57,6 +58,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     font-weight: 500;
     color: var(--ads-v2-color-fg-muted);
     cursor: default;
+    width: max-content;
   }
 
   .debugger-error-type {
@@ -181,7 +183,7 @@ export type LogItemProps = {
 };
 
 // Log item component
-function ErrorLogItem(props: LogItemProps) {
+const ErrorLogItem = (props: LogItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const expandToggle = () => {
@@ -294,9 +296,10 @@ function ErrorLogItem(props: LogItemProps) {
                 entity={props.source}
                 error={{ message: { name: "", message: "" } }}
               >
-                <Tooltip content={createMessage(TROUBLESHOOT_ISSUE)}>
-                  <Icon className={`${Classes.ICON}`} name={"help"} size="sm" />
-                </Tooltip>
+                {/* TODO: fix bug where menu component doesn't open if it's trigger is wrapped in a tooltip */}
+                {/*<Tooltip content={createMessage(TROUBLESHOOT_ISSUE)}>*/}
+                <Icon className={`${Classes.ICON}`} name={"help"} size="sm" />
+                {/*</Tooltip>*/}
               </ContextualMenu>
             </ContextWrapper>
           )}
@@ -304,6 +307,6 @@ function ErrorLogItem(props: LogItemProps) {
       {collapsable && isOpen && <LogCollapseData isOpen={isOpen} {...props} />}
     </Wrapper>
   );
-}
+};
 
 export default ErrorLogItem;
