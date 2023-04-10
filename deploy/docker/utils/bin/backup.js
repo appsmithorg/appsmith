@@ -6,7 +6,6 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
-const { constants } = require('buffer');
 
 const command_args = process.argv.slice(3);
 
