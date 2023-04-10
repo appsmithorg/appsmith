@@ -177,4 +177,6 @@ export class CommonLocators {
   _modalWrapper = "[data-cy='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
   _dialogCloseButton = ".bp3-icon-small-cross";
+  _evaluateMsg = ".t--evaluatedPopup-error";
+  _canvas = "[data-testid=widgets-editor]";
 }

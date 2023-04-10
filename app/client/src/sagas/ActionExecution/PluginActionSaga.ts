@@ -37,7 +37,10 @@ import {
 import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
-import { validateResponse } from "sagas/ErrorSagas";
+import {
+  extractClientDefinedErrorMetadata,
+  validateResponse,
+} from "sagas/ErrorSagas";
 import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
@@ -513,6 +516,12 @@ function* runActionShortcutSaga() {
   }
 }
 
+type RunActionError = {
+  name: string;
+  message: string;
+  clientDefinedError?: boolean;
+};
+
 function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -558,7 +567,10 @@ function* runActionSaga(
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = { name: "", message: "" };
+  let error: RunActionError = {
+    name: "",
+    message: "",
+  };
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -588,6 +600,22 @@ function* runActionSaga(
     }
     log.error(e);
     error = { name: (e as Error).name, message: (e as Error).message };
+
+    const clientDefinedErrorMetadata = extractClientDefinedErrorMetadata(e);
+    if (clientDefinedErrorMetadata) {
+      set(
+        payload,
+        "statusCode",
+        `${clientDefinedErrorMetadata?.statusCode || ""}`,
+      );
+      set(payload, "request", {});
+      set(
+        payload,
+        "pluginErrorDetails",
+        clientDefinedErrorMetadata?.pluginErrorDetails,
+      );
+      set(error, "clientDefinedError", true);
+    }
   }
 
   // Error should be readable error if present.
@@ -608,13 +636,22 @@ function* runActionSaga(
       }
     : undefined;
 
+  const clientDefinedError = error.clientDefinedError
+    ? {
+        name: "PluginExecutionError",
+        message: error?.message,
+        clientDefinedError: true,
+      }
+    : undefined;
+
   const defaultError = {
     name: "PluginExecutionError",
     message: "An unexpected error occurred",
   };
 
   if (isError) {
-    error = readableError || payloadBodyError || defaultError;
+    error =
+      readableError || payloadBodyError || clientDefinedError || defaultError;
 
     // In case of debugger, both the current error message
     // and the readableError needs to be present,
@@ -653,8 +690,8 @@ function* runActionSaga(
             pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
-          state: payload.request,
-          pluginErrorDetails: payload.pluginErrorDetails,
+          state: payload?.request,
+          pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
     ]);
@@ -1024,6 +1061,10 @@ function* executePluginActionSaga(
       isError: isErrorResponse(response),
     };
   } catch (e) {
+    if ("clientDefinedError" in (e as any)) {
+      throw e;
+    }
+
     yield put(
       executePluginActionSuccess({
         id: actionId,

@@ -33,6 +33,7 @@ import {
 import HotKeys from "../Files/SubmenuHotkeys";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getIsAutoLayout } from "selectors/editorSelectors";
 
 const MenuItem = styled.div<{ active: boolean }>`
   display: flex;
@@ -75,6 +76,7 @@ function AddPageContextMenu({
   const { pageId } = useParams<ExplorerURLParams>();
   const [activeItemIdx, setActiveItemIdx] = useState(0);
   const featureFlags = useSelector(selectFeatureFlags);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const menuRef = useCallback(
     (node) => {
@@ -103,7 +105,7 @@ function AddPageContextMenu({
       },
     ];
 
-    if (featureFlags.TEMPLATES_PHASE_2) {
+    if (featureFlags.TEMPLATES_PHASE_2 && !isAutoLayout) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: Layout2LineIcon,
@@ -152,7 +154,11 @@ function AddPageContextMenu({
           handleSubmitKey={handleSelect}
           handleUpKey={handleUpKey}
         >
-          <Wrapper ref={menuRef} tabIndex={0}>
+          <Wrapper
+            className={EntityClassNames.CONTEXT_MENU_CONTENT}
+            ref={menuRef}
+            tabIndex={0}
+          >
             <Text autofocus className="title" type={TextType.H5}>
               {createMessage(CANVAS_NEW_PAGE_CARD)}
             </Text>

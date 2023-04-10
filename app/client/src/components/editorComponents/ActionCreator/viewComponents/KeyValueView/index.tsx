@@ -6,7 +6,7 @@ import React from "react";
 
 export function KeyValueView(props: KeyValueViewProps) {
   return (
-    <ControlWrapper isAction key={props.label}>
+    <ControlWrapper className="key-value-view" isAction key={props.label}>
       <KeyValueComponent
         addLabel={"Query Params"}
         pairs={props.get(props.value, false) as DropdownOption[]}

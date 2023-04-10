@@ -258,7 +258,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         //TODO get users sorted from DB and fill in three buckets - admin, developer and viewer
         Mono<List<MemberInfoDTO>> sortedListMono = userAndPermissionGroupDTOsMono
                 .map(userAndPermissionGroupDTOS -> {
-                    Collections.sort(userAndPermissionGroupDTOS, AppsmithComparators.getWorkspaceMemberComparator());
+                    Collections.sort(userAndPermissionGroupDTOS, AppsmithComparators.workspaceMembersComparator());
 
                     return userAndPermissionGroupDTOS;
                 });

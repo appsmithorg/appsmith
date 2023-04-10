@@ -142,6 +142,7 @@ export type CodeEditorExpected = {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
+  openExampleTextByDefault?: boolean;
 };
 
 export type EditorStyleProps = {
@@ -1263,6 +1264,7 @@ class CodeEditor extends Component<Props, State> {
             text="/"
           />
         )}
+
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
