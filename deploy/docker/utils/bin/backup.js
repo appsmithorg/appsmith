@@ -143,12 +143,11 @@ function getBackupContentsPath(backupRootPath, timestamp) {
 }
 
 function removeSensitiveEnvData(content) {
-    // Remove encryption and Mongodb env data
-
+  // Remove encryption and Mongodb data from docker.env
   const output_lines = []
   content.split(/\r?\n/).forEach(line => {
-    if (!line.startsWith("APPSMITH_ENCRYPTION")||!line.startsWith("APPSMITH_MONGO")) {
-      output_lines.push(line)
+    if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
+      output_lines.push(line);
     }
   });
   return output_lines.join('\n')
