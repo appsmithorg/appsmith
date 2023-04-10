@@ -140,6 +140,34 @@ export class TokensAccessor {
   };
 
   private getBgAccent = () => {
+    if (this.isLightMode) {
+      if (
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= -60
+      ) {
+        return this.colorsAccessor.setColor(this.accentColor, {
+          l: 45,
+          c: 30,
+        });
+      }
+
+      if (
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) >= -15
+      ) {
+        return this.colorsAccessor.setColor(this.accentColor, {
+          l: 85,
+        });
+      }
+
+      return this.accentColor;
+    }
+
+    if (this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= 60) {
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 79,
+        c: 17,
+      });
+    }
+
     return this.accentColor;
   };
 
@@ -218,7 +246,7 @@ export class TokensAccessor {
   private getBdAccent = () => {
     if (this.isLightMode) {
       if (
-        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) >= 15
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) >= -15
       ) {
         return this.colorsAccessor.setColor(this.accentColor, {
           l: 15,
@@ -229,9 +257,7 @@ export class TokensAccessor {
       return this.accentColor;
     }
 
-    if (
-      this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= -15
-    ) {
+    if (this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= 15) {
       return this.colorsAccessor.setColor(this.accentColor, {
         l: 98.5,
         c: 2,
@@ -252,6 +278,15 @@ export class TokensAccessor {
         });
       }
 
+      if (
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) >= -15
+      ) {
+        return this.colorsAccessor.setColor(this.accentColor, {
+          l: 15,
+          c: 8,
+        });
+      }
+
       return this.accentColor;
     }
 
@@ -266,7 +301,33 @@ export class TokensAccessor {
   };
 
   private getFgOnAccent = () => {
-    return this.colorsAccessor.getComplementaryGrayscale();
+    if (this.isLightMode) {
+      if (
+        this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= -60
+      ) {
+        return this.colorsAccessor.setColor(this.accentColor, {
+          l: 98.5,
+          c: 2,
+        });
+      }
+
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 15,
+        c: 8,
+      });
+    }
+
+    if (this.colorsAccessor.getContrast(this.accentColor, this.getBg()) <= 40) {
+      return this.colorsAccessor.setColor(this.accentColor, {
+        l: 98.5,
+        c: 2,
+      });
+    }
+
+    return this.colorsAccessor.setColor(this.accentColor, {
+      l: 15,
+      c: 8,
+    });
   };
 
   private getBdFocus = () => {

@@ -77,19 +77,6 @@ export class ColorsAccessor {
       .toString({ format: "hex" });
   };
 
-  /**
-   * returns black or white based on the contrast of the color compare to white
-   * using APCA algorithm
-   */
-  getComplementaryGrayscale = () => {
-    const contrast = this.color.contrast(new Color("#fff"), "APCA");
-
-    // if contrast is less than -35 then the text color should be white
-    if (contrast < -60) return "#fff";
-
-    return "#000";
-  };
-
   getLightness = () => {
     return this.color.oklch.l;
   };
