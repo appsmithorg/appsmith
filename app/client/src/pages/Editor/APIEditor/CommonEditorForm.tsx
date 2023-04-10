@@ -31,7 +31,6 @@ import {
   SearchSnippet,
   Text,
   TextType,
-  TooltipComponent,
 } from "design-system-old";
 import {
   Button,
@@ -41,6 +40,7 @@ import {
   Tabs,
   TabsList,
   TabPanel,
+  Tooltip,
 } from "design-system";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
@@ -59,7 +59,6 @@ import equal from "fast-deep-equal/es6";
 
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
@@ -234,6 +233,7 @@ const Flex = styled.div<{
   height: auto;
   border-color: var(--ads-v2-color-border);
   border-bottom: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   color: var(--ads-v2-color-fg);
   display: flex;
   align-items: center;
@@ -314,8 +314,8 @@ const FlexContainer = styled.div`
     margin-left: ${(props) => props.theme.spaces[4]}px;
   }
   .disabled {
-    background: #e7e7e7;
-    border: 1px solid #e0dede;
+    background: var(--ads-v2-color-bg-subtle);
+    border: 1px solid var(--ads-v2-border-radius-muted);
     margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   }
 `;
@@ -378,30 +378,25 @@ function ImportedKeyValue(props: {
                 isInvalid={data?.isInvalid}
                 size={1}
               >
-                <TooltipComponent
-                  content={tooltipContentKey}
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position="bottom-left"
-                >
+                <Tooltip content={tooltipContentKey} placement="bottomLeft">
                   <Text
                     className={`t--${props?.keyValueName}-key-${index}`}
                     type={TextType.H6}
                   >
-                    {data.key}
+                    <div>{data.key}</div>
                   </Text>
-                </TooltipComponent>
+                </Tooltip>
                 {"isInvalid" in data && !data?.isInvalid && (
-                  <TooltipComponent
+                  <Tooltip
                     content={createMessage(API_PANE_AUTO_GENERATED_HEADER)}
-                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                    position="bottom-left"
+                    placement="bottomLeft"
                   >
                     <CenteredIcon
                       className={`t--auto-generated-${data.key}-info`}
                       name="question-line"
                       size="md"
                     />
-                  </TooltipComponent>
+                  </Tooltip>
                 )}
               </Flex>
               <Flex
@@ -413,13 +408,9 @@ function ImportedKeyValue(props: {
                   className={`t--${props?.keyValueName}-value-${index}`}
                   type={TextType.H6}
                 >
-                  <TooltipComponent
-                    content={tooltipContentValue}
-                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                    position="bottom-left"
-                  >
-                    {data.value}
-                  </TooltipComponent>
+                  <Tooltip content={tooltipContentValue} placement="bottomLeft">
+                    <div>{data.value}</div>
+                  </Tooltip>
                 </Text>
               </Flex>
             </FlexContainer>
