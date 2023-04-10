@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 
 import FooterLinks from "./FooterLinks";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ContainerProps = {
   title: string;
@@ -19,7 +20,10 @@ function Container(props: ContainerProps) {
   return (
     <div className="flex flex-col items-center gap-4 my-auto min-w-min">
       <div className="bg-white border border-t-4 border-t-[color:var(--ads-color-brand)] py-8 px-6 w-[min(400px,80%)] flex flex-col gap-6 t--login-container">
-        <img className="h-8 mx-auto" src={tenantConfig.brandLogoUrl} />
+        <img
+          className="h-8 mx-auto"
+          src={getAssetUrl(tenantConfig.brandLogoUrl)}
+        />
         <div className="flex flex-col gap-2 text-center">
           <h1 className="text-xl font-semibold text-center">{title}</h1>
           {subtitle && <p className="text-base text-center">{subtitle}</p>}
