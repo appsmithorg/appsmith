@@ -44,12 +44,7 @@ describe("Validating Mobile Views", function () {
       });
   });
 
-  let phones = [
-    "iphone-4",
-    "samsung-s10",
-    [390, 844],
-    [360, 780]
-  ];
+  let phones = ["iphone-4", "samsung-s10", [390, 844], [360, 780]];
   phones.forEach((phone) => {
     it(`${phone} port execution`, function () {
       if (Cypress._.isArray(phone)) {

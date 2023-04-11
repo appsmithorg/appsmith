@@ -14,20 +14,20 @@ describe("Add widget - Postgress DataSource", function () {
   });
 
   it("1. Validate Snipping with query and table widget on canvas", () => {
-    cy.get(".t--close-editor span:contains('Back')").click({force: true});
-    cy.get(".t--back-button span:contains('Back')").click({force: true});
+    cy.get(".t--close-editor span:contains('Back')").click({ force: true });
+    cy.get(".t--back-button span:contains('Back')").click({ force: true });
     cy.get(commonlocators.autoConvert).click({
-        force: true,
-      });
-      cy.wait(2000);
-      cy.get(commonlocators.convert).click({
-        force: true,
-      });
-      cy.wait(2000);
-      cy.get(commonlocators.refreshApp).click({
-        force: true,
-      });
-      cy.wait(2000);
+      force: true,
+    });
+    cy.wait(2000);
+    cy.get(commonlocators.convert).click({
+      force: true,
+    });
+    cy.wait(2000);
+    cy.get(commonlocators.refreshApp).click({
+      force: true,
+    });
+    cy.wait(2000);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.wait(500);
