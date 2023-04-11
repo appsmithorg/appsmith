@@ -1,13 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { AppsmithLocationState } from "utils/history";
-import { NavigationMethod } from "utils/history";
 import { Link } from "design-system";
 
 const Back = styled(Link)`
@@ -19,7 +16,6 @@ const Back = styled(Link)`
 `;
 
 function BackButton() {
-  const history = useHistory<AppsmithLocationState>();
   const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
@@ -32,12 +28,16 @@ function BackButton() {
       fromUrl: location.pathname,
       toUrl: redirectURL,
     });
-    history.push(redirectURL, { invokedBy: NavigationMethod.ActionBackButton });
     return redirectURL;
   };
 
   return (
-    <Back className="t--back-button" startIcon="left-arrow-2" to={goBack()}>
+    <Back
+      className="t--back-button"
+      startIcon="left-arrow-2"
+      target="_self"
+      to={goBack()}
+    >
       Back
     </Back>
   );

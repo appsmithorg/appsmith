@@ -1,5 +1,4 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -14,8 +13,6 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { AppsmithLocationState } from "../../utils/history";
-import { NavigationMethod } from "../../utils/history";
 import { Link } from "design-system";
 import styled from "styled-components";
 
@@ -25,7 +22,6 @@ const StyledLink = styled(Link)`
 `;
 
 function CloseEditor() {
-  const history = useHistory<AppsmithLocationState>();
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
@@ -68,7 +64,6 @@ function CloseEditor() {
       fromUrl: location.pathname,
       toUrl: URL,
     });
-    history.push(URL, { invokedBy: NavigationMethod.ActionBackButton });
     return URL;
   };
 
