@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
-import type { IPanelProps, Position } from "@blueprintjs/core";
+import type { IPanelProps } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
@@ -11,8 +11,6 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import CopyIcon from "remixicon-react/FileCopyLineIcon";
-import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
@@ -20,6 +18,7 @@ import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Colors } from "constants/Colors";
+import { Button } from "design-system";
 import { BannerMessage, IconSize } from "design-system-old";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
@@ -132,34 +131,29 @@ function PropertyPaneView(
    */
   const actions = useMemo((): Array<{
     tooltipContent: any;
-    tooltipPosition: Position;
     icon: ReactElement;
   }> => {
     return [
       {
         tooltipContent: "Copy Widget",
-        tooltipPosition: "bottom-right",
         icon: (
-          <button
-            className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--copy-widget"
+          <Button
+            isIconButton
+            kind="tertiary"
             onClick={onCopy}
-            onKeyDown={handleTabKeyDownForButton("widgetCopy")}
-          >
-            <CopyIcon className="w-4 h-4 text-gray-500" />
-          </button>
+            startIcon="copy-control"
+          />
         ),
       },
       {
         tooltipContent: "Delete Widget",
-        tooltipPosition: "bottom-right",
         icon: (
-          <button
-            className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--delete-widget"
+          <Button
+            isIconButton
+            kind="tertiary"
             onClick={onDelete}
-            onKeyDown={handleTabKeyDownForButton("widgetDelete")}
-          >
-            <DeleteIcon className="w-4 h-4 text-gray-500" />
-          </button>
+            startIcon="delete-bin-line"
+          />
         ),
       },
     ];

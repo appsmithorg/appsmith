@@ -396,23 +396,12 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   }
   .commands-button {
     z-index: 2;
-    width: 20px;
     position: absolute;
     right: 0;
-    transform: translate(-50%, 50%);
     height: 20px;
-    background: transparent;
+    bottom: 18px;
+    transform: translate(-50%, 50%);
     display: none;
-    color: #f86a2b;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    padding: 0 0 3px;
     margin: 0 !important;
-    &:hover {
-      background: #f86a2b;
-      color: white;
-    }
   }
 `;

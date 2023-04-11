@@ -1259,6 +1259,7 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            size="sm"
             tabIndex={-1}
           >
             /

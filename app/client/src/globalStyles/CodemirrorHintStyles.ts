@@ -20,8 +20,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     overflow-y: auto;
     background: ${(props) =>
       props.editorTheme === EditorTheme.LIGHT ? "#fafafa" : "#262626"};
-    box-shadow: 0px 0px 2px 2px #ebebeb;
-    border-radius: 1px;
+   box-shadow: var(--ads-v2-shadow-popovers);
+    border: 1px solid var(--ads-v2-color-border);
+    border-radius: var(--ads-v2-border-radius);
   }
 
   .CodeMirror-hint {

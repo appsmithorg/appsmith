@@ -18,7 +18,6 @@ import {
   getTypographyByKey,
   Text,
   TextType,
-  TooltipComponent as Tooltip,
 } from "design-system-old";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
@@ -39,13 +38,19 @@ import {
   interactionAnalyticsEvent,
   INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
-import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
-import { Icon } from "design-system";
+import type { TooltipPlacement } from "design-system";
+import { Icon, Tooltip } from "design-system";
 
 const CONNECTION_HEIGHT = 28;
+
+const EntityText = styled.p`
+  font-size: var(--ads-v2-font-size-2);
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
+`;
 
 const TopLayer = styled.div`
   display: flex;
@@ -196,7 +201,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
   justifyContent: string;
-  tooltipPosition?: PopoverPosition;
+  tooltipPosition?: TooltipPlacement;
 };
 
 const doConnectionsHaveErrors = (
@@ -339,16 +344,16 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
           size="md"
         />
       )}
-      <span>
-        <Tooltip
-          content={tooltipText}
-          disabled={props.isOpen}
-          openOnTargetFocus={false}
-          position={props.tooltipPosition}
-        >
+
+      <Tooltip
+        content={tooltipText}
+        // disabled={props.isOpen}
+        placement={props.tooltipPosition}
+      >
+        <EntityText>
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
-        </Tooltip>
-      </span>
+        </EntityText>
+      </Tooltip>
       {props.iconAlignment === "RIGHT" && (
         <Icon
           color={props.hasError ? "var(--ads-v2-color-fg-error)" : "inherit"}
@@ -426,7 +431,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
             hasError={errorIncomingConnections}
-            tooltipPosition="bottom-left"
+            tooltipPosition="bottomLeft"
           />
         )}
         className={`connection-dropdown ${
@@ -462,7 +467,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
             hasError={errorOutgoingConnections}
-            tooltipPosition="bottom-right"
+            tooltipPosition="bottomRight"
           />
         )}
         className={`connection-dropdown ${

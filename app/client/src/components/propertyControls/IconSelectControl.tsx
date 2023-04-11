@@ -74,15 +74,23 @@ const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
   padding: 13px 5px;
+
   &:active,
-  &:hover,
   &.bp3-active {
-    background-color: #eeeeee !important;
+    background-color: var(--ads-v2-color-bg-muted) !important;
+    border-radius: var(--ads-v2-border-radius) !important;
   }
+
+  &:hover {
+    background-color: var(--ads-v2-color-bg-subtle) !important;
+    border-radius: var(--ads-v2-border-radius) !important;
+  }
+
   > span.bp3-icon {
     margin-right: 0;
     color: #939090 !important;
   }
+
   > div {
     width: 100%;
     text-align: center;
@@ -191,7 +199,7 @@ class IconSelectControl extends BaseControl<
             enforceFocus: false,
             minimal: true,
             isOpen: this.state.isOpen,
-            popoverClassName: `icon-select-popover-${this.id}`,
+            popoverClassName: `icon-select-popover icon-select-popover-${this.id}`,
             onInteraction: (state) => {
               if (this.state.isOpen !== state)
                 this.debouncedSetState({ isOpen: state });

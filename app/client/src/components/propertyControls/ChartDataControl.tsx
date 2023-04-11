@@ -22,6 +22,8 @@ const Wrapper = styled.div`
   background-color: ${(props) =>
     props.theme.colors.propertyPane.dropdownSelectBg};
   padding: 0 8px;
+  margin-bottom: 5px;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`

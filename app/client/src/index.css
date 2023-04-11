@@ -70,14 +70,13 @@ div.bp3-popover-arrow {
 .bp3-popover .bp3-input {
   outline: 0;
   box-shadow: none;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0 !important;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius) !important;
 }
 
 .bp3-popover .bp3-input:focus {
-  border-color: #80bdff;
+  border-color: var(--ads-v2-color-border-emphasis);
   outline: 0;
-  box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
 }
 
 .bp3-popover.bp3-minimal {
@@ -120,4 +119,23 @@ div.bp3-popover-arrow {
 
 .bp3-overlay-zindex {
   z-index: 20 !important;
+}
+
+/** color picker input control */
+.color-picker-input,
+.color-picker-input > .bp3-popover-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.color-picker-input {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
+.icon-select-popover,
+.icon-select-popover > .bp3-popover-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.icon-select-popover {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
 }

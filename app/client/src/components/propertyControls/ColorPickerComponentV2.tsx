@@ -107,6 +107,13 @@ interface ColorPickerPopupProps {
   showApplicationColors?: boolean;
 }
 
+const PopupContainer = styled.div`
+  padding: 0.75rem;
+  width: 18rem;
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
+`;
+
 function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
   const brandColors = useSelector(getBrandColors);
@@ -141,8 +148,8 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   }
 
   const popup = (
-    <div
-      className="p-3 space-y-2 w-72"
+    <PopupContainer
+      className="space-y-2"
       data-testid="color-picker"
       onClick={handleClick}
       onFocus={handleFocus}
@@ -283,7 +290,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
           />
         </div>
       </section>
-    </div>
+    </PopupContainer>
   );
 
   return (
@@ -553,6 +560,7 @@ const ColorPickerComponent = React.forwardRef(
           minimal
           modifiers={POPOVER_MODFIER}
           onInteraction={handleOnInteraction}
+          popoverClassName="color-picker-input"
           portalContainer={props.portalContainer}
         >
           <StyledInputGroup
