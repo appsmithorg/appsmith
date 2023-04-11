@@ -374,7 +374,6 @@ class WidgetFactory {
     const autocompleteDefinition = this.autocompleteDefinitions.get(type);
     if (!autocompleteDefinition) {
       log.error("Widget autocomplete properties not defined: ", type);
-      return undefined;
     }
     return autocompleteDefinition;
   }

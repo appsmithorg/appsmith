@@ -12,7 +12,7 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: any) => ({
+    return (widget: IframeWidgetProps) => ({
       "!doc": "Iframe widget is used to display iframes in your app.",
       "!url": "https://docs.appsmith.com/widget-reference/iframe",
       isVisible: DefaultAutocompleteDefinitions.isVisible,

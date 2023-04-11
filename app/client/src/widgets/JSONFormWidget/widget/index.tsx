@@ -223,7 +223,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: any) => ({
+    return (widget: JSONFormWidgetProps) => ({
       "!doc":
         "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
       // TODO: Update the url

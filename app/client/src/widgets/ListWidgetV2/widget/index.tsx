@@ -157,7 +157,7 @@ class ListWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: any, extraDefsToDefine?: ExtraDef) => ({
+    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
       "!url": "https://docs.appsmith.com/widget-reference/list",

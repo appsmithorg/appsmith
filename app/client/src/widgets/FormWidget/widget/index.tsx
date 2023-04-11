@@ -133,7 +133,7 @@ class FormWidget extends ContainerWidget {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: any, extraDefsToDefine?: ExtraDef) => ({
+    return (widget: FormWidgetProps, extraDefsToDefine?: ExtraDef) => ({
       "!doc":
         "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
       "!url": "https://docs.appsmith.com/widget-reference/form",

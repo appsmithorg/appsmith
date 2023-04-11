@@ -66,7 +66,7 @@ export interface WidgetConfiguration {
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
-    autocompleteDefinitions?: any;
+    autocompleteDefinitions?: AutocompletionDefinitions;
   };
 }
 
@@ -99,11 +99,12 @@ interface LayoutProps {
 }
 
 export type AutocompleteDefinitionFunction = (
-  widgetProps: { [props: string]: any },
+  widgetProps: WidgetProps,
   extraDefsToDefine?: ExtraDef,
-) => { [propName: string]: any };
+) => Record<string, any>;
+
 export type AutocompletionDefinitions =
-  | { [propName: string]: any }
+  | Record<string, any>
   | AutocompleteDefinitionFunction;
 
 const staticProps = omit(
