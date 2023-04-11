@@ -52,7 +52,10 @@ function Page(props: PageProps) {
       {title && (
         <p className="text-3xl font-semibold t--error-page-title">{title}</p>
       )}
-      {description && <p className="text-center">{description}</p>}
+      {/* t--error-page-description class used in EE */}
+      {description && (
+        <p className="text-center t--error-page-description">{description}</p>
+      )}
       {props.errorMessages?.map((errorMessage, idx) => (
         <PageErrorMessage data={errorMessage} key={idx} />
       ))}

@@ -7,7 +7,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   table = ObjectsRegistry.Table,
   agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
@@ -89,7 +90,7 @@ describe("JS Function Execution", function () {
       },
     );
 
-    jsEditor.AssertParseError(false, false);
+    jsEditor.AssertParseError(false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
@@ -108,8 +109,13 @@ describe("JS Function Execution", function () {
         prettify: false,
       },
     );
-
-    jsEditor.AssertParseError(true, false);
+    //Debugger shouldn't open when there is a parse error.
+    //It should open only in case of execution error.
+    debuggerHelper.AssertClosed();
+    //Verify there is no error shown in the response tab.
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickResponseTab();
+    jsEditor.AssertParseError(false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
@@ -136,7 +142,7 @@ describe("JS Function Execution", function () {
     });
 
     // Assert presence of function execution parse error callout
-    jsEditor.AssertParseError(true, true);
+    jsEditor.AssertParseError(true);
 
     // Add parse error that renders JS Object invalid in code
     jsEditor.CreateJSObject(JSObjectWithParseErrors, {
@@ -150,7 +156,7 @@ describe("JS Function Execution", function () {
     agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
 
     // Assert presence of parse error callout (entire JS Object is invalid)
-    jsEditor.AssertParseError(true, false);
+    jsEditor.AssertParseError(true);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
@@ -504,12 +510,21 @@ return "yes";`;
     });
 
     // Assert that there is a function execution parse error
-    jsEditor.AssertParseError(true, true);
-    // click the debug icon
-    agHelper.GetNClick(jsEditor._debugCTA);
+    jsEditor.AssertParseError(true);
+    // Assert that response tab is not empty
+    agHelper.AssertContains("No signs of trouble here!", "not.exist");
+    // Assert presence of typeError in response tab
+    agHelper.AssertContains(
+      "Cannot read properties of undefined (reading 'id')",
+      "exist",
+    );
+    agHelper.AssertContains("TypeError", "exist");
+
+    // click the error tab
+    agHelper.GetNClick(locator._errorTab);
     // Assert that errors tab is not empty
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
-    // Assert presence of typeError
+    // Assert presence of typeError in error tab
     agHelper.AssertContains(
       "Cannot read properties of undefined (reading 'id')",
       "exist",
@@ -518,12 +533,10 @@ return "yes";`;
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
-    agHelper.WaitUntilAllToastsDisappear(); //for 'Resource not found'
     agHelper.RefreshPage();
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
     agHelper.AssertElementAbsence(locator._runBtnSpinner, 10000);
-    jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
       "Cannot read properties of undefined (reading 'id')",
@@ -536,7 +549,7 @@ return "yes";`;
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false, false);
     jsEditor.RunJSObj();
     // Assert that there is a function execution parse error
-    jsEditor.AssertParseError(true, true);
+    jsEditor.AssertParseError(true);
 
     // Delete function
     jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
