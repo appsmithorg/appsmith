@@ -1,5 +1,3 @@
-// import { Colors } from "constants/Colors";
-// import { getTypographyByKey } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -32,7 +30,7 @@ function DatasourceChip(props: DatasourceChipProps) {
 
   return (
     // <StyledDatasourceChip className={props.className}>
-    //   <img className="image" src={plugin.iconLocation} />
+    //   <img className="image" src={getAssetUrl(plugin.iconLocation)} />
     //   <span>{plugin.name}</span>
     // </StyledDatasourceChip>
     <StyledDatasourceChip kind="secondary" size="sm">

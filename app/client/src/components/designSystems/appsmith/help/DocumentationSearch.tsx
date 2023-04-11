@@ -35,11 +35,8 @@ const { algolia, appVersion, cloudHosting, intercomAppID } =
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const StyledOpenLinkIcon = styled(Icon)`
-  position: absolute;
-  right: 14px;
-  top: 1px;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   display: none;
 `;
 
@@ -179,7 +176,7 @@ const SearchContainer = styled.div`
     margin-bottom: 1em;
     width: 100%;
     margin: 0;
-    padding: 5px;
+    padding: 8px 16px;
     border: 0;
     cursor: pointer;
     box-shadow: none;
@@ -193,10 +190,15 @@ const SearchContainer = styled.div`
   }
 
   .hit-name {
-    font-size: 14px;
+    font-size: 12px;
     line-height: 16px;
+    letter-spacing: -0.195px;
+    height: 16px;
     color: #4b4848;
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
   }
 
   .ais-SearchBox-reset {
@@ -229,12 +231,10 @@ const SearchContainer = styled.div`
   }
 
   .ais-Highlight {
-    margin-left: 36px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: calc(100% - 36px);
-    display: inline-block;
   }
 
   .ais-Highlight-highlighted {
@@ -287,7 +287,7 @@ const HelpBody = styled.div<{ hideSearch?: boolean }>`
   ${(props) =>
     props.hideSearch
       ? `
-    padding: ${props.theme.spaces[2]}px;
+    padding: 0;
   `
       : `
     padding-top: 68px;
@@ -314,17 +314,17 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon name="file-text-fill" size="sm" />,
+    icon: <StyledDocumentIcon name="file-text-fill" size="md" />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon name="github-fill" size="sm" />,
+    icon: <StyledGithubIcon name="github-fill" size="md" />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledDiscordIcon name="discord-fill" size="sm" />,
+    icon: <StyledDiscordIcon name="discord-fill" size="md" />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
@@ -332,7 +332,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
-    icon: <StyledChatIcon name="message-line" size="sm" />,
+    icon: <StyledChatIcon name="message-line" size="md" />,
     label: "Chat with us",
     id: "intercom-trigger",
   });

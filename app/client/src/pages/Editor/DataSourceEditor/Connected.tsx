@@ -31,8 +31,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding: 24px 20px;
 `;
 
 function Connected({

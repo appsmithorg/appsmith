@@ -330,6 +330,8 @@ export interface ColumnProperties
     DateColumnProperties,
     ColumnEditabilityProperties,
     EditActionColumnProperties {
+  allowSameOptionsInNewRow?: boolean;
+  newRowSelectOptions?: DropdownOption[];
   buttonLabel?: string;
   menuButtonLabel?: string;
   buttonColor?: string;

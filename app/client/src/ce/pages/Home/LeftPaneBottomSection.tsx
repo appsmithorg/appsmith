@@ -63,7 +63,6 @@ function LeftPaneBottomSection() {
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
-
   return (
     <Wrapper>
       {showAdminSettings(user) && !isFetchingApplications && (

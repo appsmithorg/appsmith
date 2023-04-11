@@ -117,6 +117,7 @@ interface APIFormProps {
   dispatch: any;
   responseDataTypes: { key: string; title: string }[];
   responseDisplayFormat: { title: string; value: string };
+  showDebugger: boolean;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -136,6 +137,7 @@ function RapidApiEditorForm(props: Props) {
     providerURL,
     responseDataTypes,
     responseDisplayFormat,
+    showDebugger,
     templateId,
   } = props;
 
@@ -268,13 +270,14 @@ function RapidApiEditorForm(props: Props) {
             ]}
           />
         </TabbedViewContainer>
-
-        <ApiResponseView
-          apiName={props.apiName}
-          onRunClick={onRunClick}
-          responseDataTypes={responseDataTypes}
-          responseDisplayFormat={responseDisplayFormat}
-        />
+        {showDebugger && (
+          <ApiResponseView
+            apiName={props.apiName}
+            onRunClick={onRunClick}
+            responseDataTypes={responseDataTypes}
+            responseDisplayFormat={responseDisplayFormat}
+          />
+        )}
       </SecondaryWrapper>
     </Form>
   );
@@ -297,6 +300,7 @@ export default connect((state: AppState) => {
     state,
     "actionConfiguration.headers",
   );
+  const showDebugger = selector(state, "ui.debugger.isOpen");
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&
@@ -338,6 +342,7 @@ export default connect((state: AppState) => {
     providerURL,
     responseDataTypes,
     responseDisplayFormat,
+    showDebugger,
     templateId,
     providerCredentialSteps,
   };
