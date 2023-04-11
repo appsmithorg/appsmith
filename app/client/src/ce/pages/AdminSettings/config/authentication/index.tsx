@@ -67,7 +67,7 @@ const FormAuth: AdminConfigType = {
   ],
 };
 
-const GoogleAuth: AdminConfigType = {
+export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Google Authentication",
@@ -138,7 +138,7 @@ const GoogleAuth: AdminConfigType = {
   ],
 };
 
-const GithubAuth: AdminConfigType = {
+export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Github Authentication",
