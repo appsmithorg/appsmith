@@ -25,7 +25,6 @@ describe("JSEditor Comment - Visual tests", () => {
         prettify: false,
       },
     );
-    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeCommenting1");
 

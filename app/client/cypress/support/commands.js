@@ -459,26 +459,6 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   //cy.get('.t--entity-name').click({multiple:true})
 });
 
-Cypress.Commands.add("SearchEntityandOpenFirstOccurance", (apiname1) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  cy.CheckAndUnfoldWidgets();
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .first()
-    .scrollIntoView({ easing: "linear" });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .first()
-    .click({ force: true });
-  //cy.get(".bp3-editable-text-content").should("contain.text", apiname1);
-  //cy.get('.t--entity-name').click({multiple:true})
-});
-
 Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
   cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })

@@ -112,6 +112,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -183,6 +184,7 @@ export function* publishApplicationSaga(
 }
 
 export function* getAllApplicationSaga() {
+  const isAirgappedInstance = isAirgapped();
   try {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
@@ -212,7 +214,9 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
     }
-    yield call(fetchReleases);
+    if (!isAirgappedInstance) {
+      yield call(fetchReleases);
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
