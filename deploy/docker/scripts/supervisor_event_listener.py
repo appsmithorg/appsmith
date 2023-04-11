@@ -14,16 +14,14 @@ def write_stderr(s):
     sys.stderr.flush()
 
 def wait_until_backend_healthy(timeout):
-    response = requests.get(BACKEND_HEALTH_ENDPOINT)
-    while(response.status_code!=200 and timeout>0):
-      time.sleep(3)
-      timeout-=3
-      response = requests.get(BACKEND_HEALTH_ENDPOINT)
-    
-    if (response.status_code == 200):
-      write_stderr('\nBackend is healthy\n')
+    for _ in range(3):
+        if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
+            write_stderr('\nBackend is healthy\n')
+            break
+        time.sleep(3)
     else:
-      write_stderr('\nBackend  health timeout\n')
+        write_stderr('\nBackend  health timeout\n')
+
     remove_loading_page()
 
 def remove_loading_page():
