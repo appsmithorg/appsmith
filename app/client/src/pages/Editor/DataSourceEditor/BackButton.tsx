@@ -1,18 +1,16 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
-import { Text, TextType } from "design-system-old";
 import { useHistory } from "react-router-dom";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { Colors } from "constants/Colors";
 import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
+import { Link } from "design-system";
 
-const Back = styled.span`
+const Back = styled(Link)`
   height: 30px;
   display: flex;
   align-items: center;
@@ -35,16 +33,12 @@ function BackButton() {
       toUrl: redirectURL,
     });
     history.push(redirectURL, { invokedBy: NavigationMethod.ActionBackButton });
+    return redirectURL;
   };
+
   return (
-    <Back className="t--back-button" onClick={goBack}>
-      <Icon icon="chevron-left" iconSize={16} />
-      <Text
-        style={{ color: Colors.DIESEL, lineHeight: "14px" }}
-        type={TextType.P1}
-      >
-        Back
-      </Text>
+    <Back className="t--back-button" startIcon="left-arrow-2" to={goBack()}>
+      Back
     </Back>
   );
 }
