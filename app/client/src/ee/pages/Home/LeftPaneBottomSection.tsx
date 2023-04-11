@@ -99,41 +99,43 @@ function LeftPaneBottomSection() {
         />
       )}
       {!isAirgappedInstance && (
-        <MenuItem
-          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-          icon="discord"
-          onSelect={() => {
-            window.open("https://discord.gg/rBTTVJp", "_blank");
-          }}
-          text={"Join our Discord"}
-        />
+        <>
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="discord"
+            onSelect={() => {
+              window.open("https://discord.gg/rBTTVJp", "_blank");
+            }}
+            text={"Join our Discord"}
+          />
+          <MenuItem
+            containerClassName={
+              isFetchingApplications ? BlueprintClasses.SKELETON : ""
+            }
+            icon="book"
+            onSelect={() => {
+              window.open("https://docs.appsmith.com/", "_blank");
+            }}
+            text={createMessage(DOCUMENTATION)}
+          />
+          {!!onboardingWorkspaces.length && (
+            <MenuItem
+              containerClassName={
+                isFetchingApplications
+                  ? BlueprintClasses.SKELETON
+                  : "t--welcome-tour"
+              }
+              icon="guide"
+              onSelect={() => {
+                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+                dispatch(onboardingCreateApplication());
+              }}
+              text={createMessage(WELCOME_TOUR)}
+            />
+          )}
+          <ProductUpdatesModal />
+        </>
       )}
-      <MenuItem
-        containerClassName={
-          isFetchingApplications ? BlueprintClasses.SKELETON : ""
-        }
-        icon="book"
-        onSelect={() => {
-          window.open("https://docs.appsmith.com/", "_blank");
-        }}
-        text={createMessage(DOCUMENTATION)}
-      />
-      {!!onboardingWorkspaces.length && (
-        <MenuItem
-          containerClassName={
-            isFetchingApplications
-              ? BlueprintClasses.SKELETON
-              : "t--welcome-tour"
-          }
-          icon="guide"
-          onSelect={() => {
-            AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-            dispatch(onboardingCreateApplication());
-          }}
-          text={createMessage(WELCOME_TOUR)}
-        />
-      )}
-      {!isAirgappedInstance && <ProductUpdatesModal />}
       <LeftPaneVersionData>
         <span>
           {createMessage(
