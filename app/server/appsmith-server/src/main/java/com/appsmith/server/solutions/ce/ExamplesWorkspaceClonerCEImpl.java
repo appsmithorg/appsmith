@@ -5,7 +5,6 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -191,10 +190,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         return datasourceFlux
                 .flatMap(datasource -> {
                     final String datasourceId = datasource.getId();
-                    // forkWithConfiguration is dependent on application, here we are calling cloneDatasource
-                    // for the workspace hence Boolean.TRUE is passed as the third parameter because by default
-                    // user should have access to the datasource credentials already present in the workspace
-                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId, Boolean.TRUE);
+                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId);
+                    cloneDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
                 })
                 .thenMany(applicationFlux)
@@ -211,8 +208,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .flatMap(page ->
                                     Mono.zip(
                                             Mono.just(page),
-                                            Mono.just(defaultPageId.equals(page.getId())),
-                                            Mono.just(application)
+                                            Mono.just(defaultPageId.equals(page.getId()))
                                     )
                             );
                 })
@@ -220,7 +216,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
-                    Application application = tuple.getT3();
                     DefaultResources defaults = new DefaultResources();
                     defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
@@ -267,12 +262,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                 if (datasourceInsideAction.getId() != null) {
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!cloneDatasourceMonos.containsKey(datasourceId)) {
-                                                        //exportWithConfig by default remains FALSE for datasources used in an application
-                                                        Boolean forkWithConfig = Boolean.FALSE;
-                                                        if (Boolean.TRUE.equals(application.getForkWithConfiguration())){
-                                                            forkWithConfig = Boolean.TRUE;
-                                                        }
-                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId, forkWithConfig).cache());
+                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId).cache());
                                                     }
                                                     actionMono = cloneDatasourceMonos.get(datasourceId)
                                                             .map(newDatasource -> {
@@ -506,8 +496,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 );
     }
 
-    // forkWithConfiguration parameter if TRUE, returns the datasource with credentials else returns datasources without credentials
-    public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId, Boolean forkWithConfiguration) {
+    public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId) {
         final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByWorkspaceId(toWorkspaceId)
                 .collectList();
 
@@ -539,13 +528,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                 // No matching existing datasource found, so create a new one.
                                 makePristine(templateDatasource);
                                 templateDatasource.setWorkspaceId(toWorkspaceId);
-                                if (!Boolean.TRUE.equals(forkWithConfiguration)){
-                                    DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-                                    if (templateDatasource.getDatasourceConfiguration() != null){
-                                        dsConfig.setConnection(templateDatasource.getDatasourceConfiguration().getConnection());
-                                    }
-                                    templateDatasource.setDatasourceConfiguration(dsConfig);
-                                }
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });
