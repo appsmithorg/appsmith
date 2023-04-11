@@ -245,8 +245,8 @@ function WidgetsEditor() {
                 </PageViewContainer>
 
                 <CrudInfoModal />
-                <Debugger />
               </div>
+              <Debugger />
             </div>
 
             {!isMultiPane && <PropertyPaneContainer />}
