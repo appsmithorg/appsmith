@@ -376,9 +376,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {};
   }
 
-  onButtonClick(e: React.MouseEvent<HTMLElement>) {
+  onButtonClick() {
     if (this.props.onClick) {
-      e.stopPropagation();
       this.setState({
         isLoading: true,
       });
@@ -391,7 +390,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         },
       });
     } else if (this.props.resetFormOnClick && this.props.onReset) {
-      e.stopPropagation();
       this.props.onReset();
     }
   }
