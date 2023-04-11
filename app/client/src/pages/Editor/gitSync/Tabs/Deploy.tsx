@@ -20,11 +20,9 @@ import {
   LabelContainer,
   ScrollIndicator,
   Text,
-  TextInput,
   TextType,
-  TooltipComponent as Tooltip,
 } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Input, Tooltip } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -69,7 +67,7 @@ import {
   getCurrentApplication,
 } from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import useAutoGrow from "utils/hooks/useAutoGrow";
+// import useAutoGrow from "utils/hooks/useAutoGrow";
 import { Space, Title } from "../components/StyledComponents";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
@@ -269,7 +267,7 @@ function Deploy() {
 
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
-  const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
+  // const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
 
   const onDiscardInit = () => {
     AnalyticsUtil.logEvent("GIT_DISCARD_WARNING", {
@@ -353,19 +351,15 @@ function Deploy() {
             if (!commitButtonDisabled) handleCommit(true);
           }}
         >
-          <TextInput
-            $padding="8px 14px"
+          <Input
             autoFocus
             className="t--commit-comment-input"
-            disabled={commitInputDisabled}
-            fill
-            height={`${Math.min(autogrowHeight, 80)}px`}
+            isDisabled={commitInputDisabled}
             onChange={setCommitMessage}
             placeholder={"Your commit message here"}
             ref={commitInputRef}
-            style={{ resize: "none" }}
-            trimValue={false}
-            useTextArea
+            renderAs="textarea"
+            type="text"
             value={commitMessageDisplay}
           />
         </SubmitWrapper>
@@ -399,6 +393,7 @@ function Deploy() {
               className="t--pull-button"
               isLoading={isPullingProgress}
               onClick={handlePull}
+              size="md"
             >
               {createMessage(PULL_CHANGES)}
             </Button>
@@ -407,15 +402,14 @@ function Deploy() {
           {showCommitButton && (
             <Tooltip
               content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
-              disabled={showCommitButton && !commitButtonLoading}
-              donotUsePortal
-              position="top"
+              placement="top"
             >
               <Button
                 className="t--commit-button"
                 isDisabled={commitButtonDisabled}
                 isLoading={commitButtonLoading}
                 onClick={() => handleCommit(true)}
+                size="md"
               >
                 {commitButtonText}
               </Button>
@@ -434,6 +428,7 @@ function Deploy() {
               onClick={() =>
                 shouldDiscard ? onDiscardChanges() : onDiscardInit()
               }
+              size="md"
             >
               {showDiscardWarning
                 ? createMessage(ARE_YOU_SURE)
