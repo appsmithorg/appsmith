@@ -280,14 +280,16 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       // Check if Target is the MainCanvas
-      if (isTargetMainCanvas && !props.parentId) {
-        deselectAll();
-        focusWidget && focusWidget(props.widgetId);
-        showPropertyPane && showPropertyPane();
-        e.preventDefault();
-      } else {
-        // Prevent onClick from Bubbling out of the Canvas to the WidgetEditor for any other widget except the MainCanvas
-        e.stopPropagation();
+      if (!props.parentId) {
+        if (isTargetMainCanvas) {
+          deselectAll();
+          focusWidget && focusWidget(props.widgetId);
+          showPropertyPane && showPropertyPane();
+          e.preventDefault();
+        } else {
+          // Prevent onClick from Bubbling out of the Canvas to the WidgetEditor for any other widget except the MainCanvas
+          e.stopPropagation();
+        }
       }
     }
   };
