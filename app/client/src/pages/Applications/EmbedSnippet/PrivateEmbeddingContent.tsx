@@ -37,8 +37,12 @@ const Image = styled.img`
   margin: auto;
 `;
 
-function PrivateEmbeddingContent(props: any) {
-  const { canMakeAppPublic = false, isAppSettings = false } = props;
+function PrivateEmbeddingContent(props: {
+  canMakeAppPublic: boolean;
+  changeTab?: () => void;
+  isAppSettings?: boolean;
+}) {
+  const { canMakeAppPublic = false, changeTab, isAppSettings = false } = props;
 
   return (
     <Container isAppSettings={isAppSettings}>
@@ -61,11 +65,11 @@ function PrivateEmbeddingContent(props: any) {
         className="flex justify-center gap-4"
         isAppSettings={isAppSettings}
       >
-        {canMakeAppPublic && (
+        {canMakeAppPublic && !isAppSettings && (
           <Button
             category={Category.secondary}
             height="36"
-            onClick={() => props.setActiveTab(0)}
+            onClick={changeTab}
             text="SHARE SETTINGS"
             type="button"
           />

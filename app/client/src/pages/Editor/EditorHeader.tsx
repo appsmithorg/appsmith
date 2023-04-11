@@ -364,6 +364,9 @@ export function EditorHeader(props: EditorHeaderProps) {
         key: "EMBED",
         title: createMessage(IN_APP_EMBED_SETTING.embed),
         component: EmbedSnippetForm,
+        customProps: {
+          changeTabIndex: 0,
+        },
       },
     ];
   }, []);

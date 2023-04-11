@@ -65,8 +65,10 @@ export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
 `;
 
 export function EmbedSnippetTab({
+  changeTab,
   isAppSettings,
 }: {
+  changeTab?: () => void;
   isAppSettings?: boolean;
 }) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
@@ -205,7 +207,8 @@ export function EmbedSnippetTab({
     </EmbedSnippetContainer>
   ) : (
     <PrivateEmbeddingContent
-      canMakeAppPublic={isAppSettings ? false : canShareWithPublic}
+      canMakeAppPublic={canShareWithPublic}
+      changeTab={changeTab}
       isAppSettings={isAppSettings}
     />
   );

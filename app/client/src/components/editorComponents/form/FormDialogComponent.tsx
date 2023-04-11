@@ -72,6 +72,7 @@ const getTabs = (
   setIsOpen: (val: boolean) => void,
   applicationId?: string,
   workspaceId?: string,
+  changeTab?: (value: number) => void,
 ) => {
   return tabs && tabs.length > 0
     ? tabs.map((tab) => {
@@ -92,6 +93,7 @@ const getTabs = (
                   }
                 : {})}
               applicationId={applicationId}
+              changeTab={() => changeTab?.(tab.customProps.changeTabIndex)}
               dropdownMaxHeight={tab.dropdownMaxHeight}
               dropdownPlaceholder={tab.dropdownPlaceholder}
               formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
@@ -124,9 +126,19 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
     setIsOpen(false);
   };
 
+  const changeTab = (index: number) => {
+    setSelectedTabIndex(index);
+  };
+
   const updatedTabs: TabProp[] =
     props.tabs && props.tabs.length > 0
-      ? getTabs(props.tabs, setIsOpen, props.applicationId, props.workspaceId)
+      ? getTabs(
+          props.tabs,
+          setIsOpen,
+          props.applicationId,
+          props.workspaceId,
+          changeTab,
+        )
       : [];
 
   const Form = props.Form;
