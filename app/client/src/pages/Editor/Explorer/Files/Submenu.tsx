@@ -133,6 +133,8 @@ export default function ExplorerSubMenu({
         align="start"
         onInteractOutside={() => handleOpenChange(false)}
         side="right"
+        // Menu content has a max height which causes the whole content to scroll
+        style={{ maxHeight: "unset" }}
       >
         <SubMenuContainer
           className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}

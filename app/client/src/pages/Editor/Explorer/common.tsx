@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import Entity from "./Entity";
 import { Button } from "design-system";
 
@@ -16,7 +15,7 @@ const ECMainText = styled.span`
   display: block;
   margin-bottom: 12px;
   font-size: 10px;
-  color: ${Colors.DOVE_GRAY2};
+  color: var(--ads-v2-color-fg-subtle);
 `;
 
 const ECAddButton = styled(Button)`
@@ -46,9 +45,9 @@ export function EmptyComponent(props: {
 }
 
 export const AddEntity = styled(Entity)`
-  color: ${Colors.CHARCOAL};
+  color: var(--ads-v2-color-fg-muted);
 
   .t--entity-name {
-    color: ${Colors.CHARCOAL};
+    color: var(--ads-v2-color-fg-muted);
   }
 `;

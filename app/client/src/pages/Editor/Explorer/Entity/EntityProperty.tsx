@@ -87,7 +87,7 @@ const CopyBox = styled.div`
   &:hover {
     &:before {
       content: "";
-      background: ${Colors.Gallery};
+      background: var(--ads-v2-color-bg-subtle);
       opacity: 1;
       position: absolute;
       left: 0;

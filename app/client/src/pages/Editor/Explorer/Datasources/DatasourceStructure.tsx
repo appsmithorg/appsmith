@@ -9,7 +9,6 @@ import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
-import { Colors } from "constants/Colors";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -31,7 +30,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
     margin-left: 5px;
   }
   padding: 0 5px;
-  color: ${Colors.GRAY2};
+  color: var(--ads-v2-color-bg-subtle);
 `;
 
 const StyledEntity = styled(Entity)`

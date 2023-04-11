@@ -45,7 +45,7 @@ const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
   font-weight: 500;
   font-size: 12px;
-  color: ${Colors.DOVE_GRAY2};
+  color: var(--ads-v2-color-fg-emphasis);
   display: flex;
   align-items: center;
   gap: 10px;

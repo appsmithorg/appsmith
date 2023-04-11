@@ -17,14 +17,14 @@ const Wrapper = styled.div<{ step: number }>`
   height: 30px;
   width: 100%;
   &:hover {
-    background: ${Colors.Gallery};
+    background: var(--ads-v2-color-bg-subtle);
   }
   align-items: center;
   cursor: pointer;
 `;
 
 const FieldName = styled.div`
-  color: ${Colors.GREY_9};
+  color: var(--ads-v2-color-fg);
   flex: 1;
   font-size: 12px;
   white-space: nowrap;
@@ -69,7 +69,7 @@ const Container = styled.div`
 `;
 
 const PopupValue = styled.div`
-  color: ${Colors.GREY_9};
+  color: var(--ads-v2-color-fg);
   font-size: 12px;
   :nth-child(2) {
     text-align: right;

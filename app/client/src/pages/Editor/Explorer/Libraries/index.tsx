@@ -37,7 +37,7 @@ const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
 const Library = styled.li`
   list-style: none;
   flex-direction: column;
-  color: ${Colors.GRAY_700};
+  color: var(--ads-v2-color-fg);
   font-weight: 400;
   display: flex;
   justify-content: space-between;
@@ -60,7 +60,7 @@ const Library = styled.li`
   }
 
   &:hover {
-    background: ${Colors.SEA_SHELL};
+    background: var(--ads-v2-color-bg-subtle);
 
     & .t--open-new-tab {
       display: block;
@@ -123,7 +123,7 @@ const Library = styled.li`
     font-size: 12px;
     font-weight: 400;
     padding: 4px 8px;
-    color: ${Colors.GRAY_700};
+    color: var(--ads-v2-color-fg);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -132,7 +132,7 @@ const Library = styled.li`
     .accessor {
       padding-left: 8px;
       flex-grow: 1;
-      outline: 1px solid #b3b3b3 !important;
+      outline: 1px solid var(--ads-v2-color-border) !important;
       font-size: 12px;
       font-family: monospace;
       background: white;
@@ -247,12 +247,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           <Name>{lib.name}</Name>
           {docsURL && (
             <div className="share" onClick={openDocs(docsURL)}>
-              <Icon
-                className="open-link"
-                color={Colors.GRAY_700}
-                name="share-2"
-                size="sm"
-              />
+              <Icon className="open-link" name="share-2" size="sm" />
             </div>
           )}
         </div>

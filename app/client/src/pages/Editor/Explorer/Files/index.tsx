@@ -15,7 +15,6 @@ import {
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { Colors } from "constants/Colors";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import {
   getExplorerStatus,
@@ -25,6 +24,11 @@ import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { Icon } from "design-system";
+import styled from "styled-components";
+
+const StyledGroup = styled.div`
+  color: var(--ads-v2-color-fg);
+`;
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -66,12 +70,12 @@ function Files() {
       files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
-            <div
-              className={`text-sm text-[${Colors.CODE_GRAY}] pl-8 bg-trueGray-50 overflow-hidden overflow-ellipsis whitespace-nowrap`}
+            <StyledGroup
+              className={`text-sm pl-8 bg-trueGray-50 overflow-hidden overflow-ellipsis whitespace-nowrap`}
               key={entity.name || "Queries"}
             >
               {entity.name}
-            </div>
+            </StyledGroup>
           );
         } else if (type === "JS") {
           return (

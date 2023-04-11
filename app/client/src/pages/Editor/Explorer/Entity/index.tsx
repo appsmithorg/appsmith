@@ -105,7 +105,7 @@ export const EntityItem = styled.div<{
   }
 
   .${Classes.COLLAPSE_BODY} & {
-    color: ${Colors.GRAY_700};
+    color: var(--ads-v2-color-fg);
     font-weight: 400;
   }
 
@@ -176,7 +176,7 @@ export const EntityItem = styled.div<{
 
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
-  color: ${Colors.CHARCOAL};
+  color: var(--ads-v2-color-fg);
   display: flex;
   align-items: center;
 
