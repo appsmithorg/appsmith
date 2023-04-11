@@ -1,5 +1,4 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { GoogleOAuthURL } from "@appsmith/constants/ApiConstants";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
 const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
@@ -43,9 +42,7 @@ export const showAdminSettings = (user?: User): boolean => {
 };
 
 export const getLoginUrl = (method: string): string => {
-  const urls: Record<string, string> = {
-    google: GoogleOAuthURL,
-  };
+  const urls: Record<string, string> = {};
 
   return urls[method];
 };
