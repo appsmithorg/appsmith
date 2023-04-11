@@ -93,6 +93,7 @@ export const StyledSingleDropDown = styled(
       height: 100%;
     }
   }
+
   &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
@@ -100,6 +101,9 @@ export const StyledSingleDropDown = styled(
     align-items: center;
     justify-content: space-between;
     background: white;
+    .auto-layout & {
+      min-height: 36px;
+    }
     min-height: 32px;
     padding-left: 12px;
     padding: 0px 10px;

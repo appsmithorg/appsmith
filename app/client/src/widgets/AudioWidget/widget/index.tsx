@@ -6,9 +6,10 @@ import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -41,8 +42,9 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
                   /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
                 expected: {
                   type: "Audio URL",
-                  example:
-                    "https://assets.appsmith.com/widgets/birds_chirping.mp3",
+                  example: getAssetUrl(
+                    `${ASSETS_CDN_URL}/widgets/birds_chirping.mp3`,
+                  ),
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -86,7 +88,6 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

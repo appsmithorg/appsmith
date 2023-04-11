@@ -1,5 +1,6 @@
 import dsl from "../../../../fixtures/explorerHiddenWidgets.json";
 import commonLocators from "../../../../locators/commonlocators.json";
+import widgets from "../../../../locators/Widgets.json";
 const widgetLocators = require("../../../../locators/Widgets.json");
 
 describe("Explorer hidden widget Selection", () => {
@@ -13,6 +14,7 @@ describe("Explorer hidden widget Selection", () => {
     cy.SearchEntityandOpen("SimpleModal", "Widgets");
     cy.get(widgetLocators.modalWidget).should("have.length", 1);
     cy.get(commonLocators.propertyPaneTitle).should("contain", "SimpleModal");
+    cy.get(widgets.modalCloseButton).click({ force: true });
   });
   it("Opens modal when selecting a widget inside a modal", () => {
     cy.SearchEntityandOpen("Simple_Modal_Text", "Widgets");
@@ -21,6 +23,7 @@ describe("Explorer hidden widget Selection", () => {
       "contain",
       "Simple_Modal_Text",
     );
+    cy.get(widgets.modalCloseButton).click({ force: true });
   });
   it("Switches tabs when selecting a tab", () => {
     cy.SearchEntityandOpen("UnselectedTab", "Widgets");
@@ -33,6 +36,16 @@ describe("Explorer hidden widget Selection", () => {
     // Assert correct tab is open and button selected
     cy.wait(1000);
     cy.get(".t--page-switch-tab.is-active").contains("UnselectedTab");
+    cy.get(commonLocators.propertyPaneTitle).should("contain", "Button6");
+  });
+  it("Switches tabs with a button inside the tab", () => {
+    cy.get(".t--page-switch-tab")
+      .contains("UnselectedTab")
+      .click({ force: true });
+    cy.wait(1000);
+    cy.get(widgets.buttonWidget).contains("Unselected").click({ force: true });
+    // Assert tab is switched
+    cy.get(".t--page-switch-tab.is-active").should("contain", "InternalTab");
     cy.get(commonLocators.propertyPaneTitle).should("contain", "Button6");
   });
   it("Switches tabs when selecting a widget inside hidden tab", () => {

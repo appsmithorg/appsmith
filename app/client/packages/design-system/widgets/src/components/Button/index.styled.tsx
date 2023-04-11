@@ -8,8 +8,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   align-items: center;
   cursor: pointer;
   outline: 0;
-  overflow: hidden;
-  white-space: nowrap;
   gap: var(--spacing-4);
   padding: var(--spacing-2) var(--spacing-4);
   min-height: calc(var(--sizing-root-unit) * 8);
@@ -24,17 +22,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
 
   &[data-loading="true"] {
     pointer-events: none;
-  }
-
-  & [data-component="text"] {
-    width: 100%;
-
-    span {
-      display: block;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
   }
 
   &[data-variant="primary"] {

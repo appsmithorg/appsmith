@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 @EqualsAndHashCode
 public class ApplicationPage {
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String id;
 
     @JsonView(Views.Public.class)
@@ -35,7 +35,7 @@ public class ApplicationPage {
     @JsonView(Views.Internal.class)
     String defaultPageId;
 
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);
     }
