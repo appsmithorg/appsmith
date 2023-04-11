@@ -17,6 +17,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
 import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
+import { dependencyMapObj } from "workers/common/DependencyMap";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -536,7 +537,7 @@ describe("DataTreeEvaluator", () => {
   evaluator.evalAndValidateFirstTree();
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
-    const dependencyMap = evaluator.dependencyMap;
+    const dependencyMap = dependencyMapObj.dependencyMap;
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
     expect(sortObjectWithArray(dependencyMap)).toStrictEqual(dependencyMap);
@@ -595,7 +596,7 @@ describe("DataTreeEvaluator", () => {
     );
 
     const dataTree = evaluator.evalTree;
-    const updatedDependencyMap = evaluator.dependencyMap;
+    const updatedDependencyMap = dependencyMapObj.dependencyMap;
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
 
@@ -718,7 +719,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
-    const updatedDependencyMap = evaluator.dependencyMap;
+    const updatedDependencyMap = dependencyMapObj.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
       {
         test: "Hey",
@@ -782,7 +783,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
-    const updatedDependencyMap = evaluator.dependencyMap;
+    const updatedDependencyMap = dependencyMapObj.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
       {
         test: "Hey",
@@ -851,7 +852,7 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree1,
       unEvalUpdates,
     );
-    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+    expect(dependencyMapObj.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
     const updatedTree2 = {
@@ -889,7 +890,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates2,
     );
     const dataTree = evaluator.evalTree;
-    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+    expect(dependencyMapObj.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
@@ -932,7 +933,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates3,
     );
     const dataTree3 = evaluator.evalTree;
-    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+    expect(dependencyMapObj.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);

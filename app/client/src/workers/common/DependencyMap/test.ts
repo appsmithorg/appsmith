@@ -21,6 +21,7 @@ import {
 } from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
 
 import { listEntityPathDependencies } from "./utils";
+import { dependencyMapObj } from ".";
 
 const widgetConfigMap = {};
 
@@ -54,7 +55,7 @@ describe("test validationDependencyMap", () => {
   });
 
   it("initial validation dependencyMap computation", () => {
-    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({
+    expect(dependencyMapObj.validationDependencyMap).toStrictEqual({
       "Select2.defaultOptionValue": [
         "Select2.serverSideFiltering",
         "Select2.options",
@@ -76,7 +77,7 @@ describe("test validationDependencyMap", () => {
       unEvalUpdates,
     );
 
-    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({});
+    expect(dependencyMapObj.validationDependencyMap).toStrictEqual({});
   });
 });
 

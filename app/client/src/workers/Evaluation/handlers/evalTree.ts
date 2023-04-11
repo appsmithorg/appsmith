@@ -27,6 +27,7 @@ import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToD
 import type { LintTreeSagaRequestData } from "workers/Linting/types";
 import { WorkerMessenger } from "../fns/utils/Messenger";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { dependencyMapObj } from "workers/common/DependencyMap";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -227,7 +228,7 @@ export default function (request: EvalWorkerSyncRequest) {
       staleMetaIds = updateResponse.staleMetaIds;
     }
     dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-    dependencies = dataTreeEvaluator.inverseDependencyMap;
+    dependencies = dependencyMapObj.inverseDependencyMap;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
