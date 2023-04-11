@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
@@ -14,6 +15,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
@@ -36,6 +38,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.ThemeService;
@@ -123,6 +126,8 @@ public class ApplicationShareTest {
     ImportExportApplicationService importExportApplicationService;
     @Autowired
     LayoutActionService layoutActionService;
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
     @Autowired
     PluginService pluginService;
     @Autowired
@@ -519,8 +524,7 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
@@ -704,7 +708,7 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
@@ -876,8 +880,7 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
@@ -2829,5 +2832,221 @@ public class ApplicationShareTest {
         assertThat(member7Role2.getEntityId()).isEqualTo(createdApplication1.getId());
         assertThat(member7Role2.getId()).isEqualTo(appViewerRole.getId());
         assertThat(member7Role2.getName()).isEqualTo(appViewerRole.getName());
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDatasourcePolicies_createDatasource_thenCreateApplicationViewRole_thenCreateActionCollection_thenCreateAction() {
+        String testName = "testDatasourcePolicies_createDatasource_thenCreateApplicationViewRole_thenCreateActionCollection_thenCreateAction";
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        String pluginId = pluginService.findByPackageName("restapi-plugin").block().getId();
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName(testName);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setWorkspaceId(workspace.getId());
+        datasource.setPluginId(pluginId);
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+
+        PermissionGroup viewApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_VIEWER).block();
+
+        Set<Policy> datasourcePolicies = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+
+        datasourcePolicies.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+        });
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPageId(createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        actionCollectionDTO.setPluginId(pluginId);
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+        Set<Policy> datasourcePoliciesAfterActionCollectionCreation = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+
+        datasourcePoliciesAfterActionCollectionCreation.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+        });
+
+        ActionDTO action = new ActionDTO();
+        action.setName(testName);
+        action.setPluginId(pluginId);
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(createdDatasource);
+
+        ActionDTO createdActionBlock = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        Set<Policy> datasourcePoliciesAfterActionCreation = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+
+        datasourcePoliciesAfterActionCreation.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testDatasourcePolicies_createDatasource_thenCreateApplicationDevRole_thenCreateActionCollection_thenCreateAction() {
+        String testName = "testDatasourcePolicies_createDatasource_thenCreateApplicationDevRole_thenCreateActionCollection_thenCreateAction";
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        String pluginId = pluginService.findByPackageName("restapi-plugin").block().getId();
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace = workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName(testName);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setWorkspaceId(workspace.getId());
+        datasource.setPluginId(pluginId);
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+
+        PermissionGroup devApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
+
+        Set<Policy> datasourcePolicies = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+
+        datasourcePolicies.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+        });
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPageId(createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        actionCollectionDTO.setPluginId(pluginId);
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+        Set<Policy> datasourcePoliciesAfterActionCollectionCreation = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+
+        datasourcePoliciesAfterActionCollectionCreation.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+        });
+
+        ActionDTO action = new ActionDTO();
+        action.setName(testName);
+        action.setPluginId(pluginId);
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(createdDatasource);
+
+        ActionDTO createdActionBlock = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        Set<Policy> datasourcePoliciesAfterActionCreation = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+
+        datasourcePoliciesAfterActionCreation.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+            }
+        });
     }
 }

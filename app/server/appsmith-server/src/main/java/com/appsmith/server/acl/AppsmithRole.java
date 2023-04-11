@@ -86,7 +86,7 @@ public enum AppsmithRole {
     APPLICATION_VIEWER(
             FieldName.APPLICATION_VIEWER,
             FieldName.APPLICATION_VIEWER_DESCRIPTION,
-            Set.of(READ_APPLICATIONS, READ_WORKSPACES)
+            Set.of(READ_APPLICATIONS, READ_WORKSPACES, EXECUTE_DATASOURCES)
     )
     ;
 
