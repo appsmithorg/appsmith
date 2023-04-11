@@ -63,6 +63,7 @@ import {
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getDatasourceErrorMessage } from "./errorUtils";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -271,7 +272,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
 
-    /* 
+    /*
       TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
       Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
     */
@@ -300,7 +301,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           {!hiddenHeader && (
             <Header>
               <FormTitleContainer>
-                <PluginImage alt="Datasource" src={this.props.pluginImage} />
+                <PluginImage
+                  alt="Datasource"
+                  src={getAssetUrl(this.props.pluginImage)}
+                />
                 <FormTitle
                   disabled={!createFlow && !canManageDatasource}
                   focusOnMount={this.props.isNewDatasource}
