@@ -209,7 +209,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitForTableEmpty();
     ee.SelectEntityByName("Table1", "Widgets");
-    propPane.TypeTextIntoField("Default Search Text", "Bug");
+    propPane.RemoveText("defaultsearchtext");
     propPane.ToggleOnOrOff("enableclientsidesearch", "On");
   });
 
