@@ -36,7 +36,6 @@ export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
 export HELMCHART_VERSION="2.0.0"
-export RANDOM_STRING=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 4)
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
 
@@ -49,7 +48,7 @@ kubectl get pods
 if [ ! -z "$RECREATE" ]
 then
   kubectl delete ns $NAMESPACE || echo "true"
-  export DBNAME=ce"$PULL_REQUEST_NUMBER_$RANDOM_STRING"
+  mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
 fi
 
 echo "Use kubernetes secret to Pull Image"
