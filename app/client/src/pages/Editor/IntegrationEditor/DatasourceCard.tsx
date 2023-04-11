@@ -321,7 +321,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                       isIconButton
                       kind="tertiary"
                       size="sm"
-                      startIcon="comment-context-menu"
+                      startIcon="context-menu"
                     />
                   </MenuTrigger>
                   <MenuContent>
