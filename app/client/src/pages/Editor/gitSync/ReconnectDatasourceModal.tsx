@@ -549,7 +549,7 @@ function ReconnectDatasourceModal() {
       <Container>
         <TabsContainer>
           <TabMenu
-            activeTabIndex={0}
+            activeTabKey={menuOptions[0].key}
             onSelect={() => undefined}
             options={menuOptions}
           />

@@ -4,21 +4,21 @@ import {
   DEPLOY,
   MERGE,
 } from "@appsmith/constants/messages";
-
-export enum MENU_ITEM {
-  GIT_CONNECTION = "GIT_CONNECTION",
-  DEPLOY = "DEPLOY",
-  MERGE = "MERGE",
-}
+import { GitSyncModalTab } from "entities/GitSync";
 
 export const MENU_ITEMS_MAP = {
-  [MENU_ITEM.GIT_CONNECTION]: {
-    key: MENU_ITEM.GIT_CONNECTION,
+  [GitSyncModalTab.GIT_CONNECTION]: {
+    key: GitSyncModalTab.GIT_CONNECTION,
     title: createMessage(GIT_CONNECTION),
   },
-  [MENU_ITEM.DEPLOY]: { key: MENU_ITEM.DEPLOY, title: createMessage(DEPLOY) },
-  [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
-  // Hide Merge Tab till basic functionality is not ready
+  [GitSyncModalTab.DEPLOY]: {
+    key: GitSyncModalTab.DEPLOY,
+    title: createMessage(DEPLOY),
+  },
+  [GitSyncModalTab.MERGE]: {
+    key: GitSyncModalTab.MERGE,
+    title: createMessage(MERGE),
+  },
 };
 
 export enum AUTH_TYPE {
@@ -39,7 +39,6 @@ export const Classes = {
   RECONNECT_DATASOURCE_MODAL: "reconnect-datasource-modal",
 };
 
-export const DEFAULT_REMOTE = "origin";
 export const MENU_HEIGHT = 46;
 
 export enum CREDENTIAL_MODE {
