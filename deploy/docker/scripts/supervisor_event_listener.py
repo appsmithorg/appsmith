@@ -9,9 +9,8 @@ def write_stdout(*args):
     # only eventlistener protocol messages may be sent to stdout
     print(*args, flush=True)
 
-def write_stderr(s):
-    sys.stderr.write(s)
-    sys.stderr.flush()
+def write_stderr(*args):
+    print(*args, flush=True, file=sys.stderr)
 
 def wait_until_backend_healthy(timeout):
     for _ in range(3):
