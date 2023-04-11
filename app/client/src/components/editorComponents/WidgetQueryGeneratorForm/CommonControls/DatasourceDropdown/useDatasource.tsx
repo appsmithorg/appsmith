@@ -21,6 +21,7 @@ import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon, IconSize } from "design-system-old";
+import type { DropdownOptions } from "pages/Editor/GeneratePage/components/constants";
 
 export function useDatasource() {
   const { addBinding, addSnippet, config, updateConfig } = useContext(
@@ -35,7 +36,7 @@ export function useDatasource() {
 
   const datasources: Datasource[] = useSelector(getDatasources);
 
-  const datasourceOptions: any = useMemo(() => {
+  const datasourceOptions: DropdownOptions = useMemo(() => {
     return datasources
       .filter(({ pluginId }) => WidgetQueryGeneratorRegistry.has(pluginId))
       .map((datasource) => ({

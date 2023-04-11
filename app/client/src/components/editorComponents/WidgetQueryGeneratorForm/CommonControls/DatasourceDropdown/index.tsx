@@ -1,7 +1,7 @@
 import React from "react";
 import { SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
-import { Select, Option } from "design-system";
+// import { Select, Option } from "design-system";
 import { DropdownOption } from "../../components/DropdownOption";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -13,6 +13,9 @@ const SectionHeader = styled.div`
   color: ${Colors.GREY_900};
 `;
 
+const Select = styled.div<any>``;
+const Option = styled.div<any>``;
+
 function DatasourceDropdown() {
   const { datasourceOptions, otherOptions } = useDatasource();
 
@@ -23,12 +26,12 @@ function DatasourceDropdown() {
           minWidth: "350px",
           maxHeight: "300px",
         }}
-        onSelect={(value) => {
-          [...datasourceOptions, ...otherOptions].find((option) => {
-            if (option.id === value && option.onSelect) {
-              option.onSelect();
-            }
-          });
+        onSelect={(value: unknown) => {
+          const option = [...datasourceOptions, ...otherOptions].find(
+            (option) => option.id === value,
+          );
+
+          option?.onSelect?.();
         }}
       >
         <Option disabled>

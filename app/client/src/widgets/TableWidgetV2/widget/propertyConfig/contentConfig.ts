@@ -31,7 +31,6 @@ export default [
         controlType: "INPUT_TEXT",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
-        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
