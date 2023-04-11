@@ -22,7 +22,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-public class Datasource extends BaseDomain {
+public class Datasource extends BranchAwareDomain {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";

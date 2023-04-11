@@ -233,7 +233,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Chart - Modal", function () {
     //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName);
+    cy.createModal(this.data.ModalName, "onDataPointClick");
     cy.PublishtheApp();
     cy.get(widgetsPage.chartPlotGroup).children().first().click();
     cy.get(modalWidgetPage.modelTextField).should(

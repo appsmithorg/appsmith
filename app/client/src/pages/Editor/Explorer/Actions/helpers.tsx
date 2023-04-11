@@ -15,6 +15,7 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
@@ -79,7 +80,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       if (plugin && plugin.iconLocation)
         return (
           <EntityIcon>
-            <img alt="entityIcon" src={plugin.iconLocation} />
+            <img alt="entityIcon" src={getAssetUrl(plugin.iconLocation)} />
           </EntityIcon>
         );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
