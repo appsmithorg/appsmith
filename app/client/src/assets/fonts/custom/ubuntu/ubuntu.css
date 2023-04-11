@@ -4,17 +4,8 @@
   font-family: "Ubuntu";
   font-style: normal;
   font-weight: 300;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-300.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-300.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-300.woff2")
-      format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-300.woff") format("woff"),
-    /* Modern Browsers */ url("./ubuntu-v20-latin/ubuntu-v20-latin-300.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-300.svg#Ubuntu") format("svg"); /* Legacy iOS */
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-300.woff2") format("woff2"),
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-300.svg#Ubuntu") format("svg"); /* Legacy iOS */
 }
 /* ubuntu-300italic - latin */
 @font-face {
@@ -22,18 +13,9 @@
   font-family: "Ubuntu";
   font-style: italic;
   font-weight: 300;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.woff2")
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.woff2")
       format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.woff") format("woff"),
-    /* Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.svg#Ubuntu")
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-300italic.svg#Ubuntu")
       format("svg"); /* Legacy iOS */
 }
 /* ubuntu-regular - latin */
@@ -42,18 +24,8 @@
   font-family: "Ubuntu";
   font-style: normal;
   font-weight: 400;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.woff2")
-      format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.woff") format("woff"),
-    /* Modern Browsers */ url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.svg#Ubuntu")
-      format("svg"); /* Legacy iOS */
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.woff2") format("woff2"),
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-regular.svg#Ubuntu") format("svg"); /* Legacy iOS */
 }
 /* ubuntu-italic - latin */
 @font-face {
@@ -61,17 +33,8 @@
   font-family: "Ubuntu";
   font-style: italic;
   font-weight: 400;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.woff2")
-      format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.woff") format("woff"),
-    /* Modern Browsers */ url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.svg#Ubuntu") format("svg"); /* Legacy iOS */
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.woff2") format("woff2"),
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-italic.svg#Ubuntu") format("svg"); /* Legacy iOS */
 }
 /* ubuntu-500 - latin */
 @font-face {
@@ -79,17 +42,8 @@
   font-family: "Ubuntu";
   font-style: normal;
   font-weight: 500;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-500.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-500.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-500.woff2")
-      format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-500.woff") format("woff"),
-    /* Modern Browsers */ url("./ubuntu-v20-latin/ubuntu-v20-latin-500.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-500.svg#Ubuntu") format("svg"); /* Legacy iOS */
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-500.woff2") format("woff2"),
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-500.svg#Ubuntu") format("svg"); /* Legacy iOS */
 }
 /* ubuntu-500italic - latin */
 @font-face {
@@ -97,18 +51,9 @@
   font-family: "Ubuntu";
   font-style: italic;
   font-weight: 500;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.woff2")
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.woff2")
       format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.woff") format("woff"),
-    /* Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.svg#Ubuntu")
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-500italic.svg#Ubuntu")
       format("svg"); /* Legacy iOS */
 }
 /* ubuntu-700 - latin */
@@ -117,17 +62,8 @@
   font-family: "Ubuntu";
   font-style: normal;
   font-weight: 700;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-700.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-700.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-700.woff2")
-      format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-700.woff") format("woff"),
-    /* Modern Browsers */ url("./ubuntu-v20-latin/ubuntu-v20-latin-700.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-700.svg#Ubuntu") format("svg"); /* Legacy iOS */
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-700.woff2") format("woff2"),
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-700.svg#Ubuntu") format("svg"); /* Legacy iOS */
 }
 /* ubuntu-700italic - latin */
 @font-face {
@@ -135,17 +71,8 @@
   font-family: "Ubuntu";
   font-style: italic;
   font-weight: 700;
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.eot"); /* IE9 Compat Modes */
-  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.eot?#iefix")
-      format("embedded-opentype"),
-    /* IE6-IE8 */ url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.woff2")
+  src: url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.woff2")
       format("woff2"),
-    /* Super Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.woff") format("woff"),
-    /* Modern Browsers */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.svg#Ubuntu")
+    url("./ubuntu-v20-latin/ubuntu-v20-latin-700italic.svg#Ubuntu")
       format("svg"); /* Legacy iOS */
 }
