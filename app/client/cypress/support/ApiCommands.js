@@ -406,15 +406,15 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
 });
 
-Cypress.Commands.add("callApi", (apiname) => {
-  cy.get(commonlocators.callApi).first().click({ force: true });
-  cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute a query")
-    .click({ force: true });
-  cy.get(commonlocators.selectMenuItem)
-    .contains(apiname)
-    .click({ force: true });
-});
+// Cypress.Commands.add("callApi", (apiname) => {
+//   cy.get(commonlocators.callApi).first().click({ force: true });
+//   cy.get(commonlocators.singleSelectMenuItem)
+//     .contains("Execute a query")
+//     .click({ force: true });
+//   cy.get(commonlocators.selectMenuItem)
+//     .contains(apiname)
+//     .click({ force: true });
+// });
 
 Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
   cy.get(ApiEditor.datasourcesRightPane).should("exist");

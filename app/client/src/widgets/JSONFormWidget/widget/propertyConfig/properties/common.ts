@@ -283,7 +283,7 @@ const COMMON_PROPERTIES = {
     events: [
       {
         propertyName: "onFocus",
-        helpText: "Triggers an action when focused.",
+        helpText: "when focused.",
         label: "onFocus",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -298,7 +298,7 @@ const COMMON_PROPERTIES = {
       },
       {
         propertyName: "onBlur",
-        helpText: "Triggers an action when the field loses focus.",
+        helpText: "when the field loses focus.",
         label: "onBlur",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

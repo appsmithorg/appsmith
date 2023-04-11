@@ -9,15 +9,12 @@ import { generateTreeForAutoHeightComputations } from "./layoutTree";
 import { updateWidgetAutoHeightSaga } from "./widgets";
 
 export default function* autoHeightSagas() {
-  // ToDO(Ashok): Need to bring back Dynamic Height features based on mode of the editor (Fixed vs Mobile responsiveness)
-
   yield all([
     takeLatest(
       [
         ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         ReduxActionTypes.SET_PREVIEW_MODE,
       ],
-      // canPerformDynamicHeightCheck,
       dynamicallyUpdateContainersSaga,
     ),
     takeEvery(

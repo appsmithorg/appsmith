@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.action-callback-add .icon:hover,
+.action-callback-add.selected .icon {
+  @apply bg-gray-900;
+}
+
+.action-callback-add .icon:hover span svg path {
+  @apply !fill-white;
+}
+
+.add-action:hover:not(.disabled) {
+  @apply bg-black;
+}
+
+.add-action:hover:not(.disabled) span svg path {
+  @apply !fill-white;
+}
+
+.add-action.disabled span {
+  @apply cursor-not-allowed;
+}
+
+.add-action.disabled span svg path {
+  @apply !fill-gray-500;
+}

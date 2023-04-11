@@ -30,6 +30,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -298,6 +299,8 @@ function JSDependencies() {
 
   const canCreateActions = hasCreateActionPermission(pagePermissions);
 
+  const isAirgappedInstance = isAirgapped();
+
   const openInstaller = useCallback(() => {
     dispatch(toggleInstaller(true));
   }, []);
@@ -327,7 +330,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
-      showAddButton={canCreateActions}
+      showAddButton={canCreateActions && !isAirgappedInstance}
       step={0}
     >
       {dependencyList}
