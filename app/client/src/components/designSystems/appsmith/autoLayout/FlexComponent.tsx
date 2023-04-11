@@ -16,6 +16,7 @@ import type {
   LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
@@ -44,12 +45,6 @@ export type AutoLayoutProps = {
 const FlexWidget = styled.div`
   position: relative;
 `;
-
-// const WIDGETS_WITH_MARGIN = [
-//   "BUTTON_WIDGET",
-//   "BUTTON_GROUP_WIDGET",
-//   "CHECKBOX_WIDGET",
-// ];
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -112,13 +107,8 @@ export function FlexComponent(props: AutoLayoutProps) {
         }px`,
     margin: WIDGET_PADDING / 2 + "px",
 
-    // Margin bottom specific to widgets
-    // marginBottom: WIDGETS_WITH_MARGIN.includes(props.widgetType)
-    //   ? "6px"
-    //   : "0px",
-
     // Vertical gap between widgets
-    marginBottom: props.isMobile ? "8px" : "12px",
+    marginBottom: `${props.isMobile ? MOBILE_ROW_GAP : ROW_GAP}px`,
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
