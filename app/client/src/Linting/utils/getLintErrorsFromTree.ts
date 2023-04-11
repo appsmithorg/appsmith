@@ -4,8 +4,8 @@ import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducer
 import type { LintError } from "utils/DynamicBindingUtils";
 import { globalData } from "./globalData";
 import type {
-  getlintErrorsFromTreeProps,
-  getlintErrorsFromTreeResponse,
+  getLintErrorsFromTreeProps,
+  getLintErrorsFromTreeResponse,
 } from "./types";
 import {
   lintBindingPath,
@@ -15,14 +15,14 @@ import {
   sortLintingPathsByType,
 } from "./utils";
 
-export function getlintErrorsFromTree({
+export function getLintErrorsFromTree({
   asyncJSFunctionsInDataFields,
   cloudHosting,
   configTree,
   jsPropertiesState,
   pathsToLint,
   unEvalTree,
-}: getlintErrorsFromTreeProps): getlintErrorsFromTreeResponse {
+}: getLintErrorsFromTreeProps): getLintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const updatedJSEntities = new Set<string>();
   globalData.initialize(unEvalTree, cloudHosting);

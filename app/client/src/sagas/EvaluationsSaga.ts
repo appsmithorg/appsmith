@@ -556,10 +556,12 @@ function getPostEvalActions(
 
 function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
-  yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
+  // @ts-expect-error solve later
+  yield all([call(evalWorker.shutdown), call(lintWorker.linter.shutdown)]);
   const [evalWorkerListenerChannel] = yield all([
     call(evalWorker.start),
-    call(lintWorker.start),
+    //@ts-expect-error solve later
+    call(lintWorker.linter.start),
   ]);
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {

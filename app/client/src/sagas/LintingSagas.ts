@@ -4,14 +4,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
-import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import type {
-  LintTreeRequest,
+  LintTreeRequestPayload,
   LintTreeResponse,
   LintTreeSagaRequestData,
-} from "workers/Linting/types";
-import { LINT_WORKER_ACTIONS } from "workers/Linting/types";
+} from "Linting/utils/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { AppState } from "@appsmith/reducers";
@@ -19,25 +17,17 @@ import type { LintError } from "utils/DynamicBindingUtils";
 import { get, set, union } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import { LintingService } from "Linting";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export const lintWorker = new GracefulWorkerService(
-  new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url), {
-    type: "module",
-    name: "lintWorker",
-  }),
-);
+export const lintWorker = new LintingService({ useWorker: false });
 
 function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
   if (!isEditorMode) return;
-  yield call(
-    lintWorker.request,
-    LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS,
-    action.payload,
-  );
+  yield call(lintWorker.updateJSLibraryGlobals, action.payload);
 }
 
 function* getValidOldJSCollectionLintErrors(
@@ -96,7 +86,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
 
-  const lintTreeRequestData: LintTreeRequest = {
+  const lintTreeRequestData: LintTreeRequestPayload = {
     pathsToLint,
     unevalTree,
     jsPropertiesState,
@@ -106,8 +96,7 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   };
 
   const { errors, updatedJSEntities }: LintTreeResponse = yield call(
-    lintWorker.request,
-    LINT_WORKER_ACTIONS.LINT_TREE,
+    lintWorker.lintTree,
     lintTreeRequestData,
   );
 

@@ -29,7 +29,7 @@ export type UpdateDataTreeMessageData = {
 };
 
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
+import type { LintTreeSagaRequestData } from "Linting/utils/types";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {

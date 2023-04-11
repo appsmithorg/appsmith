@@ -4,7 +4,6 @@ import type {
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type {
   createEvaluationContext,
   EvaluationScriptType,
@@ -22,7 +21,7 @@ export interface LintTreeResponse {
   updatedJSEntities: string[];
 }
 
-export interface LintTreeRequest {
+export interface LintTreeRequestPayload {
   pathsToLint: string[];
   unevalTree: DataTree;
   jsPropertiesState: TJSPropertiesState;
@@ -31,10 +30,10 @@ export interface LintTreeRequest {
   asyncJSFunctionsInDataFields: DependencyMap;
 }
 
-export type LintWorkerRequest = WorkerRequest<
-  LintTreeRequest,
-  LINT_WORKER_ACTIONS
->;
+export type LintRequest = {
+  data: LintTreeRequestPayload;
+  method: LINT_WORKER_ACTIONS;
+};
 
 export type LintTreeSagaRequestData = {
   pathsToLint: string[];
@@ -68,7 +67,7 @@ export interface getLintingErrorsProps {
   };
 }
 
-export interface getlintErrorsFromTreeProps {
+export interface getLintErrorsFromTreeProps {
   pathsToLint: string[];
   unEvalTree: DataTree;
   jsPropertiesState: TJSPropertiesState;
@@ -77,7 +76,7 @@ export interface getlintErrorsFromTreeProps {
   configTree: ConfigTree;
 }
 
-export interface getlintErrorsFromTreeResponse {
+export interface getLintErrorsFromTreeResponse {
   errors: LintErrorsStore;
   updatedJSEntities: string[];
 }
