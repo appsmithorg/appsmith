@@ -230,7 +230,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.Sleep(2500);
+    //_.agHelper.Sleep(2500);
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.ActionContextMenuByEntityName(
       "ParamsTest",
