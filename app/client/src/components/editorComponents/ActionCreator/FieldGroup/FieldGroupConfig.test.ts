@@ -35,7 +35,7 @@ describe("Test Field Group Config", () => {
     {
       index: 4,
       input: AppsmithFunction.showAlert,
-      expectedLabel: "Show Alert",
+      expectedLabel: "Show alert",
       expectedFields: [
         FieldType.ALERT_TEXT_FIELD,
         FieldType.ALERT_TYPE_SELECTOR_FIELD,

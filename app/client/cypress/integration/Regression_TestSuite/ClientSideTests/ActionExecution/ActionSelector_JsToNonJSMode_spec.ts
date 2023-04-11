@@ -61,7 +61,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show AlertAdd message",
+      "Show alertAdd message",
       "have.text",
       1,
     );
@@ -102,7 +102,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show AlertHello world!",
+      "Show alertHello world!",
       "have.text",
       1,
     );
@@ -135,7 +135,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     _.agHelper.GetNClick(_.propPane._actionCard, 3);
     _.agHelper.GetNAssertElementText(
       _.propPane._selectorViewButton,
-      "Select Modal",
+      "Select modal",
     );
   });
 
@@ -568,7 +568,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectPage,
-      "Select Page",
+      "Select page",
       "have.text",
       0,
     );
@@ -685,7 +685,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show AlertAdd message",
+      "Show alertAdd message",
       "have.text",
       0,
     );
@@ -715,7 +715,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show Alerthello",
+      "Show alerthello",
       "have.text",
       0,
     );
@@ -756,7 +756,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectModal,
-      "Select Modal",
+      "Select modal",
       "have.text",
       0,
     );
@@ -802,7 +802,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectModal,
-      "Select Modal",
+      "Select modal",
       "have.text",
       0,
     );
@@ -1113,7 +1113,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._selectorViewButton,
-      "Select Widget",
+      "Select widget",
       "have.text",
       0,
     );
@@ -1203,7 +1203,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._selectorViewButton,
-      "Select Widget",
+      "Select widget",
       "have.text",
       0,
     );

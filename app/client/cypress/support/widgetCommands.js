@@ -828,7 +828,7 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
 
 Cypress.Commands.add("addAction", (value, property) => {
   cy.get(`.t--add-action-${property}`).click();
-  cy.get(`.single-select:contains('Show Alert')`).click();
+  cy.get(`.single-select:contains('Show alert')`).click();
 
   cy.enterActionValue(value, property);
 });
@@ -1028,7 +1028,7 @@ Cypress.Commands.add("selectTxtSize", (text) => {
 
 Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
-  cy.get('.single-select:contains("Show Alert")').click({ force: true });
+  cy.get('.single-select:contains("Show alert")').click({ force: true });
   agHelper.EnterActionValue("Message", value);
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")

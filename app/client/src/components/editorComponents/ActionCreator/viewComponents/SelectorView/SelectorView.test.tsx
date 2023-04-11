@@ -15,7 +15,7 @@ describe("Selector view component", () => {
     ],
     label: "Choose Page",
     value: "{{navigateTo('Page1', {}, 'SAME_WINDOW')}}",
-    defaultText: "Select Page",
+    defaultText: "Select page",
     displayValue: "",
     get: () => {
       return 1;

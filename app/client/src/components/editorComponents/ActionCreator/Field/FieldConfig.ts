@@ -367,7 +367,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.SHOW_MODAL_FIELD]: {
     label: () => "Modal Name",
     options: (props: FieldProps) => props.modalDropdownList,
-    defaultText: "Select Modal",
+    defaultText: "Select modal",
     exampleText: "showModal('Modal1')",
     getter: (value: any) => {
       return modalGetter(value);
@@ -380,7 +380,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.CLOSE_MODAL_FIELD]: {
     label: () => "Modal Name",
     options: (props: FieldProps) => props.modalDropdownList,
-    defaultText: "Select Modal",
+    defaultText: "Select modal",
     exampleText: "closeModal('Modal1')",
     getter: (value: any) => {
       return modalGetter(value);
@@ -394,7 +394,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Widget",
     exampleText: "resetWidget('Modal1', true)",
     options: (props: FieldProps) => props.widgetOptionTree,
-    defaultText: "Select Widget",
+    defaultText: "Select widget",
     getter: (value: any) => {
       return enumTypeGetter(value, 0);
     },
@@ -424,7 +424,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Choose Page",
     exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: (props: FieldProps) => props.pageDropdownOptions,
-    defaultText: "Select Page",
+    defaultText: "Select page",
     getter: (value: any) => {
       return enumTypeGetter(value, 0, "");
     },
