@@ -858,7 +858,7 @@ describe("App Theming funtionality", function () {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
-    agHelper.Sleep(2500);
+    //agHelper.Sleep(2500);
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
     cy.moveToStyleTab();
