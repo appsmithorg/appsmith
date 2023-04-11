@@ -717,6 +717,16 @@ describe("sortSubMenuOptions", () => {
           value: "'1'",
         },
         {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
+        },
+        {
           label: "Page1",
           id: "6398aba6b8c4dd68403825a3",
           value: "'Page1'",
@@ -757,6 +767,16 @@ describe("sortSubMenuOptions", () => {
           label: "12",
           id: "6433b0017bd3732ec082375csdsdsds",
           value: "'12'",
+        },
+        {
+          id: "ndsf3edjw7",
+          label: "adc",
+          value: "adc",
+        },
+        {
+          id: "a3bvr4ybt1",
+          label: "fsfsdg",
+          value: "fsfsdg",
         },
         {
           label: "Page1",
@@ -938,113 +958,6 @@ describe("sortSubMenuOptions", () => {
     },
     {
       index: 4,
-      input: [
-        {
-          label: "adc",
-          id: "adc",
-          value: '"adc"',
-        },
-        {
-          label: "IconButton1",
-          id: "IconButton1",
-          value: '"IconButton1"',
-        },
-        {
-          label: "IconButton10",
-          id: "IconButton10",
-          value: '"IconButton10"',
-        },
-        {
-          label: "fsfsdg",
-          id: "fsfsdg",
-          value: '"fsfsdg"',
-        },
-        {
-          label: "IconButton2",
-          id: "IconButton2",
-          value: '"IconButton2"',
-        },
-        {
-          label: "IconButton8",
-          id: "IconButton8",
-          value: '"IconButton8"',
-        },
-        {
-          label: "Input1",
-          id: "Input1",
-          value: '"Input1"',
-        },
-        {
-          label: "Select1",
-          id: "Select1",
-          value: '"Select1"',
-        },
-        {
-          label: "Select2",
-          id: "Select2",
-          value: '"Select2"',
-        },
-        {
-          label: "Table1",
-          id: "Table1",
-          value: '"Table1"',
-        },
-      ],
-      expected: [
-        {
-          label: "adc",
-          id: "adc",
-          value: '"adc"',
-        },
-        {
-          label: "fsfsdg",
-          id: "fsfsdg",
-          value: '"fsfsdg"',
-        },
-        {
-          label: "IconButton1",
-          id: "IconButton1",
-          value: '"IconButton1"',
-        },
-        {
-          label: "IconButton2",
-          id: "IconButton2",
-          value: '"IconButton2"',
-        },
-        {
-          label: "IconButton8",
-          id: "IconButton8",
-          value: '"IconButton8"',
-        },
-        {
-          label: "IconButton10",
-          id: "IconButton10",
-          value: '"IconButton10"',
-        },
-        {
-          label: "Input1",
-          id: "Input1",
-          value: '"Input1"',
-        },
-        {
-          label: "Select1",
-          id: "Select1",
-          value: '"Select1"',
-        },
-        {
-          label: "Select2",
-          id: "Select2",
-          value: '"Select2"',
-        },
-        {
-          label: "Table1",
-          id: "Table1",
-          value: '"Table1"',
-        },
-      ],
-    },
-    {
-      index: 5,
       input: [
         {
           id: "a3bvr4ybt1",
