@@ -17,14 +17,7 @@
   font-weight: 300;
   src: url("./open-sans-v34-latin/open-sans-v34-latin-300italic.woff2")
       format("woff2"),
-    /* Super Modern Browsers */
-      url("./open-sans-v34-latin/open-sans-v34-latin-300italic.woff")
-      format("woff"),
-    /* Modern Browsers */
-      url("./open-sans-v34-latin/open-sans-v34-latin-300italic.ttf")
-      format("truetype"),
-    /* Safari, Android, iOS */
-      url("./open-sans-v34-latin/open-sans-v34-latin-300italic.svg#OpenSans")
+    url("./open-sans-v34-latin/open-sans-v34-latin-300italic.svg#OpenSans")
       format("svg"); /* Legacy iOS */
 }
 /* open-sans-regular - latin */
