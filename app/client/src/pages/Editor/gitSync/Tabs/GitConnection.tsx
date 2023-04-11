@@ -25,7 +25,7 @@ import {
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { TextInput, emailValidator } from "design-system-old";
+import { emailValidator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
@@ -64,8 +64,7 @@ import { ScrollIndicator } from "design-system-old";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import { Text, TextType, TooltipComponent } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Text, Tooltip, Input } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
@@ -400,13 +399,13 @@ function GitConnection({ isImport }: Props) {
           </Title>
         </StickyMenuWrapper>
         <UrlOptionContainer data-test="t--remote-url-container">
-          <Text color={Colors.GREY_9} type={TextType.P1}>
+          <Text color={Colors.GREY_9} kind="body-m">
             {createMessage(REMOTE_URL)}
           </Text>
         </UrlOptionContainer>
         {!SSHKeyPair ? (
           <RemoteUrlInfoWrapper>
-            <Text color={Colors.GREY_9} type={TextType.P3}>
+            <Text color={Colors.GREY_9} kind="body-s">
               {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
             </Text>
             <Space horizontal size={1} />
@@ -427,20 +426,21 @@ function GitConnection({ isImport }: Props) {
         ) : null}
         <UrlContainer>
           <UrlInputContainer>
-            <TextInput
+            <Input
               className="t--git-repo-input"
-              disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
-              errorMsg={
+              errorMessage={
                 isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
               }
-              fill
+              isDisabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
               onChange={remoteUrlChangeHandler}
               placeholder={placeholderText}
+              size="md"
+              type="url"
               value={remoteUrl}
             />
             {isGitConnected && (
               <TooltipWrapper>
-                <TooltipComponent content="Disconnect Git">
+                <Tooltip content="Disconnect Git">
                   <Button
                     className="t--git-disconnect-icon"
                     isIconButton
@@ -449,7 +449,7 @@ function GitConnection({ isImport }: Props) {
                     size="sm"
                     startIcon="delete"
                   />
-                </TooltipComponent>
+                </Tooltip>
               </TooltipWrapper>
             )}
           </UrlInputContainer>
@@ -471,6 +471,7 @@ function GitConnection({ isImport }: Props) {
                   );
                   AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
                 }}
+                size="md"
               >
                 {createMessage(GENERATE_KEY)}
               </Button>
@@ -517,6 +518,7 @@ function GitConnection({ isImport }: Props) {
                 isDisabled={submitButtonDisabled}
                 isLoading={submitButtonIsLoading}
                 onClick={onSubmit}
+                size="md"
               >
                 {isImport
                   ? createMessage(IMPORT_BTN_LABEL)

@@ -6,6 +6,7 @@ export const TooltipWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: -3px;
 `;
 
 export const DeployedKeyContainer = styled.div<{ $marginTop: number }>`
@@ -17,6 +18,7 @@ export const DeployedKeyContainer = styled.div<{ $marginTop: number }>`
   padding: ${(props) =>
     `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
   box-sizing: border-box;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 export const FlexRow = styled.div`
@@ -31,7 +33,6 @@ export const ConfirmRegeneration = styled(FlexRow)`
 `;
 
 export const KeyType = styled.span<{ keyType: string }>`
-  width: ${(props) => (props.keyType === "ECDSA" ? "30%" : "15%")};
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
@@ -42,7 +43,7 @@ export const KeyText = styled.span<{ keyType: string }>`
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: ${(props) => (props.keyType === "ECDSA" ? "60%" : "100%")};
+  flex: 1;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
@@ -59,30 +60,12 @@ export const MoreMenuWrapper = styled.div`
   top: 3px;
 `;
 
-export const MoreOptionsContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 export const ConfirmMenuItem = styled.div`
   padding: 16px 12px;
 `;
 
 export const NotificationBannerContainer = styled.div`
   max-width: calc(100% - 30px);
-`;
-
-export const RegenerateOptionsHeader = styled.div`
-  align-items: center;
-  display: flex;
-  margin: 0;
-  padding: 0 14px;
-  font-size: 16px;
-  height: 38px;
-  width: calc(100% - 30px);
 `;
 
 export const StyledTextBlock = styled(Text)`

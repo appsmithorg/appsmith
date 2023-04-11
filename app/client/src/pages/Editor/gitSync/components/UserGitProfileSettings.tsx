@@ -10,18 +10,14 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import {
-  Checkbox,
-  emailValidator,
-  getTypographyByKey,
-  TextInput,
-} from "design-system-old";
+import { emailValidator, getTypographyByKey } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import { Checkbox, Input } from "design-system";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -165,12 +161,12 @@ function UserGitProfileSettings({
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
-            cypressSelector="t--use-global-config-checkbox"
-            fill={false}
-            isDefaultChecked={useGlobalConfig}
-            label={createMessage(USE_DEFAULT_CONFIGURATION)}
-            onCheckChange={toggleUseDefaultConfig}
-          />
+            data-test-id="t--use-global-config-checkbox"
+            isSelected={useGlobalConfig}
+            onChange={toggleUseDefaultConfig}
+          >
+            {createMessage(USE_DEFAULT_CONFIGURATION)}
+          </Checkbox>
         </DefaultConfigContainer>
       ) : null}
 
@@ -182,21 +178,21 @@ function UserGitProfileSettings({
         </LabelContainer>
 
         <InputContainer isValid={!nameInvalid}>
-          <TextInput
+          <Input
             className="t--git-config-name-input"
-            dataType="text"
-            disabled={disableInput}
-            errorMsg={
+            errorMessage={
               nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
             }
-            fill
-            isLoading={isFetchingConfig}
+            isDisabled={disableInput}
+            // isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
             onChange={(value: string) =>
               changeHandler(AUTHOR_INFO_LABEL.NAME, value)
             }
             onFocus={() => setNameInputFocused(true)}
-            trimValue={false}
+            // trimValue={false}
+            size="md"
+            type="text"
             value={authorInfo.authorName}
           />
         </InputContainer>
@@ -204,20 +200,20 @@ function UserGitProfileSettings({
           <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
         </LabelContainer>
         <InputContainer isValid={!emailInvalid}>
-          <TextInput
+          <Input
             className="t--git-config-email-input"
-            dataType="email"
-            disabled={disableInput}
-            errorMsg={
+            errorMessage={
               emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
             }
-            fill
-            isLoading={isFetchingConfig}
+            isDisabled={disableInput}
+            // isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
             onChange={(value: string) =>
               changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)
             }
             onFocus={() => setEmailInputFocused(true)}
+            size="md"
+            type="email"
             value={authorInfo.authorEmail}
           />
         </InputContainer>
