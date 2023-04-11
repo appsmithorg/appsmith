@@ -542,7 +542,9 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger =
+    state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;
 
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];

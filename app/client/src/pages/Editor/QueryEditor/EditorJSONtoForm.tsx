@@ -978,10 +978,15 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
-  // Render debugger flag
-  const showDebuggerFlag = useSelector(
+  const debuggerState = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+  const isPreviewMode = useSelector(
+    (state: AppState) => state.ui.editor.isPreviewMode,
+  );
+
+  // Render debugger flag
+  const showDebuggerFlag = debuggerState && !isPreviewMode;
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));

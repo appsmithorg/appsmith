@@ -1194,7 +1194,9 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger =
+    state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;
 
   const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
 

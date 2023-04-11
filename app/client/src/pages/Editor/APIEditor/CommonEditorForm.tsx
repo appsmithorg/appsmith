@@ -697,10 +697,15 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     getPlugin(state, pluginId ?? ""),
   );
 
-  // Debugger render flag
-  const showDebugger = useSelector(
+  const debuggerState = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+  const isPreviewMode = useSelector(
+    (state: AppState) => state.ui.editor.isPreviewMode,
+  );
+
+  // Debugger render flag
+  const showDebugger = debuggerState && !isPreviewMode;
 
   const isGraphql = isGraphqlPlugin(plugin);
 

@@ -383,8 +383,6 @@ export default function* executePluginActionTriggerSaga(
     },
     state: action.actionConfiguration,
   });
-  // open response tab in debugger on triggered exection of action from widget.
-  yield call(openDebugger);
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
     action.id,
@@ -835,8 +833,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       name: "PluginExecutionError",
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
-    // open response tab in debugger on exection of action on page load.
-    yield call(openDebugger);
+
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
         yield call(executePluginActionSaga, pageAction);
@@ -852,6 +849,10 @@ function* executePageLoadAction(pageAction: PageAction) {
         };
       }
     }
+    // open response tab in debugger on exection of action on page load.
+    // Only if current page is the page on which the action is executed.
+    if (window.location.pathname.includes(pageAction.id))
+      yield call(openDebugger);
 
     if (isError) {
       AppsmithConsole.addErrors([
@@ -1087,6 +1088,7 @@ function* executePluginActionSaga(
   }
 }
 
+//Open debugger with response tab selected.
 function* openDebugger() {
   yield put(showDebugger(true));
   yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));

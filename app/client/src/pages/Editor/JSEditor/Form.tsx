@@ -263,10 +263,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
 
-  // Render debugger flag
-  const showDebugger = useSelector(
+  const debuggerState = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+  const isPreviewMode = useSelector(
+    (state: AppState) => state.ui.editor.isPreviewMode,
+  );
+
+  // Render debugger flag
+  const showDebugger = debuggerState && !isPreviewMode;
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setJsPaneConfigSelectedTabIndex(selectedIndex));

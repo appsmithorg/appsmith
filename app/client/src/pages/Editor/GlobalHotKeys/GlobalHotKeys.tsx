@@ -381,7 +381,7 @@ class GlobalHotKeys extends React.Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
-  isDebuggerOpen: state.ui.debugger.isOpen,
+  isDebuggerOpen: state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode,
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),

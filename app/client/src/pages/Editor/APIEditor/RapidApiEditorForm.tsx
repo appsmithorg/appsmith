@@ -298,7 +298,11 @@ export default connect((state: AppState) => {
     state,
     "actionConfiguration.headers",
   );
-  const showDebugger = selector(state, "ui.debugger.isOpen");
+  const debuggerState = selector(state, "ui.debugger.isOpen");
+  const isPreviewMode = selector(state, "ui.editor.isPreviewMode");
+
+  // Debugger render flag
+  const showDebugger = debuggerState && !isPreviewMode;
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&

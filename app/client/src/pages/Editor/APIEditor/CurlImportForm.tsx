@@ -177,7 +177,9 @@ class CurlImportForm extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
   const { pageId: destinationPageId } = props.match.params;
 
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger =
+    state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;
 
   if (destinationPageId) {
     return {

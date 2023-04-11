@@ -22,11 +22,14 @@ import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 import { Colors } from "constants/Colors";
 
 function Debugger() {
-  const showDebugger = useSelector(
+  const debuggerState = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+  const isPreviewMode = useSelector(
+    (state: AppState) => state.ui.editor.isPreviewMode,
+  );
 
-  return showDebugger ? <DebuggerTabs /> : null;
+  return debuggerState && !isPreviewMode ? <DebuggerTabs /> : null;
 }
 
 const TriggerContainer = styled.div<{
