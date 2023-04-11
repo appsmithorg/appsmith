@@ -1,6 +1,6 @@
 import MongoDB from "./MongoDB";
 
-describe("WidgetProps tests", () => {
+describe("WidgetQueryGenerator", () => {
   const mongoDb = new MongoDB();
   test("should build select form data correctly", () => {
     const expr = mongoDb.build({
