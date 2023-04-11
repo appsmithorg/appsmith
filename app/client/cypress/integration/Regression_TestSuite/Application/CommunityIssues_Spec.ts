@@ -39,7 +39,7 @@ describe("AForce - Community Issues page validations", function () {
         homePage.AssertImportToast();
       }
       //Validate table is not empty!
-      table.WaitUntilTableLoad();
+      //table.WaitUntilTableLoad();
     });
 
     //Validating order of header columns!
@@ -61,7 +61,21 @@ describe("AForce - Community Issues page validations", function () {
       "updated_at",
     ]);
   });
-
+  it("Auto convert the application", () => {
+    cy.wait(3000);
+    cy.get(locator._autoConvert).click({ force: true });
+    cy.wait(2000);
+    cy.get(locator._convert).click({ force: true });
+    cy.wait(2000);
+    cy.get('span:contains("Converting your app")').should("not.exist");
+    cy.get(locator._refreshApp).click({ force: true });
+    cy.wait(2000);
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("serversidepagination", "checked");

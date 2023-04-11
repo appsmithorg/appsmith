@@ -178,4 +178,15 @@ export class CommonLocators {
   _editorBackButton = ".t--close-editor";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
+  _EnableFormatting = ".t--property-control-enableformatting input[type='checkbox']";
+  _autoConvert = "#t--layout-conversion-cta";
+  _convert = "button:contains('CONVERT')";
+  _refreshApp = "button:contains('REFRESH THE APP')";
+  _autoConversionDialog = ".ads-dialog-trigger:contains('USE SNAPSHOT')";
+  _useSnapshot = "button:contains('USE SNAPSHOT')";
+  _discardSnapshot = "span:contains('DISCARD SNAPSHOT')";
+  _desktopOption = "//span[@name='desktop']/following-sibling::span";
+  _mobileOption = "//span[@name='mobile']/following-sibling::span";
+  _convertanyways = "button:contains('CONVERT ANYWAYS')";
+  _discard = "button:contains('DISCARD')";
 }
