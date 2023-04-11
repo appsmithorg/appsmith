@@ -15,8 +15,10 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
+  MOBILE_ROW_GAP,
   Positioning,
   ResponsiveBehavior,
+  ROW_GAP,
 } from "utils/autoLayout/constants";
 import {
   getBottomRow,
@@ -65,6 +67,10 @@ export function updateWidgetPositions(
     );
 
     let height = 0;
+    const rowGap =
+      (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     if (parent.flexLayers && parent.flexLayers?.length) {
       /**
        * For each flex layer, calculate position of child widgets
@@ -84,8 +90,10 @@ export function updateWidgetPositions(
           firstTimeDSLUpdate,
         );
         widgets = payload.widgets;
-        height += payload.height;
+        height += payload.height + rowGap;
       }
+      // subtract rowGap from height to account for the last layer.
+      height -= rowGap;
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile);
@@ -546,6 +554,10 @@ function updatePositionsForFlexWrap(
   const wrappedAlignments: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
 
   let top = topRow;
+  const rowGap =
+    (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
   for (const each of wrappedAlignments) {
     if (!each.length) break;
     // if there is only one alignment in this row, this implies that it may be wrapped.
@@ -554,9 +566,11 @@ function updatePositionsForFlexWrap(
         ? placeWrappedWidgets(widgets, each[0], top, isMobile)
         : placeWidgetsWithoutWrap(widgets, each, top, isMobile);
     widgets = payload.widgets;
-    top += payload.height;
+    top += payload.height + rowGap;
     continue;
   }
+  // adjust the top position to account for the last row
+  top -= rowGap;
   return { height: top - topRow, widgets };
 }
 
