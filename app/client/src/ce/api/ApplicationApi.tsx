@@ -215,6 +215,12 @@ export interface PageDefaultMeta {
   default: boolean;
 }
 
+export interface UploadNavigationLogoRequest {
+  applicationId: string;
+  logo: File;
+  onSuccessCallback?: () => void;
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -341,6 +347,27 @@ export class ApplicationApi extends Api {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: request.progress,
+      },
+    );
+  }
+
+  static uploadNavigationLogo(
+    request: UploadNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+
+    if (request.logo) {
+      formData.append("file", request.logo);
+    }
+
+    return Api.post(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
     );
   }

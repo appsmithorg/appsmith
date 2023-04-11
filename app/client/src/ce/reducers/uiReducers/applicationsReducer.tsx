@@ -49,6 +49,7 @@ export const initialState: ApplicationsReduxState = {
   isAppSidebarPinned: true,
   isSavingNavigationSetting: false,
   isErrorSavingNavigationSetting: false,
+  isUploadingNavigationLogo: false,
 };
 
 export const handlers = {
@@ -583,6 +584,40 @@ export const handlers = {
     ...state,
     isAppSidebarPinned: action.payload,
   }),
+  [ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isUploadingNavigationLogo: true,
+  }),
+  [ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<UpdateApplicationRequest>,
+  ) => {
+    return {
+      ...state,
+      isUploadingNavigationLogo: false,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationDetail: {
+          ...state.currentApplication?.applicationDetail,
+          navigationSetting: {
+            ...state.currentApplication?.applicationDetail?.navigationSetting,
+            // update logoAssetId in state
+            logoAssetId: action.payload,
+          },
+        },
+      },
+    };
+  },
+  [ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isUploadingNavigationLogo: false,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -615,6 +650,7 @@ export interface ApplicationsReduxState {
   isAppSidebarPinned: boolean;
   isSavingNavigationSetting: boolean;
   isErrorSavingNavigationSetting: boolean;
+  isUploadingNavigationLogo: boolean;
 }
 
 export interface Application {

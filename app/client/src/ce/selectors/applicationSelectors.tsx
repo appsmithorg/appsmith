@@ -215,3 +215,7 @@ export const getSidebarWidth = (state: AppState) => {
 
   return 0;
 };
+
+export const getIsUploadingNavigationLogo = (state: AppState) => {
+  return state.ui.applications.isUploadingNavigationLogo;
+};

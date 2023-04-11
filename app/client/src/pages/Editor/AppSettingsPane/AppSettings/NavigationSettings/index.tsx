@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
@@ -21,6 +21,7 @@ import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system-old";
+import LogoInput from "./LogoInput";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
@@ -44,6 +45,10 @@ function NavigationSettings() {
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
   );
+
+  useEffect(() => {
+    setNavigationSetting(application?.applicationDetail?.navigationSetting);
+  }, [application?.applicationDetail?.navigationSetting]);
 
   const updateSetting = useCallback(
     debounce(
@@ -300,6 +305,11 @@ function NavigationSettings() {
                 ),
               },
             ]}
+            updateSetting={updateSetting}
+          />
+
+          <LogoInput
+            navigationSetting={navigationSetting}
             updateSetting={updateSetting}
           />
 

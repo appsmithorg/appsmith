@@ -101,6 +101,22 @@ export const updateApplicationNavigationSettingAction = (
   };
 };
 
+export const updateApplicationNavigationLogoAction = (logo: string) => {
+  return {
+    type: ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,
+    payload: logo,
+  };
+};
+
+export const updateApplicationNavigationLogoSuccessAction = (
+  logoAssetId: string,
+) => {
+  return {
+    type: ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_SUCCESS,
+    payload: logoAssetId,
+  };
+};
+
 export const publishApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,

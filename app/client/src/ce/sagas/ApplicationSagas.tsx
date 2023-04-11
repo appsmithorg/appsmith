@@ -27,6 +27,7 @@ import type {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   UpdateApplicationResponse,
+  UploadNavigationLogoRequest,
   WorkspaceApplicationObject,
 } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
@@ -49,6 +50,7 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateApplicationNavigationLogoSuccessAction,
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
@@ -880,4 +882,46 @@ export function* initDatasourceConnectionDuringImport(
   );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
+}
+
+export function* uploadNavigationLogoSaga(
+  action: ReduxAction<UploadNavigationLogoRequest>,
+) {
+  try {
+    const request: UploadNavigationLogoRequest = action.payload;
+    const response: ApiResponse<UpdateApplicationResponse> = yield call(
+      ApplicationApi.uploadNavigationLogo,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      if (request) {
+        yield put({
+          type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+          payload: response.data,
+        });
+      }
+
+      if (request.logo) {
+        if (
+          request.logo &&
+          response.data.applicationDetail?.navigationSetting?.logoAssetId
+        ) {
+          yield put(
+            updateApplicationNavigationLogoSuccessAction(
+              response.data.applicationDetail.navigationSetting.logoAssetId,
+            ),
+          );
+        }
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
