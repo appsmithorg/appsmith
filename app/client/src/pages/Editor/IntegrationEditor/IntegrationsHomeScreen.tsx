@@ -31,6 +31,7 @@ import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 const HeaderFlex = styled.div`
   display: flex;
   align-items: center;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 const ApiHomePage = styled.div`
