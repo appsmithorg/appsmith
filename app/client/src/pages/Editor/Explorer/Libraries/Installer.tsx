@@ -53,6 +53,9 @@ const Wrapper = styled.div<{ left: number }>`
   z-index: 25;
   left: ${(props) => props.left}px;
   bottom: 15px;
+  border-radius: var(--ads-v2-border-radius);
+  border-color: var(--ads-v2-color-border);
+  box-shadow: var(--ads-v2-shadow-popovers);
   .installation-header {
     padding: 20px 0 0;
     display: flex;
