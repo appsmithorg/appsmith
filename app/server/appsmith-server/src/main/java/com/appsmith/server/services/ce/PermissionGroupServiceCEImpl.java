@@ -1,8 +1,10 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
@@ -19,6 +21,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
@@ -304,6 +307,21 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                         policy.getPermissionGroups().contains(permissionGroupId))
                 .findFirst()
                 .isPresent();
+    }
+
+    protected Mono<PermissionGroup> sendEventUsersAssociatedToRole(PermissionGroup permissionGroup,
+                                                                   List<String> usernames) {
+        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        if (CollectionUtils.isNotEmpty(usernames)) {
+            Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames);
+            Map<String, Object> analyticsProperties = Map.of(FieldName.NUMBER_OF_ASSIGNED_USERS, usernames.size(),
+                    FieldName.EVENT_DATA, eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+                    AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+        }
+        return sendAssignedUsersToPermissionGroupEvent;
     }
 
 }
