@@ -435,4 +435,4 @@ mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,a
 nginx -s quit
 
 # Handle CMD command
-exec "$@" 
+exec "$@"
