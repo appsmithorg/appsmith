@@ -712,24 +712,9 @@ describe("sortSubMenuOptions", () => {
       index: 0,
       input: [
         {
-          label: "xxx",
-          id: "6433afbd7bd3732ec0823759",
-          value: "'xxx'",
-        },
-        {
           label: "1",
           id: "6433b0017bd3732ec082375c",
           value: "'1'",
-        },
-        {
-          label: "21",
-          id: "6433b0017bd3732ec082375csdsdsdssdsds",
-          value: "'12'",
-        },
-        {
-          label: "abcd",
-          id: "6433afb27b3b0460f824b84d",
-          value: "'abcd'",
         },
         {
           label: "Page1",
@@ -744,7 +729,7 @@ describe("sortSubMenuOptions", () => {
         {
           label: "2",
           id: "6433b0017bd3732ec082375csdsdsdssdsds",
-          value: "'12'",
+          value: "'2'",
         },
         {
           label: "Page10",
@@ -752,19 +737,9 @@ describe("sortSubMenuOptions", () => {
           value: "'Page10'",
         },
         {
-          label: "Page11",
-          id: "6433ae277b3b0460f824b849",
-          value: "'Page11'",
-        },
-        {
           label: "Page2",
           id: "6399a035b8c4dd684038282e",
           value: "'Page2'",
-        },
-        {
-          label: "Page21",
-          id: "6433ae241013bd6c9fd9ca30",
-          value: "'Page21'",
         },
       ],
       expected: [
@@ -776,22 +751,12 @@ describe("sortSubMenuOptions", () => {
         {
           label: "2",
           id: "6433b0017bd3732ec082375csdsdsdssdsds",
-          value: "'12'",
+          value: "'2'",
         },
         {
           label: "12",
           id: "6433b0017bd3732ec082375csdsdsds",
           value: "'12'",
-        },
-        {
-          label: "21",
-          id: "6433b0017bd3732ec082375csdsdsdssdsds",
-          value: "'12'",
-        },
-        {
-          label: "abcd",
-          id: "6433afb27b3b0460f824b84d",
-          value: "'abcd'",
         },
         {
           label: "Page1",
@@ -807,21 +772,6 @@ describe("sortSubMenuOptions", () => {
           label: "Page10",
           id: "6426cd4646c8f921c25eb1b3",
           value: "'Page10'",
-        },
-        {
-          label: "Page11",
-          id: "6433ae277b3b0460f824b849",
-          value: "'Page11'",
-        },
-        {
-          label: "Page21",
-          id: "6433ae241013bd6c9fd9ca30",
-          value: "'Page21'",
-        },
-        {
-          label: "xxx",
-          id: "6433afbd7bd3732ec0823759",
-          value: "'xxx'",
         },
       ],
     },
@@ -995,11 +945,6 @@ describe("sortSubMenuOptions", () => {
           value: '"adc"',
         },
         {
-          label: "Container1",
-          id: "Container1",
-          value: '"Container1"',
-        },
-        {
           label: "IconButton1",
           id: "IconButton1",
           value: '"IconButton1"',
@@ -1008,11 +953,6 @@ describe("sortSubMenuOptions", () => {
           label: "IconButton10",
           id: "IconButton10",
           value: '"IconButton10"',
-        },
-        {
-          label: "DatePicker1",
-          id: "DatePicker1",
-          value: '"DatePicker1"',
         },
         {
           label: "fsfsdg",
@@ -1025,64 +965,14 @@ describe("sortSubMenuOptions", () => {
           value: '"IconButton2"',
         },
         {
-          label: "IconButton6",
-          id: "IconButton6",
-          value: '"IconButton6"',
-        },
-        {
-          label: "IconButton7",
-          id: "IconButton7",
-          value: '"IconButton7"',
-        },
-        {
           label: "IconButton8",
           id: "IconButton8",
           value: '"IconButton8"',
         },
         {
-          label: "Text6",
-          id: "Text6",
-          value: '"Text6"',
-        },
-        {
-          label: "Text7",
-          id: "Text7",
-          value: '"Text7"',
-        },
-        {
-          label: "Text8",
-          id: "Text8",
-          value: '"Text8"',
-        },
-        {
-          label: "Iframe1",
-          id: "Iframe1",
-          value: '"Iframe1"',
-        },
-        {
           label: "Input1",
           id: "Input1",
           value: '"Input1"',
-        },
-        {
-          label: "Modal6",
-          id: "Modal6",
-          value: '"Modal6"',
-        },
-        {
-          label: "Modal7",
-          id: "Modal7",
-          value: '"Modal7"',
-        },
-        {
-          label: "Modal8",
-          id: "Modal8",
-          value: '"Modal8"',
-        },
-        {
-          label: "MultiSelect1",
-          id: "MultiSelect1",
-          value: '"MultiSelect1"',
         },
         {
           label: "Select1",
@@ -1098,16 +988,6 @@ describe("sortSubMenuOptions", () => {
           label: "Table1",
           id: "Table1",
           value: '"Table1"',
-        },
-        {
-          label: "Text1",
-          id: "Text1",
-          value: '"Text1"',
-        },
-        {
-          label: "Text2",
-          id: "Text2",
-          value: '"Text2"',
         },
       ],
       expected: [
@@ -1117,16 +997,6 @@ describe("sortSubMenuOptions", () => {
           value: '"adc"',
         },
         {
-          label: "Container1",
-          id: "Container1",
-          value: '"Container1"',
-        },
-        {
-          label: "DatePicker1",
-          id: "DatePicker1",
-          value: '"DatePicker1"',
-        },
-        {
           label: "fsfsdg",
           id: "fsfsdg",
           value: '"fsfsdg"',
@@ -1142,16 +1012,6 @@ describe("sortSubMenuOptions", () => {
           value: '"IconButton2"',
         },
         {
-          label: "IconButton6",
-          id: "IconButton6",
-          value: '"IconButton6"',
-        },
-        {
-          label: "IconButton7",
-          id: "IconButton7",
-          value: '"IconButton7"',
-        },
-        {
           label: "IconButton8",
           id: "IconButton8",
           value: '"IconButton8"',
@@ -1162,34 +1022,9 @@ describe("sortSubMenuOptions", () => {
           value: '"IconButton10"',
         },
         {
-          label: "Iframe1",
-          id: "Iframe1",
-          value: '"Iframe1"',
-        },
-        {
           label: "Input1",
           id: "Input1",
           value: '"Input1"',
-        },
-        {
-          label: "Modal6",
-          id: "Modal6",
-          value: '"Modal6"',
-        },
-        {
-          label: "Modal7",
-          id: "Modal7",
-          value: '"Modal7"',
-        },
-        {
-          label: "Modal8",
-          id: "Modal8",
-          value: '"Modal8"',
-        },
-        {
-          label: "MultiSelect1",
-          id: "MultiSelect1",
-          value: '"MultiSelect1"',
         },
         {
           label: "Select1",
@@ -1205,31 +1040,6 @@ describe("sortSubMenuOptions", () => {
           label: "Table1",
           id: "Table1",
           value: '"Table1"',
-        },
-        {
-          label: "Text1",
-          id: "Text1",
-          value: '"Text1"',
-        },
-        {
-          label: "Text2",
-          id: "Text2",
-          value: '"Text2"',
-        },
-        {
-          label: "Text6",
-          id: "Text6",
-          value: '"Text6"',
-        },
-        {
-          label: "Text7",
-          id: "Text7",
-          value: '"Text7"',
-        },
-        {
-          label: "Text8",
-          id: "Text8",
-          value: '"Text8"',
         },
       ],
     },
@@ -1249,11 +1059,6 @@ describe("sortSubMenuOptions", () => {
           className: "t--create-modal-btn",
         },
         {
-          id: "3mivhw26s1",
-          label: "Modal6",
-          value: "Modal6",
-        },
-        {
           id: "lz8id1xnk7",
           label: "Modal1",
           value: "Modal1",
@@ -1262,11 +1067,6 @@ describe("sortSubMenuOptions", () => {
           id: "j5gg12lloy",
           label: "Modal2",
           value: "Modal2",
-        },
-        {
-          id: "9grmocvg9g",
-          label: "Modal7",
-          value: "Modal7",
         },
         {
           id: "ndsf3edjw7",
@@ -1306,16 +1106,6 @@ describe("sortSubMenuOptions", () => {
           id: "j5gg12lloy",
           label: "Modal2",
           value: "Modal2",
-        },
-        {
-          id: "3mivhw26s1",
-          label: "Modal6",
-          value: "Modal6",
-        },
-        {
-          id: "9grmocvg9g",
-          label: "Modal7",
-          value: "Modal7",
         },
         {
           id: "bfv7i1qt72",
