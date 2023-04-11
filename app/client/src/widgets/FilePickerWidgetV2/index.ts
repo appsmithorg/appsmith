@@ -1,8 +1,5 @@
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
@@ -33,7 +30,6 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Hug,
     minWidth: BUTTON_MIN_WIDTH,
-    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

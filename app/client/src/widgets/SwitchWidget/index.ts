@@ -1,8 +1,5 @@
 import { LabelPosition } from "components/constants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { AlignWidgetTypes } from "widgets/constants";
 
 import IconSVG from "./icon.svg";
@@ -32,7 +29,6 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
-    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -2,10 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import { TimePrecision } from "./constants";
@@ -49,7 +46,6 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

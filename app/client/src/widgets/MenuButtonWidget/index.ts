@@ -2,7 +2,6 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { MenuItemsSource } from "./constants";
-import { FlexVerticalAlignment } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -47,7 +46,6 @@ export const CONFIG = {
     columns: 16,
     widgetName: "MenuButton",
     version: 1,
-    flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
