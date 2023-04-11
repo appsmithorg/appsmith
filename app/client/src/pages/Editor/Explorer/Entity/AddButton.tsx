@@ -5,6 +5,10 @@ import { Button } from "design-system";
 const Wrapper = styled.div`
   height: 36px;
   width: 30px;
+
+  &.selected {
+    background-color: var(--ads-v2-color-bg-muted);
+  }
 `;
 
 const StyledButton = styled(Button)`
