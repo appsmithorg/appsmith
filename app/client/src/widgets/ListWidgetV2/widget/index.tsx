@@ -1053,24 +1053,21 @@ class ListWidget extends BaseWidget<
 
   shouldCallOnItemClick = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
+    const currentTarget = e.currentTarget as HTMLElement;
 
     const isInput = target.tagName === "INPUT";
 
     const hasControl = (target as HTMLLabelElement).control;
     const parentHasControl = (target.parentElement as HTMLLabelElement).control;
     const hasLink = (target as HTMLAnchorElement).href;
-    const widgetType = target.getAttribute("type");
+    const widgetType = currentTarget.getAttribute("type");
     const isContainerWidget = widgetType === "CONTAINER_WIDGET";
 
-    const hasOnClick =
-      Boolean(findReactInstanceProps(target).onClick) && !isContainerWidget;
+    const hasOnClick = Boolean(findReactInstanceProps(target).onClick);
 
-    return !(
-      isInput ||
-      hasControl ||
-      parentHasControl ||
-      hasLink ||
-      hasOnClick
+    return (
+      !(isInput || hasControl || parentHasControl || hasLink || hasOnClick) ||
+      isContainerWidget
     );
   };
 
