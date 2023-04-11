@@ -34,7 +34,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
                 })
-                .flatMap(config -> instanceConfigHelper.performRtsHealthCheck())
+                .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
         Mono<?> startupProcess = instanceConfigHelper.checkInstanceSchemaVersion()
