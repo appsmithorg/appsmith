@@ -477,18 +477,20 @@ function WorkspaceInviteUsersForm(props: any) {
             width={InviteButtonWidth}
           />
         </StyledInviteFieldGroupEE>
-        <LabelText type={TextType.P0}>
-          <Icon name="user-3-line" size={IconSize.MEDIUM} />
-          {isAppLevelInvite
-            ? createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)
-            : createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-        </LabelText>
+        {!isAclFlow && (
+          <LabelText data-testid="helper-message" type={TextType.P0}>
+            <Icon name="user-3-line" size={IconSize.MEDIUM} />
+            {isAppLevelInvite
+              ? createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)
+              : createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+          </LabelText>
+        )}
         {isLoading ? (
           <Loading size={30} />
         ) : (
           <>
-            {allUsers.length === 0 && (
-              <MailConfigContainer>
+            {allUsers.length === 0 && !isAclFlow && (
+              <MailConfigContainer data-testid="no-users-content">
                 <NoEmailConfigImage />
                 <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>
