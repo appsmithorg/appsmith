@@ -40,7 +40,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         Mono<?> startupProcess = instanceConfigHelper.checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
-                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache());
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
+                // Add cold publisher as we have dependency on the instance registration
+                .then(Mono.defer(instanceConfigHelper::isLicenseValid));
+
         try {
             startupProcess.block();
         } catch(Exception e) {
