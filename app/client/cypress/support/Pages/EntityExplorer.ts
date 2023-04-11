@@ -134,8 +134,9 @@ export class EntityExplorer {
         if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
+            .wait(500)
             .trigger("click", { force: true })
-            .wait(1000);
+            .wait(500);
           // this.agHelper
           //   .GetElement(this._expandCollapseSection(entityName))
           //   .then(($div: any) => {
@@ -151,8 +152,9 @@ export class EntityExplorer {
         } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
+            .wait(500)
             .trigger("click", { force: true })
-            .wait(1000);
+            .wait(500);
           // this.agHelper
           //   .GetElement(this._expandCollapseSection(entityName))
           //   .then(($div: any) => {
