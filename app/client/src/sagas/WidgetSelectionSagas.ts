@@ -9,13 +9,19 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import type { WidgetSelectionRequestPayload } from "actions/widgetSelectionActions";
-import { setSelectedWidgets } from "actions/widgetSelectionActions";
+import type {
+  SetSelectedWidgetsPayload,
+  WidgetSelectionRequestPayload,
+} from "actions/widgetSelectionActions";
+import {
+  setEntityExplorerAncestry,
+  setSelectedWidgetAncestry,
+  setSelectedWidgets,
+} from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { showModal } from "actions/widgetActions";
-import type { NavigationMethod } from "utils/history";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
@@ -33,7 +39,7 @@ import {
   SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
-  setWidgetAncestry,
+  getWidgetAncestry,
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
@@ -219,12 +225,11 @@ function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
 }
 
 function* handleWidgetSelectionSaga(
-  action: ReduxAction<{ widgetIds: string[] }>,
+  action: ReduxAction<SetSelectedWidgetsPayload>,
 ) {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  yield call(setWidgetAncestry, action.payload.widgetIds[0], allWidgets);
   yield call(focusOnWidgetSaga, action);
   yield call(openOrCloseModalSaga, action);
+  yield call(setWidgetAncestry, action);
 }
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
@@ -251,6 +256,30 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
     const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
     quickScrollToWidget(widgetId, allWidgets);
   }
+}
+
+function* setWidgetAncestry(action: ReduxAction<SetSelectedWidgetsPayload>) {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  // When a widget selection is triggered via a canvas click,
+  // we do not want to set the widget ancestry. This is so
+  // that if the widget like a button causes a widget
+  // navigation, it would block the navigation
+  const dontSetSelectedAncestry =
+    action.payload.invokedBy === undefined ||
+    action.payload.invokedBy === NavigationMethod.CanvasClick;
+
+  const widgetAncestry = getWidgetAncestry(
+    action.payload.widgetIds[0],
+    allWidgets,
+  );
+
+  if (dontSetSelectedAncestry) {
+    yield put(setSelectedWidgetAncestry([]));
+  } else {
+    yield put(setSelectedWidgetAncestry(widgetAncestry));
+  }
+  yield put(setEntityExplorerAncestry(widgetAncestry));
 }
 
 export function* widgetSelectionSagas() {
