@@ -125,9 +125,7 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
@@ -772,11 +770,6 @@ class CodeEditor extends Component<Props, State> {
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
-
-                // TODO fix the widget navigation issue to remove this
-                if (navigationData.type === ENTITY_TYPE.WIDGET) {
-                  this.props.selectWidget(navigationData.id);
-                }
                 this.hidePeekOverlay();
               }
             }
@@ -1386,8 +1379,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
-  selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(
