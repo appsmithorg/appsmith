@@ -134,7 +134,6 @@ import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
-import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -316,8 +315,9 @@ public class MongoPlugin extends BasePlugin {
             ActionExecutionResult result = new ActionExecutionResult();
             String query;
             List<RequestParamDTO> requestParams;
+            MongoDatabase database;
             try {
-                MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+                database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
                 final Map<String, Object> formData = actionConfiguration.getFormData();
 
@@ -363,6 +363,8 @@ public class MongoPlugin extends BasePlugin {
                             error -> new StaleConnectionException()
                     )
                     .flatMap(mongoOutput -> {
+
+                        Mono<ActionExecutionResult> runMono = Mono.empty();
                         try {
                             /*
                              * Added Custom codec for JSON conversion since MongoDB Reactive API does not support
@@ -403,9 +405,45 @@ public class MongoPlugin extends BasePlugin {
                                   results. In case there are no results for find, this key is not present in the result json.
                                  */
                                 if (outputJson.has("cursor")) {
-                                    JSONArray outputResult = (JSONArray) cleanUp(
-                                            outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
-                                    result.setBody(objectMapper.readTree(outputResult.toString()));
+                                    JSONObject cursor = outputJson.getJSONObject("cursor");
+                                    JSONArray firstBatch = new JSONArray();
+                                    long firstCursorId = cursor.getLong("id");
+
+                                    Function<JSONObject, Publisher<JSONObject>> func = cursorObject -> {
+                                        long cursorId = cursorObject.getLong("id");
+                                        if (cursorId == 0) {
+                                            // This is the last cursor response, don't process further
+                                            return Mono.empty();
+                                        }
+                                        String ns = cursorObject.getString("ns");
+                                        String collectionName = ns.substring(ns.indexOf(".") + 1);
+                                        return Mono.from(database.runCommand(Document.parse("{\"getMore\": " + firstCursorId + ", \"collection\": \"" + collectionName + "\"}")))
+                                                .map(response -> {
+                                                    JSONObject responseJson = new JSONObject(response.toJson(documentCodec));
+                                                    return responseJson.getJSONObject("cursor");
+                                                });
+                                    };
+
+                                    runMono = Mono.just(cursor)
+                                            .expand(func)
+                                            .map(cursorObject -> {
+                                                if (cursorObject.has("firstBatch")) {
+                                                    return cursorObject.getJSONArray("firstBatch");
+                                                }
+                                                return cursorObject.getJSONArray("nextBatch");
+                                            })
+                                            .collectList()
+                                            .map(batchList -> {
+                                                batchList.forEach(firstBatch::putAll);
+                                                JSONArray outputResult = (JSONArray) cleanUp(firstBatch);
+                                                try {
+                                                    result.setBody(objectMapper.readTree(outputResult.toString()));
+                                                } catch (JsonProcessingException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                                return result;
+                                            });
+
                                 }
 
                                 /*
@@ -456,17 +494,17 @@ public class MongoPlugin extends BasePlugin {
                             JSONObject statusJson = new JSONObject().put("ok", status);
                             headerArray.put(statusJson);
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
-                        } catch (JsonProcessingException e) {
+                        } catch (Exception e) {
                             return Mono.error(new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
                         }
 
-                        return Mono.just(result);
+                        return runMono.map(res -> res).thenReturn(result);
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
-                        } else if (! (error instanceof AppsmithPluginException)) {
+                        } else if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(MongoPluginError.QUERY_EXECUTION_FAILED, MongoPluginErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -590,7 +628,7 @@ public class MongoPlugin extends BasePlugin {
                     params,
                     parameters);
 
-            updatedQuery = makeMongoRegexSubstitutionValid (updatedQuery);
+            updatedQuery = makeMongoRegexSubstitutionValid(updatedQuery);
 
             return updatedQuery;
         }
@@ -602,8 +640,8 @@ public class MongoPlugin extends BasePlugin {
 
             char quote = '\"';
             char forwardSlash = '/';
-            if ( valueSB.charAt(0) != quote && valueSB.charAt(0) != forwardSlash) {
-                valueSB.insert(0, quote );
+            if (valueSB.charAt(0) != quote && valueSB.charAt(0) != forwardSlash) {
+                valueSB.insert(0, quote);
                 // adds quote at the end of the line
                 valueSB.append(quote);
             }
@@ -614,6 +652,7 @@ public class MongoPlugin extends BasePlugin {
         /**
          * Smart Substitution Helper for mongo regex: Regex takes pattern as "<pattern>" or /<pattern>/,
          * Rest are not illegal arguments to the $regex attribute in mongo.
+         *
          * @Param: Smart substituted query string.
          * @Returns: Updated query string.
          */
@@ -631,7 +670,7 @@ public class MongoPlugin extends BasePlugin {
                 try {
                     valueSB = makeValidForRegex(mongo$regexIdentifierMatcher.group(1));
 
-                } catch(StringIndexOutOfBoundsException e) {
+                } catch (StringIndexOutOfBoundsException e) {
                     // when the match group detected is of length zero this error is thrown;
                     return inputQuery;
                 } catch (Exception e) {
@@ -706,7 +745,7 @@ public class MongoPlugin extends BasePlugin {
                                     )
                     )
                     .onErrorMap(e -> {
-                        if (! (e instanceof AppsmithPluginException)) {
+                        if (!(e instanceof AppsmithPluginException)) {
                             return new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, MongoPluginErrorMessages.DS_CREATION_FAILED_ERROR_MSG, e.getMessage());
                         }
 
@@ -834,7 +873,7 @@ public class MongoPlugin extends BasePlugin {
 
                         final String authDatabaseName;
                         if (datasourceConfiguration.getAuthentication() != null &&
-                                !isBlank(((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName())) {
+                                !isBlank(((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName())) {
                             authDatabaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
                         } else {
                             return Mono.just(new DatasourceTestResult(
@@ -845,7 +884,7 @@ public class MongoPlugin extends BasePlugin {
                                 .filter(name -> name.equals(authDatabaseName))
                                 .findFirst();
 
-                        if(authDB.isEmpty()) {
+                        if (authDB.isEmpty()) {
                             return Mono.just(new DatasourceTestResult(
                                     MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
                         }
