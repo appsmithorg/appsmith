@@ -10,6 +10,7 @@ import type {
 import { Classes, Text, TextType, TooltipComponent } from "design-system-old";
 import _ from "lodash";
 import { Icon } from "design-system";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
 
@@ -93,7 +94,6 @@ interface DataSourceOptionType extends RenderDropdownOptionType {
   cypressSelector: string;
   optionWidth: string;
 }
-
 function DataSourceOption({
   cypressSelector,
   extraProps,
@@ -158,9 +158,9 @@ function DataSourceOption({
             <DatasourceImage
               alt=""
               className="dataSourceImage"
-              src={
-                pluginImages[(dropdownOption as DropdownOption).data.pluginId]
-              }
+              src={getAssetUrl(
+                pluginImages[(dropdownOption as DropdownOption).data.pluginId],
+              )}
             />
           </ImageWrapper>
         ) : null}

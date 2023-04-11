@@ -6,6 +6,7 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -118,6 +119,7 @@ import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -381,6 +383,8 @@ export default function* executePluginActionTriggerSaga(
     },
     state: action.actionConfiguration,
   });
+  // open response tab in debugger on triggered exection of action from widget.
+  yield call(openDebugger);
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
     action.id,
@@ -564,6 +568,8 @@ function* runActionSaga(
   });
 
   const { id, paginationField } = reduxAction.payload;
+  // open response tab in debugger on exection of action.
+  yield call(openDebugger);
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
@@ -829,6 +835,8 @@ function* executePageLoadAction(pageAction: PageAction) {
       name: "PluginExecutionError",
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
+    // open response tab in debugger on exection of action on page load.
+    yield call(openDebugger);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
         yield call(executePluginActionSaga, pageAction);
@@ -1076,6 +1084,11 @@ function* executePluginActionSaga(
 
     throw new PluginActionExecutionError("Response not valid", false);
   }
+}
+
+function* openDebugger() {
+  yield put(showDebugger(true));
+  yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
 }
 
 export function* watchPluginActionExecutionSagas() {

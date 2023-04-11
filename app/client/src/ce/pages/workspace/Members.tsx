@@ -243,12 +243,13 @@ export const NoResultsText = styled.div`
 export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
   display: flex;
 
-  ${({ isSubRow }) =>
-    isSubRow
-      ? `padding-left: 12px;`
-      : `> div {
-          margin-left: 8px;
-        }`}
+  ${({ isSubRow }) => (isSubRow ? `padding-left: 12px;` : ``)}
+
+  .cs-icon {
+    margin: 0 4px 0 0;
+    position: relative;
+    left: -4px;
+  }
 `;
 
 export default function MemberSettings(props: PageProps) {

@@ -32,6 +32,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -160,6 +161,8 @@ export function PageHeader(props: PageHeaderProps) {
     return tabs.some((tab) => tab.matcher(location.pathname));
   }, [featureFlags, location.pathname]);
 
+  const isAirgappedInstance = isAirgapped();
+
   return (
     <StyledPageHeader
       data-testid="t--appsmith-page-header"
@@ -171,7 +174,11 @@ export function PageHeader(props: PageHeaderProps) {
       <HeaderSection>
         {tenantConfig.brandLogoUrl && (
           <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+            <img
+              alt="Logo"
+              className="h-6"
+              src={getAssetUrl(tenantConfig.brandLogoUrl)}
+            />
           </Link>
         )}
       </HeaderSection>
@@ -187,19 +194,21 @@ export function PageHeader(props: PageHeaderProps) {
               <div>Apps</div>
             </TabName>
 
-            <TabName
-              className="t--templates-tab"
-              isSelected={
-                matchTemplatesPath(location.pathname) ||
-                matchTemplatesIdPath(location.pathname)
-              }
-              onClick={() => {
-                AnalyticsUtil.logEvent("TEMPLATES_TAB_CLICK");
-                history.push(TEMPLATES_PATH);
-              }}
-            >
-              <div>Templates</div>
-            </TabName>
+            {!isAirgappedInstance && (
+              <TabName
+                className="t--templates-tab"
+                isSelected={
+                  matchTemplatesPath(location.pathname) ||
+                  matchTemplatesIdPath(location.pathname)
+                }
+                onClick={() => {
+                  AnalyticsUtil.logEvent("TEMPLATES_TAB_CLICK");
+                  history.push(TEMPLATES_PATH);
+                }}
+              >
+                <div>Templates</div>
+              </TabName>
+            )}
           </>
         )}
       </Tabs>

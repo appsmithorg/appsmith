@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { Text } from "design-system";
 import { IconWrapper } from "constants/IconConstants";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -25,7 +26,7 @@ function WidgetInfo({ widgetType }: WidgetInfoProps) {
   return (
     <Wrapper>
       <IconWrapper>
-        <img className="w-5 h-5" src={widgetInfo?.icon} />
+        <img className="w-5 h-5" src={getAssetUrl(widgetInfo?.icon)} />
       </IconWrapper>
       <Text kind="body-m">{widgetInfo?.displayName}</Text>
     </Wrapper>

@@ -23,9 +23,6 @@ export const getPropertyPanelState = (state: AppState) =>
 export const getAllPropertySectionState = (state: AppState) =>
   state.ui.editorContext.propertySectionState;
 
-export const getSelectedCanvasDebuggerTab = (state: AppState) =>
-  state.ui.editorContext.selectedDebuggerTab;
-
 export const getWidgetSelectedPropertyTabIndex = (state: AppState) =>
   state.ui.editorContext.selectedPropertyTabIndex;
 

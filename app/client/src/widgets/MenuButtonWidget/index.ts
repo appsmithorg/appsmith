@@ -56,6 +56,30 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
   },
+  autoLayout: {
+    defaults: {
+      rows: 4,
+      columns: 6.632,
+    },
+    autoDimension: {
+      width: true,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+            maxWidth: "360px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      vertical: true,
+      horizontal: true,
+    },
+  },
 };
 
 export default Widget;
