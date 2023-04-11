@@ -41,12 +41,11 @@ function CloseEditor() {
     integrationTab = INTEGRATION_TABS.NEW;
   }
 
-  const handleClose = (e: React.MouseEvent) => {
+  const getURL = () => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
-    e.stopPropagation();
 
     // if it is a generate CRUD page flow from which user came here
     // then route user back to `/generate-page/form`
@@ -70,16 +69,15 @@ function CloseEditor() {
       toUrl: URL,
     });
     history.push(URL, { invokedBy: NavigationMethod.ActionBackButton });
-    return false;
+    return URL;
   };
 
   return (
     <StyledLink
       kind="secondary"
-      onClick={handleClose}
       startIcon="arrow-left-line"
       target="_self"
-      to="#"
+      to={getURL()}
     >
       Back
     </StyledLink>
