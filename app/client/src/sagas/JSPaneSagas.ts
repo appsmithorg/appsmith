@@ -90,6 +90,8 @@ import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -380,6 +382,9 @@ export function* handleExecuteJSFunctionSaga(data: {
       action,
       collectionId,
     );
+    // open response tab in debugger on runnning js action.
+    yield put(showDebugger(true));
+    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -414,6 +419,9 @@ export function* handleExecuteJSFunctionSaga(data: {
         variant: Variant.success,
       });
   } catch (error) {
+    // open response tab in debugger on runnning js action.
+    yield put(showDebugger(true));
+    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     AppsmithConsole.addErrors([
       {
         payload: {

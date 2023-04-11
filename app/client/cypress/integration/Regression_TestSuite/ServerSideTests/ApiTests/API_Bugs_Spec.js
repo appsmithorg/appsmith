@@ -144,7 +144,6 @@ describe("Rest Bugs tests", function () {
     );
     apiPage.RunAPI(false);
     cy.wait("@postExecuteError");
-    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
@@ -176,7 +175,6 @@ describe("Rest Bugs tests", function () {
       locator._specificToast("Cyclic dependency found while evaluating"),
     );
     cy.ResponseStatusCheck("404 NOT_FOUND");
-    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")

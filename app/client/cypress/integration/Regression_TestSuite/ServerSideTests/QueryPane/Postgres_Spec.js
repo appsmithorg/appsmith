@@ -313,7 +313,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.runQuery();
     cy.typeValueNValidate("select * from public.users_crud limit 10");
     cy.onlyQueryRun();
-    cy.get(commonlocators.debugger).should("be.visible").click({ force: true });
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
       .first()

@@ -37,8 +37,7 @@ const MessageWrapper = styled.div`
   gap: 8px;
 `;
 
-const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[3]}px;
+export const JsonWrapper = styled.div`
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
@@ -47,25 +46,25 @@ const JsonWrapper = styled.div`
   }
 `;
 
+// This is the props that are passed to the react-json-view component.
+export const reactJsonProps = {
+  name: null,
+  enableClipboard: false,
+  displayObjectSize: false,
+  displayDataTypes: false,
+  style: {
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
+    fontSize: "11px",
+    fontWeight: "400",
+    letterSpacing: "-0.195px",
+    lineHeight: "13px",
+  },
+  collapsed: 1,
+};
+
 // This component is used to render the collapsed information in the error logs.
 export default function LogCollapseData(props: any) {
-  // This is the props that are passed to the react-json-view component.
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    style: {
-      fontFamily:
-        "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
-      fontSize: "11px",
-      fontWeight: "400",
-      letterSpacing: "-0.195px",
-      lineHeight: "13px",
-    },
-    collapsed: 1,
-  };
-
   return (
     <StyledCollapse
       category={props.category}
@@ -97,15 +96,15 @@ export default function LogCollapseData(props: any) {
               </>
             )}
           </MessageInfo>
+          {props.state && (
+            <JsonWrapper
+              className="t--debugger-log-state"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ReactJson src={props.state} {...reactJsonProps} />
+            </JsonWrapper>
+          )}
         </MessageWrapper>
-      )}
-      {props.state && (
-        <JsonWrapper
-          className="t--debugger-log-state"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ReactJson src={props.state} {...reactJsonProps} />
-        </JsonWrapper>
       )}
     </StyledCollapse>
   );
