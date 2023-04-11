@@ -28,7 +28,14 @@ export const TestComponent = (props: any) => {
               key={COLORS[colorKey][colorNestedKey]}
               theme={tokensAccessor.getAllTokens()}
             >
-              {children}
+              <div
+                style={{
+                  padding: "20px",
+                  background: "var(--color-bg)",
+                }}
+              >
+                {children}
+              </div>
             </ThemeProvider>
           );
         });
