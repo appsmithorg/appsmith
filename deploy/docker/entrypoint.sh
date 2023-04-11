@@ -381,15 +381,15 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  STARTING_PAGE="/opt/appsmith/templates/appsmith_starting.html"
-  INITIALIZING_PAGE="/opt/appsmith/templates/appsmith_initializing.html"
-  EDITOR_LOAD_PAGE="/opt/appsmith/editor/loading.html" 
-  # rm /var/www/html/index.nginx-debian.html
-  cp $INITIALIZING_PAGE /var/www/html/index.nginx-debian.html
-  cp $STARTING_PAGE $EDITOR_LOAD_PAGE
-  # Start nginx page to display the Appsmith is Initializing
+  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
+  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
+  local editor_load_page="/opt/appsmith/editor/loading.html" 
+  # Update default nginx page for initializing page
+  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  # Start nginx page to display the Appsmith is Initializing page
   nginx
-  cp $STARTING_PAGE $EDITOR_LOAD_PAGE
+  # Update editor nginx page for starting page
+  cp "$starting_page" "$editor_load_page"
 }
 
 # Main Section
