@@ -15,8 +15,5 @@ public interface InstanceConfigHelperCE {
 
     boolean getIsRtsAccessible();
 
-    default Mono<Boolean> isLicenseValid() {
-        // As CE edition doesn't require license, default state should be valid
-        return Mono.just(true);
-    }
+    Mono<Boolean> isLicenseValid();
 }

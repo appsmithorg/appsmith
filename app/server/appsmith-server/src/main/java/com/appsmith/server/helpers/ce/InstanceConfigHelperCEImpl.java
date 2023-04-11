@@ -158,4 +158,10 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
         return this.isRtsAccessible;
     }
 
+    @Override
+    public Mono<Boolean> isLicenseValid() {
+        // As CE edition doesn't require license, default state should be valid
+        return Mono.just(true);
+    }
+
 }
