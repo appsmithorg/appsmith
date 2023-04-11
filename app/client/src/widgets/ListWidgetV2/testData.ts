@@ -1,3 +1,5 @@
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import type { FlattenedWidgetProps } from "widgets/constants";
 
 export const simpleListInput = {
@@ -138,7 +140,7 @@ export const simpleListInput = {
         },
       ],
       leftColumn: 0,
-      defaultImage: "https://assets.appsmith.com/widgets/default.png",
+      defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       key: "47mo8av09c",
       image: "{{currentItem.img}}",
       isDeprecated: false,
@@ -440,7 +442,7 @@ export const nestedListInput = {
         },
       ],
       leftColumn: 0,
-      defaultImage: "https://assets.appsmith.com/widgets/default.png",
+      defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       key: "2g7ntchr1f",
       image: "{{currentItem.img}}",
       isDeprecated: false,
@@ -591,17 +593,17 @@ export const nestedListInput = {
         {
           id: "001",
           name: "Blue",
-          img: "https://assets.appsmith.com/widgets/default.png",
+          img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
         },
         {
           id: "002",
           name: "Green",
-          img: "https://assets.appsmith.com/widgets/default.png",
+          img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
         },
         {
           id: "003",
           name: "Red",
-          img: "https://assets.appsmith.com/widgets/default.png",
+          img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
         },
       ],
       pageSize: 3,
@@ -750,7 +752,7 @@ export const nestedListInput = {
     },
     xyt7kd0vsa: {
       isVisible: true,
-      defaultImage: "https://assets.appsmith.com/widgets/default.png",
+      defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       enableRotation: false,
