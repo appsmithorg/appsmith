@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 
 import type { LayoutDirection } from "utils/autoLayout/constants";
+import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -42,6 +43,7 @@ const LayoutLayerContainer = styled.div<{
 
 const SubWrapper = styled.div<{
   wrap?: boolean;
+  isMobile?: boolean;
 }>`
   flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3333"}%`};
   display: flex;
@@ -49,6 +51,7 @@ const SubWrapper = styled.div<{
   align-items: flex-start;
   align-self: stretch;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
+  row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -75,13 +78,25 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       startColumns,
     } = props;
     const arr: (JSX.Element | null)[] = [
-      <StartWrapper key={0} wrap={props.wrapStart && props.isMobile}>
+      <StartWrapper
+        isMobile={props.isMobile}
+        key={0}
+        wrap={props.wrapStart && props.isMobile}
+      >
         {start}
       </StartWrapper>,
-      <CenterWrapper key={1} wrap={props.wrapCenter && props.isMobile}>
+      <CenterWrapper
+        isMobile={props.isMobile}
+        key={1}
+        wrap={props.wrapCenter && props.isMobile}
+      >
         {center}
       </CenterWrapper>,
-      <EndWrapper key={2} wrap={props.wrapEnd && props.isMobile}>
+      <EndWrapper
+        isMobile={props.isMobile}
+        key={2}
+        wrap={props.wrapEnd && props.isMobile}
+      >
         {end}
       </EndWrapper>,
     ];

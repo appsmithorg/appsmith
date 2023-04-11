@@ -5,6 +5,8 @@ import React, { useMemo } from "react";
 import {
   FlexLayerAlignment,
   LayoutDirection,
+  MOBILE_ROW_GAP,
+  ROW_GAP,
 } from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
@@ -140,11 +142,13 @@ function FlexBoxComponent(props: FlexBoxProps) {
       padding: leaveSpaceForWidgetName
         ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px ${WidgetNameComponentHeight}px ${FLEXBOX_PADDING}px`
         : "0px",
+      rowGap: `${props.isMobile ? MOBILE_ROW_GAP : ROW_GAP}px`,
     };
   }, [
     props.useAutoLayout,
     props.direction,
     props.stretchHeight,
+    props.isMobile,
     leaveSpaceForWidgetName,
   ]);
 

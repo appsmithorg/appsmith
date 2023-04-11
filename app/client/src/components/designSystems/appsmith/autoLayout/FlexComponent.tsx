@@ -16,7 +16,6 @@ import type {
   LayoutDirection,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
@@ -106,9 +105,6 @@ export function FlexComponent(props: AutoLayoutProps) {
           props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
         }px`,
     margin: WIDGET_PADDING / 2 + "px",
-
-    // Vertical gap between widgets
-    marginBottom: `${props.isMobile ? MOBILE_ROW_GAP : ROW_GAP}px`,
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
