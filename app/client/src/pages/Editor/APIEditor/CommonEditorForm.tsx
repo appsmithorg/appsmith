@@ -697,6 +697,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     getPlugin(state, pluginId ?? ""),
   );
 
+  // Debugger render flag
+  const showDebugger = useSelector(
+    (state: AppState) => state.ui.debugger.isOpen,
+  );
+
   const isGraphql = isGraphqlPlugin(plugin);
 
   const theme = EditorTheme.LIGHT;
@@ -886,14 +891,16 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 ]}
               />
             </TabbedViewContainer>
-            <ApiResponseView
-              apiName={actionName}
-              disabled={!isExecutePermitted}
-              onRunClick={onRunClick}
-              responseDataTypes={responseDataTypes}
-              responseDisplayFormat={responseDisplayFormat}
-              theme={theme}
-            />
+            {showDebugger && (
+              <ApiResponseView
+                apiName={actionName}
+                disabled={!isExecutePermitted}
+                onRunClick={onRunClick}
+                responseDataTypes={responseDataTypes}
+                responseDisplayFormat={responseDisplayFormat}
+                theme={theme}
+              />
+            )}
           </SecondaryWrapper>
           <DataSourceList
             actionName={actionName}
