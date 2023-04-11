@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,7 +32,7 @@ public class FileInfoMethodTest {
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
         assertThrows(AppsmithPluginException.class, () -> {
-            fileInfoMethod.transformExecutionResponse(null, null);
+            fileInfoMethod.transformExecutionResponse(null, null, null);
         });
     }
 
@@ -48,7 +49,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(sheetNode);
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isObject());
@@ -67,7 +68,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(new ArrayList<>());
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isObject());
@@ -88,7 +89,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(List.of(sheetNode));
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isObject());
@@ -107,7 +108,7 @@ public class FileInfoMethodTest {
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -125,7 +126,7 @@ public class FileInfoMethodTest {
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());

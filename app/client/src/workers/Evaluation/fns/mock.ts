@@ -18,7 +18,6 @@ const dataTree: DataTree = {
 
 export const evalContext = createEvaluationContext({
   dataTree,
-  resolvedFunctions: {},
   isTriggerBased: true,
   context: {},
 });

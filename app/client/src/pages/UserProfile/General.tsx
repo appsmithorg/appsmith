@@ -1,14 +1,6 @@
 import React from "react";
-import styled from "styled-components";
 import { debounce } from "lodash";
-import {
-  notEmptyValidator,
-  Text,
-  TextInput,
-  TextType,
-  Toaster,
-  Variant,
-} from "design-system-old";
+import { Button, Input, toast } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
@@ -18,20 +10,10 @@ import {
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
-import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
+import { Wrapper, FieldWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 const { disableLoginForm } = getAppsmithConfigs();
-
-const ForgotPassword = styled.a`
-  margin-top: 12px;
-  border-bottom: 1px solid transparent;
-  &:hover {
-    cursor: pointer;
-    text-decoration: none;
-  }
-  display: inline-block;
-`;
 
 function General() {
   const user = useSelector(getCurrentUser);
@@ -39,15 +21,13 @@ function General() {
   const forgotPassword = async () => {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
-      Toaster.show({
-        text: createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email),
-        variant: Variant.success,
+      toast.show(createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email), {
+        kind: "success",
       });
       dispatch(logoutUser());
     } catch (error) {
-      Toaster.show({
-        text: (error as { _error: string })._error,
-        variant: Variant.success,
+      toast.show((error as { _error: string })._error, {
+        kind: "success",
       });
     }
   };
@@ -66,39 +46,58 @@ function General() {
   return (
     <Wrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Display Picture</Text>
-        </LabelWrapper>
+        {/* <LabelWrapper>
+          <Text kind="body-m" renderAs="span">
+            Display Picture
+          </Text>
+        </LabelWrapper> */}
         <UserProfileImagePicker />
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Display name</Text>
-        </LabelWrapper>
-        {
-          <div style={{ flex: 1 }}>
-            <TextInput
-              cypressSelector="t--display-name"
-              defaultValue={user?.name}
-              fill={false}
-              onChange={onNameChange}
-              placeholder="Display name"
-              validator={notEmptyValidator}
-            />
-          </div>
-        }
+        <Input
+          data-test-id="t--display-name"
+          isRequired
+          label="Display name"
+          labelPosition="top"
+          onChange={onNameChange}
+          placeholder="Display name"
+          renderAs="input"
+          size="md"
+          type="text"
+          value={user?.name}
+        />
       </FieldWrapper>
       <FieldWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Email</Text>
-        </LabelWrapper>
-        <div style={{ flexDirection: "column", display: "flex" }}>
-          {<Text type={TextType.P1}>{user?.email}</Text>}
-
+        <Input
+          data-test-id="t--display-name"
+          isDisabled
+          isReadOnly
+          label="Email"
+          labelPosition="top"
+          placeholder="Display name"
+          renderAs="input"
+          size="md"
+          type="text"
+          value={user?.email}
+        />
+      </FieldWrapper>
+      <FieldWrapper>
+        <div
+          style={{
+            display: "flex",
+            flex: "1 1 0%",
+            justifyContent: "flex-end",
+          }}
+        >
           {!disableLoginForm && (
-            <ForgotPassword onClick={forgotPassword}>
+            <Button
+              kind="tertiary"
+              onClick={forgotPassword}
+              renderAs="a"
+              size="md"
+            >
               Reset Password
-            </ForgotPassword>
+            </Button>
           )}
         </div>
       </FieldWrapper>

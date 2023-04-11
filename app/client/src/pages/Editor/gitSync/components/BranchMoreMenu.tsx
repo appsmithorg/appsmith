@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Menu, Toaster, Variant } from "design-system-old";
+import { Menu } from "design-system-old";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,7 +13,7 @@ import DangerMenuItem from "./DangerMenuItem";
 import type { Dispatch } from "redux";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
-import { Button } from "design-system";
+import { Button, toast } from "design-system";
 
 interface Props {
   branchName: string;
@@ -29,15 +29,16 @@ function DeleteButton(
 
   function saneDelete() {
     if (defaultBranchName === branchToDelete) {
-      Toaster.show({
-        text: createMessage(DELETE_BRANCH_WARNING_DEFAULT, branchToDelete),
-        variant: Variant.danger,
+      toast.show(createMessage(DELETE_BRANCH_WARNING_DEFAULT, branchToDelete), {
+        kind: "error",
       });
     } else if (currentBranch === branchToDelete) {
-      Toaster.show({
-        text: createMessage(DELETE_BRANCH_WARNING_CHECKED_OUT, branchToDelete),
-        variant: Variant.danger,
-      });
+      toast.show(
+        createMessage(DELETE_BRANCH_WARNING_CHECKED_OUT, branchToDelete),
+        {
+          kind: "error",
+        },
+      );
     } else {
       dispatch(deleteBranchInit({ branchToDelete: branchToDelete }));
     }

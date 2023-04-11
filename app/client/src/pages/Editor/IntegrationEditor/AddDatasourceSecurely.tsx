@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import Secure from "assets/images/secure.svg";
 import AppsmithDatasource from "assets/images/appsmith-datasource.png";
-import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
-  border: 2px solid #d6d6d6;
+  border: 2px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   padding: 16px 23px;
   flex-direction: row;
   display: flex;
@@ -29,12 +29,12 @@ const Header = styled.div`
   font-weight: 600;
   font-size: 24px;
   line-height: 32px;
-  color: ${Colors.OXFORD_BLUE};
+  color: var(--ads-v2-color-fg);
 `;
 
 const Content = styled.p`
   margin-top: 8px;
-  color: ${Colors.OXFORD_BLUE};
+  color: var(--ads-v2-color-fg);
   max-width: 360px;
   font-size: 14px;
   line-height: 20px;

@@ -39,12 +39,15 @@ import {
 } from "actions/pluginActionActions";
 import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
-import { Toaster, Variant } from "design-system-old";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
 import { fetchPageDSLSaga } from "sagas/PageSagas";
+import { toast } from "design-system";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 function* getAllTemplatesSaga() {
   try {
@@ -283,10 +286,12 @@ function* forkTemplateToApplicationSaga(
       });
       yield put(getAllTemplates());
 
-      Toaster.show({
-        text: `Pages from '${action.payload.templateName}' template added successfully`,
-        variant: Variant.success,
-      });
+      toast.show(
+        `Pages from '${action.payload.templateName}' template added successfully`,
+        {
+          kind: "success",
+        },
+      );
     }
   } catch (error) {
     yield put({
@@ -320,33 +325,35 @@ function* getTemplateFiltersSaga() {
   }
 }
 
+// TODO: Refactor and handle this airgap check in a better way - posssibly in root sagas (sangeeth)
 export default function* watchActionSagas() {
-  yield all([
-    takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
-    takeEvery(ReduxActionTypes.GET_TEMPLATE_INIT, getTemplateSaga),
-    takeEvery(
-      ReduxActionTypes.GET_SIMILAR_TEMPLATES_INIT,
-      getSimilarTemplatesSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_INIT,
-      importTemplateToWorkspaceSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
-      getTemplateNotificationSeenSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
-      setTemplateNotificationSeenSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
-      forkTemplateToApplicationSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
-      getTemplateFiltersSaga,
-    ),
-  ]);
+  if (!isAirgappedInstance)
+    yield all([
+      takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
+      takeEvery(ReduxActionTypes.GET_TEMPLATE_INIT, getTemplateSaga),
+      takeEvery(
+        ReduxActionTypes.GET_SIMILAR_TEMPLATES_INIT,
+        getSimilarTemplatesSaga,
+      ),
+      takeEvery(
+        ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_INIT,
+        importTemplateToWorkspaceSaga,
+      ),
+      takeEvery(
+        ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
+        getTemplateNotificationSeenSaga,
+      ),
+      takeEvery(
+        ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
+        setTemplateNotificationSeenSaga,
+      ),
+      takeEvery(
+        ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
+        forkTemplateToApplicationSaga,
+      ),
+      takeEvery(
+        ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+        getTemplateFiltersSaga,
+      ),
+    ]);
 }

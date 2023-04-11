@@ -39,6 +39,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -104,7 +105,7 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src={getOnboardingDatasourceImg()} />
+          <TaskImage src={getAssetUrl(getOnboardingDatasourceImg())} />
         </TaskImageContainer>
         <TaskHeader
           className="t--tasks-datasource-header"
@@ -157,7 +158,7 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src={getOnboardingQueryImg()} />
+          <TaskImage src={getAssetUrl(getOnboardingQueryImg())} />
         </TaskImageContainer>
         <TaskHeader
           className="t--tasks-datasource-header"
@@ -207,7 +208,7 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src={getOnboardingWidgetImg()} />
+          <TaskImage src={getAssetUrl(getOnboardingWidgetImg())} />
         </TaskImageContainer>
         <TaskHeader
           className="t--tasks-datasource-header"

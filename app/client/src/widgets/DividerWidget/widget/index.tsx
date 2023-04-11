@@ -5,7 +5,7 @@ import BaseWidget from "widgets/BaseWidget";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -36,7 +36,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -61,6 +60,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 value: "vertical",
               },
             ],
+            hidden: isAutoLayout,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

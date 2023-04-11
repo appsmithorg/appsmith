@@ -141,7 +141,7 @@ class FormButtonWidget extends ButtonWidget {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",

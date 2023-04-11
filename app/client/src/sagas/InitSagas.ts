@@ -16,7 +16,6 @@ import type {
   ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
 import { resetCurrentApplication } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
@@ -38,6 +37,7 @@ import AppEngineFactory from "entities/Engine/factory";
 import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { safeCrashAppRequest } from "../actions/errorActions";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -61,16 +61,9 @@ export function* failFastApiCalls(
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: get(
-          effectRaceResult,
-          "failure.payload.error.code",
-          ERROR_CODES.SERVER_ERROR,
-        ),
-      },
-    });
+    yield put(
+      safeCrashAppRequest(get(effectRaceResult, "failure.payload.error.code")),
+    );
     return false;
   }
   return true;
@@ -98,12 +91,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     log.error(e);
     if (e instanceof AppEngineApiError) return;
     Sentry.captureException(e);
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: ERROR_CODES.SERVER_ERROR,
-      },
-    });
+    yield put(safeCrashAppRequest());
   }
 }
 

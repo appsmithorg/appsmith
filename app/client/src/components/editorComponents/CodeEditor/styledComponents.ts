@@ -403,5 +403,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     transform: translate(-50%, 50%);
     display: none;
     margin: 0 !important;
+    top: -2px;
   }
 `;

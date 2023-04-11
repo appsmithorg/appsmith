@@ -309,11 +309,9 @@ export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
 
 export const getPluginImages = createSelector(getPlugins, (plugins) => {
   const pluginImages: Record<string, string> = {};
-
   plugins.forEach((plugin) => {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
-
   return pluginImages;
 });
 
@@ -524,12 +522,12 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getCanvasWidgetsStructure = (state: AppState) =>
   state.entities.canvasWidgetsStructure;
 
-const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
+export const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId] : {},
+    currentPageId ? widgetsByPage[currentPageId].dsl : {},
 );
 
 export const getParentModalId = (
@@ -572,7 +570,7 @@ export const getAllWidgetsMap = createSelector(
   (widgetsByPage) => {
     return Object.entries(widgetsByPage).reduce(
       (res: any, [pageId, pageWidgets]: any) => {
-        const widgetsMap = Object.entries(pageWidgets).reduce(
+        const widgetsMap = Object.entries(pageWidgets.dsl).reduce(
           (res, [widgetId, widget]: any) => {
             const parentModalId = getParentModalId(widget, pageWidgets);
 
@@ -672,6 +670,9 @@ export const getExistingActionNames = createSelector(
     }
   },
 );
+
+export const getEditingEntityName = (state: AppState) =>
+  state.ui.explorer.entity.editingEntityName;
 
 export const getExistingJSCollectionNames = createSelector(
   getJSCollections,

@@ -8,15 +8,11 @@ import type {
   CommonComponentProps,
   EditInteractionKind,
 } from "design-system-old";
-import {
-  getTypographyByKey,
-  SavingState,
-  Toaster,
-  Variant,
-} from "design-system-old";
+import { getTypographyByKey, SavingState } from "design-system-old";
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
+import { toast } from "design-system";
 import type { Theme } from "constants/DefaultTheme";
 import { Icon } from "design-system";
 
@@ -152,9 +148,8 @@ export function EditorAppName(props: EditorAppNameProps) {
 
   const inputValidation = (value: string) => {
     if (value.trim() === "") {
-      Toaster.show({
-        text: "Application name can't be empty",
-        variant: Variant.danger,
+      toast.show("Application name can't be empty", {
+        kind: "error",
       });
     }
     return false;

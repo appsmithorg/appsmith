@@ -4,7 +4,7 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { ToggleButton } from "design-system";
+import { Icon, JSToggleButton } from "design-system-old";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,6 +53,7 @@ import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import clsx from "clsx";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -62,11 +63,13 @@ type Props = PropertyPaneControlConfig & {
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
+const tooltipModifier = { preventOverflow: { enabled: true } };
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
   const controlRef = useRef<HTMLDivElement | null>(null);
+  const [showEmptyBlock, setShowEmptyBlock] = React.useState(false);
 
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
@@ -698,10 +701,23 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
+    const helpText =
+      config.controlType === "ACTION_SELECTOR"
+        ? `Configure one or chain multiple actions. ${props.helpText}. All nested actions run at the same time.`
+        : props.helpText;
+
+    if (config.controlType === "ACTION_SELECTOR") {
+      config.additionalControlData = {
+        ...config.additionalControlData,
+        showEmptyBlock,
+        setShowEmptyBlock,
+      };
+    }
+
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-wrapper t--property-control-${className} group`}
+          className={`t--property-control-wrapper t--property-control-${className} group relative`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
@@ -713,53 +729,68 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="flex items-center gap-1">
-            <PropertyHelpLabel
-              label={label}
-              theme={props.theme}
-              tooltip={props.helpText}
-            />
-            {isConvertible && (
-              <TooltipComponent
-                content={JS_TOGGLE_DISABLED_MESSAGE}
-                disabled={!isToggleDisabled}
-                hoverOpenDelay={200}
-                openOnTargetFocus={false}
-                position="auto"
-              >
-                <ToggleButton
-                  icon="js-toggle-v2"
-                  isDisabled={isToggleDisabled}
-                  isSelected={isDynamic}
-                  // @ts-expect-error: Type mismatch
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                  size="sm"
-                />
-              </TooltipComponent>
-            )}
-            {isPropertyDeviatedFromTheme && (
-              <>
+          <div className="gap-1 flex justify-between items-center">
+            <div className="flex flex-row items-end gap-1">
+              <PropertyHelpLabel
+                label={label}
+                theme={props.theme}
+                tooltip={helpText}
+              />
+              {isConvertible && (
                 <TooltipComponent
-                  content="Value deviated from theme"
+                  content={JS_TOGGLE_DISABLED_MESSAGE}
+                  disabled={!isToggleDisabled}
+                  hoverOpenDelay={200}
+                  modifiers={tooltipModifier}
                   openOnTargetFocus={false}
+                  position="auto"
                 >
-                  <div className="w-2 h-2 rounded-full bg-primary-500" />
+                  <JSToggleButton
+                    handleClick={() =>
+                      toggleDynamicProperty(propertyName, isDynamic)
+                    }
+                    isActive={isDynamic}
+                    isToggleDisabled={isToggleDisabled}
+                  />
                 </TooltipComponent>
-                <button
-                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                  onClick={resetPropertyValueToTheme}
-                >
+              )}
+              {isPropertyDeviatedFromTheme && (
+                <>
                   <TooltipComponent
-                    boundary="viewport"
-                    content="Reset value"
+                    content="Value deviated from theme"
                     openOnTargetFocus={false}
-                    position="top-right"
                   >
-                    <ResetIcon className="w-5 h-5" />
+                    <div className="w-2 h-2 rounded-full bg-primary-500" />
                   </TooltipComponent>
-                </button>
-              </>
-            )}
+                  <button
+                    className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                    onClick={resetPropertyValueToTheme}
+                  >
+                    <TooltipComponent
+                      boundary="viewport"
+                      content="Reset value"
+                      openOnTargetFocus={false}
+                      position="top-right"
+                    >
+                      <ResetIcon className="w-5 h-5" />
+                    </TooltipComponent>
+                  </button>
+                </>
+              )}
+            </div>
+            <button
+              className={clsx(
+                config.controlType !== "ACTION_SELECTOR" && "hidden",
+                `${config.label}`,
+                "add-action flex items-center justify-center text-center h-7 w-7",
+                isDynamic && "hidden",
+                `t--add-action-${config.label}`,
+              )}
+              disabled={false}
+              onClick={() => setShowEmptyBlock(true)}
+            >
+              <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
+            </button>
           </div>
           {PropertyControlFactory.createControl(
             config,

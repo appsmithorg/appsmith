@@ -37,11 +37,12 @@ import {
   SNIPPET_INSERT,
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
-import { getTypographyByKey, Toaster, Variant } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
+import { toast } from "design-system";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -239,9 +240,8 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   const handleCopy = useCallback(
     (value) => {
       copy(value);
-      Toaster.show({
-        text: "Snippet copied to clipboard",
-        variant: Variant.success,
+      toast.show("Snippet copied to clipboard", {
+        kind: "success",
       });
       AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet: value, title });
     },

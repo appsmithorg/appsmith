@@ -1,12 +1,12 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Toaster, Variant } from "design-system-old";
 import { Input } from "design-system";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
+import { toast } from "design-system";
 
 const StyledInput = styled(Input)`
   > .ads-v2-input__input-section > div {
@@ -26,9 +26,8 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   const scrollWrapperRef = React.createRef<HTMLInputElement>();
   const onClick = () => {
     copy(props.snippet);
-    Toaster.show({
-      text: createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode),
-      variant: Variant.success,
+    toast.show(createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode), {
+      kind: "success",
     });
   };
 

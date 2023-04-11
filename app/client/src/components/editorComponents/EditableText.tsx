@@ -6,8 +6,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Toaster, Variant } from "design-system-old";
-import { Icon } from "design-system";
+import { Icon, toast } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -183,9 +182,8 @@ export function EditableText(props: EditableTextProps) {
         onTextChanged(_value);
         setIsEditing(false);
       } else {
-        Toaster.show({
-          text: customErrorTooltip || "Invalid name",
-          variant: Variant.danger,
+        toast.show(customErrorTooltip || "Invalid name", {
+          kind: "error",
         });
       }
     },

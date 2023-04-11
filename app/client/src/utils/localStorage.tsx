@@ -1,4 +1,3 @@
-import { Toaster, Variant } from "design-system-old";
 import * as log from "loglevel";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,
@@ -6,6 +5,7 @@ import {
   LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
   createMessage,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 export const LOCAL_STORAGE_KEYS = {
   CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",
@@ -68,9 +68,8 @@ class WebStorage {
     }
 
     if (message) {
-      Toaster.show({
-        text: createMessage(message),
-        variant: Variant.danger,
+      toast.show(createMessage(message), {
+        kind: "error",
       });
     } else {
       throw e;

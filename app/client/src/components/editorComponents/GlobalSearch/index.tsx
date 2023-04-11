@@ -68,7 +68,6 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Toaster, Variant } from "design-system-old";
 import {
   useFilteredActions,
   useFilteredFileOperations,
@@ -83,6 +82,7 @@ import {
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { toast } from "design-system";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -125,7 +125,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
 
 const { algolia } = getAppsmithConfigs();
 
-const isModalOpenSelector = (state: AppState) =>
+export const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
@@ -267,15 +267,12 @@ function GlobalSearch() {
   const recentEntityIds = recentEntities
     .map((r) => getEntityId(r))
     .filter(Boolean);
-  const recentEntityIndex = useCallback(
-    (entity) => {
-      if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
-      const id =
-        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
-      return recentEntityIds.indexOf(id);
-    },
-    [recentEntities],
-  );
+  const recentEntityIndex = (entity: any) => {
+    if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
+    const id =
+      entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+    return recentEntityIds.indexOf(id);
+  };
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
@@ -478,9 +475,8 @@ function GlobalSearch() {
       const snippet = getSnippet(get(item, "body.snippet", ""), {});
       const title = get(item, "body.title", "");
       copy(snippet);
-      Toaster.show({
-        text: "Snippet copied to clipboard",
-        variant: Variant.success,
+      toast.show("Snippet copied to clipboard", {
+        kind: "success",
       });
       AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });
     }

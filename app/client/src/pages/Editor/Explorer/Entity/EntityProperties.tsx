@@ -20,6 +20,7 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityClassNames } from ".";
 import { Button } from "design-system";
 
 const BindingContainerMaxHeight = 300;
@@ -50,7 +51,7 @@ export function EntityProperties() {
     );
   });
   const widgetEntity = useSelector((state: AppState) => {
-    const pageWidgets = state.ui.pageWidgets[pageId];
+    const pageWidgets = state.ui.pageWidgets[pageId]?.dsl;
     if (pageWidgets) {
       return pageWidgets[entityId];
     }
@@ -212,6 +213,7 @@ export function EntityProperties() {
         "absolute bp3-popover overflow-y-auto overflow-x-hidden bg-white pb-4 flex flex-col justify-center z-10 delay-150 transition-all":
           true,
         "-left-100": !show,
+        [EntityClassNames.CONTEXT_MENU_CONTENT]: true,
       })}
       ref={ref}
     >

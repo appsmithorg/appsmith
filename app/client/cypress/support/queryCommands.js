@@ -15,6 +15,7 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const { AggregateHelper } = ObjectsRegistry;
+const { PropertyPane } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -144,19 +145,21 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.deleteQueryUsingContext();
 });
 
-Cypress.Commands.add("executeDbQuery", (queryName) => {
-  cy.get(widgetsPage.buttonOnClick)
-    .get(commonlocators.dropdownSelectButton)
-    .eq(0)
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains("Execute a query")
-    .click({ force: true })
-    .get("ul.bp3-menu")
-    .children()
-    .contains(queryName)
-    .click({ force: true });
+Cypress.Commands.add("executeDbQuery", (queryName, eventName) => {
+  PropertyPane.SelectPlatformFunction(eventName, "Execute a query");
+  cy.get(`.single-select:contains(${queryName})`).click({ force: true });
+  // cy.get(widgetsPage.buttonOnClick)
+  //   .get(commonlocators.dropdownSelectButton)
+  //   .eq(0)
+  //   .click({ force: true })
+  //   .get("ul.bp3-menu")
+  //   .children()
+  //   .contains("Execute a query")
+  //   .click({ force: true })
+  //   .get("ul.bp3-menu")
+  //   .children()
+  //   .contains(queryName)
+  //   .click({ force: true });
 });
 
 Cypress.Commands.add("CreateMockQuery", (queryName) => {

@@ -15,12 +15,9 @@ import type FeatureFlags from "entities/FeatureFlags";
 export const PluginImageWrapper = styled.div`
   height: 34px;
   width: 34px;
-  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.GREY_200};
-  border-radius: 100%;
   margin-right: 8px;
   flex-shrink: 0;
   img {
@@ -49,8 +46,17 @@ export const FormContainerBody = styled.div`
   width: 100%;
   height: 100%;
   flex-grow: 1;
-  overflow-y: auto;
-  padding: 20px;
+  overflow: hidden;
+  padding: 20px 0;
+  .t--section-general {
+    padding: 0 20px;
+  }
+  .api-datasource-content-container {
+    flex-direction: column;
+  }
+  form {
+    height: 100%;
+  }
 `;
 
 export const FormTitleContainer = styled.div`
@@ -65,8 +71,7 @@ export const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid ${Colors.ALTO};
-  padding-bottom: 24px;
-  //margin-top: 16px;
+  padding: 0 20px 24px 20px;
 `;
 
 export const ActionWrapper = styled.div`

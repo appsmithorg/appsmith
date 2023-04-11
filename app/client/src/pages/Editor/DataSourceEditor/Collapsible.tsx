@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasourceCollapsibleState } from "selectors/ui";
 import { setDatasourceCollapsible } from "actions/datasourceActions";
 import isUndefined from "lodash/isUndefined";
+import { Divider } from "design-system";
 import { Icon } from "design-system";
 
 const SectionLabel = styled.div`
@@ -14,7 +14,7 @@ const SectionLabel = styled.div`
   font-size: 16px;
   line-height: 24px;
   letter-spacing: -0.17px;
-  color: #4e5d78;
+  color: var(--ads-v2-color-fg);
   display: flex;
   .cs-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
@@ -31,11 +31,13 @@ const SectionContainer = styled.div`
   margin-bottom: 5;
 `;
 
-const TopBorder = styled.div`
-  height: 1px;
-  background-color: ${Colors.ALTO};
+const TopBorder = styled(Divider)`
   margin-top: 24px;
   margin-bottom: 24px;
+`;
+
+const SectionContentWrapper = styled.div`
+  padding: 0 20px;
 `;
 
 interface ComponentProps {
@@ -81,26 +83,28 @@ function Collapsible(props: Props) {
   return (
     <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
-      {showSection && (
-        <SectionContainer
-          className="t--collapse-section-container"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <SectionLabel>
-            {title}
-            {headerIcon && <Icon name={headerIcon.name} size="md" />}
-          </SectionLabel>
-          <Icon
-            color="var(--ads-v2-color-fg-information)"
-            name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
-            size="md"
-          />
-        </SectionContainer>
-      )}
+      <SectionContentWrapper>
+        {showSection && (
+          <SectionContainer
+            className="t--collapse-section-container"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <SectionLabel>
+              {title}
+              {headerIcon && <Icon name={headerIcon.name} size="md" />}
+            </SectionLabel>
+            <Icon
+              color="var(--ads-v2-color-fg-information)"
+              name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
+              size="md"
+            />
+          </SectionContainer>
+        )}
 
-      <Collapse isOpen={isOpen} keepChildrenMounted>
-        {children}
-      </Collapse>
+        <Collapse isOpen={isOpen} keepChildrenMounted>
+          {children}
+        </Collapse>
+      </SectionContentWrapper>
     </section>
   );
 }
