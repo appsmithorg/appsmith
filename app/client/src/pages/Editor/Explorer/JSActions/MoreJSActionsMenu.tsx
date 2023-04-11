@@ -26,7 +26,6 @@ import {
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateJSCollectionBody } from "../../../../actions/jsPaneActions";
-import type { IconName } from "@blueprintjs/icons";
 
 type EntityContextMenuProps = {
   id: string;
@@ -58,19 +57,11 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
     props.isOpen
       ? `
 		background-color: ${props.theme.colors.treeDropdown.targetBg};
-
-    &&&& svg > path {
-      fill: ${props.theme.colors.treeDropdown.targetIcon.hover};
-    }
 	`
       : null}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
-
-    &&&& svg > path {
-      fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.hover};
-    }
   }
 `;
 
@@ -121,7 +112,6 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     ...(isChangePermitted
       ? [
           {
-            icon: "duplicate" as IconName,
             value: "copy",
             onSelect: noop,
             label: createMessage(CONTEXT_COPY),
@@ -138,7 +128,6 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     ...(isChangePermitted
       ? [
           {
-            icon: "swap-horizontal" as IconName,
             value: "move",
             onSelect: noop,
             label: createMessage(CONTEXT_MOVE),
@@ -161,7 +150,6 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
       ? [
           {
             value: "prettify",
-            icon: "code" as IconName,
             subText: prettifyCodeKeyboardShortCut,
             onSelect: () => {
               /*
@@ -184,7 +172,6 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
       ? [
           {
             confirmDelete: confirmDelete,
-            icon: "trash" as IconName,
             value: "delete",
             onSelect: () => {
               confirmDelete

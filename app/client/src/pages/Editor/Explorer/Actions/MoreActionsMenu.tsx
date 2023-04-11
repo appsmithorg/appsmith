@@ -14,7 +14,7 @@ import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
-import { Classes, Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "design-system-old";
 import { Intent, Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
@@ -25,7 +25,6 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
-import type { IconName } from "@blueprintjs/icons";
 
 type EntityContextMenuProps = {
   id: string;
@@ -49,27 +48,15 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
     width: auto;
   }
 
-  .${Classes.ICON} {
-    fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.normal};
-  }
-
   ${(props) =>
     props.isOpen
       ? `
 		background-color: ${props.theme.colors.treeDropdown.targetBg};
-
-    &&&& .${Classes.ICON} {
-      fill: ${props.theme.colors.treeDropdown.targetIcon.hover};
-    }
 	`
       : null}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
-
-    &&&& .${Classes.ICON} {
-      fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.hover};
-    }
   }
 `;
 
@@ -128,7 +115,6 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     ...(isChangePermitted
       ? [
           {
-            icon: "duplicate" as IconName,
             value: "copy",
             onSelect: noop,
             label: createMessage(CONTEXT_COPY),
@@ -144,7 +130,6 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     ...(isChangePermitted
       ? [
           {
-            icon: "swap-horizontal" as IconName,
             value: "move",
             onSelect: noop,
             label: createMessage(CONTEXT_MOVE),
@@ -173,7 +158,6 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
       ? [
           {
             confirmDelete: confirmDelete,
-            icon: "trash" as IconName,
             value: "delete",
             onSelect: () => {
               confirmDelete
