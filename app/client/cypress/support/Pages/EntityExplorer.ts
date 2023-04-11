@@ -124,7 +124,7 @@ export class EntityExplorer {
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
     this.agHelper.AssertElementVisible(
       this._expandCollapseArrow(entityName),
-      0,
+      index,
       30000,
     );
     cy.xpath(this._expandCollapseArrow(entityName))
@@ -134,7 +134,7 @@ export class EntityExplorer {
         if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
+            .trigger("click", { force: true })
             .wait(1000);
           // this.agHelper
           //   .GetElement(this._expandCollapseSection(entityName))
@@ -151,7 +151,7 @@ export class EntityExplorer {
         } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
+            .trigger("click", { force: true })
             .wait(1000);
           // this.agHelper
           //   .GetElement(this._expandCollapseSection(entityName))
