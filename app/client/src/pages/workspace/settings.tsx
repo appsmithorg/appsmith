@@ -124,15 +124,21 @@ export default function Settings() {
 
   useEffect(() => {
     if (
-      (!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
-      (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)
+      currentWorkspace &&
+      ((!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+        (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL))
     ) {
       history.replace(APPLICATIONS_URL);
     }
     if (currentWorkspace) {
       setPageTitle(`${currentWorkspace?.name}`);
     }
-  }, [currentWorkspace]);
+  }, [
+    currentWorkspace,
+    hasManageWorkspacePermissions,
+    isMemberofTheWorkspace,
+    currentTab,
+  ]);
 
   useEffect(() => {
     if (!currentWorkspace) {

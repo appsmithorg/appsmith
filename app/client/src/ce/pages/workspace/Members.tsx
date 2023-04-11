@@ -5,8 +5,10 @@ import {
   getAllRoles,
   // getCurrentWorkspace,
   getWorkspaceLoadingStates,
+  getCurrentWorkspace,
 } from "@appsmith/selectors/workspaceSelectors";
 import type { RouteComponentProps } from "react-router";
+import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Table } from "design-system-old";
 import {
@@ -39,6 +41,11 @@ import {
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -264,6 +271,7 @@ export default function MemberSettings(props: PageProps) {
   } = props;
 
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
@@ -312,9 +320,18 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  // const currentWorkspace = useSelector(getCurrentWorkspace).filter(
-  //   (el) => el.id === workspaceId,
-  // )[0];
+  const currentWorkspace = useSelector(getCurrentWorkspace).filter(
+    (el) => el.id === workspaceId,
+  )[0];
+
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
 
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
@@ -330,6 +347,15 @@ export default function MemberSettings(props: PageProps) {
       }
     }
   }, [allUsers]);
+
+  useEffect(() => {
+    if (
+      currentWorkspace &&
+      (!isMemberofTheWorkspace || !hasManageWorkspacePermissions)
+    ) {
+      history.replace(APPLICATIONS_URL);
+    }
+  }, [currentWorkspace, isMemberofTheWorkspace, hasManageWorkspacePermissions]);
 
   const membersData = useMemo(
     () =>
