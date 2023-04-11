@@ -34,5 +34,4 @@ describe("Create workspace and a new app / delete and recreate app", function ()
       cy.CreateAppForWorkspace(workspaceId, appid);
     });
   });
-  
 });
