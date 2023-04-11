@@ -29,9 +29,6 @@ import {
   EditableText,
   EditInteractionKind,
   IconSelector,
-  // Menu,
-  // MenuDivider,
-  // MenuItem,
   SavingState,
   Size,
   Text,
@@ -114,38 +111,6 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 display: flex;
                 flex-direction: row;
                 z-index: 1;
-
-                // & .t--application-view-link {
-                //   border: 2px solid ${Colors.BLACK};
-                //   background-color: ${Colors.BLACK};
-                //   color: ${Colors.WHITE};
-                // }
-
-                // & .t--application-view-link:hover {
-                //   background-color: transparent;
-                //   border: 2px solid ${Colors.BLACK};
-                //   color: ${Colors.BLACK};
-
-                //   svg {
-                //     path {
-                //       fill: currentColor;
-                //     }
-                //   }
-                // }
-
-                // & .t--application-edit-link, & .t--application-view-link {
-                //   span {
-                //     margin-right: 2px;
-
-                //     svg {
-                //       width: 16px;
-                //       height: 16px;
-                //       path {
-                //         fill: currentColor;
-                //       }
-                //     }
-                //   }
-                // }
               }`
           }
 
@@ -424,6 +389,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     ModifiedMenuItemProps[]
   >([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
@@ -568,6 +534,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.delete && props.delete(applicationId);
   };
   const askForConfirmation = () => {
+    setIsDeleting(true);
     const updatedActionItems = [...moreActionItems];
     updatedActionItems.pop();
     updatedActionItems.push({
@@ -615,7 +582,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
 
   const handleMenuOnClose = (open: boolean) => {
-    if (!open) {
+    if (!open && !isDeleting) {
       setIsMenuOpen(false);
       setShowOverlay(false);
       addDeleteOption();
@@ -627,12 +594,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
       }
     } else {
       setIsMenuOpen(true);
+      setIsDeleting(false);
     }
   };
 
   const ContextMenu = (
     <ContextDropdownWrapper>
-      <Menu className="more" onOpenChange={handleMenuOnClose}>
+      <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
         <MenuTrigger>
           {/* <MoreOptionsContainer> */}
           <Button
@@ -712,13 +680,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
               </MenuItem>
             );
           })}
-          <ForkApplicationModal
-            applicationId={applicationId}
-            isModalOpen={isForkApplicationModalopen}
-            setModalClose={setForkApplicationModalOpen}
-          />
         </MenuContent>
       </Menu>
+      <ForkApplicationModal
+        applicationId={applicationId}
+        isModalOpen={isForkApplicationModalopen}
+        setModalClose={setForkApplicationModalOpen}
+      />
     </ContextDropdownWrapper>
   );
 

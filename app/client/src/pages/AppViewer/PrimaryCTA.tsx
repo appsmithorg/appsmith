@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -65,6 +65,7 @@ function PrimaryCTA(props: Props) {
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
+  const [isForkModalOpen, setIsForkModalOpen] = useState(false);
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
@@ -147,24 +148,22 @@ function PrimaryCTA(props: Props) {
     if (currentApplication?.forkingEnabled && currentApplication?.isPublic) {
       return (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            buttonColor={selectedTheme.properties.colors.primaryColor}
+            buttonVariant="PRIMARY"
+            className={`t--fork-app w-full md:w-auto ${className}`}
+            data-testid="fork-modal-trigger"
+            icon="fork"
+            insideSidebar={insideSidebar}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            text={createMessage(FORK_APP)}
+          />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
-            trigger={
-              <Button
-                borderRadius={
-                  selectedTheme.properties.borderRadius.appBorderRadius
-                }
-                buttonColor={selectedTheme.properties.colors.primaryColor}
-                buttonVariant="PRIMARY"
-                className={`t--fork-app w-full md:w-auto ${className}`}
-                data-testid="fork-modal-trigger"
-                icon="fork"
-                insideSidebar={insideSidebar}
-                navColorStyle={navColorStyle}
-                primaryColor={primaryColor}
-                text={createMessage(FORK_APP)}
-              />
-            }
+            isModalOpen={isForkModalOpen}
+            setModalClose={() => setIsForkModalOpen(false)}
           />
         </div>
       );

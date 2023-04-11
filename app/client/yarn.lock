@@ -8304,7 +8304,7 @@ babel-plugin-react-docgen@^4.1.0, babel-plugin-react-docgen@^4.2.1:
     lodash "^4.17.15"
     react-docgen "^5.0.0"
 
-"babel-plugin-styled-components@>= 1.12.0":
+"babel-plugin-styled-components@>= 1.12.0", babel-plugin-styled-components@^2.0.7:
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/babel-plugin-styled-components/-/babel-plugin-styled-components-2.0.7.tgz#c81ef34b713f9da2b7d3f5550df0d1e19e798086"
   integrity sha512-i7YhvPgVqRKfoQ66toiZ06jPNA3p6ierpfUuEWxNF+fV27Uv5gxBkf8KZLHUCc1nFA9j6+80pYoIpqCeyW3/bA==
@@ -10321,17 +10321,17 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.1.tgz#39b01530658e5916b75ce804f34c5022982f7455"
-  integrity sha512-/r9GrbMof5OsbtET40W0t+iZZmYZyNwdhUSYwVplt4xo2QkjEVxJTBaRHxq9pS+ddgktWUzkLsLg/0w2jQgTpw==
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.4-alpha.5":
+  version "1.1.4-alpha.5"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.4-alpha.5.tgz#78565df48237c5a1a6022ec739996921e4c40dc3"
+  integrity sha512-o+09fZWU6ir7XorgqcIdlbDbvuH14TZxaxP10InH2mys1RJ+mzVRrS4yk6xonfLg3cpNZLfvP3YmmHPeNusEhg==
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.5":
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5.tgz#c3d116ed6b6dab052bc3c69166d4f6ff91691415"
-  integrity sha512-IMaDDeenBbCU6KajYS3zbnPgeR7KXcN3bKcR/4UQSksT0Kz/D74jXF25MAhhYz+MUmh3BueEYDC3pXgZ9in0Mg==
+"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.9":
+  version "2.1.5-alpha.9"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.9.tgz#e55a777747dedebecaa3b8c316d4e5aa68bb05d7"
+  integrity sha512-jhwieZnVdt51OHVV8mwoLFS+PWrkmjqjrAaliVdnNTTiXnwKq4ntstDQaxNRLwFkHQgJ8yaYgLwdxcg43ZhtVA==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
