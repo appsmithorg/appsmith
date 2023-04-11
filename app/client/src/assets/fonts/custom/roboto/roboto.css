@@ -1,78 +1,80 @@
-/* roboto-300 - latin */
+/* roboto-300 - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: normal;
   font-weight: 300;
-  src: url("./roboto-v30-latin/roboto-v30-latin-300.woff2") format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-300.svg#Roboto") format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-300.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-300italic - latin */
+/* roboto-300italic - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: italic;
   font-weight: 300;
-  src: url("./roboto-v30-latin/roboto-v30-latin-300italic.woff2")
-      format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-300italic.svg#Roboto")
-      format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-300italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-regular - latin */
+/* roboto-regular - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  src: url("./roboto-v30-latin/roboto-v30-latin-regular.woff2") format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-regular.svg#Roboto") format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-regular.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-italic - latin */
+/* roboto-italic - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: italic;
   font-weight: 400;
-  src: url("./roboto-v30-latin/roboto-v30-latin-italic.woff2") format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-italic.svg#Roboto") format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-500 - latin */
+/* roboto-500 - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: normal;
   font-weight: 500;
-  src: url("./roboto-v30-latin/roboto-v30-latin-500.woff2") format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-500.svg#Roboto") format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-500.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-500italic - latin */
+/* roboto-500italic - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: italic;
   font-weight: 500;
-  src: url("./roboto-v30-latin/roboto-v30-latin-500italic.woff2")
-      format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-500italic.svg#Roboto")
-      format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-500italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-700 - latin */
+/* roboto-700 - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: normal;
   font-weight: 700;
-  src: url("./roboto-v30-latin/roboto-v30-latin-700.woff2") format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-700.svg#Roboto") format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
-/* roboto-700italic - latin */
+/* roboto-700italic - cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Roboto";
   font-style: italic;
   font-weight: 700;
-  src: url("./roboto-v30-latin/roboto-v30-latin-700italic.woff2")
-      format("woff2"),
-    url("./roboto-v30-latin/roboto-v30-latin-700italic.svg#Roboto")
-      format("svg"); /* Legacy iOS */
+  src: url("./roboto-v30/roboto-v30-cyrillic_cyrillic-ext_greek_greek-ext_latin_latin-ext_vietnamese-700italic.woff2")
+    format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
 }
