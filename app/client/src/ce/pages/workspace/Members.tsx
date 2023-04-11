@@ -3,9 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  // getCurrentWorkspace,
-  getWorkspaceLoadingStates,
   getCurrentWorkspace,
+  getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
