@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -419,7 +420,7 @@ public class GitFileUtils {
                 // With the file version v4 we have split the actions and metadata separately into two files
                 // So we need to set the body to the unpublished action
                 String keyName = newAction.getUnpublishedAction().getName() + newAction.getUnpublishedAction().getPageId();
-                if (actionBody != null && (actionBody.containsKey(keyName))) {
+                if (actionBody != null && (actionBody.containsKey(keyName)) && !StringUtils.isEmpty(actionBody.get(keyName))) {
                     // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need to be
                     // deserialized separately unlike the body which is stored as string in the db.
                     if (newAction.getPluginType().toString().equals("REMOTE")) {

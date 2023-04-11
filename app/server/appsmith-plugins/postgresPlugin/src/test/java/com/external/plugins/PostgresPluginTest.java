@@ -90,9 +90,9 @@ public class PostgresPluginTest {
     @Container
     public static final PostgreSQLContainer pgsqlContainerNoPwdAuth =
             new PostgreSQLContainer<>("postgres:alpine")
-            .withExposedPorts(5432)
-            .withUsername("postgres_no_pwd_auth")
-            .withEnv("POSTGRES_HOST_AUTH_METHOD","trust");
+                    .withExposedPorts(5432)
+                    .withUsername("postgres_no_pwd_auth")
+                    .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
 
     private static String address;
     private static Integer port;
@@ -394,6 +394,32 @@ public class PostgresPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testApplicationName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT COUNT(*) FROM pg_stat_activity WHERE application_name='Appsmith JDBC Driver';");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertTrue(node.get("count").asInt() > 0);
                 })
                 .verifyComplete();
     }
@@ -1592,7 +1618,7 @@ public class PostgresPluginTest {
         assert (Arrays.stream(PostgresPluginError.values()).map(PostgresPluginError::getAppErrorCode).distinct().count() == PostgresPluginError.values().length);
 
         assert (Arrays.stream(PostgresPluginError.values()).map(PostgresPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-PGS"))
+                .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-PGS"))
                 .collect(Collectors.toList()).size() == 0);
 
     }

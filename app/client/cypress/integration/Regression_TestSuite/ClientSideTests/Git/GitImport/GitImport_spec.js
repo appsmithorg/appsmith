@@ -200,6 +200,7 @@ describe("Git import flow ", function () {
     cy.wait(2000);
     // validate data binding in edit and deploy mode
     cy.latestDeployPreview();
+    cy.get(".tbody").should("have.length", 2);
     cy.get(".tbody").first().should("contain.text", "Test user 7");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
