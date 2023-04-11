@@ -28,6 +28,7 @@ import {
 import { getCurrentApplication } from "selectors/editorSelectors";
 import PrivateEmbeddingContent from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+import { ADMIN_SETTINGS_PATH } from "constants/routes";
 
 export const EmbedSnippetContainer = styled.div<{ isAppSettings?: boolean }>`
   ${({ isAppSettings }) => isAppSettings && `padding: 0 16px;`}
@@ -36,8 +37,11 @@ export const EmbedSnippetContainer = styled.div<{ isAppSettings?: boolean }>`
 export const StyledLink = styled.a`
   position: relative;
   top: 1px;
+  color: ${Colors.GRAY_700};
+
   :hover {
     text-decoration: none;
+    color: ${Colors.GRAY_700};
   }
 
   .${Classes.TEXT} {
@@ -126,17 +130,22 @@ export function EmbedSnippetTab({
                     </>
                   )}
                 </div>
-                <StyledLink
-                  href="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
-                  target="_blank"
-                >
-                  <Text
-                    case={Case.UPPERCASE}
-                    color={Colors.GRAY_700}
-                    type={TextType.BUTTON_SMALL}
-                  >
-                    {createMessage(IN_APP_EMBED_SETTING.change)}
-                  </Text>
+                <StyledLink href={ADMIN_SETTINGS_PATH}>
+                  {isAppSettings ? (
+                    <Icon
+                      fill={Colors.GRAY_700}
+                      name="edit-line"
+                      size={IconSize.XXL}
+                    />
+                  ) : (
+                    <Text
+                      case={Case.UPPERCASE}
+                      color={Colors.GRAY_700}
+                      type={TextType.BUTTON_SMALL}
+                    >
+                      {createMessage(IN_APP_EMBED_SETTING.change)}
+                    </Text>
+                  )}
                 </StyledLink>
               </div>
             </div>
@@ -167,12 +176,10 @@ export function EmbedSnippetTab({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Text type={TextType.P1}>
-            {createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}
-          </Text>
-          <EmbedCodeSnippet snippet={embedSnippet.snippet} />
-        </div>
+        <EmbedCodeSnippet
+          isAppSettings={isAppSettings}
+          snippet={embedSnippet.snippet}
+        />
       </div>
       {!isAppSettings && (
         <div
