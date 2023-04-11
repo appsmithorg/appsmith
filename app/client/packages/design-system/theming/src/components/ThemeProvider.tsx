@@ -1,14 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import kebabCase from "lodash/kebabCase";
-import type { ReactNode, CSSProperties } from "react";
+import type { ReactNode } from "react";
 import type { ThemeTokens } from "../";
 
 export interface ThemeProviderProps {
   theme: ThemeTokens;
   children: ReactNode;
-  UNSAFE_className?: string;
-  UNSAFE_style?: CSSProperties;
+  className?: string;
 }
 
 /**
@@ -30,14 +29,10 @@ const StyledProvider = styled.div<ThemeProviderProps>`
 `;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, theme, UNSAFE_className, UNSAFE_style } = props;
+  const { children, className, theme } = props;
 
   return (
-    <StyledProvider
-      className={UNSAFE_className}
-      style={UNSAFE_style}
-      theme={theme}
-    >
+    <StyledProvider className={className} theme={theme}>
       {children}
     </StyledProvider>
   );

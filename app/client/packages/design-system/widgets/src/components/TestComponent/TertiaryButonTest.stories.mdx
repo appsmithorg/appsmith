@@ -10,9 +10,16 @@ import { Button } from "../Button";
 export const Template = (args, { globals: { colorScheme } }) => (
   <>
     <h3>{args.title}</h3>
-    <TestComponent colorScheme={colorScheme}>
-      <Button {...args}>Test</Button>
-    </TestComponent>
+    <div
+      style={{
+        padding: "50px",
+        background: "#fff",
+      }}
+    >
+      <TestComponent colorScheme={colorScheme}>
+        <Button {...args}>Test</Button>
+      </TestComponent>
+    </div>
   </>
 );
 

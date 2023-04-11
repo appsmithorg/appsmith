@@ -4,11 +4,11 @@ import styled, { createGlobalStyle } from "styled-components";
 import { ThemeProvider, TokensAccessor } from "@design-system/theming";
 import { createGlobalFontStack } from "@design-system/widgets";
 
-const StyledContainer = styled.div`
+const StyledThemeProvider = styled(ThemeProvider)`
   display: flex;
   width: 100%;
   height: 100%;
-  padding: 8px;
+  padding: 16px;
   align-items: center;
   justify-content: center;
   background: var(--color-bg);
@@ -81,11 +81,9 @@ export const theming = (Story, args) => {
   }, [args.globals.borderRadius]);
 
   return (
-    <ThemeProvider theme={theme} UNSAFE_style={{ height: "100%" }}>
-      <StyledContainer>
-        <GlobalStyles />
-        <Story fontFamily={args.globals.fontFamily} />
-      </StyledContainer>
-    </ThemeProvider>
+    <StyledThemeProvider theme={theme}>
+      <GlobalStyles />
+      <Story fontFamily={args.globals.fontFamily} />
+    </StyledThemeProvider>
   );
 };
