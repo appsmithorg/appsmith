@@ -187,7 +187,12 @@ describe("AForce - Community Issues page validations", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
     propPane.TypeTextIntoField("Default Search Text", "Epic");
-    propPane.SelectPropertiesDropDown("onSearchTextChanged", "No action");
+    propPane.SelectActionByTitleAndValue(
+      "Execute a query",
+      "fetch_issues.run",
+      1,
+    );
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     deployMode.DeployApp();
     table.WaitForTableEmpty();
@@ -203,8 +208,8 @@ describe("AForce - Community Issues page validations", function () {
 
     deployMode.NavigateBacktoEditor();
     table.WaitForTableEmpty();
-    propPane.TypeTextIntoField("Default Search Text", "");
     ee.SelectEntityByName("Table1", "Widgets");
+    propPane.TypeTextIntoField("Default Search Text", "Bug");
     propPane.ToggleOnOrOff("enableclientsidesearch", "On");
   });
 
