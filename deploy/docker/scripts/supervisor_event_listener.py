@@ -5,10 +5,9 @@ LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
 BACKEND_HEALTH_ENDPOINT = "http://localhost/api/v1/health"
 LOADING_PAGE_TIMEOUT_IN_SEC = 45
 
-def write_stdout(s):
+def write_stdout(*args):
     # only eventlistener protocol messages may be sent to stdout
-    sys.stdout.write(s)
-    sys.stdout.flush()
+    print(*args, flush=True)
 
 def write_stderr(s):
     sys.stderr.write(s)
