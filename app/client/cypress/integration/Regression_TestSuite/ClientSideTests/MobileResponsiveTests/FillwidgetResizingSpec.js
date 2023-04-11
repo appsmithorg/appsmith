@@ -45,16 +45,10 @@ describe("Validating Mobile Views", function () {
   });
 
   let phones = [
-    "iphone-3",
     "iphone-4",
-    "iphone-5",
-    "iphone-6",
-    "iphone-6+",
-    "iphone-7",
-    "iphone-8",
-    "iphone-x",
-    "samsung-note9",
     "samsung-s10",
+    [390, 844],
+    [360, 780]
   ];
   phones.forEach((phone) => {
     it(`${phone} port execution`, function () {

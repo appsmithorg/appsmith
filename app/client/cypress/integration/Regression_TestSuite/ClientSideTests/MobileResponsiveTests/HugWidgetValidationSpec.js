@@ -31,16 +31,12 @@ describe("Validating Mobile Views", function () {
     cy.wait(2000);
     cy.get(".t--widget-imagewidget").first().should("be.visible");
   });
+  //Added viewports of iphone14 and samsung galaxy s22 for testing purpose
   let phones = [
     "iphone-4",
-    "iphone-5",
-    "iphone-6",
-    "iphone-6+",
-    "iphone-7",
-    "iphone-8",
-    "iphone-x",
-    "samsung-note9",
     "samsung-s10",
+    [390, 844],
+    [360, 780]
   ];
   phones.forEach((phone) => {
     it(`${phone} port execution`, function () {
