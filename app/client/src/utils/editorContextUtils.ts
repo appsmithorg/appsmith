@@ -96,3 +96,28 @@ export function isDatasourceAuthorizedForQueryCreation(
 
   return true;
 }
+
+/**
+ * Returns datasource property value from datasource?.datasourceConfiguration?.properties
+ * @param datasource Datasource
+ * @param propertyKey string
+ * @returns string | null
+ */
+export function getDatasourcePropertyValue(
+  datasource: Datasource,
+  propertyKey: string,
+): string | null {
+  if (!datasource) {
+    return null;
+  }
+
+  const properties = datasource?.datasourceConfiguration?.properties;
+  if (!!properties && properties.length > 0) {
+    const propertyObj = properties.find((prop) => prop.key === propertyKey);
+    if (!!propertyObj) {
+      return propertyObj.value;
+    }
+  }
+
+  return null;
+}

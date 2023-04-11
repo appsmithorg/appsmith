@@ -7,7 +7,7 @@ import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import { watchActionSagas } from "sagas/ActionSagas";
 import apiPaneSagas from "sagas/ApiPaneSagas";
-import applicationSagas from "sagas/ApplicationSagas";
+import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
@@ -29,6 +29,7 @@ import initSagas from "sagas/InitSagas";
 import { watchJSActionSagas } from "sagas/JSActionSagas";
 import JSLibrarySaga from "sagas/JSLibrarySaga";
 import jsPaneSagas from "sagas/JSPaneSagas";
+import layoutConversionSagas from "sagas/layoutConversionSagas";
 import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
@@ -39,6 +40,7 @@ import providersSagas from "sagas/ProvidersSaga";
 import queryPaneSagas from "sagas/QueryPaneSagas";
 import replaySaga from "sagas/ReplaySaga";
 import saaSPaneSagas from "sagas/SaaSPaneSagas";
+import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
 import themeSagas from "sagas/ThemeSaga";
@@ -96,4 +98,6 @@ export const sagas = [
   LintingSaga,
   autoLayoutUpdateSagas,
   autoLayoutDraggingSagas,
+  layoutConversionSagas,
+  snapshotSagas,
 ];

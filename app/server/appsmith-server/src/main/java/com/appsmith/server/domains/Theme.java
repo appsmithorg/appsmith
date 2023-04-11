@@ -61,4 +61,17 @@ public class Theme extends BaseDomain {
         private String primaryColor;
         private String backgroundColor;
     }
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setId(null);
+        if(this.isSystemTheme()) {
+            // for system theme, we only need theme name and isSystemTheme properties so set null to others
+            this.setProperties(null);
+            this.setConfig(null);
+            this.setStylesheet(null);
+        }
+        // set null to base domain properties also
+        super.sanitiseToExportDBObject();
+    }
 }

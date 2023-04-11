@@ -5,12 +5,10 @@ const deployMode = ObjectsRegistry.DeployMode;
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Test app's navigation settings", function () {
-  it("1. Open app settings and navigation tab should be there", () => {
+  it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).should("exist");
-  });
 
-  it("2. When navigation tab is selected, should show navigation preview", () => {
     // Should not exist when the tab is not selected
     cy.get(appNavigationLocators.navigationPreview).should("not.exist");
     cy.get(appNavigationLocators.navigationSettingsTab).click();
@@ -19,7 +17,7 @@ describe("Test app's navigation settings", function () {
     cy.get(appNavigationLocators.navigationPreview).should("exist");
   });
 
-  it("3. Toggle 'Show navbar' to off, the app header and navigation should not appear when deployed", () => {
+  it("2. Toggle 'Show navbar' to off, the app header and navigation should not appear when deployed", () => {
     // Toggle show navbar to off
     cy.get(appNavigationLocators.navigationSettings.showNavbar).click({
       force: true,
@@ -38,7 +36,7 @@ describe("Test app's navigation settings", function () {
     });
   });
 
-  it("4. Change 'Orientation' to 'Side', deploy, and the sidebar should appear", () => {
+  it("3. Change 'Orientation' to 'Side', deploy, and the sidebar should appear", () => {
     cy.get(
       appNavigationLocators.navigationSettings.orientationOptions.side,
     ).click({
@@ -51,7 +49,7 @@ describe("Test app's navigation settings", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("5. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
+  it("4. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
     cy.Createpage("Page 2");
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();

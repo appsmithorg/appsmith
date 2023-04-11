@@ -1,9 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
-import java.util.Optional;
-
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+
+import java.util.Optional;
 
 public interface DomainPermissionCE {
     /**

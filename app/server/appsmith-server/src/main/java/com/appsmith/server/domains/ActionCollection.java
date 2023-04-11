@@ -1,14 +1,15 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.appsmith.server.interfaces.PublishableResource;
 import com.appsmith.server.serializers.ExportSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.appsmith.external.models.BranchAwareDomain;
-import com.appsmith.external.views.Views;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonSerialize(using = ActionCollectionSerializer.class)
 public class ActionCollection extends BranchAwareDomain implements PublishableResource {
 
-    // Default resources from base domain will be used to store branchName, defaultApplicationId and defaultActionCollectionId
+    // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and defaultActionCollectionId
 
     @JsonView(Views.Public.class)
     String applicationId;
@@ -46,6 +47,21 @@ public class ActionCollection extends BranchAwareDomain implements PublishableRe
 
     @JsonView(Views.Public.class)
     ActionCollectionDTO publishedCollection;
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setDefaultResources(null);
+        ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
+        if (unpublishedCollection != null) {
+            unpublishedCollection.sanitiseForExport();
+        }
+        ActionCollectionDTO publishedCollection = this.getPublishedCollection();
+        if (publishedCollection != null) {
+            publishedCollection.sanitiseForExport();
+        }
+        this.setOrganizationId(null);
+        super.sanitiseToExportDBObject();
+    }
 
     @JsonView(Views.Import.class)
     @JsonProperty("collection")

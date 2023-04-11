@@ -21,4 +21,11 @@ public abstract class BranchAwareDomain extends BaseDomain {
     @JsonView(Views.Internal.class)
     @Deprecated
     String gitSyncId;
+
+    @Override
+    @Deprecated
+    public void sanitiseToExportDBObject() {
+        this.setDefaultResources(null);
+        super.sanitiseToExportDBObject();
+    }
 }

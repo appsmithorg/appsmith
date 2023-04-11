@@ -54,7 +54,7 @@ import {
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
 import type { JSAction } from "entities/JSCollection";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty, isUndefined } from "lodash";
 import {
@@ -74,7 +74,7 @@ import {
 import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "api/ApplicationApi";
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -93,12 +93,10 @@ import {
 } from "selectors/entitiesSelector";
 import type {
   DataTree,
+  UnEvalTree,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { AppTheme } from "entities/AppTheming";
-import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+
 import { lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
@@ -122,56 +120,15 @@ export const evalWorker = new GracefulWorkerService(
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-/**
- * This saga is responsible for evaluating the data tree
- * @param postEvalActions
- * @param shouldReplay
- * @param requiresLinting
- * @param forceEvaluation - if true, will re-evaluate the entire tree
- * @returns
- * @example
- * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
- */
-export function* evaluateTreeSaga(
+export function* updateDataTreeHandler(
+  data: {
+    evalTreeResponse: EvalTreeResponseData;
+    unevalTree: UnEvalTree;
+    requiresLogging: boolean;
+  },
   postEvalActions?: Array<AnyReduxAction>,
-  shouldReplay = true,
-  requiresLinting = false,
-  forceEvaluation = false,
-  requiresLogging = false,
 ) {
-  const allActionValidationConfig: {
-    [actionId: string]: ActionValidationConfigMap;
-  } = yield select(getAllActionValidationConfig);
-  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
-    yield select(getUnevaluatedDataTree);
-  const unevalTree = unEvalAndConfigTree.unEvalTree;
-  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
-  const theme: AppTheme = yield select(getSelectedAppTheme);
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
-  const isEditMode = appMode === APP_MODE.EDIT;
-  const toPrintConfigTree = unEvalAndConfigTree.configTree;
-  log.debug({ unevalTree, configTree: toPrintConfigTree });
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
-  const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree: unEvalAndConfigTree,
-    widgetTypeConfigMap,
-    widgets,
-    theme,
-    shouldReplay,
-    allActionValidationConfig,
-    requiresLinting: isEditMode && requiresLinting,
-    forceEvaluation,
-    metaWidgets,
-  };
-
-  const workerResponse: EvalTreeResponseData = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.EVAL_TREE,
-    evalTreeRequestData,
-  );
+  const { evalTreeResponse, requiresLogging, unevalTree } = data;
 
   const {
     dataTree,
@@ -187,7 +144,9 @@ export function* evaluateTreeSaga(
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
-  } = workerResponse;
+  } = evalTreeResponse;
+
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -195,7 +154,7 @@ export function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: DataTree = yield select(getDataTree);
+  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
 
@@ -259,6 +218,71 @@ export function* evaluateTreeSaga(
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
+}
+
+/**
+ * This saga is responsible for evaluating the data tree
+ * @param postEvalActions
+ * @param shouldReplay
+ * @param requiresLinting
+ * @param forceEvaluation - if true, will re-evaluate the entire tree
+ * @returns
+ * @example
+ * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
+ */
+export function* evaluateTreeSaga(
+  postEvalActions?: Array<AnyReduxAction>,
+  shouldReplay = true,
+  requiresLinting = false,
+  forceEvaluation = false,
+  requiresLogging = false,
+) {
+  const allActionValidationConfig: ReturnType<
+    typeof getAllActionValidationConfig
+  > = yield select(getAllActionValidationConfig);
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
+  const unevalTree = unEvalAndConfigTree.unEvalTree;
+  const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
+  const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
+    getMetaWidgets,
+  );
+  const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
+    getSelectedAppTheme,
+  );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+
+  const isEditMode = appMode === APP_MODE.EDIT;
+  const toPrintConfigTree = unEvalAndConfigTree.configTree;
+  log.debug({ unevalTree, configTree: toPrintConfigTree });
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+
+  const evalTreeRequestData: EvalTreeRequestData = {
+    unevalTree: unEvalAndConfigTree,
+    widgetTypeConfigMap,
+    widgets,
+    theme,
+    shouldReplay,
+    allActionValidationConfig,
+    requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
+    metaWidgets,
+    appMode,
+  };
+
+  const workerResponse: EvalTreeResponseData = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.EVAL_TREE,
+    evalTreeRequestData,
+  );
+
+  yield call(
+    updateDataTreeHandler,
+    { evalTreeResponse: workerResponse, unevalTree, requiresLogging },
+    postEvalActions,
+  );
 }
 
 export function* evaluateActionBindings(
@@ -403,39 +427,11 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-function* executeSyncJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
-  const functionCall = `${collectionName}.${action.name}()`;
-  const triggerMeta = {
-    source: {
-      id: collectionId,
-      name: `${collectionName}.${action.name}`,
-      type: ENTITY_TYPE.JSACTION,
-    },
-    triggerPropertyName: `${collectionName}.${action.name}`,
-  };
-  const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
-  const response: JSFunctionExecutionResponse = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
-    {
-      functionCall,
-      triggerMeta,
-      eventType,
-    },
-  );
-  return response;
-}
-
 export function* executeJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
 ) {
-  const { isAsync } = action.actionConfiguration;
   let response: {
     errors: unknown[];
     result: unknown;
@@ -443,21 +439,12 @@ export function* executeJSFunction(
   };
 
   try {
-    if (isAsync) {
-      response = yield call(
-        executeAsyncJSFunction,
-        collectionName,
-        action,
-        collectionId,
-      );
-    } else {
-      response = yield call(
-        executeSyncJSFunction,
-        collectionName,
-        action,
-        collectionId,
-      );
-    }
+    response = yield call(
+      executeAsyncJSFunction,
+      collectionName,
+      action,
+      collectionId,
+    );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
       logActionExecutionError(e.message);

@@ -32,6 +32,7 @@ describe("EditorContextProvider", () => {
       "setWidgetCache",
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
+      "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "deleteMetaWidgets",
       "deleteWidgetProperty",
@@ -39,6 +40,7 @@ describe("EditorContextProvider", () => {
       "updateWidget",
       "updateWidgetProperty",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
     ].sort();
 
@@ -69,8 +71,10 @@ describe("EditorContextProvider", () => {
       "setWidgetCache",
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
+      "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
     ].sort();
 

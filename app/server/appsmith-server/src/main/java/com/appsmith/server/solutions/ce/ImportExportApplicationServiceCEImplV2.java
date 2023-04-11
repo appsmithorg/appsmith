@@ -87,7 +87,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -171,7 +170,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     collectionDTO.setPageId(pageIdToPageDTOMap.get(collectionDTO.getPageId()).getName());
                     collectionDTO.setPluginId(ImportExportUtils.getPluginReference(pluginIdToPluginMap.get(collectionDTO.getPluginId())));
                 });
-        
+
         // Fix references for actions
         actions.stream()
                 .forEach(action -> {
@@ -259,7 +258,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         } else if (authentication instanceof BasicAuth auth) {
             dsDecryptedFields.setPassword(auth.getPassword());
             dsDecryptedFields.setBasicAuth(auth);
-            
+
         } else if (authentication instanceof BearerTokenAuth auth) {
             dsDecryptedFields.setBearerTokenAuth(auth);
         }
@@ -267,7 +266,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         dsDecryptedFields.setAuthType(authentication.getClass().getName());
         return dsDecryptedFields;
     }
-    
+
     List<Datasource> processDatasourceConfigurationForExport(ApplicationJson applicationJson, Application application, List<Datasource> datasources, SerialiseApplicationObjective serialiseFor) {
         if (TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
             // Save decrypted fields for datasources
@@ -339,7 +338,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 // Filter out actions which are deleted or does not exist
                 .filter(action -> shouldIncludeResourceForExport(action, resourceMode))
                 .cache();
-        
+
         Flux<Plugin> pluginFlux = pluginRepository.findAll();
 
         Flux<Datasource> datasourceFlux = applicationMono
@@ -374,7 +373,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                     // Map to store the set of updated resource ids
                     Map<String, Set<String>> updatedResources = new HashMap<>();
-                    
+
                     ApplicationJson applicationJson = new ApplicationJson();
 
                     // Set json schema version which will be used to check the compatibility while importing the JSON
@@ -453,7 +452,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getExportPermission())
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
-    
+
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
         return this.exportApplicationById(applicationId, branchName)
                 .map(applicationJson -> {
@@ -467,7 +466,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         e.printStackTrace();
                     }
                     String applicationName = applicationJson.getExportedApplication().getName();
-                    
+
                     HttpHeaders responseHeaders = new HttpHeaders();
                     ContentDisposition contentDisposition = ContentDisposition
                             .builder("attachment")
@@ -657,7 +656,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     applicationToImport.setWorkspaceId(workspaceId);
                     return importExportHelper.fetchOrCreateApplicationForImport(applicationId, applicationToImport, serialiseFor);
                 }).cache();
-        
+
         // Fetch existing datasources
         Mono<List<Datasource>> existingDatasourcesMono = importExportHelper.fetchDatasourcesForWorkspace(workspaceId, false, serialiseFor)
                 .collectList().cache();

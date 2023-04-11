@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Sort;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
