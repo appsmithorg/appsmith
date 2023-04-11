@@ -324,7 +324,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                       startIcon="context-menu"
                     />
                   </MenuTrigger>
-                  <MenuContent>
+                  <MenuContent align="end">
                     {canEditDatasource && (
                       <MenuItem
                         className="t--datasource-option-edit"
