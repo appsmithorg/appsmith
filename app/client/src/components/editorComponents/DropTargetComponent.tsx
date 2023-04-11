@@ -280,16 +280,14 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       // Check if Target is the MainCanvas
-      if (!props.parentId) {
-        if (isTargetMainCanvas) {
-          deselectAll();
-          focusWidget && focusWidget(props.widgetId);
-          showPropertyPane && showPropertyPane();
-          e.preventDefault();
-        } else {
-          // Prevent onClick from Bubbling out of the Canvas to the WidgetEditor for any other widget except the MainCanvas
-          e.stopPropagation();
-        }
+      if (isTargetMainCanvas) {
+        deselectAll();
+        focusWidget && focusWidget(props.widgetId);
+        showPropertyPane && showPropertyPane();
+        e.preventDefault();
+      } else {
+        // Prevent onClick from Bubbling out of the Canvas to the WidgetEditor for any other widget except the MainCanvas
+        e.stopPropagation();
       }
     }
   };
@@ -320,7 +318,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         className={`t--drop-target drop-target-${
           props.parentId || MAIN_CONTAINER_WIDGET_ID
         }`}
-        onClick={handleFocus}
+        onClick={!props.parentId ? handleFocus : undefined}
         ref={dropTargetRef}
         style={dropTargetStyles}
       >

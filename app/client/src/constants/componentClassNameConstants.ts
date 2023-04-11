@@ -11,3 +11,5 @@ export function getBaseWidgetClassName(id?: string) {
 }
 
 export const POSITIONED_WIDGET = "positioned-widget";
+
+export const WIDGET_CLICK_CHECK_CLASS = "click-check-wrapper";

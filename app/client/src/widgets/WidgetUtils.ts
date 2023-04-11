@@ -1,6 +1,6 @@
 // import React, { JSXElementConstructor } from "react";
 // import { IconProps, IconWrapper } from "constants/IconConstants";
-
+import type React from "react";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
 import type { IconName } from "@blueprintjs/icons";
@@ -33,6 +33,7 @@ import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import type { ContainerWidgetProps } from "./ContainerWidget/widget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
+import { WIDGET_CLICK_CHECK_CLASS } from "constants/componentClassNameConstants";
 
 const punycode = require("punycode/");
 
@@ -894,11 +895,29 @@ export const scrollCSS = css`
 export const widgetTypeClassname = (widgetType: string): string =>
   `t--widget-${widgetType.split("_").join("").toLowerCase()}`;
 
-export const findReactInstanceProps = (domElement: any) => {
+const findReactInstanceProps = (domElement: any) => {
   for (const key in domElement) {
     if (key.startsWith(REACT_ELEMENT_PROPS)) {
       return domElement[key];
     }
   }
   return null;
+};
+
+export const checkForOnCLick = (e: React.MouseEvent<HTMLElement>) => {
+  let target = e.target as HTMLElement | null;
+  const currentTarget = e.currentTarget as HTMLElement;
+  while (
+    !target?.classList.contains(WIDGET_CLICK_CHECK_CLASS) &&
+    target &&
+    target !== currentTarget
+  ) {
+    const hasOnClick = Boolean(findReactInstanceProps(target).onClick);
+    if (hasOnClick) {
+      return true;
+    }
+    target = target.parentElement;
+  }
+
+  return false;
 };
