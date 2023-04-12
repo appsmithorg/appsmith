@@ -48,7 +48,7 @@ def main():
         headers = dict([ x.split(':') for x in line.split() ])
         data = sys.stdin.read(int(headers['len']))
 
-        if line.__contains__('PROCESS_STATE_STARTING'):
+        if 'PROCESS_STATE_STARTING' in line:
             data_params = dict([ x.split(':') for x in data.split()])
             if data_params['groupname'] == 'backend':
                 write_stderr('\nBackend State: STARTING\n')
