@@ -319,9 +319,9 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentWorkspace = useSelector(getCurrentWorkspace).filter(
+  const currentWorkspace = useSelector(getCurrentWorkspace).find(
     (el) => el.id === workspaceId,
-  )[0];
+  );
 
   const isMemberofTheWorkspace = isPermitted(
     currentWorkspace?.userPermissions || [],
