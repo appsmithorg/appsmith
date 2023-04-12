@@ -126,6 +126,7 @@ function NonSuperUser(
               props.useCase,
             )
           }
+          tag="button"
           text={createMessage(WELCOME_ACTION)}
         />
       </ActionContainer>
