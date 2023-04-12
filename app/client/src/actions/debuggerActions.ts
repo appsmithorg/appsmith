@@ -9,11 +9,14 @@ export interface LogDebuggerErrorAnalyticsPayload {
   entityType: ENTITY_TYPE;
   eventName: EventName;
   propertyPath: string;
+  errorId?: string;
   errorMessages?: Message[];
   errorMessage?: Message["message"];
   errorType?: Message["type"];
   errorSubType?: Message["subType"];
   analytics?: Log["analytics"];
+  appsmithErrorCode?: string;
+  tat?: number;
 }
 
 export const debuggerLogInit = (payload: Log[]) => ({

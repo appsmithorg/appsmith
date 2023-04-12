@@ -392,6 +392,7 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: widgetType,
         propertyPath,
+        errorId: payload.errorId,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
@@ -415,11 +416,14 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
         propertyPath,
+        errorId: payload.errorId,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
         errorSubType: payload.errorSubType,
+        appsmithErrorCode: payload.appsmithErrorCode,
+        tat: payload.tat,
       });
     } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
       const action: JSCollection = yield select(
@@ -535,6 +539,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+                errorId: currentDebuggerErrors[id].id,
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
@@ -599,6 +604,7 @@ function* deleteDebuggerErrorLogsSaga(
             payload: {
               ...analyticsPayload,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+              errorId: error.id,
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
