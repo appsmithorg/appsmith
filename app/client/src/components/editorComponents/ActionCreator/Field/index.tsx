@@ -2,7 +2,6 @@ import {
   AppsmithFunction,
   FieldType,
   ViewTypes,
-  DEFAULT_LABELS,
   DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
 import type { TreeDropdownOption } from "design-system-old";
@@ -22,7 +21,7 @@ import { TextView } from "../viewComponents/TextView";
 import { TabView } from "../viewComponents/TabView";
 import { FIELD_CONFIG } from "./FieldConfig";
 import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
-import { getEvaluationVersion } from "../utils";
+import { getEvaluationVersion, sortSubMenuOptions } from "../utils";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
@@ -108,18 +107,7 @@ export function Field(props: FieldProps) {
     case FieldType.RESET_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: (options as TreeDropdownOption[]).sort(
-          (a: TreeDropdownOption, b: TreeDropdownOption) => {
-            if (
-              DEFAULT_LABELS.includes(a.label) ||
-              DEFAULT_LABELS.includes(b.label)
-            ) {
-              return 1;
-            } else {
-              return a.label.localeCompare(b.label);
-            }
-          },
-        ),
+        options: sortSubMenuOptions(options as TreeDropdownOption[]),
         label: label,
         get: getterFunction,
         set: (
