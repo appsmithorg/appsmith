@@ -324,4 +324,42 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return sendAssignedUsersToPermissionGroupEvent;
     }
 
+    protected Mono<PermissionGroup> sendEventUserRemovedFromRole(PermissionGroup permissionGroup,
+                                                                 List<String> usernames) {
+        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        if (CollectionUtils.isNotEmpty(usernames)) {
+            Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
+            Map<String, Object> analyticsProperties = Map.of(FieldName.NUMBER_OF_UNASSIGNED_USERS, usernames.size(),
+                    FieldName.EVENT_DATA, eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+                    AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+        }
+        return sendAssignedUsersToPermissionGroupEvent;
+    }
+
+    @Override
+    public Mono<PermissionGroup> assignToUserAndSendEvent(PermissionGroup permissionGroup, User user) {
+        return bulkAssignToUserAndSendEvent(permissionGroup, List.of(user));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkAssignToUserAndSendEvent(PermissionGroup permissionGroup, List<User> users) {
+        List<String> usernames = users.stream().map(User::getUsername).toList();
+        return bulkAssignToUsers(permissionGroup, users)
+                .flatMap(permissionGroup1 -> sendEventUsersAssociatedToRole(permissionGroup, usernames));
+    }
+
+    @Override
+    public Mono<PermissionGroup> unAssignFromUserAndSendEvent(PermissionGroup permissionGroup, User user) {
+        return bulkUnAssignFromUserAndSendEvent(permissionGroup, List.of(user));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkUnAssignFromUserAndSendEvent(PermissionGroup permissionGroup, List<User> users) {
+        List<String> usernames = users.stream().map(User::getUsername).toList();
+        return bulkUnassignFromUsers(permissionGroup, users)
+                .flatMap(permissionGroup1 -> sendEventUserRemovedFromRole(permissionGroup, usernames));
+    }
 }
