@@ -8,9 +8,10 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.OAuthResponseDTO;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
@@ -18,7 +19,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -53,10 +53,8 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -73,7 +71,6 @@ import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
 import static com.appsmith.external.constants.Authentication.SUCCESS;
-import static com.appsmith.server.migrations.DatabaseChangelog1.objectMapper;
 
 
 @RequiredArgsConstructor
@@ -434,10 +431,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
-                                datasource
-                                        .getDatasourceConfiguration()
-                                        .getAuthentication()
-                                        .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
@@ -449,6 +442,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
+
+                                // When authentication scope is for specific sheets, we need to send token and project id
                                 String accessToken = "";
                                 String projectID = "";
                                 if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
@@ -456,6 +451,17 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     if (authenticationResponse.getProjectID() != null) {
                                         projectID = authenticationResponse.getProjectID();
                                     }
+                                }
+
+                                // when authentication scope is other than specific sheets, we need to set authentication status as success
+                                // for specific sheets, it needs to remain in as in progress until files are selected
+                                // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
+                                // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
+                                if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 }
 
                                 Mono<String> accessTokenMono = Mono.just(accessToken);

@@ -19,7 +19,7 @@ describe("Camera Widget", () => {
     const mainControlSelector =
       "//div[contains(@class, 't--widget-camerawidget')]//button";
 
-    cy.createModal(modalName);
+    cy.createModal(modalName, "onImageCapture");
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", "{{Camera1.isDirty}}");
     // Initial value of isDirty should be false

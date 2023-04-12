@@ -10,7 +10,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
@@ -244,14 +243,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
             propertyName: "onMarkerClick",
             label: "onMarkerClick",
-            helpText: "Triggers an action when the user clicks on the marker",
+            helpText: "when the user clicks on the marker",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,

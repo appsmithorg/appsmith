@@ -183,6 +183,11 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   align-items: center;
   padding: 0px 10px;
 
+  .auto-layout & {
+    min-height: 32px;
+    min-width: 120px;
+  }
+
   &:hover,
   &:active,
   &:focus {

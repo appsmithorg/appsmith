@@ -16,6 +16,9 @@ import {
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { contextSwitchingSaga } from "ce/sagas/ContextSwitchingSaga";
+import { getSafeCrash } from "selectors/errorSelectors";
+import { flushErrors } from "actions/errorActions";
+import type { NavigationMethod } from "utils/history";
 
 let previousPath: string;
 
@@ -24,6 +27,7 @@ export function* handleRouteChange(
 ) {
   const { pathname, state } = action.payload.location;
   try {
+    yield fork(clearErrors);
     const isAnEditorPath = isEditorPath(pathname);
 
     // handled only on edit mode
@@ -33,7 +37,7 @@ export function* handleRouteChange(
       yield fork(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);
-      yield fork(setSelectedWidgetsSaga);
+      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -45,6 +49,20 @@ export function* handleRouteChange(
 function* appBackgroundHandler() {
   const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
   changeAppBackground(currentTheme);
+}
+
+/**
+ * When an error occurs, we take over the whole router and keep it the error
+ * state till the errors are flushed. By default, we will flush out the
+ * error state when a CTA on the page is clicked but in case the
+ * user navigates via the browser buttons, this will ensure
+ * the errors are flushed
+ * */
+function* clearErrors() {
+  const isCrashed: boolean = yield select(getSafeCrash);
+  if (isCrashed) {
+    yield put(flushErrors());
+  }
 }
 
 function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
@@ -68,7 +86,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   });
 }
 
-function* setSelectedWidgetsSaga() {
+function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   const pathname = window.location.pathname;
   const entityInfo = identifyEntityFromPath(pathname);
   let widgets: string[] = [];
@@ -79,6 +97,6 @@ function* setSelectedWidgetsSaga() {
       lastSelectedWidget = widgets[widgets.length - 1];
     }
   }
-  yield put(setSelectedWidgets(widgets));
+  yield put(setSelectedWidgets(widgets, invokedBy));
   yield put(setLastSelectedWidget(lastSelectedWidget));
 }

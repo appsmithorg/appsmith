@@ -126,6 +126,8 @@ export interface Log extends LogActionPayload {
   category: LOG_CATEGORY;
   // "when" did this event happen
   timestamp: string;
+  // expanded state of the log.
+  isExpanded: boolean;
 }
 
 /**

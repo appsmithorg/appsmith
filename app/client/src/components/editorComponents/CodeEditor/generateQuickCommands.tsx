@@ -12,6 +12,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -188,7 +189,9 @@ export const generateQuickCommands = (
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>
-              <img src={pluginIdToImageLocation[data.data.pluginId]} />
+              <img
+                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+              />
             </EntityIcon>
           );
         }
@@ -213,7 +216,9 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, self: any, data: any) => {
         const icon = (
           <EntityIcon>
-            <img src={pluginIdToImageLocation[data.data.pluginId]} />
+            <img
+              src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+            />
           </EntityIcon>
         );
         ReactDOM.render(
