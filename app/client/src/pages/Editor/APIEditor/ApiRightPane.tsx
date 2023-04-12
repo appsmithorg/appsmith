@@ -51,7 +51,7 @@ const DatasourceCard = styled.div`
   display: flex;
   flex-direction: column;
 
-  background: #ffffff;
+  background: var(--ads-v2-color-bg);
   cursor: pointer;
   transition: 0.3s all ease;
   .cs-icon {
@@ -59,7 +59,7 @@ const DatasourceCard = styled.div`
     transition: 0.3s all ease;
   }
   &:hover {
-    background-color: var(--ads-v2-color-bg-emphasis-plus);
+    background-color: var(--ads-v2-color-bg-subtle);
     .cs-icon {
       opacity: 1;
     }
@@ -72,8 +72,7 @@ const DatasourceURL = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  // TODO (tanvi): Where is this used? Replace with what?
-  color: #6a86ce;
+  color: var(--ads-v2-color-fg);
   width: fit-content;
   max-width: 100%;
   font-weight: 500;
@@ -116,6 +115,7 @@ const SelectedDatasourceInfoContainer = styled.div`
   align-items: center;
   padding: 2px 8px;
   background-color: var(--ads-v2-color-bg-success);
+  border-radius: var(--ads-v2-border-radius);
   margin-right: 2px;
   margin-left: 3px;
   text-transform: uppercase;
