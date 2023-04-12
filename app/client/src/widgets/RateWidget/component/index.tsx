@@ -155,8 +155,6 @@ function RateComponent(props: RateComponentProps) {
   return (
     <RateContainer
       isDisabled={Boolean(isDisabled)}
-      // Rating library doesn't expose the event object when clicked, so fallback is to add this to the container
-      onClick={(e) => e.stopPropagation()}
       readonly={readonly}
       ref={rateContainerRef}
     >

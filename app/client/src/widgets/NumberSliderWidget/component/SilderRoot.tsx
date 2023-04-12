@@ -28,6 +28,13 @@ const SliderWrapper = styled.div<SliderRootProps>(
 
 export const SliderRoot = forwardRef<HTMLDivElement, SliderRootProps>(
   (props, ref) => {
-    return <SliderWrapper {...props} ref={ref} tabIndex={-1} />;
+    return (
+      <SliderWrapper
+        {...props}
+        onClick={(e) => props.onClick?.(e)}
+        ref={ref}
+        tabIndex={-1}
+      />
+    );
   },
 );
