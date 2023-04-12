@@ -27,10 +27,11 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
     setSelectedOption({ value: selectedValueHandler() });
   }, [props.input.value, props.placeholder]);
 
+  //  TODO: defaultValue doesn't seem to work
   return (
     <Select
       className={props.className}
-      defaultValue={selectedOption}
+      defaultValue={selectedOption.value}
       isDisabled={props.disabled}
       onSelect={onSelectHandler}
       options={props.options}
