@@ -1,16 +1,7 @@
 const dsl = require("../../../../fixtures/ResizeListDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Dynamic Height Width validation", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
   it("Validate change with auto height width for List widgets", function () {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle

@@ -1,6 +1,8 @@
 /// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+const application = require("../../../../locators/Applications.json");
 
 describe("Delete workspace test spec", function () {
   let newWorkspaceName;
@@ -39,6 +41,12 @@ describe("Delete workspace test spec", function () {
       cy.get(homePage.workspaceNamePopoverContent)
         .contains("Delete Workspace")
         .should("not.exist");
+      //Automated as part of Bug19506
+      if (CURRENT_REPO === REPO.CE) {
+        cy.get(homePage.members).click({ force: true });
+        cy.get(application.inviteUserMembersPage).click({ force: true });
+        cy.xpath(application.placeholderTxt).should("be.visible");
+      }
       cy.LogOut();
     });
   });

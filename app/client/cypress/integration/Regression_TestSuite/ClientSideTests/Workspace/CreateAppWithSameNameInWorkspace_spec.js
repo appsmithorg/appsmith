@@ -1,9 +1,7 @@
 /// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
-const publish = require("../../../../locators/publishWidgetspage.json");
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let HomePage = ObjectsRegistry.HomePage;
 
 describe("Create workspace and a new app / delete and recreate app", function () {
   let workspaceId;
@@ -22,12 +20,16 @@ describe("Create workspace and a new app / delete and recreate app", function ()
         cy.renameWorkspace(newWorkspaceName, workspaceId);
       });
       //Automated as part of Bug19506
-      cy.get(application.shareButton).first().click({ force: true });
-      cy.xpath(application.placeholderTxt).should("be.visible");
+      if (CURRENT_REPO === REPO.CE) {
+        cy.get(application.shareButton).first().click({ force: true });
+        cy.xpath(application.placeholderTxt).should("be.visible");
+      }
       cy.reload();
       cy.CreateAppForWorkspace(workspaceId, appid);
-      cy.get(homePage.shareApp).click({ force: true });
-      cy.xpath(application.placeholderTxt).should("be.visible");
+      if (CURRENT_REPO === REPO.CE) {
+        cy.get(homePage.shareApp).click({ force: true });
+        cy.xpath(application.placeholderTxt).should("be.visible");
+      }
       cy.reload();
       cy.DeleteAppByApi();
       cy.NavigateToHome();
