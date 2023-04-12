@@ -34,6 +34,7 @@ import Debugger, {
   ResizerMainContainer,
 } from "./Debugger";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -232,7 +233,8 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
