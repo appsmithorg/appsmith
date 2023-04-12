@@ -422,8 +422,6 @@ function* logDebuggerErrorAnalyticsSaga(
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
         errorSubType: payload.errorSubType,
-        appsmithErrorCode: payload.appsmithErrorCode,
-        tat: payload.tat,
       });
     } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
       const action: JSCollection = yield select(
@@ -437,6 +435,7 @@ function* logDebuggerErrorAnalyticsSaga(
       // Sending plugin name for actions
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
+        errorId: payload.errorId,
         propertyPath: payload.propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
@@ -593,10 +592,6 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
-      const appsmithErrorCode = get(
-        error,
-        "pluginErrorDetails.appsmithErrorCode",
-      );
       yield all(
         errorMessages.map((errorMessage) => {
           return put({
@@ -608,8 +603,6 @@ function* deleteDebuggerErrorLogsSaga(
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
-              appsmithErrorCode,
-              tat: Date.now() - new Date(parseInt(error.timestamp)).getTime(),
             },
           });
         }),

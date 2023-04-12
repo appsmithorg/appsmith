@@ -15,8 +15,6 @@ export interface LogDebuggerErrorAnalyticsPayload {
   errorType?: Message["type"];
   errorSubType?: Message["subType"];
   analytics?: Log["analytics"];
-  appsmithErrorCode?: string;
-  tat?: number;
 }
 
 export const debuggerLogInit = (payload: Log[]) => ({
