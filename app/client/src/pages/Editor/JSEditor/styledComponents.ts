@@ -110,7 +110,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
         props.theme.colors.apiPane.responseBody.bg};
     }
     .react-tabs__tab-panel {
-      ${CodeEditorWithGutterStyles}
+      ${CodeEditorWithGutterStyles};
       height: calc(100% - 32px);
       background-color: ${(props) => props.theme.colors.apiPane.bg};
       .CodeEditorTarget {

@@ -100,8 +100,9 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
   .api-info-row {
-    .t--apiFormHttpMethod:hover {
-      background-color: var(--ads-v2-color-bg-subtle);
+    .ads-v2-select > .rc-select-selector {
+      min-width: 110px;
+      width: 110px;
     }
   }
 `;
@@ -123,6 +124,7 @@ const HelpSection = styled.div`
 `;
 
 const DatasourceWrapper = styled.div`
+  margin-left: 8px;
   width: 100%;
 `;
 
@@ -421,11 +423,6 @@ function ImportedKeyValue(props: {
   );
 }
 
-const BoundaryContainer = styled.div`
-  border: 1px solid transparent;
-  border-right: none;
-`;
-
 function renderImportedDatasButton(
   dataCount: number,
   onClick: any,
@@ -662,13 +659,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            <BoundaryContainer
-              data-replay-id={btoa("actionConfiguration.httpMethod")}
-            >
+            <div>
               {/* eslint-disable-next-line */}
               {/* @ts-ignore*/}
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
+                data-replay-id={btoa("actionConfiguration.httpMethod")}
                 disabled={!isChangePermitted}
                 name="actionConfiguration.httpMethod"
                 options={
@@ -677,7 +673,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 placeholder="Method"
                 width={"110px"}
               />
-            </BoundaryContainer>
+            </div>
             <DatasourceWrapper className="t--dataSourceField">
               <EmbeddedDatasourcePathField
                 actionName={actionName}

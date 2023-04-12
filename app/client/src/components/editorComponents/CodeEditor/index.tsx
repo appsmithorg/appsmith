@@ -1197,7 +1197,6 @@ class CodeEditor extends Component<Props, State> {
       evaluationSubstitutionType,
       expected,
       fill,
-      height,
       hideEvaluatedValue,
       hoverInteraction,
       input,
@@ -1290,7 +1289,6 @@ class CodeEditor extends Component<Props, State> {
             editorTheme={this.props.theme}
             fillUp={fill}
             hasError={isInvalid}
-            height={height}
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}

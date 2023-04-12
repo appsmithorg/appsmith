@@ -281,17 +281,7 @@ export const EditorWrapper = styled.div<{
         `}
     ${(props) => (props.isFocused ? `z-index: 3;` : `z-index: 0;`)}
 
-    ${(props) => {
-      let height = props.height || "auto";
-      if (
-        (props.size === EditorSize.COMPACT ||
-          props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
-        !props.isFocused
-      ) {
-        height = props.height || "36px";
-      }
-      return `height: ${height}`;
-    }}
+}
   }
 
   ${(props) =>
@@ -301,9 +291,6 @@ export const EditorWrapper = styled.div<{
       overflow: visible;
     }
 
-    & .CodeEditorTarget {
-      height: ${props.isFocused ? "auto" : "35px"};
-    }
   `}
 
   ${(props) =>

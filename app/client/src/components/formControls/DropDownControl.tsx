@@ -241,8 +241,7 @@ function renderDropdown(
 }
 
 export interface DropDownControlProps extends ControlProps {
-  // TODO (albin): export types for options of select
-  options: any;
+  options: SelectOptionProps[];
   optionWidth?: string;
   placeholderText: string;
   propertyValue: string;
@@ -295,5 +294,5 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   },
 });
 
-// Connecting this componenet to the state to allow for dynamic fetching of options to be updated.
+// Connecting this component to the state to allow for dynamic fetching of options to be updated.
 export default connect(mapStateToProps, mapDispatchToProps)(DropDownControl);
