@@ -334,7 +334,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     FieldName.EVENT_DATA, eventData,
                     FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
             sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
-                    AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+                    AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP, permissionGroup, analyticsProperties);
         }
         return sendAssignedUsersToPermissionGroupEvent;
     }
