@@ -34,7 +34,7 @@ function BackButton() {
   return (
     <Back
       className="t--back-button"
-      startIcon="left-arrow-2"
+      startIcon="arrow-left-line"
       target="_self"
       to={goBack()}
     >
