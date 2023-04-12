@@ -809,7 +809,7 @@ export function ApplicationsSection(props: any) {
                             startIcon="context-menu"
                           />
                         </MenuTrigger>
-                        <MenuContent align="end">
+                        <MenuContent align="end" width="205px">
                           {hasManageWorkspacePermissions && (
                             <>
                               <div className="px-3 py-2">
