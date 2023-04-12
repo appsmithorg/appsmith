@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -544,13 +545,13 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    return importApplicationInWorkspace(workspaceId, jsonFile)
-                            .onErrorResume(error -> {
-                                if (error instanceof AppsmithException) {
-                                    return Mono.error(error);
-                                }
-                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
-                            });
+                    return importApplicationInWorkspace(workspaceId, jsonFile);
+                            // .onErrorResume(error -> {
+                            //     if (error instanceof AppsmithException) {
+                            //         return Mono.error(error);
+                            //     }
+                            //     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
+                            // });
                 })
                 // Add un-configured datasource to the list to response
                 .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
@@ -672,86 +673,90 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     return importDatasources(workspaceId, datasourceToImportList, existingDatasourceNameToDatasourceMap, installedPluginReferenceToPluginMap);
                 }).cache();
 
-        return importedDatasourceListMono.map(it -> {return it;}).then(importedApplicationMono);
+        return importedDatasourceListMono.then(importedApplicationMono);
     }
 
     private Mono<List<Datasource>> importDatasources(String workspaceId, List<Datasource> datasourcesToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
         return Flux.fromIterable(datasourcesToImport)
                 .flatMap(datasource -> importDatasource(workspaceId, datasource, existingDatasourceNameToDatasourceMap, pluginReferenceToPluginMap))
                 .collectList();
+                //new ObjectId();
     }
 
-    private Mono<List<NewPage>> importPages(String applicationId, List<NewPage> pagesToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
-        return importPages(applicationId, pagesToImport, null, null, null);
-    }
+    // private Mono<List<NewPage>> importPages(String applicationId, List<NewPage> pagesToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+    //     return importPages(applicationId, pagesToImport, null, null, null);
+    // }
 
-    private Mono<List<ActionCollection>> importCollections(String applicationId, List<ActionCollection> collectionsToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
-        return importCollections(applicationId, collectionsToImport, null, null, null);
-    }
+    // private Mono<List<ActionCollection>> importCollections(String applicationId, List<ActionCollection> collectionsToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+    //     return importCollections(applicationId, collectionsToImport, null, null, null);
+    // }
 
-    private Mono<List<NewAction>> importActions(String applicationId, List<NewAction> actionsToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
-        return importActions(applicationId, actionsToImport, null, null, null);
-    }
+    // private Mono<List<NewAction>> importActions(String applicationId, List<NewAction> actionsToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+    //     return importActions(applicationId, actionsToImport, null, null, null);
+    // }
 
     private Mono<Datasource> importDatasource(String workspaceId, Datasource datasourceToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
 
         Datasource existingDatasource = existingDatasourceNameToDatasourceMap.get(datasourceToImport.getName());
-        if(existingDatasource != null && datasourceToImport.getPluginName().equals(existingDatasource.getPluginName())) {
+        if(existingDatasource != null && datasourceToImport.getPluginId().equals(existingDatasource.getPluginName())) {
             // If the datasource exists, update it
             copyNestedNonNullProperties(datasourceToImport, existingDatasource);
             return datasourceService.update(existingDatasource.getId(), existingDatasource)
                     .as(transactionalOperator::transactional);
         } else {
             // If the datasource does not exist, create it
+            datasourceToImport.setExplicitId(new ObjectId().toString());
+            log.debug("Importing datasource with id: {}", datasourceToImport.getExplicitId());
             datasourceToImport.setWorkspaceId(workspaceId);
+            datasourceToImport.setPluginId(pluginReferenceToPluginMap.get(datasourceToImport.getPluginId()).getId());
             return datasourceService.create(datasourceToImport)
                     .as(transactionalOperator::transactional).log();
         }
-    }
+     }
 
-    private Mono<Datasource> importPage(String workspaceId, NewPage pageToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, NewPage> existingPageNameToPageMap) {
+    // private Mono<Datasource> importPage(String workspaceId, NewPage pageToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, NewPage> existingPageNameToPageMap) {
 
-        NewPage existingPage = existingPageNameToPageMap.get(pageToImport.getId());
-        if(existingPage != null) {
-            // If the datasource exists, update it
-            copyNestedNonNullProperties(pageToImport, existingPage);
-            return applicationPageService.addPageToApplication(null, null, TRUE).update(existingPage.getId(), existingPage)
-                    .as(transactionalOperator::transactional);
-        } else {
-            // If the datasource does not exist, create it
-            return applicationPageService.createPage(pageToImport).as(transactionalOperator::transactional);
-        }
-    }
+    //     NewPage existingPage = existingPageNameToPageMap.get(pageToImport.getId());
+    //     if(existingPage != null) {
+    //         // If the datasource exists, update it
+    //         copyNestedNonNullProperties(pageToImport, existingPage);
+    //         return applicationPageService.addPageToApplication(null, null, TRUE).update(existingPage.getId(), existingPage)
+    //                 .as(transactionalOperator::transactional);
+    //     } else {
+    //         // If the datasource does not exist, create it
+    //         return applicationPageService.createPage(pageToImport).as(transactionalOperator::transactional);
+    //     }
+    // }
 
-    private Mono<Datasource> importCollection(String workspaceId, ActionCollection actionCollection, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+    // private Mono<Datasource> importCollection(String workspaceId, ActionCollection actionCollection, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
 
-        NewPage existingPage = existingPageNameToPageMap.get(pageToImport.getId());
-        if(existingPage != null) {
-            // If the datasource exists, update it
-            copyNestedNonNullProperties(pageToImport, existingPage);
-            return applicationPageService.addPageToApplication(null, null, TRUE).update(existingPage.getId(), existingPage)
-                    .as(transactionalOperator::transactional);
-        } else {
-            // If the datasource does not exist, create it
-            return applicationPageService.createPage(pageToImport).as(transactionalOperator::transactional);
-        }
-    }
+    //     NewPage existingPage = existingPageNameToPageMap.get(pageToImport.getId());
+    //     if(existingPage != null) {
+    //         // If the datasource exists, update it
+    //         copyNestedNonNullProperties(pageToImport, existingPage);
+    //         return applicationPageService.addPageToApplication(null, null, TRUE).update(existingPage.getId(), existingPage)
+    //                 .as(transactionalOperator::transactional);
+    //     } else {
+    //         // If the datasource does not exist, create it
+    //         return applicationPageService.createPage(pageToImport).as(transactionalOperator::transactional);
+    //     }
+    // }
 
-    private Mono<Datasource> importAction(String workspaceId, NewAction actionToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
+    // private Mono<Datasource> importAction(String workspaceId, NewAction actionToImport, Map<String, Datasource> existingDatasourceNameToDatasourceMap, Map<String, Plugin> pluginReferenceToPluginMap) {
 
-        Datasource existingDatasource = existingDatasourceNameToDatasourceMap.get(datasourceToImport.getName());
-        if(existingDatasource != null && datasourceToImport.getPluginName().equals(existingDatasource.getPluginName())) {
-            // If the datasource exists, update it
-            copyNestedNonNullProperties(datasourceToImport, existingDatasource);
-            return datasourceService.update(existingDatasource.getId(), existingDatasource)
-                    .as(transactionalOperator::transactional);
-        } else {
-            // If the datasource does not exist, create it
-            datasourceToImport.setWorkspaceId(workspaceId);
-            return datasourceService.create(datasourceToImport)
-                    .as(transactionalOperator::transactional).log();
-        }
-    }
+    //     Datasource existingDatasource = existingDatasourceNameToDatasourceMap.get(datasourceToImport.getName());
+    //     if(existingDatasource != null && datasourceToImport.getPluginName().equals(existingDatasource.getPluginName())) {
+    //         // If the datasource exists, update it
+    //         copyNestedNonNullProperties(datasourceToImport, existingDatasource);
+    //         return datasourceService.update(existingDatasource.getId(), existingDatasource)
+    //                 .as(transactionalOperator::transactional);
+    //     } else {
+    //         // If the datasource does not exist, create it
+    //         datasourceToImport.setWorkspaceId(workspaceId);
+    //         return datasourceService.create(datasourceToImport)
+    //                 .as(transactionalOperator::transactional).log();
+    //     }
+    // }
 
 //     Mono<Void> importPages(List<NewPage> pagesToImport, List<NewPage> existingPages, List<Datasource> existingDatasources) {
 //         Map<String, NewPage> existingPageIdToPageMap = existingPages.stream()

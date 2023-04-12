@@ -129,6 +129,15 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
     @Override
     public Mono<T> create(T object) {
         return Mono.just(object)
+                /**
+                 * If the object has an explicit ID, then use that. Otherwise, let the DB generate one.
+                 * This can be used to optimize flows where we need to save objects multiple times to
+                 * generate Ids. A good example can be seen in ImportExportServiceCEImplV2
+                 */
+                .map(domain -> {
+                    domain.setId(object.getExplicitId());
+                    return domain;
+                })
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
                 .flatMap(savedResource -> analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));

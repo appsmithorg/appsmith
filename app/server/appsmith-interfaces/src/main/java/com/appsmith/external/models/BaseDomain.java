@@ -37,6 +37,10 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     private String id;
 
+    @Transient
+    @JsonView(Views.Internal.class)
+    private String explicitId;
+
     @JsonView(Views.Internal.class)
     @Indexed
     @CreatedDate

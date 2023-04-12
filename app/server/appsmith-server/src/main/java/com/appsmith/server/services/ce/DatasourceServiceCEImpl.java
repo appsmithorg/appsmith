@@ -369,6 +369,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(unsavedDatasource -> {
+                    unsavedDatasource.setId(unsavedDatasource.getExplicitId());
                     return repository.save(unsavedDatasource)
                             .map(savedDatasource -> {
                                 // datasource.pluginName is a transient field. It was set by validateDatasource method
