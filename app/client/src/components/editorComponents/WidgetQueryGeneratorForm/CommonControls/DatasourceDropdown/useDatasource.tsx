@@ -22,6 +22,7 @@ import { WidgetQueryGeneratorFormContext } from "../..";
 import { DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon, IconSize } from "design-system-old";
 import type { DropdownOptions } from "pages/Editor/GeneratePage/components/constants";
+import type { DropdownOptionType } from "../../types";
 
 export function useDatasource() {
   const { addBinding, addSnippet, config, updateConfig } = useContext(
@@ -57,23 +58,23 @@ export function useDatasource() {
             />
           </ImageWrapper>
         ),
-        onSelect: function () {
-          if (config.datasource.id !== this.id) {
-            const pluginId: string = this.data.pluginId;
-            updateConfig("datasource", this);
+        onSelect: function (value?: string, valueOption?: DropdownOptionType) {
+          if (config.datasource.id !== valueOption?.id) {
+            const pluginId: string = valueOption?.data.pluginId;
+            updateConfig("datasource", valueOption);
 
-            if (this.id) {
+            if (valueOption?.id) {
               switch (pluginsPackageNamesMap[pluginId]) {
                 case PluginPackageName.GOOGLE_SHEETS:
                   dispatch(
                     fetchGheetSpreadsheets({
-                      datasourceId: this.id,
+                      datasourceId: valueOption.id,
                       pluginId: pluginId,
                     }),
                   );
                   break;
                 default: {
-                  dispatch(fetchDatasourceStructure(this.id, true));
+                  dispatch(fetchDatasourceStructure(valueOption.id, true));
                   break;
                 }
               }

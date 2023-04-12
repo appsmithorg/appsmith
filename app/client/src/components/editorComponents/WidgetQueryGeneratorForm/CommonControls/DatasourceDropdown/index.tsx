@@ -5,6 +5,7 @@ import { useDatasource } from "./useDatasource";
 import { DropdownOption } from "../../components/DropdownOption";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import type { DropdownOptionType } from "../../types";
 
 const SectionHeader = styled.div`
   cursor: default;
@@ -26,12 +27,12 @@ function DatasourceDropdown() {
           minWidth: "350px",
           maxHeight: "300px",
         }}
-        onSelect={(value: unknown) => {
+        onSelect={(value: string, valueOption: DropdownOptionType) => {
           const option = [...datasourceOptions, ...otherOptions].find(
             (option) => option.id === value,
           );
 
-          option?.onSelect?.();
+          option?.onSelect?.(value, valueOption);
         }}
       >
         <Option disabled>
@@ -40,11 +41,7 @@ function DatasourceDropdown() {
 
         {datasourceOptions.map((option: any) => {
           return (
-            <Option
-              key={option.id}
-              onClick={() => option.onSelect(option)}
-              value={option.id}
-            >
+            <Option key={option.id} value={option.id}>
               <DropdownOption label={option.label} leftIcon={option.icon} />
             </Option>
           );
@@ -56,11 +53,7 @@ function DatasourceDropdown() {
 
         {otherOptions.map((option: any) => {
           return (
-            <Option
-              key={option.id}
-              onClick={() => option.onSelect(option)}
-              value={option.id}
-            >
+            <Option key={option.id} value={option.id}>
               <DropdownOption label={option.label} leftIcon={option.icon} />
             </Option>
           );

@@ -67,9 +67,7 @@ export const getDatasourceTableColumns =
     if (structure) {
       const table = structure.tables?.find((d) => d.name === tableName);
 
-      if (table && table.columns) {
-        return table.columns;
-      }
+      return table?.columns;
     }
   };
 

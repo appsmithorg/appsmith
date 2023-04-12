@@ -82,9 +82,7 @@ export function useTableOrSpreadsheet() {
       updateConfig("table", TableObj);
 
       if (
-        selectedDatasourcePluginPackageName ===
-          PluginPackageName.GOOGLE_SHEETS &&
-        config.datasource.id
+        selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
       ) {
         dispatch(
           fetchGheetSheets({

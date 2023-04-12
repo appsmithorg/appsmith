@@ -1225,33 +1225,42 @@ function* fetchGsheetSpreadhsheets(
     pluginId: string;
   }>,
 ) {
-  try {
-    let googleSheetEditorConfig: {
-      children: [
-        {
-          initialValue: string;
+  let googleSheetEditorConfig: {
+    children: [
+      {
+        initialValue: string;
+      },
+    ];
+  }[] = yield select((state: AppState) =>
+    getEditorConfig(state, action.payload.pluginId),
+  );
+
+  if (!googleSheetEditorConfig) {
+    yield put(
+      fetchPluginFormConfig({
+        pluginId: {
+          id: action.payload.pluginId,
         },
-      ];
-    }[] = yield select((state: AppState) =>
-      getEditorConfig(state, action.payload.pluginId),
+      }),
     );
 
-    if (!googleSheetEditorConfig) {
-      yield put(
-        fetchPluginFormConfig({
-          pluginId: {
-            id: action.payload.pluginId,
-          },
-        }),
-      );
+    const fetchConfigAction: ReduxAction<unknown> = yield take([
+      ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+      ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
+    ]);
 
-      yield take(ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS);
-
-      googleSheetEditorConfig = yield select((state: AppState) =>
-        getEditorConfig(state, action.payload.pluginId),
-      );
+    if (
+      fetchConfigAction.type === ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR
+    ) {
+      throw new Error("Unable to fetch plugin form config");
     }
 
+    googleSheetEditorConfig = yield select((state: AppState) =>
+      getEditorConfig(state, action.payload.pluginId),
+    );
+  }
+
+  try {
     const requestObject: Record<string, string> = {};
 
     if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
@@ -1468,11 +1477,11 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
       filePickerActionCallbackSaga,
     ),
-    takeEvery(
+    takeLatest(
       ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
       fetchGsheetSpreadhsheets,
     ),
-    takeEvery(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
-    takeEvery(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
+    takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
+    takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
   ]);
 }

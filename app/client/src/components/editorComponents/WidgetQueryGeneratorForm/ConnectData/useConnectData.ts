@@ -18,19 +18,23 @@ export function useConnectData() {
     });
   };
 
+  const show =
+    config.datasource !== DEFAULT_DROPDOWN_OPTION &&
+    config.table !== DEFAULT_DROPDOWN_OPTION &&
+    (config.datasource.data.pluginPackageName !==
+      PluginPackageName.GOOGLE_SHEETS ||
+      config.sheet !== DEFAULT_DROPDOWN_OPTION);
+
+  const disabled =
+    config.datasource.data.pluginPackageName ===
+      PluginPackageName.GOOGLE_SHEETS &&
+    (!config.tableHeaderIndex ||
+      !isNumber(Number(config.tableHeaderIndex)) ||
+      isNaN(Number(config.tableHeaderIndex)));
+
   return {
-    show:
-      config.datasource !== DEFAULT_DROPDOWN_OPTION &&
-      config.table !== DEFAULT_DROPDOWN_OPTION &&
-      (config.datasource.data.pluginPackageName !==
-        PluginPackageName.GOOGLE_SHEETS ||
-        config.sheet !== DEFAULT_DROPDOWN_OPTION),
-    disabled:
-      config.datasource.data.pluginPackageName ===
-        PluginPackageName.GOOGLE_SHEETS &&
-      (!config.tableHeaderIndex ||
-        !isNumber(Number(config.tableHeaderIndex)) ||
-        isNaN(Number(config.tableHeaderIndex))),
+    show,
+    disabled,
     onClick,
   };
 }

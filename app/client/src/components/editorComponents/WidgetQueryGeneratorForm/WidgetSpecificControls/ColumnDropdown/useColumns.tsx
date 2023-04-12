@@ -30,8 +30,7 @@ export function useColumns(alias: string) {
     if (
       config.datasource.data.pluginPackageName ===
         PluginPackageName.GOOGLE_SHEETS &&
-      sheetColumns &&
-      isArray(sheetColumns.value)
+      isArray(sheetColumns?.value)
     ) {
       return sheetColumns.value.map((column: any) => {
         return {

@@ -526,9 +526,9 @@ const PropertyControl = memo((props: Props) => {
         );
 
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
-        let update;
+        const update = allPropertiesToUpdates[0];
 
-        if (isDynamicPropertyPath && (update = allPropertiesToUpdates[0])) {
+        if (isDynamicPropertyPath && update) {
           allPropertiesToUpdates[0] = merge({}, update, {
             dynamicUpdates: {
               dynamicPropertyPathList: [
