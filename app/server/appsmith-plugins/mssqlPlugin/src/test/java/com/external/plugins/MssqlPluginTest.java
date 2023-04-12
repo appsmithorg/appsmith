@@ -3,18 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionRequest;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
-import com.appsmith.external.models.Property;
-import com.appsmith.external.models.PsParameterDTO;
-import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.*;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -271,6 +260,16 @@ public class MssqlPluginTest {
                             actionConfiguration.getBody(), null, null, new HashMap<>()));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
                 .verifyComplete();
     }
 
