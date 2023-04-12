@@ -118,6 +118,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     if (isOpen) {
       handleOpen();
     } else {
+      setModalClose && setModalClose(false);
       handleClose();
     }
   };
