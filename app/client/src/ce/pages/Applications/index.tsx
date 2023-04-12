@@ -793,13 +793,13 @@ export function ApplicationsSection(props: any) {
                       <Menu
                         className="t--workspace-name"
                         data-testid="t--workspace-name"
-                        // disabled={isFetchingApplications}
                         onOpenChange={handleWorkspaceMenuClose}
                         open={workspace.id === workspaceToOpenMenu}
                       >
                         <MenuTrigger>
                           <Button
                             className="t--options-icon"
+                            isDisabled={isFetchingApplications}
                             isIconButton
                             kind="tertiary"
                             onClick={() => {

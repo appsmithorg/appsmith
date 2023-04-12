@@ -231,14 +231,6 @@ const Control = styled.div<{ fixed?: boolean }>`
   }
 `;
 
-// const MoreOptionsContainer = styled.div`
-//   width: 22px;
-//   height: 22px;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-// `;
-
 const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   padding: 0;
   padding-right: 12px;
