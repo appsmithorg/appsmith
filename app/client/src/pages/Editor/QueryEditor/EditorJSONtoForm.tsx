@@ -134,6 +134,7 @@ import {
   getDebuggerSelectedTab,
   getErrorCount,
   getResponsePaneHeight,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
@@ -979,15 +980,8 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
-  const debuggerState = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
-  const isPreviewMode = useSelector(
-    (state: AppState) => state.ui.editor.isPreviewMode,
-  );
-
-  // Render debugger flag
-  const showDebuggerFlag = debuggerState && !isPreviewMode;
+  // Debugger render flag
+  const renderDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
@@ -1156,7 +1150,7 @@ export function EditorJSONtoForm(props: Props) {
                 ]}
               />
             </TabContainerView>
-            {showDebuggerFlag && (
+            {renderDebugger && (
               <TabbedViewContainer
                 className="t--query-bottom-pane-container"
                 ref={panelRef}

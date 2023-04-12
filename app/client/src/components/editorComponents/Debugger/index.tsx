@@ -15,6 +15,7 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
@@ -22,14 +23,10 @@ import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 import { Colors } from "constants/Colors";
 
 function Debugger() {
-  const debuggerState = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
-  const isPreviewMode = useSelector(
-    (state: AppState) => state.ui.editor.isPreviewMode,
-  );
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
-  return debuggerState && !isPreviewMode ? <DebuggerTabs /> : null;
+  return showDebugger ? <DebuggerTabs /> : null;
 }
 
 const TriggerContainer = styled.div<{

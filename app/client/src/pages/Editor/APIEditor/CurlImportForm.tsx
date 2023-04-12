@@ -21,6 +21,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px
@@ -178,8 +179,7 @@ const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
   const { pageId: destinationPageId } = props.match.params;
 
   // Debugger render flag
-  const showDebugger =
-    state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;
+  const showDebugger = showDebuggerFlag(state);
 
   if (destinationPageId) {
     return {

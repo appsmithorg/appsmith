@@ -21,6 +21,7 @@ import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getActionData } from "../../../selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const Form = styled.form`
   display: flex;
@@ -298,11 +299,9 @@ export default connect((state: AppState) => {
     state,
     "actionConfiguration.headers",
   );
-  const debuggerState = selector(state, "ui.debugger.isOpen");
-  const isPreviewMode = selector(state, "ui.editor.isPreviewMode");
 
   // Debugger render flag
-  const showDebugger = debuggerState && !isPreviewMode;
+  const showDebugger = showDebuggerFlag(state);
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&
