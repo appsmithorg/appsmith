@@ -1,4 +1,4 @@
-import { RadioComponent } from "design-system-old";
+import { Radio, RadioGroup } from "design-system";
 import React, { useEffect, useState } from "react";
 import type { WrappedFieldInputProps } from "redux-form";
 
@@ -38,15 +38,23 @@ function RadioGroupWrapper(props: RadioGroupWrapperProps) {
   }, [props.input.value, props.placeholder]);
 
   return (
-    <RadioComponent
+    <RadioGroup
       className={props.className}
       columns={props.columns}
       defaultValue={selectedOption}
-      onSelect={(value: string) => onSelectHandler(value)}
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      onChange={(value: string) => onSelectHandler(value)}
       options={props.options}
       rows={props.rows}
       selectedOptionElements={props.selectedOptionElements}
-    />
+    >
+      {props.options.map((option) => (
+        <Radio key={option.value} value={option.value}>
+          {option.label}
+        </Radio>
+      ))}
+    </RadioGroup>
   );
 }
 
