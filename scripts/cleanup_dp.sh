@@ -25,8 +25,8 @@ cat ~/.aws/config
 
 echo "assuming role."
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
-
-echo "$sts_output"
+echo "output is "$#
+echo "printing sts output $sts_output"
 
 export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId')"
 export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r '.Credentials.SecretAccessKey')"
