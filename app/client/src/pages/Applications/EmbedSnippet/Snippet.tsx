@@ -31,6 +31,7 @@ const StyledText = styled(Text)`
 const EmbedSnippetContainer = styled.div`
   display: flex;
   align-items: flex-start;
+  jusitfy-content: space-between;
   background: var(--appsmith-color-black-100);
 
   .icon {

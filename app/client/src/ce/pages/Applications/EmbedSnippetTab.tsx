@@ -135,7 +135,10 @@ export function EmbedSnippetTab({
                     </>
                   )}
                 </div>
-                <StyledLink href={ADMIN_SETTINGS_PATH}>
+                <StyledLink
+                  data-testid="t--change-embedding-restriction"
+                  href={ADMIN_SETTINGS_PATH}
+                >
                   {isAppSettings ? (
                     <Icon
                       fill={Colors.GRAY_700}

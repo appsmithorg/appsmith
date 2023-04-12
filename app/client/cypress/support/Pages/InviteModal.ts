@@ -1,3 +1,4 @@
+import HomePage from "../../locators/HomePage";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 // Edit mode modal
@@ -13,6 +14,10 @@ export class InviteModal {
     _shareButton: ".t--application-share-btn",
     _closeButton: ".t--close-form-dialog",
     _previewEmbed: "[data-cy='preview-embed']",
+    _shareSettingsButton: "[data-testid='t--share-settings-btn']",
+    _upgradeButton: "[data-testid='t--upgrade-btn']",
+    _upgradeContent: "[data-testid='t--upgrade-content']",
+    _restrictionChange: "[data-testid='t--change-embedding-restriction']",
   };
 
   public SelectInviteTab() {
@@ -29,6 +34,23 @@ export class InviteModal {
 
   public CloseModal() {
     this.agHelper.GetNClick(this.locators._closeButton);
+  }
+
+  public SwitchToInviteTab() {
+    this.agHelper.GetNClick(this.locators._shareSettingsButton);
+  }
+
+  public enablePublicAccess() {
+    this.SelectEmbedTab();
+    this.SwitchToInviteTab();
+    cy.get(HomePage.enablePublicAccess).first().click({ force: true });
+    cy.wait("@changeAccess").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(10000);
+    cy.get(HomePage.editModeInviteModalCloseBtn).first().click({ force: true });
   }
 
   public ValidatePreviewEmbed(toShowNavBar: "true" | "false" = "true") {
