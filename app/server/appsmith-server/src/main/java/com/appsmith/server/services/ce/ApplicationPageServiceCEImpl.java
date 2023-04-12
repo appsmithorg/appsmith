@@ -1073,6 +1073,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         isPublishedManually));
     }
 
+    private int getActionCount(Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap, PluginType pluginType) {
+        if (pluginTypeCollectionMap.containsKey(pluginType)) {
+            return pluginTypeCollectionMap.get(pluginType).size();
+        }
+        return 0;
+    }
+
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
                                                             Mono<Map<PluginType, Collection<NewAction>>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
@@ -1091,11 +1098,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
                     Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
-                    Integer dbQueryCount = pluginTypeCollectionMap.get(PluginType.DB) == null ? 0 : pluginTypeCollectionMap.get(PluginType.DB).size();
-                    Integer apiCount = pluginTypeCollectionMap.get(PluginType.API) == null ? 0 : pluginTypeCollectionMap.get(PluginType.API).size();
-                    Integer jsFuncCount = pluginTypeCollectionMap.get(PluginType.JS) == null ? 0 : pluginTypeCollectionMap.get(PluginType.JS).size();
-                    Integer saasQueryCount = pluginTypeCollectionMap.get(PluginType.SAAS) == null ? 0 : pluginTypeCollectionMap.get(PluginType.SAAS).size();
-                    Integer remoteQueryCount = pluginTypeCollectionMap.get(PluginType.REMOTE) == null ? 0 : pluginTypeCollectionMap.get(PluginType.REMOTE).size();
+                    Integer dbQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.DB);
+                    Integer apiCount = getActionCount(pluginTypeCollectionMap, PluginType.API);
+                    Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
+                    Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
+                    Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
 
                     extraProperties.put("dbQueryCount", dbQueryCount);
                     extraProperties.put("apiCount", apiCount);
