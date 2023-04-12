@@ -712,9 +712,6 @@ class BaseInputComponent extends React.Component<
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           isMultiLine={!!multiline}
           labelPosition={labelPosition}
-          onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
-            e.stopPropagation()
-          }
         >
           <ErrorTooltip
             boundary={this.props.errorTooltipBoundary}

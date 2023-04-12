@@ -513,7 +513,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     return (
       <CanvasContainer
         className={this.props.isLoading ? "bp3-skeleton" : ""}
-        onClick={(e) => e.stopPropagation()}
+        // onClick={(e) => e.stopPropagation()}
         {...rest}
         id={this.chartContainerId}
       />

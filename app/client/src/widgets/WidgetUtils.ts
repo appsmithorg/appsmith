@@ -912,7 +912,7 @@ export const checkForOnCLick = (e: React.MouseEvent<HTMLElement>) => {
     target &&
     target !== currentTarget
   ) {
-    const hasOnClick = Boolean(findReactInstanceProps(target).onClick);
+    const hasOnClick = Boolean(findReactInstanceProps(target)?.onClick);
     if (hasOnClick) {
       return true;
     }
