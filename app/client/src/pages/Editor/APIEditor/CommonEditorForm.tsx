@@ -665,13 +665,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             <BoundaryContainer
               data-replay-id={btoa("actionConfiguration.httpMethod")}
             >
-              {/* TODO: Use select here internally */}
+              {/* eslint-disable-next-line */}
+              {/* @ts-ignore*/}
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
                 disabled={!isChangePermitted}
-                height={"35px"}
                 name="actionConfiguration.httpMethod"
-                optionWidth={"110px"}
                 options={
                   isGraphql ? GRAPHQL_HTTP_METHOD_OPTIONS : HTTP_METHOD_OPTIONS
                 }
