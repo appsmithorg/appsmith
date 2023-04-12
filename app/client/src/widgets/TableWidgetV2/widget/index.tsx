@@ -1006,7 +1006,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleColumnSorting = (columnAccessor: string, isAsc: boolean) => {
-    const columnId = this.getColumnIdByAlias(columnAccessor);
+    // const columnId = this.getColumnIdByAlias(columnAccessor);
+    const columnId = columnAccessor;
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     this.pushResetSelectedRowIndexUpdates(false);

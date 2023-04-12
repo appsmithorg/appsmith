@@ -317,9 +317,9 @@ export default {
 
     if (sortByColumnId) {
       const sortBycolumn = columns.find(
-        (column) => column.id === sortByColumnId,
+        (column) => column.alias === sortByColumnId,
       );
-      const sortByColumnOriginalId = sortBycolumn.originalId;
+      const sortByColumnOriginalId = sortBycolumn.alias;
 
       const columnType =
         sortBycolumn && sortBycolumn.columnType
