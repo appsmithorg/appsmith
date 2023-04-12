@@ -15,10 +15,6 @@ describe("Table Widget", function () {
     );
     cy.addDsl(dsl);
     cy.wait(5000);
-    //cy.get(explorer.addWidget).click();
-    //cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 500 });
-    //cy.wait(1000);
-    //cy.wait("@updateLayout");
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput($el, jsContext);
