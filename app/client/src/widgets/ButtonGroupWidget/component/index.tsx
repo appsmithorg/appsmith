@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { isEmpty, sortBy } from "lodash";
+import { sortBy } from "lodash";
 import {
   Alignment,
   Icon,
@@ -568,7 +568,6 @@ class ButtonGroupComponent extends React.Component<
             return (
               <MenuButtonWrapper
                 key={button.id}
-                onClick={(e) => !isEmpty(menuItems) && e.stopPropagation()}
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
@@ -657,9 +656,13 @@ class ButtonGroupComponent extends React.Component<
                 iconAlign={button.iconAlign}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
-                onClick={() => {
-                  this.onButtonClick(button.onClick, button.id);
-                }}
+                onClick={
+                  button.onClick
+                    ? () => {
+                        this.onButtonClick(button.onClick, button.id);
+                      }
+                    : undefined
+                }
               >
                 <StyledButtonContent
                   iconAlign={button.iconAlign || "left"}

@@ -196,11 +196,6 @@ function RecorderLeft(props: RecorderLeftProps) {
     status,
   } = props;
 
-  const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    event.stopPropagation();
-    onClick();
-  };
-
   return (
     <StyledRecorderLeftButton
       accentColor={accentColor}
@@ -210,7 +205,7 @@ function RecorderLeft(props: RecorderLeftProps) {
       disabled={disabled || denied}
       icon={renderRecorderIcon(denied, status)}
       iconColor={iconColor}
-      onClick={handleClick}
+      onClick={onClick}
       permissionDenied={denied}
       status={status}
     />
@@ -232,18 +227,13 @@ export interface PlayerButtonProps {
 }
 
 function PlayerButton(props: PlayerButtonProps) {
-  const onClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    event.stopPropagation();
-    props.onClick();
-  };
-
   switch (props.intent) {
     case PlayerButtonIntentTypes.PLAY:
       return (
         <Button
           icon={<Icon icon="play" iconSize={20} />}
           minimal
-          onClick={onClick}
+          onClick={props.onClick}
           outlined
           small
           title="play"
@@ -255,7 +245,7 @@ function PlayerButton(props: PlayerButtonProps) {
         <Button
           icon={<Icon icon="pause" iconSize={20} />}
           minimal
-          onClick={onClick}
+          onClick={props.onClick}
           outlined
           small
           title="pause"
@@ -267,7 +257,7 @@ function PlayerButton(props: PlayerButtonProps) {
         <Button
           icon={<Icon icon="symbol-square" iconSize={20} />}
           minimal
-          onClick={onClick}
+          onClick={props.onClick}
           outlined
           small
           title="stop"
@@ -280,7 +270,7 @@ function PlayerButton(props: PlayerButtonProps) {
           className="close-button"
           icon={<Icon color="#858282" icon="small-cross" iconSize={20} />}
           minimal
-          onClick={onClick}
+          onClick={props.onClick}
           outlined
           small
           title="discard"
