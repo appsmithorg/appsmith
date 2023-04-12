@@ -701,11 +701,7 @@ describe("App Theming funtionality", function () {
 
     //cy.wait(4000); //for theme to settle
 
-    cy.get("body").should(
-      "have.css",
-      "font-family",
-      '"Montserrat", sans-serif',
-    ); //Font
+    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -890,11 +886,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should(
-      "have.css",
-      "font-family",
-      '"Montserrat", sans-serif',
-    ); //Font
+    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -1123,7 +1115,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
+    cy.get("body").should("have.css", "font-family", "Rubik, sans-serif"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
