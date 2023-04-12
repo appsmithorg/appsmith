@@ -55,10 +55,13 @@ function PrivateEmbeddingContent(props: {
       />
       <SubContainer>
         <StyledText type={TextType.P0}>
-          Private embedding is only available in Appsmith Business Edition.
+          Private embedding is only available on self-hosted Business Edition of
+          Appsmith
         </StyledText>
         <StyledText type={TextType.P1}>
-          Apps in community edition need to be public before embedding.
+          {canMakeAppPublic
+            ? "To embed your app, make it public in the share settings."
+            : "Please contact your workspace admin to make the app public."}
         </StyledText>
       </SubContainer>
       <SubContainer
