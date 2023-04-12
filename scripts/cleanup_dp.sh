@@ -25,7 +25,7 @@ cat ~/.aws/credentials
 cat ~/.aws/config
 
 echo "assuming role."
-sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
+sts_output=$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name dp-session-script)
 echo "output is "$#
 echo "printing sts output $sts_output"
 
