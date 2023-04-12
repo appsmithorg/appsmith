@@ -11,6 +11,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -22,9 +23,12 @@ import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -49,8 +53,10 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -67,6 +73,7 @@ import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
 import static com.appsmith.external.constants.Authentication.SUCCESS;
+import static com.appsmith.server.migrations.DatabaseChangelog1.objectMapper;
 
 
 @RequiredArgsConstructor
@@ -86,6 +93,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
     private final PagePermission pagePermission;
+    private final PluginExecutorHelper pluginExecutorHelper;
+    private final FeatureFlagService featureFlagService;
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
@@ -448,7 +457,22 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         projectID = authenticationResponse.getProjectID();
                                     }
                                 }
-                                return Mono.zip(Mono.just(datasource), Mono.just(accessToken), Mono.just(projectID));
+
+                                Mono<String> accessTokenMono = Mono.just(accessToken);
+                                Mono<String> projectIdMono = Mono.just(projectID);
+
+                                return featureFlagService.check(FeatureFlagEnum.LIMITING_GOOGLE_SHEET_ACCESS)
+                                        .flatMap(isFeatureFlag -> {
+                                            if (Boolean.FALSE.equals(isFeatureFlag)) {
+                                                return Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono);
+                                            }
+
+                                            return pluginExecutorHelper
+                                                    .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                                                    .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                            .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
+                                                    .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
+                                        });
                             });
                 })
                 .flatMap(tuple -> {
