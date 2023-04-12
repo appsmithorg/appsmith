@@ -61,7 +61,7 @@ def main():
                 wait_until_backend_healthy()
                 write_stderr(data)
 
-        elif line.__contains__('PROCESS_STATE_FATAL'):
+        elif 'PROCESS_STATE_FATAL' in line:
             data_params = dict([ x.split(':') for x in data.split()])
             if data_params['groupname'] == 'backend':
                 write_stderr('\nBackend State: FATAL\n')
