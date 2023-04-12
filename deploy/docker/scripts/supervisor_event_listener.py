@@ -45,7 +45,7 @@ def main():
         write_stderr(line)
 
         # read event payload and print it to stderr
-        headers = dict([ x.split(':') for x in line.split() ])
+        headers = dict(x.split(':', 1) for x in line.split())
         data = sys.stdin.read(int(headers['len']))
 
         if 'PROCESS_STATE_STARTING' in line:
