@@ -3,6 +3,7 @@ import { JSEditor } from "../Pages/JSEditor";
 import { EntityExplorer } from "../Pages/EntityExplorer";
 import { CommonLocators } from "./CommonLocators";
 import { ApiPage } from "../Pages/ApiPage";
+import { AdminSettings } from "../Pages/AdminSettings";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
@@ -60,6 +61,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.apiPage__ = new ApiPage();
     }
     return ObjectsRegistry.apiPage__;
+  }
+
+  private static adminSettings__: AdminSettings;
+  static get AdminSettings(): AdminSettings {
+    if (ObjectsRegistry.adminSettings__ === undefined) {
+      ObjectsRegistry.adminSettings__ = new AdminSettings();
+    }
+    return ObjectsRegistry.adminSettings__;
   }
 
   private static homePage__: HomePage;

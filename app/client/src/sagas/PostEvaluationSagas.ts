@@ -38,7 +38,7 @@ import {
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";

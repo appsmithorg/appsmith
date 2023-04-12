@@ -462,13 +462,25 @@ export class AggregateHelper {
     value: string,
     paste = true,
     index = 0,
+    parseSpecialCharacters = false,
   ) {
     cy.xpath(this.locator._actionTextArea(actionName))
       .eq(index)
       .scrollIntoView()
-      .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}{del}", { force: true });
+      .parents(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        input.setValue("");
+        this.Sleep(200);
+      });
+
+    //Not working consistenly, hence commenting
+    // .focus()
+    // .type("{uparrow}", { force: true })
+    // .type("{ctrl}{shift}{downarrow}{del}", { force: true });
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
@@ -491,7 +503,7 @@ export class AggregateHelper {
             this.Paste(el, value);
           } else {
             cy.get(el).type(value, {
-              parseSpecialCharSequences: false,
+              parseSpecialCharSequences: parseSpecialCharacters,
             });
           }
         });
@@ -581,7 +593,7 @@ export class AggregateHelper {
     return locator.eq(index).focus().wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       //delay: 3,
-      //force: true,
+      force: true,
     });
   }
 
@@ -827,8 +839,9 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
+      .clear()
       //.type(this.selectAll)
-      .type(value, { delay: 1 });
+      .type(value, { delay: 1, parseSpecialCharSequences: false });
     // .type(selectAllJSObjectContentShortcut)
     // .then((ins: any) => {
     //   //const input = ins[0].input;
@@ -838,6 +851,31 @@ export class AggregateHelper {
     //   ins.val(value).trigger('change');
     //   this.Sleep(200);
     // });
+  }
+
+  public UpdateFieldLongInput(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("input")
+      .invoke("attr", "value", value)
+      .trigger("input");
+    this.Sleep(); //for value set to settle
+  }
+
+  public UpdateTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .invoke("val", value)
+      .trigger("input");
+    this.Sleep(500); //for value set to settle
+  }
+
+  public TypeIntoTextArea(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("textarea")
+      .first()
+      .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
+    this.Sleep(500); //for value set to settle
   }
 
   public UpdateInputValue(selector: string, value: string) {

@@ -4,7 +4,7 @@ import Button from "../../AppViewerButton";
 import { Icon } from "design-system-old";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
-import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import { showAppInviteUsersDialogSelector } from "@appsmith/selectors/applicationSelectors";
 import {
   createMessage,
   INVITE_USERS_MESSAGE,

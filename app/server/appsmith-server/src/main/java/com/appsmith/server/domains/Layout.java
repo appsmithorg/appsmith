@@ -46,6 +46,12 @@ public class Layout extends BaseDomain {
     @JsonView({Views.Public.class, Views.Export.class})
     List<Set<DslActionDTO>> layoutOnLoadActions;
 
+    @JsonView({Views.Public.class, Views.Export.class})
+    @Override
+    public String getId() {
+        return super.getId();
+    }
+
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView({Views.Public.class, Views.Export.class})
@@ -96,6 +102,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 
+    @Override
     public void sanitiseToExportDBObject() {
         this.setAllOnPageLoadActionNames(null);
         this.setCreatedAt(null);
@@ -112,5 +119,6 @@ public class Layout extends BaseDomain {
                 layoutOnLoadActions.set(dslActionIndex, sortedActions);
             }
         }
+        super.sanitiseToExportDBObject();
     }
 }

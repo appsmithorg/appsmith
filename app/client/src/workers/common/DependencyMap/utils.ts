@@ -13,12 +13,13 @@ import {
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
+  isJSActionConfig,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import type {
-  ConfigTree,
   DataTree,
+  ConfigTree,
   DataTreeEntity,
   DataTreeEntityConfig,
   WidgetEntity,
@@ -426,4 +427,25 @@ export function updateMap(
   } else {
     map[path] = updatedEntries;
   }
+}
+
+export function isAsyncJSFunction(configTree: ConfigTree, fullPath: string) {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const configEntity = configTree[entityName];
+  return (
+    isJSActionConfig(configEntity) &&
+    propertyPath &&
+    propertyPath in configEntity.meta &&
+    configEntity.meta[propertyPath].isAsync
+  );
+}
+
+export function isJSFunction(configTree: ConfigTree, fullPath: string) {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const entityConfig = configTree[entityName];
+  return (
+    isJSActionConfig(entityConfig) &&
+    propertyPath &&
+    propertyPath in entityConfig.meta
+  );
 }

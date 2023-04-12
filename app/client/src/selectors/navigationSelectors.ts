@@ -19,7 +19,11 @@ import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
 import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
 import { getAppsmithNavData } from "utils/NavigationSelector/AppsmithNavData";
-import { isJSAction } from "ce/workers/Evaluation/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isJSAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { AppState } from "@appsmith/reducers";
 
 export type NavigationData = {
   name: string;
@@ -122,5 +126,22 @@ export const getEntitiesForNavigation = createSelector(
       };
     }
     return navigationData;
+  },
+);
+
+export const getJSFunctionNavigationUrl = createSelector(
+  [
+    (state: AppState, entityName: string) =>
+      getEntitiesForNavigation(state, entityName),
+    (_, __, jsFunctionFullName: string | undefined) => jsFunctionFullName,
+  ],
+  (entitiesForNavigation, jsFunctionFullName) => {
+    if (!jsFunctionFullName) return undefined;
+    const { entityName: jsObjectName, propertyPath: jsFunctionName } =
+      getEntityNameAndPropertyPath(jsFunctionFullName);
+    const jsObjectNavigationData = entitiesForNavigation[jsObjectName];
+    const jsFuncNavigationData =
+      jsObjectNavigationData && jsObjectNavigationData.children[jsFunctionName];
+    return jsFuncNavigationData?.url;
   },
 );

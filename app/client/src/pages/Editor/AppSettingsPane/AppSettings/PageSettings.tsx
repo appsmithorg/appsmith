@@ -1,4 +1,4 @@
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import { setPageAsDefault, updatePage } from "actions/pageActions";
 import type { UpdatePageRequest } from "api/PageApi";
 import {

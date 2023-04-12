@@ -1,8 +1,12 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.interfaces.PublishableResource;
@@ -58,6 +62,25 @@ public class NewAction extends BranchAwareDomain implements PublishableResource 
 
     @JsonView(Views.Public.class)
     ActionDTO publishedAction;
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setTemplateId(null);
+        this.setApplicationId(null);
+        this.setOrganizationId(null);
+        this.setWorkspaceId(null);
+        this.setProviderId(null);
+        this.setDocumentation(null);
+        ActionDTO unpublishedAction = this.getUnpublishedAction();
+        if (unpublishedAction != null) {
+            unpublishedAction.sanitiseToExportDBObject();
+        }
+        ActionDTO publishedAction = this.getPublishedAction();
+        if (publishedAction != null) {
+            publishedAction.sanitiseToExportDBObject();
+        }
+        super.sanitiseToExportDBObject();
+    }
 
     @JsonView(Views.Import.class)
     @JsonProperty("action")

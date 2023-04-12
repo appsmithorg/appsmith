@@ -12,7 +12,6 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
@@ -33,7 +32,6 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -42,7 +40,6 @@ import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
-import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
@@ -120,7 +117,6 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -4082,24 +4078,23 @@ public class DatabaseChangelog1 {
     public void insertDefaultResources(MongoTemplate mongoTemplate) {
 
         // Update datasources
-        // final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
+        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
 
-        // datasourceQuery.fields()
-        //         .include(fieldName(QDatasource.datasource.id))
-        //         .include(fieldName(QDatasource.datasource.organizationId));
+        datasourceQuery.fields()
+                .include(fieldName(QDatasource.datasource.id))
+                .include(fieldName(QDatasource.datasource.organizationId));
 
-        // List<Datasource> datasources = mongoTemplate.find(datasourceQuery, Datasource.class);
-        // for (Datasource datasource : datasources) {
-        //     final Update update = new Update();
-        //     final String gitSyncId = datasource.getOrganizationId() + "_" + new ObjectId();
-        //     update.set(fieldName(QDatasource.datasource.gitSyncId), gitSyncId);
-        //     mongoTemplate.updateFirst(
-        //             query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-        //             update,
-        //             Datasource.class
-        //     );
-        // }
-        // Commenting out the above code as it is not required anymore.
+        List<Datasource> datasources = mongoTemplate.find(datasourceQuery, Datasource.class);
+        for (Datasource datasource : datasources) {
+            final Update update = new Update();
+            final String gitSyncId = datasource.getOrganizationId() + "_" + new ObjectId();
+            update.set(fieldName(QDatasource.datasource.gitSyncId), gitSyncId);
+            mongoTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update,
+                    Datasource.class
+            );
+        }
 
         // Update default page Ids in pages and publishedPages for all existing applications
         final Query applicationQuery = query(where(fieldName(QApplication.application.deleted)).ne(true))

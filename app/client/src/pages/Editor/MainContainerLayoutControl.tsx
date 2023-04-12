@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateApplicationLayout } from "actions/applicationActions";
+import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { Colors } from "constants/Colors";
 import type { IconName } from "design-system-old";
 import { Icon, IconSize, TooltipComponent } from "design-system-old";

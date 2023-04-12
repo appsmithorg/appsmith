@@ -31,7 +31,7 @@ import {
 import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster, Variant } from "design-system-old";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 
 import {

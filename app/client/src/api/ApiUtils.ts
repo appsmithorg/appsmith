@@ -1,7 +1,9 @@
 import {
   createMessage,
   ERROR_0,
+  ERROR_413,
   ERROR_500,
+  GENERIC_API_EXECUTION_ERROR,
   SERVER_API_TIMEOUT_ERROR,
 } from "@appsmith/constants/messages";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -23,11 +25,25 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ce/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const appsmithConfig = getAppsmithConfigs();
+
+export const BLOCKED_ROUTES = [
+  "v1/app-templates",
+  "v1/marketplace",
+  "v1/datasources/mocks",
+  "v1/usage-pulse",
+  "v1/applications/releaseItems",
+  "v1/saas",
+];
+
+export const BLOCKED_ROUTES_REGEX = new RegExp(
+  `^(${BLOCKED_ROUTES.join("|")})($|/)`,
+);
 
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
@@ -40,6 +56,18 @@ const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
 const is404orAuthPath = () => {
   const pathName = window.location.pathname;
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
+};
+
+export const blockedApiRoutesForAirgapInterceptor = (
+  config: AxiosRequestConfig,
+) => {
+  const { url } = config;
+
+  const isAirgappedInstance = isAirgapped();
+  if (isAirgappedInstance && url && BLOCKED_ROUTES_REGEX.test(url)) {
+    return Promise.resolve({ data: null, status: 200 });
+  }
+  return config;
 };
 
 // Request interceptor will add a timer property to the request.
@@ -95,6 +123,23 @@ export const apiSuccessResponseInterceptor = (
 
 // Handle different api failure scenarios
 export const apiFailureResponseInterceptor = (error: any) => {
+  // this can be extended to other errors we want to catch.
+  // in this case it is 413.
+  if (error && error?.response && error?.response.status === 413) {
+    return Promise.reject({
+      ...error,
+      clientDefinedError: true,
+      statusCode: "AE-APP-4013",
+      message: createMessage(ERROR_413, 100),
+      pluginErrorDetails: {
+        appsmithErrorCode: "AE-APP-4013",
+        appsmithErrorMessage: createMessage(ERROR_413, 100),
+        errorType: "INTERNAL_ERROR", // this value is from the server, hence cannot construct enum type.
+        title: createMessage(GENERIC_API_EXECUTION_ERROR),
+      },
+    });
+  }
+
   // Return error when there is no internet
   if (!window.navigator.onLine) {
     return Promise.reject({

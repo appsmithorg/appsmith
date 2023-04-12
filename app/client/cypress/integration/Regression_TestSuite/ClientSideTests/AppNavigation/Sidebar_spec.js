@@ -55,15 +55,15 @@ describe("Test Sidebar navigation style", function () {
       .should("have.class", "is-active");
   });
 
-  it("3. The background of sidebar should be white since light color style is default", () => {
+  it("3. Sidebar background should be default to white, and should change when background color is set to theme", () => {
+    // The background of sidebar should be white since light color style is default
     cy.get(appNavigationLocators.sidebar).should(
       "have.css",
       "background-color",
       "rgb(255, 255, 255)",
     );
-  });
 
-  it("4. Changing color style to theme should change navigation's background color", () => {
+    // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
@@ -80,33 +80,33 @@ describe("Test Sidebar navigation style", function () {
     );
   });
 
-  it("5. Application name, share button, edit button, and user dropdown should be available in the app sidebar", () => {
+  it("4. Application name, share button, edit button, and user dropdown should be available in the app sidebar", () => {
     cy.get(appNavigationLocators.applicationName).should("exist");
     cy.get(appNavigationLocators.shareButton).should("exist");
     cy.get(appNavigationLocators.editButton).should("exist");
     cy.get(appNavigationLocators.userProfileDropdownButton).should("exist");
   });
 
-  it("6. Share button should open the share modal", () => {
+  it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+    // Share
     cy.get(
       `${appNavigationLocators.sidebar} ${appNavigationLocators.shareButton}`,
     ).click();
     cy.wait(1000);
     cy.get(appNavigationLocators.modal).should("exist");
     cy.get(appNavigationLocators.modalClose).first().click({ force: true });
-  });
 
-  it("7. Edit button should take us back to the editor", () => {
+    // Edit
     cy.get(
       `${appNavigationLocators.sidebar} ${appNavigationLocators.editButton}`,
     ).click();
     cy.get(commonLocators.canvas).should("exist");
-  });
 
-  it("8. Clicking on user profile button should open up the dropdown menu", () => {
+    // User profile dropdown
     deployMode.DeployApp();
     cy.get(appNavigationLocators.userProfileDropdownButton).click();
     cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
+
     // Back to editor
     cy.get(
       `${appNavigationLocators.sidebar} ${appNavigationLocators.editButton}`,

@@ -19,6 +19,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,6 +192,10 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean exportWithConfiguration;
 
+    //forkWithConfiguration represents whether credentials are shared or not while forking an app
+    @JsonView(Views.Public.class)
+    Boolean forkWithConfiguration;
+
     @JsonView(Views.Internal.class)
     @Deprecated
     String defaultPermissionGroup;
@@ -234,6 +239,25 @@ public class Application extends BaseDomain {
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
+    }
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setWorkspaceId(null);
+        this.setOrganizationId(null);
+        this.setModifiedBy(null);
+        this.setCreatedBy(null);
+        this.setLastDeployedAt(null);
+        this.setLastEditedAt(null);
+        this.setGitApplicationMetadata(null);
+        this.setEditModeThemeId(null);
+        this.setPublishedModeThemeId(null);
+        this.setClientSchemaVersion(null);
+        this.setServerSchemaVersion(null);
+        this.setIsManualUpdate(false);
+        this.setDefaultPermissionGroup(null);
+        this.setPublishedCustomJSLibs(new HashSet<>());
+        super.sanitiseToExportDBObject();
     }
 
     public List<ApplicationPage> getPages() {

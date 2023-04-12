@@ -11,13 +11,14 @@ import {
 } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -213,7 +214,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                       alt="Datasource"
                       className="dataSourceImage"
                       data-testid="database-datasource-image"
-                      src={pluginImages[plugin.id]}
+                      src={getAssetUrl(pluginImages[plugin.id])}
                     />
                   </div>
                   <p className="t--plugin-name textBtn">{plugin.name}</p>

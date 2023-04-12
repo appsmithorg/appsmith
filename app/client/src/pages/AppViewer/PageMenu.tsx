@@ -3,7 +3,7 @@ import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
 import PrimaryCTA from "./PrimaryCTA";
@@ -78,6 +78,11 @@ export function PageMenu(props: NavigationProps) {
       }
     });
   }
+
+  // TODO: Rahul - Check how to use this function in the new layout.
+  // const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+  //   dispatch(setShowAppInviteUsersDialog(isOpen));
+  // }, []);
 
   return (
     <>

@@ -24,8 +24,8 @@ import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
 import { useMouse } from "@mantine/hooks";
-import { getAppSidebarPinned } from "selectors/applicationSelectors";
-import { setIsAppSidebarPinned } from "actions/applicationActions";
+import { getAppSidebarPinned } from "@appsmith/selectors/applicationSelectors";
+import { setIsAppSidebarPinned } from "@appsmith/actions/applicationActions";
 import {
   StyledCtaContainer,
   StyledFooter,

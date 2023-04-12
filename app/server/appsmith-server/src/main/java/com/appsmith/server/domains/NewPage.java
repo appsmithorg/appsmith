@@ -6,10 +6,10 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.dtos.PageDTO;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.appsmith.server.interfaces.PublishableResource;
 import com.appsmith.server.serializers.ExportSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Getter;
@@ -31,6 +31,19 @@ public class NewPage extends BranchAwareDomain implements PublishableResource {
 
     @JsonView(Views.Public.class)
     PageDTO publishedPage;
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setApplicationId(null);
+        this.setId(null);
+        if (this.getUnpublishedPage() != null) {
+            this.getUnpublishedPage().sanitiseToExportDBObject();
+        }
+        if (this.getPublishedPage() != null) {
+            this.getPublishedPage().sanitiseToExportDBObject();
+        }
+        super.sanitiseToExportDBObject();
+    }
 
     @JsonView(Views.Import.class)
     @JsonProperty("page")

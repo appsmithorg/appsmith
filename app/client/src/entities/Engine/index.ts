@@ -1,4 +1,4 @@
-import { fetchApplication } from "actions/applicationActions";
+import { fetchApplication } from "@appsmith/actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -11,7 +11,7 @@ import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultPageId } from "sagas/selectors";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import history from "utils/history";
 import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";

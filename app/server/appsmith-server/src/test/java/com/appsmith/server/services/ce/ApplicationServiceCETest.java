@@ -2399,6 +2399,7 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        gitConnectedApp.setUnpublishedApplicationDetail(new ApplicationDetail());
         gitConnectedApp.getUnpublishedApplicationDetail().setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();

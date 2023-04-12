@@ -13,6 +13,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -159,7 +160,12 @@ const PluginIcon = styled.img`
 
 export const getPluginIcon = (plugin?: Plugin) => {
   if (plugin && plugin.iconLocation) {
-    return <PluginIcon alt={plugin.packageName} src={plugin.iconLocation} />;
+    return (
+      <PluginIcon
+        alt={plugin.packageName}
+        src={getAssetUrl(plugin.iconLocation)}
+      />
+    );
   }
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
