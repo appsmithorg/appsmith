@@ -252,9 +252,10 @@ const SecondaryWrapper = styled.div`
 
 const HelpSection = styled.div``;
 
-const ResponseContentWrapper = styled.div`
+const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   overflow-y: auto;
   display: grid;
+  height: ${(props) => (props.isError ? "" : "100%")};
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -829,7 +830,7 @@ export function EditorJSONtoForm(props: Props) {
       key: "response",
       title: "Response",
       panelComponent: (
-        <ResponseContentWrapper>
+        <ResponseContentWrapper isError={!!error}>
           {error && (
             <ResponseTabErrorContainer>
               <ResponseTabErrorContent>
