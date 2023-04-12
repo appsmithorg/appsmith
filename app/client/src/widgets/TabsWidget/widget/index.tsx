@@ -9,7 +9,6 @@ import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -17,7 +16,10 @@ import TabsComponent from "../component";
 import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -185,12 +187,11 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onTabSelected",
             label: "onTabSelected",
             controlType: "ACTION_SELECTOR",
@@ -329,7 +330,7 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidget(this.props, true);
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}

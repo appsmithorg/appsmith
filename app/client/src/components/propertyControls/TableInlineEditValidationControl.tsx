@@ -12,10 +12,7 @@ import {
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
+import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 

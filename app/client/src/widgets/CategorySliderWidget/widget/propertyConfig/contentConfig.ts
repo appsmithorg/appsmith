@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { CategorySliderWidgetProps } from "..";
 import {
   defaultOptionValidation,
@@ -81,6 +81,7 @@ export default [
         label: "Position",
         controlType: "ICON_TABS",
         fullWidth: true,
+        hidden: isAutoLayout,
         options: [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
@@ -189,12 +190,11 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("CATEGORY_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onChange",
         label: "onChange",
         controlType: "ACTION_SELECTOR",

@@ -310,7 +310,7 @@ export const PropertyPaneContentConfig = [
       {
         propertyName: "onPageChange",
         helpText:
-          "Configure one or chain multiple Actions when the page is changed in a List. All nested Actions run at the same time.",
+          "Configure one or chain multiple actions when the page is changed in a List. All nested Actions run at the same time.",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

@@ -1,9 +1,9 @@
+import React from "react";
 import { Alignment } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isString, xor } from "lodash";
-import React from "react";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -11,11 +11,11 @@ import BaseWidget from "widgets/BaseWidget";
 import { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -108,6 +108,7 @@ class SwitchGroupWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -234,13 +235,11 @@ class SwitchGroupWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText:
-              "Triggers an action when a switch state inside the group is changed",
+            helpText: "when a switch state inside the group is changed",
             propertyName: "onSelectionChange",
             label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",

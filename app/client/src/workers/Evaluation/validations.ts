@@ -1093,7 +1093,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         const { result } = evaluate(
           config.params.fnString,
           {},
-          {},
           false,
           undefined,
           [value, props, globalThis._, globalThis.moment, propertyPath, config],

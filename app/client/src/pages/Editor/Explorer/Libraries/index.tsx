@@ -35,6 +35,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 
 const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
@@ -307,6 +308,8 @@ function JSDependencies() {
 
   const canCreateActions = hasCreateActionPermission(pagePermissions);
 
+  const isAirgappedInstance = isAirgapped();
+
   const openInstaller = useCallback(() => {
     dispatch(toggleInstaller(true));
   }, []);
@@ -336,7 +339,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
-      showAddButton={canCreateActions}
+      showAddButton={canCreateActions && !isAirgappedInstance}
       step={0}
     >
       {dependencyList}

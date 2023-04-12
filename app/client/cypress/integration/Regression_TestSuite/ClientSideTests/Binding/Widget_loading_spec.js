@@ -36,7 +36,7 @@ describe("Binding the multiple widgets and validating default data", function ()
 
   it("3. Button widget test with on action query run", function () {
     cy.SearchEntityandOpen("Button1");
-    cy.executeDbQuery("Query1");
+    cy.executeDbQuery("Query1", "onClick");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

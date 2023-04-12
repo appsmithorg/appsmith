@@ -11,7 +11,6 @@ import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleC
 import type { Color } from "constants/Colors";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
@@ -390,7 +389,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

@@ -201,6 +201,7 @@ export class URLBuilder {
       persistExistingParams = false,
       suffix,
       pageId,
+      branch,
     } = builderParams;
 
     if (!pageId) {
@@ -215,7 +216,13 @@ export class URLBuilder {
       persistExistingParams,
     );
 
-    const modifiedQueryParams = { ...queryParamsToPersist, ...params };
+    const branchParams = branch ? { branch: encodeURIComponent(branch) } : {};
+
+    const modifiedQueryParams = {
+      ...queryParamsToPersist,
+      ...params,
+      ...branchParams,
+    };
 
     const queryString = getQueryStringfromObject(modifiedQueryParams);
 

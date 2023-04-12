@@ -3,7 +3,7 @@
   "workspaces": [
     "shared/*",
     "rts",
-    "client/packages/*",
+    "client/packages/**/*",
     "client"
   ],
   "resolutions": {
