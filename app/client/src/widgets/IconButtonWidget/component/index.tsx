@@ -276,10 +276,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
-  const hasOnClick = useMemo(
-    () => !isDisabled && hasOnClickAction,
-    [isDisabled, hasOnClickAction],
-  );
+  const hasOnClick = !isDisabled && hasOnClickAction;
 
   const iconBtnWrapper = (
     <IconButtonContainer

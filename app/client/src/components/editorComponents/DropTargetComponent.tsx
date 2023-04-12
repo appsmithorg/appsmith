@@ -312,13 +312,15 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     !isAppSettingsPaneWithNavigationTabOpen &&
     !props.useAutoLayout;
 
+  const isMainContainer = props.widgetId === MAIN_CONTAINER_WIDGET_ID;
+
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
         className={`t--drop-target drop-target-${
           props.parentId || MAIN_CONTAINER_WIDGET_ID
         }`}
-        onClick={!props.parentId ? handleFocus : undefined}
+        onClick={isMainContainer ? handleFocus : undefined}
         ref={dropTargetRef}
         style={dropTargetStyles}
       >

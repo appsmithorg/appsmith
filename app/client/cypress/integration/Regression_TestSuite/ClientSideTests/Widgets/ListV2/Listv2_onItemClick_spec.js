@@ -51,7 +51,7 @@ function validateToastExist() {
 }
 
 function validateToastDoestExist() {
-  cy.wait(200);
+  cy.wait(500);
   cy.get(commonlocators.toastmsg, { timeout: 100 }).should("not.exist");
 }
 

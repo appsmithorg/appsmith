@@ -548,6 +548,14 @@ class ButtonGroupComponent extends React.Component<
     items = sortBy(items, ["index"]);
     const popoverId = `button-group-${widgetId}`;
 
+    const getOnClick = (button: GroupButtonProps) => {
+      if (!button.onClick) return;
+
+      return () => {
+        this.onButtonClick(button.onClick, button.id);
+      };
+    };
+
     return (
       <ButtonGroupWrapper
         borderRadius={this.props.borderRadius}
@@ -636,13 +644,7 @@ class ButtonGroupComponent extends React.Component<
               disabled={isButtonDisabled}
               key={button.id}
               loading={!!loadedBtnId}
-              onClick={
-                button.onClick
-                  ? () => {
-                      this.onButtonClick(button.onClick, button.id);
-                    }
-                  : undefined
-              }
+              onClick={getOnClick(button)}
               renderMode={this.props.renderMode}
               style={{ flex: "1 1 auto" }}
             >
@@ -654,13 +656,7 @@ class ButtonGroupComponent extends React.Component<
                 iconAlign={button.iconAlign}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
-                onClick={
-                  button.onClick
-                    ? () => {
-                        this.onButtonClick(button.onClick, button.id);
-                      }
-                    : undefined
-                }
+                onClick={getOnClick(button)}
               >
                 <StyledButtonContent
                   iconAlign={button.iconAlign || "left"}

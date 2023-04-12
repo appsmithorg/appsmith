@@ -24,7 +24,7 @@ import {
 } from "constants/WidgetConstants";
 import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
-import { createGlobalStyle, css } from "styled-components";
+import styled, { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
@@ -40,6 +40,11 @@ const punycode = require("punycode/");
 type SanitizeOptions = {
   existingKeys?: string[];
 };
+
+export const ClickCheckWrapper = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 
 const REACT_ELEMENT_PROPS = "__reactProps$";
 
@@ -904,15 +909,18 @@ const findReactInstanceProps = (domElement: any) => {
   return null;
 };
 
-export const checkForOnCLick = (e: React.MouseEvent<HTMLElement>) => {
+export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
   let target = e.target as HTMLElement | null;
   const currentTarget = e.currentTarget as HTMLElement;
+
   while (
     !target?.classList.contains(WIDGET_CLICK_CHECK_CLASS) &&
     target &&
     target !== currentTarget
   ) {
-    const hasOnClick = Boolean(findReactInstanceProps(target)?.onClick);
+    const hasOnClick = Boolean(
+      findReactInstanceProps(target)?.onClick || target.onclick,
+    );
     if (hasOnClick) {
       return true;
     }

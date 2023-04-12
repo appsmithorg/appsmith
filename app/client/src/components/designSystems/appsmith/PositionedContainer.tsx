@@ -17,10 +17,7 @@ import {
   getIsReflowEffectedSelector,
   getReflowSelector,
 } from "selectors/widgetReflowSelectors";
-import {
-  POSITIONED_WIDGET,
-  WIDGET_CLICK_CHECK_CLASS,
-} from "constants/componentClassNameConstants";
+import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
@@ -93,7 +90,7 @@ export function PositionedContainer(
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      ` ${POSITIONED_WIDGET} ${WIDGET_CLICK_CHECK_CLASS} ${widgetTypeClassname(
+      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(
         props.widgetType,
       )} t--widget-${props.widgetName?.toLowerCase()}`
     );

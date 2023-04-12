@@ -39,8 +39,7 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { getMetaFlexLayers } from "./helper";
-import { checkForOnCLick } from "widgets/WidgetUtils";
+import { getMetaFlexLayers, shouldCallOnItemClick } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1051,24 +1050,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  shouldCallOnItemClick = (e: React.MouseEvent<HTMLElement>) => {
-    const target = e.target as HTMLElement;
-    const isInput = target.tagName === "INPUT";
-    const hasControl = (target as HTMLLabelElement).control;
-    const parentHasControl = (target.parentElement as HTMLLabelElement).control;
-    const hasLink = (target as HTMLAnchorElement).href;
-
-    const hasOnClick = checkForOnCLick(e);
-
-    return !(
-      isInput ||
-      hasControl ||
-      parentHasControl ||
-      hasLink ||
-      hasOnClick
-    );
-  };
-
   /**
    * Note: Do not use this.props inside the renderChildren method if the expectation is that
    * the renderChildren would re-render when the particular prop changes.
@@ -1102,7 +1083,7 @@ class ListWidget extends BaseWidget<
               focused,
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
-                if (this.shouldCallOnItemClick(e)) {
+                if (shouldCallOnItemClick(e)) {
                   this.onItemClick(rowIndex);
                 }
               },
