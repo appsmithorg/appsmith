@@ -848,7 +848,7 @@ export function ApplicationsSection(props: any) {
                           hasCreateNewApplicationPermission && (
                             <MenuItem
                               cypressSelector="t--workspace-import-app"
-                              icon="download"
+                              icon="upload-cloud"
                               onSelect={() =>
                                 setSelectedWorkspaceIdForImportApplication(
                                   workspace.id,
