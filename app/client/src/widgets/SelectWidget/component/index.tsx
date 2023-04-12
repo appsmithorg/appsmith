@@ -358,7 +358,6 @@ class SelectComponent extends React.Component<
           $isDisabled={disabled}
           $labelPosition={labelPosition}
           fill
-          onClick={(e) => e.stopPropagation()}
         >
           <StyledSingleDropDown
             accentColor={accentColor}

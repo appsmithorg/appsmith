@@ -11,6 +11,7 @@ import {
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import isEmpty from "lodash/isEmpty";
 
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
@@ -77,21 +78,6 @@ const PopoverStyles = createGlobalStyle<{
     }px !important;
   }
 `}
-`;
-
-const MenuButtonWrapper = styled.div`
-  flex: 1 1 auto;
-  cursor: pointer;
-  position: relative;
-
-  & > .${Classes.POPOVER2_TARGET} > button {
-    width: 100%;
-    height: 100%;
-  }
-
-  & > .${Classes.POPOVER2_TARGET} {
-    height: 100%;
-  }
 `;
 
 export interface BaseStyleProps {
@@ -383,9 +369,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   } = props;
 
   return (
-    <MenuButtonWrapper
-      onClick={(e) => !isEmpty(menuItems) && e.stopPropagation()}
-    >
+    <>
       <PopoverStyles
         borderRadius={borderRadius}
         id={widgetId}
@@ -425,7 +409,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           renderMode={renderMode}
         />
       </Popover2>
-    </MenuButtonWrapper>
+    </>
   );
 }
 
