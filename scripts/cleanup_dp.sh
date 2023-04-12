@@ -33,7 +33,7 @@ deployed_charts="$(helm ls -A --filter 'ce[0-9]+' --output json | jq -r '.[].nam
 for i in $deployed_charts
   do 
     pr=$(echo $i | cut -c 3-);
-    pr_status="$(gh pr view "$pr" --json state --jq .state)"
+    pr_state="$(gh pr view "$pr" --json state --jq .state)"
     echo $pr_state
     if [[ $pr_state == "MERGED" ]]
     then
