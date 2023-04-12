@@ -20,6 +20,12 @@ source_profile = default" > ~/.aws/config
 export region=ap-south-1
 export cluster_name=uat-cluster
 
+cat ~/.aws/credentials
+
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_SECRET_KEY
+unset AWS_SESSION_TOKEN
+
 echo "assuming role."
 sts_output=$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name dpcleanupsession)
 export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId')"
