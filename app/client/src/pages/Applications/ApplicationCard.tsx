@@ -602,14 +602,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
     <ContextDropdownWrapper>
       <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
         <MenuTrigger>
-          {/* <MoreOptionsContainer> */}
           <Button
             isIconButton
             kind="tertiary"
             size="sm"
             startIcon="context-menu"
           />
-          {/* </MoreOptionsContainer> */}
         </MenuTrigger>
         <MenuContent>
           {hasEditPermission && (

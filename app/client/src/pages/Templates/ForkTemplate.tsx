@@ -67,30 +67,22 @@ function ForkTemplate({
     dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
   };
 
+  const handleOnOpenChange = (open: boolean) => {
+    if (!open) {
+      isImportingTemplate ? noop() : onClose();
+    }
+  };
+
   return (
     <>
       {children}
-      <Modal
-        // isOpen={showForkModal}
-        // onOpenChange={showForkModal}
-        open={showForkModal}
-        // headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
-        // onClose={isImportingTemplate ? noop : onClose}
-        // title={createMessage(CHOOSE_WHERE_TO_FORK)}
-      >
+      <Modal onOpenChange={handleOnOpenChange} open={showForkModal}>
         <ModalContent>
-          <ModalHeader onClose={isImportingTemplate ? noop : onClose}>
-            {/* <Icon name="fork-2" size="lg" /> */}
-            {createMessage(CHOOSE_WHERE_TO_FORK)}
-          </ModalHeader>
+          <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
           <ModalBody>
             <Select
-              // boundary="viewport"
-              // dropdownMaxHeight={"200px"}
-              // fillOptions
               dropdownMatchSelectWidth
               onSelect={(
-                // value: any,
                 dropdownOption: React.SetStateAction<{
                   value: string;
                   label: string;
@@ -99,12 +91,9 @@ function ForkTemplate({
               options={workspaceList}
               placeholder={createMessage(SELECT_WORKSPACE)}
               value={selectedWorkspace}
-              // showLabelOnly
-              // width={"100%"}
             />
           </ModalBody>
           <ModalFooter>
-            {/* <ButtonsWrapper> */}
             <Button
               isDisabled={isImportingTemplate}
               kind="secondary"
@@ -121,7 +110,6 @@ function ForkTemplate({
             >
               {createMessage(FORK_TEMPLATE)}
             </Button>
-            {/* </ButtonsWrapper> */}
           </ModalFooter>
         </ModalContent>
       </Modal>

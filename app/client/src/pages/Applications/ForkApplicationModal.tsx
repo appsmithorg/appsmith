@@ -128,9 +128,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       open={isModalOpen || queryParams.has("fork")}
     >
       <ModalContent className={"fork-modal"}>
-        <ModalHeader onClose={() => setModalClose && setModalClose(false)}>
-          {modalHeading}
-        </ModalHeader>
+        <ModalHeader>{modalHeading}</ModalHeader>
         {isFetchingApplications ? (
           <SpinnerWrapper>
             <Spinner size="lg" />
@@ -146,7 +144,6 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
                   // @ts-ignore
                   selectWorkspace(dropdownOption)
                 }
-                open
                 value={workspace.value}
               >
                 {workspaceList.map((option) => (
