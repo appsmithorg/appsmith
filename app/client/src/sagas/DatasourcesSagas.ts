@@ -1235,32 +1235,31 @@ function* fetchGsheetSpreadhsheets(
     getEditorConfig(state, action.payload.pluginId),
   );
 
-  if (!googleSheetEditorConfig) {
-    yield put(
-      fetchPluginFormConfig({
-        pluginId: {
-          id: action.payload.pluginId,
-        },
-      }),
-    );
-
-    const fetchConfigAction: ReduxAction<unknown> = yield take([
-      ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-      ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
-    ]);
-
-    if (
-      fetchConfigAction.type === ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR
-    ) {
-      throw new Error("Unable to fetch plugin form config");
-    }
-
-    googleSheetEditorConfig = yield select((state: AppState) =>
-      getEditorConfig(state, action.payload.pluginId),
-    );
-  }
-
   try {
+    if (!googleSheetEditorConfig) {
+      yield put(
+        fetchPluginFormConfig({
+          pluginId: {
+            id: action.payload.pluginId,
+          },
+        }),
+      );
+
+      const fetchConfigAction: ReduxAction<unknown> = yield take([
+        ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+        ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
+      ]);
+
+      if (
+        fetchConfigAction.type === ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR
+      ) {
+        throw new Error("Unable to fetch plugin form config");
+      }
+
+      googleSheetEditorConfig = yield select((state: AppState) =>
+        getEditorConfig(state, action.payload.pluginId),
+      );
+    }
     const requestObject: Record<string, string> = {};
 
     if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
