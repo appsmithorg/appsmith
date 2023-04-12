@@ -15,6 +15,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Link } from "design-system";
 import styled from "styled-components";
+import { NavigationMethod } from "../../utils/history";
 
 const StyledLink = styled(Link)`
   margin-left: 16px;
@@ -64,7 +65,7 @@ function CloseEditor() {
       fromUrl: location.pathname,
       toUrl: URL,
     });
-    return URL;
+    return `${URL}?invokedBy=${NavigationMethod.ActionBackButton}`;
   };
 
   return (

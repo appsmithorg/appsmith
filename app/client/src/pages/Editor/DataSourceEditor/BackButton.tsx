@@ -6,6 +6,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Link } from "design-system";
+import { NavigationMethod } from "utils/history";
 
 const Back = styled(Link)`
   height: 30px;
@@ -28,7 +29,7 @@ function BackButton() {
       fromUrl: location.pathname,
       toUrl: redirectURL,
     });
-    return redirectURL;
+    return `${redirectURL}?invokedBy=${NavigationMethod.ActionBackButton}`;
   };
 
   return (
