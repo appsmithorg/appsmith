@@ -41,6 +41,6 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.APPSMITH_DEPLOY_PREVIEW_PAT }}
 
         run: /bin/bash ./scripts/cleanup_dp.sh
