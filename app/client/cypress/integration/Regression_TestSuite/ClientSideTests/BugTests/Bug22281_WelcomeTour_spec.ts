@@ -1,30 +1,26 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const locator = ObjectsRegistry.CommonLocators,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  debuggerHelper = ObjectsRegistry.DebuggerHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Welcome tour spec", function () {
   it("Bug: 22275: Debugger should not render in preview mode", function () {
     //Open debugger
-    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
+    _.agHelper.GetNClick(_.debuggerHelper.locators._debuggerIcon);
     //Enter preview mode
-    agHelper.GetNClick(locator._enterPreviewMode);
+    _.agHelper.GetNClick(_.locators._enterPreviewMode);
     //verify debugger is not present
-    agHelper.AssertElementAbsence(locator._errorTab);
+    _.agHelper.AssertElementAbsence(_.locators._errorTab);
     //Exit preview mode
-    agHelper.GetNClick(locator._exitPreviewMode);
+    _.agHelper.GetNClick(_.locators._exitPreviewMode);
     //verify debugger is present
-    agHelper.GetNAssertContains(locator._errorTab, "Errors");
+    _.agHelper.GetNAssertContains(_.locators._errorTab, "Errors");
   });
-  it("Bug: 22282: Debugger should not open by default in welcome tour", function () {
+  it("Bug: 22281: Debugger should not open by default in welcome tour", function () {
     //Get back to application page
-    agHelper.GetNClick(locator._appsmithLogo);
-    agHelper.WaitUntilEleAppear(locator._createNewApplicationButton);
+    _.agHelper.GetNClick(_.locators._appsmithLogo);
+    _.agHelper.WaitUntilEleAppear(_.homePage._homePageAppCreateBtn);
     //Start welcome tour
-    agHelper.GetNClick(locator._welcomeTour);
-    agHelper.WaitUntilEleAppear(locator._welcomeTourBuildingButton);
+    _.agHelper.GetNClick(_.homePage._welcomeTour);
+    _.agHelper.WaitUntilEleAppear(_.homePage._welcomeTourBuildingButton);
     //Verify debugger is not present
-    agHelper.AssertElementAbsence(locator._errorTab);
+    _.agHelper.AssertElementAbsence(_.locators._errorTab);
   });
 });
