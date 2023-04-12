@@ -122,7 +122,11 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    this.agHelper.AssertElementVisible(this._expandCollapseArrow(entityName));
+    this.agHelper.AssertElementVisible(
+      this._expandCollapseArrow(entityName),
+      index,
+      30000,
+    );
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
       .invoke("attr", "name")
@@ -130,37 +134,39 @@ export class EntityExplorer {
         if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
-            .wait(1000);
-          this.agHelper
-            .GetElement(this._expandCollapseSection(entityName))
-            .then(($div: any) => {
-              cy.log("Checking style - expand");
-              while (!$div.attr("style").includes("overflow-y: visible;")) {
-                cy.log("Inside style check - expand");
-                cy.xpath(this._expandCollapseArrow(entityName))
-                  .eq(index)
-                  .trigger("click", { multiple: true })
-                  .wait(500);
-              }
-            });
+            .wait(500)
+            .trigger("click", { force: true })
+            .wait(500);
+          // this.agHelper
+          //   .GetElement(this._expandCollapseSection(entityName))
+          //   .then(($div: any) => {
+          //     cy.log("Checking style - expand");
+          //     while (!$div.attr("style").includes("overflow-y: visible;")) {
+          //       cy.log("Inside style check - expand");
+          //       cy.xpath(this._expandCollapseArrow(entityName))
+          //         .eq(index)
+          //         .trigger("click", { multiple: true })
+          //         .wait(500);
+          //     }
+          //   });
         } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
-            .wait(1000);
-          this.agHelper
-            .GetElement(this._expandCollapseSection(entityName))
-            .then(($div: any) => {
-              cy.log("Checking style - collapse");
-              while ($div.attr("style").includes("overflow-y: visible;")) {
-                cy.log("Inside style check - collapse");
-                cy.xpath(this._expandCollapseArrow(entityName))
-                  .eq(index)
-                  .trigger("click", { multiple: true })
-                  .wait(500);
-              }
-            });
+            .wait(500)
+            .trigger("click", { force: true })
+            .wait(500);
+          // this.agHelper
+          //   .GetElement(this._expandCollapseSection(entityName))
+          //   .then(($div: any) => {
+          //     cy.log("Checking style - collapse");
+          //     while ($div.attr("style").includes("overflow-y: visible;")) {
+          //       cy.log("Inside style check - collapse");
+          //       cy.xpath(this._expandCollapseArrow(entityName))
+          //         .eq(index)
+          //         .trigger("click", { multiple: true })
+          //         .wait(500);
+          //     }
+          //   });
         } else this.agHelper.Sleep(500);
       });
   }

@@ -22,6 +22,7 @@ import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent, { ButtonType } from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -121,6 +122,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       },
       {
         sectionName: "Validation",
+        hidden: isAirgapped,
         children: [
           {
             propertyName: "googleRecaptchaKey",
