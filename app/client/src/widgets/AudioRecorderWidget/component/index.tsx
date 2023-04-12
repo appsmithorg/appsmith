@@ -196,6 +196,10 @@ function RecorderLeft(props: RecorderLeftProps) {
     status,
   } = props;
 
+  const handleClick = () => {
+    onClick();
+  };
+
   return (
     <StyledRecorderLeftButton
       accentColor={accentColor}
@@ -205,7 +209,7 @@ function RecorderLeft(props: RecorderLeftProps) {
       disabled={disabled || denied}
       icon={renderRecorderIcon(denied, status)}
       iconColor={iconColor}
-      onClick={onClick}
+      onClick={handleClick}
       permissionDenied={denied}
       status={status}
     />
@@ -227,13 +231,15 @@ export interface PlayerButtonProps {
 }
 
 function PlayerButton(props: PlayerButtonProps) {
-  switch (props.intent) {
+  const { intent, onClick } = props;
+
+  switch (intent) {
     case PlayerButtonIntentTypes.PLAY:
       return (
         <Button
           icon={<Icon icon="play" iconSize={20} />}
           minimal
-          onClick={props.onClick}
+          onClick={onClick}
           outlined
           small
           title="play"
@@ -245,7 +251,7 @@ function PlayerButton(props: PlayerButtonProps) {
         <Button
           icon={<Icon icon="pause" iconSize={20} />}
           minimal
-          onClick={props.onClick}
+          onClick={onClick}
           outlined
           small
           title="pause"
@@ -257,7 +263,7 @@ function PlayerButton(props: PlayerButtonProps) {
         <Button
           icon={<Icon icon="symbol-square" iconSize={20} />}
           minimal
-          onClick={props.onClick}
+          onClick={onClick}
           outlined
           small
           title="stop"
@@ -270,7 +276,7 @@ function PlayerButton(props: PlayerButtonProps) {
           className="close-button"
           icon={<Icon color="#858282" icon="small-cross" iconSize={20} />}
           minimal
-          onClick={props.onClick}
+          onClick={onClick}
           outlined
           small
           title="discard"

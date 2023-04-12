@@ -375,9 +375,7 @@ function PopoverContent(props: PopoverContentProps) {
             <Icon color={iconColor} icon={iconName} />
           ) : null
         }
-        onClick={() => {
-          onItemClicked(onClick, buttonId);
-        }}
+        onClick={() => onItemClicked(onClick, buttonId)}
         text={label}
         textColor={textColor}
       />

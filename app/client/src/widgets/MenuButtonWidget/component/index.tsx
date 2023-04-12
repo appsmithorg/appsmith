@@ -11,8 +11,6 @@ import {
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import isEmpty from "lodash/isEmpty";
 
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import type { ButtonPlacement, ButtonVariant } from "components/constants";
@@ -276,9 +274,7 @@ function PopoverContent(props: PopoverContentProps) {
               <Icon color={iconColor} icon={iconName} />
             ) : null
           }
-          onClick={() => {
-            onItemClicked(onClick, index);
-          }}
+          onClick={() => onItemClicked(onClick, index)}
           text={label}
           textColor={textColor}
         />
