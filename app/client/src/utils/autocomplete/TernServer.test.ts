@@ -146,6 +146,7 @@ describe("Tern server", () => {
               getLine: () => "{{}}",
               somethingSelected: () => false,
               getValue: () => "{{}}",
+              getEditor: () => MockCodemirrorEditor,
             } as unknown as CodeMirror.Doc,
           },
           requestCallbackData: {
@@ -166,6 +167,7 @@ describe("Tern server", () => {
               getLine: () => " {{}}",
               somethingSelected: () => false,
               getValue: () => " {{}}",
+              getEditor: () => MockCodemirrorEditor,
             } as unknown as CodeMirror.Doc,
           },
           requestCallbackData: {
