@@ -1602,7 +1602,7 @@ export const USE_SNAPSHOT_TEXT = () =>
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO FIXED-LAYOUT";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
 export const SNAPSHOT_BANNER_MESSAGE = () =>

@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
-
 import React from "react";
+import styled from "styled-components";
 
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { ConversionForm } from "./ConversionForm";
@@ -11,7 +11,6 @@ import {
   USE_SNAPSHOT_CTA,
   USE_SNAPSHOT_HEADER,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system-old";
 import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import {
   setConversionStart,
@@ -19,6 +18,12 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useDispatch } from "react-redux";
+
+const Text = styled.h5`
+  color: var(--ads-v2-color-fg-emphasis-plus);
+  font-weight: 600;
+  font-size: var(--ads-v2-font-size-4);
+`;
 
 export function SnapShotBannerCTA() {
   const dispatch = useDispatch();
@@ -46,7 +51,7 @@ export function SnapShotBannerCTA() {
         }
         title={createMessage(USE_SNAPSHOT_HEADER)}
         trigger={
-          <Text className="cursor-pointer pr-2" type={TextType.H5} weight={600}>
+          <Text className="cursor-pointer pr-2">
             {createMessage(USE_SNAPSHOT_CTA)}
           </Text>
         }
@@ -60,7 +65,7 @@ export function SnapShotBannerCTA() {
         }
         title={createMessage(DISCARD_SNAPSHOT_HEADER)}
         trigger={
-          <Text className="cursor-pointer pl-2" type={TextType.H5} weight={600}>
+          <Text className="cursor-pointer pl-2">
             {createMessage(DISCARD_SNAPSHOT_CTA)}
           </Text>
         }

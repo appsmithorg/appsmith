@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/react";
-
 import React, { useCallback } from "react";
+import styled from "styled-components";
 
-import { Button, Category, Size, Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { ConversionForm } from "./ConversionForm";
 import { useConversionForm } from "./hooks/useConversionForm";
@@ -22,6 +22,12 @@ import {
   setConversionStop,
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
+
+const Title = styled.h1`
+  color: var(--ads-v2-color-fg-emphasis-plus);
+  font-weight: var(--ads-v2-font-weight-bold);
+  font-size: var(--ads-v2-font-size-10);
+`;
 
 function ConversionButton() {
   const isAutoLayout = getIsAutoLayout(store.getState());
@@ -46,7 +52,7 @@ function ConversionButton() {
   const header = () => {
     return (
       <div className="flex items-center gap-3">
-        <Text type={TextType.H1}>{createMessage(titleText)}</Text>
+        <Title>{createMessage(titleText)}</Title>
         <BetaCard />
       </div>
     );
@@ -64,13 +70,13 @@ function ConversionButton() {
       onOpenOrClose={onOpenOrClose}
       trigger={
         <Button
-          category={Category.secondary}
-          className="mb-6"
-          fill
+          className="mb-6 w-full"
           id="t--layout-conversion-cta"
-          size={Size.medium}
-          text={createMessage(buttonText)}
-        />
+          kind="secondary"
+          size="md"
+        >
+          {createMessage(buttonText)}
+        </Button>
       }
     />
   );

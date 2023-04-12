@@ -22,7 +22,6 @@ import { Colors } from "constants/Colors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Variant } from "design-system-old";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
@@ -87,7 +86,7 @@ export const snapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       primaryButton: {
         text: createMessage(DISCARD),
-        variant: Variant.danger,
+        // variant: Variant.danger,
         onClick: () => {
           onCancel();
           dispatch({
