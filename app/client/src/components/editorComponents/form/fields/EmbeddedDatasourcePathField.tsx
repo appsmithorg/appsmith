@@ -82,6 +82,7 @@ const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
   align-items: center;
+  height: 36px;
   .t--datasource-editor {
     background-color: ${Colors.WHITE};
     .cm-s-duotone-light.CodeMirror {
