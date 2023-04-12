@@ -17,15 +17,11 @@ source_profile = default" > ~/.aws/config
 export region=ap-south-1
 export cluster_name=uat-cluster
 
-echo "Region: $region"
-echo "Cluster name: $cluster_name"
-
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name dpcleanupsession)
 export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId')"
 export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r '.Credentials.SecretAccessKey')"
 export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r '.Credentials.SessionToken')"
 
-export KUBECONFIG="$PWD/kubeconfig"
 aws eks update-kubeconfig --name "$cluster_name" --role-arn "$AWS_ROLE_ARN"
 
 ### Get list of helm charts
