@@ -7,8 +7,8 @@ set -o nounset
 mkdir ~/.aws; touch ~/.aws/config
 
 echo "[default]
-aws_access_key_id = $AWS_ACCESS_KEY_ID
-aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
+aws_access_key_id = $AWS_ACCESS_KEY
+aws_secret_access_key = $AWS_SECRET_ACCESS" > ~/.aws/credentials
 
 echo "[default]
 [profile eksci]
@@ -21,13 +21,11 @@ export region=ap-south-1
 export cluster_name=uat-cluster
 
 cat ~/.aws/credentials
-
-unset AWS_SECRET_ACCESS_KEY
-unset AWS_SECRET_KEY
-unset AWS_SESSION_TOKEN
+cat ~/.aws/config
 
 echo "assuming role."
-sts_output=$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name dpcleanupsession)
+sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
+
 export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId')"
 export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r '.Credentials.SecretAccessKey')"
 export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r '.Credentials.SessionToken')"
