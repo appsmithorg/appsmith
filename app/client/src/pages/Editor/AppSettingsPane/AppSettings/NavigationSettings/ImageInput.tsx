@@ -18,9 +18,9 @@ type ImageInputProps = {
 };
 
 const StyledImg = styled.img`
-  width: 100%;
+  object-fit: contain;
   max-width: 200px;
-  max-height: 1.5rem;
+  max-height: 100px;
 `;
 
 export const ImageInput = (props: ImageInputProps) => {
@@ -72,9 +72,9 @@ export const ImageInput = (props: ImageInputProps) => {
           iconPosition="left"
           onClick={onFileInputClick}
           size={Size.medium}
-          text="Upload file"
+          text="Upload"
         >
-          Upload file
+          Upload
         </Button>
       </div>
 

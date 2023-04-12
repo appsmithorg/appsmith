@@ -1544,6 +1544,8 @@ export const APP_NAVIGATION_SETTING = {
   showSignInLabel: () => "Show Sign In",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;

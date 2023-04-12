@@ -115,6 +115,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  defaultNavigationSetting,
+  keysOfNavigationSetting,
+} from "constants/AppConstants";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -900,13 +904,6 @@ export function* uploadNavigationLogoSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      if (request) {
-        yield put({
-          type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-          payload: response.data,
-        });
-      }
-
       if (request.logo) {
         if (
           request.logo &&
@@ -917,6 +914,61 @@ export function* uploadNavigationLogoSaga(
               response.data.applicationDetail.navigationSetting.logoAssetId,
             ),
           );
+
+          /**
+           * When the user creates a new application and they upload logo without
+           * interacting with any other navigation settings first, we get only
+           * navigationSetting = { logoAssetId: <id_string_here> } in the API response.
+           *
+           * Therefore, we need to handle this case by hitting the update application
+           * API and store the default navigation settings as well alongside
+           * the logoAssetId.
+           */
+          const navigationSettingKeys = Object.keys(
+            response.data.applicationDetail?.navigationSetting,
+          );
+          if (
+            navigationSettingKeys?.length === 1 &&
+            navigationSettingKeys?.[0] === keysOfNavigationSetting.logoAssetId
+          ) {
+            const newUpdateApplicationRequestWithDefaultNavigationSettings = {
+              ...response.data,
+              applicationDetail: {
+                ...response.data.applicationDetail,
+                navigationSetting: {
+                  ...defaultNavigationSetting,
+                  ...response.data.applicationDetail.navigationSetting,
+                },
+              },
+            };
+
+            const updateApplicationResponse: ApiResponse<UpdateApplicationResponse> =
+              yield call(
+                ApplicationApi.updateApplication,
+                newUpdateApplicationRequestWithDefaultNavigationSettings,
+              );
+
+            if (updateApplicationResponse?.data) {
+              yield put({
+                type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+                payload: updateApplicationResponse.data,
+              });
+
+              if (
+                newUpdateApplicationRequestWithDefaultNavigationSettings
+                  .applicationDetail?.navigationSetting &&
+                updateApplicationResponse.data.applicationDetail
+                  ?.navigationSetting
+              ) {
+                yield put(
+                  updateApplicationNavigationSettingAction(
+                    updateApplicationResponse.data.applicationDetail
+                      .navigationSetting,
+                  ),
+                );
+              }
+            }
+          }
         }
       }
     }

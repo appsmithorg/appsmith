@@ -603,21 +603,34 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<UpdateApplicationRequest>,
   ) => {
-    return {
-      ...state,
-      isUploadingNavigationLogo: false,
-      currentApplication: {
-        ...state.currentApplication,
-        applicationDetail: {
-          ...state.currentApplication?.applicationDetail,
-          navigationSetting: {
-            ...state.currentApplication?.applicationDetail?.navigationSetting,
-            // update logoAssetId in state
-            logoAssetId: action.payload,
-          },
-        },
+    const updatedNavigationSetting = Object.assign(
+      {},
+      state.currentApplication?.applicationDetail?.navigationSetting,
+      {
+        logoAssetId: action.payload,
       },
-    };
+    );
+
+    const updatedApplicationDetail = Object.assign(
+      {},
+      state.currentApplication?.applicationDetail,
+      {
+        navigationSetting: updatedNavigationSetting,
+      },
+    );
+
+    const updatedCurrentApplication = Object.assign(
+      {},
+      state.currentApplication,
+      {
+        applicationDetail: updatedApplicationDetail,
+      },
+    );
+
+    return Object.assign({}, state, {
+      isUploadingNavigationLogo: false,
+      currentApplication: updatedCurrentApplication,
+    });
   },
   [ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR]: (
     state: ApplicationsReduxState,

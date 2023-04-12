@@ -5,12 +5,12 @@ import {
   createMessage,
   APP_NAVIGATION_SETTING,
 } from "@appsmith/constants/messages";
-import { logoImageValidator } from "utils/BrandingUtils";
 import type { UpdateSetting } from ".";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
+import { logoImageValidation } from "./utils";
 
 export type ButtonGroupSettingProps = {
   updateSetting: UpdateSetting;
@@ -42,7 +42,7 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
           onChange={(file) => {
             handleChange && handleChange(file);
           }}
-          validate={logoImageValidator}
+          validate={logoImageValidation}
           value={navigationSetting?.logoAssetId}
         />
       </div>
