@@ -792,6 +792,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionName: collection.name,
         action: jsAction,
         collectionId: collectionId,
+        isExecuteJSFunc: true,
       };
       yield call(handleExecuteJSFunctionSaga, data);
     }
