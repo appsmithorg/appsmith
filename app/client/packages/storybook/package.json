@@ -7,8 +7,8 @@
   "scripts": {
     "storybook": "start-storybook -p 6006",
     "build": "build-storybook",
-    "lint:ci": "echo 'No lint specified'",
-    "prettier:ci": "echo 'No prettier specified'"
+    "lint": "echo 'No lint specified'",
+    "prettier": "echo 'No prettier specified'"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

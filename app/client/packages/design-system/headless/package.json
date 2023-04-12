@@ -5,8 +5,8 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "lint:ci": "eslint --cache .",
-    "prettier:ci": "prettier --check ."
+    "lint": "eslint --cache .",
+    "prettier": "prettier --check ."
   },
   "dependencies": {
     "@react-aria/button": "^3.7.0",
@@ -22,7 +22,8 @@
   },
   "devDependencies": {
     "@types/react": "*",
-    "@types/react-dom": "*"
+    "@types/react-dom": "*",
+    "eslint": "^8.38.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
