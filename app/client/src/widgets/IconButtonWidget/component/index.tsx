@@ -276,19 +276,18 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
+  const hasOnClick = useMemo(
+    () => !isDisabled && hasOnClickAction,
+    [isDisabled, hasOnClickAction],
+  );
+
   const iconBtnWrapper = (
     <IconButtonContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       hasOnClickAction={hasOnClickAction}
-      onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if (isDisabled) return;
-        if (hasOnClickAction) {
-          e.stopPropagation();
-        }
-        onClick();
-      }}
+      onClick={hasOnClick ? onClick : undefined}
       renderMode={renderMode}
     >
       <StyledButton
