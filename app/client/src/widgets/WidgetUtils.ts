@@ -24,7 +24,7 @@ import {
 } from "constants/WidgetConstants";
 import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
-import styled, { createGlobalStyle, css } from "styled-components";
+import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
@@ -40,11 +40,6 @@ const punycode = require("punycode/");
 type SanitizeOptions = {
   existingKeys?: string[];
 };
-
-export const ClickCheckWrapper = styled.div`
-  height: 100%;
-  width: 100%;
-`;
 
 const REACT_ELEMENT_PROPS = "__reactProps$";
 
