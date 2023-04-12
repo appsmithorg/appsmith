@@ -32,7 +32,7 @@ for i in $deployed_charts
     if [[ $pr_state == "MERGED" ]]
     then
       echo "helm uninstall $i -n $i"
-      kubectl delete ns $NAMESPACE || echo "true"
+      echo kubectl delete ns $i || echo "true"
       echo mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
     fi
   done
