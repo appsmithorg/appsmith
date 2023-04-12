@@ -18,7 +18,7 @@ import memoize from "micro-memoize";
 const resizeBorderPadding = 1;
 const resizeBorder = 1;
 const resizeBoxShadow = 1;
-const resizeOutline = 1;
+export const resizeOutline = 1;
 
 export const RESIZE_BORDER_BUFFER =
   resizeBorderPadding + resizeBorder + resizeBoxShadow + resizeOutline;

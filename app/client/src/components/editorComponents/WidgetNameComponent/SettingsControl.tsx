@@ -5,6 +5,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import type { CSSProperties } from "react";
 import React from "react";
 import { useSelector } from "react-redux";
+import { resizeOutline, RESIZE_BORDER_BUFFER } from "resizable/common";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
 // I honestly can't think of a better name for this enum
@@ -40,6 +41,9 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
     }
   }
   border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
+  max-width: ${(props) =>
+    props.widgetWidth -
+    (RESIZE_BORDER_BUFFER + BORDER_RADIUS / 2 - resizeOutline)}px !important;
   ${(props) => {
     if (props.inverted) {
       return `border-bottom-left-radius: ${BORDER_RADIUS}px;
