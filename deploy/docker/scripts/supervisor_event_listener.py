@@ -54,7 +54,7 @@ def main():
                 write_stderr('\nBackend State: STARTING\n')
                 shutil.copyfile(LOADING_TEMPLATE_PAGE, LOADING_PAGE_EDITOR)
 
-        elif line.__contains__('PROCESS_STATE_RUNNING'):
+        elif 'PROCESS_STATE_RUNNING' in line:
             data_params = dict([ x.split(':') for x in data.split()])
             if data_params['groupname'] == 'backend':
                 write_stderr('\nBackend State: RUNNING\n')
