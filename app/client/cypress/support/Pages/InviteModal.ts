@@ -40,7 +40,7 @@ export class InviteModal {
     this.agHelper.GetNClick(this.locators._shareSettingsButton);
   }
 
-  public enablePublicAccess() {
+  public enablePublicAccessViaShareSettings() {
     this.SelectEmbedTab();
     this.SwitchToInviteTab();
     cy.get(HomePage.enablePublicAccess).first().click({ force: true });
@@ -51,6 +51,16 @@ export class InviteModal {
     );
     cy.wait(10000);
     cy.get(HomePage.editModeInviteModalCloseBtn).first().click({ force: true });
+  }
+
+  public enablePublicAccessViaInviteTab() {
+    cy.get(HomePage.enablePublicAccess).first().click({ force: true });
+    cy.wait("@changeAccess").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(4000);
   }
 
   public ValidatePreviewEmbed(toShowNavBar: "true" | "false" = "true") {
