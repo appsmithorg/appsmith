@@ -4,15 +4,25 @@
 set -o errexit
 set -o nounset
 
-export AWS_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY
+mkdir ~/.aws; touch ~/.aws/config
+
+echo "[default]
+aws_access_key_id = $AWS_ACCESS_KEY_ID
+aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
+
+echo "[default]
+[profile eksci]
+role_arn= $AWS_ROLE_ARN
+output = json
+region=ap-south-1
+source_profile = default" > ~/.aws/config
 
 export AWS_REGION=ap-south-1
 export AWS_DEFAULT_OUTPUT=json
 
 export cluster_name=uat-cluster
 
-sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name dp-session-script)
+sts_output=$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name dp-session-script)
 
 export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId')"
 export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r '.Credentials.SecretAccessKey')"
