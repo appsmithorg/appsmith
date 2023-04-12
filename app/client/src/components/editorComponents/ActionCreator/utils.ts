@@ -1,12 +1,31 @@
+import { FUNC_ARGS_REGEX } from "./regex";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { isValidURL } from "utils/URLUtils";
 import {
-  ACTION_TRIGGER_REGEX,
-  FUNC_ARGS_REGEX,
-  IS_URL_OR_MODAL,
-} from "./regex";
-import {
-  getDynamicBindings,
-  isDynamicValue,
-} from "../../../utils/DynamicBindingUtils";
+  getTextArgumentAtPosition,
+  getEnumArgumentAtPosition,
+  getModalName,
+  setModalName,
+  setEnumArgumentAtPosition,
+  setCallbackFunctionField,
+  getFuncExpressionAtPosition,
+  getFunctionBodyStatements,
+  setObjectAtPosition,
+  getThenCatchBlocksFromQuery,
+  setThenBlockInQuery,
+  setCatchBlockInQuery,
+  getFunctionParams,
+  setQueryParam,
+  getQueryParam,
+  checkIfCatchBlockExists,
+  checkIfThenBlockExists,
+} from "@shared/ast";
+import type { TreeDropdownOption } from "design-system-old";
+import type { TActionBlock } from "./types";
+import { AppsmithFunction, DEFAULT_LABELS } from "./constants";
+import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
+import store from "store";
+import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -15,7 +34,7 @@ export const stringToJS = (string: string): string => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
-        return `'${segment}'`;
+        return `'${segment.replace(/\n/g, "\\n").replace(/'/g, "\\'")}'`;
       }
     })
     .join(" + ");
@@ -51,36 +70,46 @@ export const argsStringToArray = (funcArgs: string): string[] => {
   return arr;
 };
 
+export function getEvaluationVersion() {
+  const state = store.getState();
+  return selectEvaluationVersion(state);
+}
+
 export const modalSetter = (changeValue: any, currentValue: string) => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = matches[0][2].split(",");
-    if (isDynamicValue(changeValue)) {
-      args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
-    } else {
-      args[0] = `'${changeValue}'`;
-    }
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getCodeFromMoustache(currentValue);
+  try {
+    return setModalName(requiredValue, changeValue, getEvaluationVersion());
+  } catch (e) {
+    // showError();
+    throw e;
   }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
 };
 
 export const modalGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  let name = "none";
-  if (!matches.length) {
-    return name;
-  } else {
-    const modalName = matches[0][2].split(",")[0];
-    if (IS_URL_OR_MODAL.test(modalName) || modalName === "") {
-      name = modalName.substring(1, modalName.length - 1);
-    } else {
-      name = `{{${modalName}}}`;
-    }
-    return name;
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getCodeFromMoustache(value);
+  return getModalName(requiredValue, getEvaluationVersion());
+};
+
+export const objectSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
+  try {
+    return setObjectAtPosition(
+      requiredValue,
+      changeValueWithoutBraces,
+      argNum,
+      getEvaluationVersion(),
+    );
+  } catch (e) {
+    return currentValue;
   }
 };
 
@@ -89,44 +118,53 @@ export const textSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = stringToJS(changeValue);
-  }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
+  const requiredValue = stringToJS(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(
+    stringToJS(changeValue),
   );
+  try {
+    return `{{${setCallbackFunctionField(
+      requiredValue,
+      changeValueWithoutBraces,
+      argNum,
+      getEvaluationVersion(),
+    )}}}`;
+  } catch (e) {
+    return currentValue;
+  }
 };
 
-export const textGetter = (value: string, argNum: number) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (!matches.length) {
-    return "";
-  } else {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    return arg ? JSToString(arg.trim()) : arg;
-  }
+export const textGetter = (value: string, argNum: number): string => {
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = stringToJS(value);
+  return getTextArgumentAtPosition(
+    requiredValue,
+    argNum,
+    getEvaluationVersion(),
+  );
 };
 
 export const enumTypeSetter = (
   changeValue: any,
   currentValue: string,
   argNum: number,
+  defaultValue?: string,
 ): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = changeValue as string;
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  changeValue = getCodeFromMoustache(changeValue) || defaultValue || "";
+  try {
+    return setEnumArgumentAtPosition(
+      requiredValue,
+      changeValue,
+      argNum,
+      getEvaluationVersion(),
+    );
+  } catch (e) {
+    return currentValue;
   }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
 };
 
 export const enumTypeGetter = (
@@ -134,12 +172,421 @@ export const enumTypeGetter = (
   argNum: number,
   defaultValue = "",
 ): string => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (!matches.length) {
-    return defaultValue;
-  } else {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    return arg ? arg.trim() : defaultValue;
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  return getEnumArgumentAtPosition(
+    requiredValue,
+    argNum,
+    defaultValue,
+    getEvaluationVersion(),
+  );
+};
+
+export const callBackFieldSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const requiredChangeValue = getCodeFromMoustache(changeValue) || "() => {}";
+  try {
+    return `{{${
+      setCallbackFunctionField(
+        requiredValue,
+        requiredChangeValue,
+        argNum,
+        getEvaluationVersion(),
+      ) || currentValue
+    }}}`;
+  } catch (e) {
+    return currentValue;
   }
 };
+
+export const callBackFieldGetter = (value: string, argNumber = 0) => {
+  const requiredValue = getCodeFromMoustache(value);
+  const funcExpr = getFuncExpressionAtPosition(
+    requiredValue,
+    argNumber,
+    getEvaluationVersion(),
+  );
+  return `{{${funcExpr}}}`;
+};
+
+/*
+ * This function extracts the 1st string argument from value
+ * and determines if the string is a valid url
+ */
+export const isValueValidURL = (value: string) => {
+  if (value) {
+    const indices = [];
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] === "'") {
+        indices.push(i);
+      }
+    }
+    const str = value.substring(indices[0], indices[1] + 1);
+    return isValidURL(str);
+  }
+};
+
+export function flattenOptions(
+  options: TreeDropdownOption[],
+  results: TreeDropdownOption[] = [],
+): TreeDropdownOption[] {
+  options.forEach((option) => {
+    results.push(option);
+    if (option.children) {
+      flattenOptions(option.children, results);
+    }
+  });
+  return results;
+}
+
+export function getSelectedFieldFromValue(
+  value: string,
+  fieldOptions: TreeDropdownOption[],
+): TreeDropdownOption {
+  const allOptions = flattenOptions(fieldOptions);
+
+  const includedFields = allOptions.filter((option) => {
+    return value.includes(option.value);
+  });
+
+  const matches = includedFields.map((option) => ({
+    option,
+    index: value.indexOf(option.value),
+  }));
+
+  const sortedMatches = matches.sort((a, b) => a.index - b.index);
+
+  const selectedField = sortedMatches[0]?.option;
+
+  const noActionFieldConfig = FIELD_GROUP_CONFIG[AppsmithFunction.none];
+  const noActionOption: TreeDropdownOption = {
+    label: noActionFieldConfig.label,
+    value: noActionFieldConfig.value || "",
+    children: noActionFieldConfig.children,
+  };
+
+  return selectedField || noActionOption;
+}
+
+export function codeToAction(
+  code: string,
+  fieldOptions: TreeDropdownOption[],
+  multipleActions = true,
+  strict = false,
+): TActionBlock {
+  const jsCode = getCodeFromMoustache(code);
+  const evaluationVersion = getEvaluationVersion();
+
+  const selectedOption = getSelectedFieldFromValue(jsCode, fieldOptions);
+
+  const mainActionType = (selectedOption.type ||
+    selectedOption.value ||
+    AppsmithFunction.none) as any;
+
+  if (strict) {
+    if (mainActionType === AppsmithFunction.none) {
+      throw new Error("Invalid action detected");
+    }
+  }
+
+  if (chainableFns.includes(mainActionType) && multipleActions) {
+    const successCallback = getFuncExpressionAtPosition(
+      jsCode,
+      0,
+      evaluationVersion,
+    );
+    const { catch: catchBlock, then: thenBlock } = getThenCatchBlocksFromQuery(
+      code,
+      evaluationVersion,
+    );
+
+    const thenCallbackParams: string[] = getFunctionParams(
+      thenBlock,
+      evaluationVersion,
+    );
+    const thenCallbackBlocks = getFunctionBodyStatements(
+      thenBlock,
+      evaluationVersion,
+    );
+
+    const catchCallbackParams: string[] = getFunctionParams(
+      catchBlock,
+      evaluationVersion,
+    );
+    const catchCallbackBlocks = getFunctionBodyStatements(
+      catchBlock,
+      evaluationVersion,
+    );
+
+    const successCallbackParams: string[] = getFunctionParams(
+      successCallback,
+      evaluationVersion,
+    );
+    const successCallbackBlocks: string[] = getFunctionBodyStatements(
+      successCallback,
+      evaluationVersion,
+    ).map((block: string) => block);
+
+    const errorCallback = getFuncExpressionAtPosition(
+      jsCode,
+      1,
+      evaluationVersion,
+    );
+
+    const errorCallbackParams: string[] = getFunctionParams(
+      errorCallback,
+      evaluationVersion,
+    );
+    const errorCallbackBlocks = getFunctionBodyStatements(
+      errorCallback,
+      evaluationVersion,
+    ).map((block: string) => block);
+
+    return {
+      code: jsCode,
+      actionType: mainActionType,
+      success: {
+        params: [...thenCallbackParams, ...successCallbackParams],
+        blocks: [
+          ...successCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false, strict),
+            type: "success" as const,
+          })),
+          ...thenCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false, strict),
+            type:
+              successCallbackBlocks.length + errorCallbackBlocks.length > 0
+                ? ("success" as const)
+                : ("then" as const),
+          })),
+        ],
+      },
+      error: {
+        params: [...catchCallbackParams, ...errorCallbackParams],
+        blocks: [
+          ...errorCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false, strict),
+            type: "failure" as const,
+          })),
+          ...catchCallbackBlocks.map((block: string) => ({
+            ...codeToAction(block, fieldOptions, false, strict),
+            type:
+              successCallbackBlocks.length + errorCallbackBlocks.length > 0
+                ? ("failure" as const)
+                : ("catch" as const),
+          })),
+        ],
+      },
+    };
+  }
+
+  return {
+    code: jsCode,
+    actionType: mainActionType,
+    success: { blocks: [] },
+    error: { blocks: [] },
+  };
+}
+
+export const chainableFns: TActionBlock["actionType"][] = [
+  AppsmithFunction.integration,
+  AppsmithFunction.navigateTo,
+  AppsmithFunction.showAlert,
+  AppsmithFunction.showModal,
+  AppsmithFunction.closeModal,
+  AppsmithFunction.storeValue,
+  AppsmithFunction.clearStore,
+  AppsmithFunction.removeValue,
+  AppsmithFunction.copyToClipboard,
+  AppsmithFunction.resetWidget,
+  AppsmithFunction.showModal,
+  AppsmithFunction.download,
+];
+
+export function actionToCode(
+  action: TActionBlock,
+  multipleActions = true,
+): string {
+  const {
+    actionType,
+    code,
+    error: { blocks: errorBlocks, params: errorParams },
+    success: { blocks: successBlocks, params: successParams },
+  } = action;
+
+  const actionFieldConfig = FIELD_GROUP_CONFIG[actionType];
+  const evaluationVersion = getEvaluationVersion();
+
+  if (!actionFieldConfig) {
+    return code;
+  }
+  /**
+   * Unfortunately, we have to do this because the integration action could be represented with success and error callbacks
+   * or then/catch blocks. We need to check if the action is an integration action and if it had a success or error callback
+   * defined already to preserve the positions of params object which should first param when using then/catch and 3rd param when using
+   * callbacks.
+   */
+  const supportsCallback = actionType === AppsmithFunction.integration;
+
+  if (chainableFns.includes(actionType as any) && multipleActions) {
+    const existingSuccessCallback =
+      supportsCallback &&
+      getFuncExpressionAtPosition(code, 0, evaluationVersion);
+    const existingErrorCallback =
+      supportsCallback &&
+      getFuncExpressionAtPosition(code, 1, evaluationVersion);
+    const thenBlockExists = checkIfCatchBlockExists(code, evaluationVersion);
+    const catchBlockExists = checkIfThenBlockExists(code, evaluationVersion);
+    if (actionType === AppsmithFunction.integration) {
+      if (existingSuccessCallback || existingErrorCallback) {
+        successBlocks.forEach((block) => {
+          if (block.type === "then") {
+            block.type = "success";
+          }
+        });
+        errorBlocks.forEach((block) => {
+          if (block.type === "catch") {
+            block.type = "failure";
+          }
+        });
+      }
+    }
+
+    const successCallbackCodes = successBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "success",
+      )
+      .map((callback) => actionToCode(callback, false));
+    const successCallbackCode = successCallbackCodes.join("");
+
+    const thenCallbackCodes = successBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "then",
+      )
+      .map((callback) => actionToCode(callback, false));
+    const thenCallbackCode = thenCallbackCodes.join("");
+
+    const errorCallbackCodes = errorBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "failure",
+      )
+      .map((callback) => actionToCode(callback, false));
+    const errorCallbackCode = errorCallbackCodes.join("");
+
+    const catchCallbackCodes = errorBlocks
+      .filter(
+        ({ actionType, type }) =>
+          actionType !== AppsmithFunction.none && type === "catch",
+      )
+      .map((callback) => actionToCode(callback, false));
+    const catchCallbackCode = catchCallbackCodes.join("");
+
+    // Set callback function field only if there is a callback code
+    const withSuccessCallback =
+      existingSuccessCallback || existingErrorCallback
+        ? setCallbackFunctionField(
+            code,
+            `(${
+              successParams ? successParams.join(",") : ""
+            }) => { ${successCallbackCode} }`,
+            0,
+            evaluationVersion,
+          )
+        : code;
+
+    const withThenCallback =
+      thenBlockExists || thenCallbackCode
+        ? setThenBlockInQuery(
+            withSuccessCallback,
+            `(${
+              successParams ? successParams.join(",") : ""
+            }) => { ${thenCallbackCode} }`,
+            evaluationVersion,
+          )
+        : withSuccessCallback;
+
+    // Set callback function field only if there is a callback code
+    const withErrorCallback =
+      existingSuccessCallback || existingErrorCallback
+        ? setCallbackFunctionField(
+            withThenCallback,
+            `(${
+              errorParams ? errorParams.join(",") : ""
+            }) => { ${errorCallbackCode} }`,
+            1,
+            evaluationVersion,
+          )
+        : withThenCallback;
+
+    const withCatchCallback =
+      catchBlockExists || catchCallbackCode
+        ? setCatchBlockInQuery(
+            withErrorCallback,
+            `(${
+              errorParams ? errorParams.join(",") : ""
+            }) => { ${catchCallbackCode} }`,
+            evaluationVersion,
+          )
+        : withErrorCallback;
+
+    return withCatchCallback;
+  }
+
+  return code === "" || code.endsWith(";") ? code : code + ";";
+}
+
+export function isEmptyBlock(block: string) {
+  return [";", "undefined;", ""].includes(getCodeFromMoustache(block));
+}
+
+/** {{Hello {{Input.text}}}} -> Hello {{Input.text}} */
+export function getCodeFromMoustache(value = "") {
+  const code = value.replace(/^{{|}}$/g, "");
+  return code;
+}
+
+export function paramSetter(
+  changeValue: string,
+  currentValue: string,
+  argNum?: number,
+) {
+  argNum = argNum || 0;
+  const requiredValue = getCodeFromMoustache(currentValue);
+  const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
+  return setQueryParam(
+    requiredValue,
+    changeValueWithoutBraces,
+    argNum,
+    getEvaluationVersion(),
+  );
+}
+
+export function paramGetter(code: string, argNum?: number) {
+  argNum = argNum || 0;
+  const requiredValue = getCodeFromMoustache(code);
+  return getQueryParam(requiredValue, argNum, getEvaluationVersion());
+}
+
+export function sortSubMenuOptions(options: TreeDropdownOption[]) {
+  return (options as TreeDropdownOption[]).sort(
+    (a: TreeDropdownOption, b: TreeDropdownOption) => {
+      // Makes default labels like "New modal" show up on top
+      if (DEFAULT_LABELS.includes(a.label)) {
+        return -1;
+      } else if (DEFAULT_LABELS.includes(b.label)) {
+        return 1;
+      } else {
+        // numeric - true handles A10 being shown after A2
+        return a.label.localeCompare(b.label, "en", { numeric: true });
+      }
+    },
+  );
+}

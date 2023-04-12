@@ -59,6 +59,7 @@ export enum Overflow {
 }
 
 export enum FlexLayerAlignment {
+  None = "none",
   Start = "start",
   Center = "center",
   End = "end",
@@ -70,4 +71,11 @@ export enum FlexVerticalAlignment {
   Bottom = "end",
 }
 
-export const defaultAutoLayoutWidgets = ["CONTAINER_WIDGET", "TABS_WIDGET"];
+export const defaultAutoLayoutWidgets = [
+  "CONTAINER_WIDGET",
+  "TABS_WIDGET",
+  "LIST_WIDGET_V2",
+  "MODAL_WIDGET",
+  "STATBOX_WIDGET",
+  "FORM_WIDGET",
+];
