@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -61,6 +62,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1032,7 +1034,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .collectList()
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<List<NewAction>> publishedActionsListMono = newActionService
+        Mono<Map<PluginType, Collection<NewAction>>> publishedActionsListMono = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
                 .flatMap(newAction -> {
                     // If the action was deleted in edit mode, now this document can be safely archived
@@ -1045,7 +1047,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Mono.just(newAction);
                 })
                 .flatMap(newActionService::save)
-                .collectList()
+                .collectMultimap(newAction -> newAction.getPluginType())
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
@@ -1072,7 +1074,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
-                                                            Mono<List<NewAction>> publishedActionsFlux,
+                                                            Mono<Map<PluginType, Collection<NewAction>>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
                                                             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
                                                             String applicationId, boolean isPublishedManually) {
@@ -1088,7 +1090,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application application = objects.getT4();
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
-                    extraProperties.put("queryCount", objects.getT2().size());
+                    Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
+                    Integer dbQueryCount = pluginTypeCollectionMap.get(PluginType.DB) == null ? 0 : pluginTypeCollectionMap.get(PluginType.DB).size();
+                    Integer apiCount = pluginTypeCollectionMap.get(PluginType.API) == null ? 0 : pluginTypeCollectionMap.get(PluginType.API).size();
+                    Integer jsFuncCount = pluginTypeCollectionMap.get(PluginType.JS) == null ? 0 : pluginTypeCollectionMap.get(PluginType.JS).size();
+                    Integer saasQueryCount = pluginTypeCollectionMap.get(PluginType.SAAS) == null ? 0 : pluginTypeCollectionMap.get(PluginType.SAAS).size();
+                    Integer remoteQueryCount = pluginTypeCollectionMap.get(PluginType.REMOTE) == null ? 0 : pluginTypeCollectionMap.get(PluginType.REMOTE).size();
+
+                    extraProperties.put("dbQueryCount", dbQueryCount);
+                    extraProperties.put("apiCount", apiCount);
+                    extraProperties.put("jsFuncCount", jsFuncCount);
+                    extraProperties.put("saasQueryCount", saasQueryCount);
+                    extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("queryCount", (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount));
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
