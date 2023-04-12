@@ -17,7 +17,8 @@ output = json
 region=ap-south-1
 source_profile = default" > ~/.aws/config
 
-export region=ap-south-1
+export AWS_REGION=ap-south-1
+export AWS_DEFAULT_OUTPUT=json
 export cluster_name=uat-cluster
 
 cat ~/.aws/credentials
