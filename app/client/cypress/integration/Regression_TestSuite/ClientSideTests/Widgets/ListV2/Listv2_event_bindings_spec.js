@@ -11,9 +11,6 @@ describe("Listv2 - Event bindings", () => {
     // Open the property pane of button in the inner list widget
     cy.openPropertyPane("buttonwidget");
 
-    // Enable JS mode for onClick
-    cy.get(toggleJSButton("onclick")).click({ force: true });
-
     cy.testJsontext(
       "onclick",
       "{{showAlert(`${currentView.Input1.text} _ ${currentItem.id} _ ${currentIndex}`)}}",

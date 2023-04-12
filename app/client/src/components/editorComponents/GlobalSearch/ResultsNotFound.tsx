@@ -5,6 +5,7 @@ import { NO_SEARCH_DATA_TEXT } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { importSvg } from "design-system-old";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const DiscordIcon = importSvg(() => import("assets/icons/help/discord.svg"));
 
@@ -45,24 +46,27 @@ const StyledDiscordIcon = styled(DiscordIcon)`
 `;
 
 function ResultsNotFound() {
+  const isAirgappedInstance = isAirgapped();
   return (
     <Container>
       <img alt="No data" src={NoSearchDataImage} />
       <div className="no-data-title">{NO_SEARCH_DATA_TEXT()}</div>
-      <span className="discord">
-        🤖 Join our{"  "}
-        <span
-          className="discord-link"
-          onClick={() => {
-            window.open("https://discord.gg/rBTTVJp", "_blank");
-            AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
-          }}
-        >
-          <StyledDiscordIcon color="red" height={22} width={24} />
-          Discord Server
-        </span>{" "}
-        for more help.
-      </span>
+      {!isAirgappedInstance && (
+        <span className="discord">
+          🤖 Join our{"  "}
+          <span
+            className="discord-link"
+            onClick={() => {
+              window.open("https://discord.gg/rBTTVJp", "_blank");
+              AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
+            }}
+          >
+            <StyledDiscordIcon color="red" height={22} width={24} />
+            Discord Server
+          </span>{" "}
+          for more help.
+        </span>
+      )}
     </Container>
   );
 }

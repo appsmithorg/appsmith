@@ -1188,15 +1188,16 @@ function* filePickerActionCallbackSaga(
 
     const datasource: Datasource = yield select(getDatasource, datasourceId);
 
-    // When user selects cancel in file picker, we need to revert datasource status back to failure,
-    // so users cannot create queries on top of such faulty datasource
-    if (action === FilePickerActionStatus.CANCEL) {
-      set(
-        datasource,
-        "datasourceConfiguration.authentication.authenticationStatus",
-        AuthenticationStatus.FAILURE,
-      );
-    }
+    // update authentication status based on whether files were picked or not
+    const authStatus =
+      action === FilePickerActionStatus.PICKED
+        ? AuthenticationStatus.SUCCESS
+        : AuthenticationStatus.FAILURE;
+    set(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationStatus",
+      authStatus,
+    );
 
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource

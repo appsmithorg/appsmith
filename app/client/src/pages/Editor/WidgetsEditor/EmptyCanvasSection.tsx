@@ -4,6 +4,7 @@ import { Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getIsAutoLayout,
   previewModeSelector,
   selectURLSlugs,
   showCanvasTopSectionSelector,
@@ -87,6 +88,7 @@ function CanvasTopSection() {
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   useEffect(() => {
     if (!showCanvasTopSection && !inPreviewMode) {
@@ -112,7 +114,7 @@ function CanvasTopSection() {
 
   return (
     <Wrapper data-cy="canvas-ctas">
-      {!!featureFlags.TEMPLATES_PHASE_2 && (
+      {!!featureFlags.TEMPLATES_PHASE_2 && !isAutoLayout && (
         <Card data-cy="start-from-template" onClick={showTemplatesModal}>
           <Layout />
           <Content>

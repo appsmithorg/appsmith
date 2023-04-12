@@ -7,7 +7,6 @@ import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
@@ -74,7 +73,6 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 }, {} as any);
 
 function resetWorkerGlobalScope() {
-  self.$isDataField = false;
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
@@ -121,10 +119,8 @@ export const getScriptToEval = (
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export type EvalContext = Record<string, any>;
-type ResolvedFunctions = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
-  resolvedFunctions: ResolvedFunctions;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
@@ -147,7 +143,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     evalArguments,
     isTriggerBased,
     removeEntityFunctions,
-    resolvedFunctions,
   } = args;
 
   const EVAL_CONTEXT: EvalContext = {};
@@ -167,39 +162,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
-
   return EVAL_CONTEXT;
-};
-
-export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: EvalContext,
-  resolvedFunctions: ResolvedFunctions,
-  isTriggerBased: boolean,
-) => {
-  const jsObjectNames = Object.keys(resolvedFunctions || {});
-  for (const jsObjectName of jsObjectNames) {
-    const resolvedObject = resolvedFunctions[jsObjectName];
-    const jsObject = EVAL_CONTEXT[jsObjectName];
-    const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
-    if (!jsObject) continue;
-    for (const fnName of Object.keys(resolvedObject)) {
-      const fn = resolvedObject[fnName];
-      if (typeof fn !== "function") continue;
-      // Investigate promisify of JSObject function confirmation
-      // Task: https://github.com/appsmithorg/appsmith/issues/13289
-      // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const data = jsObject[fnName]?.data;
-      jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
-        : fn;
-      if (!!data) {
-        jsObjectFunction[fnName]["data"] = data;
-      }
-    }
-
-    EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
-  }
 };
 
 export function sanitizeScript(js: string) {
@@ -240,10 +203,34 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
+export function setEvalContext({
+  context,
+  dataTree,
+  evalArguments,
+  isDataField,
+  isTriggerBased,
+}: {
+  context?: EvaluateContext;
+  dataTree: DataTree;
+  evalArguments?: Array<any>;
+  isDataField: boolean;
+  isTriggerBased: boolean;
+}) {
+  self["$isDataField"] = isDataField;
+
+  const evalContext = createEvaluationContext({
+    dataTree,
+    context,
+    evalArguments,
+    isTriggerBased,
+  });
+
+  Object.assign(self, evalContext);
+}
+
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
@@ -252,19 +239,6 @@ export default function evaluateSync(
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
-
-    // skipping log reset if the js collection is being evaluated without run
-    // Doing this because the promise execution is losing logs in the process due to resets
-    /**** Setting the eval context ****/
-    const evalContext: EvalContext = createEvaluationContext({
-      dataTree,
-      resolvedFunctions,
-      context,
-      evalArguments,
-      isTriggerBased: isJSCollection,
-    });
-
-    evalContext["$isDataField"] = true;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -281,10 +255,13 @@ export default function evaluateSync(
       };
     }
 
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.assign(self, evalContext);
+    setEvalContext({
+      dataTree,
+      isDataField: true,
+      isTriggerBased: isJSCollection,
+      context,
+      evalArguments,
+    });
 
     try {
       result = indirectEval(script);
@@ -309,12 +286,6 @@ export default function evaluateSync(
         },
       });
     } finally {
-      for (const entityName in evalContext) {
-        if (evalContext.hasOwnProperty(entityName)) {
-          // @ts-expect-error: Types are not available
-          delete self[entityName];
-        }
-      }
       self["$isDataField"] = false;
     }
     return { result, errors };
@@ -324,7 +295,6 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
@@ -333,22 +303,15 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
 
-    /**** Setting the eval context ****/
-    const evalContext: EvalContext = createEvaluationContext({
+    const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
+
+    setEvalContext({
       dataTree,
-      resolvedFunctions,
+      isDataField: false,
+      isTriggerBased: true,
       context,
       evalArguments,
-      isTriggerBased: true,
     });
-
-    const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext["$isDataField"] = false;
-
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.assign(self, evalContext);
 
     try {
       result = await indirectEval(script);

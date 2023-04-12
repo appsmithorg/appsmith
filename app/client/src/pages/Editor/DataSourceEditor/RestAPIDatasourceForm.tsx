@@ -63,6 +63,11 @@ import type {
 } from "entities/Datasource/RestAPIForm";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "./Debugger";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -88,6 +93,7 @@ interface DatasourceRestApiEditorProps {
   formMeta: any;
   messages?: Array<string>;
   hiddenHeader?: boolean;
+  showDebugger: boolean;
   responseStatus?: string;
   responseMessage?: string;
   datasourceName: string;
@@ -106,6 +112,9 @@ type Props = DatasourceRestApiEditorProps &
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
+  .t--save-and-authorize-datasource {
+    margin-left: 20px;
+  }
 `;
 
 const StyledButton = styled(Button)`
@@ -334,7 +343,8 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, hiddenHeader, pageId } = this.props;
+    const { datasource, formData, hiddenHeader, pageId, showDebugger } =
+      this.props;
 
     return (
       <FormContainer>
@@ -347,21 +357,26 @@ class DatasourceRestAPIEditor extends React.Component<
             }}
           >
             {this.renderHeader()}
-            {this.renderEditor()}
-            <DatasourceAuth
-              datasource={datasource}
-              datasourceButtonConfiguration={[
-                DatasourceButtonType.DELETE,
-                DatasourceButtonType.SAVE,
-              ]}
-              datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
-              formData={formData}
-              getSanitizedFormData={this.getSanitizedFormData}
-              isFormDirty={this.props.isFormDirty}
-              isInvalid={this.validate()}
-              pageId={pageId}
-              shouldRender
-            />
+            <ResizerMainContainer>
+              <ResizerContentContainer className="api-datasource-content-container">
+                {this.renderEditor()}
+                <DatasourceAuth
+                  datasource={datasource}
+                  datasourceButtonConfiguration={[
+                    DatasourceButtonType.DELETE,
+                    DatasourceButtonType.SAVE,
+                  ]}
+                  datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
+                  formData={formData}
+                  getSanitizedFormData={this.getSanitizedFormData}
+                  isFormDirty={this.props.isFormDirty}
+                  isInvalid={this.validate()}
+                  pageId={pageId}
+                  shouldRender
+                />
+              </ResizerContentContainer>
+              {showDebugger && <Debugger />}
+            </ResizerMainContainer>
           </form>
         </FormContainerBody>
       </FormContainer>
@@ -383,7 +398,7 @@ class DatasourceRestAPIEditor extends React.Component<
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
-          <PluginImage alt="Datasource" src={pluginImage} />
+          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
           <FormTitle
             disabled={!createMode && !canManageDatasource}
             focusOnMount={isNewDatasource}
@@ -450,7 +465,11 @@ class DatasourceRestAPIEditor extends React.Component<
     const { formData } = this.props;
 
     return (
-      <section data-cy="section-General" data-replay-id="section-General">
+      <section
+        className="t--section-general"
+        data-cy="section-General"
+        data-replay-id="section-General"
+      >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "url",
@@ -1182,6 +1201,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  const showDebugger = state.ui.debugger.isOpen;
+
   const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
 
   const hintMessages = datasource && datasource.messages;
@@ -1197,6 +1218,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
+    showDebugger,
   };
 };
 

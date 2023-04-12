@@ -10,6 +10,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { Colors } from "constants/Colors";
 import { importRemixIcon, importSvg } from "design-system-old";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const AddDatasourceIcon = importRemixIcon(
   () => import("remixicon-react/AddBoxLineIcon"),
@@ -192,7 +193,9 @@ export const generateQuickCommands = (
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>
-              <img src={pluginIdToImageLocation[data.data.pluginId]} />
+              <img
+                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+              />
             </EntityIcon>
           );
         }
@@ -217,7 +220,9 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, self: any, data: any) => {
         const icon = (
           <EntityIcon>
-            <img src={pluginIdToImageLocation[data.data.pluginId]} />
+            <img
+              src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+            />
           </EntityIcon>
         );
         ReactDOM.render(

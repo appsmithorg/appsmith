@@ -31,6 +31,8 @@ import HotKeys from "../Files/SubmenuHotkeys";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { importRemixIcon } from "design-system-old";
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const FileAddIcon = importRemixIcon(
   () => import("remixicon-react/FileAddLineIcon"),
@@ -83,6 +85,8 @@ function AddPageContextMenu({
   const { pageId } = useParams<ExplorerURLParams>();
   const [activeItemIdx, setActiveItemIdx] = useState(0);
   const featureFlags = useSelector(selectFeatureFlags);
+  const isAutoLayout = useSelector(getIsAutoLayout);
+  const isAirgappedInstance = isAirgapped();
 
   const menuRef = useCallback(
     (node) => {
@@ -111,7 +115,11 @@ function AddPageContextMenu({
       },
     ];
 
-    if (featureFlags.TEMPLATES_PHASE_2) {
+    if (
+      featureFlags.TEMPLATES_PHASE_2 &&
+      !isAutoLayout &&
+      !isAirgappedInstance
+    ) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: Layout2LineIcon,

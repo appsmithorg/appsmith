@@ -11,6 +11,7 @@ import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
 import { importSvg } from "design-system-old";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const ApiIcon = importSvg(() => import("assets/icons/menu/api-colored.svg"));
 const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
@@ -161,7 +162,12 @@ const PluginIcon = styled.img`
 
 export const getPluginIcon = (plugin?: Plugin) => {
   if (plugin && plugin.iconLocation) {
-    return <PluginIcon alt={plugin.packageName} src={plugin.iconLocation} />;
+    return (
+      <PluginIcon
+        alt={plugin.packageName}
+        src={getAssetUrl(plugin.iconLocation)}
+      />
+    );
   }
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
