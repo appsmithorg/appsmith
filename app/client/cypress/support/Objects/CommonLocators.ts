@@ -180,5 +180,4 @@ export class CommonLocators {
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-cy='edit-mode']";
   _exitPreviewMode = "[data-cy='preview-mode']";
-  _appsmithLogo = ".t--appsmith-logo";
 }

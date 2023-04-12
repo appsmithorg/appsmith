@@ -15,7 +15,7 @@ describe("Welcome tour spec", function () {
   });
   it("Bug: 22281: Debugger should not open by default in welcome tour", function () {
     //Get back to application page
-    _.agHelper.GetNClick(_.locators._appsmithLogo);
+    _.agHelper.GetNClick(_.homePage._homeIcon);
     _.agHelper.WaitUntilEleAppear(_.homePage._homePageAppCreateBtn);
     //Start welcome tour
     _.agHelper.GetNClick(_.homePage._welcomeTour);

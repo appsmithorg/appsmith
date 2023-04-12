@@ -43,7 +43,7 @@ export class HomePage {
   public _closeBtn = ".bp3-dialog-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
-  private _homeIcon = ".t--appsmith-logo";
+  _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
