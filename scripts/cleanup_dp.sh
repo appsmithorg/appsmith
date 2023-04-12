@@ -22,7 +22,13 @@ export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId
 export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r '.Credentials.SecretAccessKey')"
 export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r '.Credentials.SessionToken')"
 
-aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
+aws eks update-kubeconfig --region $region --name uat-cluster --profile eksci
+
+echo "Set the default namespace"
+kubectl config set-context --current --namespace=default
+
+echo "Getting the pods"
+kubectl get pods -A
 
 ### Get list of helm charts
 deployed_charts="$(helm ls -A --filter 'ce[0-9]+' --output json | jq -r '.[].namespace')"
