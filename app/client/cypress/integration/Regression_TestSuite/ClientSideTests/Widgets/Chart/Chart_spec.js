@@ -322,12 +322,12 @@ describe("Chart Widget Functionality", function () {
     cy.get("g[class$='item'] text").should(
       "have.css",
       "font-family",
-      '"Nunito Sans", sans-serif',
+      "Nunito Sans",
     );
     cy.get("g[class$='labels'] text").should(
       "have.css",
       "font-family",
-      '"Nunito Sans", sans-serif',
+      "Nunito Sans",
     );
   });
 
