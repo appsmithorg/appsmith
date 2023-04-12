@@ -8,7 +8,7 @@ export class InviteModal {
   private deployPage = ObjectsRegistry.DeployMode;
   private commonLocators = ObjectsRegistry.CommonLocators;
 
-  private locators = {
+  public locators = {
     _inviteTab: "[data-cy='t--tab-INVITE']",
     _embedTab: "[data-cy='t--tab-EMBED']",
     _shareButton: ".t--application-share-btn",
