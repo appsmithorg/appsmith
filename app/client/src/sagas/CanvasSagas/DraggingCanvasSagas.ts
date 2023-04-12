@@ -30,11 +30,12 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
 import {
+  getCanvasWidth,
   getCurrentAppPositioningType,
+  getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
@@ -343,13 +344,15 @@ function* moveWidgetsSaga(
        * If previous parent is an auto layout container,
        * then update the flex layers.
        */
-      const isMobile: boolean = yield select(getIsMobile);
+      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+      const mainCanvasWidth: number = yield select(getCanvasWidth);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
         canvasId,
         true,
         isMobile,
+        mainCanvasWidth,
       );
     }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(

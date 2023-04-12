@@ -1,7 +1,8 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { OverflowTypes } from "./constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -29,7 +30,7 @@ export const CONFIG = {
     overflow: OverflowTypes.NONE,
     version: 1,
     animateLoading: true,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
@@ -40,6 +41,28 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    autoDimension: {
+      height: true,
+    },
+    defaults: {
+      columns: 4,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+            minHeight: "40px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
 };
 

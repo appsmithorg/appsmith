@@ -16,6 +16,7 @@ export const SliderContainer = styled.div<{
   padding-left: ${({ labelPosition }) =>
     labelPosition === LabelPosition.Top ? "0.4rem" : undefined};
   height: 100%;
+  width: 100%;
 
   & .${LABEL_CONTAINER_CLASS} {
     label {

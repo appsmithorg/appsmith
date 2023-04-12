@@ -9,6 +9,7 @@ import type { Release } from "./ReleaseComponent";
 import ReleaseComponent from "./ReleaseComponent";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Modal, ModalContent, ModalHeader } from "design-system";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Container = styled.div`
   position: relative;
@@ -32,16 +33,21 @@ type ProductUpdatesModalProps = {
 
 function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { releaseItems } = useSelector((state: AppState) => state.ui.releases);
+  const isAirgappedInstance = isAirgapped();
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   useEffect(() => {
-    if (props.hideTrigger && releaseItems.length === 0) {
+    if (
+      props.hideTrigger &&
+      releaseItems.length === 0 &&
+      !isAirgappedInstance
+    ) {
       dispatch({
         type: ReduxActionTypes.FETCH_RELEASES,
       });
     }
-  }, []);
+  }, [isAirgappedInstance]);
 
   useEffect(() => {
     if (!props.isOpen) return;

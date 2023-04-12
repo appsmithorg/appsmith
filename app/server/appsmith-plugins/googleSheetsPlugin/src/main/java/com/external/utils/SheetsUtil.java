@@ -1,5 +1,6 @@
 package com.external.utils;
 
+import com.appsmith.external.models.OAuth2;
 import com.external.enums.GoogleSheetMethodEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -13,6 +14,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 
 public class SheetsUtil {
 
+    private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     static Pattern COLUMN_NAME_PATTERN = Pattern.compile("[a-zA-Z]+");
 
     public static int getColumnNumber(String columnName) {
@@ -29,9 +31,12 @@ public class SheetsUtil {
     }
 
     public static Set<String> getUserAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
+        OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         if (!isEmpty(datasourceConfiguration.getProperties())
                 && datasourceConfiguration.getProperties().get(0) != null
-                && datasourceConfiguration.getProperties().get(0).getValue() != null) {
+                && datasourceConfiguration.getProperties().get(0).getValue() != null
+                && oAuth2.getScope() != null
+                && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
             ArrayList<String> temp = (ArrayList) datasourceConfiguration.getProperties().get(0).getValue();
             return new HashSet<String>(temp);
         }

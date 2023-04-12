@@ -9,6 +9,7 @@ import {
   WELCOME_HEADER,
 } from "@appsmith/constants/messages";
 import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const LandingPageWrapper = styled.div<{ hide: boolean }>`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -37,6 +38,7 @@ const StyledBannerHeader = styled.h1`
   font-family: "Paytone One", sans-serif;
   font-size: 72px;
   margin: 0px 0px;
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 const StyledBannerBody = styled.p`
@@ -44,13 +46,12 @@ const StyledBannerBody = styled.p`
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
   width: 400px;
+  color: var(--ads-v2-color-fg);
 `;
 
 const StyledImageBanner = styled.div`
   min-width: ${(props) => props.theme.pageContentWidth * 0.45}px;
 `;
-
-const StyledImage = styled.img``;
 
 const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner.svg`;
 
@@ -115,7 +116,7 @@ export default memo(function LandingPage(props: LandingPageProps) {
           )}
         </StyledTextBanner>
         <StyledImageBanner>
-          <StyledImage src={getWelcomeImage()} />
+          <img src={getAssetUrl(getWelcomeImage())} />
         </StyledImageBanner>
       </LandingPageContent>
     </LandingPageWrapper>

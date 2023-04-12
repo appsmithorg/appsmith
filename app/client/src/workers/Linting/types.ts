@@ -81,12 +81,3 @@ export interface getlintErrorsFromTreeResponse {
   errors: LintErrorsStore;
   updatedJSEntities: string[];
 }
-
-export interface initiateLintingProps {
-  asyncJSFunctionsInDataFields: DependencyMap;
-  lintOrder: string[];
-  unevalTree: DataTree;
-  requiresLinting: boolean;
-  jsPropertiesState: TJSPropertiesState;
-  configTree: ConfigTree;
-}

@@ -70,6 +70,8 @@ import {
 } from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 //  ---------- Styles ----------
 
@@ -168,6 +170,7 @@ function GeneratePageForm() {
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
   const applicationId = useSelector(getCurrentApplicationId);
+  const workspace = useSelector(getCurrentAppWorkspace);
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -351,7 +354,12 @@ function GeneratePageForm() {
     [selectColumn],
   );
 
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    workspace?.userPermissions || [],
+  );
+
   const dataSourceOptions = useDatasourceOptions({
+    canCreateDatasource,
     datasources,
     generateCRUDSupportedPlugin,
   });

@@ -13,7 +13,7 @@ import { toast } from "design-system";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {
-  setCanvasDebuggerSelectedTab,
+  setDebuggerSelectedTab,
   showDebugger,
 } from "../../actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
@@ -101,7 +101,7 @@ export const logActionExecutionError = (
       source: "TOAST",
     });
     store.dispatch(showDebugger(true));
-    store.dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }
 
   if (!!triggerPropertyName) {
