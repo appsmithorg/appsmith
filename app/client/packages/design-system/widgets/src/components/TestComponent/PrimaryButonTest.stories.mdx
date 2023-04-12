@@ -54,6 +54,16 @@ export const Template = (args, { globals: { colorScheme } }) => (
     {Template.bind({})}
   </Story>
   <Story
+    name="primary focus"
+    args={{
+      title: "Primary active",
+      variant: "primary",
+      isFocused: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
     name="primary disabled"
     args={{
       title: "Primary disabled",

@@ -17,20 +17,20 @@ export class ColorsAccessor {
 
   /* Lightness */
   get isVeryDark() {
-    return this.color.oklch.l < 30;
+    return this.color.oklch.l < 0.3;
   }
 
   get isVeryLight() {
-    return this.color.oklch.l > 90;
+    return this.color.oklch.l > 0.9;
   }
 
   /* Chroma */
   get isAchromatic() {
-    return this.color.oklch.c < 5;
+    return this.color.oklch.c < 0.04;
   }
 
   get isColorful() {
-    return this.color.oklch.c > 17;
+    return this.color.oklch.c > 0.136;
   }
 
   /* Hue */
