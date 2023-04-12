@@ -80,7 +80,7 @@ describe("Theme validation usecases", function () {
           cy.get(".t--draggable-buttonwidget button :contains('Sub')").should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
           themeFont = $childElem.children().last().text();
         });

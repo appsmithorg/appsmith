@@ -315,19 +315,19 @@ describe("Chart Widget Functionality", function () {
     cy.get(".fusioncharts-container").should(
       "have.css",
       "font-family",
-      '"Nunito Sans"',
+      '"Nunito Sans", sans-serif',
     );
 
     cy.UpdateChartType("Pie Chart");
     cy.get("g[class$='item'] text").should(
       "have.css",
       "font-family",
-      '"Nunito Sans"',
+      '"Nunito Sans", sans-serif',
     );
     cy.get("g[class$='labels'] text").should(
       "have.css",
       "font-family",
-      '"Nunito Sans"',
+      '"Nunito Sans", sans-serif',
     );
   });
 

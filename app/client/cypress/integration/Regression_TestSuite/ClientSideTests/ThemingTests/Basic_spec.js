@@ -162,7 +162,7 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
         });
     });
@@ -221,12 +221,12 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.iconWidgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
         });
     });
