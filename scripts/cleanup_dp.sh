@@ -1,14 +1,11 @@
 #!/bin/bash
 # Configure the AWS & kubectl environment
 
-set -o errexit
-set -o nounset
-
 mkdir ~/.aws; touch ~/.aws/config
 
 echo "[default]
-aws_access_key_id = $AWS_ACCESS_KEY
-aws_secret_access_key = $AWS_SECRET_ACCESS" > ~/.aws/credentials
+aws_access_key_id = $AWS_ACCESS_KEY_ID
+aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
 
 echo "[default]
 [profile eksci]
@@ -17,29 +14,25 @@ output = json
 region=ap-south-1
 source_profile = default" > ~/.aws/config
 
-export AWS_REGION=ap-south-1
-export AWS_DEFAULT_OUTPUT=json
+export region=ap-south-1
 export cluster_name=uat-cluster
 
-cat ~/.aws/credentials
-cat ~/.aws/config
+echo "Region: $region"
+echo "Cluster name: $cluster_name"
+echo "Pull Request Number: $PULL_REQUEST_NUMBER"
 
-echo "assuming role."
-sts_output=$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name dp-session-script)
-echo "output is "$#
-echo "printing sts output $sts_output"
+sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
+export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
+export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
+export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
 
-export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r '.Credentials.AccessKeyId')"
-export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r '.Credentials.SecretAccessKey')"
-export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r '.Credentials.SessionToken')"
-
-aws eks update-kubeconfig --region $region --name uat-cluster --profile eksci
+aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
 
 echo "Set the default namespace"
 kubectl config set-context --current --namespace=default
 
 echo "Getting the pods"
-kubectl get pods -A
+kubectl get pods
 
 ### Get list of helm charts
 deployed_charts="$(helm ls -A --filter 'ce[0-9]+' --output json | jq -r '.[].namespace')"
