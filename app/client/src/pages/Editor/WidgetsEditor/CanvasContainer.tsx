@@ -31,8 +31,6 @@ import {
   AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
-// import { layoutConfigurations } from "constants/WidgetConstants";
-// import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
 

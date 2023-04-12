@@ -157,7 +157,7 @@ function AppViewer(props: Props) {
    * loads font for canvas based on theme
    */
   useEffect(() => {
-    document.body.style.fontFamily = appFontFamily;
+    document.body.style.fontFamily = `${appFontFamily}, sans-serif`;
 
     return function reset() {
       document.body.style.fontFamily = "inherit";
