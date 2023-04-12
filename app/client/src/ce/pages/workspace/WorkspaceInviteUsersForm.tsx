@@ -129,13 +129,19 @@ export const UserList = styled.div`
   }
 `;
 
-export const User = styled.div`
+export const User = styled.div<{ isApplicationInvite?: boolean }>`
   display: flex;
   align-items: center;
   min-height: 54px;
   padding: 5px 0 5px 15px;
   justify-content: space-between;
   color: ${(props) => props.theme.colors.modal.user.textColor};
+  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
+
+  &:last-child {
+    ${({ isApplicationInvite }) =>
+      isApplicationInvite && `border-bottom: none;`}
+  }
 `;
 
 export const UserInfo = styled.div`
@@ -176,10 +182,6 @@ export const UserName = styled.div`
       color: ${Colors.GRAY};
     }
   }
-`;
-
-export const RoleDivider = styled.div`
-  border-top: 1px solid ${(props) => props.theme.colors.menuBorder};
 `;
 
 export const Loading = styled(Spinner)`
@@ -326,6 +328,7 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchCurrentWorkspace,
     fetchUser,
     handleSubmit,
+    isApplicationInvite = false,
     isLoading,
     isMultiSelectDropdown = false,
     placeholder = "",
@@ -523,7 +526,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   }) => {
                     return (
                       <Fragment key={user.username}>
-                        <User>
+                        <User isApplicationInvite={isApplicationInvite}>
                           <UserInfo>
                             <ProfileImage
                               source={
@@ -544,8 +547,6 @@ function WorkspaceInviteUsersForm(props: any) {
                             </Text>
                           </UserRole>
                         </User>
-
-                        <RoleDivider />
                       </Fragment>
                     );
                   },
@@ -571,7 +572,10 @@ function WorkspaceInviteUsersForm(props: any) {
           )}
         </ErrorBox>
         {canManage && !disableManageUsers && (
-          <ManageUsers workspaceId={props.workspaceId} />
+          <ManageUsers
+            isApplicationInvite={isApplicationInvite}
+            workspaceId={props.workspaceId}
+          />
         )}
       </StyledForm>
     </WorkspaceInviteWrapper>

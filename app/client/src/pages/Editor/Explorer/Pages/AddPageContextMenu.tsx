@@ -27,6 +27,8 @@ import {
   Tooltip,
   Text,
 } from "design-system";
+import { getIsAutoLayout } from "selectors/editorSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   .title {
@@ -53,6 +55,8 @@ function AddPageContextMenu({
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
   const featureFlags = useSelector(selectFeatureFlags);
+  const isAutoLayout = useSelector(getIsAutoLayout);
+  const isAirgappedInstance = isAirgapped();
 
   const ContextMenuItems = useMemo(() => {
     const items = [
@@ -73,7 +77,11 @@ function AddPageContextMenu({
       },
     ];
 
-    if (featureFlags.TEMPLATES_PHASE_2) {
+    if (
+      featureFlags.TEMPLATES_PHASE_2 &&
+      !isAutoLayout &&
+      !isAirgappedInstance
+    ) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         // icon: Layout2LineIcon,

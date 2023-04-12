@@ -62,10 +62,7 @@ describe("Input Widget Functionality", function () {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(
-      commonlocators.optionchangetextInput,
-      widgetsPage.inputOnTextChange,
-    );
+    cy.getAlert("onTextChanged");
     cy.PublishtheApp();
   });
   it("Input Widget Functionality To Validate Default Text and Placeholder", function () {
