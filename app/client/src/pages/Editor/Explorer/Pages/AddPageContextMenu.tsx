@@ -62,8 +62,7 @@ function AddPageContextMenu({
     const items = [
       {
         title: createMessage(CREATE_PAGE),
-        // icon: FileAddIcon,
-        icon: "database-2-line",
+        icon: "file-add-line",
         onClick: createPageCallback,
         "data-cy": "add-page",
         key: "CREATE_PAGE",
@@ -84,8 +83,7 @@ function AddPageContextMenu({
     ) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
-        // icon: Layout2LineIcon,
-        icon: "database-2-line",
+        icon: "layout-2-line",
         onClick: () => dispatch(showTemplatesModal(true)),
         "data-cy": "add-page-from-template",
         key: "ADD_PAGE_FROM_TEMPLATE",
