@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
 
   pull_request:
     branches: [release, master]
@@ -145,6 +150,9 @@ jobs:
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
           else
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
+          fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_AIRGAP_ENABLED=true
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
