@@ -178,4 +178,10 @@ export class CommonLocators {
   _editorBackButton = ".t--close-editor";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
+  _enterPreviewMode = "[data-cy='edit-mode']";
+  _exitPreviewMode = "[data-cy='preview-mode']";
+  _appsmithLogo = ".t--appsmith-logo";
+  _createNewApplicationButton = ".t--new-button";
+  _welcomeTour = ".t--welcome-tour";
+  _welcomeTourBuildingButton = ".t--start-building";
 }
