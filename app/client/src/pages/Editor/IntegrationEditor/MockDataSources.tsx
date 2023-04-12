@@ -8,6 +8,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const MockDataSourceWrapper = styled.div`
   overflow: auto;
@@ -134,7 +135,7 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
         <DatasourceImage
           alt="Datasource"
           data-testid="mock-datasource-image"
-          src={pluginImages[currentPlugin.id]}
+          src={getAssetUrl(pluginImages[currentPlugin.id])}
         />
         <DatasourceNameWrapper data-testid="mock-datasource-name-wrapper">
           <DatasourceName data-testid="mockdatasource-name">

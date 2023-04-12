@@ -16,6 +16,7 @@ export type TextProps = {
   capHeight?: number;
   lineGap?: number;
   as?: keyof JSX.IntrinsicElements;
+  lineClamp?: number;
 };
 
 export const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
@@ -28,4 +29,4 @@ export const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
       </StyledText>
     );
   },
-) as typeof StyledText;
+);

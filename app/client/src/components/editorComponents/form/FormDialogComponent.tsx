@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useState, useEffect } from "react";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
-import { useDispatch } from "react-redux";
-import { setShowAppInviteUsersDialog } from "@appsmith/actions/applicationActions";
 import type { TabProp } from "design-system-old";
 import {
   DialogComponent as Dialog,
@@ -40,6 +38,8 @@ const TabCloseBtnContainer = styled.div`
 type FormDialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
+  canEscapeKeyClose?: boolean;
+  isCloseButtonShown?: boolean;
   noModalBodyMarginTop?: boolean;
   workspaceId?: string;
   title?: string;
@@ -47,6 +47,7 @@ type FormDialogComponentProps = {
   Form: any;
   trigger: ReactNode;
   onClose?: () => void;
+  onOpenOrClose?: (isOpen: boolean) => void;
   customProps?: any;
   permissionRequired?: string;
   permissions?: string[];
@@ -62,6 +63,7 @@ type FormDialogComponentProps = {
   tabs?: any[];
   options?: any[];
   placeholder?: string;
+  getHeader?: () => ReactNode;
 };
 
 const getTabs = (
@@ -106,7 +108,6 @@ const getTabs = (
 export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isOpen, setIsOpenState] = useState(!!props.isOpen);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     setIsOpen(!!props.isOpen);
@@ -114,7 +115,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   const setIsOpen = (isOpen: boolean) => {
     setIsOpenState(isOpen);
-    dispatch(setShowAppInviteUsersDialog(isOpen));
+    props.onOpenOrClose && props.onOpenOrClose(isOpen);
   };
 
   const onCloseHandler = () => {
@@ -138,8 +139,11 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   return (
     <Dialog
+      canEscapeKeyClose={!!props.canEscapeKeyClose}
       canOutsideClickClose={!!props.canOutsideClickClose}
+      getHeader={props.getHeader}
       headerIcon={props.headerIcon}
+      isCloseButtonShown={props.isCloseButtonShown}
       isOpen={isOpen}
       noModalBodyMarginTop={props.noModalBodyMarginTop}
       onClose={onCloseHandler}

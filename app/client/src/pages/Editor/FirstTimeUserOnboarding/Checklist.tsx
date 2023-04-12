@@ -51,6 +51,8 @@ import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -546,7 +548,10 @@ export default function OnboardingChecklist() {
         className="flex"
         onClick={() => triggerWelcomeTour(dispatch)}
       >
-        <StyledImg src="https://assets.appsmith.com/Rocket.png" />
+        <StyledImg
+          alt="rocket"
+          src={getAssetUrl(`${ASSETS_CDN_URL}/Rocket.png`)}
+        />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
           {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
         </Text>

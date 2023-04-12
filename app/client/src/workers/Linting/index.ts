@@ -70,7 +70,7 @@ export function getlintErrorsFromTree({
   // Lint jsobject paths
   if (jsObjectPaths.size) {
     jsObjectPaths.forEach((jsObjectPath) => {
-      const { entityName: jsObjectName } =
+      const { entityName: jsObjectName, propertyPath: jsPropertyName } =
         getEntityNameAndPropertyPath(jsObjectPath);
       const jsObjectState = get(jsPropertiesState, jsObjectName);
       const jsObjectBodyPath = `["${jsObjectName}.body"]`;
@@ -83,7 +83,7 @@ export function getlintErrorsFromTree({
           globalData.getGlobalData(true),
         );
         set(lintTreeErrors, jsObjectBodyPath, jsObjectBodyLintErrors);
-      } else if (jsObjectPath !== "body") {
+      } else if (jsPropertyName !== "body") {
         const propertyLintErrors = lintJSObjectProperty(
           jsObjectPath,
           jsObjectState,

@@ -36,6 +36,10 @@ const TopBorder = styled(Divider)`
   margin-bottom: 24px;
 `;
 
+const SectionContentWrapper = styled.div`
+  padding: 0 20px;
+`;
+
 interface ComponentProps {
   children: any;
   title: string;
@@ -79,26 +83,28 @@ function Collapsible(props: Props) {
   return (
     <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
-      {showSection && (
-        <SectionContainer
-          className="t--collapse-section-container"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <SectionLabel>
-            {title}
-            {headerIcon && <Icon name={headerIcon.name} size="md" />}
-          </SectionLabel>
-          <Icon
-            color="var(--ads-v2-color-fg-information)"
-            name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
-            size="md"
-          />
-        </SectionContainer>
-      )}
+      <SectionContentWrapper>
+        {showSection && (
+          <SectionContainer
+            className="t--collapse-section-container"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <SectionLabel>
+              {title}
+              {headerIcon && <Icon name={headerIcon.name} size="md" />}
+            </SectionLabel>
+            <Icon
+              color="var(--ads-v2-color-fg-information)"
+              name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
+              size="md"
+            />
+          </SectionContainer>
+        )}
 
-      <Collapse isOpen={isOpen} keepChildrenMounted>
-        {children}
-      </Collapse>
+        <Collapse isOpen={isOpen} keepChildrenMounted>
+          {children}
+        </Collapse>
+      </SectionContentWrapper>
     </section>
   );
 }

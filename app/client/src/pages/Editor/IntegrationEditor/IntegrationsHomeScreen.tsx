@@ -27,18 +27,23 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "../DataSourceEditor/Debugger";
 
 const HeaderFlex = styled.div`
+  font-size: 20px;
   display: flex;
   align-items: center;
+  padding: 0 20px;
 `;
 
 const ApiHomePage = styled.div`
   display: flex;
   flex-direction: column;
 
-  font-size: 20px;
-  padding: 20px 20px 0 20px;
+  padding-top: 20px;
   /* margin-left: 10px; */
   flex: 1;
   overflow: hidden !important;
@@ -46,22 +51,21 @@ const ApiHomePage = styled.div`
     position: absolute;
     left: 70%;
   }
-  .bp3-collapse-body {
-    position: absolute;
-    z-index: 99999;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    width: 100%;
-    padding: 20px;
-  }
   .fontSize16 {
     font-size: 16px;
+  }
+  .integrations-content-container {
+    padding: 0 20px;
+  }
+  .t--vertical-menu {
+    overflow: auto;
   }
 `;
 
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
+  padding: 0 20px;
   .react-tabs__tab-list {
     margin: 2px;
   }
@@ -70,11 +74,11 @@ const MainTabsContainer = styled.div`
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr ${({ isActiveTab }) => isActiveTab && "180px"};
+  grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
   flex: 1;
-  min-height: 0;
+  min-height: 100%;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -137,6 +141,7 @@ type IntegrationsHomeScreenProps = {
   mockDatasources: MockDatasource[];
   applicationId: string;
   canCreateDatasource?: boolean;
+  showDebugger: boolean;
 };
 
 type IntegrationsHomeScreenState = {
@@ -422,6 +427,7 @@ class IntegrationsHomeScreen extends React.Component<
       isCreating,
       location,
       pageId,
+      showDebugger,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
@@ -551,27 +557,28 @@ class IntegrationsHomeScreen extends React.Component<
                 </Tabs>
               )}
             </MainTabsContainer>
-            {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
-              <div />
-            )}
-
-            {currentScreen}
-            {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-              <VerticalMenu>
-                {SECONDARY_MENU.map((item) => (
-                  <VerticalMenuItem
-                    aria-selected={
-                      this.state.activeSecondaryMenuId === item.key
-                    }
-                    href={item.href}
-                    key={item.key}
-                    onClick={() => this.onSelectSecondaryMenu(item.key)}
-                  >
-                    {item.title}
-                  </VerticalMenuItem>
-                ))}
-              </VerticalMenu>
-            )}
+            <ResizerMainContainer>
+              <ResizerContentContainer className="integrations-content-container">
+                {currentScreen}
+                {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
+                  <VerticalMenu>
+                    {SECONDARY_MENU.map((item) => (
+                      <VerticalMenuItem
+                        aria-selected={
+                          this.state.activeSecondaryMenuId === item.key
+                        }
+                        href={item.href}
+                        key={item.key}
+                        onClick={() => this.onSelectSecondaryMenu(item.key)}
+                      >
+                        {item.title}
+                      </VerticalMenuItem>
+                    ))}
+                  </VerticalMenu>
+                )}
+              </ResizerContentContainer>
+              {showDebugger && <Debugger />}
+            </ResizerMainContainer>
           </SectionGrid>
         </ApiHomePage>
       </>
@@ -580,6 +587,8 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
+  const showDebugger = state.ui.debugger.isOpen;
+
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
@@ -592,6 +601,7 @@ const mapStateToProps = (state: AppState) => {
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
     canCreateDatasource,
+    showDebugger,
   };
 };
 

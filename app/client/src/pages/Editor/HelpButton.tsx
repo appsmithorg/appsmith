@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
@@ -17,7 +17,8 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
-import { Button } from "design-system";
+import { Icon } from "design-system";
+import { BottomBarCTAStyles } from "./BottomBar/styles";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -25,30 +26,22 @@ const HelpPopoverStyle = createGlobalStyle`
   }
 `;
 
-type TriggerProps = {
-  tooltipsDisabled: boolean;
-};
-
-const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
-  return (
-    <TooltipComponent
-      content={createMessage(HELP_RESOURCE_TOOLTIP)}
-      disabled={tooltipsDisabled}
-      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      modifiers={{
-        preventOverflow: { enabled: true },
-      }}
-      position={"bottom"}
-    >
-      <Button
-        isIconButton
-        kind="tertiary"
-        size="sm"
-        startIcon="question-line"
-      />
-    </TooltipComponent>
-  );
-};
+const StyledTrigger = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 400;
+  padding: 9px 16px;
+  border-left: 1px solid #e7e7e7;
+  cursor: pointer;
+  ${BottomBarCTAStyles};
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+`;
 
 function HelpButton() {
   const user = useSelector(getCurrentUser);
@@ -68,27 +61,40 @@ function HelpButton() {
   }, []);
 
   return (
-    <Popover
-      minimal
+    <TooltipComponent
+      content={createMessage(HELP_RESOURCE_TOOLTIP)}
+      disabled={isHelpOpen}
+      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
       modifiers={{
-        offset: {
-          enabled: true,
-          offset: "0, 6",
-        },
+        preventOverflow: { enabled: true },
       }}
-      onClosed={onClose}
-      onOpened={onOpened}
-      popoverClassName="navbar-help-popover"
-      position={Position.BOTTOM_RIGHT}
+      position={"bottom"}
     >
-      <>
-        <HelpPopoverStyle />
-        <Trigger tooltipsDisabled={isHelpOpen} />
-      </>
-      <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
-      </div>
-    </Popover>
+      <Popover
+        minimal
+        modifiers={{
+          offset: {
+            enabled: true,
+            offset: "0, 6",
+          },
+        }}
+        onClosed={onClose}
+        onOpened={onOpened}
+        popoverClassName="navbar-help-popover"
+        position={Position.BOTTOM_RIGHT}
+      >
+        <>
+          <HelpPopoverStyle />
+          <StyledTrigger className="help-popover">
+            <Icon name="question-line" size="md" />
+            <span>Help</span>
+          </StyledTrigger>
+        </>
+        <div style={{ width: HELP_MODAL_WIDTH }}>
+          <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
+        </div>
+      </Popover>
+    </TooltipComponent>
   );
 }
 

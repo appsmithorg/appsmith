@@ -30,8 +30,6 @@ public interface ExamplesWorkspaceClonerCE {
             Flux<Datasource> datasourceFlux
     );
 
-    Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId);
-
     void makePristine(BaseDomain domain);
 
 }

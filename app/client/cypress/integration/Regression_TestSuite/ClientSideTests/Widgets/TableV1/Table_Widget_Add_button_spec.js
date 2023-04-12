@@ -18,12 +18,7 @@ describe("Table Widget property pane feature validation", function () {
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     // Selecting button action to show message
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Show message")
-      .click();
-    cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
+    cy.getAlert("onClick", "Successful ".concat(testdata.currentRowEmail));
     // Close Property pane
     cy.get(commonlocators.editPropBackButton).click({
       force: true,
@@ -209,12 +204,7 @@ describe("Table Widget property pane feature validation", function () {
       })
       .wait(500);
     //  Add action to the menu Item
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Show message")
-      .click();
-    cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
+    cy.getAlert("onItemClick", "Successful ".concat(testdata.currentRowEmail));
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
 

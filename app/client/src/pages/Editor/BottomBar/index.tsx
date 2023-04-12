@@ -20,7 +20,13 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
   border-top: solid 1px ${Colors.MERCURY};
-  padding: 0 ${(props) => props.theme.spaces[11]}px;
+  padding-left: ${(props) => props.theme.spaces[11]}px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 export default function BottomBar(props: { className?: string }) {
@@ -28,14 +34,14 @@ export default function BottomBar(props: { className?: string }) {
   return (
     <Container className={props.className ?? ""}>
       <QuickGitActions />
-      <div className="flex justify-between items-center gap-1">
+      <Wrapper>
         <ManualUpgrades showTooltip>
           <Icon className="t--upgrade" name="upgrade" size="lg" />
         </ManualUpgrades>
-        <HelpButton />
         <DebuggerTrigger />
+        <HelpButton />
         {isMultiPane && <PaneCountSwitcher />}
-      </div>
+      </Wrapper>
     </Container>
   );
 }
