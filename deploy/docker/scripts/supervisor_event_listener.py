@@ -36,7 +36,7 @@ def remove_loading_page():
         os.remove(LOADING_PAGE_EDITOR)
 
 def main():
-    while 1:
+    while True:
         # transition from ACKNOWLEDGED to READY
         write_stdout('READY\n')
 
