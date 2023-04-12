@@ -10,6 +10,8 @@ const DataSourceKVP = {
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
   Arango: "ArangoDB",
+  Firestore: "Firestore",
+  Elasticsearch: "Elasticsearch",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -94,7 +96,7 @@ export class DataSources {
     "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "span.t--query-error";
+  _queryError = "[data-cy='t--query-error']";
   _queryResponse = (responseType: string) =>
     "li[data-cy='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>
@@ -176,6 +178,18 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _deleteDatasourceButton = ".t--delete-datasource";
   public _urlInputControl = "input[name='url']";
+  _nestedWhereClauseKey = (index: number) =>
+    ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
+    index +
+    "\\]\\.key";
+  _nestedWhereClauseValue = (index: number) =>
+    ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
+    index +
+    "\\]\\.value";
+  _whereDelete = (index: number) =>
+    "[data-cy='t--where-clause-delete-[" + index + "]']";
+
+  _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -476,15 +490,50 @@ export class DataSources {
   }
 
   public FillFirestoreDSForm() {
-    cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
-      datasourceFormData["database-url"],
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Database URL"),
+      datasourceFormData["firestore-database-url"],
     );
-    cy.xpath(this.locator._inputFieldByName("Project Id") + "//input").type(
-      datasourceFormData.projectID,
+    this.agHelper.UpdateInput(
+      this.locator._inputFieldByName("Project Id"),
+      datasourceFormData["firestore-projectID"],
     );
-    cy.xpath(
-      this.locator._inputFieldByName("Service Account Credentials") + "//input",
-    ).type(datasourceFormData["serviceAccCredentials"]);
+    // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
+    //   let ServiceAccCreds = JSON.parse(
+    //     JSON.stringify(json.serviceAccCredentials),
+    //   );
+    //   ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
+    //   //cy.log("ServiceAccCreds is " + JSON.stringify(ServiceAccCreds));
+    //   cy.log(
+    //     "ServiceAccCreds.private_key  is " +
+    //       JSON.stringify(ServiceAccCreds.private_key),
+    //   );
+    this.agHelper.UpdateFieldLongInput(
+      this.locator._inputFieldByName("Service Account Credentials"),
+      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+    );
+    //});
+  }
+
+  public FillElasticSearchDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["elastic-host"],
+    );
+
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["elastic-port"].toString(),
+    );
+    this.ExpandSectionByName(this._sectionAuthentication);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      datasourceFormData["elastic-username"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      datasourceFormData["elastic-password"],
+    );
   }
 
   public FillUnAuthenticatedGraphQLDSForm() {
@@ -583,7 +632,12 @@ export class DataSources {
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
+    this.agHelper.GetNClick(
+      this.locator._visibleTextSpan("Delete"),
+      0,
+      false,
+      200,
+    );
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
     if (expectedRes == 200)
@@ -795,7 +849,9 @@ export class DataSources {
       | "UnAuthenticatedGraphQL"
       | "MsSql"
       | "Airtable"
-      | "Arango",
+      | "Arango"
+      | "Firestore"
+      | "Elasticsearch",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -817,6 +873,10 @@ export class DataSources {
           this.FillMsSqlDSForm();
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
         else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
+        else if (DataSourceKVP[dsType] == "Firestore")
+          this.FillFirestoreDSForm();
+        else if (DataSourceKVP[dsType] == "Elasticsearch")
+          this.FillElasticSearchDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();

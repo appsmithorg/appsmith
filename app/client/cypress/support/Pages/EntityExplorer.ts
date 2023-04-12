@@ -37,6 +37,10 @@ export class EntityExplorer {
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+  private _expandCollapseSection = (entityNameinLeftSidebar: string) =>
+    this._expandCollapseArrow(entityNameinLeftSidebar) +
+    "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
+
   private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
@@ -118,21 +122,52 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
+    this.agHelper.AssertElementVisible(
+      this._expandCollapseArrow(entityName),
+      index,
+      30000,
+    );
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
       .invoke("attr", "name")
       .then((arrow) => {
-        if (expand && arrow == "arrow-right")
+        if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
-            .wait(1000);
-        else if (!expand && arrow == "arrow-down")
+            .wait(500)
+            .trigger("click", { force: true })
+            .wait(500);
+          // this.agHelper
+          //   .GetElement(this._expandCollapseSection(entityName))
+          //   .then(($div: any) => {
+          //     cy.log("Checking style - expand");
+          //     while (!$div.attr("style").includes("overflow-y: visible;")) {
+          //       cy.log("Inside style check - expand");
+          //       cy.xpath(this._expandCollapseArrow(entityName))
+          //         .eq(index)
+          //         .trigger("click", { multiple: true })
+          //         .wait(500);
+          //     }
+          //   });
+        } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .trigger("click", { multiple: true })
-            .wait(1000);
-        else this.agHelper.Sleep(500);
+            .wait(500)
+            .trigger("click", { force: true })
+            .wait(500);
+          // this.agHelper
+          //   .GetElement(this._expandCollapseSection(entityName))
+          //   .then(($div: any) => {
+          //     cy.log("Checking style - collapse");
+          //     while ($div.attr("style").includes("overflow-y: visible;")) {
+          //       cy.log("Inside style check - collapse");
+          //       cy.xpath(this._expandCollapseArrow(entityName))
+          //         .eq(index)
+          //         .trigger("click", { multiple: true })
+          //         .wait(500);
+          //     }
+          //   });
+        } else this.agHelper.Sleep(500);
       });
   }
 
@@ -184,7 +219,11 @@ export class EntityExplorer {
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+    if (widgetType === "modalwidget") {
+      cy.get(".t--modal-widget").should("exist");
+    } else {
+      cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+    }
   }
 
   public ClonePage(pageName = "Page1") {

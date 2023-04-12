@@ -7,7 +7,6 @@ import type {
 import type { Position } from "codemirror";
 import type { LintError } from "utils/DynamicBindingUtils";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { JSHINT as jshint } from "jshint";
 import type { LintError as JSHintError } from "jshint";
 import { isEmpty, isNil, isNumber, keys, last } from "lodash";
@@ -35,7 +34,6 @@ import {
   isDynamicLeaf,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import {
   asyncActionInSyncFieldLintMessage,
   CustomLintErrorCode,
@@ -52,9 +50,7 @@ import {
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import type {
   getLintingErrorsProps,
-  initiateLintingProps,
   lintBindingPathProps,
-  LintTreeSagaRequestData,
   lintTriggerPathProps,
 } from "./types";
 import { JSLibraries } from "workers/common/JSLibrary";
@@ -62,7 +58,7 @@ import { Severity } from "entities/AppsmithConsole";
 import {
   entityFns,
   getActionTriggerFunctionNames,
-} from "workers/Evaluation/fns";
+} from "@appsmith/workers/Evaluation/fns";
 import type {
   TJSFunctionPropertyState,
   TJSpropertyState,
@@ -384,28 +380,6 @@ function getInvalidPropertyErrorsFromScript(
   return invalidPropertyErrors;
 }
 
-export function initiateLinting({
-  asyncJSFunctionsInDataFields,
-  configTree,
-  jsPropertiesState,
-  lintOrder,
-  requiresLinting,
-  unevalTree,
-}: initiateLintingProps) {
-  const data = {
-    pathsToLint: lintOrder,
-    unevalTree,
-    jsPropertiesState,
-    asyncJSFunctionsInDataFields,
-    configTree,
-  } as LintTreeSagaRequestData;
-  if (!requiresLinting) return;
-  WorkerMessenger.ping({
-    data,
-    method: MAIN_THREAD_ACTION.LINT_TREE,
-  });
-}
-
 export function getRefinedW117Error(
   undefinedVar: string,
   originalReason: string,
@@ -536,14 +510,12 @@ export function getEvaluationContext(
   if (!options.withFunctions)
     return createEvaluationContext({
       dataTree: unevalTree,
-      resolvedFunctions: {},
       isTriggerBased: false,
       removeEntityFunctions: true,
     });
 
   const evalContext = createEvaluationContext({
     dataTree: unevalTree,
-    resolvedFunctions: {},
     isTriggerBased: false,
     removeEntityFunctions: false,
   });

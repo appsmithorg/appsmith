@@ -1,3 +1,6 @@
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+
 export const originalDSLForDSLMigrations = {
   widgetName: "MainContainer",
   backgroundColor: "none",
@@ -313,8 +316,9 @@ export const originalDSLForDSLMigrations = {
                           key: "image",
                         },
                       ],
-                      defaultImage:
-                        "https://assets.appsmith.com/widgets/default.png",
+                      defaultImage: getAssetUrl(
+                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                      ),
                       key: "52v1r95ynr",
                       image: "{{lst_user.selectedItem.image}}",
                       isDeprecated: false,
@@ -1624,8 +1628,9 @@ export const originalDSLForDSLMigrations = {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: getAssetUrl(
+                            `${ASSETS_CDN_URL}/widgets/default.png`,
+                          ),
                           key: "6zvrwxg59v",
                           image:
                             "{{lst_user.listData.map((currentItem) => currentItem.image)}}",
@@ -2187,8 +2192,9 @@ export const originalDSLForDSLMigrations = {
                                         },
                                       ],
                                       leftColumn: 0,
-                                      defaultImage:
-                                        "https://assets.appsmith.com/widgets/default.png",
+                                      defaultImage: getAssetUrl(
+                                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                                      ),
                                       key: "6zvrwxg59v",
                                       image: "{{currentItem.image}}",
                                       isDeprecated: false,
