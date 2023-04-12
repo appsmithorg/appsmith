@@ -27,7 +27,7 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
     setSelectedOption({ value: selectedValueHandler() });
   }, [props.input.value, props.placeholder]);
 
-  //  TODO: defaultValue doesn't seem to work. Something also seems to be off about the focus state and the way the trigger works.
+  //  TODO: defaultValue doesn't seem to work. Something also seems to be off about the focus state and the way the trigger works.St
   return (
     <Select
       className={props.className}
