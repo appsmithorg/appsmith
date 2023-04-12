@@ -57,6 +57,7 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
       severity: Severity.INFO,
       category: LOG_CATEGORY.USER_GENERATED,
       timestamp: moment().format("hh:mm:ss"),
+      isExpanded: false,
     })),
   );
 }
