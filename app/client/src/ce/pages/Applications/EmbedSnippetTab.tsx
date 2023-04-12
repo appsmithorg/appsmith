@@ -94,7 +94,10 @@ export function EmbedSnippetTab({
           {embedSnippet.isSuperUser && (
             <div>
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+                <div
+                  className="flex items-center gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]"
+                  data-cy={"frame-ancestors-setting"}
+                >
                   <Icon
                     name={embedSnippet.embedSettingContent.icon}
                     size={IconSize.XXL}
