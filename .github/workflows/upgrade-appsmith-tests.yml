@@ -67,7 +67,7 @@ jobs:
       pr: 0
 
   ci-test-result:
-    needs: [ci-test]
+    needs: [ ci-test, smoke, sanity ]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
@@ -80,6 +80,36 @@ jobs:
         shell: bash
     steps:
       - run: echo "All ci-test matrices completed"
+
+      - name: Check and download failed specs for smoke
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-spec-ci-smoke
+          path: ~/failed_spec_ci_smoke
+
+      - name: Comment in PR with failed smoke tests
+        run: |
+          cat ~/failed_spec_ci_smoke/failed_spec_ci_smoke* >> ~/combined_failed_spec_smoke
+          if [ ! -s ~/combined_failed_spec_smoke ]; then
+            echo "File is empty"
+          else
+            echo "File is not empty"
+          fi
+
+      - name: Check and download failed specs for Sanity
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-spec-ci-sanity
+          path: ~/failed_spec_ci_sanity
+
+      - name: Comment in PR with failed smoke tests
+        run: |
+          cat ~/failed_spec_ci_sanity/failed_spec_ci_sanity* >> ~/combined_failed_spec_sanity
+          if [ ! -s ~/combined_failed_spec_sanity ]; then
+            echo "File is empty"
+          else
+            echo "File is not empty"
+          fi
 
       # Deleting the existing dir's if any
       - name: Delete existing directories

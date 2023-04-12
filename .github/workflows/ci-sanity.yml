@@ -270,7 +270,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: failed_spec_ci_sanity
+          name: failed-spec-ci-sanity
           path: ~/failed_spec_ci_sanity
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
