@@ -383,8 +383,10 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     );
     // open response tab in debugger on runnning js action.
-    yield put(showDebugger(true));
-    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    if (window.location.pathname.includes(collectionId)) {
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -420,8 +422,10 @@ export function* handleExecuteJSFunctionSaga(data: {
       });
   } catch (error) {
     // open response tab in debugger on runnning js action.
-    yield put(showDebugger(true));
-    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    if (window.location.pathname.includes(collectionId)) {
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
     AppsmithConsole.addErrors([
       {
         payload: {

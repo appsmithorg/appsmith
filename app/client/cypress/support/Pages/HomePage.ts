@@ -43,10 +43,10 @@ export class HomePage {
   public _closeBtn = ".bp3-dialog-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
-  private _homeIcon = ".t--appsmith-logo";
+  _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
-  private _homePageAppCreateBtn = this._appContainer + " .createnew";
+  _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   private _applicationName = ".t--application-name";
@@ -92,6 +92,8 @@ export class HomePage {
     "//div[contains(@class, 't--applications-container')]//span[text()='" +
     wsName +
     "']";
+  _welcomeTour = ".t--welcome-tour";
+  _welcomeTourBuildingButton = ".t--start-building";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
