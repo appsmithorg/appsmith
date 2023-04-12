@@ -42,4 +42,4 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
 
-        run: /bin/bash ./runbooks/tasks/cleanup_dp.sh
+        run: /bin/bash ./scripts/cleanup_dp.sh
