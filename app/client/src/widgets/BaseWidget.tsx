@@ -60,7 +60,6 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
 import Skeleton from "./Skeleton";
 import {
-  ClickCheckWrapper,
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
@@ -70,7 +69,7 @@ import {
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { WIDGET_CLICK_CHECK_CLASS } from "constants/componentClassNameConstants";
+import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 
 /***
  * BaseWidget
@@ -585,11 +584,10 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
-  getClickCheckWrapper = (content: ReactNode) => (
-    <ClickCheckWrapper className={WIDGET_CLICK_CHECK_CLASS}>
-      {content}
-    </ClickCheckWrapper>
+  addWidgetComponentBoundary = (content: ReactNode) => (
+    <WidgetComponentBoundary>{content}</WidgetComponentBoundary>
   );
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -659,9 +657,8 @@ abstract class BaseWidget<
         </AutoLayoutDimensionObserver>
       );
     }
-    // Wraps the widget with this div that checks for onClick events from the target widget in all parent elements up to this div.
-    content = this.getClickCheckWrapper(content);
 
+    content = this.addWidgetComponentBoundary(content);
     return this.addErrorBoundary(content);
   };
 

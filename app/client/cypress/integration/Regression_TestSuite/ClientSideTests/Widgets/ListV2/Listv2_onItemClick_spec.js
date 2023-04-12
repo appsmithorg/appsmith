@@ -133,12 +133,11 @@ describe("List widget v2 onItemClick", () => {
       .click({ force: true });
     validateToastExist();
 
-    cy.openPropertyPaneByWidgetName("Button1", "buttonwidget");
-
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
     cy.get(".t--property-control-onclick").then(($el) => {
       cy.updateCodeInput($el, "{{clearStore()}}");
     });
+    cy.wait(1000);
 
     cy.get(`${widgetSelector("Button1")} button`)
       .first()

@@ -39,7 +39,7 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { getMetaFlexLayers, shouldCallOnItemClick } from "./helper";
+import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1083,9 +1083,10 @@ class ListWidget extends BaseWidget<
               focused,
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
-                if (shouldCallOnItemClick(e)) {
-                  this.onItemClick(rowIndex);
-                }
+                // If Container Child Elements are clickable, we should not call the containers onItemClick Event
+                if (isTargetElementClickable(e)) return;
+
+                this.onItemClick(rowIndex);
               },
               onClickCapture: () => {
                 this.onItemClickCapture(rowIndex);

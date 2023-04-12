@@ -113,7 +113,7 @@ export function getMetaFlexLayers(
   return metaFlexLayers;
 }
 
-export const shouldCallOnItemClick = (e: React.MouseEvent<HTMLElement>) => {
+export const isTargetElementClickable = (e: React.MouseEvent<HTMLElement>) => {
   const target = e.target as HTMLElement;
   const isInput = target.tagName === "INPUT";
   const hasControl = (target as HTMLLabelElement).control;
@@ -122,5 +122,5 @@ export const shouldCallOnItemClick = (e: React.MouseEvent<HTMLElement>) => {
 
   const hasOnClick = checkForOnClick(e);
 
-  return !(isInput || hasControl || parentHasControl || hasLink || hasOnClick);
+  return isInput || hasControl || parentHasControl || hasLink || hasOnClick;
 };

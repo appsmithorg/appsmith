@@ -33,7 +33,7 @@ import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import type { ContainerWidgetProps } from "./ContainerWidget/widget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
-import { WIDGET_CLICK_CHECK_CLASS } from "constants/componentClassNameConstants";
+import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
 
 const punycode = require("punycode/");
 
@@ -914,16 +914,23 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
   const currentTarget = e.currentTarget as HTMLElement;
 
   while (
-    !target?.classList.contains(WIDGET_CLICK_CHECK_CLASS) &&
+    !target?.classList.contains(WIDGET_COMPONENT_BOUNDARY_CLASS) &&
     target &&
     target !== currentTarget
   ) {
-    const hasOnClick = Boolean(
-      findReactInstanceProps(target)?.onClick || target.onclick,
+    const targetReactProps = findReactInstanceProps(target);
+
+    const hasOnClickableEvent = Boolean(
+      targetReactProps?.onClick ||
+        targetReactProps?.onMouseDownCapture ||
+        targetReactProps?.onMouseDown ||
+        target.onclick,
     );
-    if (hasOnClick) {
+
+    if (hasOnClickableEvent) {
       return true;
     }
+
     target = target.parentElement;
   }
 
