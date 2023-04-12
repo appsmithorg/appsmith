@@ -14,19 +14,12 @@ output = json
 region=ap-south-1
 source_profile = default" > ~/.aws/config
 
-export region=ap-south-1
-export cluster_name=uat-cluster
-
-echo "Region: $region"
-echo "Cluster name: $cluster_name"
-echo "Pull Request Number: $PULL_REQUEST_NUMBER"
-
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
 export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
 export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
 export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
 
-aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
+aws eks update-kubeconfig --region ap-south-1 --name uat-cluster --profile eksci
 
 echo "Set the default namespace"
 kubectl config set-context --current --namespace=default
