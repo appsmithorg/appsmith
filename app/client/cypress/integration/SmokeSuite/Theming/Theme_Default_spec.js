@@ -1,10 +1,10 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
-const widgetsPage = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const themelocator = require("../../../../locators/ThemeLocators.json");
+const widgetsPage = require("../../../locators/Widgets.json");
+const explorer = require("../../../locators/explorerlocators.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../locators/FormWidgets.json");
+const themelocator = require("../../../locators/ThemeLocators.json");
 
 const appSettings = ObjectsRegistry.AppSettings;
 

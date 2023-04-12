@@ -1,4 +1,4 @@
-const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
+const OnboardingLocator = require("../../../locators/FirstTimeUserOnboarding.json");
 const _ = require("lodash");
 
 describe("FirstTimeUserOnboarding", function () {

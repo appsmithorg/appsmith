@@ -1,9 +1,9 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorerLocators = require("../../../../../locators/explorerlocators.json");
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePage from "../../../../../locators/HomePage";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+const widgetsPage = require("../../../locators/Widgets.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+const explorerLocators = require("../../../locators/explorerlocators.json");
+import gitSyncLocators from "../../../locators/gitSyncLocators";
+import homePage from "../../../locators/HomePage";
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 let tempBranch = "tempBranch",
   tempBranch0 = "tempBranch0",

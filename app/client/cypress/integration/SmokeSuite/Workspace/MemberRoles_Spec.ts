@@ -1,6 +1,5 @@
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import HomePage from "../../../../locators/HomePage";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import HomePage from "../../../locators/HomePage";
+import * as _ from "../../../support/Objects/ObjectsCore";
 let workspaceId: any, appid: any;
 
 describe("Create new workspace and invite user & validate all roles", () => {

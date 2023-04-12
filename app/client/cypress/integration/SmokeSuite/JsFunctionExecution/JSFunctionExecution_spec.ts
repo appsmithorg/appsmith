@@ -1,5 +1,5 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import largeJSONData from "../../../../fixtures/largeJSONData.json";
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import largeJSONData from "../../../fixtures/largeJSONData.json";
 
 const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,

@@ -1,4 +1,4 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../support/Objects/ObjectsCore";
 let dataSet: any, valueToTest: any, jsName: any;
 
 describe("Validate JSObj binding to Table widget", () => {
