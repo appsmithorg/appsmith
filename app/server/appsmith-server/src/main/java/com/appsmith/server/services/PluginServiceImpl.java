@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -32,7 +33,7 @@ import jakarta.validation.Validator;
 @Service
 public class PluginServiceImpl extends PluginServiceCEImpl implements PluginService {
 
-    private final LicenseConfig licenseConfig;
+    private final AirgapInstanceConfig airgapInstanceConfig;
 
     public PluginServiceImpl(Scheduler scheduler,
                              Validator validator,
@@ -45,11 +46,11 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
                              ObjectMapper objectMapper,
-                             LicenseConfig licenseConfig) {
+                             AirgapInstanceConfig airgapInstanceConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
 
-        this.licenseConfig = licenseConfig;
+        this.airgapInstanceConfig = airgapInstanceConfig;
     }
 
     /**
@@ -111,7 +112,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
         Flux<Plugin> pluginFlux = super.get(params);
         // Filter out unsupported plugins for air-gap instance
-        if (licenseConfig.isAirGapInstance()) {
+        if (airgapInstanceConfig.isAirgapEnabled()) {
             return pluginFlux
                 .filter(Plugin::isSupportedForAirGap);
         }

@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -30,7 +30,7 @@ import reactor.core.scheduler.Schedulers;
 public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements PingScheduledTask {
 
     private final TenantService tenantService;
-    private final LicenseConfig licenseConfig;
+    private final AirgapInstanceConfig airgapInstanceConfig;
     private final UsagePulseService usagePulseService;
 
     public PingScheduledTaskImpl(
@@ -45,7 +45,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             UserRepository userRepository,
             ProjectProperties projectProperties,
             TenantService tenantService,
-            LicenseConfig licenseConfig,
+            AirgapInstanceConfig airgapInstanceConfig,
             UsagePulseService usagePulseService) {
 
         super(
@@ -61,7 +61,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 projectProperties
         );
         this.tenantService = tenantService;
-        this.licenseConfig = licenseConfig;
+        this.airgapInstanceConfig = airgapInstanceConfig;
         this.usagePulseService = usagePulseService;
     }
 
@@ -79,6 +79,10 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
      */
     @Scheduled(initialDelay = 4 * 60 * 1000 /* four minutes */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
     public void sendUsagePulse() throws InterruptedException {
+        // Disable usage pulse reporting for airgapped instances
+        if (airgapInstanceConfig.isAirgapEnabled()) {
+            return;
+        }
         log.debug("Sending Usage Pulse");
         while(Boolean.TRUE.equals(usagePulseService.sendAndUpdateUsagePulse()
             .subscribeOn(Schedulers.boundedElastic())

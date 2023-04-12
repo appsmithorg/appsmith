@@ -37,7 +37,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private final ConfigService configService;
 
     private final CloudServicesConfig cloudServicesConfig;
-    
+
     private final CommonConfig commonConfig;
 
     private final ApplicationContext applicationContext;

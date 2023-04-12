@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -55,7 +55,7 @@ public class PluginServiceTest {
     PluginService pluginService;
 
     @Autowired
-    LicenseConfig licenseConfig;
+    AirgapInstanceConfig airgapInstanceConfig;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -118,7 +118,7 @@ public class PluginServiceTest {
     @WithUserDetails(value = "api_user")
     public void getPlugins_airgappedInstance_onlySupportedPluginsAreFetched() {
 
-        licenseConfig.setAirGapInstance(true);
+        airgapInstanceConfig.setAirgapEnabled(true);
 
         String workspaceName = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
@@ -160,7 +160,7 @@ public class PluginServiceTest {
     @WithUserDetails(value = "api_user")
     public void getPlugins_nonAirgappedInstance_allPluginsAreFetched() {
 
-        licenseConfig.setAirGapInstance(false);
+        airgapInstanceConfig.setAirgapEnabled(false);
 
         String workspaceName = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
