@@ -12,11 +12,11 @@ import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const LandingPageWrapper = styled.div<{ hide: boolean }>`
-  width: ${(props) => props.theme.pageContentWidth}px;
+  width: 100%;
   height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   margin: 0 auto;
   opacity: ${(props) => (props.hide ? 0 : 1)};
 `;
@@ -27,11 +27,15 @@ const LandingPageContent = styled.div`
   align-items: center;
   position: relative;
   z-index: 100;
+  justify-content: space-between;
 `;
 
 const StyledTextBanner = styled.div`
   min-width: ${(props) => props.theme.pageContentWidth * 0.55}px;
   padding-left: 64px;
+  width: 50%;
+  margin-left: 7%;
+  margin-top: 7%;
 `;
 
 const StyledBannerHeader = styled.h1`
@@ -107,11 +111,7 @@ export default memo(function LandingPage(props: LandingPageProps) {
       <LandingPageContent>
         <StyledTextBanner>
           <Banner />
-          {props.forSuperUser ? (
-            <SuperUserForm onGetStarted={props.onGetStarted} />
-          ) : (
-            <NonSuperUserForm onGetStarted={props.onGetStarted} />
-          )}
+          {props.forSuperUser ? <SuperUserForm /> : <NonSuperUserForm />}
         </StyledTextBanner>
         <StyledImageBanner>
           <img src={getAssetUrl(getWelcomeImage())} />

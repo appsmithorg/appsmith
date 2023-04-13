@@ -21,6 +21,7 @@ import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { DropdownWrapper, withDropdown } from "./common";
 import { roleOptions, useCaseOptions } from "./constants";
+import SetupForm from "./SetupForm";
 
 const ActionContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;
@@ -43,14 +44,10 @@ type NonSuperUserFormData = {
   role_name?: string;
 };
 
-export function SuperUserForm(props: UserFormProps) {
+export function SuperUserForm() {
   return (
     <ActionContainer>
-      <StyledButton
-        className="t--welcome-form-get-started"
-        onClick={() => props.onGetStarted && props.onGetStarted()}
-        text={createMessage(WELCOME_ACTION)}
-      />
+      <SetupForm />
     </ActionContainer>
   );
 }
