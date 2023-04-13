@@ -7,6 +7,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ce.ApplicationForkingServiceCEImpl;
+import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImplV2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +23,10 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                                          AnalyticsService analyticsService,
                                          ResponseUtils responseUtils,
                                          WorkspacePermission workspacePermission,
-                                         ApplicationPermission applicationPermission) {
+                                         ApplicationPermission applicationPermission,
+                                         ImportExportApplicationServiceCEImplV2 importExportApplicationServiceCEImplV2) {
 
         super(applicationService, workspaceService, examplesWorkspaceCloner, policyUtils, sessionUserService,
-                analyticsService, responseUtils, workspacePermission, applicationPermission);
+                analyticsService, responseUtils, workspacePermission, applicationPermission, importExportApplicationServiceCEImplV2);
     }
 }

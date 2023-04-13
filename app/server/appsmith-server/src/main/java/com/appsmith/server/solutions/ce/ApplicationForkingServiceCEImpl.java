@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -41,8 +42,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
+    private final ImportExportApplicationServiceCEImplV2 importExportApplicationServiceCEImplV2;
 
-    public Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
+    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
@@ -53,7 +55,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         // For collecting all the possible event data
         Map<String, Object> eventData = new HashMap<>();
-        Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
+        Mono<ApplicationImportDTO> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final Workspace targetWorkspace = tuple.getT2();
@@ -83,7 +85,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return applicationService.getById(newApplicationId)
                             .flatMap(application ->
                                     sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application, eventData));
-                });
+                })
+                .flatMap(application -> importExportApplicationServiceCEImplV2.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
@@ -97,9 +100,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         );
     }
 
-    public Mono<Application> forkApplicationToWorkspace(String srcApplicationId,
-                                                           String targetWorkspaceId,
-                                                           String branchName) {
+    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId,
+                                                                 String targetWorkspaceId,
+                                                                 String branchName) {
         if(StringUtils.isEmpty(branchName)) {
             return applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
@@ -119,7 +122,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         }
         return applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission())
                 .flatMap(branchedApplicationId -> forkApplicationToWorkspace(branchedApplicationId, targetWorkspaceId))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .map(applicationImportDTO -> responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication()))
+                .flatMap(application -> importExportApplicationServiceCEImplV2.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application, Map<String, Object> eventData) {
