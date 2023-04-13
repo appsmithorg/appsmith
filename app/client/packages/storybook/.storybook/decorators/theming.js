@@ -4,13 +4,15 @@ import styled, { createGlobalStyle } from "styled-components";
 import { ThemeProvider, TokensAccessor } from "@design-system/theming";
 import { createGlobalFontStack } from "@design-system/widgets";
 
-const StyledContainer = styled.div`
+const StyledThemeProvider = styled(ThemeProvider)`
   display: flex;
   width: 100%;
   height: 100%;
-  padding: 8px;
+  padding: 16px;
   align-items: center;
   justify-content: center;
+  background: var(--color-bg);
+  color: var(--color-fg);
 `;
 const { fontFaces } = createGlobalFontStack();
 
@@ -51,6 +53,19 @@ export const theming = (Story, args) => {
   }, [args.globals.accentColor]);
 
   useEffect(() => {
+    if (args.globals.colorScheme) {
+      tokensAccessor.updateColorScheme(args.globals.colorScheme);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getColors(),
+        };
+      });
+    }
+  }, [args.globals.colorScheme]);
+
+  useEffect(() => {
     if (args.globals.borderRadius) {
       tokensAccessor.updateBorderRadius({
         1: args.globals.borderRadius,
@@ -66,11 +81,9 @@ export const theming = (Story, args) => {
   }, [args.globals.borderRadius]);
 
   return (
-    <StyledContainer>
-      <ThemeProvider theme={theme}>
-        <GlobalStyles />
-        <Story fontFamily={args.globals.fontFamily} />
-      </ThemeProvider>
-    </StyledContainer>
+    <StyledThemeProvider theme={theme}>
+      <GlobalStyles />
+      <Story fontFamily={args.globals.fontFamily} />
+    </StyledThemeProvider>
   );
 };
