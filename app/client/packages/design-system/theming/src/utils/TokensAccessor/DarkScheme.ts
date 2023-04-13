@@ -22,20 +22,33 @@ export class DarkScheme {
 
   public getColors = () => {
     return {
+      bg: this.bg,
       bgAccent: this.bgAccent,
       bgAccentHover: this.bgAccentHover,
       bgAccentActive: this.bgAccentActive,
       bgAccentSubtleHover: this.bgAccentSubtleHover,
-      bgAccentSubtleActive: this.accentSubtleActive,
+      bgAccentSubtleActive: this.bgAccentSubtleActive,
+      fg: this.fg,
+      fgAccent: this.fgAccent,
+      fgOnAccent: this.fgOnAccent,
       bdAccent: this.bdAccent,
       bdFocus: this.bdFocus,
       bdNeutral: this.bdNeutral,
-      fgAccent: this.fgAccent,
-      fgOnAccent: this.fgOnAccent,
-      bg: this.bg,
-      fg: this.fg,
+      bdNeutralHover: this.bdNeutralHover,
+      bdNegative: this.bdNegative,
+      bdNegativeHover: this.bdNegativeHover,
     };
   };
+
+  /*
+   * Background colors
+   */
+  private get bg() {
+    return setLch(this.seedColor, {
+      l: 0.15,
+      c: 0.064,
+    });
+  }
 
   private get bgAccent() {
     if (this.seedIsVeryDark) {
@@ -48,15 +61,15 @@ export class DarkScheme {
   }
 
   private get bgAccentHover() {
-    return lighten(this.bgAccent, 1.04);
+    return lighten(this.bgAccent, 1.06);
   }
 
   private get bgAccentActive() {
-    return lighten(this.bgAccentHover, 0.94);
+    return lighten(this.bgAccentHover, 0.9);
   }
 
   // used only for generating child colors, not used as a token
-  private get accentSubtle() {
+  private get bgAccentSubtle() {
     let currentColor = this.seedColor;
 
     if (this.seedLightness > 0.3) {
@@ -75,46 +88,20 @@ export class DarkScheme {
   }
 
   private get bgAccentSubtleHover() {
-    return lighten(this.accentSubtle, 1.03);
+    return lighten(this.bgAccentSubtle, 1.06);
   }
 
-  private get accentSubtleActive() {
-    return lighten(this.accentSubtle, 0.9);
+  private get bgAccentSubtleActive() {
+    return lighten(this.bgAccentSubtle, 0.9);
   }
 
-  private get bdAccent() {
-    if (contrast(this.seedColor, this.bg) <= 15) {
-      return setLch(this.seedColor, {
-        l: 0.985,
-        c: 0.016,
-      });
-    }
-
-    return this.seedColor;
-  }
-
-  private get bdFocus() {
-    let currentColor = this.seedColor;
-
-    currentColor = setLch(currentColor, { h: this.seedHue - 180 });
-
-    if (this.seedLightness < 0.4) {
-      currentColor = setLch(currentColor, { l: 0.4 });
-    }
-
-    return currentColor;
-  }
-
-  private get bdNeutral() {
-    if (contrast(this.seedColor, this.bg) >= -25) {
-      return setLch(this.seedColor, {
-        c: 0.008,
-      });
-    }
-
+  /*
+   * Foreground colors
+   */
+  private get fg() {
     return setLch(this.seedColor, {
-      l: 0.15,
-      c: 0.064,
+      l: 0.965,
+      c: 0.024,
     });
   }
 
@@ -143,17 +130,51 @@ export class DarkScheme {
     });
   }
 
-  private get bg() {
+  private get bdAccent() {
+    if (contrast(this.seedColor, this.bg) <= 15) {
+      return setLch(this.seedColor, {
+        l: 0.985,
+        c: 0.016,
+      });
+    }
+
+    return this.seedColor;
+  }
+
+  private get bdNeutral() {
+    if (contrast(this.seedColor, this.bg) >= -25) {
+      return setLch(this.seedColor, {
+        c: 0.008,
+      });
+    }
+
     return setLch(this.seedColor, {
       l: 0.15,
       c: 0.064,
     });
   }
 
-  private get fg() {
-    return setLch(this.seedColor, {
-      l: 0.965,
-      c: 0.024,
-    });
+  private get bdNeutralHover() {
+    return lighten(this.bdNeutral, 1.06);
+  }
+
+  private get bdFocus() {
+    let currentColor = this.seedColor;
+
+    currentColor = setLch(currentColor, { h: this.seedHue - 180 });
+
+    if (this.seedLightness < 0.4) {
+      currentColor = setLch(currentColor, { l: 0.4 });
+    }
+
+    return currentColor;
+  }
+
+  private get bdNegative() {
+    return "#d91921";
+  }
+
+  private get bdNegativeHover() {
+    return "#b90707";
   }
 }
