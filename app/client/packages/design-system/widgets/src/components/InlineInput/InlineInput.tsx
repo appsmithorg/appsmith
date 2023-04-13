@@ -1,6 +1,6 @@
 import React from "react";
 import { Text } from "../Text";
-import { StyledInlineInput } from "./index.styled";
+import { StyledInlineInput, StyledLabel } from "./index.styled";
 
 export interface InlineInputProps
   extends React.ComponentPropsWithoutRef<"div"> {
@@ -10,6 +10,7 @@ export interface InlineInputProps
   isDisabled?: boolean;
   error?: React.ReactNode;
   labelPosition?: "left" | "right";
+  labelAlignment?: "left" | "right";
 }
 
 export function InlineInput(props: InlineInputProps) {
@@ -29,9 +30,9 @@ export function InlineInput(props: InlineInputProps) {
 
       <div className="label-wrapper">
         {label && (
-          <label className="label" data-disabled={disabled} htmlFor={id}>
+          <StyledLabel className="label" data-disabled={disabled} htmlFor={id}>
             <Text> {label}</Text>
-          </label>
+          </StyledLabel>
         )}
         {description && <span className="description">{description}</span>}
         {error && error !== "boolean" && <span className="error">{error}</span>}

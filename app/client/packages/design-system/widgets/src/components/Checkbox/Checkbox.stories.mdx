@@ -95,21 +95,52 @@ Checkbox is a component that allows the user to select one or more options from 
   </Story>
 </Canvas>
 
-### Label Position
+### Label Position and alignment
 
 <Canvas>
   <Story
+    parameters={{
+      width: 250,
+    }}
     name="Label Position - Left"
     args={{
       labelPosition: "left",
+      label: "Label Position - Left",
     }}
   >
     {Template.bind({})}
   </Story>
   <Story
+    parameters={{
+      width: 250,
+    }}
     name="Label Position - Right"
     args={{
       labelPosition: "right",
+      label: "Label Position - Right",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    parameters={{
+      width: 250,
+    }}
+    name="Label alignment - Right"
+    args={{
+      labelAlignment: "right",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    parameters={{
+      width: 250,
+    }}
+    name="Label alignment - Left"
+    args={{
+      labelAlignment: "right",
+      labelPosition: "left",
     }}
   >
     {Template.bind({})}

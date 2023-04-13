@@ -20,12 +20,10 @@ export const StyledInlineInput = styled.div.withConfig({
   display: flex;
   gap: var(--spacing-2);
   width: 100%;
+  justify-content: space-between;
 
   ${({ labelPosition }) => css`
     flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
-    justify-content: ${
-      labelPosition === "left" ? "space-between" : "flex-start"
-    }};
   `};
 
   .label-wrapper {
@@ -35,21 +33,23 @@ export const StyledInlineInput = styled.div.withConfig({
     line-height: 20px;
     font-size: 14px;
     gap: var(--spacing-1);
+    flex: 1;
   }
+`;
 
-  .label {
-    min-height: 20px;
-    display: flex;
-    align-items: center;
+export const StyledLabel = styled.label<
+  Pick<InlineInputProps, "labelAlignment">
+>`
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: ${({ labelAlignment }) => {
+    if (labelAlignment === "right") return "flex-end";
 
-    &[data-disabled="true"] {
-      opacity: var(--opacity-disabled);
-    }
-  }
+    return "flex-start";
+  }};
 
-  .error {
-  }
-
-  .description {
+  &[data-disabled="true"] {
+    opacity: var(--opacity-disabled);
   }
 `;
