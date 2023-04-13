@@ -14,10 +14,10 @@ export const getIsBranchUpdated = (
   return branch1 !== branch2;
 };
 
-export const addHTMLBodyOverlay = () => {
-  document.body.classList.add("overlay");
+export const addClassToDocumentBody = (className: string) => {
+  document.body.classList.add(className);
 };
 
-export const removeHTMLBodyOverlay = () => {
-  document.body.classList.remove("overlay");
+export const removeClassFromDocumentBody = (className: string) => {
+  document.body.classList.remove(className);
 };

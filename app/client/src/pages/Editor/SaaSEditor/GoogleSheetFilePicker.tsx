@@ -1,4 +1,4 @@
-import { removeHTMLBodyOverlay } from "pages/utils";
+import { removeClassFromDocumentBody } from "pages/utils";
 import React, { useState, useEffect } from "react";
 import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
@@ -52,6 +52,9 @@ function GoogleSheetFilePicker({
     }
   }, [scriptLoadedFlag, gsheetToken, gsheetProjectID]);
 
+  // This useEffect will be triggered when google apis script is loaded (script tag added in index.html)
+  // and when picker object is successfully loaded (check useEffect above) and
+  // and when google sheet token and project id are available
   useEffect(() => {
     if (
       !!gsheetToken &&
@@ -64,6 +67,8 @@ function GoogleSheetFilePicker({
     }
   }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
 
+  // This triggers google's picker object from google apis script to create file picker and display it
+  // It takes google sheet token and project id as inputs
   const createPicker = async (accessToken: string, projectID: string) => {
     const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
     view.setMimeTypes("application/vnd.google-apps.spreadsheet");
@@ -80,9 +85,11 @@ function GoogleSheetFilePicker({
   };
 
   const pickerCallback = async (data: any) => {
-    // Remove document body overlay as soon as file picker is loaded
     if (data.action === FilePickerActionStatus.LOADED) {
-      removeHTMLBodyOverlay();
+      // Remove document body overlay as soon as file picker is loaded
+      // As we are adding overlay for file picker background div
+      const className = "overlay";
+      removeClassFromDocumentBody(className);
     } else if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED

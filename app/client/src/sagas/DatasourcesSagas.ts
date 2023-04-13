@@ -121,7 +121,7 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
-import { addHTMLBodyOverlay } from "pages/utils";
+import { addClassToDocumentBody } from "pages/utils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1226,11 +1226,12 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
+  const className = "overlay";
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const status = search.get(SHOW_FILE_PICKER_KEY);
   if (!!status && !!appsmithToken) {
-    addHTMLBodyOverlay();
+    addClassToDocumentBody(className);
   }
 }
 
