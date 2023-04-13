@@ -66,8 +66,28 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
-  ci-test:
+  smoke:
     needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: smoke-test
+    uses: ./.github/workflows/ci-smoke.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
+  sanity:
+    needs: [ smoke ]
+    # Only run if the build step is successful
+    if: success()
+    name: sanity-test
+    uses: ./.github/workflows/ci-sanity.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
+  ci-test:
+    needs: [ sanity ]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -87,7 +107,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   ci-test-result:
-    needs: [ci-test, perf-test ]
+    needs: [ ci-test, smoke, sanity, perf-test ]
     # Only run if the ci-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -99,6 +119,74 @@ jobs:
         env:
           PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
         run: echo "$PAYLOAD_CONTEXT"
+
+      # Downloading the flaky test list
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+
+      # Downloading the failed spec details in case of failure in smoke
+      - name: Check and download failed specs for smoke
+        if: needs.smoke.result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-spec-ci-smoke
+          path: ~/failed_spec_ci_smoke
+
+      # Combine all the failed specs in for smoke
+      - name: Combine all failed smoke specs
+        if: needs.smoke.result != 'success'
+        run: |
+          cat ~/failed_spec_ci_smoke/failed_spec_ci_smoke* >> ~/combined_failed_spec_smoke
+          new_smoke_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_smoke) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_smoke_failed_spec_env"
+          echo "new_smoke_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_smoke_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # Comment in the pr with failed smoke specs
+      - name: Comment in PR with failed smoke tests
+        if: needs.smoke.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            The smoke has been failed, please fix them and trigger the /ok-to-test again: ${{env.new_smoke_failed_spec_env}}
+            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
+
+      # Downloading the failed spec details in case of failure in sanity
+      - name: Check and download failed specs for Sanity
+        if: needs.sanity.result != 'success'
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-spec-ci-sanity
+          path: ~/failed_spec_ci_sanity
+
+      # Combine all the failed specs in for sanity
+      - name: Combine all failed sanity specs
+        if: needs.sanity.result != 'success'
+        run: |
+          cat ~/failed_spec_ci_sanity/failed_spec_ci_sanity* >> ~/combined_failed_spec_sanity
+          new_sanity_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_sanity) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_sanity_failed_spec_env"
+          echo "new_sanity_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_sanity_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # Comment in the pr with failed smoke specs
+      - name: Comment in PR with failed sanity tests
+        if: needs.sanity.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            The sanity has been failed, please fix them and trigger the /ok-to-test again: ${{env.new_sanity_failed_spec_env}}
+            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
       # Deleting the existing dir's if any
       - name: Delete existing directories
@@ -142,11 +230,6 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
-
-      - name: Get Latest flaky Tests
-        shell: bash
-        run: |
-          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
 
      # Verify CI test failures against known failures
       - name: Verify CI test failures against known failures

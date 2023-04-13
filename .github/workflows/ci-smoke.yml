@@ -11,7 +11,7 @@ on:
         type: number
 
 jobs:
-  ci-smoke:
+  smoke:
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -232,7 +232,7 @@ jobs:
           config-file: cypress_ci.json
           group: "Electrons on Github Action Fat Container Smoke"
           ci-build-id: '${{ github.run_id }}-${{ github.sha }}-smoke'
-          spec: "cypress/integration/SmokeSuite/**/*"
+          spec: "cypress/integration/SmokeSuite/**/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}

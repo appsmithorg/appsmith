@@ -11,7 +11,7 @@ on:
         type: number
 
 jobs:
-  ci-sanity:
+  sanity:
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -224,7 +224,7 @@ jobs:
           parallel: true
           config-file: cypress_ci.json
           group: "Electrons on Github Action Fat Container Sanity"
-          spec: "cypress/integration/SanitySuite/**/*"
+          spec: "cypress/integration/SanitySuite/**/**/*"
           working-directory: app/client
           ci-build-id: '${{ github.run_id }}-${{ github.sha }}-sanity'
           # tag will be either "push" or "pull_request"
