@@ -1,5 +1,6 @@
 import { Colors } from "constants/Colors";
 import { cloneDeep, set } from "lodash";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   combineDynamicBindings,
   getDynamicBindings,
@@ -18,6 +19,7 @@ export const CONFIG = {
   hideCard: true,
   needsHeightForContent: true,
   defaults: {
+    responsiveBehavior: ResponsiveBehavior.Fill,
     rows: 28,
     columns: 34,
     animateLoading: true,
@@ -208,6 +210,18 @@ export const CONFIG = {
     isSortable: true,
     delimiter: ",",
     version: 3,
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+          };
+        },
+      },
+    ],
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
