@@ -59,6 +59,7 @@ import type { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "utils/WidgetFactory";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -342,10 +343,9 @@ export const getWidgetCards = createSelector(
   getWidgetConfigs,
   getIsAutoLayout,
   (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
-    const cards = Object.values(widgetConfigs.config).filter(
-      (config) => !config.hideCard,
-    );
-
+    const cards = Object.values(widgetConfigs.config).filter((config) => {
+      return isAirgapped() ? config.widgetName !== "Map" : !config.hideCard;
+    });
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         detachFromLayout = false,

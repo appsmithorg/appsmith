@@ -20,22 +20,24 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const DEFAULT_LIST_DATA = [
   {
     id: "001",
     name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
   },
   {
     id: "002",
     name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
   },
   {
     id: "003",
     name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
   },
 ];
 
@@ -161,8 +163,9 @@ export const CONFIG = {
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
-                                    defaultImage:
-                                      "https://assets.appsmith.com/widgets/default.png",
+                                    defaultImage: getAssetUrl(
+                                      `${ASSETS_CDN_URL}/widgets/default.png`,
+                                    ),
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",

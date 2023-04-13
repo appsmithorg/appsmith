@@ -38,6 +38,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           timestamp: "02:40:10",
           category: LOG_CATEGORY.PLATFORM_GENERATED,
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -100,6 +101,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -188,6 +190,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -300,6 +303,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -412,6 +416,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -550,6 +555,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -638,6 +644,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -687,6 +694,7 @@ describe("getFilteredErrors", () => {
           },
           severity: Severity.ERROR,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
     };
@@ -731,6 +739,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -807,6 +816,7 @@ describe("getFilteredErrors", () => {
 
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
     };
@@ -851,6 +861,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
