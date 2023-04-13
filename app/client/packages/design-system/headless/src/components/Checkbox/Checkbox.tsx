@@ -7,7 +7,7 @@ import { useToggleState } from "@react-stately/toggle";
 import SubtractIcon from "remixicon-react/SubtractLineIcon";
 import type { AriaCheckboxProps } from "@react-types/checkbox";
 
-import { useProvidedRefOrCreate } from "../../utils/use-provided-ref-or-create";
+import { useProvidedRefOrCreate } from "../../utils/useProvidedReforCreate";
 
 export interface CheckboxProps extends AriaCheckboxProps {
   id?: string;
