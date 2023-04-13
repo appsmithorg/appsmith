@@ -23,8 +23,6 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     display: flex;
     height: 100%;
     justify-content: start;
-    width: 100%;
-
     .auto-layout & {
       min-height: 32px;
     }
@@ -43,7 +41,7 @@ export const CheckboxLabel = styled.div<{
   labelStyle?: string;
   isDynamicHeightEnabled?: boolean;
 }>`
-  width: 100%;
+  width: 0;
   display: inline-block;
   vertical-align: top;
   text-align: ${({ alignment }) => alignment.toLowerCase()};
