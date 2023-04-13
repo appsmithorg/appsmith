@@ -317,7 +317,7 @@ const FlexContainer = styled.div`
   }
   .disabled {
     background: var(--ads-v2-color-bg-subtle);
-    border: 1px solid var(--ads-v2-border-radius-muted);
+    border: 1px solid var(--ads-v2-color-border-muted);
     margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   }
 `;
