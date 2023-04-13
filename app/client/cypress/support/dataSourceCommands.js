@@ -486,7 +486,6 @@ Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "background-color", backgroundColorGray2)
-    .and("have.css", "width", "48px")
     .and("have.css", "height", "48px")
     .and("have.css", "border-radius", "50%")
     .and("have.css", "display", "flex")

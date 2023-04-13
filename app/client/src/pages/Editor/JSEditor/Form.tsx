@@ -69,6 +69,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -263,6 +264,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
 
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
+
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setJsPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
@@ -374,21 +378,23 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 ]}
               />
             </TabbedViewContainer>
-            <JSResponseView
-              currentFunction={activeResponse}
-              disabled={disableRunFunctionality || !isExecutePermitted}
-              errors={parseErrors}
-              isLoading={isExecutingCurrentJSAction}
-              jsObject={currentJSCollection}
-              onButtonClick={(
-                event:
-                  | React.MouseEvent<HTMLElement, MouseEvent>
-                  | KeyboardEvent,
-              ) => {
-                handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
-              }}
-              theme={theme}
-            />
+            {showDebugger ? (
+              <JSResponseView
+                currentFunction={activeResponse}
+                disabled={disableRunFunctionality || !isExecutePermitted}
+                errors={parseErrors}
+                isLoading={isExecutingCurrentJSAction}
+                jsObject={currentJSCollection}
+                onButtonClick={(
+                  event:
+                    | React.MouseEvent<HTMLElement, MouseEvent>
+                    | KeyboardEvent,
+                ) => {
+                  handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
+                }}
+                theme={theme}
+              />
+            ) : null}
           </SecondaryWrapper>
         </Form>
       </JSObjectHotKeys>

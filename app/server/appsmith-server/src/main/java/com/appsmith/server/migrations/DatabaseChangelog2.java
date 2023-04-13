@@ -820,7 +820,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
-                        fieldName(QBranchAwareDomain.branchAwareDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                         .named("defaultApplicationId_gitSyncId_deleted_compound_index")
@@ -829,7 +829,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
-                        fieldName(QBranchAwareDomain.branchAwareDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                         .named("defaultApplicationId_gitSyncId_deleted_compound_index")
@@ -838,7 +838,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, NewPage.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
-                        fieldName(QBranchAwareDomain.branchAwareDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                         .named("defaultApplicationId_gitSyncId_deleted_compound_index")
