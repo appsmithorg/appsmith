@@ -584,8 +584,13 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
-  addWidgetComponentBoundary = (content: ReactNode) => (
-    <WidgetComponentBoundary>{content}</WidgetComponentBoundary>
+  addWidgetComponentBoundary = (
+    content: ReactNode,
+    widgetProps: WidgetProps,
+  ) => (
+    <WidgetComponentBoundary widgetProps={widgetProps}>
+      {content}
+    </WidgetComponentBoundary>
   );
 
   getWidgetComponent = () => {
@@ -658,7 +663,7 @@ abstract class BaseWidget<
       );
     }
 
-    content = this.addWidgetComponentBoundary(content);
+    content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
   };
 

@@ -275,8 +275,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // after we are done dragging the limits in auto height with limits
 
     const selectionDiv = `div-selection-${MAIN_CONTAINER_WIDGET_ID}`;
+    const mainCanvasId = `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`;
     const isTargetMainCanvas =
-      (e.target as HTMLDivElement).dataset.testid === selectionDiv;
+      (e.target as HTMLDivElement).dataset.testid === selectionDiv ||
+      (e.target as HTMLDivElement).dataset.testid === mainCanvasId;
 
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       // Check if Target is the MainCanvas

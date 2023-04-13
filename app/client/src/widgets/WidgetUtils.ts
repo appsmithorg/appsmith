@@ -919,7 +919,7 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
       targetReactProps?.onClick ||
         targetReactProps?.onMouseDownCapture ||
         targetReactProps?.onMouseDown ||
-        target.onclick,
+        (target.onclick && target.onclick.name !== "noop"),
     );
 
     if (hasOnClickableEvent) {
