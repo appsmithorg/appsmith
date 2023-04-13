@@ -156,7 +156,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           </MenuSub>
         )}
         {isDeletePermitted && (
-          // TODO (tanvi): this delete does not work as expected. debug after z index is fixed.
+          // TODO (tanvi): this delete does not work as expected. Debug
           <MenuItem
             className="t--apiFormDeleteBtn"
             onSelect={() => {
