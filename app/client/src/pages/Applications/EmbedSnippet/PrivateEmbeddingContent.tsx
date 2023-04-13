@@ -14,6 +14,7 @@ import {
   IN_APP_EMBED_SETTING,
   UPGRADE,
 } from "@appsmith/constants/messages";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const appsmithConfigs = getAppsmithConfigs();
 
@@ -62,7 +63,7 @@ function PrivateEmbeddingContent(props: {
         alt={"Upgrade"}
         className="no-sub-img"
         height="108px"
-        src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+        src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
         width="119px"
       />
       <SubContainer>
