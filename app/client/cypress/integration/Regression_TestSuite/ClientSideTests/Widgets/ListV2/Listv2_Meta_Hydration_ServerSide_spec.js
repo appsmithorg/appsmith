@@ -105,63 +105,35 @@ describe("List widget v2 - meta hydration tests", () => {
 
   it("1. setup serverside data", () => {
     cy.wait(1000);
-    cy.NavigateToDatasourceEditor();
+    cy.createAndFillApi(
+      "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
+      "",
+    );
+    cy.RunAPI();
+    cy.SearchEntityandOpen("List1");
 
-    // Click on sample(mock) user database.
-    cy.get(datasource.mockUserDatabase).click();
+    cy.wait(200);
 
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
-    cy.get(`${datasource.datasourceCard}`)
-      .filter(":contains('Users')")
-      .first()
-      .within(() => {
-        cy.get(`${datasource.createQuery}`).click({ force: true });
-      });
-    // Click the editing field
-    cy.get(".t--action-name-edit-field").click({ force: true });
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .t--widget-selectwidget`,
+        )
+        .should("have.length", 3),
+    );
 
-    // Click the editing field
-    cy.get(queryLocators.queryNameField).type("Query1");
-
-    // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch).last().click({ force: true });
-
-    //.1: Click on Write query area
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({
-      force: true,
-    });
-
-    // writing query to get the schema
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
-        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
-      );
-    cy.WaitAutoSave();
-
-    cy.runQuery();
-
-    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
-
-    cy.wait(1000);
-
+    //Change Default Selected Item
     cy.openPropertyPane("listwidgetv2");
 
     testJsontextClear("items");
-
-    cy.testJsontext("items", "{{Query1.data}}");
+    cy.testJsontext("items", "{{Api1.data}}");
 
     cy.togglebar(commonlocators.serverSidePaginationCheckbox);
 
     cy.get(toggleJSButton("onpagechange")).click({ force: true });
-    cy.testJsontext("onpagechange", "{{Query1.run()}}");
+    cy.testJsontext("onpagechange", "{{Api1.run()}}");
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
