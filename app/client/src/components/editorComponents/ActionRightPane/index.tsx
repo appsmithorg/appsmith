@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
 import { Button, Icon, Link } from "design-system";
 import { useState } from "react";
-import history from "utils/history";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import type { ReactNode } from "react";
@@ -236,10 +235,6 @@ function ActionSidebar({
       }),
     );
   };
-  const navigateToCanvas = useCallback(() => {
-    history.push(builderURL({ pageId }));
-    return false;
-  }, [pageId]);
 
   const hasWidgets = Object.keys(widgets).length > 1;
 
@@ -259,10 +254,9 @@ function ActionSidebar({
     <SideBar>
       <BackToCanvasLink
         kind="secondary"
-        onClick={navigateToCanvas}
-        startIcon="arrow-left-s-line"
+        startIcon="arrow-left-line"
         target="_self"
-        to="#"
+        to={builderURL({ pageId })}
       >
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
