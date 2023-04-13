@@ -1,6 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const templateLocators = require("../../../../locators/TemplatesLocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const commonlocators = require("../../../locators/commonlocators.json");
+const templateLocators = require("../../../locators/TemplatesLocators.json");
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 const { AggregateHelper, HomePage } = ObjectsRegistry;
 
 describe("Fork a template to an workspace", () => {

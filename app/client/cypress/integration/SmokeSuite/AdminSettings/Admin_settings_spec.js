@@ -1,9 +1,9 @@
-import adminsSettings from "../../../../locators/AdminsSettings";
+import adminsSettings from "../../../locators/AdminsSettings";
 
 const {
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
-} = require("../../../../../src/constants/ThirdPartyConstants");
+} = require("../../../../src/constants/ThirdPartyConstants");
 
 describe("Admin settings page", function () {
   beforeEach(() => {

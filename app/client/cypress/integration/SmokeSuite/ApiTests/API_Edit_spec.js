@@ -1,7 +1,7 @@
-const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const dsl = require("../../../../fixtures/uiBindDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
+const testdata = require("../../../fixtures/testdata.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
+const dsl = require("../../../fixtures/uiBindDsl.json");
+const explorer = require("../../../locators/explorerlocators.json");
 
 describe("API Panel Test Functionality", function () {
   before(() => {
