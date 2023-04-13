@@ -1,12 +1,15 @@
 import React from "react";
+import { Text } from "../Text";
+import { StyledInlineInput } from "./index.styled";
 
 export interface InlineInputProps
   extends React.ComponentPropsWithoutRef<"div"> {
-  label: React.ReactNode;
-  description: React.ReactNode;
+  label?: React.ReactNode;
+  description?: React.ReactNode;
   id: string;
   isDisabled?: boolean;
-  error: React.ReactNode;
+  error?: React.ReactNode;
+  labelPosition?: "left" | "right";
 }
 
 export function InlineInput(props: InlineInputProps) {
@@ -21,19 +24,19 @@ export function InlineInput(props: InlineInputProps) {
   } = props;
 
   return (
-    <div className="inline-input" {...rest}>
+    <StyledInlineInput {...rest}>
       {children}
 
       <div className="label-wrapper">
         {label && (
           <label className="label" data-disabled={disabled} htmlFor={id}>
-            {label}
+            <Text> {label}</Text>
           </label>
         )}
 
         {description && <span className="description">{description}</span>}
         {error && error !== "boolean" && <span className="error">{error}</span>}
       </div>
-    </div>
+    </StyledInlineInput>
   );
 }

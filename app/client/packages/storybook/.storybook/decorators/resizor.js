@@ -6,6 +6,7 @@ export const resizor = (Story, args) => {
 
   return (
     <Resizable
+      enable={parameters.enableResizing}
       grid={[8, 8]}
       defaultSize={{
         width: parameters.width,

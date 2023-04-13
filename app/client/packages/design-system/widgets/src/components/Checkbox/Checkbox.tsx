@@ -6,15 +6,11 @@ import type {
   CheckboxProps as HeadlessCheckboxProps,
 } from "@design-system/headless";
 
-import { Text } from "../Text";
 import { InlineInput } from "../InlineInput";
 import { StyledCheckbox } from "./index.styled";
-import type { InlineInputProps as HeadlessInlineInputProps } from "@design-system/headless";
+import type { InlineInputProps } from "../InlineInput";
 
-export type CheckboxProps = {
-  labelPosition: "left" | "right";
-} & HeadlessCheckboxProps &
-  Pick<HeadlessInlineInputProps, "description" | "label" | "error">;
+export type CheckboxProps = HeadlessCheckboxProps & InlineInputProps;
 
 export const Checkbox = forwardRef<HeadlessCheckboxRef, CheckboxProps>(
   (props, ref) => {
@@ -36,7 +32,7 @@ export const Checkbox = forwardRef<HeadlessCheckboxRef, CheckboxProps>(
         error={error}
         id={id}
         isDisabled={isDisabled}
-        label={<Text>{label}</Text>}
+        label={label}
         labelPosition={labelPosition}
       >
         <StyledCheckbox id={id} isDisabled={isDisabled} ref={ref} {...rest} />

@@ -1,9 +1,9 @@
 import styled, { css } from "styled-components";
 
 import type { InlineInputProps } from ".";
-import { InlineInput as HeadlessInlineInput } from "@design-system/headless";
 
 /**
+ * filter out props that should not be forwarded to the DOM
  *
  * @param prop
  * @returns
@@ -14,9 +14,9 @@ const shouldForwardProp = (prop: any) => {
   return !propsToOmit.includes(prop);
 };
 
-export const StyledInlineInput = styled(HeadlessInlineInput).withConfig({
+export const StyledInlineInput = styled.div.withConfig({
   shouldForwardProp,
-})<InlineInputProps>`
+})<Pick<InlineInputProps, "labelPosition">>`
   display: flex;
   gap: var(--spacing-2);
   width: 100%;
@@ -27,8 +27,6 @@ export const StyledInlineInput = styled(HeadlessInlineInput).withConfig({
       labelPosition === "left" ? "space-between" : "flex-start"
     }};
   `};
-
-  /* disabled */
 
   .label-wrapper {
     display: inline-flex;

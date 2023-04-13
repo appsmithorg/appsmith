@@ -1,5 +1,4 @@
 import React, { forwardRef } from "react";
-import { useId } from "@react-aria/utils";
 import { FocusRing } from "@react-aria/focus";
 import { useCheckbox } from "@react-aria/checkbox";
 import CheckIcon from "remixicon-react/CheckLineIcon";
@@ -22,7 +21,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
     const {
       className,
       icon = <CheckIcon />,
-      id: defaultId,
+      id,
       isIndeterminate,
       ...rest
     } = props;
@@ -31,7 +30,6 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       providedRef as React.RefObject<HTMLInputElement>,
     );
     const { inputProps } = useCheckbox(rest, state, ref);
-    const id = useId(defaultId);
 
     return (
       <div className={className}>
