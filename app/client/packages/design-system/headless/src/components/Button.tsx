@@ -11,12 +11,15 @@ import type { ButtonProps as SpectrumButtonProps } from "@react-types/button";
 
 export interface ButtonProps extends SpectrumButtonProps {
   className?: string;
+  isActive?: boolean;
+  isHover?: boolean;
 }
 
 export type ButtonRef = FocusableRef<HTMLElement>;
 
 export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
-  const { autoFocus, children, className, isDisabled } = props;
+  const { autoFocus, children, className, isActive, isDisabled, isHover } =
+    props;
   const domRef = useFocusableRef(ref) as RefObject<HTMLButtonElement>;
   const { buttonProps, isPressed } = useButton(props, domRef);
   const { hoverProps, isHovered } = useHover({ isDisabled });
@@ -27,8 +30,8 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
         {...mergeProps(buttonProps, hoverProps)}
         className={classNames(className, {
           "is-disabled": isDisabled,
-          "is-active": isPressed,
-          "is-hovered": isHovered,
+          "is-active": isPressed || isActive,
+          "is-hovered": isHovered || isHover,
         })}
         ref={domRef}
       >
