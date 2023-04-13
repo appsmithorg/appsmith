@@ -262,6 +262,11 @@ $(if [[ $use_https == 1 ]]; then echo "
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
         add_header Content-Security-Policy \"frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}\";
 
+        # Disable caching completely. This is dev-time config, caching causes more problems than it solves.
+        # Taken from <https://stackoverflow.com/a/2068407/151048>.
+        add_header Cache-Control 'no-store, must-revalidate' always;
+        proxy_hide_header Cache-Control;  # Hide it, if present in upstream's response.
+
         sub_filter_once off;
         location / {
             proxy_pass $frontend;

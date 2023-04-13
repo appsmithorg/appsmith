@@ -17,6 +17,7 @@ export enum BatchKey {
   process_batched_triggers = "process_batched_triggers",
   process_batched_fn_execution = "process_batched_fn_execution",
   process_js_variable_updates = "process_js_variable_updates",
+  process_batched_fn_invoke_log = "process_batched_fn_invoke_log",
 }
 
 const TriggerEmitter = new EventEmitter();
@@ -145,5 +146,14 @@ TriggerEmitter.on(
   BatchKey.process_js_variable_updates,
   jsVariableUpdatesHandlerWrapper,
 );
+
+export const fnInvokeLogHandler = priorityBatchedActionHandler((data) => {
+  WorkerMessenger.ping({
+    method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
+    data,
+  });
+});
+
+TriggerEmitter.on(BatchKey.process_batched_fn_invoke_log, fnInvokeLogHandler);
 
 export default TriggerEmitter;

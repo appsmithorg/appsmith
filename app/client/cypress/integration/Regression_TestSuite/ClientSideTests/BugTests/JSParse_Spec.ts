@@ -50,13 +50,13 @@ describe("Bug #15283 - Correctly parses JS Function", () => {
     });
 
     // confirm there is no parse error
-    jsEditor.AssertParseError(false, false);
+    jsEditor.AssertParseError(false);
     // Wait for parsing to be complete
     agHelper.Sleep();
     // run
     jsEditor.RunJSObj();
     // confirm there is no function execution error
-    jsEditor.AssertParseError(false, false);
+    jsEditor.AssertParseError(false);
 
     agHelper.AssertContains("Expected results", "exist");
   });
