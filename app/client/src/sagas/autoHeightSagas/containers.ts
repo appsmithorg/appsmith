@@ -93,6 +93,10 @@ export function* dynamicallyUpdateContainersSaga(
           parentContainerWidget,
         );
 
+        /**
+         * For AutoLayout canvas,
+         * we need to consider the min height of the widget as well.
+         */
         if (isAutoLayout)
           minDynamicHeightInRows = Math.max(
             minDynamicHeightInRows,
