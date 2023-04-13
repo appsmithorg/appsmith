@@ -12,7 +12,6 @@ import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
-import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
@@ -290,43 +289,46 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
     return (
       <>
-        <FontLoader fontFamily={this.props.fontFamily}>
-          <TextContainer>
-            <StyledText
+        <TextContainer
+          style={{
+            fontFamily: this.props.fontFamily,
+          }}
+        >
+          <StyledText
+            backgroundColor={backgroundColor}
+            className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
+            ellipsize={ellipsize}
+            fontSize={fontSize}
+            fontStyle={fontStyle}
+            isTruncated={this.state.isTruncated}
+            overflow={overflow}
+            ref={this.textRef}
+            textAlign={textAlign}
+            textColor={textColor}
+          >
+            <Interweave
+              content={text}
+              filters={[new LinkFilter()]}
+              matchers={
+                disableLink
+                  ? []
+                  : [new EmailMatcher("email"), new UrlMatcher("url")]
+              }
+              newWindow
+            />
+          </StyledText>
+          {this.state.isTruncated && (
+            <StyledIcon
               backgroundColor={backgroundColor}
-              className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
-              ellipsize={ellipsize}
-              fontSize={fontSize}
-              fontStyle={fontStyle}
-              isTruncated={this.state.isTruncated}
-              overflow={overflow}
-              ref={this.textRef}
-              textAlign={textAlign}
-              textColor={textColor}
-            >
-              <Interweave
-                content={text}
-                filters={[new LinkFilter()]}
-                matchers={
-                  disableLink
-                    ? []
-                    : [new EmailMatcher("email"), new UrlMatcher("url")]
-                }
-                newWindow
-              />
-            </StyledText>
-            {this.state.isTruncated && (
-              <StyledIcon
-                backgroundColor={backgroundColor}
-                className="t--widget-textwidget-truncate"
-                fillColor={truncateButtonColor || accentColor}
-                name="context-menu"
-                onClick={this.handleModelOpen}
-                size={IconSize.XXXL}
-              />
-            )}
-          </TextContainer>
-        </FontLoader>
+              className="t--widget-textwidget-truncate"
+              fillColor={truncateButtonColor || accentColor}
+              name="context-menu"
+              onClick={this.handleModelOpen}
+              size={IconSize.XXXL}
+            />
+          )}
+        </TextContainer>
+
         <ModalComponent
           canEscapeKeyClose
           canOutsideClickClose
