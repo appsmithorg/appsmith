@@ -496,11 +496,14 @@ public class GitExecutorImpl implements GitExecutor {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         String queryName = x.split(GitDirectories.ACTION_DIRECTORY + "/")[1];
-                        queryName = queryName.substring(0, queryName.indexOf("/"));
-                        String pageName = x.split("/")[1];
-                        if (!queriesModified.contains(pageName + queryName)) {
-                            queriesModified.add(pageName + queryName);
-                            modifiedQueries++;
+                        int position = queryName.indexOf("/");
+                        if(position != -1) {
+                            queryName = queryName.substring(0, position);
+                            String pageName = x.split("/")[1];
+                            if (!queriesModified.contains(pageName + queryName)) {
+                                queriesModified.add(pageName + queryName);
+                                modifiedQueries++;
+                            }
                         }
                     } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + "/") && !x.endsWith(".json")) {
                         String queryName = x.substring(x.lastIndexOf("/") + 1);

@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 export default [
   {
@@ -53,6 +54,7 @@ export default [
         helpText: "Control the font size of the label associated",
         controlType: "DROP_DOWN",
         defaultValue: "0.875rem",
+        hidden: isAutoLayout,
         options: [
           {
             label: "S",

@@ -26,6 +26,7 @@ import com.external.config.TriggerMethod;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.plugins.exceptions.GSheetsPluginError;
+import static com.external.utils.SheetsUtil.getUserAuthorizedSheetIds;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -171,6 +172,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
 
+            // This will get list of authorised sheet ids from datasource config, and transform execution response to contain only authorised files
+            final Set<String> userAuthorizedSheetIds = getUserAuthorizedSheetIds(datasourceConfiguration);
+
             // Triggering the actual REST API call
             return executionMethod.executePrerequisites(methodConfig, oauth2)
                     // This method call will populate the request with all the configurations it needs for a particular method
@@ -222,7 +226,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
-                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig));
+                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig, userAuthorizedSheetIds));
                                         } else {
                                             result.setBody(jsonNodeBody
                                                     .get("error")
@@ -325,6 +329,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (oauth2.getAuthenticationResponse() != null);
 
+            // This will get list of authorised sheet ids from datasource config, and transform trigger response to contain only authorised files
+            Set<String> userAuthorizedSheetIds = getUserAuthorizedSheetIds(datasourceConfiguration);
+
             return triggerMethod.getTriggerClient(client, methodConfig)
                     .headers(headers -> headers.set(
                             "Authorization",
@@ -352,7 +359,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         }
 
                         if (response.getStatusCode().is2xxSuccessful()) {
-                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig);
+                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig, userAuthorizedSheetIds);
                             final TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                             triggerResultDTO.setTrigger(triggerResponse);
                             return triggerResultDTO;

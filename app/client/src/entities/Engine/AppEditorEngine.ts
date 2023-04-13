@@ -211,7 +211,7 @@ export default class AppEditorEngine extends AppEngine {
         branch: branchInStore,
       }),
     );
-    // init of temporay remote url from old application
+    // init of temporary remote url from old application
     yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
     // add branch query to path and fetch status
     if (branchInStore) {

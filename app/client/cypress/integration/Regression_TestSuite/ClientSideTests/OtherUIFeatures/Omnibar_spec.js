@@ -139,27 +139,31 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(0).click();
     // verify recently opened items with their subtext i.e page name
-    cy.xpath(omnibar.recentlyopenItem).eq(0).should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
-      .eq(1)
-      .should("have.text", "Audio1")
-      .next()
-      .should("have.text", "Page1");
-    cy.xpath(omnibar.recentlyopenItem)
-      .eq(2)
+      .eq(0)
       .should("have.text", "Button1")
       .next()
       .should("have.text", "Page1");
+
     cy.xpath(omnibar.recentlyopenItem)
-      .eq(3)
+      .eq(1)
       .should("have.text", "Omnibar2")
       .next()
       .should("have.text", "Page1");
+
     cy.xpath(omnibar.recentlyopenItem)
-      .eq(4)
+      .eq(2)
       .should("have.text", "Omnibar1")
       .next()
       .should("have.text", "Page1");
+
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(3)
+      .should("have.text", "Audio1")
+      .next()
+      .should("have.text", "Page1");
+
+    cy.xpath(omnibar.recentlyopenItem).eq(4).should("have.text", "Page1");
   });
 
   it("7. Verify documentation should open in new tab, on clicking open documentation", function () {

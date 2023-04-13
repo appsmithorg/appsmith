@@ -31,7 +31,6 @@ const dataTree: DataTree = {
 };
 const evalContext = createEvaluationContext({
   dataTree,
-  resolvedFunctions: {},
   isTriggerBased: true,
   context: {},
 });
@@ -40,7 +39,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: evalContext,
-      resolvedFunctions: {},
     };
   },
 }));
@@ -49,7 +47,10 @@ describe("Tests for interval functions", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
     self["$cloudHosting"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     overrideWebAPIs(evalContext);
     addPlatformFunctionsToEvalContext(evalContext);
   });

@@ -215,3 +215,9 @@ export const getSidebarWidth = (state: AppState) => {
 
   return 0;
 };
+
+const DEFAULT_EVALUATION_VERSION = 2;
+
+export const selectEvaluationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.evaluationVersion ||
+  DEFAULT_EVALUATION_VERSION;
