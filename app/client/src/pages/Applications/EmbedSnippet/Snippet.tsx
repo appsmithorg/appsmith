@@ -64,6 +64,7 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
         {isAppSettings && (
           <Icon
             className="break-all max-h-32 overflow-y-auto p-0 mr-0.5 icon"
+            fillColor={Colors.GRAY_500}
             name="copy-to-clipboard"
             onClick={onClick}
             size={IconSize.XXL}
@@ -82,6 +83,7 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
         {!isAppSettings && (
           <Icon
             className="break-all max-h-32 overflow-y-auto p-2 mr-0.5 icon"
+            fillColor={Colors.GRAY_500}
             name="copy-to-clipboard"
             onClick={onClick}
             size={IconSize.XXL}

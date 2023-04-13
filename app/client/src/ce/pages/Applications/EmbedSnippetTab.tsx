@@ -32,20 +32,32 @@ import { ADMIN_SETTINGS_PATH } from "constants/routes";
 
 export const EmbedSnippetContainer = styled.div<{ isAppSettings?: boolean }>`
   ${({ isAppSettings }) => isAppSettings && `padding: 0 16px;`}
+
+  .icon:hover {
+    svg path {
+      fill: var(--ads-color-black-700);
+    }
+  }
 `;
 
 export const StyledLink = styled.a`
   position: relative;
   top: 1px;
-  color: ${Colors.GRAY_700};
+  color: var(--ads-color-black-700);
 
   :hover {
     text-decoration: none;
-    color: ${Colors.GRAY_700};
+    color: var(--ads-color-black-700);
   }
 
   .${Classes.TEXT} {
-    border-bottom: 1px solid ${Colors.GRAY_700};
+    border-bottom: 1px solid var(--ads-color-black-700);
+  }
+
+  .edit-line-icon {
+    svg path {
+      fill: var(--ads-color-black-500);
+    }
   }
 `;
 
@@ -99,6 +111,7 @@ export function EmbedSnippetTab({
                   data-cy={"frame-ancestors-setting"}
                 >
                   <Icon
+                    className="icon"
                     name={embedSnippet.embedSettingContent.icon}
                     size={IconSize.XXL}
                   />
@@ -126,7 +139,7 @@ export function EmbedSnippetTab({
                         position={PopoverPosition.TOP}
                       >
                         <Icon
-                          className={`ml-1`}
+                          className={`ml-1 icon`}
                           fillColor={Colors.GRAY2}
                           name={"question-fill"}
                           size={IconSize.XL}
@@ -141,6 +154,7 @@ export function EmbedSnippetTab({
                 >
                   {isAppSettings ? (
                     <Icon
+                      className="edit-line-icon icon"
                       fill={Colors.GRAY_700}
                       name="edit-line"
                       size={IconSize.XXL}
@@ -200,6 +214,7 @@ export function EmbedSnippetTab({
             target={"_blank"}
           >
             <Icon
+              className="icon"
               fillColor={Colors.GRAY_700}
               name="external-link-line"
               size={IconSize.XL}
