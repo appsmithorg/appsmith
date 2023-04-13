@@ -21,15 +21,17 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
   const { buttonProps, isPressed } = useButton(props, domRef);
   const { hoverProps, isHovered } = useHover({ isDisabled });
 
+  const computedClassNames = classNames(className, {
+    "is-disabled": isDisabled,
+    "is-active": isPressed,
+    "is-hovered": isHovered,
+  });
+
   return (
     <FocusRing autoFocus={autoFocus} focusRingClass="focus-ring">
       <button
         {...mergeProps(buttonProps, hoverProps)}
-        className={classNames(className, {
-          "is-disabled": isDisabled,
-          "is-active": isPressed,
-          "is-hovered": isHovered,
-        })}
+        className={computedClassNames}
         ref={domRef}
       >
         {children}

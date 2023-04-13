@@ -27,20 +27,10 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
-      isDisabled,
       isFitContainer = false,
       isLoading,
-      onBlur,
-      onFocus,
-      onFocusChange,
-      onKeyDown,
-      onKeyUp,
-      onPress,
-      onPressChange,
-      onPressEnd,
-      onPressStart,
-      onPressUp,
       variant = "primary",
+      ...rest
     } = props;
 
     return (
@@ -48,18 +38,8 @@ export const Button = forwardRef(
         data-fit-container={isFitContainer}
         data-loading={isLoading}
         data-variant={variant}
-        isDisabled={isDisabled}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        onFocusChange={onFocusChange}
-        onKeyDown={onKeyDown}
-        onKeyUp={onKeyUp}
-        onPress={onPress}
-        onPressChange={onPressChange}
-        onPressEnd={onPressEnd}
-        onPressStart={onPressStart}
-        onPressUp={onPressUp}
         ref={ref}
+        {...rest}
       >
         {isLoading && <Spinner />}
 
