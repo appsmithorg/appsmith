@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { addons, types } from "@storybook/addons";
 import {
   Icons,
@@ -8,6 +8,7 @@ import {
   Form,
   H6,
   ColorControl,
+  BooleanControl,
 } from "@storybook/components";
 import { useGlobals } from "@storybook/api";
 import { fontMetricsMap } from "@design-system/widgets";
@@ -34,9 +35,9 @@ const StyledSelect = styled(Select)`
   background-size: 0.65em auto, 100%;
 `;
 
-addons.register("wds/theming", () => {
-  addons.add("wds-addon/toolbar", {
-    id: "wds-addon/toolbar",
+addons.register("widgets/theming", () => {
+  addons.add("widgets-addon/toolbar", {
+    id: "widgets-addon/toolbar",
     title: "Theming",
     type: types.TOOL,
     match: (args) => {
@@ -45,7 +46,7 @@ addons.register("wds/theming", () => {
       // show the addon only on wds
       if (
         storyId &&
-        storyId?.includes("wds") &&
+        storyId?.includes("widgets") &&
         !!(viewMode && viewMode.match(/^(story|docs)$/))
       )
         return true;
@@ -54,6 +55,7 @@ addons.register("wds/theming", () => {
     },
     render: ({ active }) => {
       const [globals, updateGlobals] = useGlobals();
+      const [isDarkMode, setDarkMode] = useState(false);
 
       const updateGlobal = (key, value) => {
         updateGlobals({
@@ -72,6 +74,18 @@ addons.register("wds/theming", () => {
           closeOnClick
           tooltip={
             <Wrapper>
+              <div>
+                <H6>Dark mode</H6>
+                <BooleanControl
+                  name="colorScheme"
+                  value={isDarkMode}
+                  onChange={(checked) => {
+                    setDarkMode(checked);
+                    updateGlobal("colorScheme", checked ? "dark" : "light");
+                  }}
+                />
+              </div>
+
               <div>
                 <H6>Border Radius</H6>
                 <StyledSelect
