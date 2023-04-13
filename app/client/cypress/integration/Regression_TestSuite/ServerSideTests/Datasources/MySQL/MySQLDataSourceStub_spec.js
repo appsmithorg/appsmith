@@ -1,20 +1,20 @@
-const datasource = require("../../../locators/DatasourcesEditor.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
+const datasource = require("../../../../../locators/DatasourcesEditor.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let dataSource = ObjectsRegistry.DataSources;
+
 let datasourceName;
 
-describe("MsSQL datasource test cases", function () {
+describe("MySQL datasource test cases", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create, test, save then delete a MsSQL datasource", function () {
+  it("1. Create, test, save then delete a MySQL datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MsSQL).click();
-    cy.fillMsSQLDatasourceForm();
+    cy.get(datasource.MySQL).click();
+    cy.fillMySQLDatasourceForm();
     cy.generateUUID().then((UUID) => {
-      datasourceName = `MsSQL MOCKDS ${UUID}`;
+      datasourceName = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName);
       cy.intercept("POST", "/api/v1/datasources/test", {
         fixture: "testAction.json",
@@ -24,10 +24,10 @@ describe("MsSQL datasource test cases", function () {
     });
   });
 
-  it("2. Create with trailing white spaces in host address and database name, test, save then delete a MsSQL datasource", function () {
+  it("2. Create with trailing white spaces in host address and database name, test, save then delete a MySQL datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MsSQL).click();
-    cy.fillMsSQLDatasourceForm(true);
+    cy.get(datasource.MySQL).click();
+    cy.fillMySQLDatasourceForm(true);
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
