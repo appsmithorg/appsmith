@@ -44,7 +44,6 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
         <Switch
           className="switch-control"
           isDisabled={this.props.disabled}
-          isSelected={this.value}
           name={this.props.input.name}
           onChange={() => this.onChange}
         />
