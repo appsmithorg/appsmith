@@ -1,7 +1,7 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const jsonform = require("../../../../../locators/jsonFormWidget.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+const explorer = require("../../../locators/explorerlocators.json");
+const widgetsPage = require("../../../locators/Widgets.json");
+const jsonform = require("../../../locators/jsonFormWidget.json");
 
 describe("JsonForm widget basis c usecases", function () {
   it("Validate Drag and drop jsonform widget", function () {
