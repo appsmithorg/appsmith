@@ -136,7 +136,7 @@ public class ImportExportHelper {
     /**
      * This function gets all custom JS libs for export
      * 
-     * @param application
+     * @param applicationId ID of the application
      * @return Flux of CustomJSLib
      */
     public Flux<CustomJSLib> getAllCustomJSLibsForApplication(String applicationId) {
@@ -158,7 +158,7 @@ public class ImportExportHelper {
     /**
      * This function gets all action collections for export
      * 
-     * @param List<String> pageIds
+     * @param pageIds list of page ids
      * @param serialiseFor objective of serialisation
      * @return Flux of ActionCollection
      */
@@ -180,7 +180,7 @@ public class ImportExportHelper {
     /**
      * This function gets all actions for export
      * 
-     * @param application  application object
+     * @param pageIds  List of page ids for which actions are to be fetched
      * @param serialiseFor objective of serialisation
      * @return Flux of NewAction
      */
@@ -194,7 +194,7 @@ public class ImportExportHelper {
     /**
      * This function returns a set of Datasources for a given workspace
      * 
-     * @param application  application object
+     * @param workspaceId  workspace id
      * @param serialiseFor objective of serialisation
      * @return Flux of Datasource
      */
@@ -236,7 +236,7 @@ public class ImportExportHelper {
     /**
      * This function exports all the pages of the given application
      * 
-     * @param application  application object
+     * @param pageIds list of page ids
      * @param serialiseFor objective of serialisation
      * @return Flux of NewPage
      */
