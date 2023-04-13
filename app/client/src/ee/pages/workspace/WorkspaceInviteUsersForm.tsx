@@ -62,7 +62,6 @@ import {
   Callout,
   Icon,
   IconSize,
-  ScrollIndicator,
   Size,
   Text,
   TextType,
@@ -564,7 +563,6 @@ function WorkspaceInviteUsersForm(props: any) {
                     ) : null;
                   },
                 )}
-                <ScrollIndicator containerRef={userRef} mode="DARK" />
               </StyledUserList>
             )}
           </>

@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
+  getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
@@ -55,6 +56,11 @@ import {
   fetchDefaultRolesForApplication,
 } from "@appsmith/actions/applicationActions";
 import { getAllAppRoles } from "@appsmith/selectors/applicationSelectors";
+import { APPLICATIONS_URL } from "constants/routes";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -147,8 +153,30 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
+  const currentWorkspace = useSelector(getCurrentWorkspace).find(
+    (el) => el.id === workspaceId,
+  );
+
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
+
   const featureFlags = useSelector(selectFeatureFlags);
   const isAppInvite = featureFlags.RBAC && !cloudHosting;
+
+  useEffect(() => {
+    if (
+      currentWorkspace &&
+      (!isMemberofTheWorkspace || !hasManageWorkspacePermissions)
+    ) {
+      history.replace(APPLICATIONS_URL);
+    }
+  }, [currentWorkspace, isMemberofTheWorkspace, hasManageWorkspacePermissions]);
 
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
