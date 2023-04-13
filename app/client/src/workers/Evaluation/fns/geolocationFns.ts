@@ -90,16 +90,10 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
     const message = event.data;
     if (message.messageId !== listenerId) return;
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData(metaData);
     const { body } = message;
     if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
-    ExecutionMetaData.setExecutionMetaData(
-      metaData.triggerMeta,
-      metaData.eventType,
-    );
+    ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
     if (body.data) {
       if (typeof onSuccessCallback === "function") onSuccessCallback(body.data);

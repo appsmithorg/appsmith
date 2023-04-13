@@ -364,11 +364,7 @@ describe("Table widget Add new row feature's", () => {
     });
 
     it("3.2. should test that discard events is triggered when user clicks on the discard button", () => {
-      cy.get(
-        ".t--property-control-ondiscard .t--open-dropdown-Select-Action",
-      ).click({ force: true });
-      cy.selectShowMsg();
-      agHelper.EnterActionValue("Message", "discarded!!");
+      cy.getAlert("onDiscard", "discarded!!");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--discard-new-row").click({ force: true });
@@ -378,11 +374,7 @@ describe("Table widget Add new row feature's", () => {
     });
 
     it("3.3. should test that save event is triggered when user clicks on the save button", () => {
-      cy.get(
-        ".t--property-control-onsave .t--open-dropdown-Select-Action",
-      ).click({ force: true });
-      cy.selectShowMsg();
-      agHelper.EnterActionValue("Message", "saved!!");
+      cy.getAlert("onSave", "saved!!");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--save-new-row").click({ force: true });

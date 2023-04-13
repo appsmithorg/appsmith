@@ -16,6 +16,7 @@ export type User = {
   isConfigurable: boolean;
   enableTelemetry: boolean;
   adminSettingsVisible?: boolean;
+  isAnonymous?: boolean;
 };
 
 export interface UserApplication {

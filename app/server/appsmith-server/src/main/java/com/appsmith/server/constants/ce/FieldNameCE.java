@@ -138,6 +138,7 @@ public class FieldNameCE {
     public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
     public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
     public static final String EVENT_DATA = "eventData";
+    public static final String CLOUD_HOSTED_EXTRA_PROPS = "cloudHostedExtraProps";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
     public static final String APP_MODE = "appMode";
@@ -163,5 +164,6 @@ public class FieldNameCE {
     public static final String ANONYMOUS_USER_ID = "anonymousUserId";
     public static final String VIEW_MODE = "viewMode";
     public static final String USER_EMAILS = "userEmails";
+    public static final String NUMBER_OF_USERS_INVITED = "numberOfUsersInvited";
 }
 

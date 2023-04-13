@@ -25,14 +25,14 @@ export function WidgetContextMenu(props: {
 }) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
-    return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
+    return state.ui.pageWidgets[props.pageId].dsl[props.widgetId].parentId;
   });
   const widget = useSelector((state: AppState) => {
-    return state.ui.pageWidgets[props.pageId][props.widgetId];
+    return state.ui.pageWidgets[props.pageId].dsl[props.widgetId];
   });
 
   const parentWidget: any = useSelector((state: AppState) => {
-    if (parentId) return state.ui.pageWidgets[props.pageId][parentId];
+    if (parentId) return state.ui.pageWidgets[props.pageId].dsl[parentId];
     return {};
   });
   const guidedTourEnabled = useSelector(inGuidedTour);

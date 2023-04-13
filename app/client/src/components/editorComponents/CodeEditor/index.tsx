@@ -125,15 +125,14 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -142,6 +141,7 @@ export type CodeEditorExpected = {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
+  openExampleTextByDefault?: boolean;
 };
 
 export type EditorStyleProps = {
@@ -770,11 +770,6 @@ class CodeEditor extends Component<Props, State> {
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
-
-                // TODO fix the widget navigation issue to remove this
-                if (navigationData.type === ENTITY_TYPE.WIDGET) {
-                  this.props.selectWidget(navigationData.id);
-                }
                 this.hidePeekOverlay();
               }
             }
@@ -1263,6 +1258,7 @@ class CodeEditor extends Component<Props, State> {
             text="/"
           />
         )}
+
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
@@ -1317,7 +1313,7 @@ class CodeEditor extends Component<Props, State> {
               <img
                 alt="img"
                 className="leftImageStyles"
-                src={this.props.leftImage}
+                src={getAssetUrl(this.props.leftImage)}
               />
             )}
             <div
@@ -1383,8 +1379,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
-  selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(

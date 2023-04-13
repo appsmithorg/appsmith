@@ -4,7 +4,7 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, FilePickerActionStatus } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
@@ -105,6 +105,34 @@ export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
     },
   };
 };
+
+export const fetchGheetSpreadsheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+  payload,
+});
+
+export const fetchGheetSheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+  sheetUrl: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SHEETS,
+  payload,
+});
+
+export const fetchGheetColumns = (payload: {
+  datasourceId: string;
+  pluginId: string;
+  sheetName: string;
+  sheetUrl: string;
+  headerIndex: number;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_COLUMNS,
+  payload,
+});
 
 export const expandDatasourceEntity = (id: string) => {
   return {
@@ -370,8 +398,9 @@ export const initializeDatasourceFormDefaults = (pluginType: string) => {
 // is used for handling file picker callback, when user selects files/cancels the selection
 // this callback action will be triggered
 export const filePickerCallbackAction = (data: {
-  action: string;
+  action: FilePickerActionStatus;
   datasourceId: string;
+  fileIds: Array<string>;
 }) => {
   return {
     type: ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
