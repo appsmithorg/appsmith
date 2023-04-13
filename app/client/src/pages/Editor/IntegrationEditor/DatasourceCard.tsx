@@ -368,8 +368,8 @@ function DatasourceCard(props: DatasourceCardProps) {
           }}
         >
           <CollapseComponent
-            openTitle="Show Less"
-            title="Show More"
+            openTitle="Show less"
+            title="Show more"
             titleStyle={{ maxWidth: 120 }}
           >
             <DatasourceInfo>

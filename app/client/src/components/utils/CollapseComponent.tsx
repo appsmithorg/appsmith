@@ -8,7 +8,6 @@ const CollapseWrapper = styled.div`
   .collapse-title {
     color: var(--ads-v2-color-fg);
     letter-spacing: 0.04em;
-    text-transform: uppercase;
     font-weight: 500;
     font-size: 12px;
     line-height: 16px;
