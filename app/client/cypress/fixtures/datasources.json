@@ -29,6 +29,11 @@
   "arango-username": "root",
   "arango-password": "Arango",
 
+  "elastic-host": "http://host.docker.internal",
+  "elastic-port": 9200,
+  "elastic-username": "elastic",
+  "elastic-password": "docker",
+
   "redshift-host": "localhost",
   "redshift-port": 5439,
   "redshift-databaseName": "fakeapi",

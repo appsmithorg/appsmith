@@ -204,7 +204,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the rate is changed",
+            helpText: "when the rate is changed",
             propertyName: "onRateChanged",
             label: "onChange",
             controlType: "ACTION_SELECTOR",

@@ -99,7 +99,7 @@ export default [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a valid code is detected",
+        helpText: "when a valid code is detected",
         propertyName: "onCodeDetected",
         label: "onCodeDetected",
         controlType: "ACTION_SELECTOR",

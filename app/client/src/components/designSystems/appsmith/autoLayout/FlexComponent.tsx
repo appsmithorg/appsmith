@@ -104,7 +104,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       : `${
           props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
         }px`,
-    margin: WIDGET_PADDING + "px",
+    margin: WIDGET_PADDING / 2 + "px",
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {

@@ -38,6 +38,7 @@ import {
   getDatasources,
   getDatasourceActionRouteInfo,
   getPlugin,
+  getEditorConfig,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -117,6 +118,7 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { fetchPluginFormConfig } from "actions/pluginActions";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1187,15 +1189,16 @@ function* filePickerActionCallbackSaga(
 
     const datasource: Datasource = yield select(getDatasource, datasourceId);
 
-    // When user selects cancel in file picker, we need to revert datasource status back to failure,
-    // so users cannot create queries on top of such faulty datasource
-    if (action === FilePickerActionStatus.CANCEL) {
-      set(
-        datasource,
-        "datasourceConfiguration.authentication.authenticationStatus",
-        AuthenticationStatus.FAILURE,
-      );
-    }
+    // update authentication status based on whether files were picked or not
+    const authStatus =
+      action === FilePickerActionStatus.PICKED
+        ? AuthenticationStatus.SUCCESS
+        : AuthenticationStatus.FAILURE;
+    set(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationStatus",
+      authStatus,
+    );
 
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
@@ -1215,6 +1218,198 @@ function* filePickerActionCallbackSaga(
     });
   }
 }
+
+function* fetchGsheetSpreadhsheets(
+  action: ReduxAction<{
+    datasourceId: string;
+    pluginId: string;
+  }>,
+) {
+  let googleSheetEditorConfig: {
+    children: [
+      {
+        initialValue: string;
+      },
+    ];
+  }[] = yield select((state: AppState) =>
+    getEditorConfig(state, action.payload.pluginId),
+  );
+
+  try {
+    if (!googleSheetEditorConfig) {
+      yield put(
+        fetchPluginFormConfig({
+          pluginId: {
+            id: action.payload.pluginId,
+          },
+        }),
+      );
+
+      const fetchConfigAction: ReduxAction<unknown> = yield take([
+        ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+        ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
+      ]);
+
+      if (
+        fetchConfigAction.type === ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR
+      ) {
+        throw new Error("Unable to fetch plugin form config");
+      }
+
+      googleSheetEditorConfig = yield select((state: AppState) =>
+        getEditorConfig(state, action.payload.pluginId),
+      );
+    }
+    const requestObject: Record<string, string> = {};
+
+    if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
+      const configs = googleSheetEditorConfig[0]?.children;
+
+      if (Array.isArray(configs)) {
+        for (let index = 0; index < configs.length; index += 2) {
+          const keyConfig = configs[index];
+          const valueConfig = configs[index + 1];
+          if (keyConfig && valueConfig) {
+            const key = keyConfig?.initialValue;
+            const value = valueConfig?.initialValue;
+            if (key && value !== undefined) requestObject[key] = value;
+          }
+        }
+      }
+    }
+
+    const data = {
+      datasourceId: action.payload.datasourceId,
+      displayType: "DROP_DOWN",
+      pluginId: action.payload.pluginId,
+      requestType: "SPREADSHEET_SELECTOR",
+      ...requestObject,
+    };
+
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery({
+        datasourceId: action.payload.datasourceId,
+        data,
+      });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_SUCCESS,
+        payload: {
+          id: action.payload.datasourceId,
+          // @ts-expect-error: type mismatch for response
+          data: response.data?.trigger,
+        },
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_FAILURE,
+      payload: {
+        id: action.payload.datasourceId,
+        error: error.message,
+      },
+    });
+  }
+}
+
+function* fetchGsheetSheets(
+  action: ReduxAction<{
+    datasourceId: string;
+    pluginId: string;
+    sheetUrl: string;
+  }>,
+) {
+  try {
+    const data = {
+      datasourceId: action.payload.datasourceId,
+      displayType: "DROP_DOWN",
+      parameters: {
+        sheetUrl: action.payload.sheetUrl,
+      },
+      pluginId: action.payload.pluginId,
+      requestType: "SHEET_SELECTOR",
+    };
+
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery({
+        datasourceId: action.payload.datasourceId,
+        data,
+      });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GSHEET_SHEETS_SUCCESS,
+        payload: {
+          // @ts-expect-error: type mismatch for response
+          data: response.data?.trigger,
+          id: action.payload.sheetUrl,
+        },
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_GSHEET_SHEETS_FAILURE,
+      payload: {
+        id: action.payload.sheetUrl,
+        error: error.message,
+      },
+    });
+  }
+}
+
+function* fetchGsheetColumns(
+  action: ReduxAction<{
+    datasourceId: string;
+    pluginId: string;
+    sheetName: string;
+    sheetUrl: string;
+    headerIndex: number;
+  }>,
+) {
+  try {
+    const data = {
+      datasourceId: action.payload.datasourceId,
+      displayType: "DROP_DOWN",
+      parameters: {
+        sheetName: action.payload.sheetName,
+        sheetUrl: action.payload.sheetUrl,
+        tableHeaderIndex: action.payload.headerIndex,
+      },
+      pluginId: action.payload.pluginId,
+      requestType: "COLUMNS_SELECTOR",
+    };
+
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery({
+        datasourceId: action.payload.datasourceId,
+        data,
+      });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GSHEET_COLUMNS_SUCCESS,
+        payload: {
+          // @ts-expect-error: type mismatch for response
+          data: response.data?.trigger,
+          id: action.payload.sheetName + "_" + action.payload.sheetUrl,
+        },
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_GSHEET_COLUMNS_FAILURE,
+      payload: {
+        id: action.payload.sheetName + "_" + action.payload.sheetUrl,
+        error: error.message,
+      },
+    });
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1281,5 +1476,11 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
       filePickerActionCallbackSaga,
     ),
+    takeLatest(
+      ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+      fetchGsheetSpreadhsheets,
+    ),
+    takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
+    takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
   ]);
 }

@@ -425,10 +425,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                             })
                             .flatMap(authenticationResponse -> {
-                                datasource
-                                        .getDatasourceConfiguration()
-                                        .getAuthentication()
-                                        .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
@@ -440,6 +436,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
+
+                                // When authentication scope is for specific sheets, we need to send token and project id
                                 String accessToken = "";
                                 String projectID = "";
                                 if (oAuth2.getScope() != null && oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
@@ -447,6 +445,17 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     if (authenticationResponse.getProjectID() != null) {
                                         projectID = authenticationResponse.getProjectID();
                                     }
+                                }
+
+                                // when authentication scope is other than specific sheets, we need to set authentication status as success
+                                // for specific sheets, it needs to remain in as in progress until files are selected
+                                // Once files are selected, client sets authentication status as SUCCESS, we can find this code in
+                                // /app/client/src/sagas/DatasourcesSagas.ts, line 1195
+                                if (oAuth2.getScope() != null && !oAuth2.getScope().contains(FILE_SPECIFIC_DRIVE_SCOPE)) {
+                                    datasource
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                            .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 }
                                 return Mono.zip(Mono.just(datasource), Mono.just(accessToken), Mono.just(projectID));
                             });

@@ -22,12 +22,12 @@ import type {
   FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
   ImportApplicationRequest,
-  WorkspaceApplicationObject,
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   UpdateApplicationResponse,
+  WorkspaceApplicationObject,
 } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
 import { all, call, put, select } from "redux-saga/effects";
@@ -49,9 +49,9 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
-  updateApplicationNavigationSettingAction,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -60,13 +60,13 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
+import type { AppIconName } from "design-system-old";
 import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
 import type {
   Workspace,
   Workspaces,
 } from "@appsmith/constants/workspaceConstants";
-import type { AppIconName } from "design-system-old";
 import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
@@ -111,6 +111,8 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { safeCrashAppRequest } from "actions/errorActions";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -182,6 +184,7 @@ export function* publishApplicationSaga(
 }
 
 export function* getAllApplicationSaga() {
+  const isAirgappedInstance = isAirgapped();
   try {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
@@ -211,7 +214,9 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
     }
-    yield call(fetchReleases);
+    if (!isAirgappedInstance) {
+      yield call(fetchReleases);
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
@@ -297,12 +302,7 @@ export function* handleFetchApplicationError(error: any) {
     currentUser.email === ANONYMOUS_USERNAME &&
     error?.code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: ERROR_CODES.PAGE_NOT_FOUND,
-      },
-    });
+    yield put(safeCrashAppRequest(ERROR_CODES.PAGE_NOT_FOUND));
   } else {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,

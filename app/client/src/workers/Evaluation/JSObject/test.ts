@@ -513,13 +513,9 @@ describe("updateJSCollectionInUnEvalTree", function () {
         id: "64013546b956c26882acc587",
       },
     };
-    const JSObject1Prototype = {
-      actionId: "64013546b956c26882acc587",
-      pluginType: "JS",
-      ENTITY_TYPE: "JSACTION",
-    };
-    const JSObject1PrototypeConfig = {
+    const JSObject1Config = {
       JSObject1: {
+        actionId: "64013546b956c26882acc587",
         meta: {
           myFun1: {
             arguments: [],
@@ -582,7 +578,7 @@ describe("updateJSCollectionInUnEvalTree", function () {
     };
     (JSObject1["myFun1"] as any).data = {};
     (JSObject1["myFun2"] as any).data = {};
-    Object.setPrototypeOf(JSObject1, JSObject1Prototype);
+
     const localUnEvalTree = {
       JSObject1,
     } as unknown as UnEvalTree;
@@ -590,14 +586,9 @@ describe("updateJSCollectionInUnEvalTree", function () {
     const actualResult = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
-      JSObject1PrototypeConfig as unknown as ConfigTree,
+      JSObject1Config as unknown as ConfigTree,
     );
 
-    const expectedJSObjectPrototype = {
-      actionId: "64013546b956c26882acc587",
-      pluginType: "JS",
-      ENTITY_TYPE: "JSACTION",
-    };
     const expectedJSObject = {
       myVar1: "[]",
       myVar2: "{}",
@@ -605,18 +596,13 @@ describe("updateJSCollectionInUnEvalTree", function () {
       myFun2: new String("() => {\n  yeso;\n}"),
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
-      variables: ["myVar1", "myVar2"],
     };
     (expectedJSObject["myFun1"] as any).data = {};
     (expectedJSObject["myFun2"] as any).data = {};
-    Object.setPrototypeOf(expectedJSObject, expectedJSObjectPrototype);
+
     const expectedResult = {
       JSObject1: expectedJSObject,
     };
-
-    expect(Object.getPrototypeOf(actualResult["JSObject1"])).toStrictEqual(
-      Object.getPrototypeOf(expectedResult["JSObject1"]),
-    );
 
     expect(expectedResult).toStrictEqual(actualResult);
   });

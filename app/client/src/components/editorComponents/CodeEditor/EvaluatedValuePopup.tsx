@@ -479,7 +479,7 @@ function PopoverContent(props: PopoverContentProps) {
     !!popupContext?.type,
   );
   const [openExpectedExample, setOpenExpectedExample] = useState(
-    !!popupContext?.example,
+    props.expected?.openExampleTextByDefault || !!popupContext?.example,
   );
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(
     popupContext && popupContext.value !== undefined
@@ -536,7 +536,7 @@ function PopoverContent(props: PopoverContentProps) {
   };
   return (
     <ContentWrapper
-      className="t--CodeEditor-evaluatedValue"
+      className="t--CodeEditor-evaluatedValue evaluated-value-popup"
       colorTheme={theme}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

@@ -19,6 +19,7 @@ import {
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
 import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {
@@ -643,7 +644,7 @@ describe("Initial value migration test", () => {
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://assets.appsmith.com/widgets/bird.mp4",
+          url: `${ASSETS_CDN_URL}/widgets/bird.mp4`,
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,
@@ -668,7 +669,7 @@ describe("Initial value migration test", () => {
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://assets.appsmith.com/widgets/bird.mp4",
+          url: `${ASSETS_CDN_URL}/widgets/bird.mp4`,
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,

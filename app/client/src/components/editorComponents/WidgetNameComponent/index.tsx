@@ -182,6 +182,10 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   ]);
 
   const getPositionOffset = (): [number, number] => {
+    if (isSnipingMode) {
+      //ToDo: (Ashok) This is a hasty fix from my end. need to check the padding and margins and give a meaningful constant.
+      return [-3, -3];
+    }
     return isAutoLayout
       ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
       : [0, 0];

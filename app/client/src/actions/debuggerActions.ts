@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
+import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "utils/AnalyticsUtil";
 
 export interface LogDebuggerErrorAnalyticsPayload {
@@ -8,6 +9,7 @@ export interface LogDebuggerErrorAnalyticsPayload {
   entityType: ENTITY_TYPE;
   eventName: EventName;
   propertyPath: string;
+  errorId?: string;
   errorMessages?: Message[];
   errorMessage?: Message["message"];
   errorType?: Message["type"];
@@ -70,9 +72,50 @@ export const hideDebuggerErrors = (payload: boolean) => ({
   payload,
 });
 
-export const setCanvasDebuggerSelectedTab = (selectedTab: string) => {
+// set the selected tab in the debugger.
+export const setDebuggerSelectedTab = (selectedTab: string) => {
   return {
-    type: ReduxActionTypes.SET_CANVAS_DEBUGGER_SELECTED_TAB,
-    payload: selectedTab,
+    type: ReduxActionTypes.SET_DEBUGGER_SELECTED_TAB,
+    selectedTab,
+  };
+};
+
+// set the height of the response pane in the debugger.
+export const setResponsePaneHeight = (height: number) => {
+  return {
+    type: ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT,
+    height,
+  };
+};
+
+// set the height of the response pane in the debugger.
+export const setErrorCount = (count: number) => {
+  return {
+    type: ReduxActionTypes.SET_ERROR_COUNT,
+    count,
+  };
+};
+
+// set the height of the response pane in the debugger.
+export const setResponsePaneScrollPosition = (position: number) => {
+  return {
+    type: ReduxActionTypes.SET_RESPONSE_PANE_SCROLL_POSITION,
+    position,
+  };
+};
+
+//toggle expand error log item state.
+export const toggleExpandErrorLogItem = (id: string, isExpanded: boolean) => {
+  return {
+    type: ReduxActionTypes.TOGGLE_EXPAND_ERROR_LOG_ITEM,
+    payload: { id, isExpanded },
+  };
+};
+
+//set the debugger context in store.
+export const setDebuggerContext = (context: DebuggerContext) => {
+  return {
+    type: ReduxActionTypes.SET_DEBUGGER_CONTEXT,
+    payload: { context },
   };
 };
