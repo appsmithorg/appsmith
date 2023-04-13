@@ -85,12 +85,9 @@ import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
-import {
-  setCanvasDebuggerSelectedTab,
-  showDebugger,
-} from "../actions/debuggerActions";
-import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/helpers";
 import store from "../store";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -380,6 +377,9 @@ export function* handleExecuteJSFunctionSaga(data: {
       action,
       collectionId,
     );
+    // open response tab in debugger on runnning js action.
+    yield put(showDebugger(true));
+    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -397,27 +397,16 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-    // Function execution data in Async functions are handled by the JSProxy (see JSProxy.ts)
-    if (!action.actionConfiguration.isAsync) {
-      yield put({
-        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-        payload: {
-          [collectionId]: [
-            {
-              data: result,
-              collectionId,
-              actionId,
-            },
-          ],
-        },
-      });
-    }
+
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
       toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
         kind: "success",
       });
   } catch (error) {
+    // open response tab in debugger on runnning js action.
+    yield put(showDebugger(true));
+    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     AppsmithConsole.addErrors([
       {
         payload: {
@@ -451,7 +440,7 @@ export function* handleExecuteJSFunctionSaga(data: {
         source: "TOAST",
       });
       store.dispatch(showDebugger(true));
-      store.dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+      store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
     };
 
     toast.show(

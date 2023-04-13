@@ -125,7 +125,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
 
 const { algolia } = getAppsmithConfigs();
 
-const isModalOpenSelector = (state: AppState) =>
+export const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;

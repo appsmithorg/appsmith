@@ -6,9 +6,14 @@ import { useLocation } from "react-router-dom";
 import { Icon } from "design-system";
 
 // TODO (tanvi): replace with Link
-const StyledManageUsers = styled("a")`
-  margin-top: 12px;
-  display: inline-flex;
+const StyledManageUsers = styled("a")<{ isApplicationInvite?: boolean }>`
+  display: flex;
+
+  ${(props) =>
+    props.isApplicationInvite
+      ? `padding: 12px 0; border-top: 1px solid
+          ${props.theme.colors.menuBorder};`
+      : `padding: 12px 0 0;`}
   &&&& {
     text-decoration: none;
   }
@@ -38,7 +43,13 @@ const StyledManageUsers = styled("a")`
   }
 `;
 
-function ManageUsers({ workspaceId }: { workspaceId: string }) {
+function ManageUsers({
+  isApplicationInvite,
+  workspaceId,
+}: {
+  isApplicationInvite?: boolean;
+  workspaceId: string;
+}) {
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/workspace\/)\w+(?:\/settings)/;
 
@@ -46,6 +57,7 @@ function ManageUsers({ workspaceId }: { workspaceId: string }) {
     // TODO (tanvi): replace with link
     <StyledManageUsers
       className="manageUsers"
+      isApplicationInvite={isApplicationInvite}
       onClick={() => {
         history.push(`/workspace/${workspaceId}/settings/members`);
       }}

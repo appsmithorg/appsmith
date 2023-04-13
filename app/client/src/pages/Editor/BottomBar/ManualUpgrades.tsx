@@ -241,6 +241,8 @@ function ManualUpgrades(props: {
       className={classNames({
         relative: true,
         "inline-block": props.inline,
+        padding: "9px 16px",
+        "border-left": "1px solid #e7e7e7",
       })}
       data-testid="update-indicator"
     >
