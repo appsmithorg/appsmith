@@ -63,7 +63,7 @@ export function SignupSuccess() {
    */
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.
   if (
-    (cloudHosting && !isCypressEnv) ||
+    (!cloudHosting && !isCypressEnv) ||
     user?.isSuperUser ||
     (user?.role && user?.useCase) ||
     shouldEnableFirstTimeUserOnboarding !== "true"
