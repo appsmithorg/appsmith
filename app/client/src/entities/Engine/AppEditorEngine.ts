@@ -98,18 +98,28 @@ export default class AppEditorEngine extends AppEngine {
   ) {
     const initActionsCalls = [
       fetchPage(toLoadPageId, true),
-      fetchActions({ applicationId }, []),
-      fetchJSCollections({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
+
+      // action used in forkTemplateToApplicationSaga -> postPageAdditionSaga, addApiToPageSaga
+      // api used only in this action
+      fetchActions({ applicationId }, []), // change to pageId (appId used for perf tracking)
+
+      // action used in forkTemplateToApplicationSaga -> postPageAdditionSaga
+      // api used only in this action
+      fetchJSCollections({ applicationId }), // change to pageId
+
+      // action & api used only here and editor
+      fetchSelectedAppThemeAction(applicationId), // change to pageId (appId, version used for sentry error log)
+
+      // action & api used only here and editor + ThemingApi.fetchThemes (on error set default)
+      fetchAppThemesAction(applicationId), // change to pageId
     ];
 
     const successActionEffects = [
-      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      ReduxActionTypes.FETCH_PAGE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS, // used in switchBranch (for wait)
+      ReduxActionTypes.FETCH_ACTIONS_SUCCESS, // used in switchBranch (for wait)
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS, // none
+      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS, // none
+      ReduxActionTypes.FETCH_PAGE_SUCCESS, // used in widget selection, context switching (for wait)
     ];
 
     const failureActionEffects = [
@@ -120,7 +130,8 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
 
-    initActionsCalls.push(fetchJSLibraries(applicationId));
+    // action & api used only here and editor (eval and lint actions triggered)
+    initActionsCalls.push(fetchJSLibraries(applicationId)); // change to pageId
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
 
     const allActionCalls: boolean = yield call(
@@ -142,9 +153,22 @@ export default class AppEditorEngine extends AppEngine {
 
   private *loadPluginsAndDatasources() {
     const initActions = [
+      // action called in addMockDbToDatasources, ApplicationSagas
+      // api called only with this action
+      // uses workspaceId
       fetchPlugins(),
+
+      // action called in addMockDbToDatasources, ApplicationSagas, forkTemplateToApplicationSaga
+      // api called only with this action
+      // uses workspaceId
       fetchDatasources(),
+
+      // action & api called only with this action
       fetchMockDatasources(),
+
+      // action called only here
+      // api called in multiple places
+      // uses pageIds
       fetchPageDSLs(),
     ];
 

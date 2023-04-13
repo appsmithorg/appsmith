@@ -74,19 +74,28 @@ export default class AppViewerEngine extends AppEngine {
 
   *loadAppEntities(toLoadPageId: string, applicationId: string): any {
     const initActionsCalls: any = [
-      fetchActionsForView({ applicationId }),
-      fetchJSCollectionsForView({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
+      // action & api used only here
+      fetchActionsForView({ applicationId }), // change to pageId (appId used in perf tracker)
+
+      // action & api used only here
+      fetchJSCollectionsForView({ applicationId }), // change to pageId
+
+      // action & api used only here and editor
+      fetchSelectedAppThemeAction(applicationId), // change to pageId (appId, version used for sentry error log)
+
+      // action & api used only here and editor + ThemingApi.fetchThemes (on error set default)
+      fetchAppThemesAction(applicationId), // change to pageId
+
+      // no appId
       fetchPublishedPage(toLoadPageId, true, true),
     ];
 
     const successActionEffects = [
-      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      fetchPublishedPageSuccess().type,
+      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS, // triggers eval
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS, // triggers eval
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS, // no eval
+      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS, // no eval
+      fetchPublishedPageSuccess().type, // reset meta
     ];
     const failureActionEffects = [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -96,7 +105,8 @@ export default class AppViewerEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
     ];
 
-    initActionsCalls.push(fetchJSLibraries(applicationId));
+    // action & api used only here and editor (eval and lint actions triggered)
+    initActionsCalls.push(fetchJSLibraries(applicationId)); // change to pageId
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
     failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
 

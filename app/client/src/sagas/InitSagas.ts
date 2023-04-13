@@ -77,13 +77,26 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
+
+    // calls pages (to get currentApplicationData and pagesList)
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
     );
+
+    // application/:applicationId -> append with default pageid
+    // maybe git branches
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
+
+    // view mode - relies on application data for logs (applicationVersion)
+    // edit mode - relies on application data for logs (applicationVersion)
+    // gitbranch is being sent form API interceptor (from store if not the query params)
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
+
+    // edit mode - relies on application data
+    // view mode - null
     yield call(engine.loadGit, applicationId);
+
     yield call(engine.completeChore);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
