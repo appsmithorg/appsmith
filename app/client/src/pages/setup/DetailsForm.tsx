@@ -23,6 +23,8 @@ import {
   Category,
   FormGroup as StyledFormGroup,
   Size,
+  Checkbox,
+  CheckboxType,
 } from "design-system-old";
 import { roleOptions, useCaseOptions } from "./constants";
 
@@ -157,6 +159,12 @@ export default function DetailsForm(
                 />
               </StyledFormGroup>
             )}
+
+            <Checkbox
+              isDefaultChecked={false}
+              label="I want security and product updates."
+              type={CheckboxType.PRIMARY}
+            />
           </div>
         )}
         <ButtonWrapper>
