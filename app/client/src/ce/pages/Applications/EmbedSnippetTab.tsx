@@ -200,7 +200,7 @@ export function EmbedSnippetTab({
 
         <EmbedCodeSnippet
           isAppSettings={isAppSettings}
-          snippet={embedSnippet.snippet}
+          snippet={embedSnippet.appViewEndPoint}
         />
       </div>
       {!isAppSettings && (
