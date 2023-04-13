@@ -1,4 +1,4 @@
-name: Appsmith Test Workflow
+name: Appsmith Smoke/Sanity Test Workflow
 
 on:
   # This line enables manual triggering of this workflow.
@@ -81,35 +81,54 @@ jobs:
     steps:
       - run: echo "All ci-test matrices completed"
 
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+      
       - name: Check and download failed specs for smoke
+        if: needs.smoke.result != 'success'
         uses: actions/download-artifact@v3
         with:
           name: failed-spec-ci-smoke
           path: ~/failed_spec_ci_smoke
 
-      - name: Comment in PR with failed smoke tests
+      - name: Combine all failed smoke specs
+        if: needs.smoke.result != 'success'
         run: |
           cat ~/failed_spec_ci_smoke/failed_spec_ci_smoke* >> ~/combined_failed_spec_smoke
-          if [ ! -s ~/combined_failed_spec_smoke ]; then
-            echo "File is empty"
-          else
-            echo "File is not empty"
-          fi
+          new_smoke_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_smoke) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_smoke_failed_spec_env"
+          echo "new_smoke_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_smoke_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Comment in PR with failed smoke tests
+        if: needs.smoke.result != 'success'
+        run: |
+          echo ${{ env.new_smoke_failed_spec_env }}
 
       - name: Check and download failed specs for Sanity
+        if: needs.sanity.result != 'success'
         uses: actions/download-artifact@v3
         with:
           name: failed-spec-ci-sanity
           path: ~/failed_spec_ci_sanity
 
-      - name: Comment in PR with failed smoke tests
+      - name: Combine all failed sanity specs
+        if: needs.sanity.result != 'success'
         run: |
           cat ~/failed_spec_ci_sanity/failed_spec_ci_sanity* >> ~/combined_failed_spec_sanity
-          if [ ! -s ~/combined_failed_spec_sanity ]; then
-            echo "File is empty"
-          else
-            echo "File is not empty"
-          fi
+          new_sanity_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_sanity) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_sanity_failed_spec_env"
+          echo "new_sanity_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_sanity_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Comment in PR with failed smoke tests
+        if: needs.smoke.result != 'success'
+        run: |
+          echo ${{ env.new_sanity_failed_spec_env }}
 
       # Deleting the existing dir's if any
       - name: Delete existing directories
