@@ -1,9 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableV2WidgetDsl.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const widgetsPage = require("../../../locators/Widgets.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+const publish = require("../../../locators/publishWidgetspage.json");
+const dsl = require("../../../fixtures/tableV2WidgetDsl.json");
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 const table = ObjectsRegistry.Table;
 const PropPane = ObjectsRegistry.PropertyPane;
