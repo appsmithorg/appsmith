@@ -365,6 +365,11 @@ export class HomePage {
       .click({ force: true });
     this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
+    if (CURRENT_REPO === REPO.EE) {
+      this.agHelper.AssertElementExist(
+        this._visibleTextSpan("Assign Custom Role"),
+      );
+    }
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
       .parent("div")
