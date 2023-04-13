@@ -524,21 +524,7 @@ function ApiResponseView(props: Props) {
           ) : (
             <ResponseDataContainer>
               {isEmpty(response.statusCode) ? (
-                <NoResponseContainer>
-                  <Icon name="no-response" />
-                  <Text type={TextType.P1}>
-                    {EMPTY_RESPONSE_FIRST_HALF()}
-                    <Button
-                      isDisabled={disabled}
-                      isLoading={isRunning}
-                      onClick={onRunClick}
-                      size="md"
-                    >
-                      Run
-                    </Button>
-                    {EMPTY_RESPONSE_LAST_HALF()}
-                  </Text>
-                </NoResponseContainer>
+                <NoResponse />
               ) : (
                 <ResponseBodyContainer>
                   {isString(response?.body) && isHtml(response?.body) ? (
