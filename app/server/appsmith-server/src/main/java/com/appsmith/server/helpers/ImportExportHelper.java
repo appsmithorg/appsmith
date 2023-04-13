@@ -1,17 +1,5 @@
 package com.appsmith.server.helpers;
 
-import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static java.lang.Boolean.TRUE;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -44,9 +32,20 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static java.lang.Boolean.TRUE;
 
 @Component
 public class ImportExportHelper {
@@ -140,8 +139,8 @@ public class ImportExportHelper {
      * @param application
      * @return Flux of CustomJSLib
      */
-    public Flux<CustomJSLib> getAllCustomJSLibsForApplication(Application application) {
-        return customJSLibService.getAllJSLibsInApplication(application.getId(), null, false)
+    public Flux<CustomJSLib> getAllCustomJSLibsForApplication(String applicationId) {
+        return customJSLibService.getAllJSLibsInApplication(applicationId, null, false)
                 .map(unpublishedCustomJSLibList -> {
                     /**
                      * Previously it was a Set and as Set is an unordered collection of elements
@@ -159,16 +158,15 @@ public class ImportExportHelper {
     /**
      * This function gets all action collections for export
      * 
-     * @param application  application object
+     * @param List<String> pageIds
      * @param serialiseFor objective of serialisation
      * @return Flux of ActionCollection
      */
-    public Flux<ActionCollection> fetchCollectionsForApplication(Application application, boolean isExport,
-            SerialiseApplicationObjective serialiseFor) {
+    public Flux<ActionCollection> fetchCollectionsForApplication(List<String> pageIds, boolean isExport,
+                                                                 SerialiseApplicationObjective serialiseFor) {
         Optional<AclPermission> optionalPermission = actionPermission.getAccessPermissionForImportExport(isExport,
                 serialiseFor);
-        return actionCollectionRepository.findByApplicationId(application.getId(), optionalPermission,
-                Optional.empty());
+        return actionCollectionRepository.findByListOfPageIds(pageIds, optionalPermission);
     }
 
     public Mono<Workspace> fetchWorkspace(String workspaceId, boolean isExport,
@@ -186,11 +184,11 @@ public class ImportExportHelper {
      * @param serialiseFor objective of serialisation
      * @return Flux of NewAction
      */
-    public Flux<NewAction> fetchActionsForApplication(Application application, boolean isExport,
+    public Flux<NewAction> fetchActionsForApplication(List<String> pageIds, boolean isExport,
             SerialiseApplicationObjective serialiseFor) {
         Optional<AclPermission> optionalPermission = actionPermission.getAccessPermissionForImportExport(isExport,
                 serialiseFor);
-        return newActionRepository.findByApplicationId(application.getId(), optionalPermission, Optional.empty());
+        return newActionRepository.findByListOfPageIds(pageIds, optionalPermission);
     }
 
     /**
@@ -242,11 +240,11 @@ public class ImportExportHelper {
      * @param serialiseFor objective of serialisation
      * @return Flux of NewPage
      */
-    public Flux<NewPage> fetchPagesForApplication(String applicationId, boolean isExport,
+    public Flux<NewPage> fetchPagesForApplication(List<String> pageIds, boolean isExport,
             SerialiseApplicationObjective serialiseFor) {
         Optional<AclPermission> optionalPermission = pagePermission.getAccessPermissionForImportExport(isExport,
                 serialiseFor);
-        return newPageRepository.findByApplicationId(applicationId, optionalPermission).log();
+        return newPageRepository.findByIds(pageIds, optionalPermission);
     }
 
     public Mono<Application> fetchOrCreateApplicationForImport(String applicationId, Application applicationToImport,

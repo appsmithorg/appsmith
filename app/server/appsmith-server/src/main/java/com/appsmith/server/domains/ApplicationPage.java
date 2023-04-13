@@ -33,7 +33,7 @@ public class ApplicationPage {
     String customSlug;
 
     // This field will represent the root pageId in git system where we are connecting resources among the branches
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class})
     String defaultPageId;
 
     @JsonView({Views.Public.class, Views.Export.class})

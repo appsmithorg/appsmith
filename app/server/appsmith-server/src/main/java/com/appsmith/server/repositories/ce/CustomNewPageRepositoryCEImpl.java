@@ -140,6 +140,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 null);
     }
 
+    @Override
+    public Flux<NewPage> findByIds(List<String> ids, Optional<AclPermission> aclPermission) {
+        Criteria idsCriterion = where("id").in(ids);
+        return this.queryAll(new ArrayList<>(List.of(idsCriterion)), aclPermission);
+    }
+
     private Criteria getNameCriterion(String name, Boolean viewMode) {
         String nameKey;
 
