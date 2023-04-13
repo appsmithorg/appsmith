@@ -40,26 +40,37 @@ export class InviteModal {
     this.agHelper.GetNClick(this.locators._shareSettingsButton);
   }
 
-  public enablePublicAccessViaShareSettings() {
+  public enablePublicAccessViaShareSettings(enable: "true" | "false" = "true") {
     this.SelectEmbedTab();
     this.SwitchToInviteTab();
-    cy.get(HomePage.enablePublicAccess).first().click({ force: true });
-    cy.wait("@changeAccess").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    const input = this.agHelper.GetElement(HomePage.enablePublicAccess);
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== enable) {
+        this.agHelper.GetNClick(HomePage.enablePublicAccess);
+        cy.wait("@changeAccess").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+      }
+    });
     cy.wait(10000);
     cy.get(HomePage.editModeInviteModalCloseBtn).first().click({ force: true });
   }
 
-  public enablePublicAccessViaInviteTab() {
-    cy.get(HomePage.enablePublicAccess).first().click({ force: true });
-    cy.wait("@changeAccess").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+  public enablePublicAccessViaInviteTab(enable: "true" | "false" = "true") {
+    this.SelectInviteTab();
+    const input = this.agHelper.GetElement(HomePage.enablePublicAccess);
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== enable) {
+        this.agHelper.GetNClick(HomePage.enablePublicAccess);
+        cy.wait("@changeAccess").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+      }
+    });
     cy.wait(4000);
   }
 

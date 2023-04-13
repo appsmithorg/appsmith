@@ -46,14 +46,14 @@ describe("In-app embed settings", () => {
         "href",
         "https://customer.appsmith.com/plans",
       );
-      _.inviteModal.enablePublicAccessViaShareSettings();
+      _.inviteModal.enablePublicAccessViaShareSettings("true");
     }
   });
 
   it("3. Change embedding restriction link on Share modal should redirect to Admin settings general page", () => {
     _.inviteModal.OpenShareModal();
     if (CURRENT_REPO === REPO.EE) {
-      _.inviteModal.enablePublicAccessViaInviteTab();
+      _.inviteModal.enablePublicAccessViaInviteTab("true");
     }
     _.inviteModal.SelectEmbedTab();
     cy.get(_.inviteModal.locators._restrictionChange).should(
