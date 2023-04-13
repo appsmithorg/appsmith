@@ -1,8 +1,8 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import {
   encodedWordDoc,
   encodedXlsxDoc,
-} from "../../../../../fixtures/exampleEncodedDocs";
+} from "../../../../fixtures/exampleEncodedDocs";
 const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,

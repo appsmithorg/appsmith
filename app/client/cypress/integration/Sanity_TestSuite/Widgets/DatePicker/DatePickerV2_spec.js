@@ -1,10 +1,10 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/datePicker2dsl.json");
-const datedsl = require("../../../../../fixtures/datePickerdsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const dsl = require("../../../../fixtures/datePicker2dsl.json");
+const datedsl = require("../../../../fixtures/datePickerdsl.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 
