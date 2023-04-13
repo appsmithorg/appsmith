@@ -23,7 +23,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       className,
       icon = <CheckIcon />,
       id: defaultId,
-      isIndeterminate: indeterminate,
+      isIndeterminate,
       ...rest
     } = props;
     const state = useToggleState(rest);
@@ -39,7 +39,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
           <input {...inputProps} id={id} />
         </FocusRing>
         <span className="icon" role="presentation">
-          {indeterminate ? <SubtractIcon /> : icon}
+          {isIndeterminate ? <SubtractIcon /> : icon}
         </span>
       </div>
     );

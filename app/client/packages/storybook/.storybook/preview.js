@@ -17,4 +17,4 @@ export const parameters = {
   layout: "centered",
 };
 
-export const decorators = [theming, resizor];
+export const decorators = [resizor, theming];
