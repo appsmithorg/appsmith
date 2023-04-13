@@ -1,8 +1,8 @@
-const guidedTourLocators = require("../../../../locators/GuidedTour.json");
-const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const explorerLocators = require("../../../../locators/explorerlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+const guidedTourLocators = require("../../../locators/GuidedTour.json");
+const onboardingLocators = require("../../../locators/FirstTimeUserOnboarding.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+const explorerLocators = require("../../../locators/explorerlocators.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Guided Tour", function () {
   it("1. Guided tour should work when started from the editor", function () {
