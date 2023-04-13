@@ -1083,6 +1083,7 @@ class ListWidget extends BaseWidget<
               focused,
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
+                e.stopPropagation();
                 // If Container Child Elements are clickable, we should not call the containers onItemClick Event
                 if (isTargetElementClickable(e)) return;
 
