@@ -1,6 +1,6 @@
-const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const testdata = require("../../../fixtures/testdata.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   apiPage = ObjectsRegistry.ApiPage,

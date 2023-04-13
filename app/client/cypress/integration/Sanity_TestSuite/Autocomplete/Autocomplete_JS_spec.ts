@@ -1,5 +1,5 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { WIDGET } from "../../../locators/WidgetLocators";
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 let jsName: any;
 

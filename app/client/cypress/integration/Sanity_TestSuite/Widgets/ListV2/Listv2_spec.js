@@ -1,6 +1,6 @@
-const dsl = require("../../../../../fixtures/Listv2/simpleLargeListv2.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
+const dsl = require("../../../../fixtures/Listv2/simpleLargeListv2.json");
+const explorer = require("../../../../locators/explorerlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("List Widget V2 Functionality", function () {
   before(() => {
