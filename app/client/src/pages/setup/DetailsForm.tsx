@@ -35,6 +35,17 @@ const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
 `;
 
+const StyledTabIndicatorWrapper = styled.div`
+  display: flex;
+`;
+
+const StyledTabIndicator = styled.div`
+  width: 48px;
+  background-color: var(--ads-color-brand);
+  height: 3px;
+  margin: 0 6px 0 0;
+`;
+
 export default function DetailsForm(
   props: SetupFormProps & { onNext?: () => void },
 ) {
@@ -46,6 +57,12 @@ export default function DetailsForm(
 
   return (
     <DetailsFormWrapper ref={ref}>
+      <StyledTabIndicatorWrapper>
+        <StyledTabIndicator />
+        <StyledTabIndicator
+          style={isFirstPage() ? { backgroundColor: "grey" } : {}}
+        />
+      </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
         <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
           <StyledFormGroup

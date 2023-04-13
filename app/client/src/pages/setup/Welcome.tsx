@@ -34,7 +34,7 @@ const StyledTextBanner = styled.div`
   min-width: ${(props) => props.theme.pageContentWidth * 0.55}px;
   padding-left: 64px;
   width: 50%;
-  margin-left: 7%;
+  margin-left: 20%;
   margin-top: 7%;
 `;
 
