@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { Classes, getTypographyByKey } from "design-system-old";
 
 export const BranchListItemContainer = styled.div<{
@@ -10,12 +9,9 @@ export const BranchListItemContainer = styled.div<{
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[5]}px`};
   margin: ${(props) => `${props.theme.spaces[1]} 0`};
+  color: var(--ads-v2-color-fg-brand-emphasis);
   ${getTypographyByKey("p1")};
   cursor: pointer;
-
-  &:hover {
-    background-color: ${Colors.Gallery};
-  }
 
   width: 100%;
 
@@ -23,7 +19,13 @@ export const BranchListItemContainer = styled.div<{
   overflow: hidden;
   text-overflow: ellipsis;
   background-color: ${(props) =>
-    props.selected || props.active ? Colors.GREY_3 : ""};
+    props.selected || props.active ? "var(--ads-v2-color-bg-emphasis)" : ""};
+
+  ${(props) =>
+    !props.active &&
+    `&:hover {
+background-color: var(--ads-v2-color-bg-subtle);
+}`}
 
   display: grid;
   grid-gap: 16px;

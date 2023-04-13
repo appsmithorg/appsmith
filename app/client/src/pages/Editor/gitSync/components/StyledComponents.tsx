@@ -9,12 +9,6 @@ export const Title = styled.p`
   color: ${Colors.GREY_900};
 `;
 
-export const Subtitle = styled.div`
-  margin-top: 4px;
-  ${getTypographyByKey("p1")};
-  color: ${Colors.GREY_900};
-`;
-
 export const Caption = styled.span`
   ${getTypographyByKey("p1")};
 `;
@@ -42,4 +36,20 @@ export const Space = styled.div<{ size: sizeType; horizontal?: boolean }>`
     props.horizontal
       ? `0px ${props.theme.spaces[props.size]}px `
       : `${props.theme.spaces[props.size]}px 0px`};
+`;
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0;
+  }
 `;

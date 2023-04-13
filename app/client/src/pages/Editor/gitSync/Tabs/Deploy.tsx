@@ -5,7 +5,6 @@ import {
   COMMIT_TO,
   COMMITTING_AND_PUSHING_CHANGES,
   createMessage,
-  DEPLOY_YOUR_APPLICATION,
   DISCARD_CHANGES,
   DISCARDING_AND_PULLING_CHANGES,
   FETCH_GIT_STATUS,
@@ -15,14 +14,8 @@ import {
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
-import {
-  getTypographyByKey,
-  LabelContainer,
-  ScrollIndicator,
-  Text,
-  TextType,
-} from "design-system-old";
-import { Button, Icon, Input, Tooltip } from "design-system";
+import { ScrollIndicator } from "design-system-old";
+import { Button, Icon, Input, Text, Tooltip } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -67,8 +60,7 @@ import {
   getCurrentApplication,
 } from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
-// import useAutoGrow from "utils/hooks/useAutoGrow";
-import { Space, Title } from "../components/StyledComponents";
+import { Container, Space } from "../components/StyledComponents";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
@@ -84,45 +76,6 @@ const Section = styled.div`
 const Row = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const SectionTitle = styled.div`
-  ${getTypographyByKey("p1")};
-  color: ${Colors.CHARCOAL};
-  display: inline-flex;
-
-  & .branch {
-    color: ${Colors.CRUSTA};
-    width: 240px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
-
-  && ${LabelContainer} span {
-    color: ${Colors.CHARCOAL};
-  }
-
-  .bp3-popover-target {
-    width: fit-content;
-  }
 `;
 
 const FIRST_COMMIT = "First Commit";
@@ -328,22 +281,22 @@ function Deploy() {
 
   return (
     <Container data-testid={"t--deploy-tab-container"} ref={scrollWrapperRef}>
-      <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
+      <Space size={2} />
       <Section>
         {hasChangesToCommit && (
           <Text
             data-testid={"t--git-deploy-change-reason-text"}
-            type={TextType.P1}
+            kind={"body-m"}
           >
             {changeReasonText}
           </Text>
         )}
         <GitChangesList />
         <Row>
-          <SectionTitle>
-            <span>{createMessage(COMMIT_TO)}</span>
-            <div className="branch">&nbsp;{currentBranch}</div>
-          </SectionTitle>
+          <Text>{createMessage(COMMIT_TO)}</Text>
+          <Text className="branch" color={"var(--ads-v2-color-fg-brand)"}>
+            &nbsp;{currentBranch}
+          </Text>
         </Row>
         <Space size={3} />
         <SubmitWrapper
@@ -371,7 +324,7 @@ function Deploy() {
           <InfoWrapper>
             <Icon color={Colors.YELLOW_LIGHT} name="info" size="lg" />
             <div style={{ display: "block" }}>
-              <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
+              <Text style={{ marginRight: theme.spaces[2] }}>
                 {createMessage(GIT_UPSTREAM_CHANGES)}
               </Text>
               <Link

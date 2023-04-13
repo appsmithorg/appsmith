@@ -28,7 +28,14 @@ import {
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
-import { Icon, Spinner, Tooltip, Button, SearchInput } from "design-system";
+import {
+  Icon,
+  Spinner,
+  Tooltip,
+  Button,
+  SearchInput,
+  Text,
+} from "design-system";
 import { get } from "lodash";
 import {
   isLocalBranch,
@@ -182,7 +189,9 @@ export function Header({
       }}
     >
       <div style={{ display: "flex", alignItems: "center" }}>
-        <span className="title">{title}</span>
+        <Text className="title" color={"var(--ads-v2-color-fg-emphasis)"}>
+          {title}
+        </Text>
         <span
           style={{
             display: "inline-block",

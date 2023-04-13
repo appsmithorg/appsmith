@@ -16,14 +16,17 @@ import GitConnection from "./Tabs/GitConnection";
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled from "styled-components";
 import { GitSyncModalTab } from "entities/GitSync";
-import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  GIT_IMPORT,
+  IMPORT_FROM_GIT_REPOSITORY,
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 
 const BodyContainer = styled.div`
-  height: 700px;
-  max-width: 900px;
+  height: 650px;
 `;
 
 const ComponentsByTab = {
@@ -81,6 +84,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
     menuOptions = [
       {
         key: GitSyncModalTab.GIT_CONNECTION,
+        modalTitle: createMessage(IMPORT_FROM_GIT_REPOSITORY),
         title: createMessage(GIT_IMPORT),
       },
     ];
@@ -116,7 +120,9 @@ function GitSyncModal(props: { isImport?: boolean }) {
       >
         <ModalContent>
           <BodyContainer className={Classes.GIT_SYNC_MODAL}>
-            <ModalHeader onClose={handleClose}>Title</ModalHeader>
+            <ModalHeader onClose={handleClose}>
+              {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
+            </ModalHeader>
             <Menu
               activeTabKey={activeTabKey}
               onSelect={(tabKey: string) =>

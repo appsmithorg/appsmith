@@ -40,7 +40,7 @@ const InputContainer = styled.div<{ isValid: boolean }>`
 `;
 
 const MainContainer = styled.div`
-  width: calc(100% - 30px);
+  width: calc(100% - 39px);
 `;
 
 const DefaultConfigContainer = styled.div`

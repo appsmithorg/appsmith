@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Caption, Space, Title } from "../components/StyledComponents";
+import { Container, Space } from "../components/StyledComponents";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -42,8 +42,7 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Case, Text, TextType } from "design-system-old";
-import { Button, Option, Select, Icon } from "design-system";
+import { Button, Option, Select, Text, Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
@@ -54,7 +53,6 @@ const Row = styled.div`
 `;
 
 const DEFAULT_OPTION = "--Select--";
-// const DROPDOWNMENU_MAXHEIGHT = "350px";
 
 function MergeSuccessIndicator() {
   const theme = useTheme() as Theme;
@@ -63,11 +61,9 @@ function MergeSuccessIndicator() {
     <div style={{ display: "flex", alignItems: "center" }}>
       <SuccessTick height="36px" style={{ marginBottom: 0 }} width="30px" />
       <Text
-        case={Case.UPPERCASE}
-        color={Colors.GREY_9}
+        color={"var(--ads-v2-color-fg)"}
+        kind="heading-s"
         style={{ marginLeft: theme.spaces[2] }}
-        type={TextType.P1}
-        weight="600"
       >
         {createMessage(MERGED_SUCCESSFULLY)}
       </Text>
@@ -224,30 +220,25 @@ export default function Merge() {
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
 
   return (
-    <>
-      <Title>{createMessage(MERGE_CHANGES)}</Title>
-      <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
+    <Container>
+      <Space size={2} />
+      <Text>{createMessage(SELECT_BRANCH_TO_MERGE)}</Text>
       <Space size={4} />
       <Row>
         <Select
-          className={"t--merge-branch-dropdown-destination"}
+          className="t--merge-branch-dropdown-destination"
           dropdownClassName={Classes.MERGE_DROPDOWN}
-          // dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           isDisabled={isFetchingBranches || isFetchingMergeStatus || isMerging}
-          // isLoading={isFetchingBranches}
           isValid={status !== MERGE_STATUS_STATE.NOT_MERGEABLE}
           onSelect={(value?: string) => {
             if (value) setSelectedBranchOption({ label: value, value: value });
           }}
-          // showLabelOnly
           showSearch
           size="md"
-          // truncateOption
           value={selectedBranchOption}
-          // width={"220px"}
         >
           {branchList.map((branch) => (
-            <Option key={branch.value}>{branch.label}</Option>
+            <Option key={branch.value}>{branch.value}</Option>
           ))}
         </Select>
 
@@ -257,13 +248,9 @@ export default function Merge() {
         <Select
           className="textInput"
           isDisabled
-          // dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
-          // onSelect={() => null}
           options={[currentBranchDropdownOption]}
           size="md"
           value={currentBranchDropdownOption}
-          // truncateOption
-          // width={"220px"}
         >
           <Option>{currentBranchDropdownOption.label}</Option>
         </Select>
@@ -304,6 +291,6 @@ export default function Merge() {
           />
         </StatusbarWrapper>
       )}
-    </>
+    </Container>
   );
 }

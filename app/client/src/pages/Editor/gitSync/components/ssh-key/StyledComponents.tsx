@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { Text } from "design-system-old";
 
 export const TooltipWrapper = styled.div`
   display: flex;
@@ -13,8 +11,8 @@ export const DeployedKeyContainer = styled.div<{ $marginTop: number }>`
   margin-top: ${(props) => `${props.theme.spaces[props.$marginTop]}px`};
   margin-bottom: 8px;
   height: 35px;
-  width: calc(100% - 30px);
-  border: 1px solid ${Colors.ALTO_3};
+  width: calc(100% - 39px);
+  border: 1px solid var(--ads-v2-color-border);
   padding: ${(props) =>
     `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
   box-sizing: border-box;
@@ -25,6 +23,7 @@ export const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
+  gap: 3px;
 `;
 
 export const ConfirmRegeneration = styled(FlexRow)`
@@ -53,11 +52,8 @@ export const KeyText = styled.span<{ keyType: string }>`
 `;
 
 export const MoreMenuWrapper = styled.div`
-  padding: 8px;
   align-items: center;
-  position: absolute;
-  right: -6px;
-  top: 3px;
+  margin-top: 3px;
 `;
 
 export const ConfirmMenuItem = styled.div`
@@ -65,9 +61,5 @@ export const ConfirmMenuItem = styled.div`
 `;
 
 export const NotificationBannerContainer = styled.div`
-  max-width: calc(100% - 30px);
-`;
-
-export const StyledTextBlock = styled(Text)`
-  display: block;
+  max-width: calc(100% - 39px);
 `;

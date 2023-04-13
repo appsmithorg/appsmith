@@ -5,16 +5,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Space, Subtitle, Title } from "../components/StyledComponents";
+import { Container, Space } from "../components/StyledComponents";
 import {
   CONNECT_BTN_LABEL,
-  CONNECT_TO_GIT,
   CONNECT_TO_GIT_SUBTITLE,
   CONNECTING_REPO,
   createMessage,
   GENERATE_KEY,
   IMPORT_BTN_LABEL,
-  IMPORT_FROM_GIT_REPOSITORY,
   IMPORT_URL_INFO,
   IMPORTING_APP_FROM_GIT,
   LEARN_MORE,
@@ -25,7 +23,7 @@ import {
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { emailValidator } from "design-system-old";
+import { emailValidator, ScrollIndicator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
@@ -60,11 +58,10 @@ import {
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import { ScrollIndicator } from "design-system-old";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import { Button, Text, Tooltip, Input } from "design-system";
+import { Button, Input, Text, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
@@ -72,69 +69,21 @@ import { useGitConnect, useSSHKeyPair } from "../hooks";
 export const UrlOptionContainer = styled.div`
   display: flex;
   align-items: center;
-
-  & .primary {
-  }
-
-  margin-bottom: ${(props) => `${props.theme.spaces[1]}px`};
-  margin-top: ${(props) => `${props.theme.spaces[9]}px`};
 `;
 
 const UrlContainer = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const UrlInputContainer = styled.div`
-  width: calc(100% - 30px);
-  margin-right: 8px;
-  position: relative;
+  gap: 3px;
 `;
 
 const ButtonContainer = styled.div<{ topMargin: number }>`
   margin-top: ${(props) => `${props.theme.spaces[props.topMargin]}px`};
 `;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
-`;
-
 const RemoteUrlInfoWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
   display: flex;
-`;
-
-const Section = styled.div``;
-
-const StickyMenuWrapper = styled.div`
-  position: static;
-  top: 0px;
-  height: fit-content;
-  z-index: 9999;
-  background: white;
-  margin-right: 10px;
-`;
-
-const TooltipWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: -30px;
-  top: 8px;
 `;
 
 // v1 only support SSH
@@ -389,104 +338,96 @@ function GitConnection({ isImport }: Props) {
 
   return (
     <Container data-test="t--git-connection-container" ref={scrollWrapperRef}>
-      <Section>
-        <StickyMenuWrapper>
-          <Title>
-            {createMessage(
-              isImport ? IMPORT_FROM_GIT_REPOSITORY : CONNECT_TO_GIT,
-            )}
-            <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
-          </Title>
-        </StickyMenuWrapper>
-        <UrlOptionContainer data-test="t--remote-url-container">
-          <Text color={Colors.GREY_9} kind="body-m">
-            {createMessage(REMOTE_URL)}
+      <Space size={2} />
+      <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="body-m">
+        {createMessage(CONNECT_TO_GIT_SUBTITLE)}
+      </Text>
+      <Space size={1} />
+      <UrlOptionContainer data-test="t--remote-url-container">
+        <Text color="var(--ads-v2-color-fg)" renderAs="label">
+          {createMessage(REMOTE_URL)}
+        </Text>
+      </UrlOptionContainer>
+      {!SSHKeyPair ? (
+        <RemoteUrlInfoWrapper>
+          <Text color={Colors.GREY_9} kind="body-s">
+            {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
           </Text>
-        </UrlOptionContainer>
-        {!SSHKeyPair ? (
-          <RemoteUrlInfoWrapper>
-            <Text color={Colors.GREY_9} kind="body-s">
-              {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
-            </Text>
-            <Space horizontal size={1} />
-            <Link
-              className="t--learn-more-ssh-url"
-              color={Colors.PRIMARY_ORANGE}
-              hasIcon={false}
-              link={RepoUrlDocumentUrl}
-              onClick={() => {
-                AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
-                  source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
-                });
-                window.open(RepoUrlDocumentUrl, "_blank");
-              }}
-              text={createMessage(LEARN_MORE)}
-            />
-          </RemoteUrlInfoWrapper>
-        ) : null}
-        <UrlContainer>
-          <UrlInputContainer>
-            <Input
-              className="t--git-repo-input"
-              errorMessage={
-                isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
-              }
-              isDisabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
-              onChange={remoteUrlChangeHandler}
-              placeholder={placeholderText}
-              size="md"
-              type="url"
-              value={remoteUrl}
-            />
-            {isGitConnected && (
-              <TooltipWrapper>
-                <Tooltip content="Disconnect Git">
-                  <Button
-                    className="t--git-disconnect-icon"
-                    isIconButton
-                    kind="tertiary"
-                    onClick={openDisconnectGitModal}
-                    size="sm"
-                    startIcon="delete"
-                  />
-                </Tooltip>
-              </TooltipWrapper>
-            )}
-          </UrlInputContainer>
-        </UrlContainer>
-        {!SSHKeyPair ? (
-          remoteUrl &&
-          !isInvalidRemoteUrl && (
-            <ButtonContainer topMargin={7}>
-              <Button
-                className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
-                data-testid="t--generate-deploy-ssh-key-button"
-                isDisabled={!remoteUrl || isInvalidRemoteUrl}
-                isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onClick={() => {
-                  generateSSHKey(
-                    remoteUrl.toString().toLocaleLowerCase().includes("azure")
-                      ? "RSA"
-                      : "ECDSA",
-                  );
-                  AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
-                }}
-                size="md"
-              >
-                {createMessage(GENERATE_KEY)}
-              </Button>
-            </ButtonContainer>
-          )
-        ) : (
-          <Keys
-            SSHKeyPair={SSHKeyPair || ""}
-            copyToClipboard={copyToClipboard}
-            deployKeyDocUrl={deployKeyDocUrl}
-            showCopied={showCopied}
+          <Space horizontal size={1} />
+          <Link
+            className="t--learn-more-ssh-url"
+            color={"var(--ads-v2-color-fg-brand)"}
+            hasIcon={false}
+            link={RepoUrlDocumentUrl}
+            onClick={() => {
+              AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
+              });
+              window.open(RepoUrlDocumentUrl, "_blank");
+            }}
+            text={createMessage(LEARN_MORE)}
           />
+        </RemoteUrlInfoWrapper>
+      ) : null}
+      <UrlContainer>
+        <Input
+          className="t--git-repo-input"
+          errorMessage={
+            isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
+          }
+          isDisabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
+          onChange={remoteUrlChangeHandler}
+          placeholder={placeholderText}
+          size="md"
+          type="url"
+          value={remoteUrl}
+        />
+        {isGitConnected && (
+          <Tooltip content="Disconnect Git">
+            <ButtonContainer topMargin={1}>
+              <Button
+                className="t--git-disconnect-icon"
+                isIconButton
+                kind="tertiary"
+                onClick={openDisconnectGitModal}
+                size="md"
+                startIcon="delete"
+              />
+            </ButtonContainer>
+          </Tooltip>
         )}
-      </Section>
-
+      </UrlContainer>
+      {!SSHKeyPair ? (
+        remoteUrl &&
+        !isInvalidRemoteUrl && (
+          <ButtonContainer topMargin={7}>
+            <Button
+              className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
+              data-testid="t--generate-deploy-ssh-key-button"
+              isDisabled={!remoteUrl || isInvalidRemoteUrl}
+              isLoading={generatingSSHKey || fetchingSSHKeyPair}
+              onClick={() => {
+                generateSSHKey(
+                  remoteUrl.toString().toLocaleLowerCase().includes("azure")
+                    ? "RSA"
+                    : "ECDSA",
+                );
+                AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
+              }}
+              size="md"
+            >
+              {createMessage(GENERATE_KEY)}
+            </Button>
+          </ButtonContainer>
+        )
+      ) : (
+        <Keys
+          SSHKeyPair={SSHKeyPair || ""}
+          copyToClipboard={copyToClipboard}
+          deployKeyDocUrl={deployKeyDocUrl}
+          showCopied={showCopied}
+        />
+      )}
       {SSHKeyPair && remoteUrl ? (
         <>
           <Space size={5} />

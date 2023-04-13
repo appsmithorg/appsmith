@@ -5,7 +5,6 @@ import {
   SSH_KEY_GENERATED,
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
-import { Text, TextType } from "design-system-old";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -29,6 +28,7 @@ import {
   MenuTrigger,
   MenuItem,
   MenuContent,
+  Text,
 } from "design-system";
 
 type KeysProps = {
@@ -67,7 +67,6 @@ function Keys(props: KeysProps) {
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
       source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
     });
-    window.open(deployKeyDocUrl, "_blank");
   };
   const regenerateKey = useCallback(() => {
     AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_CONFIRM_CLICK", {
@@ -84,8 +83,8 @@ function Keys(props: KeysProps) {
   }, [newKeyType]);
   return (
     <>
-      <Space size={7} />
-      <Text color={Colors.GREY_9} type={TextType.P1}>
+      <Space size={2} />
+      <Text color="var(--ads-v2-color-border-brand-secondary)" renderAs="label">
         {createMessage(SSH_KEY)}
       </Text>
       <FlexRow style={{ position: "relative" }}>
@@ -111,7 +110,7 @@ function Keys(props: KeysProps) {
                   AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_MORE_CLICK");
                   setShowConfirmation(false);
                 }}
-                size="sm"
+                size="md"
                 startIcon="more-2-fill"
               />
             </MenuTrigger>
@@ -138,6 +137,7 @@ function Keys(props: KeysProps) {
       </FlexRow>
       {showKeyGeneratedMessage &&
         getNotificationBanner(
+          deployKeyDocUrl,
           learnMoreClickHandler,
           setShowKeyGeneratedMessage,
         )}

@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Classes, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -16,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -34,14 +33,7 @@ const Wrapper = styled.div`
   height: ${(props) => props.theme.spaces[9]}px;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
-
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-
-  .${Classes.TEXT} {
-    padding-top: ${(props) => props.theme.spaces[1] - 2}px;
-  }
+  gap: 6px;
 `;
 
 const Changes = styled.div`
@@ -142,8 +134,10 @@ export function Change(props: Partial<GitStatusProps>) {
 
   return (
     <Wrapper>
-      <Icon name={iconName} size="md" />
-      <Text type={TextType.P3}>{message}</Text>
+      <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+      <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+        {message}
+      </Text>
     </Wrapper>
   );
 }
