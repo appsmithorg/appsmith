@@ -60,7 +60,7 @@ export default function DetailsForm(
       <StyledTabIndicatorWrapper>
         <StyledTabIndicator />
         <StyledTabIndicator
-          style={isFirstPage() ? { backgroundColor: "grey" } : {}}
+          style={isFirstPage() ? { backgroundColor: "#d7d7d7" } : {}}
         />
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
