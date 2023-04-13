@@ -38,13 +38,13 @@ export const snapShotFlow = (
       bannerMessageDetails: {
         message: createMessage(USE_SNAPSHOT_TEXT),
         backgroundColor: Colors.GRAY_100,
-        iconName: "question-line",
+        iconName: "question",
         iconColor: Colors.GRAY_600,
         textColor: Colors.GRAY_800,
       },
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
-        icon: "history-line",
+        icon: "history",
         text: createMessage(
           SNAPSHOT_TIME_FROM_MESSAGE,
           readableSnapShotDetails.timeSince,
@@ -76,7 +76,7 @@ export const snapShotFlow = (
     [CONVERSION_STATES.DISCARD_SNAPSHOT]: {
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(DISCARD_SNAPSHOT_TEXT),
-        icon: "history-line",
+        icon: "history",
         text: createMessage(
           SNAPSHOT_TIME_FROM_MESSAGE,
           readableSnapShotDetails.timeSince,

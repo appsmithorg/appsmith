@@ -33,16 +33,6 @@ const SnapshotPost = styled.p`
   font-size: var(--ads-v2-font-size-3);
 `;
 
-const IconWrapper = styled.div`
-  height: 40px;
-  min-width: 40px;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(107, 107, 107, 0.1);
-`;
-
 type ConversionFormProps = {
   onCancel: () => void;
 };
@@ -191,18 +181,15 @@ export function ConversionForm<T>(
               className="h-14 flex flex-row border border-gray-200 items-center gap-2 pl-3"
               style={snapShotStyles}
             >
-              <IconWrapper>
-                <Icon
-                  className="mx-3"
-                  // clickable={false}
-                  color={Colors.GRAY_600}
-                  // name={snapShotDetails.icon}
-                  name="delete-control"
-                  size="md"
-                  // withWrapper
-                  // wrapperColor={Colors.GRAY_600_OPAQUE}
-                />
-              </IconWrapper>
+              <Icon
+                className="mx-3"
+                // clickable={false}
+                color={Colors.GRAY_600}
+                name={snapShotDetails.icon}
+                size="md"
+                withWrapper
+                wrapperColor={Colors.GRAY_600_OPAQUE}
+              />
               <SnapshotDetails>{snapShotDetails.text}</SnapshotDetails>
             </div>
             {snapShotDetails.postText && (

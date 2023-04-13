@@ -34,7 +34,7 @@ export const useFixedToAutoLayoutFlow = (
           info: createMessage(BUILD_RESPONSIVE_TEXT),
         },
         {
-          icon: "history-line",
+          icon: "history",
           header: createMessage(SAVE_SNAPSHOT),
           info: createMessage(SAVE_SNAPSHOT_TEXT),
         },

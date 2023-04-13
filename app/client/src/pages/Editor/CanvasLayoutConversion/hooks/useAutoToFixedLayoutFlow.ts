@@ -55,7 +55,7 @@ export const useAutoToFixedLayoutFlow = (
           info: createMessage(BUILD_FIXED_LAYOUT_TEXT),
         },
         {
-          icon: "history-line",
+          icon: "history",
           header: createMessage(SAVE_SNAPSHOT),
           info: createMessage(SAVE_SNAPSHOT_TEXT),
         },
@@ -113,7 +113,7 @@ export const useAutoToFixedLayoutFlow = (
       },
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
-        icon: "history-line",
+        icon: "history",
         text: createMessage(
           SNAPSHOT_TIME_FROM_MESSAGE,
           readableSnapShotDetails.timeSince,

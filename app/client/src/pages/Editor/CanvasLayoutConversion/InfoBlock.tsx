@@ -22,28 +22,17 @@ const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
 `;
 
-const IconWrapper = styled.div`
-  height: 40px;
-  min-width: 40px;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(248, 106, 43, 0.1);
-`;
-
 export const InfoBlock = (props: InfoBlockProps) => {
   return (
     <div className="flex flex-row gap-2 pt-3">
-      <IconWrapper>
-        <Icon
-          color={Colors.PRIMARY_ORANGE}
-          name="delete-control"
-          size="md"
-          // withWrapper
-          // wrapperColor={Colors.PRIMARY_ORANGE_OPAQUE}
-        />
-      </IconWrapper>
+      <Icon
+        color="var(--ads-v2-color-fg-brand)"
+        name={props.icon}
+        size="md"
+        withWrapper
+        wrapperColor={Colors.PRIMARY_ORANGE_OPAQUE}
+      />
+
       <div className="flex flex-col">
         <Title className="pb-1">{props.header}</Title>
         <SubText>{props.info}</SubText>

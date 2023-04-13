@@ -7,15 +7,15 @@ import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 const AlertIcons = {
   [AlertType.SUCCESS]: {
     name: "success",
-    color: "green",
+    color: "var(--ads-v2-color-fg-success)",
   },
   [AlertType.WARNING]: {
     name: "warning-line",
-    color: "green",
+    color: "var(--ads-v2-color-fg-warning)",
   },
   [AlertType.ERROR]: {
     name: "error",
-    color: "green",
+    color: "var(--ads-v2-color-bg)",
   },
 };
 
