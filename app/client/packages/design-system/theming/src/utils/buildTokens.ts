@@ -1,5 +1,5 @@
 import fs from "fs";
-import { TokensAccessor } from "../utils/TokensAccessor";
+import { TokensAccessor } from "../";
 
 fs.writeFileSync(
   `${__dirname}/../tokens/themeTokens.json`,
