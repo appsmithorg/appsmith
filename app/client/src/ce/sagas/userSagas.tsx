@@ -71,6 +71,7 @@ import {
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -163,7 +164,7 @@ export function* getCurrentUserSaga() {
 export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
-
+  const isAirgappedInstance = isAirgapped();
   if (enableTelemetry) {
     const promise = initializeAnalyticsAndTrackers();
 
@@ -182,12 +183,14 @@ export function* runUserSideEffectsSaga() {
     enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
   }
 
-  // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
-  UsagePulse.stopTrackingActivity();
-  UsagePulse.startTrackingActivity(
-    enableTelemetry && getAppsmithConfigs().segment.enabled,
-    currentUser?.isAnonymous ?? false,
-  );
+  if (!isAirgappedInstance) {
+    // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
+    UsagePulse.stopTrackingActivity();
+    UsagePulse.startTrackingActivity(
+      enableTelemetry && getAppsmithConfigs().segment.enabled,
+      currentUser?.isAnonymous ?? false,
+    );
+  }
 
   yield put(initAppLevelSocketConnection());
   yield put(initPageLevelSocketConnection());
