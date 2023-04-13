@@ -1,16 +1,16 @@
-const pages = require("../../../../../locators/Pages.json");
-const generatePage = require("../../../../../locators/GeneratePage.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
-const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
-const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import ApiEditor from "../../../../../locators/ApiEditor";
-import homePage from "../../../../../locators/HomePage";
-import datasource from "../../../../../locators/DatasourcesEditor.json";
+const pages = require("../../../locators/Pages.json");
+const generatePage = require("../../../locators/GeneratePage.json");
+const explorer = require("../../../locators/explorerlocators.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
+const dynamicInputLocators = require("../../../locators/DynamicInput.json");
+const queryLocators = require("../../../locators/QueryEditor.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+import gitSyncLocators from "../../../locators/gitSyncLocators";
+import ApiEditor from "../../../locators/ApiEditor";
+import homePage from "../../../locators/HomePage";
+import datasource from "../../../locators/DatasourcesEditor.json";
 
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
