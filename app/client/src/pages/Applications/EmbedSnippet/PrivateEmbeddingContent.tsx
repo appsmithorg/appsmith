@@ -9,7 +9,11 @@ import {
   TextType,
 } from "design-system-old";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { createMessage, UPGRADE } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  IN_APP_EMBED_SETTING,
+  UPGRADE,
+} from "@appsmith/constants/messages";
 
 const appsmithConfigs = getAppsmithConfigs();
 
@@ -63,15 +67,14 @@ function PrivateEmbeddingContent(props: {
       />
       <SubContainer>
         <StyledText className="upgrade-heading" type={TextType.P1}>
-          Private embedding is only available on self-hosted Business Edition of
-          Appsmith
+          {createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
         </StyledText>
         <StyledText type={TextType.P2}>
           {canMakeAppPublic
             ? isAppSettings
-              ? "To embed your app, make it public by toggling the switch above."
-              : "To embed your app, make it public in the share settings."
-            : "Please contact your workspace admin to make the app public."}
+              ? createMessage(IN_APP_EMBED_SETTING.upgradeContentForAppSettings)
+              : createMessage(IN_APP_EMBED_SETTING.upgradeContentForInviteModal)
+            : createMessage(IN_APP_EMBED_SETTING.upgradeContent)}
         </StyledText>
       </SubContainer>
       <SubContainer
