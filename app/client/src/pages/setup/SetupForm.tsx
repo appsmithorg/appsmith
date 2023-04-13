@@ -19,7 +19,6 @@ import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
-import NewsletterForm from "./NewsletterForm";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -180,9 +179,6 @@ function SetupForm(props: SetupFormProps) {
         >
           <SetupStep active={showDetailsForm}>
             <DetailsForm {...props} onNext={onNext} />
-          </SetupStep>
-          <SetupStep active={!showDetailsForm}>
-            <NewsletterForm />
           </SetupStep>
         </form>
         <SpaceFiller />
