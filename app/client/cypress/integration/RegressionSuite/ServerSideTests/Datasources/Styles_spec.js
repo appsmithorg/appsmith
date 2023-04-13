@@ -1,5 +1,5 @@
-import HomePage from "../../../locators/HomePage";
-const pages = require("../../../locators/Pages.json");
+import HomePage from "../../../../locators/HomePage";
+const pages = require("../../../../locators/Pages.json");
 
 describe("Validate Datasource Panel Styles", function () {
   const backgroundColorGray900 = "rgb(25, 25, 25)";

@@ -1,5 +1,5 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../support/Pages/DataSources";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../../support/Pages/DataSources";
 
 let dsName: any, query: string;
 
