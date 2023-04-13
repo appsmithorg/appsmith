@@ -322,6 +322,30 @@ const StyledText = styled(Text)`
     margin-top: 0;
   }
 `;
+
+interface NoResponseProps {
+  isButtonDisabled: boolean | undefined;
+  isQueryRunning: boolean;
+  onRunClick: () => void;
+}
+export const NoResponse = (props: NoResponseProps) => (
+  <NoResponseContainer>
+    <img alt="no-response-yet" src={NoResponseSVG} />
+    <div className="flex gap-2 items-center mt-4">
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_FIRST_HALF()}</StyledText>
+      <Button
+        isDisabled={props.isButtonDisabled}
+        isLoading={props.isQueryRunning}
+        onClick={props.onRunClick}
+        size="md"
+      >
+        Run
+      </Button>
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_LAST_HALF()}</StyledText>
+    </div>
+  </NoResponseContainer>
+);
+
 function ApiResponseView(props: Props) {
   const {
     disabled,
@@ -429,26 +453,6 @@ function ApiResponseView(props: Props) {
     dispatch(setResponsePaneHeight(height));
   }, []);
 
-  const NoResponse = () => (
-    <NoResponseContainer>
-      <img alt="no-response-yet" src={NoResponseSVG} />
-      <div className="flex gap-2 items-center mt-4">
-        <StyledText type={TextType.P1}>
-          {EMPTY_RESPONSE_FIRST_HALF()}
-        </StyledText>
-        <Button
-          isDisabled={disabled}
-          isLoading={isRunning}
-          onClick={onRunClick}
-          size="md"
-        >
-          Run
-        </Button>
-        <StyledText type={TextType.P1}>{EMPTY_RESPONSE_LAST_HALF()}</StyledText>
-      </div>
-    </NoResponseContainer>
-  );
-
   const responseTabs =
     filteredResponseDataTypes &&
     filteredResponseDataTypes.map((dataType, index) => {
@@ -524,7 +528,11 @@ function ApiResponseView(props: Props) {
           ) : (
             <ResponseDataContainer>
               {isEmpty(response.statusCode) ? (
-                <NoResponse />
+                <NoResponse
+                  isButtonDisabled={disabled}
+                  isQueryRunning={isRunning}
+                  onRunClick={onRunClick}
+                />
               ) : (
                 <ResponseBodyContainer>
                   {isString(response?.body) && isHtml(response?.body) ? (
@@ -575,7 +583,11 @@ function ApiResponseView(props: Props) {
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
-              <NoResponse />
+              <NoResponse
+                isButtonDisabled={disabled}
+                isQueryRunning={isRunning}
+                onRunClick={onRunClick}
+              />
             ) : (
               <ReadOnlyEditor
                 folding
