@@ -29,7 +29,7 @@ export const useFixedToAutoLayoutFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       infoBlocks: [
         {
-          icon: "devices",
+          icon: "device",
           header: createMessage(BUILD_RESPONSIVE),
           info: createMessage(BUILD_RESPONSIVE_TEXT),
         },

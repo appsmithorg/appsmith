@@ -40,7 +40,7 @@ export function SnapShotBannerCTA() {
   };
 
   return (
-    <>
+    <div className="flex gap-2">
       <FormDialogComponent
         Form={ConversionForm(useSnapShotForm)}
         canEscapeKeyClose={false}
@@ -70,7 +70,7 @@ export function SnapShotBannerCTA() {
           </Text>
         }
       />
-    </>
+    </div>
   );
 }
 

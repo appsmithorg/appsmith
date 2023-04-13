@@ -3,8 +3,9 @@ import styled from "styled-components";
 import type { InfoBlockProps } from "./InfoBlock";
 import { InfoBlock } from "./InfoBlock";
 import type { DropdownOption } from "design-system-old";
-import { BannerMessage, Collapsible, IconSize } from "design-system-old";
-import { Button, Select, Option, Spinner, Icon } from "design-system";
+import { Collapsible } from "design-system-old";
+import type { CalloutKind } from "design-system";
+import { Button, Select, Option, Spinner, Callout, Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import type { ConversionCompleteLayoutProps } from "./ConversionCompleteLayout";
 import { ConversionCompleteLayout } from "./ConversionCompleteLayout";
@@ -33,6 +34,12 @@ const SnapshotPost = styled.p`
   font-size: var(--ads-v2-font-size-3);
 `;
 
+const BannerText = styled.p`
+  color: var(--ads-v2-color-fg-emphasis);
+  font-weight: var(--ads-v2-font-weight-bold);
+  font-size: var(--ads-v2-font-size-3);
+`;
+
 type ConversionFormProps = {
   onCancel: () => void;
 };
@@ -40,10 +47,7 @@ type ConversionFormProps = {
 export type ConversionProps = {
   bannerMessageDetails?: {
     message: string;
-    backgroundColor: string;
-    iconName: string;
-    iconColor: string;
-    textColor: string;
+    kind: CalloutKind;
   };
   cancelButtonText?: string;
   infoBlocks?: InfoBlockProps[];
@@ -103,17 +107,9 @@ export function ConversionForm<T>(
     return (
       <>
         {bannerMessageDetails && (
-          <BannerMessage
-            backgroundColor={bannerMessageDetails.backgroundColor}
-            fontWeight="600"
-            icon={bannerMessageDetails.iconName}
-            iconColor={bannerMessageDetails.iconColor}
-            iconFlexPosition="start"
-            iconSize={IconSize.XXXL}
-            intentLine
-            message={bannerMessageDetails.message}
-            textColor={bannerMessageDetails.textColor}
-          />
+          <Callout kind={bannerMessageDetails.kind}>
+            <BannerText>{bannerMessageDetails.message}</BannerText>
+          </Callout>
         )}
 
         {infoBlocks &&
@@ -178,12 +174,11 @@ export function ConversionForm<T>(
               </div>
             )}
             <div
-              className="h-14 flex flex-row border border-gray-200 items-center gap-2 pl-3"
+              className="h-14 flex flex-row border border-gray-200 items-center gap-2 pl-2"
               style={snapShotStyles}
             >
               <Icon
                 className="mx-3"
-                // clickable={false}
                 color={Colors.GRAY_600}
                 name={snapShotDetails.icon}
                 size="md"

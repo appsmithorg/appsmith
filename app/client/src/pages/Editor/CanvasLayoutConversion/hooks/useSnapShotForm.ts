@@ -18,7 +18,6 @@ import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import { Colors } from "constants/Colors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -37,10 +36,7 @@ export const snapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       bannerMessageDetails: {
         message: createMessage(USE_SNAPSHOT_TEXT),
-        backgroundColor: Colors.GRAY_100,
-        iconName: "question",
-        iconColor: Colors.GRAY_600,
-        textColor: Colors.GRAY_800,
+        kind: "info",
       },
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
@@ -86,7 +82,6 @@ export const snapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       primaryButton: {
         text: createMessage(DISCARD),
-        // variant: Variant.danger,
         onClick: () => {
           onCancel();
           dispatch({

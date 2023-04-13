@@ -23,7 +23,6 @@ import { useState } from "react";
 import type { DropdownOption } from "design-system-old";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
@@ -106,10 +105,7 @@ export const useAutoToFixedLayoutFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       bannerMessageDetails: {
         message: createMessage(CONVERSION_WARNING),
-        backgroundColor: Colors.WARNING_ORANGE,
-        iconName: "warning-line",
-        iconColor: Colors.WARNING_SOLID,
-        textColor: Colors.GRAY_800,
+        kind: "warning",
       },
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
