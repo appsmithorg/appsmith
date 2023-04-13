@@ -1,12 +1,12 @@
 /// <reference types="Cypress" />
 
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-const generatePage = require("../../../../locators/GeneratePage.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const formControls = require("../../../../locators/FormControl.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import { WIDGET } from "../../../../locators/WidgetLocators";
+const queryLocators = require("../../../locators/QueryEditor.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
+const generatePage = require("../../../locators/GeneratePage.json");
+const commonlocators = require("../../../locators/commonlocators.json");
+const formControls = require("../../../locators/FormControl.json");
+import * as _ from "../../../support/Objects/ObjectsCore";
+import { WIDGET } from "../../../locators/WidgetLocators";
 
 let datasourceName;
 

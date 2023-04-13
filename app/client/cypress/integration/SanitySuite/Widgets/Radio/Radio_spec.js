@@ -1,8 +1,8 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const dsl = require("../../../../fixtures/newFormDsl.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Radio Widget Functionality", function () {
   before(() => {
