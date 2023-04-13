@@ -1,9 +1,9 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const dsl = require("../../../../fixtures/chartUpdatedDsl.json");
+const modalWidgetPage = require("../../../../locators/ModalWidget.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Chart Widget Functionality", function () {
   before(() => {

@@ -1,4 +1,4 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
