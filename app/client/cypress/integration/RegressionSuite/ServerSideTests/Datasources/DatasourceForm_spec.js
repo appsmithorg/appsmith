@@ -1,5 +1,5 @@
-const testdata = require("../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+const testdata = require("../../../..fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSource = ObjectsRegistry.DataSources,

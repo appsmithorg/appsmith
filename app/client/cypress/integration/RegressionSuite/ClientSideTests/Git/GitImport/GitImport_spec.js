@@ -1,13 +1,13 @@
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
-import homePage from "../../../../locators/HomePage";
-import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-const commonlocators = require("../../../../locators/commonlocators.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import homePage from "../../../../../locators/HomePage";
+import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
 const jsObject = "JSObject1";
 let newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function () {
   before(() => {
