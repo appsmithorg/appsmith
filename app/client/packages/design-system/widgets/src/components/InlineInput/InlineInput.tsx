@@ -33,7 +33,6 @@ export function InlineInput(props: InlineInputProps) {
             <Text> {label}</Text>
           </label>
         )}
-
         {description && <span className="description">{description}</span>}
         {error && error !== "boolean" && <span className="error">{error}</span>}
       </div>
