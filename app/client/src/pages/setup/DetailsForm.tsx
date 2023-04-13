@@ -44,59 +44,54 @@ export default function DetailsForm(
 
   const isFirstPage = () => formState === 0;
 
-  const callOnNext = () => {
-    if (props.onNext) props.onNext();
-  };
-
   return (
     <DetailsFormWrapper ref={ref}>
       <StyledFormBodyWrapper>
-        {isFirstPage() && (
-          <div>
-            <StyledFormGroup
-              className="t--welcome-form-full-name"
-              label={createMessage(WELCOME_FORM_FULL_NAME)}
-            >
-              <FormTextField
-                autoFocus
-                name="name"
-                placeholder="John Doe"
-                type="text"
-              />
-            </StyledFormGroup>
-            <StyledFormGroup
-              className="t--welcome-form-email"
-              label={createMessage(WELCOME_FORM_EMAIL_ID)}
-            >
-              <FormTextField
-                name="email"
-                placeholder="How can we reach you?"
-                type="email"
-              />
-            </StyledFormGroup>
-            <StyledFormGroup
-              className="t--welcome-form-password"
-              label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
-            >
-              <FormTextField
-                name="password"
-                placeholder="Make it strong!"
-                type="password"
-              />
-            </StyledFormGroup>
-            <StyledFormGroup
-              className="t--welcome-form-verify-password"
-              label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
-            >
-              <FormTextField
-                data-testid="verifyPassword"
-                name="verifyPassword"
-                placeholder="Type correctly"
-                type="password"
-              />
-            </StyledFormGroup>
-          </div>
-        )}
+        <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
+          <StyledFormGroup
+            className="t--welcome-form-full-name"
+            label={createMessage(WELCOME_FORM_FULL_NAME)}
+          >
+            <FormTextField
+              autoFocus
+              name="name"
+              placeholder="John Doe"
+              type="text"
+            />
+          </StyledFormGroup>
+          <StyledFormGroup
+            className="t--welcome-form-email"
+            label={createMessage(WELCOME_FORM_EMAIL_ID)}
+          >
+            <FormTextField
+              name="email"
+              placeholder="How can we reach you?"
+              type="email"
+            />
+          </StyledFormGroup>
+          <StyledFormGroup
+            className="t--welcome-form-password"
+            label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
+          >
+            <FormTextField
+              name="password"
+              placeholder="Make it strong!"
+              type="password"
+            />
+          </StyledFormGroup>
+          <StyledFormGroup
+            className="t--welcome-form-verify-password"
+            label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
+          >
+            <FormTextField
+              data-testid="verifyPassword"
+              name="verifyPassword"
+              placeholder="Type correctly"
+              type="password"
+            />
+          </StyledFormGroup>
+        </div>
+
         {!isFirstPage() && (
           <div>
             <DropdownWrapper
@@ -153,12 +148,12 @@ export default function DetailsForm(
             className="t--welcome-form-next-button"
             disabled={props.invalid}
             onClick={() => {
-              isFirstPage() ? setFormState(1) : callOnNext();
+              if (isFirstPage()) setFormState(1);
             }}
             size={Size.large}
             tag="button"
             text={isFirstPage() ? "Continue" : "Get Started"}
-            type="button"
+            type={isFirstPage() ? "button" : "submit"}
             width="100%"
           />
         </ButtonWrapper>
