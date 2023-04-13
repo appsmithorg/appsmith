@@ -1,5 +1,5 @@
-import { WIDGET, getWidgetSelector } from "../../../../locators/WidgetLocators";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { WIDGET, getWidgetSelector } from "../../../locators/WidgetLocators";
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("JSObject testing", () => {
   before(() => {
