@@ -252,6 +252,7 @@ describe("Debugger logs", function () {
 
     // Run function and verify logs are visible
     agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(logString);
   });
 
@@ -437,7 +438,6 @@ describe("Debugger logs", function () {
     });
 
     ee.SelectEntityByName("Page1", "Pages");
-    agHelper.GetNClick(".t--debugger");
     agHelper.GetNClick(locator._errorTab);
 
     debuggerHelper.ClicklogEntityLink(0);

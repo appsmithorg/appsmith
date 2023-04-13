@@ -39,6 +39,10 @@ const TopBorder = styled.div`
   margin-bottom: 24px;
 `;
 
+const SectionContentWrapper = styled.div`
+  padding: 0 20px;
+`;
+
 interface ComponentProps {
   children: any;
   title: string;
@@ -82,32 +86,34 @@ function Collapsible(props: Props) {
   return (
     <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
-      {showSection && (
-        <SectionContainer
-          className="t--collapse-section-container"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <SectionLabel>
-            {title}
-            {headerIcon && (
-              <AdsIcon
-                fillColor={headerIcon.color}
-                name={headerIcon.name}
-                size={IconSize.MEDIUM}
-              />
-            )}
-          </SectionLabel>
-          <Icon
-            icon={isOpen ? "chevron-up" : "chevron-down"}
-            iconSize={16}
-            style={{ color: "#2E3D49" }}
-          />
-        </SectionContainer>
-      )}
+      <SectionContentWrapper>
+        {showSection && (
+          <SectionContainer
+            className="t--collapse-section-container"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <SectionLabel>
+              {title}
+              {headerIcon && (
+                <AdsIcon
+                  fillColor={headerIcon.color}
+                  name={headerIcon.name}
+                  size={IconSize.MEDIUM}
+                />
+              )}
+            </SectionLabel>
+            <Icon
+              icon={isOpen ? "chevron-up" : "chevron-down"}
+              iconSize={16}
+              style={{ color: "#2E3D49" }}
+            />
+          </SectionContainer>
+        )}
 
-      <Collapse isOpen={isOpen} keepChildrenMounted>
-        {children}
-      </Collapse>
+        <Collapse isOpen={isOpen} keepChildrenMounted>
+          {children}
+        </Collapse>
+      </SectionContentWrapper>
     </section>
   );
 }

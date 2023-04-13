@@ -54,6 +54,7 @@ function info(
     timestamp,
     category,
     occurrenceCount: 1,
+    isExpanded: false,
   });
 }
 
@@ -68,6 +69,7 @@ function warning(
     timestamp,
     category,
     occurrenceCount: 1,
+    isExpanded: false,
   });
 }
 
@@ -85,6 +87,7 @@ function error(
     timestamp,
     category,
     occurrenceCount: 1,
+    isExpanded: false,
   });
 }
 
@@ -97,6 +100,7 @@ function addErrors(errors: ErrorObject[]) {
     timestamp: Date.now().toString(),
     occurrenceCount: 1,
     category: error.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
+    isExpanded: false,
   }));
 
   dispatchAction(addErrorLogInit(refinedErrors));
