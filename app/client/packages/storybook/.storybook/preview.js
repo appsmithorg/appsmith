@@ -11,7 +11,10 @@ export const parameters = {
       date: /Date$/,
     },
   },
+  backgrounds: {
+    disable: true,
+  },
   layout: "centered",
 };
 
-export const decorators = [theming];
+export const decorators = [theming, resizor];

@@ -22,6 +22,7 @@ export const Checkbox = forwardRef<HeadlessCheckboxRef, CheckboxProps>(
       description,
       error,
       id: defaultId,
+      isDisabled,
       label,
       labelPosition = "right",
       ...rest
@@ -34,10 +35,11 @@ export const Checkbox = forwardRef<HeadlessCheckboxRef, CheckboxProps>(
         description={description}
         error={error}
         id={id}
+        isDisabled={isDisabled}
         label={<Text>{label}</Text>}
         labelPosition={labelPosition}
       >
-        <StyledCheckbox id={id} ref={ref} {...rest} />
+        <StyledCheckbox id={id} isDisabled={isDisabled} ref={ref} {...rest} />
       </InlineInput>
     );
   },

@@ -13,8 +13,8 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
     height: 20px;
     border-width: 1px;
     border-style: solid;
-    border-radius: var(--wds-v2-radii);
-    border-color: var(--color-bd-accent);
+    border-radius: var(--border-radius-1);
+    border-color: var(--color-bd-neutral);
     color: transparent;
     display: inline-flex;
     align-items: center;
@@ -36,8 +36,8 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
     cursor: default;
   }
 
-  &:hover &:not(:disabled) + .icon {
-    border-color: var(--color-border-hover);
+  &:hover input:not(:disabled) + .icon {
+    border-color: var(--color-bd-neutral-hover);
   }
 
   /**
@@ -45,8 +45,8 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
  * CHECKED  AND INDETERMINATE - BUT NOT DISABLED
  *-----------------------------------------------------------------------------
  */
-  input:checked:not(:disabled) + .icon,
-  input:indeterminate:not(:disabled) + .icon {
+  input:checked + .icon,
+  input:indeterminate + .icon {
     background-color: var(--color-bg-accent);
     border-color: var(--color-bg-accent);
     color: white;
@@ -60,22 +60,16 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
   }
 
   /**
- * ----------------------------------------------------------------------------
- * DISABLED
- *-----------------------------------------------------------------------------
- */
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
   input:disabled {
     cursor: not-allowed;
   }
 
   input:disabled + .icon {
-    background-color: var(--color-bg-disabled);
-    border-color: var(--color-border-disabled);
-  }
-
-  input:checked:disabled + .icon,
-  input:indeterminate:disabled + .icon {
-    color: var(--wds-color-bg-disabled-strong);
+    opacity: var(--opacity-disabled);
   }
 
   /**
@@ -93,10 +87,10 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
  *-----------------------------------------------------------------------------
  */
   input[aria-invalid] + .icon {
-    border-color: var(--wds-color-border-danger);
+    border-color: var(--color-bd-negative);
   }
 
   &:hover input[aria-invalid] + .icon {
-    border-color: var(--wds-color-border-danger-hover);
+    border-color: var(--color-bd-negative-hover);
   }
 `;

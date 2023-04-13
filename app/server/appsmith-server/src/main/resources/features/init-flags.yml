@@ -105,8 +105,8 @@ ff4j:
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com
+          - name: emails
+            value: raksha@appsmith.com,ankita@appsmith.com,nilesh@appsmith.com,akhil@appsmith.com,trisha@appsmith.com
 
     - uid: LAZY_CANVAS_RENDERING
       enable: true

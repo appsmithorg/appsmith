@@ -1,6 +1,6 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import type { InlineInputProps } from "@design-system/headless";
+import type { InlineInputProps } from ".";
 import { InlineInput as HeadlessInlineInput } from "@design-system/headless";
 
 /**
@@ -19,8 +19,16 @@ export const StyledInlineInput = styled(HeadlessInlineInput).withConfig({
 })<InlineInputProps>`
   display: flex;
   gap: var(--spacing-2);
-  flex-direction: ${({ labelPosition }) =>
-    labelPosition === "left" ? "row-reverse" : "row"};
+  width: 100%;
+
+  ${({ labelPosition }) => css`
+    flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
+    justify-content: ${
+      labelPosition === "left" ? "space-between" : "flex-start"
+    }};
+  `};
+
+  /* disabled */
 
   .label-wrapper {
     display: inline-flex;
@@ -35,6 +43,10 @@ export const StyledInlineInput = styled(HeadlessInlineInput).withConfig({
     min-height: 20px;
     display: flex;
     align-items: center;
+
+    &[data-disabled="true"] {
+      opacity: var(--opacity-disabled);
+    }
   }
 
   .error {
