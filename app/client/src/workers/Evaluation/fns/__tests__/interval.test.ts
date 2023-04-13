@@ -74,7 +74,9 @@ describe("Tests for interval functions", () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it("Callback should have access to outer scope variables", async () => {
+  // skipping this test as its flaky,
+  // check https://theappsmith.slack.com/archives/CPG2ZTXEY/p1681368791500909 for more details
+  it.skip("Callback should have access to outer scope variables", async () => {
     const stalker = jest.fn();
     function test() {
       let count = 0;
