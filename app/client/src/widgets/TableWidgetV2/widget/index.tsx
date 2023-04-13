@@ -45,6 +45,7 @@ import {
   InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   TABLE_COLUMN_ORDER_KEY,
+  PaginationDirection,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -167,6 +168,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isAddRowInProgress: false,
       newRowContent: undefined,
       newRow: undefined,
+      previousPageVisited: false,
+      nextPageVisited: false,
     };
   }
 
@@ -576,20 +579,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!pageNo) {
       pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
 
     //check if pageNo does not excede the max Page no, due to change of totalRecordsCount
-    if (serverSidePaginationEnabled && totalRecordsCount) {
-      const maxAllowedPageNumber = Math.ceil(totalRecordsCount / pageSize);
-
-      if (pageNo > maxAllowedPageNumber) {
-        pushBatchMetaUpdates("pageNo", maxAllowedPageNumber);
-      }
-    } else if (
-      serverSidePaginationEnabled !== prevProps.serverSidePaginationEnabled
-    ) {
+    if (serverSidePaginationEnabled !== prevProps.serverSidePaginationEnabled) {
       //reset pageNo when serverSidePaginationEnabled is toggled
       pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
+    } else {
+      //check if pageNo does not excede the max Page no, due to change of totalRecordsCount or change of pageSize
+      if (serverSidePaginationEnabled && totalRecordsCount) {
+        const maxAllowedPageNumber = Math.ceil(totalRecordsCount / pageSize);
+
+        if (pageNo > maxAllowedPageNumber) {
+          pushBatchMetaUpdates("pageNo", maxAllowedPageNumber);
+          this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
+        }
+      }
     }
 
     /*
@@ -614,6 +621,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (pageSize !== prevProps.pageSize) {
       if (onPageSizeChange) {
+        this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
         pushBatchMetaUpdates("pageNo", 1, {
           triggerPropertyName: "onPageSizeChange",
           dynamicString: onPageSizeChange,
@@ -623,6 +631,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         });
       } else {
         pushBatchMetaUpdates("pageNo", 1);
+        this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
       }
     }
   };
@@ -744,6 +753,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // Reset Page only when a filter is added
     if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {
       pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
     commitBatchMetaUpdates();
   };
@@ -1063,6 +1073,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     pushBatchMetaUpdates("pageNo", 1);
+    this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
+
     pushBatchMetaUpdates("searchText", searchKey, {
       triggerPropertyName: "onSearchTextChanged",
       dynamicString: onSearchTextChanged,
@@ -1215,6 +1227,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   updatePageNumber = (pageNo: number, event?: EventType) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
+    const paginationDirection =
+      event == EventType.ON_NEXT_PAGE
+        ? PaginationDirection.NEXT_PAGE
+        : PaginationDirection.PREVIOUS_PAGE;
+    this.updatePaginationDirectionFlags(paginationDirection);
+
     if (event) {
       pushBatchMetaUpdates("pageNo", pageNo, {
         triggerPropertyName: "onPageChange",
@@ -1233,9 +1251,39 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
+  updatePaginationDirectionFlags = (direction?: PaginationDirection) => {
+    const { pushBatchMetaUpdates } = this.props;
+
+    let previousButtonFlag = false;
+    let nextButtonFlag = false;
+
+    if (direction) {
+      switch (direction) {
+        case PaginationDirection.INITIAL: {
+          previousButtonFlag = false;
+          nextButtonFlag = false;
+          break;
+        }
+        case PaginationDirection.NEXT_PAGE: {
+          nextButtonFlag = true;
+          break;
+        }
+        case PaginationDirection.PREVIOUS_PAGE: {
+          previousButtonFlag = true;
+          break;
+        }
+      }
+    }
+
+    pushBatchMetaUpdates("previousPageVisited", previousButtonFlag);
+    pushBatchMetaUpdates("nextPageVisited", nextButtonFlag);
+  };
+
   handleNextPageClick = () => {
     const pageNo = (this.props.pageNo || 1) + 1;
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
 
     pushBatchMetaUpdates("pageNo", pageNo, {
       triggerPropertyName: "onPageChange",
@@ -1282,6 +1330,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (pageNo >= 1) {
+      this.updatePaginationDirectionFlags(PaginationDirection.PREVIOUS_PAGE);
       pushBatchMetaUpdates("pageNo", pageNo, {
         triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
@@ -2321,7 +2370,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // New row gets added at the top of page 1 when client side pagination enabled
     if (!this.props.serverSidePaginationEnabled) {
-      pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
 
     //Since we're adding a newRowContent thats not part of tableData, the index changes

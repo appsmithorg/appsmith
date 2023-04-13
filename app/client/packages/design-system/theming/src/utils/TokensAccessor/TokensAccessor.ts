@@ -1,8 +1,9 @@
-import { ColorsAccessor } from "../utils/ColorsAccessor";
 import type { ColorTypes } from "colorjs.io/types/src/color";
-import defaultTokens from "../tokens/defaultTokens.json";
+import { defaultTokens } from "../../";
 import range from "lodash/range";
 import kebabCase from "lodash/kebabCase";
+import { LightScheme } from "./LightScheme";
+import { DarkScheme } from "./DarkScheme";
 
 type TokenType =
   | "sizing"
@@ -13,12 +14,14 @@ type TokenType =
   | "borderWidth"
   | "opacity";
 
+type ColorScheme = "light" | "dark";
+
 type Token = {
   value: string | number;
   type: TokenType;
 };
 
-type ThemeTokens = {
+export type ThemeTokens = {
   [key in TokenType]: { [key: string]: Token };
 };
 
@@ -27,16 +30,20 @@ type TokenObj = { [key: string]: string | number };
 export class TokensAccessor {
   constructor(
     private color: ColorTypes = defaultTokens.seedColor,
+    private colorScheme: ColorScheme = defaultTokens.colorScheme as ColorScheme,
     private rootUnit: number = defaultTokens.rootUnit,
     private borderRadius: TokenObj = defaultTokens.borderRadius,
     private boxShadow: TokenObj = defaultTokens.boxShadow,
     private borderWidth: TokenObj = defaultTokens.borderWidth,
     private opacity: TokenObj = defaultTokens.opacity,
-    private colorsAccessor: ColorsAccessor = new ColorsAccessor(color),
   ) {}
 
   updateSeedColor = (color: ColorTypes) => {
-    this.colorsAccessor.updateColor(color);
+    this.color = color;
+  };
+
+  updateColorScheme = (colorScheme: ColorScheme) => {
+    this.colorScheme = colorScheme;
   };
 
   updateBorderRadius = (borderRadius: TokenObj) => {
@@ -44,20 +51,36 @@ export class TokensAccessor {
     this.createTokenObject(this.borderRadius, "borderRadius");
   };
 
-  getColors = () => {
-    const colors = {
-      bgAccent: this.getBgAccent(),
-      bgAccentHover: this.getBgAccentHover(),
-      bgAccentActive: this.getBgAccentActive(),
-      bgAccentSubtleHover: this.getBgAccentSubtleHover(),
-      bgAccentSubtleActive: this.getAccentSubtleActive(),
-      bdAccent: this.getBdAccent(),
-      fgAccent: this.getFgAccent(),
-      fgOnAccent: this.getFgOnAccent(),
-      bdFocus: this.getBdFocus(),
+  getAllTokens = () => {
+    return {
+      ...this.getColors(),
+      ...this.getSizing(),
+      ...this.getSpacing(),
+      ...this.getBorderRadius(),
+      ...this.getBoxShadow(),
+      ...this.getBorderWidth(),
+      ...this.getOpacity(),
     };
+  };
 
-    return this.createTokenObject(colors, "color");
+  getColors = () => {
+    switch (true) {
+      case this.isLightMode:
+        return this.createTokenObject(
+          new LightScheme(this.color).getColors(),
+          "color",
+        );
+      case this.isDarkMode:
+        return this.createTokenObject(
+          new DarkScheme(this.color).getColors(),
+          "color",
+        );
+      default:
+        return this.createTokenObject(
+          new LightScheme(this.color).getColors(),
+          "color",
+        );
+    }
   };
 
   getSizing = () => {
@@ -95,17 +118,13 @@ export class TokensAccessor {
     return this.createTokenObject(this.opacity, "opacity");
   };
 
-  getAllTokens = () => {
-    return {
-      ...this.getColors(),
-      ...this.getSizing(),
-      ...this.getSpacing(),
-      ...this.getBorderRadius(),
-      ...this.getBoxShadow(),
-      ...this.getBorderWidth(),
-      ...this.getOpacity(),
-    };
-  };
+  private get isLightMode() {
+    return this.colorScheme === "light";
+  }
+
+  private get isDarkMode() {
+    return this.colorScheme === "dark";
+  }
 
   private createTokenObject = (
     tokenObj: TokenObj,
@@ -124,41 +143,5 @@ export class TokensAccessor {
     });
 
     return themeTokens;
-  };
-
-  private getBgAccent = () => {
-    return this.colorsAccessor.getHex();
-  };
-
-  private getBgAccentHover = () => {
-    return this.colorsAccessor.lighten(this.getBgAccent());
-  };
-
-  private getBgAccentActive = () => {
-    return this.colorsAccessor.lighten(this.getBgAccentHover());
-  };
-
-  private getBgAccentSubtleHover = () => {
-    return this.colorsAccessor.lighten(this.getBgAccent(), 0.3);
-  };
-
-  private getAccentSubtleActive = () => {
-    return this.colorsAccessor.lighten(this.getBgAccentSubtleHover());
-  };
-
-  private getBdAccent = () => {
-    return this.colorsAccessor.getHex();
-  };
-
-  private getFgAccent = () => {
-    return this.colorsAccessor.getHex();
-  };
-
-  private getFgOnAccent = () => {
-    return this.colorsAccessor.getComplementaryGrayscale();
-  };
-
-  private getBdFocus = () => {
-    return this.colorsAccessor.getFocus();
   };
 }
