@@ -215,3 +215,8 @@ export function isAutoLayout() {
   const appState = store.getState();
   return !!getIsAutoLayout(appState);
 }
+
+export function getMinHeightInRows(widget: any, canvasWidth: number): number {
+  const res = getWidgetMinMaxDimensionsInPixel(widget, canvasWidth);
+  return res.minHeight ? res.minHeight / widget.parentRowSpace : 0;
+}

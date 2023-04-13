@@ -16,7 +16,12 @@ import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getLayoutTree } from "./layoutTree";
-import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  getWidgetsForBreakpoint,
+} from "selectors/editorSelectors";
+import { getMinHeightInRows } from "utils/autoLayout/flexWidgetUtils";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,
@@ -74,17 +79,30 @@ export function* dynamicallyUpdateContainersSaga(
         if (childWidgetId !== canvasWidget.widgetId) {
           continue;
         }
-
+        const isAutoLayout: boolean = yield select(getIsAutoLayout);
+        const mainCanvasWidth: number = yield select(getCanvasWidth);
+        const widgetMinHeightInRows: number = getMinHeightInRows(
+          parentContainerWidget,
+          mainCanvasWidth,
+        );
         // Get the boundaries for possible min and max dynamic height.
-        const minDynamicHeightInRows = getWidgetMinAutoHeight(
+        let minDynamicHeightInRows = getWidgetMinAutoHeight(
           parentContainerWidget,
         );
         const maxDynamicHeightInRows = getWidgetMaxAutoHeight(
           parentContainerWidget,
         );
 
+        if (isAutoLayout)
+          minDynamicHeightInRows = Math.max(
+            minDynamicHeightInRows,
+            widgetMinHeightInRows,
+          );
+
         // Default to the min height expected.
-        let maxBottomRow = minDynamicHeightInRows;
+        let maxBottomRow: number = minDynamicHeightInRows
+          ? minDynamicHeightInRows
+          : 0;
 
         // For widgets like Tabs Widget, some of the height is occupied by the
         // tabs themselves, the child canvas as a result has less number of rows available
