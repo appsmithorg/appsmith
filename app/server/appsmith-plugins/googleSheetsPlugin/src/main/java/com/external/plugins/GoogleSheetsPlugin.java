@@ -26,7 +26,6 @@ import com.external.config.TriggerMethod;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.plugins.exceptions.GSheetsPluginError;
-import static com.external.utils.SheetsUtil.getUserAuthorizedSheetIds;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +57,7 @@ import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.utils.SheetsUtil.getUserAuthorizedSheetIds;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -450,7 +450,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             return properties;
         }
 
-        private Mono<String> fetchEmailAddressFromGoogleAPI(String accessToken) {
+        public Mono<String> fetchEmailAddressFromGoogleAPI(String accessToken) {
 
             WebClient client = WebClientUtils.builder().build();
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
