@@ -284,7 +284,7 @@ function ApiRightPane(props: any) {
                                 );
                               }}
                               size="sm"
-                              startIcon="edit"
+                              startIcon="pencil-fill-icon"
                             />
                           </TagContainer>
                         </DataSourceNameContainer>

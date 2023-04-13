@@ -6,7 +6,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Icon, toast } from "design-system";
+import { Button, toast } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -111,6 +111,10 @@ const TextContainer = styled.div<{
   & span.bp3-editable-text-content {
     height: auto !important;
   }
+
+  //&& .t--action-name-edit-icon {
+  //  width: 36px;
+  //}
 `;
 
 export function EditableText(props: EditableTextProps) {
@@ -248,7 +252,15 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon className="t--action-name-edit-icon" name="edit" size="md" />
+            // TODO: Why is the width 0 even though it's set to 36?
+            <Button
+              className="t--action-name-edit-icon"
+              isIconButton
+              kind="tertiary"
+              // onClick={() => console.log("stuff")}
+              size="md"
+              startIcon="pencil-fill-icon"
+            />
           )}
         </TextContainer>
       </ErrorTooltip>
