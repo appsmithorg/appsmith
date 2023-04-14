@@ -10,16 +10,19 @@ import { InlineInput } from "../InlineInput";
 import { StyledCheckbox } from "./index.styled";
 import type { InlineInputProps } from "../InlineInput";
 
-export type CheckboxProps = HeadlessCheckboxProps & InlineInputProps;
+export type CheckboxProps = HeadlessCheckboxProps &
+  Omit<InlineInputProps, "label"> & {
+    children?: React.ReactNode;
+  };
 
 export const Checkbox = forwardRef<HeadlessCheckboxRef, CheckboxProps>(
   (props, ref) => {
     const {
+      children,
       description,
       error,
       id: defaultId,
       isDisabled,
-      label,
       labelAlignment = "left",
       labelPosition = "right",
       ...rest
@@ -33,7 +36,7 @@ export const Checkbox = forwardRef<HeadlessCheckboxRef, CheckboxProps>(
         error={error}
         id={id}
         isDisabled={isDisabled}
-        label={label}
+        label={children}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
       >

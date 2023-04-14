@@ -6,7 +6,7 @@ import { Checkbox } from "./";
   title="Design-system/widgets/Checkbox"
   component={Checkbox}
   args={{
-    label: "Check me",
+    children: "Check me",
     error: "",
     description: "",
   }}
@@ -30,7 +30,7 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story
     name="State - unchecked"
     args={{
-      label: "Unchecked",
+      children: "Unchecked",
     }}
   >
     {Template.bind({})}
@@ -39,7 +39,7 @@ Checkbox is a component that allows the user to select one or more options from 
     name="State - Default Checked"
     args={{
       defaultSelected: true,
-      label: "Checked",
+      qchildren: "Checked",
     }}
   >
     {Template.bind({})}
@@ -48,7 +48,7 @@ Checkbox is a component that allows the user to select one or more options from 
     name="State - Disabled"
     args={{
       defaultSelected: true,
-      label: "Disabled",
+      children: "Disabled",
       isDisabled: true,
     }}
   >
@@ -57,7 +57,7 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story
     name="State - Disabled unchecked"
     args={{
-      label: "Disabled unchecked",
+      children: "Disabled unchecked",
       isDisabled: true,
     }}
   >
@@ -66,7 +66,7 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story
     name="State - indeterminate"
     args={{
-      label: "Disabled indeterminate",
+      children: "Disabled indeterminate",
       defaultSelected: true,
       isIndeterminate: true,
     }}
@@ -76,7 +76,7 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story
     name="State - Disabled indeterminate"
     args={{
-      label: "Disabled indeterminate",
+      children: "Disabled indeterminate",
       isDisabled: true,
       defaultSelected: true,
       isIndeterminate: true,
@@ -87,7 +87,7 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story
     name="State - Error"
     args={{
-      label: "Error",
+      children: "Error",
       validationState: "invalid",
     }}
   >
@@ -105,7 +105,7 @@ Checkbox is a component that allows the user to select one or more options from 
     name="Label Position - Left"
     args={{
       labelPosition: "left",
-      label: "Label Position - Left",
+      children: "Label Position - Left",
     }}
   >
     {Template.bind({})}
@@ -117,7 +117,7 @@ Checkbox is a component that allows the user to select one or more options from 
     name="Label Position - Right"
     args={{
       labelPosition: "right",
-      label: "Label Position - Right",
+      children: "Label Position - Right",
     }}
   >
     {Template.bind({})}
@@ -153,7 +153,7 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story
     name="State - Custom Icon"
     args={{
-      label: "Custom Icon",
+      children: "Custom Icon",
       icon: <EmotionHappyLineIcon />,
     }}
   >
