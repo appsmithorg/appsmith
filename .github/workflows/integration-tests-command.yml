@@ -168,7 +168,7 @@ jobs:
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Identified Flaky tests</a>
+            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
       - name: Add a comment on the PR when ci-test is success
         if: needs.ci-test.result == 'success'

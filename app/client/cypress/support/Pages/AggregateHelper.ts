@@ -1054,8 +1054,12 @@ export class AggregateHelper {
     return this.GetElement(selector).should("not.be.focused");
   }
 
-  public AssertElementVisible(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
+  public AssertElementVisible(
+    selector: ElementType,
+    index = 0,
+    timeout = 20000,
+  ) {
+    return this.GetElement(selector, timeout)
       .eq(index)
       .scrollIntoView()
       .should("be.visible");

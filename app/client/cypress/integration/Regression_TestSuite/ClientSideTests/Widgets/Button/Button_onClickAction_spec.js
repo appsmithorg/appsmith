@@ -18,7 +18,7 @@ describe("Button Widget Functionality", function () {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName, "onClick");
     cy.PublishtheApp();
-    cy.wait(3000); //for page to load fully
+    cy.wait(5000); //for page to load fully - for CI exclusively
     cy.get(publishPage.buttonWidget).should("be.visible");
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
