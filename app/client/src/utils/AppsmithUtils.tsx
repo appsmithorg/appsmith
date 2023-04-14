@@ -219,10 +219,18 @@ export const createNewQueryName = (
   queries: ActionDataState,
   pageId: string,
 ) => {
+  const newName = createNewQueryNameFromPrefix(queries, pageId, "Query");
+  return newName;
+};
+export const createNewQueryNameFromPrefix = (
+  queries: ActionDataState,
+  pageId: string,
+  prefix: string,
+) => {
   const pageApiNames = queries
     .filter((a) => a.config.pageId === pageId)
     .map((a) => a.config.name);
-  const newName = getNextEntityName("Query", pageApiNames);
+  const newName = getNextEntityName(prefix, pageApiNames);
   return newName;
 };
 

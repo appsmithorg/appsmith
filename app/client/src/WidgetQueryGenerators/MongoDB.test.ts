@@ -1,7 +1,6 @@
 import MongoDB from "./MongoDB";
 
 describe("WidgetQueryGenerator", () => {
-  const mongoDb = new MongoDB();
   const initialValues = {
     actionConfiguration: {
       formData: {
@@ -14,7 +13,7 @@ describe("WidgetQueryGenerator", () => {
     },
   };
   test("should build select form data correctly", () => {
-    const expr = mongoDb.build(
+    const expr = MongoDB.build(
       {
         select: {
           limit: "{{data_table.pageSize}}",
@@ -38,27 +37,30 @@ describe("WidgetQueryGenerator", () => {
     );
     expect(expr).toEqual([
       {
-        formData: {
-          collection: {
-            data: "someTable",
-          },
-          smartSubstitution: { data: true },
-          aggregate: { limit: { data: "10" } },
-          command: {
-            data: "FIND",
-          },
-          find: {
-            limit: {
-              data: "{{data_table.pageSize}}",
+        actionTitle: "Find_query",
+        actionPayload: {
+          formData: {
+            collection: {
+              data: "someTable",
             },
-            query: {
-              data: '{ title: {{data_table.searchText||""}}/i }',
+            smartSubstitution: { data: true },
+            aggregate: { limit: { data: "10" } },
+            command: {
+              data: "FIND",
             },
-            skip: {
-              data: "{{(data_table.pageNo - 1) * data_table.pageSize}}",
-            },
-            sort: {
-              data: "{ {{data_table.sortOrder.column || 'genres'}}: {{data_table.sortOrder.order == \"desc\" ? -1 : 1}} }",
+            find: {
+              limit: {
+                data: "{{data_table.pageSize}}",
+              },
+              query: {
+                data: '{ title: {{data_table.searchText||""}}/i }',
+              },
+              skip: {
+                data: "{{(data_table.pageNo - 1) * data_table.pageSize}}",
+              },
+              sort: {
+                data: "{ {{data_table.sortOrder.column || 'genres'}}: {{data_table.sortOrder.order == \"desc\" ? -1 : 1}} }",
+              },
             },
           },
         },
@@ -67,7 +69,7 @@ describe("WidgetQueryGenerator", () => {
   });
 
   test("should build update form data correctly ", () => {
-    const expr = mongoDb.build(
+    const expr = MongoDB.build(
       {
         config: {
           tableName: "someTable",
@@ -89,22 +91,25 @@ describe("WidgetQueryGenerator", () => {
 
     expect(expr).toEqual([
       {
-        formData: {
-          collection: {
-            data: "someTable",
-          },
-          command: {
-            data: "UPDATE",
-          },
-          aggregate: { limit: { data: "10" } },
-          smartSubstitution: { data: true },
-          updateMany: {
-            query: {
-              data: "{ $inc: { score: 1 } }",
+        actionTitle: "Update_query",
+        actionPayload: {
+          formData: {
+            collection: {
+              data: "someTable",
             },
-            limit: { data: "SINGLE" },
-            update: {
-              data: "{rating : {$gte : 9}}",
+            command: {
+              data: "UPDATE",
+            },
+            aggregate: { limit: { data: "10" } },
+            smartSubstitution: { data: true },
+            updateMany: {
+              query: {
+                data: "{ $inc: { score: 1 } }",
+              },
+              limit: { data: "SINGLE" },
+              update: {
+                data: "{rating : {$gte : 9}}",
+              },
             },
           },
         },
@@ -112,7 +117,7 @@ describe("WidgetQueryGenerator", () => {
     ]);
   });
   test("should build insert form data correctly ", () => {
-    const expr = mongoDb.build(
+    const expr = MongoDB.build(
       {
         config: {
           tableName: "someTable",
@@ -132,18 +137,21 @@ describe("WidgetQueryGenerator", () => {
     );
     expect(expr).toEqual([
       {
-        formData: {
-          collection: {
-            data: "someTable",
-          },
-          aggregate: { limit: { data: "10" } },
-          smartSubstitution: { data: true },
-          command: {
-            data: "INSERT",
-          },
-          insert: {
-            documents: {
-              data: "{{insert_form.formData}}",
+        actionTitle: "Insert_query",
+        actionPayload: {
+          formData: {
+            collection: {
+              data: "someTable",
+            },
+            aggregate: { limit: { data: "10" } },
+            smartSubstitution: { data: true },
+            command: {
+              data: "INSERT",
+            },
+            insert: {
+              documents: {
+                data: "{{insert_form.formData}}",
+              },
             },
           },
         },

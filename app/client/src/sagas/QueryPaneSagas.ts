@@ -6,7 +6,6 @@ import {
   take,
   takeEvery,
   fork,
-  takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
@@ -37,21 +36,15 @@ import {
   getPlugin,
   getEditorConfig,
   getSettingConfig,
-  getActions,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
 } from "selectors/entitiesSelector";
-import type { Action, ApiActionConfig, QueryAction } from "entities/Action";
-import { isGraphqlPlugin, PluginType } from "entities/Action";
+import type { Action, QueryAction } from "entities/Action";
+import { PluginType } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import {
-  createNewApiName,
-  createNewQueryName,
-  getNextEntityName,
-} from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -71,7 +64,6 @@ import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
@@ -81,8 +73,6 @@ import {
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
@@ -90,11 +80,7 @@ import { validateResponse } from "./ErrorSagas";
 import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
-import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
-import {
-  createAction,
-  getCreateActionAllDefaultValuesByPluginId,
-} from "./ActionSagas";
+import { createActionPayloadWithDefaults } from "./ActionSagas";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -449,140 +435,6 @@ function* handleNameChangeSuccessSaga(
   }
 }
 
-function* createActionPayloadWithDefaults(
-  action: ReduxAction<{
-    pageId: string;
-    datasourceId: string;
-    from: EventLocation;
-  }>,
-) {
-  const { datasourceId, pageId } = action.payload;
-
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const actions: ActionDataState = yield select(getActions);
-
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  const pluginType: PluginType = plugin?.type;
-  const isGraphql: boolean = isGraphqlPlugin(plugin);
-
-  // If the datasource is Graphql then get Graphql default config else Api config
-  const DEFAULT_CONFIG = isGraphql
-    ? DEFAULT_GRAPHQL_ACTION_CONFIG
-    : DEFAULT_API_ACTION_CONFIG;
-
-  const DEFAULT_HEADERS = isGraphql
-    ? DEFAULT_GRAPHQL_ACTION_CONFIG.headers
-    : DEFAULT_API_ACTION_CONFIG.headers;
-
-  /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
-  const defaultApiActionConfig: ApiActionConfig = {
-    ...DEFAULT_CONFIG,
-    headers: DEFAULT_HEADERS,
-  };
-
-  const newActionName =
-    pluginType === PluginType.DB
-      ? createNewQueryName(actions, pageId || "")
-      : createNewApiName(actions, pageId || "");
-
-  return {
-    name: newActionName,
-    pageId,
-    pluginId: datasource?.pluginId,
-    datasource: {
-      id: datasourceId,
-    },
-    eventData: {
-      actionType: pluginType === PluginType.DB ? "Query" : "API",
-      from: action.payload.from,
-      dataSource: datasource.name,
-    },
-    actionConfiguration:
-      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
-  };
-}
-
-function* createActionsFromFormConfig(
-  action: ReduxAction<{
-    pageId: string;
-    datasourceId: string;
-    formConfig: Record<string, any>;
-    from: EventLocation;
-  }>,
-) {
-  const { datasourceId, formConfig } = action.payload;
-
-  if (!datasourceId) return;
-
-  const createActionPayload: Partial<Action> = yield call(
-    createActionPayloadWithDefaults,
-    action,
-  );
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-
-  const QueryAdaptor = WidgetQueryGeneratorRegistry.get(plugin.packageName);
-
-  const defaultValues: object | undefined = yield call(
-    getCreateActionAllDefaultValuesByPluginId,
-    datasource?.pluginId,
-  );
-
-  const formDataCommands = new QueryAdaptor().build(formConfig, defaultValues);
-  //if there is no actions to be created just return
-  if (!formDataCommands || !formDataCommands.length) {
-    return { status: "success" };
-  }
-
-  //generate next query names
-  const queryNames = formDataCommands.reduce(
-    (acc: Array<string>, curr: any, index: number) => {
-      if (index === 0 && createActionPayload.name) {
-        acc.push(createActionPayload.name);
-        return acc;
-      }
-      const nextName = getNextEntityName("Query", acc);
-      acc.push(nextName);
-      return acc;
-    },
-    [],
-  );
-  //generate action payloads
-  const actionRequestPayloads = formDataCommands.map(
-    (command: object, index: number) => {
-      const payload = merge({}, createActionPayload, {
-        actionConfiguration: command,
-        //merge the next query names to the default payload
-        name: queryNames[index],
-      });
-
-      return createActionRequest(payload);
-    },
-  );
-
-  //call sagas in parallel and get their status
-  const results: {
-    status: string;
-  }[] = yield all(
-    actionRequestPayloads.map(
-      (
-        request: ReduxAction<
-          Partial<Action> & { eventData: any; pluginId: string }
-        >,
-      ) => call(createAction, request),
-    ),
-  );
-
-  const hasAFailureInActionCreations = results.some(
-    (result) => result?.status === "failure",
-  );
-
-  //orchestrator saga can check status of this saga from the returned value
-  if (hasAFailureInActionCreations) {
-    return { status: "failure" };
-  }
-  return { status: "success" };
-}
 /**
  * Creates an action with specific datasource created by a user
  * @param action
@@ -612,10 +464,6 @@ function* handleNameChangeFailureSaga(
 
 export default function* root() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.BUILD_ONE_CLICK_BINDING,
-      createActionsFromFormConfig,
-    ),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
     takeEvery(
       ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,

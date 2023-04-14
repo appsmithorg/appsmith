@@ -22,7 +22,6 @@ import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import { noop } from "utils/AppsmithUtils";
-// import { oneClickBindingBuild } from "actions/oneClickBinding";
 
 const ActionButton = styled(Button)`
   padding: 10px 10px;
@@ -42,30 +41,7 @@ const ActionButton = styled(Button)`
     }
   }
 `;
-// TODO: some dummy data for the sake of testing one click binding
-// const formData = {
-//   select: {
-//     limit: "{{data_table.pageSize}}",
-//     where: '{{data_table.searchText||""}}/i',
-//     offset: "{{(data_table.pageNo - 1) * data_table.pageSize}}",
-//     orderBy: "{{data_table.sortOrder.column || 'genres'}}",
-//     sortOrder: '{{data_table.sortOrder.order == "desc" ? -1 : 1}}',
-//   },
-//   insert: {
-//     value: "{rating : {$gte : 9}}",
-//     where: "{ $inc: { score: 1 } }",
-//   },
-//   config: {
-//     tableName: "someTable",
-//     datasourceId: "someId",
-//     // ignore columns
-//     columns: [{ name: "someColumn1", alias: "someColumn1" }],
-//     widgetId: "someWidgetId",
-//     searchableColumn: "title",
-//   },
-//   version: 0,
-//   recordsCount: false,
-// };
+
 type NewActionButtonProps = {
   datasource?: Datasource;
   disabled?: boolean;
@@ -103,13 +79,6 @@ function NewActionButton(props: NewActionButtonProps) {
       if (currentPageId) {
         setIsSelected(true);
         if (datasource) {
-          // TODO: action for testing one click binding..remove it once the orchestrator saga is ready
-          // oneClickBindingBuild(
-          //   currentPageId,
-          //   props.eventFrom as EventLocation,
-          //   datasource?.id,
-          //   formData,
-          // ),
           dispatch(
             createNewQueryAction(
               currentPageId,
