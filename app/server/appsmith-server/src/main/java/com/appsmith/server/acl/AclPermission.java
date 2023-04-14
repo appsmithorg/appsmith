@@ -94,6 +94,8 @@ public enum AclPermission {
     WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
 
+    // global permission on workspace level to give create actions on all datasources
+    WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS("create:workspaceDatasourceActions", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),

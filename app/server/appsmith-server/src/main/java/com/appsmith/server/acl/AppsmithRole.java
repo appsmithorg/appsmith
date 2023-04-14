@@ -27,6 +27,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
@@ -75,8 +76,7 @@ public enum AppsmithRole {
             FieldName.APPLICATION_DEVELOPER,
             FieldName.APPLICATION_DEVELOPER_DESCRIPTION,
             Set.of(MANAGE_APPLICATIONS, DELETE_APPLICATIONS, READ_APPLICATIONS, APPLICATION_CREATE_PAGES,
-                    MANAGE_DATASOURCES, READ_DATASOURCES, EXECUTE_DATASOURCES, DELETE_DATASOURCES,
-                    CREATE_DATASOURCE_ACTIONS, READ_WORKSPACES)
+                    WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS)
     ),
     /**
      * Default Application Viewer Role
@@ -86,7 +86,7 @@ public enum AppsmithRole {
     APPLICATION_VIEWER(
             FieldName.APPLICATION_VIEWER,
             FieldName.APPLICATION_VIEWER_DESCRIPTION,
-            Set.of(READ_APPLICATIONS, READ_WORKSPACES, EXECUTE_DATASOURCES)
+            Set.of(READ_APPLICATIONS, EXECUTE_DATASOURCES)
     )
     ;
 

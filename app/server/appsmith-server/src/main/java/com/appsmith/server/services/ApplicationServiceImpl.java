@@ -370,7 +370,24 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
 
     private Mono<PermissionGroup> updatePoliciesForApplicationAndRelatedResources(Application application, PermissionGroup applicationRole, String applicationRoleType) {
         Map<String, List<AclPermission>> permissionListMap = getPermissionListMapForDefaultApplicationRole(applicationRoleType);
-        return roleConfigurationSolution.updateApplicationAndRelatedResourcesWithPermissionsForRole(application.getId(), applicationRole.getId(), permissionListMap, Map.of())
+        Mono<Long> updateAllResourcesWithPermissionForRoleMono = Mono.just(1L);
+        Mono<Long> updateApplicationAndRelatedResourcesWithPermissionsForRoleMono = roleConfigurationSolution
+                .updateApplicationAndRelatedResourcesWithPermissionsForRole(application.getId(), applicationRole.getId(), permissionListMap, Map.of());
+        Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono = roleConfigurationSolution
+                .updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
+        if (APPLICATION_DEVELOPER.equals(applicationRoleType)) {
+            /*
+             * Updating the resources in sequence, because some common datasources are being updated in both the Monos.
+             * This is happening because we are in first mono, we are updating only datasources, which the application
+             * is using. In second one, we are updating all the datasources present in the workspace.
+             */
+            updateAllResourcesWithPermissionForRoleMono = updateApplicationAndRelatedResourcesWithPermissionsForRoleMono
+                    .then(updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono)
+                    .thenReturn(1L);
+        } else if (APPLICATION_VIEWER.equals(applicationRoleType)) {
+            updateAllResourcesWithPermissionForRoleMono = updateApplicationAndRelatedResourcesWithPermissionsForRoleMono;
+        }
+        return updateAllResourcesWithPermissionForRoleMono
                 .thenReturn(applicationRole);
     }
 
@@ -384,19 +401,38 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
         }
 
+        List<AclPermission> workspacePermissions = appsmithRole.getPermissions()
+                .stream().filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .toList();
         List<AclPermission> applicationPermissions = appsmithRole.getPermissions()
                 .stream().filter(aclPermission -> aclPermission.getEntity().equals(Application.class))
                 .toList();
-        List<AclPermission> datasourcePermissions = appsmithRole.getPermissions()
+        /*
+         * Note: WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS (workspace permission) has a hierarchical relationship
+         * with CREATE_DATASOURCE_ACTIONS (datasource permission), and is required by the application developer role so
+         * that it has the permissions to create datasource actions in all the datasources within the workspace, we will
+         * need to evaluate this special permission as an indirect datasource permission which is being given to the role.
+         *
+         * Also, in Application viewer role, we have a direct datasource permission EXECUTE_DATASOURCES.
+         *
+         * In order to keep the flow generic, we are separately calculating all direct and indirect permissions which
+         * would be given to the datasource, and combine them.
+         */
+        List<AclPermission> directDatasourcePermissions = appsmithRole.getPermissions()
                 .stream().filter(aclPermission -> aclPermission.getEntity().equals(Datasource.class))
                 .toList();
+        Set<AclPermission> indirectDatasourcePermissions = policyGenerator.getAllChildPermissions(workspacePermissions, Datasource.class);
+        List<AclPermission> datasourcePermissions = new ArrayList<>();
+        datasourcePermissions.addAll(directDatasourcePermissions);
+        datasourcePermissions.addAll(indirectDatasourcePermissions);
         List<AclPermission> pagePermissions = policyGenerator.getAllChildPermissions(applicationPermissions, Page.class)
                 .stream().toList();
         List<AclPermission> actionPermissions = policyGenerator.getAllChildPermissions(pagePermissions, Action.class)
                 .stream().toList();
 
 
-        return Map.of(Application.class.getSimpleName(), applicationPermissions,
+        return Map.of(Workspace.class.getSimpleName(), workspacePermissions,
+                Application.class.getSimpleName(), applicationPermissions,
                 Datasource.class.getSimpleName(), datasourcePermissions,
                 NewPage.class.getSimpleName(), pagePermissions,
                 NewAction.class.getSimpleName(), actionPermissions);
