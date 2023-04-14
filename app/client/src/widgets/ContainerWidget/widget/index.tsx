@@ -1,3 +1,4 @@
+import type { MouseEventHandler } from "react";
 import React from "react";
 
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -245,6 +246,8 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;

@@ -392,9 +392,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {};
   }
 
-  onButtonClick(e: React.MouseEvent<HTMLElement>) {
-    e.stopPropagation();
-
+  onButtonClick() {
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
@@ -411,6 +409,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       this.props.onReset();
     }
   }
+
+  hasOnClickAction = () => {
+    const { isDisabled, onClick, onReset, resetFormOnClick } = this.props;
+    return Boolean((onClick || onReset || resetFormOnClick) && !isDisabled);
+  };
 
   clickWithRecaptcha(token: string) {
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
@@ -459,7 +462,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        onClick={isDisabled ? undefined : this.onButtonClickBound}
+        onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
         text={this.props.text}

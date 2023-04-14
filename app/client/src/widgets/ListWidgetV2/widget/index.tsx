@@ -39,11 +39,11 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { getMetaFlexLayers } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1119,6 +1119,9 @@ class ListWidget extends BaseWidget<
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
+                // If Container Child Elements are clickable, we should not call the containers onItemClick Event
+                if (isTargetElementClickable(e)) return;
+
                 this.onItemClick(rowIndex);
               },
               onClickCapture: () => {
