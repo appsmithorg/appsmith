@@ -24,6 +24,8 @@ import {
   dataSetForWorldWithAntarctica,
   MapTypes,
 } from "../constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const MapChartComponent = lazy(() =>
   retryPromise(
@@ -61,6 +63,21 @@ const updateDataSet = (
 };
 
 class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Map Chart widget shows the graphical representation of your data on the map.",
+      "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedDataPoint: {
+        id: "string",
+        label: "string",
+        originalId: "string",
+        shortLabel: "string",
+        value: "number",
+      },
+    };
+  }
   static getPropertyPaneContentConfig() {
     return [
       {
