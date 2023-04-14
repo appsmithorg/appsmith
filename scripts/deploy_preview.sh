@@ -47,11 +47,14 @@ kubectl config set-context --current --namespace=default
 echo "Getting the pods"
 kubectl get pods
 
-echo "Delete previously created namespace"
-kubectl delete ns $NAMESPACE || echo "true"
+if [[ -n "${RECREATE-}" ]]
+then
+  kubectl delete ns $NAMESPACE || true
+  mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+fi
 
 echo "Use kubernetes secret to Pull Image"
-kubectl create ns $NAMESPACE
+kubectl create ns $NAMESPACE || true
 
 kubectl create secret docker-registry $SECRET \
   --docker-server=https://index.docker.io/v1/ \
