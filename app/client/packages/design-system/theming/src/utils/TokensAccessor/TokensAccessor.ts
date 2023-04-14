@@ -1,54 +1,70 @@
-import type { ColorTypes } from "colorjs.io/types/src/color";
-import { defaultTokens } from "../../";
 import range from "lodash/range";
 import kebabCase from "lodash/kebabCase";
-import { LightScheme } from "./LightScheme";
-import { DarkScheme } from "./DarkScheme";
+import { DarkTheme } from "./DarkTheme";
+import { LightTheme } from "./LightTheme";
 
-type TokenType =
-  | "sizing"
-  | "color"
-  | "spacing"
-  | "borderRadius"
-  | "boxShadow"
-  | "borderWidth"
-  | "opacity";
-
-type ColorScheme = "light" | "dark";
-
-type Token = {
-  value: string | number;
-  type: TokenType;
-};
-
-export type ThemeTokens = {
-  [key in TokenType]: { [key: string]: Token };
-};
-
-type TokenObj = { [key: string]: string | number };
+import type {
+  ColorMode,
+  TokenObj,
+  TokenSource,
+  ThemeTokens,
+  TokenType,
+  ColorTypes,
+} from "./types";
 
 export class TokensAccessor {
-  constructor(
-    private color: ColorTypes = defaultTokens.seedColor,
-    private colorScheme: ColorScheme = defaultTokens.colorScheme as ColorScheme,
-    private rootUnit: number = defaultTokens.rootUnit,
-    private borderRadius: TokenObj = defaultTokens.borderRadius,
-    private boxShadow: TokenObj = defaultTokens.boxShadow,
-    private borderWidth: TokenObj = defaultTokens.borderWidth,
-    private opacity: TokenObj = defaultTokens.opacity,
-  ) {}
+  private seedColor?: ColorTypes;
+  private colorMode?: ColorMode;
+  private borderRadius?: TokenObj;
+  private rootUnit?: number;
+  private boxShadow?: TokenObj;
+  private borderWidth?: TokenObj;
+  private opacity?: TokenObj;
+
+  constructor({
+    borderRadius,
+    borderWidth,
+    boxShadow,
+    colorMode,
+    opacity,
+    rootUnit,
+    seedColor,
+  }: TokenSource) {
+    this.seedColor = seedColor;
+    this.colorMode = colorMode;
+    this.rootUnit = rootUnit;
+    this.borderRadius = borderRadius;
+    this.boxShadow = boxShadow;
+    this.borderWidth = borderWidth;
+    this.opacity = opacity;
+  }
 
   updateSeedColor = (color: ColorTypes) => {
-    this.color = color;
+    this.seedColor = color;
   };
 
-  updateColorScheme = (colorScheme: ColorScheme) => {
-    this.colorScheme = colorScheme;
+  updateColorMode = (colorMode: ColorMode) => {
+    this.colorMode = colorMode;
   };
 
   updateBorderRadius = (borderRadius: TokenObj) => {
     this.borderRadius = borderRadius;
-    this.createTokenObject(this.borderRadius, "borderRadius");
+  };
+
+  updateRootUnit = (rootUnit: number) => {
+    this.rootUnit = rootUnit;
+  };
+
+  updateBoxShadow = (boxShadow: TokenObj) => {
+    this.boxShadow = boxShadow;
+  };
+
+  updateBorderWidth = (borderWidth: TokenObj) => {
+    this.borderWidth = borderWidth;
+  };
+
+  updateOpacity = (opacity: TokenObj) => {
+    this.opacity = opacity;
   };
 
   getAllTokens = () => {
@@ -64,26 +80,30 @@ export class TokensAccessor {
   };
 
   getColors = () => {
+    if (this.seedColor == null) return {} as ThemeTokens;
+
     switch (true) {
       case this.isLightMode:
         return this.createTokenObject(
-          new LightScheme(this.color).getColors(),
+          new LightTheme(this.seedColor).getColors(),
           "color",
         );
       case this.isDarkMode:
         return this.createTokenObject(
-          new DarkScheme(this.color).getColors(),
+          new DarkTheme(this.seedColor).getColors(),
           "color",
         );
       default:
         return this.createTokenObject(
-          new LightScheme(this.color).getColors(),
+          new LightTheme(this.seedColor).getColors(),
           "color",
         );
     }
   };
 
   getSizing = () => {
+    if (this.rootUnit == null) return {} as ThemeTokens;
+
     const sizing = {
       rootUnit: `${this.rootUnit}px`,
     };
@@ -92,10 +112,12 @@ export class TokensAccessor {
   };
 
   getSpacing = (count = 6) => {
+    if (this.rootUnit == null) return {} as ThemeTokens;
+
     const spacing = range(count).reduce((acc, value, index) => {
       return {
         ...acc,
-        [index]: `${this.rootUnit * value}px`,
+        [index]: `${(this.rootUnit as number) * value}px`,
       };
     }, {});
 
@@ -103,27 +125,35 @@ export class TokensAccessor {
   };
 
   getBorderRadius = () => {
+    if (this.borderRadius == null) return {} as ThemeTokens;
+
     return this.createTokenObject(this.borderRadius, "borderRadius");
   };
 
   getBoxShadow = () => {
+    if (this.boxShadow == null) return {} as ThemeTokens;
+
     return this.createTokenObject(this.boxShadow, "boxShadow");
   };
 
   getBorderWidth = () => {
+    if (this.borderWidth == null) return {} as ThemeTokens;
+
     return this.createTokenObject(this.borderWidth, "borderWidth");
   };
 
   getOpacity = () => {
+    if (this.opacity == null) return {} as ThemeTokens;
+
     return this.createTokenObject(this.opacity, "opacity");
   };
 
   private get isLightMode() {
-    return this.colorScheme === "light";
+    return this.colorMode === "light";
   }
 
   private get isDarkMode() {
-    return this.colorScheme === "dark";
+    return this.colorMode === "dark";
   }
 
   private createTokenObject = (
