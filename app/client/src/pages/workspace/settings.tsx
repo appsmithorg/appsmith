@@ -12,17 +12,14 @@ import type { MenuItemProps, TabProp } from "design-system-old";
 import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
-import {
-  getAllApplications,
-  setShowAppInviteUsersDialog,
-} from "@appsmith/actions/applicationActions";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
@@ -140,10 +137,6 @@ export default function Settings() {
     }
   }, [dispatch, currentWorkspace]);
 
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
-
   const GeneralSettingsComponent = (
     <SentryRoute
       component={GeneralSettings}
@@ -234,17 +227,22 @@ export default function Settings() {
           />
         </TabsWrapper>
       </SettingsWrapper>
-      <FormDialogComponent
-        Form={WorkspaceInviteUsersForm}
-        canOutsideClickClose
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onOpenOrClose={handleFormOpenOrClose}
-        placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-        title={`Invite Users to ${currentWorkspace?.name}`}
-        trigger
-        workspaceId={workspaceId}
-      />
+      <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
+        <ModalContent>
+          <ModalHeader onClose={() => setShowModal(false)}>
+            {`Invite Users to ${currentWorkspace?.name}`}
+          </ModalHeader>
+          <ModalBody>
+            <WorkspaceInviteUsersForm
+              placeholder={createMessage(
+                INVITE_USERS_PLACEHOLDER,
+                cloudHosting,
+              )}
+              workspaceId={workspaceId}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

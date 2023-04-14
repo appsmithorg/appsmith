@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  lazy,
-  Suspense,
-  useMemo,
-} from "react";
+import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
@@ -14,7 +7,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
 import type { AppState } from "@appsmith/reducers";
@@ -35,7 +27,6 @@ import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
-  showAppInviteUsersDialogSelector,
 } from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -46,7 +37,19 @@ import {
   getTypographyByKey,
   TooltipComponent,
 } from "design-system-old";
-import { Button, Icon } from "design-system";
+import {
+  Button,
+  Icon,
+  Tooltip,
+  Modal,
+  ModalHeader,
+  ModalContent,
+  ModalBody,
+  Tabs,
+  TabsList,
+  Tab,
+  TabPanel,
+} from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -222,19 +225,6 @@ const GlobalSearch = lazy(() => {
   return retryPromise(() => import("components/editorComponents/GlobalSearch"));
 });
 
-export function ShareButtonComponent() {
-  return (
-    <Button
-      className="t--application-share-btn"
-      kind="tertiary"
-      size="md"
-      startIcon={"share-line"}
-    >
-      {createMessage(EDITOR_HEADER.share)}
-    </Button>
-  );
-}
-
 const theme = getTheme(ThemeMode.LIGHT);
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -263,6 +253,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -282,10 +273,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   ) => {
     dispatch(updateApplication(id, data));
   };
-
-  const showAppInviteUsersDialog = useSelector(
-    showAppInviteUsersDialogSelector,
-  );
 
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
@@ -326,21 +313,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-
-  const tabs = useMemo(() => {
-    return [
-      {
-        key: "INVITE",
-        title: createMessage(INVITE_TAB),
-        component: AppInviteUsersForm,
-      },
-      {
-        key: "EMBED",
-        title: createMessage(IN_APP_EMBED_SETTING.embed),
-        component: EmbedSnippetForm,
-      },
-    ];
-  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -460,36 +432,60 @@ export function EditorHeader(props: EditorHeaderProps) {
           >
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={applicationId}
-              canOutsideClickClose
-              isOpen={showAppInviteUsersDialog}
-              noModalBodyMarginTop
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              tabs={tabs}
-              trigger={
-                <TooltipComponent
-                  content={
-                    filteredSharedUserList.length
-                      ? createMessage(
-                          SHARE_BUTTON_TOOLTIP_WITH_USER(
-                            filteredSharedUserList.length,
-                          ),
-                        )
-                      : createMessage(SHARE_BUTTON_TOOLTIP)
-                  }
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position="bottom"
-                >
-                  <ShareButtonComponent />
-                </TooltipComponent>
+            <Tooltip
+              content={
+                filteredSharedUserList.length
+                  ? createMessage(
+                      SHARE_BUTTON_TOOLTIP_WITH_USER(
+                        filteredSharedUserList.length,
+                      ),
+                    )
+                  : createMessage(SHARE_BUTTON_TOOLTIP)
               }
-              workspaceId={workspaceId}
-            />
+              placement="bottom"
+            >
+              <Button
+                className="t--application-share-btn"
+                kind="tertiary"
+                onClick={() => setShowModal(true)}
+                size="md"
+                startIcon="share-line"
+              >
+                {createMessage(EDITOR_HEADER.share)}
+              </Button>
+            </Tooltip>
+            <Modal
+              onOpenChange={(isOpen) => setShowModal(isOpen)}
+              open={showModal}
+            >
+              <ModalContent>
+                <ModalHeader onClose={() => setShowModal(false)}>
+                  Application Invite
+                </ModalHeader>
+                <ModalBody>
+                  <Tabs defaultValue="invite">
+                    <TabsList>
+                      <Tab value="invite">{createMessage(INVITE_TAB)}</Tab>
+                      <Tab value="embed">
+                        {createMessage(IN_APP_EMBED_SETTING.embed)}
+                      </Tab>
+                    </TabsList>
+                    <TabPanel value="invite">
+                      <AppInviteUsersForm
+                        placeholder={createMessage(
+                          INVITE_USERS_PLACEHOLDER,
+                          cloudHosting,
+                        )}
+                        workspaceId={workspaceId}
+                      />
+                    </TabPanel>
+                    <TabPanel value="embed">
+                      <EmbedSnippetForm />
+                    </TabPanel>
+                  </Tabs>
+                </ModalBody>
+              </ModalContent>
+            </Modal>
             <DeploySection>
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
