@@ -41,6 +41,7 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        dependencies: ["isConnectDataEnabled"],
       },
       {
         helpText: "Columns",
