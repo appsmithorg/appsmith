@@ -69,6 +69,7 @@ import {
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { AutocompletionDefinitions } from "./constants";
 
 /***
  * BaseWidget
@@ -119,6 +120,10 @@ abstract class BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 
