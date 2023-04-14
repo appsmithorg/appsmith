@@ -89,6 +89,55 @@ describe("Git sync apps", function () {
 
     cy.get("span:contains('GOT IT')").click();
 
+    cy.get(".t--widget-containerwidget")
+      .invoke("css", "height")
+      .then((aheight) => {
+        cy.get(".t--widget-jsonformwidget")
+          .invoke("css", "height")
+          .then((bheight) => {
+            cy.log(aheight);
+            cy.log(bheight);
+            cy.wait(3000);
+            cy.get(commonlocators.autoConvert).click({ force: true });
+            cy.wait(2000);
+            cy.get(commonlocators.convert).click({ force: true });
+            cy.wait(2000);
+            cy.get(commonlocators.refreshApp).click({ force: true });
+            cy.wait(2000);
+            cy.wait("@updateLayout").should(
+              "have.nested.property",
+              "response.body.responseMeta.status",
+              200,
+            );
+            cy.get(".t--widget-containerwidget")
+              .invoke("css", "height")
+              .then((a1height) => {
+                cy.get(".t--widget-jsonformwidget")
+                  .invoke("css", "height")
+                  .then((b1height) => {
+                    expect(aheight).to.not.equal(a1height);
+                    expect(bheight).to.not.equal(b1height);
+                    cy.get(commonlocators.autoConversionDialog).click({
+                      force: true,
+                    });
+                    cy.wait(5000);
+                    cy.get(commonlocators.useSnapshot).click({
+                      force: true,
+                    });
+                    cy.wait(2000);
+                    cy.get(commonlocators.refreshApp).click({
+                      force: true,
+                    });
+                    cy.wait("@updateLayout").should(
+                      "have.nested.property",
+                      "response.body.responseMeta.status",
+                      200,
+                    );
+                    cy.wait(2000);
+                  });
+              });
+          });
+      });
     // connect app to git
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
