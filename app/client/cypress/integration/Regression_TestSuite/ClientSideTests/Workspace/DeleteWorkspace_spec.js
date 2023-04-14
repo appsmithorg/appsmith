@@ -41,12 +41,6 @@ describe("Delete workspace test spec", function () {
       cy.get(homePage.workspaceNamePopoverContent)
         .contains("Delete Workspace")
         .should("not.exist");
-      //Automated as part of Bug19506
-      if (CURRENT_REPO === REPO.CE) {
-        cy.get(homePage.members).click({ force: true });
-        cy.get(application.inviteUserMembersPage).click({ force: true });
-        cy.xpath(application.placeholderTxt).should("be.visible");
-      }
       cy.LogOut();
     });
   });

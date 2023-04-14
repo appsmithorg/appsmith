@@ -1,4 +1,6 @@
 /// <reference types="Cypress" />
+import homePage from "../../../../locators/HomePage";
+const application = require("../../../../locators/Applications.json");
 
 describe("Create app same name in different workspace", function () {
   let workspaceId;
@@ -30,6 +32,18 @@ describe("Create app same name in different workspace", function () {
       200,
     );
     const newWSName = workspaceId + "1";
+    //Automated as part of Bug19506
+    cy.get(".t--applications-container")
+      .contains(workspaceId)
+      .closest(homePage.workspaceCompleteSection)
+      .find(homePage.workspaceNamePopover)
+      .find(homePage.optionsIcon)
+      .click({ force: true });
+    cy.xpath(homePage.members).click({ force: true });
+    cy.get(homePage.inviteUserMembersPage).click({ force: true });
+    cy.xpath(application.placeholderTxt).should("be.visible");
+    cy.reload();
+    cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       console.log("createWorkspace response: ", interception);
