@@ -8,7 +8,6 @@ const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
 const path = require("path");
 const env = process.env.REACT_APP_ENVIRONMENT;
 const isAirgap = process.env.REACT_APP_AIRGAP_ENABLED;
-
 const plugins = [];
 
 plugins.push(
@@ -68,7 +67,7 @@ plugins.push(
 module.exports = merge(common, {
   webpack: {
     configure: (webpackConfig, { env, paths }) => {
-      if (env.REACT_APP_AIRGAP_ENABLED || isAirgap) {
+      if (env.REACT_APP_AIRGAP_ENABLED === "true" || isAirgap === "true") {
         paths.appBuild = webpackConfig.output.path =
           path.resolve("build_airgap");
       }

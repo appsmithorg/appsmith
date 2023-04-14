@@ -6,11 +6,11 @@ GIT_SHA=$(eval git rev-parse HEAD)
 echo $GIT_SHA
 echo "Sentry Auth Token: $SENTRY_AUTH_TOKEN"
 
-if [ "$REACT_APP_AIRGAP_ENABLED" = "true" ]; then
-    echo "Building for airgap"
+if [ "$REACT_APP_AIRGAP_ENABLED" == "true" ]; then
+    echo "Building for airgapped Appsmith instances"
     OUTPUT_PATH=build_airgap
 else
-    echo "Building for regular"
+    echo "Building for non-airgapped Appsmith instances"
     OUTPUT_PATH=build
 fi
 
