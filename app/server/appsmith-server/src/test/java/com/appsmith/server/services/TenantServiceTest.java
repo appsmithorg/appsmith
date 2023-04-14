@@ -109,7 +109,7 @@ public class TenantServiceTest {
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
-                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
@@ -154,7 +154,7 @@ public class TenantServiceTest {
             .assertNext(tenant -> {
                 TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                 TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
-                assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
                 assertThat(savedLicense.getActive()).isTrue();
                 assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                 assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
