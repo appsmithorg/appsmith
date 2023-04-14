@@ -27,6 +27,7 @@ import {
   CheckboxType,
 } from "design-system-old";
 import { roleOptions, useCaseOptions } from "./constants";
+import { Colors } from "constants/Colors";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -62,7 +63,7 @@ export default function DetailsForm(
       <StyledTabIndicatorWrapper>
         <StyledTabIndicator />
         <StyledTabIndicator
-          style={isFirstPage() ? { backgroundColor: "#d7d7d7" } : {}}
+          style={isFirstPage() ? { backgroundColor: `${Colors.GRAY_300}` } : {}}
         />
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
@@ -163,7 +164,9 @@ export default function DetailsForm(
             <Checkbox
               isDefaultChecked={false}
               label="I want security and product updates."
+              name="signupForNewsletter"
               type={CheckboxType.PRIMARY}
+              value="true"
             />
           </div>
         )}

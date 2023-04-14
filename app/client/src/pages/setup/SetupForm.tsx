@@ -135,6 +135,17 @@ function SetupForm(props: SetupFormProps) {
       if (customUseCaseInput) customUseCaseInput.remove();
     }
     form.appendChild(useCaseInput);
+    const anonymousDataInput = document.createElement("input");
+    anonymousDataInput.type = "checkbox";
+    anonymousDataInput.value = "true";
+    anonymousDataInput.name = "allowCollectingAnonymousData";
+    anonymousDataInput.style.display = "none";
+    anonymousDataInput.checked = true;
+    form.appendChild(anonymousDataInput);
+    const signupForNewsletter: HTMLInputElement = document.querySelector(
+      `[name="signupForNewsletter"]`,
+    ) as HTMLInputElement;
+    signupForNewsletter.value = signupForNewsletter.checked.toString();
     return true;
   };
 
