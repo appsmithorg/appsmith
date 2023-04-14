@@ -30,6 +30,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -542,7 +543,8 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
