@@ -44,22 +44,30 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
+import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
+import { isGraphqlPlugin } from "entities/Action";
 import {
   isAPIAction,
   PluginPackageName,
   PluginType,
   SlashCommand,
 } from "entities/Action";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
+  getActions,
   getCurrentPageNameByActionId,
+  getDatasource,
   getDatasources,
   getEditorConfig,
   getPageNameByPageId,
@@ -120,6 +128,127 @@ import {
 } from "RouteBuilder";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+
+export function* createDefaultActionPayload(
+  action: ReduxAction<{
+    pageId: string;
+    datasourceId: string;
+    from: EventLocation;
+  }>,
+) {
+  const { datasourceId, pageId } = action.payload;
+
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const actions: ActionDataState = yield select(getActions);
+
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  const pluginType: PluginType = plugin?.type;
+  const isGraphql: boolean = isGraphqlPlugin(plugin);
+
+  // If the datasource is Graphql then get Graphql default config else Api config
+  const DEFAULT_CONFIG = isGraphql
+    ? DEFAULT_GRAPHQL_ACTION_CONFIG
+    : DEFAULT_API_ACTION_CONFIG;
+
+  const DEFAULT_HEADERS = isGraphql
+    ? DEFAULT_GRAPHQL_ACTION_CONFIG.headers
+    : DEFAULT_API_ACTION_CONFIG.headers;
+
+  /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
+  const defaultApiActionConfig: ApiActionConfig = {
+    ...DEFAULT_CONFIG,
+    headers: DEFAULT_HEADERS,
+  };
+
+  const newActionName =
+    pluginType === PluginType.DB
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
+
+  return {
+    name: newActionName,
+    pageId,
+    pluginId: datasource?.pluginId,
+    datasource: {
+      id: datasourceId,
+    },
+    eventData: {
+      actionType: pluginType === PluginType.DB ? "Query" : "API",
+      from: action.payload.from,
+      dataSource: datasource.name,
+    },
+    actionConfiguration:
+      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
+  };
+}
+
+export function* getPulginDefaultValues(pluginId: string) {
+  if (!pluginId) {
+    return;
+  }
+  const editorConfig: any[] = yield select(getEditorConfig, pluginId);
+
+  const settingConfig: any[] = yield select(getSettingConfig, pluginId);
+
+  let initialValues: Record<string, unknown> = yield call(
+    getConfigInitialValues,
+    editorConfig,
+  );
+  if (settingConfig) {
+    const settingInitialValues: Record<string, unknown> = yield call(
+      getConfigInitialValues,
+      settingConfig,
+    );
+    initialValues = merge(initialValues, settingInitialValues);
+  }
+  return initialValues;
+}
+
+export function* createActionsForOneClickBindingSaga(
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
+) {
+  const { payload } = actionPayload;
+
+  try {
+    const response: ApiResponse<ActionCreateUpdateResponse> | undefined =
+      yield ActionAPI.createAction(payload);
+
+    if (!response) return { status: "failure" };
+
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const pageName: string = yield select(
+        getCurrentPageNameByActionId,
+        response.data.id,
+      );
+
+      AnalyticsUtil.logEvent("CREATE_ACTION", {
+        id: response.data.id,
+        // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
+        actionName: response.data.name,
+        pageName: pageName,
+        ...actionPayload.payload.eventData,
+      });
+
+      AppsmithConsole.info({
+        text: `Action created from one click binding`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          id: response.data.id,
+          // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
+          name: response.data.name,
+        },
+      });
+      return { status: "success" };
+    }
+  } catch (e) {}
+  return { status: "failure" };
+}
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -129,27 +258,10 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      const editorConfig: any[] = yield select(
-        getEditorConfig,
+      const initialValues: object = yield call(
+        getPulginDefaultValues,
         actionPayload.payload.pluginId,
       );
-
-      const settingConfig: any[] = yield select(
-        getSettingConfig,
-        actionPayload.payload.pluginId,
-      );
-
-      let initialValues: Record<string, unknown> = yield call(
-        getConfigInitialValues,
-        editorConfig,
-      );
-      if (settingConfig) {
-        const settingInitialValues: Record<string, unknown> = yield call(
-          getConfigInitialValues,
-          settingConfig,
-        );
-        initialValues = merge(initialValues, settingInitialValues);
-      }
       payload = merge(initialValues, actionPayload.payload);
     }
 
