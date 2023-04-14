@@ -211,7 +211,11 @@ function renderFormConfigTop(props: {
                     )}
                     {encrypted && (
                       <FormEncrytedSection>
-                        <Icon name="lock-line" size="sm" />
+                        <Icon
+                          color="var(--ads-v2-color-fg-success)"
+                          name="lock-2-line"
+                          size="sm"
+                        />
                         <FormSubtitleText config={props.config}>
                           Encrypted
                         </FormSubtitleText>
