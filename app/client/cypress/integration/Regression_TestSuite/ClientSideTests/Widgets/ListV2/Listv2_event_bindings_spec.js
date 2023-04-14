@@ -62,7 +62,9 @@ describe("Listv2 - Event bindings", () => {
     cy.openPropertyPane("buttonwidget");
 
     // Enter text in the parent list widget's text input
-    cy.get(widgetSelector("Input1")).find("input").type("Input");
+    cy.get(widgetSelector("Input1"))
+      .find("input")
+      .type("Input", { force: true });
 
     // click the button on inner list 1st row.
     cy.get(widgetSelector("Button1")).find("button").click({ force: true });
@@ -102,7 +104,7 @@ describe("Listv2 - Event bindings", () => {
     cy.openPropertyPane("buttonwidget");
 
     // Clear the onClick event binding
-    cy.testJsontextclear("onclick");
+    cy.testJsonTextClearMultiline("onclick");
     // Disable the JS mode
     cy.get(toggleJSButton("onclick")).click({ force: true });
 
