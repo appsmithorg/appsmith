@@ -72,10 +72,10 @@ export default class MongoDB extends BaseQueryGenerator {
   }
   removeUnrelatedInitialValues(
     initialValues: Record<string, any>,
-    commandsKey: string,
+    commandKey: string,
   ) {
     if (isEmpty(initialValues)) return {};
-    return [...ALLOWED_INITAL_VALUE_KEYS, commandsKey]
+    return [...ALLOWED_INITAL_VALUE_KEYS, commandKey]
       .filter((key) => initialValues[key])
       .reduce((acc, key) => {
         acc[key] = initialValues[key];
@@ -85,16 +85,16 @@ export default class MongoDB extends BaseQueryGenerator {
 
   mergeWithRelatedInitialValues(
     formDataInitialValues: Record<string, any>,
-    commandsKey: string,
+    commandKey: string,
     builtValues: Record<string, any> | undefined,
   ) {
     if (!builtValues || isEmpty(builtValues)) return;
-    // if not initial values return builtin values
+    // if no initial values return payload with builtin values
     if (!formDataInitialValues || isEmpty(formDataInitialValues))
       return builtValues;
     const scubedOutInitalValues = this.removeUnrelatedInitialValues(
       formDataInitialValues,
-      commandsKey,
+      commandKey,
     );
 
     return { formData: merge(scubedOutInitalValues, builtValues) };

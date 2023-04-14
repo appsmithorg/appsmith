@@ -534,7 +534,7 @@ function* createActionsFromFormConfig(
     return { status: "success" };
   }
 
-  //generate next query name
+  //generate next query names
   const queryNames = formDataCommands.reduce(
     (acc: Array<string>, curr: any, index: number) => {
       if (index === 0 && createActionPayload.name) {
