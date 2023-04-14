@@ -1,5 +1,5 @@
 import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
-import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
+import { ENTITY_TYPE } from "ee/constants/workspaceConstants";
 
 export function createMessage(
   format: (...strArgs: any[]) => string,
