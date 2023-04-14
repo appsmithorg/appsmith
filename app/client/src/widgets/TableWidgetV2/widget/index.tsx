@@ -77,7 +77,10 @@ import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
-import { sanitizeKey } from "widgets/WidgetUtils";
+import {
+  sanitizeKey,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
@@ -104,6 +107,9 @@ import type {
   transformDataWithEditableCell,
 } from "./reactTableUtils/transformDataPureFn";
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -170,6 +176,42 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       newRow: undefined,
       previousPageVisited: false,
       nextPageVisited: false,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      const config = {
+        "!doc":
+          "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
+        "!url": "https://docs.appsmith.com/widget-reference/table",
+        selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
+        selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
+        selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
+        triggeredRow: generateTypeDef(widget.triggeredRow),
+        updatedRow: generateTypeDef(widget.updatedRow),
+        selectedRowIndex: "number",
+        tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
+        pageNo: "number",
+        pageSize: "number",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        searchText: "string",
+        totalRecordsCount: "number",
+        sortOrder: {
+          column: "string",
+          order: ["asc", "desc"],
+        },
+        updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
+        updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
+        triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
+        pageOffset: generateTypeDef(widget.pageOffset),
+        tableHeaders: generateTypeDef(widget.tableHeaders),
+        newRow: generateTypeDef(widget.newRow),
+        isAddRowInProgress: "bool",
+        previousPageVisited: generateTypeDef(widget.previousPageVisited),
+        nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+      };
+      return config;
     };
   }
 

@@ -19,7 +19,9 @@ import type { Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
+  DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -306,6 +308,13 @@ class TabsWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedTab: "string",
     };
   }
 

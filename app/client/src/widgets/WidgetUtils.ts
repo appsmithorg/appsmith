@@ -69,6 +69,13 @@ export function getSnapSpaces(props: WidgetPositionProps) {
   };
 }
 
+export const DefaultAutocompleteDefinitions = {
+  isVisible: {
+    "!type": "bool",
+    "!doc": "Boolean value indicating if the widget is in visible state",
+  },
+};
+
 export const hexToRgb = (
   hex: string,
 ): {

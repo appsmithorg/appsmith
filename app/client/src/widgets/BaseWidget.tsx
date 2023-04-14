@@ -70,6 +70,7 @@ import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoL
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
+import type { AutocompletionDefinitions } from "./constants";
 
 /***
  * BaseWidget
@@ -120,6 +121,10 @@ abstract class BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 
