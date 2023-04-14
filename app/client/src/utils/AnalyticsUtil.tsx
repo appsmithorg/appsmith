@@ -59,7 +59,6 @@ export type EventName =
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
   | "CREATE_ACTION"
-  | "CREATE_ACTION_FROM_ONE_CLICK_BINDING"
   | "SAVE_SAAS"
   | "DELETE_SAAS"
   | "RUN_SAAS_API"

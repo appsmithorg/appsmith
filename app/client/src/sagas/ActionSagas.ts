@@ -227,7 +227,7 @@ export function* createAction(
         response.data.id,
       );
 
-      AnalyticsUtil.logEvent("CREATE_ACTION_FROM_ONE_CLICK_BINDING", {
+      AnalyticsUtil.logEvent("CREATE_ACTION", {
         id: response.data.id,
         // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
         actionName: response.data.name,
