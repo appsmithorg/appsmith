@@ -25,7 +25,6 @@ import {
 } from "./WidgetFactoryHelpers";
 import type { WidgetFeatures } from "./WidgetFeatures";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { isAirgapped } from "ce/utils/airgapHelpers";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -372,10 +371,6 @@ class WidgetFactory {
   static getAutocompleteDefinitions(
     type: WidgetType,
   ): AutocompletionDefinitions | undefined {
-    const isAirgappedInstance = isAirgapped();
-    if (isAirgappedInstance) {
-      return undefined;
-    }
     const autocompleteDefinition = this.autocompleteDefinitions.get(type);
     if (!autocompleteDefinition) {
       log.error("Widget autocomplete properties not defined: ", type);
