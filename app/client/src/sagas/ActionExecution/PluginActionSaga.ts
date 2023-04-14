@@ -1026,6 +1026,8 @@ function* executePluginActionSaga(
 
   const formData = new FormData();
 
+  triggerFileUploadInstrumentation(1, "1", "1", 1, "1", "1", "1", 1);
+
   yield call(
     evaluateActionParams,
     pluginAction.jsonPathKeys,
@@ -1086,6 +1088,29 @@ function* executePluginActionSaga(
 
     throw new PluginActionExecutionError("Response not valid", false);
   }
+}
+
+// Function to send the file upload event to segment
+function triggerFileUploadInstrumentation(
+  size: number,
+  status: string,
+  type: string,
+  statusCode: number,
+  pluginName: string,
+  pluginType: string,
+  appName: string,
+  timeTaken: number,
+) {
+  AnalyticsUtil.logEvent("FILE_UPLOAD_COMPLETE", {
+    size,
+    status,
+    type,
+    statusCode,
+    pluginName,
+    pluginType,
+    appName,
+    timeTaken,
+  });
 }
 
 //Open debugger with response tab selected.
