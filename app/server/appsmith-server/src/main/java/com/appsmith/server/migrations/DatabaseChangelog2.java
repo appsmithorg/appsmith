@@ -2832,6 +2832,7 @@ public class DatabaseChangelog2 {
     public void updateOraclePluginName(MongoTemplate mongoTemplate) {
         Plugin oraclePlugin = mongoTemplate.findOne(query(where("packageName").is("oracle-plugin")), Plugin.class);
         oraclePlugin.setName("Oracle");
+        oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle-logo.svg");
         mongoTemplate.save(oraclePlugin);
     }
 }
