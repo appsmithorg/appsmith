@@ -128,6 +128,7 @@
                   "bottomRow": 8,
                   "parentId": "tyiwk4xuq0",
                   "widgetId": "c5h0m17qxj",
+                  "dynamicPropertyPathList": [{"key": "tableData"}],
                   "dynamicBindingPathList": []
                 }
               ],

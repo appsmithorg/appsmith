@@ -1,6 +1,6 @@
 import React from "react";
-import { SheetsDropdown } from "./SheetsDropdown";
-import { TableHeaderIndex } from "./TableHeaderIndex";
+import SheetsDropdown from "./SheetsDropdown";
+import TableHeaderIndex from "./TableHeaderIndex";
 
 export function GoogleSheetControls() {
   return (
