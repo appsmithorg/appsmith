@@ -12,6 +12,24 @@
  */
 class IconChunkNamingPlugin {
   apply(compiler) {
+    const webpackConfig = compiler.options;
+
+    if (
+      // checking only for the `[contenthash` part because
+      // the ending might be dynamic: `]` or `:8]` or `:some-other-number]`
+      !webpackConfig.output.chunkFilename.includes("[contenthash") &&
+      !webpackConfig.output.chunkFilename.includes("[chunkhash")
+    ) {
+      // The plugin requires the chunkFilename to include [contenthash] or [chunkhash]. That’s because
+      // the plugin renames every icon chunk to "icon". If chunkFilename doesn’t include the `[contenthash]` or `[chunkhash]`
+      // placeholder, we’d end up with multiple chunks named "icon". This might result in overwriting
+      // the icons or (in development) even hanging the build process completely.
+      throw new Error(
+        "IconChunkNamingPlugin: the output.chunkFilename config must include [contenthash] " +
+          "or [chunkhash] to give every chunk file a unique name",
+      );
+    }
+
     compiler.hooks.thisCompilation.tap(
       "IconChunkNamingPlugin",
       (compilation) => {
