@@ -1,4 +1,4 @@
-package com.external.plugins;
+package com.external.config;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
@@ -15,7 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-public class GoogleSheetsPluginTest {
+public class GetDatasourceMetadataMethodTest {
 
     @Test
     public void DsConfigPropertiesWithNoEmailTest() {
@@ -26,11 +26,11 @@ public class GoogleSheetsPluginTest {
         authentication.setAuthenticationResponse(authenticationResponse);
         dsconfig.setAuthentication(authentication);
 
-        GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
-        GoogleSheetsPlugin.GoogleSheetsPluginExecutor spyPluginExecutor = spy(pluginExecutor);
+        GetDatasourceMetadataMethod getMetadataMethod = new GetDatasourceMetadataMethod();
+        GetDatasourceMetadataMethod spyMetadataMethod = spy(getMetadataMethod);
 
-        doReturn(Mono.just("randomEmailAddress")).when(spyPluginExecutor).fetchEmailAddressFromGoogleAPI(any());
-        Mono<DatasourceConfiguration> returnedDsConfigMono = spyPluginExecutor.getDatasourceMetadata(dsconfig);
+        doReturn(Mono.just("randomEmailAddress")).when(spyMetadataMethod).fetchEmailAddressFromGoogleAPI(any());
+        Mono<DatasourceConfiguration> returnedDsConfigMono = spyMetadataMethod.getDatasourceMetadata(dsconfig);
 
         StepVerifier.create(returnedDsConfigMono)
                 .assertNext(dsconfig1 -> {
@@ -52,11 +52,11 @@ public class GoogleSheetsPluginTest {
         authentication.setAuthenticationResponse(authenticationResponse);
         dsconfig.setAuthentication(authentication);
 
-        GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
-        GoogleSheetsPlugin.GoogleSheetsPluginExecutor spyPluginExecutor = spy(pluginExecutor);
+        GetDatasourceMetadataMethod getMetadataMethod = new GetDatasourceMetadataMethod();
+        GetDatasourceMetadataMethod spyMetadataMethod = spy(getMetadataMethod);
 
-        doReturn(Mono.just("randomEmailAddress")).when(spyPluginExecutor).fetchEmailAddressFromGoogleAPI(any());
-        Mono<DatasourceConfiguration> returnedDsConfigMono = spyPluginExecutor.getDatasourceMetadata(dsconfig);
+        doReturn(Mono.just("randomEmailAddress")).when(spyMetadataMethod).fetchEmailAddressFromGoogleAPI(any());
+        Mono<DatasourceConfiguration> returnedDsConfigMono = spyMetadataMethod.getDatasourceMetadata(dsconfig);
 
         StepVerifier.create(returnedDsConfigMono)
                 .assertNext(dsconfig1 -> {
