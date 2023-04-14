@@ -1,6 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
-import { CalloutV2 } from "design-system-old";
+import { Callout } from "design-system";
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,16 +36,24 @@ export default function AuthMessage(props: AuthMessageProps) {
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };
 
-  const extraInfo: Partial<React.ComponentProps<typeof CalloutV2>> = {};
-
-  if (actionType === "authorize") {
-    extraInfo.actionLabel = "Authorize Datasource";
-    extraInfo.onClick = handleOauthAuthorization;
-  }
-
   return (
     <StyledAuthMessage style={style}>
-      <CalloutV2 desc={description} type="Warning" {...extraInfo} />
+      <Callout
+        kind="error"
+        links={
+          actionType === "authorize"
+            ? [
+                {
+                  children: "Authorize Datasource",
+                  onClick: handleOauthAuthorization,
+                  to: "",
+                },
+              ]
+            : undefined
+        }
+      >
+        {description}
+      </Callout>
     </StyledAuthMessage>
   );
 }
