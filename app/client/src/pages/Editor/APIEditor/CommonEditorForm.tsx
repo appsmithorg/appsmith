@@ -310,6 +310,7 @@ const FlexContainer = styled.div`
     border-bottom: 0px;
   }
   .key-value-header {
+    color: var(--ads-v2-color-fg);
     border-bottom: 0px;
   }
   .key-value:nth-child(2) {
@@ -344,6 +345,11 @@ const FormRowWithLabel = styled(FormRow)`
 const CenteredIcon = styled(Icon)`
   align-self: center;
   margin-right: 5px;
+`;
+
+const StyledTabPanel = styled(TabPanel)`
+  height: calc(100% - 50px);
+  overflow: auto;
 `;
 
 function ImportedKeyValue(props: {
@@ -699,7 +705,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <Wrapper>
           <SecondaryWrapper>
             <TabbedViewContainer>
-              <Tabs defaultValue={API_EDITOR_TABS.HEADERS}>
+              <Tabs className="h-full" defaultValue={API_EDITOR_TABS.HEADERS}>
                 <TabsList>
                   {Object.values(API_EDITOR_TABS).map((tab) => (
                     <Tab
@@ -717,7 +723,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                     </Tab>
                   ))}
                 </TabsList>
-                <TabPanel value={API_EDITOR_TABS.HEADERS}>
+                <StyledTabPanel value={API_EDITOR_TABS.HEADERS}>
                   {apiBindHelpSectionVisible &&
                     renderHelpSection(
                       handleClickLearnHow,
@@ -738,8 +744,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                     pushFields={isChangePermitted}
                     theme={theme}
                   />
-                </TabPanel>
-                <TabPanel value={API_EDITOR_TABS.PARAMS}>
+                </StyledTabPanel>
+                <StyledTabPanel value={API_EDITOR_TABS.PARAMS}>
                   <ImportedDatas
                     attributeName={"Param"}
                     data={props.datasourceParams}
@@ -753,17 +759,17 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                     pushFields={isChangePermitted}
                     theme={theme}
                   />
-                </TabPanel>
-                <TabPanel value={API_EDITOR_TABS.BODY}>
+                </StyledTabPanel>
+                <StyledTabPanel className="h-full" value={API_EDITOR_TABS.BODY}>
                   {props.bodyUIComponent}
-                </TabPanel>
-                <TabPanel value={API_EDITOR_TABS.PAGINATION}>
+                </StyledTabPanel>
+                <StyledTabPanel value={API_EDITOR_TABS.PAGINATION}>
                   {props.paginationUIComponent}
-                </TabPanel>
-                <TabPanel value={API_EDITOR_TABS.AUTHENTICATION}>
+                </StyledTabPanel>
+                <StyledTabPanel value={API_EDITOR_TABS.AUTHENTICATION}>
                   <ApiAuthentication formName={formName} />
-                </TabPanel>
-                <TabPanel value={API_EDITOR_TABS.SETTINGS}>
+                </StyledTabPanel>
+                <StyledTabPanel value={API_EDITOR_TABS.SETTINGS}>
                   <SettingsWrapper>
                     <ActionSettings
                       actionSettingsConfig={settingsConfig}
@@ -771,7 +777,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                       theme={theme}
                     />
                   </SettingsWrapper>
-                </TabPanel>
+                </StyledTabPanel>
               </Tabs>
             </TabbedViewContainer>
             {showDebugger && (
