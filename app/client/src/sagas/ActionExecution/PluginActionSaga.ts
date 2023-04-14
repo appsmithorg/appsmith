@@ -325,12 +325,16 @@ function* evaluateActionParams(
     const key = bindings[i];
     let value = values[i];
 
+    let useBlobMaps = false;
+    // Maintain a blob map to resolve blob urls of large files
+    const blobMap: Array<string> = [];
+
     if (isArray(value)) {
       const tempArr = [];
-      const arrDatatype: string[] = [];
+      const arrDatatype: Array<string> = [];
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
       for (const val of value) {
-        const newVal: unknown = yield call(
+        const newVal: Record<string, any> = yield call(
           resolvingBlobUrls,
           val,
           executeActionRequest,
@@ -338,21 +342,34 @@ function* evaluateActionParams(
           true,
           arrDatatype,
         );
+
+        if (newVal.hasOwnProperty("blobUrlPaths")) {
+          Object.entries(newVal.blobUrlPaths as Record<string, string>).forEach(
+            // blobUrl: string eg: blob:1234-1234-1234?type=binary
+            ([path, blobUrl]) => {
+              if (isArrayBuffer(newVal[path])) {
+                // remove the ?type=binary from the blob url if present
+                const sanitisedBlobURL = blobUrl.split("?")[0];
+                blobMap.push(sanitisedBlobURL);
+                set(blobDataMap, sanitisedBlobURL, new Blob([newVal[path]]));
+                set(newVal, path, sanitisedBlobURL);
+              }
+            },
+          );
+          unset(newVal, "blobUrlPaths");
+        }
+
         tempArr.push(newVal);
       }
       //Adding array datatype along with the datatype of first element of the array
       executeActionRequest.paramProperties[`k${i}`] = {
-        array: [arrDatatype[0]],
+        datatype: { array: [arrDatatype[0]] },
       };
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
       value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
     }
-
-    let useBlobMaps = false;
-    // Maintain a blob map to resolve blob urls of large files
-    const blobMap: Array<string> = [];
 
     if (typeof value === "object") {
       // This is used in cases of large files, we store the bloburls with the path they were set in
@@ -371,8 +388,8 @@ function* evaluateActionParams(
             }
           },
         );
+        unset(value, "blobUrlPaths");
       }
-      if (useBlobMaps) unset(value, "blobUrlPaths");
 
       value = JSON.stringify(value);
     }

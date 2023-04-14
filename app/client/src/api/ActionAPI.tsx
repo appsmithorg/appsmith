@@ -51,7 +51,10 @@ export interface ExecuteActionRequest extends APIRequest {
   viewMode: boolean;
   paramProperties: Record<
     string,
-    string | Record<string, string[]> | Record<string, string>
+    | string
+    | Record<string, Array<string>>
+    | Record<string, string>
+    | Record<string, Record<string, Array<string>>>
   >;
 }
 
