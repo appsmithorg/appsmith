@@ -48,6 +48,7 @@ import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_
 import static com.appsmith.server.acl.AclPermission.TENANT_UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
@@ -191,6 +192,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, CREATE_DATASOURCE_ACTIONS);
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_DATASOURCES, MANAGE_DATASOURCES);
         hierarchyGraph.addEdge(WORKSPACE_READ_DATASOURCES, READ_DATASOURCES);
+        hierarchyGraph.addEdge(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS, CREATE_DATASOURCE_ACTIONS);
         lateralGraph.addEdge(DELETE_DATASOURCES, READ_DATASOURCES);
         lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, EXECUTE_DATASOURCES);
         lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, READ_DATASOURCES);

@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.roles;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -20,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -89,6 +91,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final ActionCollectionRepository actionCollectionRepository;
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
+    private final DatasourceRepository datasourceRepository;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
@@ -101,7 +104,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                          NewActionRepository newActionRepository,
                                          ActionCollectionRepository actionCollectionRepository,
                                          AnalyticsService analyticsService,
-                                         NewPageRepository newPageRepository) {
+                                         NewPageRepository newPageRepository,
+                                         DatasourceRepository datasourceRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -115,6 +119,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.actionCollectionRepository = actionCollectionRepository;
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
+        this.datasourceRepository = datasourceRepository;
     }
 
     @Override
@@ -935,5 +940,31 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
         return updateEntityPoliciesAndSideEffectsFlux
                 .then(Mono.just(1L));
+    }
+
+    @Override
+    public Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(String workspaceId,
+                                                                                     String roleId,
+                                                                                     Map<String, List<AclPermission>> toBeAddedPermissions,
+                                                                                     Map<String, List<AclPermission>> toBeRemovedPermissions) {
+        List<String> includeFields = List.of(fieldName(QDatasource.datasource.id));
+        Mono<List<Datasource>> allDatasourcesInWorkspaceMono = datasourceRepository.findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includeFields)
+                .collectList();
+        return allDatasourcesInWorkspaceMono
+                .flatMap(datasources -> {
+                    Map<String, Class> entityIdEntityClassMap = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
+                    entityIdEntityClassMap.put(workspaceId, Workspace.class);
+                    toBeAddedPermissionsForEntities.put(workspaceId, toBeAddedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+                    toBeRemovedPermissionsForEntities.put(workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+                    datasources.forEach(datasource -> {
+                        entityIdEntityClassMap.put(datasource.getId(), Datasource.class);
+                        toBeAddedPermissionsForEntities.put(datasource.getId(), toBeAddedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(datasource.getId(), toBeRemovedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                    });
+                    return bulkUpdateEntityPoliciesForApplicationRole(entityIdEntityClassMap, roleId,
+                            toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
+                });
     }
 }

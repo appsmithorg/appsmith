@@ -72,6 +72,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
@@ -97,6 +98,7 @@ import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
@@ -212,6 +214,15 @@ public class ApplicationShareTest {
         datasource.setPluginId(pluginId);
         Datasource createdDatasource = datasourceService.create(datasource).block();
 
+        Datasource datasourceWithoutActions = new Datasource();
+        datasourceWithoutActions.setName(testName + "WithoutAction");
+        DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+        datasourceConfiguration1.setUrl("http://test.com");
+        datasourceWithoutActions.setDatasourceConfiguration(datasourceConfiguration);
+        datasourceWithoutActions.setWorkspaceId(workspace.getId());
+        datasourceWithoutActions.setPluginId(pluginId);
+        Datasource createdDatasourceWithoutActions = datasourceService.create(datasourceWithoutActions).block();
+
         ActionDTO action = new ActionDTO();
         action.setName(testName);
         action.setWorkspaceId(createdWorkspace.getId());
@@ -259,6 +270,7 @@ public class ApplicationShareTest {
 
         Set<Policy> applicationPolicies = applicationRepository.findById(createdApplication.getId()).block().getPolicies();
         Set<Policy> datasourcePolicies = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+        Set<Policy> datasourceWithoutActionPolicies = datasourceRepository.findById(createdDatasourceWithoutActions.getId()).block().getPolicies();
         Set<Policy> newPagePolicies = newPageRepository.findById(createdApplication.getPages().get(0).getId()).block().getPolicies();
         Set<Policy> newActionPolicies = newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
         Set<Policy> systemThemePolicies = themeRepository.findById(systemTheme.getId()).block().getPolicies();
@@ -289,23 +301,35 @@ public class ApplicationShareTest {
             }
         });
 
-        datasourcePolicies.forEach(policy -> {
-            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-            }
-        });
+        /*
+         * datasourcePolicies signifies the policies of datasource which is related to the application.
+         * datasourceWithoutActionPolicies signifies the policies of datasource which is not related to the application.
+         * Both the datasources belong to the same workspace where the application is present.
+         * Here we are asserting that irrespective of whether the datasource is related to application or not,
+         * application developer role should have the same permissions to all datasources in workspace.
+         *
+         * Clarification Note:
+         * 1. When we say that the datasource is related to an application, what we are actually saying is that
+         * there exists a query in the application which is using that datasource.
+         */
+        Stream.of(datasourcePolicies, datasourceWithoutActionPolicies)
+                .forEach(resourcePolicies -> resourcePolicies.forEach(policy -> {
+                    if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+                    }
+                }));
 
         newPagePolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_PAGES.getValue())) {
@@ -353,6 +377,8 @@ public class ApplicationShareTest {
         });
         workspacePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            } else if (policy.getPermission().equals(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             } else {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
@@ -516,12 +542,10 @@ public class ApplicationShareTest {
 
         datasourcePolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
@@ -591,6 +615,9 @@ public class ApplicationShareTest {
         workspacePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            } else if (policy.getPermission().equals(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             } else {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
@@ -627,6 +654,15 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
         Datasource createdDatasource = datasourceService.create(datasource).block();
+
+        Datasource datasourceWithoutActions = new Datasource();
+        datasourceWithoutActions.setName(testName + "WithoutAction");
+        DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+        datasourceConfiguration1.setUrl("http://test.com");
+        datasourceWithoutActions.setDatasourceConfiguration(datasourceConfiguration);
+        datasourceWithoutActions.setWorkspaceId(workspace.getId());
+        datasourceWithoutActions.setPluginId(pluginId);
+        Datasource createdDatasourceWithoutActions = datasourceService.create(datasourceWithoutActions).block();
 
         ActionDTO action = new ActionDTO();
         action.setName(testName);
@@ -672,6 +708,7 @@ public class ApplicationShareTest {
 
         Set<Policy> applicationPolicies = applicationRepository.findById(createdApplication.getId()).block().getPolicies();
         Set<Policy> datasourcePolicies = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+        Set<Policy> datasourceWithoutActionPolicies = datasourceRepository.findById(createdDatasourceWithoutActions.getId()).block().getPolicies();
         Set<Policy> newPagePolicies = newPageRepository.findById(createdApplication.getPages().get(0).getId()).block().getPolicies();
         Set<Policy> newActionPolicies = newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
         Set<Policy> workspacePolicies = workspaceRepository.findById(createdWorkspace.getId()).block().getPolicies();
@@ -700,23 +737,42 @@ public class ApplicationShareTest {
             }
         });
 
-        datasourcePolicies.forEach(policy -> {
-            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
-            }
-        });
+        /*
+         * datasourcePolicies signifies the policies of datasource which is related to the application.
+         * datasourceWithoutActionPolicies signifies the policies of datasource which is not related to the application.
+         * Both the datasources belong to the same workspace where the application is present.
+         * Here we are asserting that irrespective of whether the datasource is related to application or not,
+         * application viewer role should not have MANAGE_DATASOURCES, DELETE_DATASOURCES, READ_DATASOURCES &
+         * CREATE_DATASOURCE_ACTIONS for any datasource in workspace.
+         *
+         * application viewer role should have EXECUTE_DATASOURCES for the datasource related to application.
+         *
+         * Clarification Note:
+         * 1. When we say that the datasource is related to an application, what we are actually saying is that
+         * there exists a query in the application which is using that datasource.
+         */
+        Stream.of(datasourcePolicies, datasourceWithoutActionPolicies)
+                .forEach(resourcePolicy -> resourcePolicy.forEach(policy -> {
+                    if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
+                    if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
+                }));
+        datasourcePolicies.stream()
+                .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
+                .forEach(policy -> assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId()));
+
+        datasourceWithoutActionPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
+                .forEach(policy -> assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId()));
 
         newPagePolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_PAGES.getValue())) {
@@ -872,12 +928,10 @@ public class ApplicationShareTest {
 
         datasourcePolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
@@ -931,6 +985,9 @@ public class ApplicationShareTest {
         workspacePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            } else if (policy.getPermission().equals(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             } else {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId(), viewApplicationRole.getId());
             }
@@ -2944,8 +3001,8 @@ public class ApplicationShareTest {
 
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void testDatasourcePolicies_createDatasource_thenCreateApplicationDevRole_thenCreateActionCollection_thenCreateAction() {
-        String testName = "testDatasourcePolicies_createDatasource_thenCreateApplicationDevRole_thenCreateActionCollection_thenCreateAction";
+    public void testDatasourcePolicies_createDatasource_thenCreateApplicationDevRole_thenCreateDatasource() {
+        String testName = "testDatasourcePolicies_createDatasource_thenCreateApplicationDevRole_thenCreateDatasource";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         String pluginId = pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
@@ -2964,13 +3021,24 @@ public class ApplicationShareTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
-        Datasource createdDatasource = datasourceService.create(datasource).block();
+        Datasource createdDatasourceBeforeRoleCreated = datasourceService.create(datasource).block();
 
         PermissionGroup devApplicationRole = applicationService.createDefaultRole(createdApplication, APPLICATION_DEVELOPER).block();
 
-        Set<Policy> datasourcePolicies = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
+        Datasource datasource1 = new Datasource();
+        datasource1.setName(testName + 1);
+        DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource1.setDatasourceConfiguration(datasourceConfiguration1);
+        datasource1.setWorkspaceId(workspace.getId());
+        datasource1.setPluginId(pluginId);
+        Datasource createdDatasourceAfterRoleCreated = datasourceService.create(datasource1).block();
 
-        datasourcePolicies.forEach(policy -> {
+        Set<Policy> datasourcePoliciesBeforeRoleCreated = datasourceRepository.findById(createdDatasourceBeforeRoleCreated.getId()).block().getPolicies();
+
+        Set<Policy> datasourcePoliciesAfterRoleCreated = datasourceRepository.findById(createdDatasourceAfterRoleCreated.getId()).block().getPolicies();
+
+        datasourcePoliciesBeforeRoleCreated.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
             }
@@ -2978,29 +3046,17 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
         });
 
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testActionCollection");
-        actionCollectionDTO.setApplicationId(createdApplication.getId());
-        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
-        actionCollectionDTO.setPageId(createdApplication.getPages().stream().findAny().get().getDefaultPageId());
-        actionCollectionDTO.setPluginId(pluginId);
-        actionCollectionDTO.setPluginType(PluginType.JS);
-
-        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
-
-        Set<Policy> datasourcePoliciesAfterActionCollectionCreation = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
-
-        datasourcePoliciesAfterActionCollectionCreation.forEach(policy -> {
+        datasourcePoliciesAfterRoleCreated.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
             }
@@ -3008,44 +3064,13 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
-            }
-        });
-
-        ActionDTO action = new ActionDTO();
-        action.setName(testName);
-        action.setPluginId(pluginId);
-        action.setPageId(createdApplication.getPages().get(0).getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(createdDatasource);
-
-        ActionDTO createdActionBlock = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
-
-        Set<Policy> datasourcePoliciesAfterActionCreation = datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
-
-        datasourcePoliciesAfterActionCreation.forEach(policy -> {
-            if (policy.getPermission().equals(MANAGE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(DELETE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(EXECUTE_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(READ_DATASOURCES.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
-            }
-            if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
         });
     }
