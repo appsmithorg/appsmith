@@ -63,7 +63,7 @@ export const ImageInput = (props: ImageInputProps) => {
       <img
         alt="Preview"
         className="h-8"
-        src={(preview && getAssetUrl(preview)) || (value && getAssetUrl(value))}
+        src={getAssetUrl(preview as any) || getAssetUrl(value)}
       />
       <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
         <Button
