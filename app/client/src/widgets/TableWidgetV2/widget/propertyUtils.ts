@@ -1,5 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import type { ColumnProperties } from "../component/Constants";
+import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
@@ -193,7 +194,8 @@ export const updateColumnOrderHook = (
 
     const rightColumnIndex = findIndex(
       newColumnOrder,
-      (colName: string) => props.primaryColumns[colName].sticky === "right",
+      (colName: string) =>
+        props.primaryColumns[colName]?.sticky === StickyType.RIGHT,
     );
 
     if (rightColumnIndex !== -1) {
