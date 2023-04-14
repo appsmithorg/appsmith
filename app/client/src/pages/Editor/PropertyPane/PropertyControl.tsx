@@ -429,9 +429,12 @@ const PropertyControl = memo((props: Props) => {
 
       const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] =
         getOtherWidgetPropertyChanges(propertyName, propertyValue);
+
       let allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+
       if (selfUpdates) {
         allPropertiesToUpdates.push(selfUpdates);
+
         // ideally we should not allow updating another widget without any updates on its own.
         if (enhancementsToOtherWidgets && enhancementsToOtherWidgets.length) {
           allPropertiesToUpdates = allPropertiesToUpdates.concat(
@@ -439,6 +442,7 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
+
       return allPropertiesToUpdates;
     },
     [getOtherWidgetPropertyChanges, getWidgetsOwnUpdatesOnPropertyChange],
@@ -507,6 +511,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName: string,
       propertyValue: any,
       isUpdatedViaKeyboard?: boolean,
+      isDynamicPropertyPath?: boolean,
     ) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
@@ -523,6 +528,20 @@ const PropertyControl = memo((props: Props) => {
         );
 
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
+        const update = allPropertiesToUpdates[0];
+
+        if (isDynamicPropertyPath && update) {
+          allPropertiesToUpdates[0] = merge({}, update, {
+            dynamicUpdates: {
+              dynamicPropertyPathList: [
+                {
+                  key: propertyName,
+                },
+              ],
+            },
+          });
+        }
+
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
         onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
