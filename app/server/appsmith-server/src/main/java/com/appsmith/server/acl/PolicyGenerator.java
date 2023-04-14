@@ -192,8 +192,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_DATASOURCES, MANAGE_DATASOURCES);
         hierarchyGraph.addEdge(WORKSPACE_READ_DATASOURCES, READ_DATASOURCES);
         lateralGraph.addEdge(DELETE_DATASOURCES, READ_DATASOURCES);
-        lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, MANAGE_DATASOURCES);
-        lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, DELETE_DATASOURCES);
+        lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, EXECUTE_DATASOURCES);
         lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, READ_DATASOURCES);
 
         lateralGraph.addEdge(WORKSPACE_READ_DATASOURCES, WORKSPACE_EXECUTE_DATASOURCES);

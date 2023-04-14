@@ -585,8 +585,6 @@ public class WorkspaceResourcesTest {
         )));
 
         assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdDatasourceCreate, Set.of(
-                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.DELETE),
-                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT),
                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW)
         )));
