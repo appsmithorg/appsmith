@@ -498,8 +498,7 @@ export function* fetchFeatureFlags() {
 }
 
 export function* updateFirstTimeUserOnboardingSage() {
-  const enable: boolean | null = yield select(getEnableStartSignposting);
-
+  const enable: boolean | null = yield call(getEnableStartSignposting);
   if (enable) {
     const applicationIds: string[] =
       yield getFirstTimeUserOnboardingApplicationIds() || [];
