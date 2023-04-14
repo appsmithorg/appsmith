@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash";
+import { isEmpty, merge } from "lodash";
 import { BaseQueryGenerator } from "./BaseQueryGenerator";
 import type { CombinedConfig } from "./types";
 
@@ -7,6 +7,8 @@ enum COMMAND_TYPES {
   "INSERT" = "INSERT",
   "UPDATE" = "UPDATE",
 }
+const ALLOWED_INITAL_VALUE_KEYS = ["aggregate", "smartSubstitution"];
+
 export default class MongoDB extends BaseQueryGenerator {
   private buildBasicConig(command: COMMAND_TYPES, tableName: string) {
     return { command: { data: command }, collection: { data: tableName } };
@@ -68,17 +70,68 @@ export default class MongoDB extends BaseQueryGenerator {
       ...this.buildBasicConig(COMMAND_TYPES.INSERT, config.tableName),
     };
   }
+  removeUnrelatedInitialValues(
+    initialValues: Record<string, any>,
+    commandsKey: string,
+  ) {
+    if (isEmpty(initialValues)) return {};
+    return [...ALLOWED_INITAL_VALUE_KEYS, commandsKey]
+      .filter((key) => initialValues[key])
+      .reduce((acc, key) => {
+        acc[key] = initialValues[key];
+        return acc;
+      }, {} as Record<string, any>);
+  }
 
-  build(combinedConfig: CombinedConfig) {
+  mergeWithRelatedInitialValues(
+    formDataInitialValues: Record<string, any>,
+    commandsKey: string,
+    builtValues: Record<string, any> | undefined,
+  ) {
+    if (!builtValues || isEmpty(builtValues)) return;
+    // if not initial values return builtin values
+    if (!formDataInitialValues || isEmpty(formDataInitialValues))
+      return builtValues;
+    const scubedOutInitalValues = this.removeUnrelatedInitialValues(
+      formDataInitialValues,
+      commandsKey,
+    );
+
+    return { formData: merge(scubedOutInitalValues, builtValues) };
+  }
+  build(
+    combinedConfig: CombinedConfig,
+    pluginInitalValues: { actionConfiguration: any },
+  ) {
     const allBuildConfigs = [];
+    const formDataInitialValues =
+      pluginInitalValues?.actionConfiguration?.formData;
     if (combinedConfig.select) {
-      allBuildConfigs.push(this.buildSelect(combinedConfig));
+      allBuildConfigs.push(
+        this.mergeWithRelatedInitialValues(
+          formDataInitialValues,
+          "find",
+          this.buildSelect(combinedConfig),
+        ),
+      );
     }
     if (combinedConfig.insert) {
-      allBuildConfigs.push(this.buildUpdate(combinedConfig));
+      allBuildConfigs.push(
+        this.mergeWithRelatedInitialValues(
+          formDataInitialValues,
+          "updateMany",
+          this.buildUpdate(combinedConfig),
+        ),
+      );
     }
     if (combinedConfig.create) {
-      allBuildConfigs.push(this.buildInsert(combinedConfig));
+      allBuildConfigs.push(
+        this.mergeWithRelatedInitialValues(
+          formDataInitialValues,
+          "insert",
+          this.buildInsert(combinedConfig),
+        ),
+      );
     }
     //remove falsey build configs
     return allBuildConfigs.filter((val) => !!val);

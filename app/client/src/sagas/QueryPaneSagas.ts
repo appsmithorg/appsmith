@@ -6,6 +6,7 @@ import {
   take,
   takeEvery,
   fork,
+  takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
@@ -46,7 +47,11 @@ import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  createNewQueryName,
+  getNextEntityName,
+} from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -85,6 +90,11 @@ import { validateResponse } from "./ErrorSagas";
 import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
+import {
+  createAction,
+  getCreateActionAllDefaultValuesByPluginId,
+} from "./ActionSagas";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -439,11 +449,7 @@ function* handleNameChangeSuccessSaga(
   }
 }
 
-/**
- * Creates an action with specific datasource created by a user
- * @param action
- */
-function* createNewQueryForDatasourceSaga(
+function* createActionPayloadWithDefaults(
   action: ReduxAction<{
     pageId: string;
     datasourceId: string;
@@ -451,7 +457,7 @@ function* createNewQueryForDatasourceSaga(
   }>,
 ) {
   const { datasourceId, pageId } = action.payload;
-  if (!datasourceId) return;
+
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const actions: ActionDataState = yield select(getActions);
 
@@ -479,7 +485,7 @@ function* createNewQueryForDatasourceSaga(
       ? createNewQueryName(actions, pageId || "")
       : createNewApiName(actions, pageId || "");
 
-  const createActionPayload = {
+  return {
     name: newActionName,
     pageId,
     pluginId: datasource?.pluginId,
@@ -494,7 +500,107 @@ function* createNewQueryForDatasourceSaga(
     actionConfiguration:
       plugin?.type === PluginType.API ? defaultApiActionConfig : {},
   };
+}
 
+function* createActionsFromFormConfig(
+  action: ReduxAction<{
+    pageId: string;
+    datasourceId: string;
+    formConfig: Record<string, any>;
+    from: EventLocation;
+  }>,
+) {
+  const { datasourceId, formConfig } = action.payload;
+
+  if (!datasourceId) return;
+
+  const createActionPayload: Partial<Action> = yield call(
+    createActionPayloadWithDefaults,
+    action,
+  );
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+
+  const QueryAdaptor = WidgetQueryGeneratorRegistry.get(plugin.packageName);
+
+  const defaultValues: object | undefined = yield call(
+    getCreateActionAllDefaultValuesByPluginId,
+    datasource?.pluginId,
+  );
+
+  const formDataCommands = new QueryAdaptor().build(formConfig, defaultValues);
+  //if there is no actions to be created just return
+  if (!formDataCommands || !formDataCommands.length) {
+    return { status: "success" };
+  }
+
+  //generate next query name
+  const queryNames = formDataCommands.reduce(
+    (acc: Array<string>, curr: any, index: number) => {
+      if (index === 0 && createActionPayload.name) {
+        acc.push(createActionPayload.name);
+        return acc;
+      }
+      const nextName = getNextEntityName("Query", acc);
+      acc.push(nextName);
+      return acc;
+    },
+    [],
+  );
+  //generate action payloads
+  const actionRequestPayloads = formDataCommands.map(
+    (command: object, index: number) => {
+      const payload = merge({}, createActionPayload, {
+        actionConfiguration: command,
+        //merge the next query names to the default payload
+        name: queryNames[index],
+      });
+
+      return createActionRequest(payload);
+    },
+  );
+
+  //call sagas in parallel and get their status
+  const results: {
+    status: string;
+  }[] = yield all(
+    actionRequestPayloads.map(
+      (
+        request: ReduxAction<
+          Partial<Action> & { eventData: any; pluginId: string }
+        >,
+      ) => call(createAction, request),
+    ),
+  );
+
+  const hasAFailureInActionCreations = results.some(
+    (result) => result?.status === "failure",
+  );
+
+  //orchestrator saga can check status of this saga from the returned value
+  if (hasAFailureInActionCreations) {
+    return { status: "failure" };
+  }
+  return { status: "success" };
+}
+/**
+ * Creates an action with specific datasource created by a user
+ * @param action
+ */
+function* createNewQueryForDatasourceSaga(
+  action: ReduxAction<{
+    pageId: string;
+    datasourceId: string;
+    from: EventLocation;
+  }>,
+) {
+  const { datasourceId } = action.payload;
+  if (!datasourceId) return;
+
+  const createActionPayload: Partial<Action> = yield call(
+    createActionPayloadWithDefaults,
+    action,
+  );
   yield put(createActionRequest(createActionPayload));
 }
 
@@ -506,6 +612,10 @@ function* handleNameChangeFailureSaga(
 
 export default function* root() {
   yield all([
+    takeLatest(
+      ReduxActionTypes.BUILD_ONE_CLICK_BINDING,
+      createActionsFromFormConfig,
+    ),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
     takeEvery(
       ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,

@@ -1,4 +1,6 @@
+import { PluginPackageName } from "entities/Action";
 import { error } from "loglevel";
+import MongoDB from "WidgetQueryGenerators/MongoDB";
 
 export default class WidgetQueryGeneratorRegistry {
   private static queryGeneratorMap = new Map();
@@ -38,3 +40,4 @@ WidgetQueryGeneratorRegistry.register("5e687c18fb01e64e6a3f873f", {});
 WidgetQueryGeneratorRegistry.register("5c9f512f96c1a50004819786", {});
 WidgetQueryGeneratorRegistry.register("6080f9266b8cfd602957ba72", {});
 //
+WidgetQueryGeneratorRegistry.register(PluginPackageName.MONGO, MongoDB);

@@ -121,6 +121,69 @@ import {
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 
+export function* getCreateActionAllDefaultValuesByPluginId(pluginId: string) {
+  if (!pluginId) return;
+  const editorConfig: any[] = yield select(getEditorConfig, pluginId);
+
+  const settingConfig: any[] = yield select(getSettingConfig, pluginId);
+
+  let initialValues: Record<string, unknown> = yield call(
+    getConfigInitialValues,
+    editorConfig,
+  );
+  if (settingConfig) {
+    const settingInitialValues: Record<string, unknown> = yield call(
+      getConfigInitialValues,
+      settingConfig,
+    );
+    initialValues = merge(initialValues, settingInitialValues);
+  }
+  return initialValues;
+}
+
+export function* createAction(
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
+) {
+  const { payload } = actionPayload;
+
+  try {
+    const response: ApiResponse<ActionCreateUpdateResponse> | undefined =
+      yield ActionAPI.createAction(payload);
+
+    if (!response) return { status: "failure" };
+
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const pageName: string = yield select(
+        getCurrentPageNameByActionId,
+        response.data.id,
+      );
+
+      AnalyticsUtil.logEvent("CREATE_ACTION_FROM_ONE_CLICK_BINDING", {
+        id: response.data.id,
+        // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
+        actionName: response.data.name,
+        pageName: pageName,
+        ...actionPayload.payload.eventData,
+      });
+
+      AppsmithConsole.info({
+        text: `Action created from one click binding`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          id: response.data.id,
+          // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
+          name: response.data.name,
+        },
+      });
+      return { status: "success" };
+    }
+  } catch (e) {}
+  return { status: "failure" };
+}
+
 export function* createActionSaga(
   actionPayload: ReduxAction<
     Partial<Action> & { eventData: any; pluginId: string }
@@ -129,27 +192,10 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      const editorConfig: any[] = yield select(
-        getEditorConfig,
+      const initialValues: object = yield call(
+        getCreateActionAllDefaultValuesByPluginId,
         actionPayload.payload.pluginId,
       );
-
-      const settingConfig: any[] = yield select(
-        getSettingConfig,
-        actionPayload.payload.pluginId,
-      );
-
-      let initialValues: Record<string, unknown> = yield call(
-        getConfigInitialValues,
-        editorConfig,
-      );
-      if (settingConfig) {
-        const settingInitialValues: Record<string, unknown> = yield call(
-          getConfigInitialValues,
-          settingConfig,
-        );
-        initialValues = merge(initialValues, settingInitialValues);
-      }
       payload = merge(initialValues, actionPayload.payload);
     }
 
