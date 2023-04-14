@@ -2812,7 +2812,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "042", id = "add-oracle-plugin", author = "")
     public void addOraclePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
-        plugin.setName("Oracle Plugin");
+        plugin.setName("Oracle");
         plugin.setType(PluginType.DB);
         plugin.setPackageName("oracle-plugin");
         plugin.setUiComponent("DbEditorForm");
