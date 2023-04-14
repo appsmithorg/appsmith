@@ -1,5 +1,4 @@
 import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
-import { ENTITY_TYPE } from "ee/constants/workspaceConstants";
 
 export function createMessage(
   format: (...strArgs: any[]) => string,
@@ -594,7 +593,7 @@ export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
   entityType?: string,
 ) =>
   `You want to remove ${name} from this ${
-    entityType === ENTITY_TYPE.APPLICATION ? "application" : "workspace"
+    entityType === "Application" ? "application" : "workspace"
   }`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
