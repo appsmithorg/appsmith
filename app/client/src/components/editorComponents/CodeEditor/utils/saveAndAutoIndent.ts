@@ -1,18 +1,11 @@
-import { getPlatformOS, PLATFORM_OS } from "utils/helpers";
+import { getPlatformOS } from "utils/helpers";
 import type CodeMirror from "codemirror";
 import { autoIndentCode } from "./autoIndentUtils";
-
-const saveAndAutoIndentShortcut = {
-  [PLATFORM_OS.MAC]: "Cmd-S",
-  [PLATFORM_OS.IOS]: "Cmd-S",
-  [PLATFORM_OS.WINDOWS]: "Ctrl-S",
-  [PLATFORM_OS.ANDROID]: "Ctrl-S",
-  [PLATFORM_OS.LINUX]: "Ctrl-S",
-};
+import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getSaveAndAutoIndentKey = () => {
-  const platformOS = getPlatformOS();
-  return platformOS ? saveAndAutoIndentShortcut[platformOS] : "Ctrl-S";
+  const platformOS = getPlatformOS() || "default";
+  return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].saveAndAutoIndent;
 };
 
 export const saveAndAutoIndentCode = (editor: CodeMirror.Editor) => {
