@@ -43,7 +43,14 @@ const ButtonWrapper = styled.div`
 `;
 
 type DeleteConfirmationProps = {
-  username?: string | null;
+  userToBeDeleted: {
+    name: string;
+    username: string;
+    workspaceId: string;
+    userGroupId?: string;
+    entityId?: string;
+    entityType?: string;
+  };
   name?: string | null;
   isOpen: boolean;
   onClose: () => void;
@@ -52,7 +59,8 @@ type DeleteConfirmationProps = {
 };
 
 function DeleteConfirmationModal(props: DeleteConfirmationProps) {
-  const { isDeletingUser, isOpen, name, onClose, onConfirm, username } = props;
+  const { isDeletingUser, isOpen, onClose, onConfirm, userToBeDeleted } = props;
+  const { entityType, name, username } = userToBeDeleted;
 
   return (
     <StyledDialog
@@ -70,7 +78,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
     >
       <LeftContainer>
         <Text textAlign="center" type={TextType.P1}>
-          {DELETE_CONFIRMATION_MODAL_SUBTITLE(name || username)}
+          {DELETE_CONFIRMATION_MODAL_SUBTITLE(name || username, entityType)}
         </Text>
         <ButtonWrapper>
           <ImportButton
