@@ -67,7 +67,7 @@ describe("Theme validation usecase for multi-select widget", function () {
           cy.get(".t--draggable-multiselectwidgetv2:contains('more')").should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
           themeFont = $childElem.children().last().text();
         });
