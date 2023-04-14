@@ -2827,4 +2827,11 @@ public class DatabaseChangelog2 {
         }
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "043", id = "update-oracle-plugin-name", author = "")
+    public void updateOraclePluginName(MongoTemplate mongoTemplate) {
+        Plugin oraclePlugin = mongoTemplate.findOne(query(where("packageName").is("oracle-plugin")), Plugin.class);
+        oraclePlugin.setName("Oracle");
+        mongoTemplate.save(oraclePlugin);
+    }
 }
