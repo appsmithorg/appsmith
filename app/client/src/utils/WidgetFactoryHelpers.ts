@@ -7,7 +7,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { memoize } from "lodash";
 import log from "loglevel";
 import { generateReactKey } from "./generators";
-import { generateVerticalAlignmentConfig } from "./layoutPropertiesUtils";
 import type { WidgetType } from "./WidgetFactory";
 import WidgetFactory from "./WidgetFactory";
 import type {
@@ -200,11 +199,6 @@ export function enhancePropertyPaneConfig(
       }
     });
   }
-
-  config.unshift({
-    sectionName: "Alignment - Temporary!!",
-    children: [generateVerticalAlignmentConfig()],
-  });
 
   return config;
 }
