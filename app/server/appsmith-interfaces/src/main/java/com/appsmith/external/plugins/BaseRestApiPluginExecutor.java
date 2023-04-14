@@ -79,6 +79,11 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     }
 
     @Override
+    public boolean isConnectionStale(DatasourceConfiguration datasourceConfiguration) {
+        return datasourceConfiguration.getAuthentication().isExpired();
+    }
+
+    @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
         // At this point, the URL can be invalid because of mustache template keys inside it. Hence, connecting to
         // and verifying the URL isn't feasible. Since validation happens just before testing, and since validation

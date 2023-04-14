@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -58,6 +59,11 @@ public class AuthenticationDTO implements AppsmithDomain {
     @JsonView(Views.Public.class)
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
+    }
+
+    @JsonIgnore
+    public boolean isExpired() {
+        return false;
     }
 
 }

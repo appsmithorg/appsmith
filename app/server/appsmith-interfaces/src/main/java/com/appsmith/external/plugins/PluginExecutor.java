@@ -75,6 +75,17 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
+     * By default, the connection is not considered stale if all the other checks are passed.
+     * This function can be implemented if additional steps are required to check
+     * if the connection for a plugin is stale or not.
+     * @param datasourceConfiguration
+     * @return boolean
+     */
+    default boolean isConnectionStale(DatasourceConfiguration datasourceConfiguration) {
+        return false;
+    }
+
+    /**
      * This function checks if the datasource is valid. It should only check if all the mandatory fields are filled and
      * if the values are of the right format. It does NOT check the validity of those fields.
      * Please use {@link #testDatasource(DatasourceConfiguration)} to establish the correctness of those fields.

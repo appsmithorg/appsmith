@@ -78,7 +78,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                                                DatasourceContextIdentifier datasourceContextIdentifier) {
         synchronized (monitor) {
             /* Destroy any stale connection to free up resource */
-            final boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
+            final boolean isStale = getIsStale(datasource, datasourceContextIdentifier, pluginExecutor);
             if (isStale) {
                 final Object connection = datasourceContextMap.get(datasourceContextIdentifier).getConnection();
                 if (connection != null) {
@@ -210,6 +210,15 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && datasourceContextMap.get(datasourceContextIdentifier) != null
                 && datasource.getUpdatedAt() != null
                 && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceContextIdentifier).getCreationTime());
+    }
+
+    public boolean getIsStale(
+            Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier, PluginExecutor<Object> pluginExecutor) {
+        DatasourceContext<?> datasourceContext = datasourceContextMap.get(datasourceContextIdentifier);
+        return getIsStale(datasource, datasourceContextIdentifier)
+                || (datasource.getId() != null
+                    && datasourceContext != null
+                    && pluginExecutor.isConnectionStale(datasource.getDatasourceConfiguration()));
     }
 
     protected boolean isValidDatasourceContextAvailable(Datasource datasource,

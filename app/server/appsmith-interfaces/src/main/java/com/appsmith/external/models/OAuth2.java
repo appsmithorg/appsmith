@@ -109,4 +109,11 @@ public class OAuth2 extends AuthenticationDTO {
 
         return Mono.just(authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60)));
     }
+
+    @Override
+    public boolean isExpired() {
+        return this.authenticationResponse == null
+                || this.authenticationResponse.expiresAt == null
+                || this.authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60));
+    }
 }
