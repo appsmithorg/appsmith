@@ -1,4 +1,4 @@
-export const getAssetUrl = (src = "") => {
+export const getAssetUrl = (src: string | ArrayBuffer) => {
   return src;
 };
 
