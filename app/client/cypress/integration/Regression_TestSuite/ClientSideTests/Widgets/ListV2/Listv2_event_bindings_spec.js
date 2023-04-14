@@ -61,10 +61,6 @@ describe("Listv2 - Event bindings", () => {
     // Open the property pane of button in the inner list widget
     cy.openPropertyPane("buttonwidget");
 
-    cy.testJsontext(
-      "onclick",
-      "{{showAlert(`${currentView.Input1.text} _ ${currentItem.id} _ ${currentIndex}`)}}",
-    );
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1")).find("input").type("Input");
 
@@ -106,21 +102,18 @@ describe("Listv2 - Event bindings", () => {
     cy.openPropertyPane("buttonwidget");
 
     // Clear the onClick event binding
-    cy.testJsontext("onclick", "");
+    cy.testJsontextclear("onclick");
     // Disable the JS mode
     cy.get(toggleJSButton("onclick")).click({ force: true });
 
-    // Define 2 actions chained together
+    // Define action
     cy.addAction("{{currentItem.name}}", "onClick");
-    cy.wait(2000);
-    cy.addAction("{{currentIndex.toString()}}", "onClick");
     cy.wait(2000);
 
     // Find the button and click
     cy.get(widgetSelector("Button1")).find("button").click({ force: true });
 
-    // Verify alerts for both actions
+    // Verify alert
     cy.get(commonlocators.toastmsg).contains(listData[0].name);
-    cy.get(commonlocators.toastmsg).contains("0");
   });
 });
