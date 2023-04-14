@@ -179,7 +179,7 @@ export class ContainerWidget extends BaseWidget<
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const canvasSplitRatio: number =
-      this.props.canvasSplitType && index !== undefined
+      this.props.canvasSplitType && index !== undefined && !this.props.isMobile
         ? getCanvasSplitRatio(this.props.canvasSplitType)[index]
         : 1;
     childWidget.rightColumn =
@@ -224,7 +224,11 @@ export class ContainerWidget extends BaseWidget<
       this.props.positioning !== Positioning.Vertical;
 
     return (
-      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
+      <ContainerComponent
+        {...props}
+        isMobile={this.props.isMobile || false}
+        noScroll={isAutoHeightEnabled}
+      >
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

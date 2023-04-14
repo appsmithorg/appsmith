@@ -118,11 +118,6 @@ function* getChildWidgetProps(
     if (isFillWidget) columns = 64;
   }
 
-  const isAutoLayout = isStack(widgets, parent);
-  const isFillWidget =
-    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
-  if (isAutoLayout && isFillWidget) columns = 64;
-
   const widgetProps = {
     ...restDefaultConfig,
     ...props,
