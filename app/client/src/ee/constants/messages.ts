@@ -6,6 +6,7 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
   MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE,
   SEARCH_USERS as CE_SEARCH_USERS,
+  PAGE_SERVER_UNAVAILABLE_TITLE as CE_PAGE_SERVER_UNAVAILABLE_TITLE,
   INVITE_USERS_SUBMIT_SUCCESS as CE_INVITE_USERS_SUBMIT_SUCCESS,
   INVITE_USER_SUBMIT_SUCCESS as CE_INVITE_USER_SUBMIT_SUCCESS,
 } from "ce/constants/messages";
@@ -185,3 +186,12 @@ export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
 
 // Auth pages
 export const SIGNUP_PAGE_TITLE = () => `Create your account`;
+
+// error pages
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
+  if (cloudHosting) {
+    return CE_PAGE_SERVER_UNAVAILABLE_TITLE(cloudHosting);
+  } else {
+    return "Server unavailable";
+  }
+};
