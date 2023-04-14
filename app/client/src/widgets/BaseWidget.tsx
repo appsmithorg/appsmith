@@ -593,7 +593,7 @@ abstract class BaseWidget<
     content: ReactNode,
     widgetProps: WidgetProps,
   ) => (
-    <WidgetComponentBoundary widgetProps={widgetProps}>
+    <WidgetComponentBoundary widgetType={widgetProps.type}>
       {content}
     </WidgetComponentBoundary>
   );
