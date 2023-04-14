@@ -51,7 +51,6 @@ type DeleteConfirmationProps = {
     entityId?: string;
     entityType?: string;
   };
-  name?: string | null;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
