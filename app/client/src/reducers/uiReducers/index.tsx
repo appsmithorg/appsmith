@@ -49,6 +49,7 @@ import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
 import multiPaneReducer from "./multiPaneReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
+import oneClickBindingReducer from "./oneClickBindingReducer";
 
 const uiReducer = combineReducers({
   analytics: analyticsReducer,
@@ -101,6 +102,7 @@ const uiReducer = combineReducers({
   multiPaneConfig: multiPaneReducer,
   layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
+  oneClickBinding: oneClickBindingReducer,
 });
 
 export default uiReducer;

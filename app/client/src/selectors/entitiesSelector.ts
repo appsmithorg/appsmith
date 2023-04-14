@@ -76,6 +76,20 @@ export const getDatasourceTableColumns =
       return table?.columns;
     }
   };
+export const getDatasourceTablePrimaryColumn =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(datasourceId)(state);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      if (table) {
+        const primaryKey = table.keys?.find((d) => d.type === "primary key");
+
+        return primaryKey?.columnNames?.[0];
+      }
+    }
+  };
 
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
@@ -153,6 +167,21 @@ export const getPluginPackageFromDatasourceId = (
 
   if (!plugin) return undefined;
   return plugin.packageName;
+};
+
+export const getPluginIdFromDatasourceId = (
+  state: AppState,
+  datasourceId: string,
+): string | undefined => {
+  const datasource = state.entities.datasources.list.find(
+    (datasource) => datasource.id === datasourceId,
+  );
+
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === datasource?.pluginId,
+  );
+
+  return plugin?.id;
 };
 
 export const getPluginNameFromId = (

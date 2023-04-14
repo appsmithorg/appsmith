@@ -8,7 +8,6 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
@@ -31,6 +30,7 @@ import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
+import { Colors } from "constants/Colors";
 
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
@@ -41,6 +41,12 @@ const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
     height: 16px;
     padding: 0;
   }
+`;
+
+const EmptyStateLabel = styled.div`
+  margin: 20px 0px;
+  text-align: center;
+  color: ${Colors.GREY_6};
 `;
 
 interface ReduxStateProps {
@@ -157,7 +163,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
     // If there are no columns, show empty state
     if (Object.keys(columns).length === 0) {
-      return <EmptyDataState />;
+      return <EmptyStateLabel>Table columns will appear here</EmptyStateLabel>;
     }
     // Get an empty array of length of columns
     let columnOrder: string[] = new Array(Object.keys(columns).length);

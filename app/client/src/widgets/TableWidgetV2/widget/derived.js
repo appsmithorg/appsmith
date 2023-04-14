@@ -821,6 +821,7 @@ export default {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)
       : [];
+
     return columns
       .sort((a, b) => a.index - b.index)
       .map((column) => ({
@@ -828,6 +829,10 @@ export default {
         label: column?.label,
         isVisible: column?.isVisible,
       }));
+  },
+  //
+  getIsTablePristine: (props, moment, _) => {
+    return props.primaryColumns && !Object.keys(props.primaryColumns).length;
   },
   //
 };

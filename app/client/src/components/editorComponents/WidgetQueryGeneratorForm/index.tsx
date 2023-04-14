@@ -1,37 +1,54 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import produce from "immer";
 import { noop, set } from "lodash";
 
 import { CommonControls } from "./CommonControls";
 import { ConnectData } from "./ConnectData";
-import { DEFAULT_DROPDOWN_OPTION } from "./constants";
 import { DatasourceSpecificControls } from "./DatasourceSpecificControls";
-import { Wrapper } from "./styles";
-import type { DropdownOptionType } from "./types";
+import { GlobalStyles, Wrapper } from "./styles";
 import WidgetSpecificControls from "./WidgetSpecificControls";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
+import {
+  getisOneClickBindingConnectingForWidget,
+  getOneClickBindingConfigForWidget,
+} from "selectors/oneClickBindingSelectors";
 
 type WidgetQueryGeneratorFormContextType = {
+  widgetId: string;
+  propertyValue: string;
+  propertyName: string;
   config: {
-    datasource: DropdownOptionType;
-    table: DropdownOptionType;
-    column: Record<string, DropdownOptionType>;
-    sheet: DropdownOptionType;
+    datasource: string;
+    table: string;
+    alias: Record<string, string>;
+    sheet: string;
+    searchableColumn: string;
     tableHeaderIndex: number;
+    datasourcePluginType: string;
+    datasourcePluginName: string;
   };
-  updateConfig: (propertyName: string, value: unknown) => void;
+  updateConfig: (
+    property: string | Record<string, unknown>,
+    value?: unknown,
+  ) => void;
   addSnippet: () => void;
-  addBinding: () => void;
+  addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
+  isSourceOpen: boolean;
+  onSourceClose: () => void;
+  errorMsg: string;
 };
 
 const DEFAULT_CONFIG_VALUE = {
-  datasource: DEFAULT_DROPDOWN_OPTION,
-  table: DEFAULT_DROPDOWN_OPTION,
-  sheet: DEFAULT_DROPDOWN_OPTION,
-  column: {},
+  datasource: "",
+  table: "",
+  sheet: "",
+  alias: {},
+  searchableColumn: "",
   tableHeaderIndex: 1,
+  datasourcePluginType: "",
+  datasourcePluginName: "",
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -39,6 +56,12 @@ const DEFAULT_CONTEXT_VALUE = {
   updateConfig: noop,
   addSnippet: noop,
   addBinding: noop,
+  widgetId: "",
+  propertyValue: "",
+  isSourceOpen: false,
+  onSourceClose: noop,
+  errorMsg: "",
+  propertyName: "",
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -47,79 +70,170 @@ export const WidgetQueryGeneratorFormContext =
   );
 
 type Props = {
-  openSnippetModal: (
-    propertyPath: string,
-    entityId: string,
-    expectedType: string,
-    callback: (snippet: string) => void,
-  ) => void;
   propertyPath: string;
+  propertyValue: string;
   expectedType?: string;
   entityId: string;
-  onUpdate: (snippet: string) => void;
+  onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
+  widgetId: string;
+  isSourceOpen: boolean;
+  onSourceClose: () => void;
+  errorMsg: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
-  const { entityId, expectedType, onUpdate, openSnippetModal, propertyPath } =
-    props;
+  const dispatch = useDispatch();
 
-  const [config, setConfig] = useState(DEFAULT_CONFIG_VALUE);
+  const [pristine, setPristine] = useState(true);
 
-  const updateConfig = useCallback(
-    (propertyName: string, value: unknown) => {
-      setConfig(
-        produce(config, (draftConfig) => {
-          set(draftConfig, propertyName, value);
+  const {
+    entityId,
+    errorMsg,
+    expectedType,
+    isSourceOpen,
+    onSourceClose,
+    onUpdate,
+    propertyPath,
+    propertyValue,
+    widgetId,
+  } = props;
 
-          if (propertyName === "datasource") {
-            set(draftConfig, "table", DEFAULT_DROPDOWN_OPTION);
-            set(draftConfig, "sheet", DEFAULT_DROPDOWN_OPTION);
-            set(draftConfig, "searchable_columns", DEFAULT_DROPDOWN_OPTION);
-            set(draftConfig, "column", {});
-          }
+  const formData = useSelector(getOneClickBindingConfigForWidget(widgetId));
 
-          if (propertyName === "table") {
-            set(draftConfig, "sheet", DEFAULT_DROPDOWN_OPTION);
-            set(draftConfig, "searchable_columns", DEFAULT_DROPDOWN_OPTION);
-            set(draftConfig, "column", {});
-          }
-
-          if (propertyName === "sheet") {
-            set(draftConfig, "searchable_columns", DEFAULT_DROPDOWN_OPTION);
-            set(draftConfig, "column", {});
-          }
-        }),
-      );
-    },
-    [config],
+  const isConnecting = useSelector(
+    getisOneClickBindingConnectingForWidget(widgetId),
   );
 
-  const addSnippet = useCallback(() => {
-    openSnippetModal(
-      propertyPath,
-      entityId,
-      expectedType || "Array",
-      (snippet: string) => {
-        onUpdate(snippet);
-      },
-    );
-  }, [openSnippetModal, propertyPath, entityId, expectedType, onUpdate]);
+  let formState = {
+    ...DEFAULT_CONFIG_VALUE,
+  };
 
-  const addBinding = useCallback(() => {
-    onUpdate("{{}}");
-  }, [onUpdate]);
+  if (formData) {
+    formState = {
+      ...formState,
+      datasource: formData.datasourceId,
+      table: formData.tableName,
+      searchableColumn: formData.searchableColumn,
+    };
+  }
+
+  const [config, setConfig] = useState({
+    ...formState,
+    widgetId,
+  });
+
+  const updateConfig = (
+    property: string | Record<string, unknown>,
+    value?: unknown,
+  ) => {
+    setPristine(false);
+
+    setConfig(
+      produce(config, (draftConfig) => {
+        if (
+          property === "datasource" ||
+          (typeof property === "object" &&
+            Object.keys(property).includes("datasource"))
+        ) {
+          set(draftConfig, "table", "");
+          set(draftConfig, "sheet", "");
+          set(draftConfig, "searchableColumn", "");
+          set(draftConfig, "alias", {});
+          set(draftConfig, "datasourcePluginType", "");
+          set(draftConfig, "datasourcePluginName", "");
+        }
+
+        if (
+          property === "table" ||
+          (typeof property === "object" &&
+            Object.keys(property).includes("table"))
+        ) {
+          set(draftConfig, "sheet", "");
+          set(draftConfig, "searchableColumn", "");
+          set(draftConfig, "alias", {});
+        }
+
+        if (
+          property === "sheet" ||
+          (typeof property === "object" &&
+            Object.keys(property).includes("sheet"))
+        ) {
+          set(draftConfig, "searchableColumn", "");
+          set(draftConfig, "alias", {});
+        }
+
+        if (typeof property === "string") {
+          set(draftConfig, property, value);
+        } else {
+          Object.entries(property).forEach(([name, value]) => {
+            set(draftConfig, name, value);
+          });
+        }
+      }),
+    );
+  };
+
+  const addSnippet = useCallback(() => {
+    dispatch(
+      executeCommandAction({
+        actionType: SlashCommand.NEW_SNIPPET,
+        args: {
+          entityType: "widget",
+          expectedType: expectedType || "Array",
+          entityId: entityId,
+          propertyPath: propertyPath,
+        },
+        callback: (snippet: string) => {
+          onUpdate(snippet, true);
+        },
+      }),
+    );
+  }, [propertyPath, entityId, expectedType, onUpdate]);
+
+  const addBinding = useCallback(
+    (binding?: string, makeDynamicPropertyPath?: boolean) => {
+      onUpdate(binding, makeDynamicPropertyPath);
+    },
+    [onUpdate],
+  );
 
   const contextValue = useMemo(() => {
     return {
-      config,
+      config: {
+        ...config,
+      },
       updateConfig,
       addSnippet,
       addBinding,
+      propertyValue,
+      widgetId,
+      isSourceOpen,
+      onSourceClose,
+      errorMsg,
+      propertyName: propertyPath,
     };
-  }, [config, updateConfig, addSnippet, addBinding]);
+  }, [
+    config,
+    updateConfig,
+    addSnippet,
+    addBinding,
+    propertyValue,
+    widgetId,
+    isSourceOpen,
+    onSourceClose,
+    errorMsg,
+    propertyPath,
+  ]);
+
+  useEffect(() => {
+    if (!pristine && propertyValue && !isConnecting) {
+      updateConfig("datasource", "");
+    }
+  }, [isConnecting]);
 
   return (
     <Wrapper>
+      <GlobalStyles />
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
         <CommonControls />
         <DatasourceSpecificControls />
@@ -130,24 +244,4 @@ function WidgetQueryGeneratorForm(props: Props) {
   );
 }
 
-export default connect(null, (dispatch) => ({
-  openSnippetModal: (
-    propertyPath: string,
-    entityId: string,
-    expectedType: string,
-    callback: (snippet: string) => void,
-  ) => {
-    dispatch(
-      executeCommandAction({
-        actionType: SlashCommand.NEW_SNIPPET,
-        args: {
-          entityType: "widget",
-          expectedType: expectedType,
-          entityId: entityId,
-          propertyPath: propertyPath,
-        },
-        callback,
-      }),
-    );
-  },
-}))(WidgetQueryGeneratorForm);
+export default WidgetQueryGeneratorForm;

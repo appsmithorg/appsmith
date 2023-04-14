@@ -698,6 +698,7 @@ function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
     paginationField: PaginationField;
+    skipOpeningDebugger: boolean;
   }>,
 ) {
   const actionId = reduxAction.payload.id;
@@ -745,7 +746,9 @@ function* runActionSaga(
 
   const { id, paginationField } = reduxAction.payload;
   // open response tab in debugger on exection of action.
-  yield call(openDebugger);
+  if (!reduxAction.payload.skipOpeningDebugger) {
+    yield call(openDebugger);
+  }
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
