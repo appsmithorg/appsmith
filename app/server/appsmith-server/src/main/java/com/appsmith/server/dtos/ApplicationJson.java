@@ -84,7 +84,7 @@ public class ApplicationJson {
     Map<String, Set<String>> updatedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Map<String, DecryptedSensitiveFields> decryptedFields;
 
     @Deprecated

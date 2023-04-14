@@ -253,6 +253,54 @@ public class ImportExportUtils {
         return Collections.unmodifiableMap(map);
     }
 
+    public static Map<String, NewPage> computeUnpublishedPageNameToPageMap(List<NewPage> pages) {
+        Map<String, NewPage> map = pages.stream()
+                .filter(page -> page.getUnpublishedPage() != null && !isResourceDeleted(page.getUnpublishedPage()))
+                .collect(Collectors.toMap(page -> page.getUnpublishedPage().getName(), Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, NewPage> computePublishedPageNameToPageMap(List<NewPage> pages) {
+        Map<String, NewPage> map = pages.stream()
+                .filter(page -> page.getPublishedPage() != null && !isResourceDeleted(page.getPublishedPage()))
+                .collect(Collectors.toMap(page -> page.getPublishedPage().getName(), Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, NewAction> computeUnpublishedActionNameToActionMap(List<NewAction> actions) {
+        Map<String, NewAction> map = actions.stream()
+                .filter(action -> action.getUnpublishedAction() != null && !isResourceDeleted(action.getUnpublishedAction()))
+                .collect(Collectors.toMap(action -> action.getUnpublishedAction().getName(), Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, NewAction> computePublishedActionNameToActionMap(List<NewAction> actions) {
+        Map<String, NewAction> map = actions.stream()
+                .filter(action -> action.getPublishedAction() != null && !isResourceDeleted(action.getPublishedAction()))
+                .collect(Collectors.toMap(action -> action.getPublishedAction().getName(), Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, ActionCollection> computeUnpublishedCollectionNameToCollectionMap(List<ActionCollection> actionCollections) {
+        Map<String, ActionCollection> map = actionCollections.stream()
+                .filter(actionCollection -> actionCollection.getUnpublishedCollection() != null && !isResourceDeleted(actionCollection.getUnpublishedCollection()))
+                .collect(Collectors.toMap(actionCollection -> actionCollection.getUnpublishedCollection().getName(), Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
+    public static Map<String, ActionCollection> computePublishedCollectionNameToCollectionMap(List<ActionCollection> actionCollections) {
+        Map<String, ActionCollection> map = actionCollections.stream()
+                .filter(actionCollection -> actionCollection.getPublishedCollection() != null && !isResourceDeleted(actionCollection.getPublishedCollection()))
+                .collect(Collectors.toMap(actionCollection -> actionCollection.getPublishedCollection().getName(), Function.identity()));
+                
+        return Collections.unmodifiableMap(map);
+    }
+
     /**
      * This utility function returns the plugin name if present, else returns the
      * package name
@@ -267,5 +315,9 @@ public class ImportExportUtils {
 
     public static boolean isResourceDeleted(DeletableResource resource) {
         return resource == null || resource.getDeletedAt() != null;
+    }
+
+    public static class ResourceMapping {
+        
     }
 }

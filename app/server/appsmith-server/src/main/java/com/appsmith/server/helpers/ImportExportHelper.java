@@ -6,6 +6,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +22,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -244,24 +246,22 @@ public class ImportExportHelper {
      */
     public Flux<NewPage> fetchPagesForApplication(String applicationId, boolean isExport,
             SerialiseApplicationObjective serialiseFor) {
+
         Optional<AclPermission> optionalPermission = pagePermission.getAccessPermissionForImportExport(isExport,
                 serialiseFor);
-        return newPageRepository.findByApplicationId(applicationId, optionalPermission).log();
+        return newPageRepository.findByApplicationId(applicationId, optionalPermission);
     }
 
     public Mono<Application> fetchOrCreateApplicationForImport(String applicationId, Application applicationToImport,
             SerialiseApplicationObjective serialiseFor) {
-        Mono<Application> applicationMono = Mono.empty();
 
-        if (StringUtils.isNotBlank(applicationId)) {
-            applicationMono = applicationService.findById(applicationId,
+        Mono<Application> applicationMono = applicationService.findById(applicationId,
                     applicationPermission.getAccessPermissionForImportExport(false, serialiseFor));
-        }
 
         applicationMono = applicationMono.switchIfEmpty(Mono.defer(() -> {
             // If application id is not present, then create a new application
-            applicationToImport.setPages(null);
-            applicationToImport.setPublishedPages(null);
+            //applicationToImport.setPages(applicationPages);
+            //applicationToImport.setPublishedPages(null);
             return applicationPageService.createOrUpdateSuffixedApplication(applicationToImport,
                     applicationToImport.getName(), 0);
         }));

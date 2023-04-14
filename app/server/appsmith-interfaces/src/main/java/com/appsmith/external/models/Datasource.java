@@ -50,7 +50,7 @@ public class Datasource extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String templateName;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     DatasourceConfiguration datasourceConfiguration;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -104,7 +104,7 @@ public class Datasource extends BranchAwareDomain {
      * This field is meant to indicate whether the datasource is part of a mock DB, or a copy of the same.
      * The field is set during the creation of the mock db
      */
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     Boolean isMock;
 
     /**

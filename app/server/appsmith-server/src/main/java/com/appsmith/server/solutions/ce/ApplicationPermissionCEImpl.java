@@ -53,6 +53,8 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
             } else if(serialiseFor == SerialiseApplicationObjective.VERSION_CONTROL) {
                 return Optional.of(getEditPermission());
             }
+        } else {
+            return Optional.of(getEditPermission());
         }
         throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "getAccessPermissionForImportExport");
     }
