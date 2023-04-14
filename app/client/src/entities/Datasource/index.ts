@@ -47,6 +47,7 @@ export interface DatasourceColumns {
 export interface DatasourceKeys {
   name: string;
   type: string;
+  columnNames: string[];
 }
 
 export interface DatasourceStructure {
@@ -117,6 +118,7 @@ export interface Datasource extends BaseDatasource {
   structure?: DatasourceStructure;
   messages?: string[];
   success?: boolean;
+  isMock?: boolean;
 }
 
 export interface TokenResponse {

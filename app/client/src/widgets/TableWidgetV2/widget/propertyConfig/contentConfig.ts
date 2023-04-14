@@ -28,11 +28,12 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table data",
-        controlType: "INPUT_TEXT",
+        controlType: "ONE_CLICK_BINDING_CONTROL",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: {
           type: ValidationTypes.OBJECT_ARRAY,
           params: {
@@ -40,6 +41,7 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        dependencies: ["isConnectDataEnabled"],
       },
       {
         helpText: "Columns",
