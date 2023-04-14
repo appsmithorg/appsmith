@@ -72,15 +72,7 @@ export const ActionButtons = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-
-  & > div {
-    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
-  }
-
-  button:last-child {
-    margin-left: ${(props) => props.theme.spaces[7]}px;
-    height: 30px;
-  }
+  gap: 10px;
 `;
 
 export const SecondaryWrapper = styled.div`

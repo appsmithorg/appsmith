@@ -1,15 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import FlagBadge from "components/utils/FlagBadge";
+// import FlagBadge from "components/utils/FlagBadge";
 import type { JSCollection } from "entities/JSCollection";
-import type { DropdownOnSelect } from "design-system-old";
-import {
-  Dropdown,
-  DropdownContainer,
-  StyledButton,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import { Button } from "design-system";
+import type { SelectProps } from "design-system";
+import { Button, Option, Select, Tooltip } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -22,7 +16,7 @@ type Props = {
   isLoading: boolean;
   jsCollection: JSCollection;
   onButtonClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-  onSelect: DropdownOnSelect;
+  onSelect: SelectProps["onSelect"];
   options: JSActionDropdownOption[];
   selected: JSActionDropdownOption;
   showTooltip: boolean;
@@ -31,28 +25,10 @@ type Props = {
 export type DropdownWithCTAWrapperProps = {
   isDisabled: boolean;
 };
-const disabledStyles = `
-opacity: 0.5;
-pointer-events:none;
-`;
 
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
-
-  ${StyledButton} {
-    ${(props) =>
-      props.isDisabled &&
-      `
-    ${disabledStyles}
-    `}
-  }
-  ${DropdownContainer} {
-    ${(props) =>
-      props.isDisabled &&
-      `
-      ${disabledStyles}
-    `}
-  }
+  gap: 10px;
 `;
 
 export function JSFunctionRun({
@@ -61,34 +37,29 @@ export function JSFunctionRun({
   jsCollection,
   onButtonClick,
   onSelect,
+  // showTooltip,
   options,
   selected,
-  showTooltip,
 }: Props) {
   return (
     <DropdownWithCTAWrapper isDisabled={disabled}>
-      <Dropdown
-        customBadge={<FlagBadge name="Async" />}
-        cypressSelector="function-select-dropdown"
-        height={RUN_BUTTON_DEFAULTS.HEIGHT}
+      <Select
+        className="function-select-dropdown"
         onSelect={onSelect}
-        options={options}
-        selected={selected}
-        selectedHighlightBg={RUN_BUTTON_DEFAULTS.DROPDOWN_HIGHLIGHT_BG}
-        showLabelOnly
-        truncateOption
-        width="232px"
-      />
-
+        size="md"
+        value={selected.label}
+      >
+        {options.map((option) => (
+          <Option key={option.value}>{option.label}</Option>
+        ))}
+      </Select>
       <Tooltip
         content={createMessage(NO_JS_FUNCTION_TO_RUN, jsCollection.name)}
-        disabled={!showTooltip}
-        hoverOpenDelay={50}
       >
         <Button
           className={testLocators.runJSAction}
           isLoading={isLoading}
-          onClick={() => onButtonClick}
+          onClick={onButtonClick}
           size="md"
         >
           {RUN_BUTTON_DEFAULTS.CTA_TEXT}

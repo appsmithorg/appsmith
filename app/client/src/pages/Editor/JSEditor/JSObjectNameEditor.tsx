@@ -16,10 +16,10 @@ import {
 } from "@appsmith/constants/messages";
 import { PluginType } from "entities/Action";
 import type { Plugin } from "api/PluginApi";
-import { Spinner } from "@blueprintjs/core";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
+import { Spinner } from "design-system";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -33,6 +33,7 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
     flex: 0 1 auto;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
+    align-items: center;
   }
 
   ${(props) =>
@@ -119,7 +120,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />
-            {saveStatus.isSaving && <Spinner size={16} />}
+            {saveStatus.isSaving && <Spinner size="md" />}
           </div>
         </JSObjectNameWrapper>
       )}

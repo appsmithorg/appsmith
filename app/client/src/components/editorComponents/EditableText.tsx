@@ -90,6 +90,7 @@ const TextContainer = styled.div<{
   minimal: boolean;
   underline?: boolean;
 }>`
+  color: var(--ads-v2-color-fg-emphasis-plus);
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
@@ -248,7 +249,11 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon className="t--action-name-edit-icon" name="edit" size="md" />
+            <Icon
+              className="t--action-name-edit-icon"
+              name="pencil-fill-icon"
+              size="md"
+            />
           )}
         </TextContainer>
       </ErrorTooltip>

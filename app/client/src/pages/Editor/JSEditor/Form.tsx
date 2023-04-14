@@ -4,7 +4,7 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
-import { SearchSnippet, TabComponent } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
@@ -69,6 +69,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { Button } from "design-system";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -207,14 +208,17 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     [jsActions, parseErrors, handleActiveActionChange, isExecutePermitted],
   );
 
-  const handleJSActionOptionSelection: DropdownOnSelect = (
-    value,
-    dropDownOption: JSActionDropdownOption,
-  ) => {
-    dropDownOption.data &&
-      setSelectedJSActionOption(
-        convertJSActionToDropdownOption(dropDownOption.data),
-      );
+  const handleJSActionOptionSelection: DropdownOnSelect = (value) => {
+    if (value) {
+      const jsAction = getActionFromJsCollection(value, currentJSCollection);
+      if (jsAction) {
+        setSelectedJSActionOption({
+          data: jsAction,
+          value,
+          label: jsAction.name,
+        });
+      }
+    }
   };
 
   const handleRunAction = (
@@ -299,10 +303,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
-              <SearchSnippet
-                entityId={currentJSCollection?.id}
-                entityType={ENTITY_TYPE.JSACTION}
-                onClick={() => {
+              <Button
+                kind="secondary"
+                onClick={(e) => {
+                  e.preventDefault();
                   dispatch(
                     executeCommandAction({
                       actionType: SlashCommand.NEW_SNIPPET,
@@ -312,8 +316,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                       },
                     }),
                   );
+                  return;
                 }}
-              />
+                size="md"
+                startIcon="query"
+              >
+                SNIPPETS
+              </Button>
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
