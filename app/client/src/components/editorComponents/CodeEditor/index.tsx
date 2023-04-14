@@ -328,7 +328,10 @@ class CodeEditor extends Component<Props, State> {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.lineCommentString!,
         ),
-        [getSaveAndAutoIndentKey()]: (editor) => saveAndAutoIndentCode(editor),
+        [getSaveAndAutoIndentKey()]: (editor) => {
+          saveAndAutoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
