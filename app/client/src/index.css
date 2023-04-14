@@ -5,6 +5,8 @@
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
+@import "assets/fonts/custom/index.css";
+@import "assets/fonts/google/index.css";
 
 body {
   margin: 0;
