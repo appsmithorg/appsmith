@@ -6,13 +6,25 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import { FormGroup, MenuDivider, TextInput } from "design-system-old";
-import { Button, Icon, Spinner, toast, Text } from "design-system";
+import { FormGroup, TextInput } from "design-system-old";
+import {
+  Button,
+  Icon,
+  toast,
+  Text,
+  Input,
+  Link,
+  Spinner,
+  Divider,
+  Avatar,
+  Callout,
+  Tooltip,
+} from "design-system";
 import {
   createMessage,
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
-import ProfileImage from "pages/common/ProfileImage";
+// import ProfileImage from "pages/common/ProfileImage";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -94,6 +106,13 @@ const Wrapper = styled.div<{ left: number }>`
       margin-bottom: 16px;
       display: flex;
       flex-direction: column;
+      a {
+        display: inline-block;
+        > span {
+          font-size: inherit;
+        }
+        /* font-size: 12px; */
+      }
     }
     .search-results {
       .library-card {
@@ -102,7 +121,7 @@ const Wrapper = styled.div<{ left: number }>`
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        border-bottom: 1px solid var(--appsmith-color-black-100);
+        border-bottom: 1px solid var(--ads-v2-color-border);
         .description {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -121,6 +140,19 @@ const Wrapper = styled.div<{ left: number }>`
         border-bottom: none;
       }
     }
+    .divider {
+      margin: 0 0 16px 0;
+    }
+    .download {
+      cursor: pointer;
+    }
+    .library-name {
+      /* font-family: var(--font-family); */
+      color: var(--ads-v2-color-fg-emphasis-plus);
+      font-size: var(--ads-v2-font-size-6);
+      font-weight: var(--ads-v2-h4-font-weight);
+      letter-spacing: var(--ads-v2-h4-letter-spacing);
+    }
   }
 `;
 
@@ -129,9 +161,10 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     props.addBorder ? `1px solid var(--appsmith-color-black-300)` : "none"};
   display: flex;
   flex-direction: column;
-  background: var(--appsmith-color-black-50);
+  background: var(--ads-v2-color-bg-muted);
   text-overflow: ellipsis;
   padding: 8px 8px 12px;
+  border-radius: var(--ads-v2-border-radius);
   .install-url {
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -182,18 +215,33 @@ function StatusIcon(props: {
   );
   if (status === InstallState.Success || isInstalled)
     return (
-      <Icon
-        className="installed"
-        color="var(--ads-v2-color-fg-success)"
-        name="checkbox-circle-fill"
-        size="md"
-      />
+      <Tooltip content="Successfully installed" trigger="hover">
+        <Icon
+          className="installed"
+          color="var(--ads-v2-color-fg-success)"
+          name="oval-check-fill"
+          size="md"
+        />
+      </Tooltip>
     );
   if (status === InstallState.Failed)
-    return <Icon className="failed" name="warning-line" size="md" />;
+    return (
+      <Tooltip content="Download failed, please try again." trigger="hover">
+        <Icon className="failed" name="warning-line" size="md" />
+      </Tooltip>
+    );
   if (status === InstallState.Queued) return <Spinner className="queued" />;
   return (
-    <Icon className="t--download" {...actionProps} name="download" size="md" />
+    <Tooltip content="Install" trigger="hover">
+      <Button
+        className="t--download download"
+        isIconButton
+        kind="tertiary"
+        {...actionProps}
+        size="sm"
+        startIcon="download"
+      />
+    </Tooltip>
   );
 }
 
@@ -223,7 +271,26 @@ function ProgressTracker({
             <StatusIcon status={status} />
           </div>
         </div>
-        <div
+        <Callout
+          kind="error"
+          links={[
+            {
+              children: createMessage(customJSLibraryMessages.REPORT_ISSUE),
+              to: "#",
+              onClick: (e) => openDoc(e, EXT_LINK.reportIssue),
+            },
+            {
+              children: createMessage(customJSLibraryMessages.LEARN_MORE),
+              onClick: (e) => openDoc(e, EXT_LINK.learnMore),
+              to: "#",
+              // onClick: function noRefCheck() {},
+            },
+          ]}
+          // onClose={function noRefCheck() {}}
+        >
+          Error banner
+        </Callout>
+        {/* <div
           className={classNames({
             "gap-2 error-card items-start ": true,
             show: status === InstallState.Failed,
@@ -246,7 +313,7 @@ function ProgressTracker({
               </a>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </InstallationProgressWrapper>
   );
@@ -272,10 +339,6 @@ function InstallationProgress() {
     </div>
   );
 }
-
-const SectionDivider = styled(MenuDivider)`
-  margin: 0 0 16px 0;
-`;
 
 const EXT_LINK = {
   learnMore:
@@ -380,13 +443,23 @@ export function Installer(props: { left: number }) {
           isIconButton
           kind="tertiary"
           onClick={closeInstaller}
-          size="sm"
+          size="md"
           startIcon="close-modal"
         />
       </div>
       <div className="search-body overflow-auto">
         <div className="search-area t--library-container">
           <div className="flex flex-row gap-2 justify-between items-end">
+            <Input
+              // isValid={validate}
+              label={"Library URL"}
+              labelPosition="top"
+              onChange={updateURL}
+              placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
+              size="md"
+              startIcon="link-2"
+              type="text"
+            />
             <FormGroup className="flex-1" label={"Library URL"}>
               <TextInput
                 $padding="12px"
@@ -406,6 +479,7 @@ export function Installer(props: { left: number }) {
               isDisabled={!(URL && isValid)}
               isLoading={queuedLibraries.length > 0}
               onClick={() => installLibrary()}
+              size="md"
               startIcon="download"
             >
               Install
@@ -415,24 +489,26 @@ export function Installer(props: { left: number }) {
         <div className="search-CTA mb-3 text-xs">
           <span>
             Explore libraries on{" "}
-            <a
-              className="text-primary-500"
+            <Link
+              kind="primary"
               onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
+              to="#"
             >
               jsDelivr
-            </a>
+            </Link>
             {". "}
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
-            <a
-              className="text-primary-500"
+            <Link
+              kind="primary"
               onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
+              to="#"
             >
               here
-            </a>
+            </Link>
             {"."}
           </span>
         </div>
-        <SectionDivider color="red" />
+        <Divider className="divider" />
         <InstallationProgress />
         <div className="pb-2 sticky top-0 z-2 bg-white">
           <Text kind="heading-xs">
@@ -475,15 +551,24 @@ function LibraryCard({
       })}
     >
       <div className="flex flex-row justify-between items-center">
-        <div className="flex flex-row gap-2 items-center">
-          <Text kind="heading-s">{lib.name}</Text>
+        <div className="flex flex-row gap-1 items-center">
+          <Link
+            className="library-name"
+            endIcon="share-box-line"
+            kind="secondary"
+            onClick={(e) => openDoc(e, lib.url)}
+            to="#"
+          >
+            {lib.name}
+          </Link>
+          {/* <Text kind="heading-s">{lib.name}</Text>
           <Button
             isIconButton
             kind="tertiary"
             onClick={(e) => openDoc(e, lib.docsURL)}
             size="sm"
-            startIcon="share-2"
-          />
+            startIcon="share-box-line"
+          /> */}
         </div>
         <div className="mr-2">
           <StatusIcon
@@ -495,9 +580,23 @@ function LibraryCard({
       </div>
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
-        <ProfileImage size={20} source={lib.icon} />
+        <Avatar image={lib.icon} label={lib.author} size="sm" />
+        {/* <ProfileImage size={20} source={lib.icon} /> */}
         <Text kind="action-s">{lib.author}</Text>
       </div>
     </div>
   );
 }
+
+export const Banner = () => {
+  return (
+    <div className="flex flex-col unsupported gap-1">
+      <div className="header">
+        {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
+      </div>
+      <div className="body">
+        {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
+      </div>
+    </div>
+  );
+};

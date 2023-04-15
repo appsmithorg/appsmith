@@ -21,6 +21,10 @@ export const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: grab;
+  img {
+    cursor: grab;
+  }
 
   & > div {
     display: flex;
@@ -31,7 +35,6 @@ export const Wrapper = styled.div`
 
   &:hover {
     background: var(--ads-v2-color-bg-subtle);
-    cursor: grab;
   }
 
   & i {

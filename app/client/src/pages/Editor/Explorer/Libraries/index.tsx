@@ -16,7 +16,7 @@ import {
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
 import {
   toggleInstaller,
@@ -51,15 +51,6 @@ const Library = styled.li`
     height: 36px;
   }
 
-  .share {
-    display: none;
-    width: 30px;
-    height: 36px;
-    background: transparent;
-    margin-left: 8px;
-    flex-shrink: 0;
-  }
-
   &:hover {
     background: var(--ads-v2-color-bg-subtle);
 
@@ -68,21 +59,10 @@ const Library = styled.li`
     }
 
     & .delete,
-    .share {
+    .open-link {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
-      &:hover {
-        background: black;
-        .uninstall-library,
-        .open-link {
-          color: white;
-          svg > path {
-            fill: white;
-          }
-        }
-      }
     }
   }
 
@@ -103,11 +83,13 @@ const Library = styled.li`
     display: none;
   }
 
-  .delete {
+  .delete,
+  .open-link {
     display: none;
     width: 30px;
     height: 36px;
-    background: transparent;
+    margin-left: 4px;
+    /* background: transparent; */
     flex-shrink: 0;
   }
 
@@ -142,7 +124,8 @@ const Library = styled.li`
       width: calc(100% - 80px);
       justify-content: space-between;
       align-items: center;
-      color: ${Colors.ENTERPRISE_DARK};
+      color: var(--ads-v2-color-fg-emphasis);
+      border-radius: var(--ads-v2-border-radius);
       > div {
         height: 100%;
         display: flex;
@@ -151,9 +134,9 @@ const Library = styled.li`
         background: transparent;
         width: 25px;
         &:hover {
-          background: ${Colors.SHARK2};
+          background: var(--ads-v2-color-bg-muted);
           > svg > path {
-            fill: ${Colors.WHITE};
+            fill: var(--ads-v2-color-fg);
           }
         }
       }
@@ -202,6 +185,7 @@ const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
       <Button
         className="delete uninstall-library t--uninstall-library"
         isIconButton
+        kind="error"
         onClick={uninstallLibrary}
         size="sm"
         startIcon="trash-outline"
@@ -247,8 +231,15 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
         <div className="flex items-center flex-start flex-1 overflow-hidden">
           <Name>{lib.name}</Name>
           {docsURL && (
-            <div className="share" onClick={openDocs(docsURL)}>
-              <Icon className="open-link" name="share-2" size="sm" />
+            <div className="share">
+              <Button
+                className="open-link"
+                isIconButton
+                kind="tertiary"
+                onClick={openDocs(docsURL)}
+                size="sm"
+                startIcon="share-box-line"
+              />
             </div>
           )}
         </div>
@@ -262,9 +253,14 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           Available as{" "}
           <div className="accessor">
             {lib.accessor[lib.accessor.length - 1]}{" "}
-            <div>
-              <CopyIcon onClick={copyToClipboard} />
-            </div>
+            <Button
+              // className="open-link"
+              isIconButton
+              kind="tertiary"
+              onClick={copyToClipboard}
+              size="sm"
+              startIcon="copy-control"
+            />
           </div>
         </div>
       </Collapse>

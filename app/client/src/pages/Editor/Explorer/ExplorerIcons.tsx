@@ -256,6 +256,7 @@ const EntityIconWrapper = styled.div<{
   align-items: center;
   justify-content: center;
   text-align: center;
+  border-radius: var(--ads-v2-border-radius);
 
   svg,
   img {

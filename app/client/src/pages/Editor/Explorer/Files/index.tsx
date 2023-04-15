@@ -23,12 +23,7 @@ import {
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
-import { Icon } from "design-system";
-import styled from "styled-components";
-
-const StyledGroup = styled.div`
-  color: var(--ads-v2-color-fg);
-`;
+import { Icon, Text } from "design-system";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -70,12 +65,13 @@ function Files() {
       files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
-            <StyledGroup
-              className={`text-sm pl-8 bg-trueGray-50 overflow-hidden overflow-ellipsis whitespace-nowrap`}
+            <Text
+              className="pl-8 overflow-hidden overflow-ellipsis whitespace-nowrap"
               key={entity.name || "Queries"}
+              kind="heading-xs"
             >
               {entity.name}
-            </StyledGroup>
+            </Text>
           );
         } else if (type === "JS") {
           return (

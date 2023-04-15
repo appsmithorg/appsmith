@@ -8,6 +8,7 @@ const Wrapper = styled.div`
 
   &.selected {
     background-color: var(--ads-v2-color-bg-muted);
+    border-radius: var(--ads-v2-border-radius);
   }
 `;
 
