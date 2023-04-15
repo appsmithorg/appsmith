@@ -335,8 +335,8 @@ export const Steps: StepsType = {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          The pane on the right is called the <b>Property Pane</b>. Here you can
-          modify properties, data, or styling for every widget.
+          The pane on the right is called the&nbsp;<b>Property Pane</b>. Here
+          you can modify properties, data, or styling for every widget.
         </>
       ),
       onClick: (dispatch) => {
@@ -483,8 +483,9 @@ export const Steps: StepsType = {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          To <b>update the customers</b> through the button, we created an{" "}
-          <b>updateCustomerInfo query</b> for you which is ready to use
+          To&nbsp;<b>update the customers</b>&nbsp;through the button, we
+          created an&nbsp;<b>updateCustomerInfo query</b>&nbsp;for you which is
+          ready to use
         </>
       ),
       onClick: (dispatch) => {

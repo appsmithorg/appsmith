@@ -3,8 +3,7 @@ import {
   showInfoMessage,
   toggleLoader,
 } from "actions/onboardingActions";
-import { getTypographyByKey } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Text } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -35,21 +34,15 @@ import {
 } from "@appsmith/constants/messages";
 
 const GuideWrapper = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   user-select: text;
-
-  code {
-    font-size: 16px;
-  }
 `;
 
 const CardWrapper = styled.div`
   width: 100%;
   display: flex;
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.guidedTour.card.borderBottom};
+  border-bottom: 1px solid var(--ads-v2-color-border);
   flex-direction: column;
-  background: ${(props) => props.theme.colors.guidedTour.card.background};
+  background: var(--ads-v2-color-bg-information);
 `;
 
 const TitleWrapper = styled.div`
@@ -57,45 +50,31 @@ const TitleWrapper = styled.div`
   display: flex;
 `;
 
-const Title = styled.span`
-  ${getTypographyByKey("h2")}
-  font-weight: 600;
-  color: #000000;
-  display: flex;
-  flex: 1;
-
-  &.success-message {
-    margin-right: ${(props) => props.theme.spaces[4]}px;
-  }
-`;
-
 const StepCount = styled.div`
-  background: ${(props) => props.theme.colors.guidedTour.stepCountBackground};
-  color: white;
-  ${getTypographyByKey("h5")};
+  background: var(--ads-v2-color-bg-emphasis-max);
+  color: var(--ads-v2-color-fg-on-emphasis-plus);
   height: 24px;
   width: 24px;
-  border-radius: 12px;
+  border-radius: var(--ads-border-radius-circle);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-right: ${(props) => props.theme.spaces[3]}px;
+  margin-right: var(--ads-v2-spaces-3);
 `;
 
 const Description = styled.span<{ addLeftSpacing?: boolean }>`
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 14px;
+  line-height: 16px;
 
-  letter-spacing: -0.24px;
+  /* letter-spacing: -0.24px; */
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0px")};
-  margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-top: var(--ads-v2-spaces-2);
   flex: 1;
   display: flex;
 `;
 
 const UpperContent = styled.div`
-  padding: ${(props) => props.theme.spaces[9]}px
-    ${(props) => props.theme.spaces[7]}px;
+  padding: var(--ads-v2-spaces-5);
   flex-direction: column;
   display: flex;
 `;
@@ -122,29 +101,23 @@ const SubContentWrapper = styled.div`
     flex-direction: row;
   }
   .count {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     text-align: center;
 
     .complete {
       font-weight: 400;
-      letter-spacing: 0.8px;
     }
   }
 `;
 
 const Hint = styled.div`
-  background: #ffffff;
-  color: #090707;
-  padding: ${(props) => props.theme.spaces[8] + 1}px
-    ${(props) => props.theme.spaces[11]}px;
-  margin-top: ${(props) => props.theme.spaces[9]}px;
+  background: var(--ads-v2-color-bg);
+  padding: var(--ads-v2-spaces-4);
+  margin-top: var(--ads-v2-spaces-5);
   display: flex;
   align-items: center;
-  border: 1px solid
-    ${(props) => props.theme.colors.guidedTour.cancelButton.color};
-  box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
-    0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+  border: 1px solid var(--ads-v2-color-border);
 
   .align-vertical {
     flex-direction: column;
@@ -155,7 +128,7 @@ const Hint = styled.div`
   }
 
   .hint-text {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .hint-button {
@@ -184,54 +157,35 @@ const HintTextWrapper = styled.div`
   align-items: center;
 
   img {
-    height: 85px;
-    width: 186px;
-    box-shadow: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
-      0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+    height: 70px;
+    width: 152px;
   }
 `;
 
 const SuccessMessageWrapper = styled.div`
   display: flex;
-  background: white;
+  background: var(--ads-v2-color-bg);
   flex-direction: column;
-  border: 1px solid
-    ${(props) => props.theme.colors.guidedTour.cancelButton.color};
-  box-shadow: 0px 0px 24px -4px rgba(16, 24, 40, 0.1),
-    0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+  border: 1px solid var(--ads-v2-color-border);
 
   .wrapper {
-    padding: ${(props) => props.theme.spaces[2]}px
-      ${(props) => props.theme.spaces[11]}px;
+    padding: 0px 12px 0 0;
     display: flex;
   }
   .info-wrapper {
-    padding: 16px 24px;
+    padding: var(--ads-v2-spaces-4);
     align-items: center;
-
-    svg {
-      height: 40px;
-      width: 40px;
-    }
   }
 
   .lottie-wrapper {
-    height: 59px;
-    weight: 59px;
+    height: 47px;
+    width: 47px;
   }
   .title-wrapper {
     display: flex;
     flex: 1;
     align-items: center;
     justify-content: space-between;
-  }
-  .info {
-    padding-left: ${(props) => props.theme.spaces[7]}px;
-    display: block;
-    padding-right: 64px;
-    margin-top: 0px;
-    line-height: 24px;
-    font-size: 18px;
   }
 `;
 
@@ -249,7 +203,9 @@ function InitialContent() {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <Title>{createMessage(TITLE)}</Title>
+          <Text kind="heading-s" renderAs="h2">
+            {createMessage(TITLE)}
+          </Text>
           <Description>{createMessage(DESCRIPTION)}</Description>
         </SubContentWrapper>
         <GuideButton
@@ -257,6 +213,7 @@ function InitialContent() {
           isLoading={isLoading}
           isVisible={!queryAction?.isLoading && !!queryAction?.data}
           onClick={setupFirstStep}
+          size="md"
         >
           {createMessage(BUTTON_TEXT)}
         </GuideButton>
@@ -307,7 +264,9 @@ function GuideStepsContent(props: {
           <div className="header">
             <TitleWrapper>
               <StepCount>{props.currentStep}</StepCount>
-              <Title>{content.title}</Title>
+              <Text kind="heading-s" renderAs="h2">
+                {content.title}
+              </Text>
             </TitleWrapper>
             <div className="count">
               {props.currentStep - 1}/{GUIDED_TOUR_STEPS.DEPLOY}
@@ -329,6 +288,7 @@ function GuideStepsContent(props: {
               <GuideButton
                 className="t--hint-button"
                 onClick={hintButtonOnClick}
+                size="sm"
               >
                 {createMessage(PROCEED)}
               </GuideButton>
@@ -417,14 +377,15 @@ function CompletionContent(props: CompletionContentProps) {
         <div className="wrapper">
           <div className="lottie-wrapper" ref={tickMarkRef} />
           <div className="title-wrapper">
-            <Title className="success-message">
+            <Text className="success-message" kind="heading-s" renderAs="h2">
               {Steps[props.step].success?.text}
-            </Title>
+            </Text>
             {/* Show the button after a delay */}
             <GuideButton
               className="t--success-button"
               isVisible={showSuccessButton}
               onClick={onSuccessButtonClick}
+              size="sm"
             >
               {success?.buttonText ?? createMessage(CONTINUE)}
             </GuideButton>
@@ -442,7 +403,11 @@ function CompletionContent(props: CompletionContentProps) {
             size="lg"
           />
           <Description className="info">{info?.text}</Description>
-          <GuideButton className="t--info-button" onClick={onInfoButtonClick}>
+          <GuideButton
+            className="t--info-button"
+            onClick={onInfoButtonClick}
+            size="sm"
+          >
             {info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
           </GuideButton>
         </div>
