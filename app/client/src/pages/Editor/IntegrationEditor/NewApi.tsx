@@ -312,7 +312,7 @@ function NewApiScreen(props: Props) {
                 <img
                   alt="OAuth2"
                   className="authApiImage t--authApiImage content-icon"
-                  src={authApiPlugin.iconLocation}
+                  src={getAssetUrl(authApiPlugin.iconLocation)}
                 />
               </div>
               <p className="t--plugin-name textBtn">Authenticated API</p>
