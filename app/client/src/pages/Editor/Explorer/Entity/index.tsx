@@ -156,7 +156,9 @@ export const EntityItem = styled.div<{
 
   & .${EntityClassNames.RIGHT_ICON}:hover {
     background: ${(props) =>
-      props.rightIconClickable ? Colors.SHARK2 : "initial"};
+      props.rightIconClickable
+        ? "var(--ads-v2-color-bg-brand-secondary-emphasis)"
+        : "initial"};
     svg {
       path {
         fill: ${(props) =>
@@ -192,8 +194,8 @@ const IconWrapper = styled.span`
 `;
 
 export const AddButtonWrapper = styled.div`
-  height: 100%:
-  width: 100%:
+  height: 100%;
+  width: 100%;
 `;
 
 export type EntityProps = {

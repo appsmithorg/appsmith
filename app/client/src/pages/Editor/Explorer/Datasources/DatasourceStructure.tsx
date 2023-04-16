@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import type { IconProps } from "constants/IconConstants";
-import { IconWrapper } from "constants/IconConstants";
-import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
@@ -16,21 +13,18 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger } from "design-system";
+import { Menu, MenuTrigger, Button } from "design-system";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
     svg,
     svg path {
-      fill: #ff7235;
+      fill: var(--ads-v2-color-bg-brand);
     }
   }
-  span {
-    font-size: ${(props) => props.theme.fontSizes[2]}px;
-    margin-left: 5px;
+  .button-icon {
+    height: 36px;
   }
-  padding: 0 5px;
-  color: var(--ads-v2-color-bg-subtle);
 `;
 
 const StyledEntity = styled(Entity)`
@@ -47,11 +41,6 @@ type DatasourceStructureProps = {
 
 export function DatasourceStructure(props: DatasourceStructureProps) {
   const dbStructure = props.dbStructure;
-  const iconProps: IconProps = {
-    width: 12,
-    height: 12,
-    color: "#FF7235",
-  };
   let templateMenu = null;
   const [active, setActive] = useState(false);
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
@@ -74,10 +63,14 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
         <Wrapper
           className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
         >
-          <IconWrapper {...iconProps}>
-            <LightningIcon />
-          </IconWrapper>
-          <span>Add</span>
+          <Button
+            className="button-icon"
+            kind="tertiary"
+            size="sm"
+            startIcon="lightning"
+          >
+            Add
+          </Button>
         </Wrapper>
       </MenuTrigger>
       <QueryTemplates

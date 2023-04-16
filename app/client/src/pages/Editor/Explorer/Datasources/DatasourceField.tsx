@@ -4,7 +4,6 @@ import {
   datasourceColumnIcon,
 } from "../ExplorerIcons";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { Menu, MenuContent, MenuTrigger } from "design-system";
@@ -38,7 +37,6 @@ const FieldValue = styled.div`
   text-align: right;
   font-size: 10px;
   line-height: 12px;
-  color: #777777;
   font-weight: 300;
 `;
 
@@ -64,7 +62,7 @@ const PopoverContent = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  background-color: ${Colors.WHITE};
+  background-color: var(--ads-v2-color-bg);
   padding: 11px;
 `;
 
@@ -74,7 +72,6 @@ const PopupValue = styled.div`
   :nth-child(2) {
     text-align: right;
     font-size: 10px;
-    color: #777777;
     padding-top: 3px;
     font-weight: 300;
   }
