@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,6 +78,13 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
+
+    // This field will only be used for git related functionality to sync the action object across different instances.
+    // This field will be deprecated once we move to the new git sync implementation.
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Internal.class)
+    @Deprecated
+    String gitSyncId;
 
     @Deprecated
     public void sanitiseToExportDBObject() {

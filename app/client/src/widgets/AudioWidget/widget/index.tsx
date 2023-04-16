@@ -8,6 +8,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
+import type { AutocompletionDefinitions } from "widgets/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
@@ -21,6 +22,16 @@ export enum PlayState {
 }
 
 class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+      "!url": "https://docs.appsmith.com/widget-reference/audio",
+      playState: "number",
+      autoPlay: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
