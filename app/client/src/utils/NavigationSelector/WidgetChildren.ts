@@ -1,5 +1,4 @@
 import type { EntityDefinitionsOptions } from "ce/utils/autocomplete/EntityDefinitions";
-import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isFunction } from "lodash";
@@ -7,6 +6,7 @@ import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgets
 import { builderURL } from "RouteBuilder";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
+import WidgetFactory from "utils/WidgetFactory";
 
 export const getWidgetChildrenNavData = (
   widget: FlattenedWidgetProps,
@@ -55,7 +55,7 @@ export const getWidgetChildrenNavData = (
       | "SKELETON_WIDGET"
       | "TABS_MIGRATOR_WIDGET"
     > = dataTreeWidget.type as any;
-    let config: any = entityDefinitions[type];
+    let config: any = WidgetFactory.getAutocompleteDefinitions(type);
     if (config) {
       if (isFunction(config)) config = config(dataTreeWidget);
       const widgetProps = Object.keys(config).filter(
