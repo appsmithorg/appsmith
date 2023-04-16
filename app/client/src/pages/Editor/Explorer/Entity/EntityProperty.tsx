@@ -8,7 +8,7 @@ import { Collapse } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
-import { Colors } from "constants/Colors";
+// import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
 import { Tooltip } from "design-system";
@@ -35,17 +35,18 @@ const Wrapper = styled.div<{ step: number }>`
       top: 0;
       width: 100%;
       font-size: 12px;
-      color: white;
+      /* color: white; */
       display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
       z-index: 2;
+      border-radius: var(--ads-v2-border-radius);
       &.success {
-        background: ${Colors.TUNDORA};
+        background: var(--ads-v2-color-bg-success);
       }
       &.error {
-        background: ${Colors.RED};
+        background: var(--ads-v2-color-bg-error);
       }
     }
 
@@ -64,14 +65,14 @@ const Wrapper = styled.div<{ step: number }>`
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          color: rgb(221, 74, 104) !important;
+          /* color: var(--ads-v2-color-fg-brand) !important; */
         }
       }
     }
 
     .type-text {
       font-size: 12px;
-      color: #716e6e;
+      /* color: #716e6e; */
     }
   }
 `;
@@ -95,6 +96,7 @@ const CopyBox = styled.div`
       top: 0;
       width: 100%;
       z-index: -1;
+      border-radius: var(--ads-v2-border-radius);
     }
     .copy-icon {
       opacity: 1;
