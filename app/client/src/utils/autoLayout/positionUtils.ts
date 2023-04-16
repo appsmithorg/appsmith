@@ -563,7 +563,7 @@ function updatePositionsForFlexWrap(
     // if there is only one alignment in this row, this implies that it may be wrapped.
     const payload =
       each.length === 1
-        ? placeWrappedWidgets(widgets, each[0], top, isMobile)
+        ? placeWrappedWidgets(widgets, each[0], top, isMobile, rowGap)
         : placeWidgetsWithoutWrap(widgets, each, top, isMobile);
     widgets = payload.widgets;
     top += payload.height + rowGap;
@@ -601,6 +601,7 @@ export function getStartingPosition(
  * @param alignment | AlignmentInfo: alignment to be positioned.
  * @param topRow | number: top row to place the widgets.
  * @param isMobile | boolean: is mobile viewport.
+ * @param rowGap | number: gap between rows.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
 export function placeWrappedWidgets(
@@ -608,6 +609,7 @@ export function placeWrappedWidgets(
   alignment: AlignmentInfo,
   topRow: number,
   isMobile = false,
+  rowGap = 0,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
 
@@ -626,7 +628,7 @@ export function placeWrappedWidgets(
       height,
     );
     widgets = result.widgets;
-    startRow += height;
+    startRow += height + rowGap;
   }
 
   return { height: startRow - topRow, widgets };
