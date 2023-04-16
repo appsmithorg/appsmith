@@ -1,9 +1,11 @@
 import CodeMirror from "codemirror";
-import { isMacOrIOS } from "utils/helpers";
+import { getPlatformOS } from "utils/helpers";
 import { EditorModes } from "../EditorConfig";
+import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getCodeCommentKeyMap = () => {
-  return isMacOrIOS() ? "Cmd-/" : "Ctrl-/";
+  const platformOS = getPlatformOS() || "default";
+  return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].codeComment;
 };
 
 export function getLineCommentString(mode: EditorModes) {
