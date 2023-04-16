@@ -194,7 +194,7 @@ const SearchContainer = styled.div`
     line-height: 16px;
     letter-spacing: -0.195px;
     height: 16px;
-    color: #4b4848;
+    /* color: #4b4848; */
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -210,7 +210,7 @@ const SearchContainer = styled.div`
   }
 
   .hit-description {
-    color: #888;
+    /* color: #888; */
     font-size: 14px;
     margin-bottom: 0.5em;
     font-style: normal;

@@ -85,13 +85,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { toast } from "design-system";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
-  width: ${({ category, query }) =>
-    isSnippet(category) ||
-    isDocumentation(category) ||
-    (isMenu(category) && query)
-      ? "785px"
-      : "500px"};
-  max-height: 530px;
+  /* max-height: 530px; */
   transition: height 0.1s ease, width 0.1s ease;
   height: ${(props) =>
     isMenu(props.category) ||
@@ -99,9 +93,7 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     isNavigation(props.category)
       ? "auto"
       : "530px"};
-  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
-  padding: ${(props) => props.theme.spaces[5]}px;
   flex-direction: column;
   position: relative;
 
@@ -110,8 +102,6 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     flex: 1;
     margin-top: ${(props) => props.theme.spaces[4]}px;
     overflow: hidden;
-    background-color: ${(props) =>
-      props.theme.colors.globalSearch.primaryBgColor};
   }
 
   ${algoliaHighlightTag},

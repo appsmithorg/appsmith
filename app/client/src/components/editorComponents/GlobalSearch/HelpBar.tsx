@@ -18,14 +18,15 @@ const StyledHelpBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: ${(props) => props.theme.colors.globalSearch.helpBarText};
+  color: var(--ads-v2-color-fg);
   height: 28px;
   flex: 1;
   max-width: 205px;
-  border: 1px solid ${Colors.GRAY_200};
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   cursor: default;
   &:hover {
-    border: 1px solid ${(props) => props.theme.colors.tertiary.light};
+    border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 `;
 

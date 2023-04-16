@@ -46,7 +46,16 @@ import {
   getTypographyByKey,
   TooltipComponent,
 } from "design-system-old";
-import { Button, Icon } from "design-system";
+import {
+  Button,
+  Icon,
+  // Menu,
+  // MenuItem,
+  // MenuContent,
+  // MenuSeparator,
+  // MenuTrigger,
+  Tooltip,
+} from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -103,11 +112,10 @@ const HeaderWrapper = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  background-color: ${(props) => props.theme.colors.header.background};
-  height: ${(props) => props.theme.smallHeaderHeight};
+  background-color: var(--ads-v2-color-bg);
   flex-direction: row;
   box-shadow: none;
-  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
+  border-bottom: 1px solid var(--ads-v2-color-border);
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
@@ -395,10 +403,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             </HamburgerContainer>
           )}
 
-          <TooltipComponent
+          <Tooltip
             content={createMessage(LOGO_TOOLTIP)}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position="bottom-left"
+            // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            placement="bottomLeft"
           >
             <AppsmithLink to={APPLICATIONS_URL}>
               <img
@@ -407,7 +415,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 src={AppsmithLogo}
               />
             </AppsmithLink>
-          </TooltipComponent>
+          </Tooltip>
 
           <TooltipComponent
             autoFocus={false}
@@ -472,7 +480,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               )}
               tabs={tabs}
               trigger={
-                <TooltipComponent
+                <Tooltip
                   content={
                     filteredSharedUserList.length
                       ? createMessage(
@@ -482,19 +490,19 @@ export function EditorHeader(props: EditorHeaderProps) {
                         )
                       : createMessage(SHARE_BUTTON_TOOLTIP)
                   }
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position="bottom"
+                  // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  placement="bottom"
                 >
                   <ShareButtonComponent />
-                </TooltipComponent>
+                </Tooltip>
               }
               workspaceId={workspaceId}
             />
             <DeploySection>
-              <TooltipComponent
+              <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position="bottom-right"
+                // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                placement="bottomRight"
               >
                 <Button
                   className="t--application-publish-btn"
@@ -507,7 +515,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 >
                   {DEPLOY_MENU_OPTION()}
                 </Button>
-              </TooltipComponent>
+              </Tooltip>
 
               <DeployLinkButtonDialog
                 link={deployLink}

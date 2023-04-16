@@ -54,8 +54,9 @@ const Container = styled.div`
   h1,
   h2,
   h3,
-  strong {
-    color: #484848;
+  strong,
+  p {
+    color: var(--ads-v2-color-fg);
   }
 
   table {
@@ -94,11 +95,10 @@ const Container = styled.div`
   }
 
   pre {
-    background: ${(props) =>
-      props.theme.colors.globalSearch.documentationCodeBackground} !important;
+    background: var(--ads-v2-color-bg-muted) !important;
     white-space: pre-wrap;
     overflow: hidden;
-    border-left: 3px solid #f86a2b;
+    border-left: 3px solid var(--ads-v2-color-bg-brand);
     padding: 12px;
   }
   .CodeMirror {
