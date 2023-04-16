@@ -1,13 +1,5 @@
-import React, { useState } from "react";
-import {
-  Button,
-  Category,
-  DialogComponent,
-  Size,
-  Switch,
-  Text,
-  TextType,
-} from "design-system-old";
+import React from "react";
+import { Switch } from "design-system-old";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
@@ -29,64 +21,6 @@ const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   }
 `;
 
-const ButtonWrapper = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-  justify-content: flex-end;
-`;
-
-type ConfirmEnableForkingModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-};
-
-function ConfirmEnableForkingModal({
-  isOpen,
-  onClose,
-  onConfirm,
-}: ConfirmEnableForkingModalProps) {
-  return (
-    <DialogComponent
-      isOpen={isOpen}
-      onClose={onClose}
-      title={createMessage(
-        IN_APP_EMBED_SETTING.forkApplicationConfirmation.title,
-      )}
-    >
-      <div id="confirm-fork-modal">
-        <Text type={TextType.P1}>
-          {createMessage(IN_APP_EMBED_SETTING.forkApplicationConfirmation.body)}
-        </Text>
-
-        <ButtonWrapper>
-          <Button
-            category={Category.secondary}
-            onClick={onClose}
-            size={Size.large}
-            tag="button"
-            text={createMessage(
-              IN_APP_EMBED_SETTING.forkApplicationConfirmation.cancel,
-            )}
-            width={"142px"}
-          />
-          <Button
-            category={Category.primary}
-            data-cy={"allow-forking"}
-            onClick={onConfirm}
-            size={Size.large}
-            tag="button"
-            text={createMessage(
-              IN_APP_EMBED_SETTING.forkApplicationConfirmation.confirm,
-            )}
-          />
-        </ButtonWrapper>
-      </div>
-    </DialogComponent>
-  );
-}
-
 function MakeApplicationForkable({
   application,
 }: {
@@ -94,18 +28,12 @@ function MakeApplicationForkable({
 }) {
   const dispatch = useDispatch();
   const isFetchingApplication = useSelector(getIsFetchingApplications);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const onChangeInit = () => {
-    if (!application?.forkingEnabled) {
-      setShowConfirmationModal(true);
-    } else {
-      onChangeConfirm();
-    }
+    onChangeConfirm();
   };
 
   const onChangeConfirm = () => {
-    setShowConfirmationModal(false);
     application &&
       dispatch(
         updateApplication(application?.id, {
@@ -113,10 +41,6 @@ function MakeApplicationForkable({
           currentApp: true,
         }),
       );
-  };
-
-  const closeModal = () => {
-    setShowConfirmationModal(false);
   };
 
   return (
@@ -148,11 +72,6 @@ function MakeApplicationForkable({
       </div>
       <div
         className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
-      />
-      <ConfirmEnableForkingModal
-        isOpen={showConfirmationModal}
-        onClose={closeModal}
-        onConfirm={onChangeConfirm}
       />
     </>
   );
