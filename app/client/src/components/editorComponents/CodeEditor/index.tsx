@@ -132,6 +132,10 @@ import {
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
+import {
+  getSaveAndAutoIndentKey,
+  saveAndAutoIndentCode,
+} from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -317,14 +321,17 @@ class CodeEditor extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
 
-      const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
-        [moveCursorLeftKey]: "goLineStartSmart",
+        [getMoveCursorLeftKey()]: "goLineStartSmart",
         [getCodeCommentKeyMap()]: handleCodeComment(
           // We've provided the default props value for lineCommentString
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.lineCommentString!,
         ),
+        [getSaveAndAutoIndentKey()]: (editor) => {
+          saveAndAutoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
