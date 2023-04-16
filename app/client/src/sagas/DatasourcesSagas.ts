@@ -62,7 +62,11 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type { Datasource, TokenResponse } from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
 import { FilePickerActionStatus } from "entities/Datasource";
-import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_TABS,
+  SHOW_FILE_PICKER_KEY,
+} from "constants/routes";
 import history from "utils/history";
 import {
   API_EDITOR_FORM_NAME,
@@ -120,6 +124,7 @@ import {
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { fetchPluginFormConfig } from "actions/pluginActions";
+import { addClassToDocumentBody } from "pages/utils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1411,6 +1416,19 @@ function* fetchGsheetColumns(
   }
 }
 
+function* loadFilePickerSaga() {
+  // This adds overlay on document body
+  // This is done for google sheets file picker, as file picker needs to be shown on blank page
+  // when overlay needs to be shown, we get showPicker search param in redirect url
+  const className = "overlay";
+  const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
+  const search = new URLSearchParams(window.location.search);
+  const status = search.get(SHOW_FILE_PICKER_KEY);
+  if (!!status && !!appsmithToken) {
+    addClassToDocumentBody(className);
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1483,5 +1501,6 @@ export function* watchDatasourcesSagas() {
     ),
     takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
     takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
+    takeEvery(ReduxActionTypes.LOAD_FILE_PICKER_ACTION, loadFilePickerSaga),
   ]);
 }

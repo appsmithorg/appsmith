@@ -20,6 +20,11 @@ body.dragging * {
   cursor: grabbing !important;
 }
 
+body.overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;

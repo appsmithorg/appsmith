@@ -62,6 +62,7 @@ import {
 } from "design-system-old";
 import {
   duplicateApplication,
+  setShowAppInviteUsersDialog,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -650,6 +651,10 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   let updatedWorkspaces;
   if (!isFetchingApplications) {
     updatedWorkspaces = userWorkspaces;
@@ -744,6 +749,7 @@ export function ApplicationsSection(props: any) {
                     <FormDialogComponent
                       Form={WorkspaceInviteUsersForm}
                       canOutsideClickClose
+                      onOpenOrClose={handleFormOpenOrClose}
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,

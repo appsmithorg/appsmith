@@ -1186,6 +1186,7 @@ function CameraComponent(props: CameraComponentProps) {
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       disabled={!!error || disabled}
+      onClick={(event) => event.stopPropagation()}
     >
       <FullScreen handle={fullScreenHandle}>{renderComponent()}</FullScreen>
     </CameraContainer>

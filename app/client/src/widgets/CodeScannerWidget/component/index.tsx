@@ -152,6 +152,10 @@ export interface DisabledOverlayerProps {
   disabled: boolean;
 }
 
+const CodeScannerContainer = styled.div`
+  height: 100%;
+`;
+
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
   ${overlayerMixin};
   display: ${({ disabled }) => (disabled ? `flex` : `none`)};
@@ -587,7 +591,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   );
 
   return (
-    <>
+    <CodeScannerContainer onClick={(e) => e.stopPropagation()}>
       {props.scannerLayout !== ScannerLayout.ALWAYS_ON &&
         (!props.tooltip ? (
           baseButtonWrapper
@@ -608,7 +612,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
         ))}
 
       {renderComponent()}
-    </>
+    </CodeScannerContainer>
   );
 }
 export interface CodeScannerComponentProps extends ComponentProps {
