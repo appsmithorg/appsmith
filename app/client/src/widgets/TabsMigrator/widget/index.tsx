@@ -137,6 +137,7 @@ class TabsMigratorWidget extends BaseWidget<
       },
     ];
   }
+
   componentDidMount() {
     if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);
