@@ -1,5 +1,5 @@
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
-const _ = require("lodash");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("FirstTimeUserOnboarding", function () {
   beforeEach(() => {
@@ -67,7 +67,7 @@ describe("FirstTimeUserOnboarding", function () {
     let open;
     cy.window().then((window) => {
       open = window.open;
-      window.open = _.noop;
+      window.open = Cypress._.noop;
     });
     cy.get(OnboardingLocator.checklistDeployBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistDeployBtn).click();
@@ -161,5 +161,26 @@ describe("FirstTimeUserOnboarding", function () {
     );
     cy.get(OnboardingLocator.statusbar).should("be.visible");
     cy.get(OnboardingLocator.textWidgetName).should("be.visible");
+  });
+
+  it("7. onboarding flow - new apps created should start with signposting", function () {
+    cy.get(OnboardingLocator.introModalBuild).click();
+    cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
+
+    _.homePage.NavigateToHome();
+    _.homePage.CreateNewApplication();
+
+    cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
+  });
+
+  it("8. onboarding flow - once signposting is completed new apps won't start with signposting", function () {
+    _.onboarding.completeSignposting();
+
+    _.homePage.NavigateToHome();
+    _.agHelper.RefreshPage();
+    _.homePage.CreateNewApplication();
+
+    _.agHelper.AssertElementExist(_.locators._dropHere);
+    _.agHelper.AssertElementAbsence(OnboardingLocator.statusbar);
   });
 });
