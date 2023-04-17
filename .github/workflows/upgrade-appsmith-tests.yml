@@ -25,7 +25,7 @@ jobs:
         id: fc
         with:
           issue-number: 22062
-          body-includes: Tests running at
+          body-includes: "Tests running at:"
           direction: last
       - run: |
           echo $${{ steps.find_comment.outputs.comment-body }}
