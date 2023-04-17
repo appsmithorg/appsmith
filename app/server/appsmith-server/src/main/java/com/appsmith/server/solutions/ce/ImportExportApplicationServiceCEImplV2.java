@@ -100,12 +100,37 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -381,7 +406,12 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
-        Mono<Application> applicationMono = importExportHelper.fetchApplication(applicationId, true, serialiseFor)
+        Mono<ApplicationAndPagesDTO> applicationMono = importExportHelper.fetchApplication(applicationId, true, serialiseFor)
+                .map(application -> {
+                    List<String> unPublishedPages = application.getPages().stream().map(ApplicationPage::getId)
+                            .collect(Collectors.toList());
+                    return new ApplicationAndPagesDTO(application, unPublishedPages);
+                })
                 .cache();
 
         /**
@@ -389,29 +419,29 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
          */
         Flux<CustomJSLib> allCustomJSLibListFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.getAllCustomJSLibsForApplication(application))
+                .flatMapMany(applicationAndPagesDTO -> importExportHelper.getAllCustomJSLibsForApplication(applicationAndPagesDTO.getApplication().getId()))
                 .cache();
 
         Mono<Theme> editModeThemeMono = applicationMono
-                .flatMap(application -> importExportHelper.getApplicationEditModeThemeOrDefault(application));
+                .flatMap(applicationAndPagesDTO -> importExportHelper.getApplicationEditModeThemeOrDefault(applicationAndPagesDTO.getApplication()));
 
         Mono<Theme> publishedThemeMono = applicationMono
-                .flatMap(application -> importExportHelper.getAplicationPublishedThemeOrDefault(application));
+                .flatMap(applicationAndPagesDTO -> importExportHelper.getAplicationPublishedThemeOrDefault(applicationAndPagesDTO.getApplication()));
 
         Flux<NewPage> pagesFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchPagesForApplication(application.getId(), true,serialiseFor))
+                .flatMapMany(applicationAndPagesDTO -> importExportHelper.fetchPagesForApplication(applicationAndPagesDTO.getPageIds(), true,serialiseFor))
                 // Filter out pages which are deleted or does not exist
                 .filter(page -> shouldIncludeResourceForExport(page, resourceMode))
                 .cache();
 
         Flux<ActionCollection> collectionFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchCollectionsForApplication(application, true, serialiseFor))
+                .flatMapMany(applicationAndPagesDTO -> importExportHelper.fetchCollectionsForApplication(applicationAndPagesDTO.getPageIds(), true, serialiseFor))
                 // Filter out action collections which are deleted or does not exist
                 .filter(collection -> shouldIncludeResourceForExport(collection, resourceMode))
                 .cache();
 
         Flux<NewAction> actionFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchActionsForApplication(application, true, serialiseFor))
+                .flatMapMany(applicationAndPagesDTO -> importExportHelper.fetchActionsForApplication(applicationAndPagesDTO.getPageIds(), true, serialiseFor))
                 // Filter out actions which are deleted or does not exist
                 .filter(action -> shouldIncludeResourceForExport(action, resourceMode))
                 .cache();
@@ -419,7 +449,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         Flux<Plugin> pluginFlux = pluginRepository.findAll();
 
         Flux<Datasource> datasourceFlux = applicationMono
-                .flatMapMany(application -> importExportHelper.fetchDatasourcesForWorkspace(application.getWorkspaceId(), true, serialiseFor))
+                .flatMapMany(applicationAndPagesDTO -> importExportHelper.fetchDatasourcesForWorkspace(applicationAndPagesDTO.getApplication().getWorkspaceId(), true, serialiseFor))
                 .cache();
 
         return Mono.zip(
@@ -441,7 +471,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     List<Plugin> plugins = tuple.getT2();
                     Theme editModeTheme = tuple.getT3();
                     Theme publishedTheme = tuple.getT4();
-                    Application application = tuple.getT5();
+                    Application application = tuple.getT5().getApplication();
                     List<NewPage> pages = tuple.getT6();
                     List<ActionCollection> collections = tuple.getT7();
                     List<NewAction> actions = tuple.getT8().getT1();
@@ -1027,4 +1057,14 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             SerialiseApplicationObjective serialiseFor) {
         return exportApplicationById(applicationId, serialiseFor, ResourceModes.EDIT);
     }
+}
+
+/**
+ * DTO class to hold the application and the list of pages to be exported.
+ */
+@Getter
+@AllArgsConstructor
+class ApplicationAndPagesDTO {
+    private Application application;
+    private List<String> pageIds;
 }

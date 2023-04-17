@@ -80,7 +80,7 @@ public class ApplicationJson {
      * This field can be used while saving resources to local file system and only update the resource files which
      * are updated in the database.
      */
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Views.Export.class})
     Map<String, Set<String>> updatedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
