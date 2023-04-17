@@ -24,7 +24,7 @@ import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 
@@ -100,12 +100,9 @@ function PrimaryCTA(props: Props) {
           className={className}
           icon={
             <Icon
-              fillColor={getApplicationNameTextColor(
-                primaryColor,
-                navColorStyle,
-              )}
+              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
               name="edit-line"
-              size="extraLarge"
+              size="md"
             />
           }
           insideSidebar={insideSidebar}

@@ -41,7 +41,7 @@ const Container = styled.div`
   }
 
   h1 {
-    ${getTypographyByKey("docHeader")}
+    ${getTypographyByKey("h2")}
     word-break: break-word;
   }
 
