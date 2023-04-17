@@ -49,7 +49,10 @@ describe("SSO with OIDC test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy.contains("OpenID Connect", { timeout: 180000 }).should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(adminSettings.disconnectBtn)
       .scrollIntoView()
@@ -97,7 +100,10 @@ describe("SSO with OIDC test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy.contains("OpenID Connect", { timeout: 120000 }).should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
