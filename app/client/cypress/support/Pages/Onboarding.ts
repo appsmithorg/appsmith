@@ -1,6 +1,10 @@
+import { ObjectsRegistry } from "../Objects/Registry";
+
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
 
 export class Onboarding {
+  private _aggregateHelper = ObjectsRegistry.AggregateHelper;
+
   completeSignposting() {
     cy.get(OnboardingLocator.introModalBuild).click();
 
@@ -58,6 +62,14 @@ export class Onboarding {
     cy.get(OnboardingLocator.checklistDeployBtn).should("not.exist");
     cy.window().then((window) => {
       window.open = open;
+    });
+  }
+
+  CloseIntroModal() {
+    cy.get("body").then(($body) => {
+      if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
+        this._aggregateHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
+      }
     });
   }
 }

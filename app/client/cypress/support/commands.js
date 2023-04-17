@@ -35,6 +35,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
+const onboarding = ObjectsRegistry.Onboarding;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -2089,4 +2090,8 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
     cy.document().its("body").find(option($each)).should("be.checked");
   });
   cy.document().its("body").type("{esc}");
+});
+
+Cypress.Commands.add("closeIntroModal", () => {
+  onboarding.CloseIntroModal();
 });

@@ -289,6 +289,9 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
+  // If the into modal is open close it
+  cy.closeIntroModal();
+
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
