@@ -28,7 +28,7 @@ const verifyDefaultItem = () => {
       )
       .then((val) => {
         const data = JSON.parse(val.text());
-        cy.wrap(data?.Text11?.text).should("equal", "4");
+        cy.waitUntil(() => cy.wrap(data?.Text11?.text).should("equal", "4"));
       }),
   );
 
