@@ -29,7 +29,6 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { Text, FontWeight, TextType } from "design-system-old";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
@@ -54,6 +53,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { Tooltip } from "design-system";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -98,43 +98,6 @@ const DatasourceContainer = styled.div`
   }
 `;
 
-const CustomToolTip = styled.span<{ width?: number }>`
-  visibility: hidden;
-  text-align: left;
-  padding: 10px 12px;
-  border-radius: 0px;
-  background-color: ${Colors.CODE_GRAY};
-  color: ${Colors.ALABASTER_ALT};
-  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
-
-  position: absolute;
-  z-index: 1000;
-  bottom: 125%;
-  left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
-  margin-left: -60px;
-
-  opacity: 0;
-  transition: opacity 0.01s 1s ease-in;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    height: 14px;
-    width: 14px;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: ${Colors.CODE_GRAY} transparent transparent transparent;
-  }
-
-  &.highlighter {
-    visibility: visible;
-    opacity: 1;
-  }
-`;
-
 const hintContainerStyles: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -170,6 +133,11 @@ const italicInfoStyles = {
   fontStyle: "italic",
 };
 
+const StyledTooltip = styled(Tooltip)`
+  & .hide-me {
+    display: none;
+  }
+`;
 //Avoiding styled components since ReactDOM.render cannot directly work with it
 function CustomHint(props: { datasource: Datasource }) {
   return (
@@ -189,11 +157,11 @@ function CustomHint(props: { datasource: Datasource }) {
 
 class EmbeddedDatasourcePathComponent extends React.Component<
   Props,
-  { highlightedElementWidth: number }
+  { highlightedElementWidth: number; isTooltipVisible: boolean }
 > {
   constructor(props: Props) {
     super(props);
-    this.state = { highlightedElementWidth: 0 };
+    this.state = { highlightedElementWidth: 0, isTooltipVisible: false };
   }
 
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
@@ -416,16 +384,18 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         highlightedElementWidth: (
           event.currentTarget as HTMLElement
         ).getBoundingClientRect()?.width,
+        isTooltipVisible: true,
       });
     }
-    // add class to trigger custom tooltip to show when mouse enters the component
-    document.getElementById("custom-tooltip")?.classList.add("highlighter");
+    this.setState({ ...this.state, isTooltipVisible: true });
   };
 
   // handles when user's mouse leaves the highlighted component
   handleMouseLeave = () => {
-    // remove class to trigger custom tooltip to not show when mouse leaves the component.
-    document.getElementById("custom-tooltip")?.classList.remove("highlighter");
+    this.setState({
+      ...this.state,
+      isTooltipVisible: false,
+    });
   };
 
   // if the next props is not equal to the current props, do not rerender, same for state
@@ -499,27 +469,16 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           focusElementName={`${this.props.actionName}.url`}
         />
         {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
-          <CustomToolTip
+          <StyledTooltip
+            content={`Datasource ${datasource?.name}`}
             id="custom-tooltip"
-            width={this.state.highlightedElementWidth}
+            visible={this.state.isTooltipVisible}
           >
-            <Text
-              color={Colors.ALABASTER_ALT}
-              style={{ fontSize: "10px", display: "block", fontWeight: 600 }}
-              type={TextType.SIDE_HEAD}
-              weight={FontWeight.BOLD}
-            >
-              Datasource
-            </Text>{" "}
-            <Text
-              color={Colors.ALABASTER_ALT}
-              style={{ display: "block" }}
-              type={TextType.P3}
-            >
-              {" "}
-              {datasource?.name}{" "}
-            </Text>
-          </CustomToolTip>
+            {/*<span className="hide-me" style={{ display: "none" }}>*/}
+            <span className="hide-me">
+              I am a trigger. My only purpose is to fool typescript.
+            </span>
+          </StyledTooltip>
         )}
         {displayValue && (
           <StoreAsDatasource
