@@ -31,7 +31,7 @@ jobs:
       - name: Get the workflowId
         id: workflow
         run: |
-          workflow = "{{ steps.find-comment.outputs.comment-body }}"|grep -Eo 'https://github[^ >]+'|awk -F/ '{print $8}'`
+          workflow = "${{ steps.find-comment.outputs.comment-body }}"|grep -Eo 'https://github[^ >]+'|awk -F/ '{print $8}'`
           echo "workflow_id=$workflow" >> $GITHUB_OUTPUT
       - run: |
           echo ${{ steps.workflow.outputs.workflow_id }}
