@@ -17,15 +17,16 @@ import type {
   FlexLayer,
 } from "utils/autoLayout/autoLayoutTypes";
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
+import { WidgetNameComponentHeight } from "components/editorComponents/WidgetNameComponent";
 
 export interface FlexBoxProps {
-  direction?: LayoutDirection;
+  direction: LayoutDirection;
   stretchHeight: boolean;
   useAutoLayout: boolean;
   children?: ReactNode;
   widgetId: string;
   flexLayers: FlexLayer[];
-  isMobile?: boolean;
+  isMobile: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
@@ -104,12 +105,15 @@ function FlexBoxComponent(props: FlexBoxProps) {
     return (
       <AutoLayoutLayer
         center={center}
+        centerColumns={centerColumns}
         direction={direction}
         end={end}
+        endColumns={endColumns}
         index={index}
         isMobile={isMobile}
         key={index}
         start={start}
+        startColumns={startColumns}
         widgetId={props.widgetId}
         wrapCenter={centerColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
         wrapEnd={endColumns > GridDefaults.DEFAULT_GRID_COLUMNS}
@@ -134,7 +138,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       height: props.stretchHeight ? "100%" : "auto",
       overflow: "hidden",
       padding: leaveSpaceForWidgetName
-        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px`
+        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px ${WidgetNameComponentHeight}px ${FLEXBOX_PADDING}px`
         : "0px",
     };
   }, [

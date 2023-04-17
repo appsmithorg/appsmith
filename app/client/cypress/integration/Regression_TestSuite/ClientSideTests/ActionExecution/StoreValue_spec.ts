@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
   AggregateHelper: agHelper,
-
+  CommonLocators: locator,
   DeployMode: deployMode,
   EntityExplorer: ee,
   JSEditor: jsEditor,
@@ -83,7 +83,7 @@ describe("storeValue Action test", () => {
         await showAlert(appsmith.store.student.details.name);
         await showAlert(appsmith.store["student.details.name"]);
        },
-       modifyStorePathTest: async ()=>{
+       modifyStorePath: async ()=>{
         await storeValue("student",${JSON.stringify(
           MODIFIED_STUDENT_OBJECT,
         )} , false)
@@ -106,10 +106,10 @@ describe("storeValue Action test", () => {
     // Button1
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
+    cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
-      propPane.SelectJSFunctionToExecute(
-        "onClick",
-        jsObj as string,
+      propPane.SelectJSFunctionToExecuteInExistingActionBlock(
+        jsObj,
         "storePathTest",
       );
     });
@@ -117,12 +117,12 @@ describe("storeValue Action test", () => {
     // Button 2
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
     ee.SelectEntityByName("Button2", "Widgets");
-    propPane.UpdatePropertyFieldValue("Label", "modifyStorePathTest");
+    propPane.UpdatePropertyFieldValue("Label", "modifyStorePath");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
         jsObj as string,
-        "modifyStorePathTest",
+        "modifyStorePath",
       );
     });
 
@@ -133,7 +133,7 @@ describe("storeValue Action test", () => {
     agHelper.ValidateToastMessage("Annah", 2, 3);
 
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.ClickButton("modifyStorePathTest");
+    agHelper.ClickButton("modifyStorePath");
     agHelper.ValidateToastMessage(
       JSON.stringify(MODIFIED_STUDENT_OBJECT.details),
       0,
@@ -173,20 +173,20 @@ describe("storeValue Action test", () => {
 
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "SetStore");
+    cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
-      propPane.SelectJSFunctionToExecute(
-        "onClick",
-        jsObj as string,
+      propPane.SelectJSFunctionToExecuteInExistingActionBlock(
+        jsObj,
         "setStore",
       );
     });
 
     ee.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
+    cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
-      propPane.SelectJSFunctionToExecute(
-        "onClick",
-        jsObj as string,
+      propPane.SelectJSFunctionToExecuteInExistingActionBlock(
+        jsObj,
         "showStore",
       );
     });

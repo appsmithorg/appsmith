@@ -269,6 +269,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             ? newPageRepository.findByApplicationId(applicationId, pagePermission.getReadPermission())
                             : newPageRepository.findByApplicationId(applicationId, pagePermission.getEditPermission());
 
+
+                    List<String> unPublishedPages = application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
                     return pageFlux
                             .collectList()
                             .flatMap(newPageList -> {
@@ -276,6 +278,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // field is JsonIgnored. Also remove any ids those are present in the page objects
 
                                 Set<String> updatedPageSet = new HashSet<String>();
+
+                                // check the application object for the page reference in the page list
+                                // Exclude the deleted pages that are present in view mode  because the app is not published yet
+                                newPageList.removeIf(newPage -> !unPublishedPages.contains(newPage.getId()));
+
                                 newPageList.forEach(newPage -> {
                                     if (newPage.getUnpublishedPage() != null) {
                                         pageIdToNameMap.put(
@@ -309,6 +316,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                     newPage.sanitiseToExportDBObject();
                                 });
+
                                 applicationJson.setPageList(newPageList);
                                 applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
                                     put(FieldName.PAGE_LIST, updatedPageSet);
@@ -326,8 +334,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setDatasourceList(datasourceList);
 
                                 Flux<ActionCollection> actionCollectionFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? actionCollectionRepository.findByApplicationId(applicationId, actionPermission.getReadPermission(), null)
-                                        : actionCollectionRepository.findByApplicationId(applicationId, actionPermission.getEditPermission(), null);
+                                        ? actionCollectionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getReadPermission())
+                                        : actionCollectionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getEditPermission());
                                 return actionCollectionFlux;
                             })
                             .map(actionCollection -> {
@@ -382,8 +390,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                                 Flux<NewAction> actionFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? newActionRepository.findByApplicationId(applicationId, actionPermission.getReadPermission(), null)
-                                        : newActionRepository.findByApplicationId(applicationId, actionPermission.getEditPermission(), null);
+                                        ? newActionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getReadPermission())
+                                        : newActionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getEditPermission());
 
                                 return actionFlux;
                             })

@@ -97,7 +97,7 @@ describe("Tests setTimeout API", function () {
         myVar2: {},
         myFun1: (x) => {
             console.log("Hey there!");
-            setTimeout(() => console.log("Working!"), 3000);
+            setTimeout(() => console.log("Working!"), 4000);
             console.log("Bye!");
         },
     }`,
@@ -110,13 +110,12 @@ describe("Tests setTimeout API", function () {
       },
     );
     agHelper.Sleep(2000);
-    debuggerHelper.ClickDebuggerIcon();
-    agHelper.GetNClick(jsEditor._logsTab);
     jsEditor.RunJSObj();
+    agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist("Hey there!");
     debuggerHelper.DoesConsoleLogExist("Bye!");
     debuggerHelper.DoesConsoleLogExist("Working!", false, undefined, 100);
-    agHelper.Sleep(3000);
+    agHelper.Sleep(4000);
     debuggerHelper.DoesConsoleLogExist("Working!");
   });
 

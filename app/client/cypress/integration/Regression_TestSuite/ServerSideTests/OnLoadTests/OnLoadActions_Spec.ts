@@ -167,6 +167,8 @@ describe("Layout OnLoad Actions tests", function () {
     });
 
     deployMode.NavigateBacktoEditor();
+    //Verify if debugger is closed after failure of onpageload actions.issue #22283
+    agHelper.AssertElementAbsence(locator._errorTab);
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
