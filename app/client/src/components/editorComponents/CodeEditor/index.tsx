@@ -133,6 +133,10 @@ import {
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
+import {
+  getSaveAndAutoIndentKey,
+  saveAndAutoIndentCode,
+} from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -249,6 +253,7 @@ class CodeEditor extends Component<Props, State> {
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
+  // this is the outer element encompassing the editor
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -317,14 +322,17 @@ class CodeEditor extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
 
-      const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
-        [moveCursorLeftKey]: "goLineStartSmart",
+        [getMoveCursorLeftKey()]: "goLineStartSmart",
         [getCodeCommentKeyMap()]: handleCodeComment(
           // We've provided the default props value for lineCommentString
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.lineCommentString!,
         ),
+        [getSaveAndAutoIndentKey()]: (editor) => {
+          saveAndAutoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
@@ -690,7 +698,7 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Escape":
-        if (this.state.isFocused) {
+        if (this.state.isFocused && !this.state.hinterOpen) {
           this.codeEditorTarget.current?.focus();
           this.codeEditorTarget.current?.dispatchEvent(
             interactionAnalyticsEvent({ key: e.key }),

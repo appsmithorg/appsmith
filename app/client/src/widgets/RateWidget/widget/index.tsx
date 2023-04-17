@@ -10,6 +10,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
@@ -90,6 +92,16 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Rating widget is used to display ratings in your app.",
+      "!url": "https://docs.appsmith.com/widget-reference/rate",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      value: "number",
+      maxCount: "number",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
