@@ -24,9 +24,8 @@ jobs:
         uses: peter-evans/find-comment@v2
         id: fc
         with:
-          token: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           issue-number: 22062
-          body-regex: '^Tests running at:.*$'
+          body-includes: 'Tests running at:'
           direction: last
       - run: |
-          echo $${{ steps.find_comment.outputs.comment-body }}
+          echo ${{ steps.fc.outputs.comment-body }}
