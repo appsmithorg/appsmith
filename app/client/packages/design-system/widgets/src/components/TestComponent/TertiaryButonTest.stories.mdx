@@ -1,0 +1,76 @@
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { TestComponent } from "./TestComponent";
+import { Button } from "../Button";
+
+<Meta
+  title="Design-system/widgets/TestComponent/Tertiary button test"
+  component={TestComponent}
+/>
+
+export const Template = (args, { globals: { colorScheme } }) => (
+  <>
+    <h3>{args.title}</h3>
+    <div
+      style={{
+        padding: "50px",
+        background: "#fff",
+      }}
+    >
+      <TestComponent colorScheme={colorScheme}>
+        <Button {...args}>Test</Button>
+      </TestComponent>
+    </div>
+  </>
+);
+
+<Canvas>
+  <Story
+    name="tertiary"
+    args={{
+      title: "Tertiary",
+      variant: "tertiary",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary hover"
+    args={{
+      title: "Tertiary hover",
+      variant: "tertiary",
+      isHover: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary active"
+    args={{
+      title: "Tertiary active",
+      variant: "tertiary",
+      isActive: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary focus"
+    args={{
+      title: "Tertiary active",
+      variant: "tertiary",
+      isFocused: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="tertiary disabled"
+    args={{
+      title: "Tertiary disabled",
+      variant: "tertiary",
+      isDisabled: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>

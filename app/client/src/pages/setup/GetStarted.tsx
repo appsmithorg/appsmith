@@ -82,8 +82,16 @@ const validate = (values: any) => {
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
+  const onSubmit = (data: NonSuperUserFormData) => {
+    props.onGetStarted &&
+      props.onGetStarted(
+        data.role !== "other" ? data.role : props.role_name,
+        data.useCase,
+      );
+  };
+
   return (
-    <StyledNonSuperUserForm>
+    <StyledNonSuperUserForm onSubmit={props.handleSubmit(onSubmit)}>
       <Space />
       <DropdownWrapper
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN)}
