@@ -81,12 +81,14 @@ export default class AppViewerEngine extends AppEngine {
       fetchJSCollectionsForView({ applicationId }), // change to pageId
 
       // action & api used only here and editor
+      // uses pageList for sentry logs
       fetchSelectedAppThemeAction(applicationId), // change to pageId (appId, version used for sentry error log)
 
       // action & api used only here and editor + ThemingApi.fetchThemes (on error set default)
       fetchAppThemesAction(applicationId), // change to pageId
 
       // no appId
+      // uses pageList to update permissions (updateCurrentPage)
       fetchPublishedPage(toLoadPageId, true, true),
     ];
 

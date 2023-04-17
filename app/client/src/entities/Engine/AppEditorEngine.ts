@@ -97,6 +97,7 @@ export default class AppEditorEngine extends AppEngine {
     applicationId: string,
   ) {
     const initActionsCalls = [
+      // uses pagesList to update permissions (updateCurrentPage)
       fetchPage(toLoadPageId, true),
 
       // action used in forkTemplateToApplicationSaga -> postPageAdditionSaga, addApiToPageSaga
@@ -108,6 +109,7 @@ export default class AppEditorEngine extends AppEngine {
       fetchJSCollections({ applicationId }), // change to pageId
 
       // action & api used only here and editor
+      // uses pageList for sentry log pageList
       fetchSelectedAppThemeAction(applicationId), // change to pageId (appId, version used for sentry error log)
 
       // action & api used only here and editor + ThemingApi.fetchThemes (on error set default)
@@ -168,7 +170,7 @@ export default class AppEditorEngine extends AppEngine {
 
       // action called only here
       // api called in multiple places
-      // uses pageIds
+      // uses pageIds -> relies on pagelist
       fetchPageDSLs(),
     ];
 

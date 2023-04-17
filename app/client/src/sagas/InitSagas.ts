@@ -78,7 +78,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
 
-    // calls pages with pageId (to get currentApplicationData and pagesList)
+    // calls pages with pageId (to get currentApplicationData, pagesList and workspaceId)
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
@@ -89,13 +89,22 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     // maybe git branches
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
 
-    // view mode - relies on application data for logs (applicationVersion)
-    // edit mode - relies on application data for logs (applicationVersion)
+    /* 
+    View mode:
+      - currentApplicationData for logs (appId, applicationVersion)
+      - pagesList (for updateCurrentPage -> userPermissions) + logs
+
+    Edit mode:
+      - pagesList (for populating all page dsl’s, updateCurrentPage -> userPermissions) + logs
+      - currentApplicationData for logs (appId, applicationVersion)
+      - workspaceId for fetching plugins and datasources
+      - currentApplicationData for initialising git
+    */
     // gitbranch is being sent form API interceptor (from store if not the query params)
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
 
     // call as a side effect to loadAppData?
-    // edit mode - relies on application data
+    // edit mode - relies on currentApplicationData
     // view mode - null
     yield call(engine.loadGit, applicationId);
 
