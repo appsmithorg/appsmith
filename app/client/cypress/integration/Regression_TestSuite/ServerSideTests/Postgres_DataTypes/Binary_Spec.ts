@@ -301,9 +301,7 @@ describe("Binary Datatype tests", function () {
     _.dataSources.ReadQueryTableResponse(4).then(($cellData) => {
       expect($cellData).to.eq("XA==");
     });
-  });
 
-  it("9. Validating Binary (bytea) - escape, hex, base64 functions - continuation", () => {
     //Validating random string
     query = `select encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'escape') as "string bytea_output Escape", encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'hex') as "string bytea_output Hex", encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'base64') as "string bytea_output Base64";`;
     _.dataSources.EnterQuery(query);
@@ -357,6 +355,7 @@ describe("Binary Datatype tests", function () {
     _.agHelper.ActionContextMenuWithInPane("Delete");
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
+
   // after(
   //   "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
   //   () => {
