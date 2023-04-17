@@ -23,8 +23,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Classes, Text, TextType } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -87,15 +86,8 @@ const TabbedViewWrapper = styled.div`
 
   .close-debugger {
     position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
-  &&& {
-    ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[11]}px;
-      height: ${TAB_MIN_HEIGHT};
-    }
+    top: 0;
+    right: 0;
   }
 `;
 
@@ -111,19 +103,9 @@ const NoResponseContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
+
   &.empty {
     background-color: #fafafa;
-  }
-  .${Classes.ICON} {
-    margin-right: 0px;
-    svg {
-      width: auto;
-      height: 150px;
-    }
-  }
-  .${Classes.TEXT} {
-    margin-top: ${(props) => props.theme.spaces[9]}px;
-    color: #090707;
   }
 `;
 
@@ -158,6 +140,7 @@ type Props = ReduxStateProps &
     disabled: boolean;
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    selectedJSObject: JSCollectionData | undefined;
   };
 
 function JSResponseView(props: Props) {
@@ -172,7 +155,7 @@ function JSResponseView(props: Props) {
     jsObject,
     onButtonClick,
     responses,
-    seletedJsObject,
+    selectedJSObject,
   } = props;
   const [responseStatus, setResponseStatus] = useState<JSResponseState>(
     JSResponseState.NoResponse,
@@ -215,17 +198,17 @@ function JSResponseView(props: Props) {
     let errorObject: Log | undefined;
     //get JS execution error from redux store.
     if (
-      seletedJsObject &&
-      seletedJsObject.config &&
-      seletedJsObject.activeJSActionId
+      selectedJSObject &&
+      selectedJSObject.config &&
+      selectedJSObject.activeJSActionId
     ) {
       every(filteredErrors, (error) => {
         if (
           includes(
             error.id,
-            seletedJsObject?.config.id +
+            selectedJSObject?.config.id +
               "-" +
-              seletedJsObject?.activeJSActionId,
+              selectedJSObject?.activeJSActionId,
           )
         ) {
           errorObject = error;
@@ -278,18 +261,20 @@ function JSResponseView(props: Props) {
                 {responseStatus === JSResponseState.NoResponse && (
                   <NoResponseContainer>
                     <Icon name="no-response" />
-                    <Text type={TextType.P1}>
-                      {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
-                      <Button
-                        isDisabled={disabled}
-                        isLoading={isLoading}
-                        onClick={() => onButtonClick}
-                        size="md"
-                      >
-                        Run
-                      </Button>
-                      {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
-                    </Text>
+                    <div style={{ gap: "4px" }}>
+                      <Text kind="body-m">
+                        {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
+                        <Button
+                          isDisabled={disabled}
+                          isLoading={isLoading}
+                          onClick={() => onButtonClick}
+                          size="md"
+                        >
+                          Run
+                        </Button>
+                        {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
+                      </Text>
+                    </div>
                   </NoResponseContainer>
                 )}
                 {responseStatus === JSResponseState.IsExecuting && (
@@ -299,7 +284,7 @@ function JSResponseView(props: Props) {
                 )}
                 {responseStatus === JSResponseState.NoReturnValue && (
                   <NoReturnValueWrapper>
-                    <Text type={TextType.P1}>
+                    <Text kind="body-m">
                       {createMessage(
                         NO_JS_FUNCTION_RETURN_VALUE,
                         currentFunction?.name,
@@ -373,11 +358,13 @@ function JSResponseView(props: Props) {
           tabs={tabs}
         />
 
-        <Icon
+        <Button
           className="close-debugger t--close-debugger"
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={onClose}
           size="md"
+          startIcon="close-modal"
         />
       </TabbedViewWrapper>
     </ResponseContainer>
@@ -392,19 +379,19 @@ const mapStateToProps = (
   const { jsObject } = props;
 
   const errorCount = state.ui.debugger.context.errorCount;
-  const seletedJsObject =
+  const selectedJSObject =
     jsObject &&
     jsActions.find(
       (action: JSCollectionData) => action.config.id === jsObject.id,
     );
-  const responses = (seletedJsObject && seletedJsObject.data) || {};
-  const isDirty = (seletedJsObject && seletedJsObject.isDirty) || {};
-  const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
+  const responses = (selectedJSObject && selectedJSObject.data) || {};
+  const isDirty = (selectedJSObject && selectedJSObject.isDirty) || {};
+  const isExecuting = (selectedJSObject && selectedJSObject.isExecuting) || {};
   return {
     responses,
     isExecuting,
     isDirty,
-    seletedJsObject,
+    selectedJSObject: selectedJSObject,
     errorCount,
   };
 };

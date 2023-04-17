@@ -86,7 +86,8 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   flex: 1;
   overflow: auto;
   position: relative;
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid var(--ads-v2-color-border);
+  border-bottom: 1px solid var(--ads-v2-color-border);
   ${thinScrollbar}
   ${FormRow} {
     min-height: auto;
@@ -96,15 +97,9 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
   }
   &&& {
-    ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[11]}px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.responseBody.bg};
-    }
-    .react-tabs__tab-panel {
-      ${CodeEditorWithGutterStyles}
+    .js-editor-tab {
       height: calc(100% - 32px);
-      background-color: ${(props) => props.theme.colors.apiPane.bg};
+      background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {
         outline: none;
       }
@@ -115,6 +110,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
         cursor: progress;
       }
       `}
+      ${CodeEditorWithGutterStyles}
     }
   }
 `;
