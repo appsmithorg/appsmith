@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
 
 describe("Create workspace and a new app / delete and recreate app", function () {
@@ -24,10 +23,8 @@ describe("Create workspace and a new app / delete and recreate app", function ()
       cy.xpath(application.placeholderTxt).should("be.visible");
       cy.reload();
       cy.CreateAppForWorkspace(workspaceId, appid);
-      if (CURRENT_REPO === REPO.CE) {
-        cy.get(homePage.shareApp).click({ force: true });
-        cy.xpath(application.placeholderTxt).should("be.visible");
-      }
+      cy.get(homePage.shareApp).click({ force: true });
+      cy.xpath(application.placeholderTxt).should("be.visible");
       cy.reload();
       cy.DeleteAppByApi();
       cy.NavigateToHome();
