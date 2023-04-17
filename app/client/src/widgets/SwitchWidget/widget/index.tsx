@@ -12,7 +12,11 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
@@ -239,6 +243,17 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       boxShadow: "none",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Switch is a simple UI widget you can use when you want users to make a binary choice",
+      "!url": "https://docs.appsmith.com/widget-reference/switch",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isSwitchedOn: "bool",
+      isDisabled: "bool",
     };
   }
 

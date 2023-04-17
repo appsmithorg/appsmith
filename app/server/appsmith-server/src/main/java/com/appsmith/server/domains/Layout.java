@@ -119,6 +119,6 @@ public class Layout extends BaseDomain {
                 layoutOnLoadActions.set(dslActionIndex, sortedActions);
             }
         }
-        super.sanitiseToExportDBObject();
+        // Not calling the super method to keep it consistent with the old implementation
     }
 }
