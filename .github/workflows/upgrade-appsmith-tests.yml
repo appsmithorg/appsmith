@@ -66,11 +66,14 @@ jobs:
 
       - name: Verify all the checks
         run: |
-          status=0
           if [ "${{ steps.ci-test-result-status.outputs.run_status1 }}" == "failure" ]; then
-            exit $((status+1))
+            exit 1
           elif [ ${{steps.pr_status_check.outputs.status1}} != 0 ]; then
-            exit $((status+${{steps.pr_status_check.outputs.status}}))
+            exit 1
           elif [ ${{steps.suite_status_check.outputs.status1}} != 0 ]; then
-            exit $((status+`grep -q -v 'ci-test-result' ~/check2`))
+            if [`grep -c -v 'ci-test-result' ~/check2`]; then
+              exit 1
+            else
+              exit 0
+            fi
           fi
