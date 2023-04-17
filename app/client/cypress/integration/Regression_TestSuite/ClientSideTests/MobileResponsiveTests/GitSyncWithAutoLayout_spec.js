@@ -21,7 +21,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", function () {
+describe("Git sync apps with Auto layout enabled", function () {
   before(() => {
     // cy.NavigateToHome();
     // cy.createWorkspace();
@@ -86,8 +86,30 @@ describe("Git sync apps", function () {
       "response.body.responseMeta.status",
       200,
     );
-
     cy.get("span:contains('GOT IT')").click();
+    cy.get(".t--widget-containerwidget")
+      .invoke("css", "height")
+      .then((aheight) => {
+        cy.get(".t--widget-jsonformwidget")
+          .invoke("css", "height")
+          .then((bheight) => {
+            cy.log(aheight);
+            cy.log(bheight);
+            cy.wait(3000);
+            cy.enableAutoLayout();
+            cy.get(".t--widget-containerwidget")
+              .invoke("css", "height")
+              .then((a1height) => {
+                cy.get(".t--widget-jsonformwidget")
+                  .invoke("css", "height")
+                  .then((b1height) => {
+                    expect(aheight).to.not.equal(a1height);
+                    expect(bheight).to.not.equal(b1height);
+                    cy.useSnapshotPostLayoutConversion();
+                  });
+              });
+          });
+      });
     // connect app to git
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {

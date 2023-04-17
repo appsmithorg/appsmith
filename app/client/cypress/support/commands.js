@@ -2090,3 +2090,37 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
   });
   cy.document().its("body").type("{esc}");
 });
+
+Cypress.Commands.add("enableAutoLayout", () => {
+  cy.get(commonlocators.autoConvert).click({ force: true });
+  cy.wait(2000);
+  cy.get(commonlocators.convert).click({ force: true });
+  cy.wait(2000);
+  cy.get(commonlocators.refreshApp).click({ force: true });
+  cy.wait(2000);
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("useSnapshotPostLayoutConversion", () => {
+  cy.get(commonlocators.autoConversionDialog).click({
+    force: true,
+  });
+  cy.wait(5000);
+  cy.get(commonlocators.useSnapshot).click({
+    force: true,
+  });
+  cy.wait(2000);
+  cy.get(commonlocators.refreshApp).click({
+    force: true,
+  });
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait(2000);
+});

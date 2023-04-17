@@ -30,6 +30,8 @@ describe("Validating Mobile Views", function () {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
+    cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
+    cy.get(".t--widget-inputwidgetv2").should("have.length", 2);
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-inputwidgetv2")

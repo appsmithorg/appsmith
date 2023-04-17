@@ -27,6 +27,7 @@ describe("Validating Mobile Views", function () {
     cy.wait(2000);
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
+    cy.get(".t--widget-imagewidget").first().should("be.visible");
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-imagewidget").first().should("be.visible");
