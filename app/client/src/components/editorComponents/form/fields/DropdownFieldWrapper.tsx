@@ -27,7 +27,6 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
     setSelectedOption({ value: selectedValueHandler() });
   }, [props.input.value, props.placeholder]);
 
-  //  TODO: defaultValue doesn't seem to work. Something also seems to be off about the focus state and the way the trigger works.St
   return (
     <Select
       className={props.className}
@@ -35,6 +34,7 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
       isDisabled={props.disabled}
       onSelect={onSelectHandler}
       options={props.options}
+      value={selectedOption.value}
     >
       {props.options.map((option: SelectOptionProps) => {
         return <Option key={option.id}>{option.value}</Option>;
