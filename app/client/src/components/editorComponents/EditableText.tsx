@@ -112,9 +112,9 @@ const TextContainer = styled.div<{
     height: auto !important;
   }
 
-  //&& .t--action-name-edit-icon {
-  //  width: 36px;
-  //}
+  && .t--action-name-edit-icon {
+    min-width: min-content;
+  }
 `;
 
 export function EditableText(props: EditableTextProps) {
@@ -252,7 +252,6 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            // TODO: Why is the width 0 even though it's set to 36?
             <Button
               className="t--action-name-edit-icon"
               isIconButton
