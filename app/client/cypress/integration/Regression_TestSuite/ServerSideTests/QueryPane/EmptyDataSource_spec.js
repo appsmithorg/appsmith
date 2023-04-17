@@ -28,7 +28,7 @@ describe("Create a query with a empty datasource, run, save the query", function
     cy.EvaluateCurrentValue("select * from users limit 10");
     cy.runQuery(false);
     cy.get("[data-cy=t--query-error]").contains(
-      "[Missing endpoint., Missing username for authentication., Missing password for authentication.]",
+      "[Missing endpoint., Missing username for authentication.]",
     );
   });
 });

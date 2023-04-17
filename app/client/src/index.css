@@ -6,6 +6,8 @@
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
+@import "assets/fonts/custom/index.css";
+@import "assets/fonts/google/index.css";
 
 :root {
   /* TODO: This needs to be fixed! This oveerride is to mainatain branding changes. */
@@ -18,10 +20,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #fff !important;
+  color: var(--ads-v2-color-fg);
 }
 
 body.dragging * {
   cursor: grabbing !important;
+}
+
+body.overlay {
+  opacity: 0;
+  pointer-events: none;
 }
 
 code {
