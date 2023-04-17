@@ -134,7 +134,7 @@ import {
 import ConfigTreeActions from "utils/configTree";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { EditorContextMenu } from "./ContextMenu";
-import { AIWindow } from "../GPT";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;

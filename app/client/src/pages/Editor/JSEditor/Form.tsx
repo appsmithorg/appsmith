@@ -70,7 +70,7 @@ import {
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import styled from "styled-components";
-import { AIWindow } from "components/editorComponents/GPT";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 interface JSFormProps {
   jsCollection: JSCollection;
