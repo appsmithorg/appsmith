@@ -133,7 +133,6 @@ import {
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { EditorContextMenu } from "./ContextMenu";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -237,9 +236,6 @@ type State = {
     | undefined;
   isDynamic: boolean;
   aiOverlay: boolean;
-  contextMenu: {
-    show: boolean;
-  };
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -273,9 +269,6 @@ class CodeEditor extends Component<Props, State> {
       ctrlPressed: false,
       peekOverlayProps: undefined,
       aiOverlay: false,
-      contextMenu: {
-        show: false,
-      },
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -388,7 +381,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
-        editor.on("contextmenu", this.toggleContextMenu);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
         CodeMirror.on(
@@ -432,17 +424,6 @@ class CodeEditor extends Component<Props, State> {
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
   }
-
-  toggleContextMenu = (editor: CodeMirror.Editor, event: MouseEvent) => {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    this.handleEditorFocus(editor);
-    this.setState({
-      contextMenu: {
-        show: true,
-      },
-    });
-  };
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
@@ -846,9 +827,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    if (this.state.contextMenu.show) {
-      this.setState({ contextMenu: { show: false } });
-    }
     this.setState({ aiOverlay: false });
     // Check if it is a user focus
     const { sticky } = cm.getCursor();
@@ -900,7 +878,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorBlur = () => {
-    if (this.state.contextMenu.show) return;
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -1361,18 +1338,6 @@ class CodeEditor extends Component<Props, State> {
                 ref={this.codeEditorTarget}
                 tabIndex={0}
               >
-                {this.state.contextMenu.show && (
-                  <EditorContextMenu
-                    closeMenu={() =>
-                      this.setState({
-                        contextMenu: {
-                          show: false,
-                        },
-                      })
-                    }
-                    editor={this.editor}
-                  />
-                )}
                 <BindingPrompt
                   editorTheme={this.props.theme}
                   isOpen={
