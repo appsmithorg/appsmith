@@ -1,14 +1,7 @@
-import { getPlatformOS, PLATFORM_OS } from "utils/helpers";
-
-const moveCursorLeftShortcut = {
-  [PLATFORM_OS.MAC]: "Cmd-Left",
-  [PLATFORM_OS.IOS]: "Cmd-Left",
-  [PLATFORM_OS.WINDOWS]: "Home",
-  [PLATFORM_OS.ANDROID]: "Home",
-  [PLATFORM_OS.LINUX]: "Home",
-};
+import { getPlatformOS } from "utils/helpers";
+import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getMoveCursorLeftKey = () => {
-  const platformOS = getPlatformOS();
-  return platformOS ? moveCursorLeftShortcut[platformOS] : "Home";
+  const platformOS = getPlatformOS() || "default";
+  return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].cursorLeftMovement;
 };

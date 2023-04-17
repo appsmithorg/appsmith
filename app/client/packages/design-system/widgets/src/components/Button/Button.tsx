@@ -20,6 +20,7 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   isLoading?: boolean;
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
+  isFocused?: boolean;
 }
 
 export const Button = forwardRef(
@@ -27,14 +28,16 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
+      isActive,
       isDisabled,
       isFitContainer = false,
+      isFocused,
+      isHover,
       isLoading,
       onBlur,
       onFocus,
       onFocusChange,
       onKeyDown,
-      onKeyUp,
       onPress,
       onPressChange,
       onPressEnd,
@@ -46,14 +49,18 @@ export const Button = forwardRef(
     return (
       <StyledButton
         data-fit-container={isFitContainer}
+        data-focus={isFocused}
         data-loading={isLoading}
         data-variant={variant}
+        isActive={isActive}
         isDisabled={isDisabled}
+        isHover={isHover}
         onBlur={onBlur}
         onFocus={onFocus}
         onFocusChange={onFocusChange}
         onKeyDown={onKeyDown}
-        onKeyUp={onKeyUp}
+        // TODO Return onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
+        // onKeyUp={onKeyUp}
         onPress={onPress}
         onPressChange={onPressChange}
         onPressEnd={onPressEnd}
