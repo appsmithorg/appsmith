@@ -24,6 +24,7 @@ jobs:
         uses: peter-evans/find-comment@v2
         id: fc
         with:
+          token: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           issue-number: 22062
           body-regex: '^Tests running at:.*$'
           direction: last
