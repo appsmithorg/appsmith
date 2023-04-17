@@ -599,14 +599,15 @@ export default function MemberSettings(props: PageProps) {
             })}
           </UserCardContainer>
         )}
-        <DeleteConfirmationModal
-          isDeletingUser={isDeletingUser}
-          isOpen={showMemberDeletionConfirmation}
-          name={userToBeDeleted && userToBeDeleted.name}
-          onClose={onCloseConfirmationModal}
-          onConfirm={onDeleteMember}
-          username={userToBeDeleted && userToBeDeleted.username}
-        />
+        {userToBeDeleted && (
+          <DeleteConfirmationModal
+            isDeletingUser={isDeletingUser}
+            isOpen={showMemberDeletionConfirmation}
+            onClose={onCloseConfirmationModal}
+            onConfirm={onDeleteMember}
+            userToBeDeleted={userToBeDeleted}
+          />
+        )}
       </>
     </MembersWrapper>
   );
