@@ -45,6 +45,6 @@ jobs:
       - name: Print Head SHA
         id: pr
         run: |
-          echo "sha="cc5bf5b6053242b681dadba19b7ba947353990f4" >> $GITHUB_OUTPUT
+          echo "sha=cc5bf5b6053242b681dadba19b7ba947353990f4" >> $GITHUB_OUTPUT
       - run: |
           echo ${{steps.pr.outputs.sha}}
