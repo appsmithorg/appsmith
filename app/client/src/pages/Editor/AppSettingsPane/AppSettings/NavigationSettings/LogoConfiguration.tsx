@@ -13,22 +13,19 @@ const LogoConfiguration = (props: {
   navigationSetting: NavigationSetting;
   updateSetting: UpdateSetting;
 }) => {
-  const { options } = props;
-
-  const unavailableLabel = " - [Unavailable atm]";
-
-  const handleOnSelect = (value?: { label: string; value: string }) => {
-    props.updateSetting("logoConfiguration", value?.value || "");
-  };
+  const { options, updateSetting } = props;
 
   return (
     <div className="pt-4">
       <Text type={TextType.P1}>
-        {createMessage(APP_NAVIGATION_SETTING.logoConfigurationLabel) +
-          unavailableLabel}
+        {createMessage(APP_NAVIGATION_SETTING.logoConfigurationLabel)}
       </Text>
       <Dropdown
-        onSelect={handleOnSelect}
+        boundary="viewport"
+        className="t--navigation-settings-logo-configuration"
+        onSelect={(value: string) => {
+          updateSetting("logoConfiguration", value);
+        }}
         options={options}
         selected={options.find(
           (item) => item.value === props.navigationSetting?.logoConfiguration,

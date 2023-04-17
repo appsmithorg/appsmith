@@ -22,13 +22,13 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system-old";
 import LogoInput from "./LogoInput";
+import LogoConfiguration from "./LogoConfiguration";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
  * Revisit these imports in v1.1
  * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b?pvs=4
  */
-// import LogoConfiguration from "./LogoConfiguration";
 // import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/nav-position-sticky.svg";
 // import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
 // import { ReactComponent as NavStyleMinimalIcon } from "assets/icons/settings/nav-style-minimal.svg";
@@ -168,7 +168,8 @@ function NavigationSettings() {
 
           {/**
            * TODO - @Dhruvik - ImprovedAppNav
-           * Remove check for orientation = top in v1.1
+           * Remove check for orientation = top when adding sidebar minimal to show sidebar
+           * variants as well.
            * https://www.notion.so/appsmith/Ship-Faster-33b32ed5b6334810a0b4f42e03db4a5b
            */}
           {navigationSetting?.orientation ===
@@ -313,20 +314,17 @@ function NavigationSettings() {
             updateSetting={updateSetting}
           />
 
-          {/**
-           * TODO - @Dhruvik - ImprovedAppNav
-           * Hiding logo config for v1
-           * https://www.notion.so/appsmith/Logo-configuration-option-can-be-multiselect-2a436598539c4db99d1f030850fd8918?pvs=4
-           */}
-          {/* <LogoConfiguration
+          <LogoConfiguration
             navigationSetting={navigationSetting}
             options={[
               {
                 label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                    .LOGO_AND_APPLICATION_TITLE,
                 ),
                 value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                    .LOGO_AND_APPLICATION_TITLE,
               },
               {
                 label: _.startCase(
@@ -352,7 +350,7 @@ function NavigationSettings() {
               },
             ]}
             updateSetting={updateSetting}
-          /> */}
+          />
 
           <SwitchSetting
             keyName="showSignIn"

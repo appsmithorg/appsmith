@@ -23,14 +23,16 @@ export const { cloudHosting } = getAppsmithConfigs();
 type BackToHomeButtonProps = {
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  logoConfiguration: NavigationSetting["logoConfiguration"];
   forSidebar?: boolean;
 };
 
-const StyledAppIcon = styled(AppsIcon)<
-  BackToHomeButtonProps & {
-    borderRadius: string;
-  }
->`
+const StyledAppIcon = styled(AppsIcon)<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+  borderRadius: string;
+  forSidebar?: boolean;
+}>`
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
   border-radius: ${({ borderRadius }) => borderRadius};
@@ -40,7 +42,10 @@ const StyledAppIcon = styled(AppsIcon)<
   max-width: 28px;
 `;
 
-export const StyledLink = styled(Link)<BackToHomeButtonProps>`
+export const StyledLink = styled(Link)<{
+  primaryColor: string;
+  navColorStyle: NavigationSetting["colorStyle"];
+}>`
   min-width: max-content;
 
   img {
@@ -63,7 +68,7 @@ export const StyledLink = styled(Link)<BackToHomeButtonProps>`
 `;
 
 function BackToHomeButton(props: BackToHomeButtonProps) {
-  const { forSidebar, navColorStyle, primaryColor } = props;
+  const { forSidebar, logoConfiguration, navColorStyle, primaryColor } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
@@ -94,12 +99,16 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
         />
 
         {currentApplicationDetails?.applicationDetail?.navigationSetting
-          ?.logoAssetId?.length ? (
+          ?.logoAssetId?.length &&
+        (logoConfiguration ===
+          NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
+          logoConfiguration ===
+            NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) ? (
           <img
             alt="Your application's logo"
             src={`/api/v1/assets/${currentApplicationDetails.applicationDetail.navigationSetting.logoAssetId}`}
           />
-        ) : true ? (
+        ) : cloudHosting ? (
           <StyledApplicationName
             className="text-base whitespace-nowrap"
             isMobile={isMobile}

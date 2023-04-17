@@ -58,6 +58,10 @@ export function Sidebar(props: SidebarProps) {
   const isMinimal =
     currentApplicationDetails?.applicationDetail?.navigationSetting
       ?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
+  const logoConfiguration =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.logoConfiguration ||
+    NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -151,21 +155,28 @@ export function Sidebar(props: SidebarProps) {
           {currentUser?.username !== ANONYMOUS_USERNAME && (
             <BackToHomeButton
               forSidebar
+              logoConfiguration={logoConfiguration}
               navColorStyle={navColorStyle}
               primaryColor={primaryColor}
             />
           )}
 
-          {!isMinimal && (
-            <div className="ml-2">
-              <ApplicationName
-                appName={currentApplicationDetails?.name}
-                navColorStyle={navColorStyle}
-                navStyle={navStyle}
-                primaryColor={primaryColor}
-              />
-            </div>
-          )}
+          {!isMinimal &&
+            (logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .LOGO_AND_APPLICATION_TITLE ||
+              logoConfiguration ===
+                NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                  .APPLICATION_TITLE_ONLY) && (
+              <div className="ml-2">
+                <ApplicationName
+                  appName={currentApplicationDetails?.name}
+                  navColorStyle={navColorStyle}
+                  navStyle={navStyle}
+                  primaryColor={primaryColor}
+                />
+              </div>
+            )}
         </div>
 
         {!isMinimal && (
