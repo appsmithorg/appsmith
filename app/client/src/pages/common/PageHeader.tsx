@@ -19,9 +19,7 @@ import {
 import history from "utils/history";
 import EditorButton from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
-import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
@@ -65,15 +63,6 @@ const HeaderSection = styled.div`
       width: 110px;
     }
   }
-`;
-
-const StyledDropDownContainer = styled.div``;
-
-const StyledTwoLineHamburger = styled(TwoLineHamburger)`
-  fill: ${Colors.BLACK};
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
 `;
 
 const Tabs = styled.div`
@@ -247,7 +236,7 @@ export function PageHeader(props: PageHeaderProps) {
       </Tabs>
 
       {user && !isMobile && (
-        <StyledDropDownContainer>
+        <div>
           {user.username === ANONYMOUS_USERNAME ? (
             <EditorButton
               filled
@@ -266,10 +255,16 @@ export function PageHeader(props: PageHeaderProps) {
               userName={user.username}
             />
           )}
-        </StyledDropDownContainer>
+        </div>
       )}
       {isMobile && !isMobileSidebarOpen && (
-        <StyledTwoLineHamburger onClick={() => setIsMobileSidebarOpen(true)} />
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() => setIsMobileSidebarOpen(true)}
+          size={"md"}
+          startIcon="hamburger"
+        />
       )}
       {isMobile && isMobileSidebarOpen && (
         <Button
