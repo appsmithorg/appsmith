@@ -129,30 +129,6 @@ const SnippetContainer = styled.div`
       }
     }
   }
-  /* .tab-container {
-    border-top: none;
-    .react-tabs__tab-panel {
-      background: white !important;
-      height: auto !important;
-      overflow: clip;
-      border-top: 1px solid
-        ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
-      code {
-        .token.arrow {
-          background: transparent !important;
-        }
-      }
-      .actions-container {
-        display: flex;
-        margin: 30px 0 15px;
-      }
-    }
-    .react-tabs__tab-list {
-      background: white !important;
-      padding: 0 10px !important;
-      height: 30px;
-    }
-  } */
 `;
 
 const removeDynamicBinding = (value: string) => {

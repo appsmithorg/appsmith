@@ -21,6 +21,12 @@ import { Button, Icon } from "design-system";
 
 const Container = styled.div`
   background: var(--ads-v2-color-bg);
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  top: 0;
+  padding: 24px 24px 15px 24px;
   & input {
     font-size: 14px;
     line-height: 19px;

@@ -25,13 +25,13 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: ${(props) => `${props.theme.spaces[4]}px`};
-  background: white;
+  background: var(--ads-v2-color-bg);
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
-  color: ${(props) => props.theme.colors.globalSearch.searchItemText};
+  color: var(--ads-v2-color-fg);
   overflow: auto;
 
-  ${getTypographyByKey("spacedOutP1")};
+  font-size: 13px;
   [class^="ais-"] {
     ${getTypographyByKey("spacedOutP1")};
   }
@@ -41,8 +41,13 @@ const Container = styled.div`
   }
 
   h1 {
-    ${getTypographyByKey("h2")}
+    /* font-weight: var(--ads-font-weight-bold); */
     word-break: break-word;
+    color: var(--ads-v2-color-fg-emphasis-plus) !important;
+    font-size: 16px !important;
+    font-weight: var(--ads-v2-font-weight-bold);
+    letter-spacing: var(--ads-v2-p-letter-spacing);
+    /* margin: 0 !important; */
   }
 
   h2,
@@ -57,6 +62,8 @@ const Container = styled.div`
   strong,
   p {
     color: var(--ads-v2-color-fg);
+    font-size: 13px;
+    margin: 0.25rem 0;
   }
 
   table {
@@ -86,20 +93,20 @@ const Container = styled.div`
   }
 
   & a {
-    color: ${(props) => props.theme.colors.globalSearch.documentLink};
+    color: var(--ads-v2-color-bg-brand);
   }
 
   code {
     word-break: break-word;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   pre {
-    background: var(--ads-v2-color-bg-muted) !important;
+    background: var(--ads-v2-color-bg-subtle) !important;
     white-space: pre-wrap;
     overflow: hidden;
     border-left: 3px solid var(--ads-v2-color-bg-brand);
-    padding: 12px;
+    padding: 13px;
   }
   .CodeMirror {
     pre {
@@ -123,16 +130,19 @@ const Container = styled.div`
 const StyledDocumentationDescription = styled.div`
   h1 {
     margin: 0.5rem 0;
-    font-size: 1.5rem;
+    /* font-size: 1.5rem; */
   }
   h2 {
-    font-size: 1.25rem;
+    /* font-size: 1.25rem; */
     margin: 0.5rem 0 0.25rem;
   }
   h3 {
-    font-size: 1rem;
+    /* font-size: 1rem; */
     margin: 0.5rem 0 0.25rem;
   }
+  /* p {
+    margin: 0.25rem 0;
+  } */
   img,
   pre {
     margin: 0.25rem 0;
