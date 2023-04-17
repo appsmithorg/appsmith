@@ -137,7 +137,7 @@ function aheadCommitMessage(status: GitStatusData) {
   return aheadMessage;
 }
 
-export function Change(props: Partial<GitStatusProps>) {
+export function Change(props: GitStatusProps) {
   const { iconName, message } = props;
 
   return (

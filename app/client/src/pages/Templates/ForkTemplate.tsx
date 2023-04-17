@@ -73,13 +73,14 @@ function ForkTemplate({
       <Modal
         // isOpen={showForkModal}
         // onOpenChange={showForkModal}
-        open={showForkModal}
+        onOpenChange={isImportingTemplate ? noop : onClose}
         // headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
         // onClose={isImportingTemplate ? noop : onClose}
         // title={createMessage(CHOOSE_WHERE_TO_FORK)}
+        open={showForkModal}
       >
         <ModalContent>
-          <ModalHeader onClose={isImportingTemplate ? noop : onClose}>
+          <ModalHeader>
             {/* <Icon name="fork-2" size="lg" /> */}
             {createMessage(CHOOSE_WHERE_TO_FORK)}
           </ModalHeader>
