@@ -4,9 +4,15 @@ import history from "utils/history";
 import { Classes, Icon, IconSize, Text, TextType } from "design-system-old";
 import { useLocation } from "react-router-dom";
 
-const StyledManageUsers = styled("a")`
-  margin-top: 12px;
-  display: inline-flex;
+const StyledManageUsers = styled("a")<{ isApplicationInvite?: boolean }>`
+  display: flex;
+
+  ${(props) =>
+    props.isApplicationInvite
+      ? `padding: 12px 0; border-top: 1px solid
+          ${props.theme.colors.menuBorder};`
+      : `padding: 12px 0 0;`}
+
   &&&& {
     text-decoration: none;
   }
@@ -17,6 +23,7 @@ const StyledManageUsers = styled("a")`
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.6px;
+    line-height: normal;
   }
   .${Classes.ICON} {
     svg path {
@@ -36,13 +43,20 @@ const StyledManageUsers = styled("a")`
   }
 `;
 
-function ManageUsers({ workspaceId }: { workspaceId: string }) {
+function ManageUsers({
+  isApplicationInvite,
+  workspaceId,
+}: {
+  isApplicationInvite?: boolean;
+  workspaceId: string;
+}) {
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/workspace\/)\w+(?:\/settings)/;
 
   return !pathRegex.test(currentPath) ? (
     <StyledManageUsers
       className="manageUsers"
+      isApplicationInvite={isApplicationInvite}
       onClick={() => {
         history.push(`/workspace/${workspaceId}/settings/members`);
       }}

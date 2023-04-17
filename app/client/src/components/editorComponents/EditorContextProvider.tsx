@@ -43,6 +43,7 @@ import {
 } from "actions/autoHeightActions";
 import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { updateWidgetDimensionAction } from "actions/autoLayoutActions";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -75,6 +76,11 @@ export type EditorContextType<TCache = unknown> = {
     batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
   ) => void;
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
+  updateWidgetDimension?: (
+    widgetId: string,
+    width: number,
+    height: number,
+  ) => void;
   checkContainersForAutoHeight?: () => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
   setWidgetCache?: <TAltCache = void>(
@@ -110,6 +116,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "syncBatchUpdateWidgetMetaProperties",
   "triggerEvalOnMetaUpdate",
   "updateWidgetAutoHeight",
+  "updateWidgetDimension",
   "checkContainersForAutoHeight",
   "selectWidgetRequest",
 ];
@@ -206,6 +213,7 @@ const mapDispatchToProps = {
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
   updateWidgetAutoHeight: updateWidgetAutoHeightAction,
+  updateWidgetDimension: updateWidgetDimensionAction,
   checkContainersForAutoHeight: checkContainersForAutoHeightAction,
   modifyMetaWidgets,
   updateMetaWidgetProperty,

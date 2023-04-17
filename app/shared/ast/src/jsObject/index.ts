@@ -71,6 +71,7 @@ export const parseJSObject = (code: string) => {
       onComment: comments,
       onToken: token,
       ranges: true,
+      locations: true,
     });
     attachComments(ast, comments, token);
   } catch (e) {

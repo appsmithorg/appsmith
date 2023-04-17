@@ -1,6 +1,6 @@
+import { get, isEmpty, merge, set } from "lodash";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { isEmpty, set } from "lodash";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -16,6 +16,9 @@ import {
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
+import { dataTreeEvaluator } from "../handlers/evalTree";
+import JSObjectCollection from "./Collection";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import type { JSActionEntity } from "entities/DataTree/types";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
@@ -67,7 +70,6 @@ const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
  * Here we parse the JSObject and then determine
  * 1. it's nature : async or sync
  * 2. Find arguments of JS Actions
- * 3. set variables and actions in currentJSCollectionState and resolvedFunctions
  *
  * @param dataTreeEvalRef
  * @param entity
@@ -85,10 +87,12 @@ export function saveResolvedFunctionsAndJSUpdates(
 ) {
   jsPropertiesState.delete(entityName);
   const correctFormat = regex.test(entity.body);
+
   if (correctFormat) {
     try {
-      delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
-      delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
+      JSObjectCollection.deleteResolvedFunction(entityName);
+      JSObjectCollection.deleteUnEvalState(entityName);
+
       const parseStartTime = performance.now();
       const { parsedObject, success } = parseJSObject(entity.body);
       const parseEndTime = performance.now();
@@ -108,34 +112,38 @@ export function saveResolvedFunctionsAndJSUpdates(
           parsedObject.forEach((parsedElement) => {
             if (isJSFunctionProperty(parsedElement)) {
               try {
+                ExecutionMetaData.setExecutionMetaData({
+                  enableJSVarUpdateTracking: false,
+                  enableJSFnPostProcessors: false,
+                });
                 const { result } = evaluateSync(
                   parsedElement.value,
                   unEvalDataTree,
-                  {},
                   false,
-                  undefined,
-                  undefined,
                 );
+
+                ExecutionMetaData.setExecutionMetaData({
+                  enableJSVarUpdateTracking: true,
+                  enableJSFnPostProcessors: true,
+                });
                 if (!!result) {
-                  let params: Array<{ key: string; value: unknown }> = [];
+                  let params: Array<{ name: string; value: unknown }> = [];
 
                   if (parsedElement.arguments) {
                     params = parsedElement.arguments.map(
                       ({ defaultValue, paramName }) => ({
-                        key: paramName,
+                        name: paramName,
                         value: defaultValue,
                       }),
                     );
                   }
 
                   const functionString = parsedElement.value;
-                  set(
-                    dataTreeEvalRef.resolvedFunctions,
+                  JSObjectCollection.updateResolvedFunctions(
                     `${entityName}.${parsedElement.key}`,
                     result,
                   );
-                  set(
-                    dataTreeEvalRef.currentJSCollectionState,
+                  JSObjectCollection.updateUnEvalState(
                     `${entityName}.${parsedElement.key}`,
                     functionString,
                   );
@@ -155,8 +163,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                 name: parsedElement.key,
                 value: parsedElement.value,
               });
-              set(
-                dataTreeEvalRef.currentJSCollectionState,
+              JSObjectCollection.updateUnEvalState(
                 `${entityName}.${parsedElement.key}`,
                 parsedElement.value,
               );
@@ -201,6 +208,8 @@ export function parseJSActions(
   oldUnEvalTree?: DataTree,
   differences?: DataTreeDiff[],
 ) {
+  const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
+  const unEvalState = JSObjectCollection.getUnEvalState();
   let jsUpdates: Record<string, JSUpdate> = {};
   jsPropertiesState.startUpdate();
   if (!!differences && !!oldUnEvalTree) {
@@ -214,19 +223,11 @@ export function parseJSActions(
 
       if (diff.event === DataTreeDiffEvent.DELETE) {
         // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
-        if (
-          dataTreeEvalRef.currentJSCollectionState &&
-          dataTreeEvalRef.currentJSCollectionState[diff.payload.propertyPath]
-        ) {
-          delete dataTreeEvalRef.currentJSCollectionState[
-            diff.payload.propertyPath
-          ];
+        if (unEvalState && unEvalState[diff.payload.propertyPath]) {
+          JSObjectCollection.deleteUnEvalState(diff.payload.propertyPath);
         }
-        if (
-          dataTreeEvalRef.resolvedFunctions &&
-          dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath]
-        ) {
-          delete dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath];
+        if (resolvedFunctions && resolvedFunctions[diff.payload.propertyPath]) {
+          JSObjectCollection.deleteResolvedFunction(diff.payload.propertyPath);
         }
       }
 
@@ -258,11 +259,9 @@ export function parseJSActions(
       );
     });
   }
+
+  functionDeterminer.setupEval(unEvalDataTree);
   jsPropertiesState.stopUpdate();
-  functionDeterminer.setupEval(
-    unEvalDataTree,
-    dataTreeEvalRef.resolvedFunctions,
-  );
 
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
@@ -294,4 +293,64 @@ export function getJSEntities(dataTree: DataTree) {
     }
   });
   return jsCollections;
+}
+
+export function updateEvalTreeWithJSCollectionState(
+  evalTree: DataTree,
+  oldUnEvalTree: DataTree,
+) {
+  // loop through jsCollectionState and set all values to evalTree
+  const jsCollections = JSObjectCollection.getVariableState();
+  const jsCollectionEntries = Object.entries(jsCollections);
+  for (const [jsObjectName, variableState] of jsCollectionEntries) {
+    if (!evalTree[jsObjectName]) {
+      evalTree[jsObjectName] = merge(
+        {},
+        oldUnEvalTree[jsObjectName],
+        variableState,
+      );
+      continue;
+    }
+    evalTree[jsObjectName] = Object.assign(
+      evalTree[jsObjectName],
+      variableState,
+    );
+  }
+}
+
+export function updateEvalTreeValueFromContext(paths: string[][]) {
+  const currentEvalContext = self;
+
+  if (!dataTreeEvaluator) return;
+  const evalTree = dataTreeEvaluator.getEvalTree();
+
+  for (const fullPathArray of paths) {
+    const [jsObjectName, variableName] = fullPathArray;
+    const entity = evalTree[jsObjectName];
+    if (jsObjectName && variableName && isJSAction(entity)) {
+      if (!(jsObjectName in currentEvalContext)) continue;
+
+      const variableValue = get(currentEvalContext, [
+        jsObjectName,
+        variableName,
+      ]);
+      const value = variableValue;
+      JSObjectCollection.setVariableValue(
+        value,
+        `${jsObjectName}.${variableName}`,
+      );
+      /* 
+      JSobject variable values are picked from evalProps until the unevalValue is not modified.
+      Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
+      */
+      set(
+        dataTreeEvaluator.evalProps,
+        getEvalValuePath(`${jsObjectName}.${variableName}`, {
+          isPopulated: true,
+          fullPath: true,
+        }),
+        value,
+      );
+    }
+  }
 }

@@ -478,7 +478,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onTextChanged",
-        helpText: "Triggers an action when the text is changed",
+        helpText: "when the text is changed",
         label: "onTextChanged",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -491,8 +491,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "onEnterKeyPress",
-        helpText:
-          "Triggers an action on submit (when the enter key is pressed)",
+        helpText: "on submit (when the enter key is pressed)",
         label: "onEnterKeyPress",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
