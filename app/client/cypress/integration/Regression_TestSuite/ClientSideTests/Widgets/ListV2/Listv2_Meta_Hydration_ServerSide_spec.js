@@ -124,6 +124,9 @@ describe("List widget v2 - meta hydration tests", () => {
     // Click the editing field
     cy.get(queryLocators.queryNameField).type("Query1");
 
+    // switching off Use Prepared Statement toggle
+    cy.get(queryLocators.switch).last().click({ force: true });
+
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({
@@ -201,13 +204,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.waitUntil(() =>
-      cy
-        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-        .first()
-        .get(".rc-select-selection-overflow-item .remove-icon")
-        .should("exist"),
-    );
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .within(() => {
+        cy.waitUntil(() =>
+          cy
+            .get(".rc-select-selection-overflow-item .remove-icon")
+            .should("exist"),
+        );
+      });
 
     verifyMultiDropdownValuesCount(6, 2);
     //   SecondPage
@@ -245,13 +250,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.waitUntil(() =>
-      cy
-        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-        .first()
-        .get(".rc-select-selection-overflow-item .remove-icon")
-        .should("exist"),
-    );
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .within(() => {
+        cy.waitUntil(() =>
+          cy
+            .get(".rc-select-selection-overflow-item .remove-icon")
+            .should("exist"),
+        );
+      });
 
     cy.waitUntil(
       () =>
@@ -264,7 +271,7 @@ describe("List widget v2 - meta hydration tests", () => {
           .first()
           .invoke("text")
           .then(($selectedValue) => {
-            expect($selectedValue).to.eq("Green");
+            cy.waitUntil(() => expect($selectedValue).to.eq("Green"));
           }),
       {
         timeout: 10000,
@@ -303,13 +310,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.waitUntil(() =>
-      cy
-        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-        .first()
-        .get(".rc-select-selection-overflow-item .remove-icon")
-        .should("exist"),
-    );
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .within(() => {
+        cy.waitUntil(() =>
+          cy
+            .get(".rc-select-selection-overflow-item .remove-icon")
+            .should("exist"),
+        );
+      });
 
     cy.waitUntil(
       () =>
@@ -322,7 +331,7 @@ describe("List widget v2 - meta hydration tests", () => {
           .first()
           .invoke("text")
           .then(($selectedValue) => {
-            expect($selectedValue).to.eq("Blue");
+            cy.waitUntil(() => expect($selectedValue).to.eq("Blue"));
           }),
       {
         timeout: 10000,
@@ -382,13 +391,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.waitUntil(() =>
-      cy
-        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-        .first()
-        .get(".rc-select-selection-overflow-item .remove-icon")
-        .should("exist"),
-    );
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .within(() => {
+        cy.waitUntil(() =>
+          cy
+            .get(".rc-select-selection-overflow-item .remove-icon")
+            .should("exist"),
+        );
+      });
 
     //   SecondPage
     //   First Row
@@ -424,13 +435,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.waitUntil(() =>
-      cy
-        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-        .first()
-        .get(".rc-select-selection-overflow-item .remove-icon")
-        .should("exist"),
-    );
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .within(() => {
+        cy.waitUntil(() =>
+          cy
+            .get(".rc-select-selection-overflow-item .remove-icon")
+            .should("exist"),
+        );
+      });
 
     cy.waitUntil(
       () =>
@@ -443,7 +456,7 @@ describe("List widget v2 - meta hydration tests", () => {
           .first()
           .invoke("text")
           .then(($selectedValue) => {
-            expect($selectedValue).to.eq("Green");
+            cy.waitUntil(() => expect($selectedValue).to.eq("Green"));
           }),
       {
         timeout: 10000,
@@ -482,13 +495,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.waitUntil(() =>
-      cy
-        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-        .first()
-        .get(".rc-select-selection-overflow-item .remove-icon")
-        .should("exist"),
-    );
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .within(() => {
+        cy.waitUntil(() =>
+          cy
+            .get(".rc-select-selection-overflow-item .remove-icon")
+            .should("exist"),
+        );
+      });
 
     cy.waitUntil(
       () =>
@@ -501,7 +516,7 @@ describe("List widget v2 - meta hydration tests", () => {
           .first()
           .invoke("text")
           .then(($selectedValue) => {
-            expect($selectedValue).to.eq("Blue");
+            cy.waitUntil(() => expect($selectedValue).to.eq("Blue"));
           }),
       {
         timeout: 10000,
