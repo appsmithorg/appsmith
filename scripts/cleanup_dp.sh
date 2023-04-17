@@ -1,9 +1,6 @@
 #!/bin/bash
 # Configure the AWS & kubectl environment
 
-set -o errexit
-set -o nounset
-
 mkdir ~/.aws; touch ~/.aws/config
 
 echo "[default]
