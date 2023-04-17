@@ -28,10 +28,9 @@ jobs:
           body-includes: 'Tests running at:'
           direction: last
       
-      - name: Get the workflowId
+      - name: Get the workflow run id
         id: workflow
         run: |
-          workflow = ${{ steps.find-comment.outputs.comment-body }}|grep "Tests running at:"|grep -Eo 'https://github[^ >]+'|awk -F/ '{print $8}'`
-          echo "workflow_id=$workflow" >> $GITHUB_OUTPUT
+          echo "run_id= $(echo '${{ steps.find-comment.outputs.comment-body }}' | grep -o 'runs/[0-9]\+' | cut -d/ -f2)" >> $GITHUB_OUTPUT
       - run: |
-          echo ${{ steps.workflow.outputs.workflow_id }}
+          echo ${{ steps.workflow.outputs.run_id }}
