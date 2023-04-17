@@ -20,10 +20,8 @@ describe("Create workspace and a new app / delete and recreate app", function ()
         cy.renameWorkspace(newWorkspaceName, workspaceId);
       });
       //Automated as part of Bug19506
-      if (CURRENT_REPO === REPO.CE) {
-        cy.get(application.shareButton).first().click({ force: true });
-        cy.xpath(application.placeholderTxt).should("be.visible");
-      }
+      cy.get(application.shareButton).first().click({ force: true });
+      cy.xpath(application.placeholderTxt).should("be.visible");
       cy.reload();
       cy.CreateAppForWorkspace(workspaceId, appid);
       if (CURRENT_REPO === REPO.CE) {
