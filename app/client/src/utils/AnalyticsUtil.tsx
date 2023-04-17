@@ -291,7 +291,8 @@ export type EventName =
   | "PEEK_OVERLAY_VALUE_COPIED"
   | LIBRARY_EVENTS
   | "APP_SETTINGS_SECTION_CLICK"
-  | APP_NAVIGATION_EVENT_NAMES;
+  | APP_NAVIGATION_EVENT_NAMES
+  | "PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT";
 
 export type LIBRARY_EVENTS =
   | "INSTALL_LIBRARY"
@@ -341,11 +342,6 @@ class AnalyticsUtil {
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
-  }
-
-  static initializeSegmentWithoutTracking(key: string) {
-    AnalyticsUtil.blockTrackEvent = true;
-    return AnalyticsUtil.initializeSegment(key);
   }
 
   static initializeSegment(key: string) {

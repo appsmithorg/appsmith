@@ -1,3 +1,5 @@
+import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
+
 export function createMessage(
   format: (...strArgs: any[]) => string,
   ...args: any[]
@@ -346,6 +348,8 @@ export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const GSHEET_AUTHORIZATION_ERROR =
   "Data source is not authorized, please authorize to continue.";
+export const GSHEET_FILES_NOT_SELECTED =
+  "Datasource does not have access to any files, please authorize google sheets to use this data source";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -372,11 +376,6 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 // error pages
 export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
-export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
-export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
-  "Appsmith server is unavailable";
-export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
-  "Please try again later";
 export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
 export const PAGE_SERVER_TIMEOUT_TITLE = () =>
   "Appsmith server is taking too long to respond";
@@ -385,6 +384,64 @@ export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
 export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
 export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
   "This is embarrassing, please contact Appsmith support for help";
+
+export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+
+// cloudHosting used in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
+  "Appsmith server unavailable";
+
+export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
+  "Please try again later";
+
+export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
+  cloudHosting: boolean,
+): PageErrorMessageProps[] => {
+  if (cloudHosting) {
+    return [
+      {
+        text: "If the problem persists, please contact customer support",
+        links: [
+          {
+            from: 40,
+            to: 56,
+            href: "mailto: support@appsmith.com?subject=Appsmith 503 Server Error",
+          },
+        ],
+        addNewLine: true,
+      },
+    ];
+  } else {
+    return [
+      {
+        text: "If the problem persists, please contact your admin",
+        addNewLine: true,
+      },
+      {
+        text: "You can find more information on how to debug and access the logs here",
+        links: [
+          {
+            from: 66,
+            to: 70,
+            href: "https://docs.appsmith.com/learning-and-resources/how-to-guides/how-to-get-container-logs",
+          },
+        ],
+        addNewLine: true,
+      },
+      {
+        text: "A quick view of the server logs is accessible here",
+        links: [
+          {
+            from: 46,
+            to: 50,
+            href: "/supervisor/logtail/backend",
+          },
+        ],
+      },
+    ];
+  }
+};
 
 // comments
 export const POST = () => "Post";
@@ -435,9 +492,10 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_MESSAGE = () => `Show message`;
-export const OPEN_MODAL = () => `Open modal`;
+export const SHOW_ALERT = () => `Show Alert`;
+export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
+export const CLOSE = () => `CLOSE`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -530,8 +588,13 @@ export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
-export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this workspace`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
+  name?: string | null,
+  entityType?: string,
+) =>
+  `You want to remove ${name} from this ${
+    entityType === "Application" ? "application" : "workspace"
+  }`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
@@ -1501,6 +1564,71 @@ export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
   "Google sheets authorised file ids key";
 
+//Layout Conversion flow
+export const CONVERT = () => "CONVERT";
+export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const BUILD_RESPONSIVE_TEXT = () =>
+  "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
+export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT_TEXT = () =>
+  "Appsmith will convert your application’s UI to fixed layout, the default mode.";
+export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
+export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
+export const SAVE_SNAPSHOT = () =>
+  "Save a Snapshot of your Current Layout for 5 days";
+export const SAVE_SNAPSHOT_TEXT = () =>
+  "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
+export const CREATE_SNAPSHOT = () => "Creating a snapshot";
+export const CONVERTING_APP = () => "Converting your app";
+export const RESTORING_SNAPSHOT = () => "Removing changes made";
+export const REFRESH_THE_APP = () => "REFRESH THE APP";
+export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const CONVERSION_SUCCESS_HEADER = () => "All done";
+export const DISCARD_SNAPSHOT_TEXT = () =>
+  "You are about to discard this snapshot:";
+export const CONVERSION_SUCCESS_TEXT = () =>
+  "Check all your pages and start using your new layout";
+export const CONVERSION_WARNING_HEADER = () =>
+  "All done, some adjustments needed";
+export const CONVERSION_WARNING_TEXT = () =>
+  "You might need to manually position some of the widgets your layout contains";
+export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
+export const CONVERSION_ERROR = () =>
+  "Appsmith ran into a critical error while trying to convert to auto layout";
+export const SEND_REPORT = () => "SEND US A REPORT";
+export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
+export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
+export const CONVERSION_WARNING = () => "Conversion will change your layout";
+export const SNAPSHOT_LABEL = () =>
+  "To revert back to the original state use this snapshot";
+export const USE_SNAPSHOT_TEXT = () =>
+  "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
+export const SNAPSHOT_WARNING_MESSAGE = () =>
+  "Any changes you made after conversion will not be present.";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
+export const SNAPSHOT_BANNER_MESSAGE = () =>
+  "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
+export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
+export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
+export const MORE_DETAILS = () => "More details";
+export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
+  "To resolve this error please:";
+export const CONVERSION_ERROR_MESSAGE_TEXT_ONE = () =>
+  "Check your internet connection.";
+export const CONVERSION_ERROR_MESSAGE_TEXT_TWO = () =>
+  "Send us a report. Sending a report will only inform us that the failure happened and will give us your email address to reach out to.";
+export const SNAPSHOT_TIME_FROM_MESSAGE = (
+  timeSince: string,
+  readableDate: string,
+) => `Snapshot from ${timeSince} ago (${readableDate})`;
+export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
+  timeTillExpiration: string,
+) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
+export const DISCARD = () => "DISCARD";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
