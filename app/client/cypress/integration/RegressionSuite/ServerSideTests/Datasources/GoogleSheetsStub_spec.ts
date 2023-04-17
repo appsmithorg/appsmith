@@ -14,7 +14,7 @@ describe("Google Sheets datasource test cases", function () {
     VerifyFunctionDropdown([
       "Read/Write | Selected Google Sheets",
       "Read/Write | All Google Sheets",
-      "Read Files | All Google Sheets",
+      "Read | All Google Sheets",
     ]);
     dataSources.SaveDSFromDialog(false);
   });
