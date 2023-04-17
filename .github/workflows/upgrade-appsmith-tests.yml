@@ -1,3 +1,5 @@
+name: Debug ci-merge-check
+
 on:
   #This workflow is only triggered by the ok to test command dispatch
   workflow_dispatch:
