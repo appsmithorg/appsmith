@@ -56,7 +56,7 @@ const SubWrapper = styled.div<{
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
   row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
   margin-bottom: ${({ isMobile, mBottom }) =>
-    mBottom ? (isMobile ? MOBILE_ROW_GAP : ROW_GAP) : 0}px;
+    mBottom && isMobile ? MOBILE_ROW_GAP : 0}px;
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -108,7 +108,7 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       <CenterWrapper
         isMobile={props.isMobile}
         key={1}
-        mBottom={marginInfo[1]}
+        mBottom={marginInfo[1] && isMobile}
         wrap={props.wrapCenter && props.isMobile}
       >
         {center}
