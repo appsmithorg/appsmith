@@ -1091,16 +1091,24 @@ class CodeEditor extends Component<Props, State> {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
+    const prevChar = line[cursor.ch - 1];
+
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
     if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
+    } else if (key === "'" || key === '"') {
+      /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
+      showAutocomplete = prevChar === "[";
+
+      if (!showAutocomplete) {
+        // @ts-expect-error: Types are not available
+        cm.closeHint();
+      }
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
