@@ -957,6 +957,15 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${API.payload.name}.data}}`);
       break;
+    case SlashCommand.ASK_AI:
+      if (callback) {
+        callback("", true);
+      } else {
+        yield put(
+          setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.ASK_AI]),
+        );
+      }
+      break;
   }
 }
 

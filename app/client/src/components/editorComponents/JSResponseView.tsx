@@ -74,6 +74,7 @@ const ResponseContainer = styled.div`
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
   }
+  border-top: 1px solid #e8e8e8;
 `;
 
 const ResponseTabWrapper = styled.div`

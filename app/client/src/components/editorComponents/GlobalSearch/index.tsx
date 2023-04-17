@@ -33,6 +33,7 @@ import type {
   SearchItem,
   SelectEvent,
 } from "./utils";
+import { isAI } from "./utils";
 import {
   algoliaHighlightTag,
   filterCategories,
@@ -83,6 +84,8 @@ import {
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+// import { AskAI } from "./AskAI";
+import classNames from "classnames";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -96,7 +99,8 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   height: ${(props) =>
     isMenu(props.category) ||
     isActionOperation(props.category) ||
-    isNavigation(props.category)
+    isNavigation(props.category) ||
+    isAI(props.category)
       ? "auto"
       : "530px"};
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
@@ -298,6 +302,7 @@ function GlobalSearch() {
   const filteredFileOperations = useFilteredFileOperations(query);
 
   const searchResults = useMemo(() => {
+    if (isAI(category)) return [];
     if (isMenu(category) && !query) {
       const shouldRemoveActionCreation = !filteredFileOperations.length;
       return filterCategoryList.filter(
@@ -567,17 +572,24 @@ function GlobalSearch() {
               setRefinement={setRefinements}
             >
               <StyledContainer category={category} query={query}>
-                <SearchBox
-                  category={category}
-                  query={query}
-                  setCategory={setCategory}
-                  setQuery={setQuery}
-                />
+                {!isAI(category) && (
+                  <SearchBox
+                    category={category}
+                    query={query}
+                    setCategory={setCategory}
+                    setQuery={setQuery}
+                  />
+                )}
                 {isSnippet(category) &&
                   refinements &&
                   refinements.entities &&
                   refinements.entities.length && <SnippetRefinements />}
-                <div className="main">
+                <div
+                  className={classNames({
+                    main: true,
+                    "!mt-0": isAI(category),
+                  })}
+                >
                   {(isMenu(category) || isDocumentation(category)) && (
                     <Index indexName={algolia.indexName}>
                       <SetSearchResults
@@ -618,7 +630,7 @@ function GlobalSearch() {
                       )}
                     </>
                   ) : (
-                    <ResultsNotFound />
+                    !isAI(category) && <ResultsNotFound />
                   )}
                   {isSnippet(category) && (
                     <SnippetsFilter
@@ -626,6 +638,7 @@ function GlobalSearch() {
                       snippetsEmpty={snippets.length === 0}
                     />
                   )}
+                  {/* {isAI(category) && <AskAI />} */}
                 </div>
                 {/* <Footer /> */}
               </StyledContainer>

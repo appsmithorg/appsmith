@@ -13,11 +13,13 @@ import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import MagicIcon from "remixicon-react/MagicLineIcon";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
+  ASK_AI = "ASK_AI",
 }
 
 const matchingCommands = (
@@ -100,6 +102,11 @@ const iconsByType = {
       <Snippet className="snippet-icon shortcut" />
     </EntityIcon>
   ),
+  [Shortcuts.ASK_AI]: (
+    <EntityIcon noBorder>
+      <MagicIcon />
+    </EntityIcon>
+  ),
 };
 
 function Command(props: { icon: any; name: string }) {
@@ -150,6 +157,21 @@ export const generateQuickCommands = (
     action: () =>
       executeCommand({
         actionType: SlashCommand.NEW_SNIPPET,
+        args: {
+          entityType: currentEntityType,
+          expectedType: expectedType,
+          entityId: entityId,
+          propertyPath: propertyPath,
+        },
+      }),
+  });
+  const askGPT: CommandsCompletion = generateCreateNewCommand({
+    text: "",
+    displayText: "Ask AI",
+    shortcut: Shortcuts.ASK_AI,
+    action: () =>
+      executeCommand({
+        actionType: SlashCommand.ASK_AI,
         args: {
           entityType: currentEntityType,
           expectedType: expectedType,
@@ -234,7 +256,7 @@ export const generateQuickCommands = (
     recentEntities,
     5,
   );
-  const actionCommands = [newBinding, insertSnippet];
+  const actionCommands = [askGPT, newBinding, insertSnippet];
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),
