@@ -20,11 +20,12 @@ const EmptyDatasourceContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 50px;
+  padding-top: 50px;
   height: 100%;
   flex-direction: column;
   .${Classes.TEXT} {
     color: var(--ads-v2-color-fg);
+    width: 200px;
   }
 `;
 
