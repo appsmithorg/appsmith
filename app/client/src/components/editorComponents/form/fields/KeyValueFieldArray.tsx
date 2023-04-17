@@ -17,12 +17,10 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
-  DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
-  DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { Button } from "design-system";
+import { Button, Option } from "design-system";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -70,7 +68,7 @@ const FlexContainer = styled.div`
       ${(props) => props.theme.spaces[2]}px
       ${(props) => props.theme.spaces[1]}px;
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.apiPane.text};
+      color: var(--ads-v2-color-fg);
     }
     border-bottom: 0px;
   }
@@ -95,6 +93,14 @@ const DynamicTextFieldWithDropdownWrapper = styled.div`
 const DynamicDropdownFieldWrapper = styled.div`
   position: relative;
   margin-left: 5px;
+  border-color: var(--ads-v2-color-border);
+  color: var(--ads-v2-color-fg);
+
+  .ads-v2-select > .rc-select-selector {
+    min-width: 77px;
+    width: 77px;
+    height: 36px;
+  }
 `;
 
 const expected = {
@@ -173,12 +179,15 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         data-replay-id={btoa(`${field}.type`)}
                       >
                         <DynamicDropdownField
-                          height={DEFAULT_MULTI_PART_DROPDOWN_HEIGHT}
                           name={`${field}.type`}
-                          options={MULTI_PART_DROPDOWN_OPTIONS}
                           placeholder={DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER}
-                          width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
-                        />
+                        >
+                          {MULTI_PART_DROPDOWN_OPTIONS.map((option) => (
+                            <Option key={option.value} value={option.value}>
+                              {option.label}
+                            </Option>
+                          ))}
+                        </DynamicDropdownField>
                       </DynamicDropdownFieldWrapper>
                     </DynamicTextFieldWithDropdownWrapper>
                   ) : (
