@@ -747,7 +747,7 @@ export function ApplicationsSection(props: any) {
                         open={showModal}
                       >
                         <ModalContent>
-                          <ModalHeader onClose={() => setShowModal(false)}>
+                          <ModalHeader>
                             {`Invite Users to ${workspace.name}`}
                           </ModalHeader>
                           <ModalBody>

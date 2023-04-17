@@ -94,22 +94,28 @@ const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps-v2.svg`;
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const modalAlwaysOpen = true;
   const dispatch = useDispatch();
+
   const onBuildApp = () => {
     AnalyticsUtil.logEvent("SIGNPOSTING_BUILD_APP_CLICK");
     close();
   };
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
     });
   }, []);
+
+  const closeModal = (isOpen: boolean) => {
+    if (!isOpen) {
+      onBuildApp();
+    }
+  };
+
   return (
-    <Modal open={modalAlwaysOpen}>
+    <Modal onOpenChange={closeModal} open={modalAlwaysOpen}>
       <ModalContent>
-        <ModalHeader
-          className="t--how-appsmith-works-modal-header"
-          onClose={onBuildApp}
-        >
+        <ModalHeader className="t--how-appsmith-works-modal-header">
           {createMessage(WELCOME_TO_APPSMITH)}
         </ModalHeader>
         <ModalBody>

@@ -104,9 +104,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
             open={showModal}
           >
             <ModalContent>
-              <ModalHeader onClose={() => setShowModal(false)}>
-                {props.add.title}
-              </ModalHeader>
+              <ModalHeader>{props.add.title}</ModalHeader>
               <ModalBody>{props.add.form}</ModalBody>
             </ModalContent>
           </Modal>

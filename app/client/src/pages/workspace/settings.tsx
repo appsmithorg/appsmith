@@ -229,7 +229,7 @@ export default function Settings() {
       </SettingsWrapper>
       <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
         <ModalContent>
-          <ModalHeader onClose={() => setShowModal(false)}>
+          <ModalHeader>
             {`Invite Users to ${currentWorkspace?.name}`}
           </ModalHeader>
           <ModalBody>

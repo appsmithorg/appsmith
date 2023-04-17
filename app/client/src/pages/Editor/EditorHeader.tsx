@@ -459,9 +459,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               open={showModal}
             >
               <ModalContent>
-                <ModalHeader onClose={() => setShowModal(false)}>
-                  Application Invite
-                </ModalHeader>
+                <ModalHeader>Application Invite</ModalHeader>
                 <ModalBody>
                   <Tabs defaultValue="invite">
                     <TabsList>

@@ -73,9 +73,7 @@ const ShareButton = (props: ShareButtonProps) => {
       />
       <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
         <ModalContent>
-          <ModalHeader onClose={() => setShowModal(false)}>
-            {currentApplicationDetails?.name}
-          </ModalHeader>
+          <ModalHeader>{currentApplicationDetails?.name}</ModalHeader>
           <ModalBody>
             <AppInviteUsersForm
               placeholder={createMessage(
