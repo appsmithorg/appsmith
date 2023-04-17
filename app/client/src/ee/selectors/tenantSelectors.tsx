@@ -1,10 +1,13 @@
 export * from "ce/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { Status } from "@appsmith/pages/Billing/StatusBadge";
 import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import type { AppState } from "@appsmith/reducers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 export const isValidLicense = (state: AppState) => {
   return state.tenant?.tenantConfiguration?.license?.active;
@@ -96,3 +99,16 @@ export const getLicenseOrigin = (state: AppState) =>
 
 export const isLicenseModalOpen = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.showLicenseModal;
+
+/**
+ * selects the tenant brand colors
+ *
+ * @returns
+ */
+export const getBrandColors = (state: AppState) => {
+  if (!cloudHosting) {
+    return state.tenant?.tenantConfiguration?.brandColors || {};
+  }
+
+  return {};
+};

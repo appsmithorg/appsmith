@@ -625,6 +625,7 @@ export function* storeLogs(logs: LogObject[]) {
         severity: log.severity,
         timestamp: log.timestamp,
         category: LOG_CATEGORY.USER_GENERATED,
+        isExpanded: false,
       };
     }),
   );

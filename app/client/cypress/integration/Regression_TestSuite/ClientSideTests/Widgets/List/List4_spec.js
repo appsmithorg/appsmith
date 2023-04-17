@@ -112,7 +112,7 @@ describe("Container Widget Functionality", function () {
     cy.selectEntityByName("Button1");
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
-    cy.addAction("{{currentItem.last_name}}", "onclick");
+    cy.addAction("{{currentItem.last_name}}", "onClick");
     cy.wait(3000);
     cy.PublishtheApp();
     cy.wait(2000);
@@ -131,23 +131,9 @@ describe("Container Widget Functionality", function () {
     cy.selectEntityByName("List1");
     // Verify Action type and Message of List Item
     // Click on the onListItemClick action dropdown.
-    cy.get(commonlocators.dropdownSelectButton).last().click();
-
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Show message")
-      .click();
-
     // Write binding inside the Message code textarea
-    cy.contains("Message")
-      .siblings()
-      .last()
-      .find(".CodeMirror textarea")
-      .focus()
-      .type("{{currentItem.first_name}}", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
+    cy.addAction("{{currentItem.first_name}}", "onListItemClick");
+
     cy.PublishtheApp();
     // Click on list first item
     cy.get(

@@ -43,6 +43,7 @@ import reactor.core.scheduler.Scheduler;
 import jakarta.validation.Validator;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,8 @@ import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
@@ -487,5 +490,58 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Flux<PermissionGroup> getAllDefaultRolesForApplication(Application application, Optional<AclPermission> aclPermission) {
         return repository.findByDefaultApplicationId(application.getId(), aclPermission);
+    }
+
+    private Mono<PermissionGroup> sendAssignedToPermissionGroupEvent(PermissionGroup permissionGroup,
+                                                                     List<String> usernames,
+                                                                     List<String> userGroupNames) {
+        Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
+                FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
+        Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USERS, usernames.size(),
+                NUMBER_OF_ASSIGNED_USER_GROUPS, userGroupNames.size(),
+                EVENT_DATA, eventData);
+        AnalyticsEvents assignedEvent;
+        if (! usernames.isEmpty() && ! userGroupNames.isEmpty()) {
+            assignedEvent = AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP;
+        } else if (! usernames.isEmpty()) {
+            assignedEvent = AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP;
+        } else {
+            assignedEvent = AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP;
+        }
+        return analyticsService.sendObjectEvent(assignedEvent, permissionGroup, analyticsProperties);
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup role, List<User> users, List<UserGroup> groups) {
+        ensureAssignedToUserIds(role);
+        ensureAssignedToUserGroups(role);
+
+        List<String> userIds = users.stream().map(User::getId).toList();
+        List<String> groupIds = groups.stream().map(UserGroup::getId).toList();
+        role.getAssignedToUserIds().addAll(userIds);
+        role.getAssignedToGroupIds().addAll(groupIds);
+        List<String> usernames = users.stream().map(User::getUsername).collect(Collectors.toList());
+        List<String> userGroupNames = groups.stream().map(UserGroup::getName).collect(Collectors.toList());
+        Mono<PermissionGroup> updatedRoleMono = repository.updateById(role.getId(), role, AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)))
+                .cache();
+
+        Mono<PermissionGroup> updateEventGetRoleMono = updatedRoleMono
+                .flatMap(permissionGroup1 -> sendAssignedToPermissionGroupEvent(permissionGroup1, usernames, userGroupNames));
+
+        Mono<Boolean> cleanCacheForAllUsersAssignedDirectlyIndirectly = updatedRoleMono
+                .flatMap(updatedRole -> {
+                    List<String> usersIdsInGroups = groups.stream()
+                            .map(UserGroup::getUsers)
+                            .flatMap(Collection::stream).toList();
+                    List<String> userIdsForCacheCleaning = new ArrayList<>();
+                    userIdsForCacheCleaning.addAll(userIds);
+                    userIdsForCacheCleaning.addAll(usersIdsInGroups);
+                    return cleanPermissionGroupCacheForUsers(userIdsForCacheCleaning).thenReturn(TRUE);
+                });
+
+        return cleanCacheForAllUsersAssignedDirectlyIndirectly
+                .then(updateEventGetRoleMono)
+                .then(updatedRoleMono);
     }
 }

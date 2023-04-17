@@ -62,4 +62,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Flux<PermissionGroup> getAllDefaultRolesForApplication(Application application, Optional<AclPermission> aclPermission);
 
+    Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup role, List<User> users, List<UserGroup> groups);
+
 }

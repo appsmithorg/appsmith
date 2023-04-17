@@ -22,6 +22,7 @@ import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
 
@@ -196,13 +197,19 @@ export const OidcAuthCallout: AuthMethodType = {
   isConnected: enableOidcOAuth,
 };
 
+const isAirgappedInstance = isAirgapped();
+
 const AuthMethods = [
   OidcAuthCallout,
   SamlAuthCallout,
   GoogleAuthCallout,
   GithubAuthCallout,
   FormAuthCallout,
-];
+].filter((method) =>
+  isAirgappedInstance
+    ? method !== GoogleAuthCallout && method !== GithubAuthCallout
+    : true,
+);
 
 function AuthMain() {
   return <AuthPage authMethods={AuthMethods} />;
@@ -211,7 +218,12 @@ function AuthMain() {
 export const config: AdminConfigType = {
   ...CE_config,
   children: Array.isArray(CE_config.children)
-    ? [...CE_config.children, SsoAuth, OidcAuth]
+    ? [...CE_config.children, SsoAuth, OidcAuth].filter((method) =>
+        isAirgappedInstance
+          ? method.type !== SettingCategories.GOOGLE_AUTH &&
+            method.type !== SettingCategories.GITHUB_AUTH
+          : true,
+      )
     : [],
   component: AuthMain,
 };

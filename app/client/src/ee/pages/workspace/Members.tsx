@@ -16,7 +16,7 @@ import {
   getAllRoles,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -38,6 +38,7 @@ import { useMediaQuery } from "react-responsive";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
+import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
 import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
@@ -48,18 +49,21 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { useHistory } from "react-router";
+import {
+  changeApplicationUserRole,
+  deleteApplicationUser,
+  fetchDefaultRolesForApplication,
+} from "@appsmith/actions/applicationActions";
+import { getAllAppRoles } from "@appsmith/selectors/applicationSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const Delimeter = styled.div`
   border-left: 1px solid var(--appsmith-color-black-200);
   line-height: 24px;
-  padding-right: 12px;
+  padding-right: 8px;
   text-align: center;
-  width: 15px;
-  /*height: 44px;*/
-  /*margin: 0 12px 0 6px;*/
-  margin: 0 4px 0 16px;
+  margin: 0 4px 0 12px;
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -73,12 +77,6 @@ export default function MemberSettings(props: PageProps) {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  useEffect(() => {
-    dispatch(fetchUsersForWorkspace(workspaceId));
-    dispatch(fetchRolesForWorkspace(workspaceId));
-    dispatch(fetchWorkspace(workspaceId));
-  }, [dispatch, workspaceId]);
-
   const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
     useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
@@ -90,30 +88,54 @@ export default function MemberSettings(props: PageProps) {
     name: string;
     username: string;
     workspaceId: string;
-    userId: string;
     userGroupId: string;
+    entityId?: string;
+    entityType?: string;
   } | null>(null);
 
   const onConfirmMemberDeletion = (
     name: string,
     username: string,
     workspaceId: string,
-    userId: string,
     userGroupId: string,
+    entityId?: string,
+    entityType?: string,
   ) => {
-    setUserToBeDeleted({ name, username, workspaceId, userId, userGroupId });
+    setUserToBeDeleted({
+      name,
+      username,
+      workspaceId,
+      userGroupId,
+      entityId,
+      entityType,
+    });
     onOpenConfirmationModal();
   };
 
   const onDeleteMember = (data?: any) => {
     if (!userToBeDeleted && !data) return null;
-    dispatch(
-      deleteWorkspaceUser(
-        userToBeDeleted?.workspaceId || data?.workspaceId,
-        userToBeDeleted?.username || data?.username,
-        userToBeDeleted?.userGroupId || data?.userGroupId,
-      ),
-    );
+    const userData = userToBeDeleted || data;
+    if (
+      userData?.entityId &&
+      userData?.entityType &&
+      userData?.entityType !== ENTITY_TYPE.WORKSPACE
+    ) {
+      dispatch(
+        deleteApplicationUser(
+          userData?.entityId || userData?.entityId,
+          userData?.username,
+          userData?.userGroupId,
+        ),
+      );
+    } else {
+      dispatch(
+        deleteWorkspaceUser(
+          userData?.workspaceId,
+          userData?.username,
+          userData?.userGroupId,
+        ),
+      );
+    }
   };
 
   const {
@@ -125,14 +147,22 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
+  const featureFlags = useSelector(selectFeatureFlags);
+  const isAppInvite = featureFlags.RBAC && !cloudHosting;
+
+  useEffect(() => {
+    dispatch(fetchUsersForWorkspace(workspaceId));
+    dispatch(fetchRolesForWorkspace(workspaceId));
+    dispatch(fetchWorkspace(workspaceId));
+
+    if (isAppInvite) {
+      dispatch(fetchDefaultRolesForApplication());
+    }
+  }, [dispatch, workspaceId, isAppInvite]);
 
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
-      const userBeingDeleted = allUsers.find((user) =>
-        user.userGroupId
-          ? user.userGroupId === userToBeDeleted.userGroupId
-          : user.username === userToBeDeleted.username,
-      );
+      const userBeingDeleted = allUsers.find((user) => user.isDeleting);
       if (!userBeingDeleted) {
         setUserToBeDeleted(null);
         onCloseConfirmationModal();
@@ -150,6 +180,30 @@ export default function MemberSettings(props: PageProps) {
         isCurrentUser: user.username === currentUser?.username,
         permissionGroupId: user.roles?.[0]?.id || "",
         permissionGroupName: user.roles?.[0]?.name || "",
+        entityType: user.roles?.[0]?.entityType || "",
+        entityName: user.roles?.[0]?.entityName || "",
+        entityId: user.roles?.[0]?.entityId || "",
+        autoCreated: user.roles?.[0]?.autoCreated || "",
+        ...(user.roles?.length > 1 && isAppInvite
+          ? {
+              subRows: user.roles
+                .map((role, index) => {
+                  if (index !== 0) {
+                    return {
+                      ...user,
+                      isCurrentUser: user.username === currentUser?.username,
+                      permissionGroupId: role.id,
+                      permissionGroupName: role.name,
+                      entityType: role.entityType || "",
+                      entityName: role.entityName || "",
+                      entityId: role.entityId || "",
+                      autoCreated: role.autoCreated || "",
+                    };
+                  }
+                })
+                .filter(Boolean),
+            }
+          : {}),
       })),
     [allUsers, currentUser],
   );
@@ -232,16 +286,20 @@ export default function MemberSettings(props: PageProps) {
               <Icon name="arrow-right-s-fill" size={IconSize.XL} />
             )}
             <div className="resource-name">
-              {cellProps.cell.row.original.roles?.[0]?.entityType ||
-                "Workspace"}
+              {(cellProps.cell.row.original?.entityType ===
+              ENTITY_TYPE.WORKSPACE
+                ? cellProps.cell.row.original?.entityType
+                : cellProps.cell.row.original?.entityName) || "Workspace"}
             </div>
           </RowWrapper>
         ) : (
           <RowWrapper isSubRow={isSubRow}>
             {cellProps.row.depth ? del : null}
             <div className="resource-name">
-              {cellProps.cell.row.original.roles?.[0]?.entityType ||
-                "Workspace"}
+              {(cellProps.cell.row.original?.entityType ===
+              ENTITY_TYPE.WORKSPACE
+                ? cellProps.cell.row.original?.entityType
+                : cellProps.cell.row.original?.entityName) || "Workspace"}
             </div>
           </RowWrapper>
         );
@@ -251,8 +309,11 @@ export default function MemberSettings(props: PageProps) {
       Header: "Role",
       accessor: "permissionGroupName",
       Cell: function DropdownCell(cellProps: any) {
-        const { userGroupId, username } = cellProps.cell.row.original;
-        const allRoles = useSelector(getAllRoles);
+        const { entityId, entityType, userGroupId, username } =
+          cellProps.cell.row.original;
+        const allRoles = useSelector(
+          entityType === ENTITY_TYPE.WORKSPACE ? getAllRoles : getAllAppRoles,
+        );
         const roles = allRoles
           ? allRoles.map((role: any) => {
               return {
@@ -278,22 +339,30 @@ export default function MemberSettings(props: PageProps) {
         if (username === currentUser?.username) {
           return cellProps.cell.value?.split(" - ")[0];
         }
+        if (entityType === ENTITY_TYPE.WORKSPACE && !selectedRole) {
+          return "No Access";
+        }
 
         const onSelectHandler = (_value: string, option: any) => {
           if (option.link) {
             history.push(option.link);
           } else {
-            userGroupId
+            entityId && entityType && entityType !== ENTITY_TYPE.WORKSPACE
               ? dispatch(
+                  changeApplicationUserRole(
+                    entityId,
+                    option.value,
+                    username,
+                    userGroupId,
+                  ),
+                )
+              : dispatch(
                   changeWorkspaceUserRole(
                     workspaceId,
                     option.id,
                     username,
                     userGroupId,
                   ),
-                )
-              : dispatch(
-                  changeWorkspaceUserRole(workspaceId, option.id, username),
                 );
           }
         };
@@ -321,7 +390,17 @@ export default function MemberSettings(props: PageProps) {
       Header: "Actions",
       accessor: "actions",
       Cell: function DeleteCell(cellProps: any) {
-        const { userGroupId, userId, username } = cellProps.cell.row.original;
+        const {
+          entityId,
+          entityType,
+          permissionGroupName,
+          userGroupId,
+          username,
+        } = cellProps.cell.row.original;
+
+        if (entityType === ENTITY_TYPE.WORKSPACE && !permissionGroupName) {
+          return "";
+        }
 
         return (
           <Icon
@@ -338,8 +417,9 @@ export default function MemberSettings(props: PageProps) {
                 username,
                 username,
                 workspaceId,
-                userId,
                 userGroupId,
+                entityId,
+                entityType,
               );
             }}
             size={IconSize.LARGE}
@@ -348,6 +428,7 @@ export default function MemberSettings(props: PageProps) {
       },
     },
   ];
+
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   const roles = allRoles
     ? allRoles.map((role: any) => {
@@ -382,11 +463,10 @@ export default function MemberSettings(props: PageProps) {
         {isMobile && (
           <UserCardContainer>
             {filteredData.map((member, index) => {
-              const role =
-                roles.find(
-                  (role: any) =>
-                    role.value === member.permissionGroupName.split(" - ")[0],
-                ) || roles[0];
+              const role = roles.find(
+                (role: any) =>
+                  role.value === member.permissionGroupName.split(" - ")[0],
+              );
               const isOwner = member.username === currentUser?.username;
               const isUserGroup = member.hasOwnProperty("userGroupId");
               return (
@@ -429,7 +509,12 @@ export default function MemberSettings(props: PageProps) {
                       {member.permissionGroupName?.split(" - ")[0]}
                     </Text>
                   )}
-                  {!isOwner && (
+                  {!isOwner && !role && (
+                    <Text className="user-role" type={TextType.P1}>
+                      No Access
+                    </Text>
+                  )}
+                  {!isOwner && role && (
                     <Dropdown
                       boundary="viewport"
                       className="t--user-status"
@@ -453,7 +538,6 @@ export default function MemberSettings(props: PageProps) {
                         member.username,
                         member.username,
                         workspaceId,
-                        member.userId,
                         member?.userGroupId || "",
                       );
                     }}

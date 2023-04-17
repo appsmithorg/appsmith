@@ -1,6 +1,6 @@
 package com.appsmith.server.filters;
 
-import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -18,16 +18,16 @@ import static org.mockito.Mockito.verify;
 
 public class AirgapUnsupportedPathFilterTest {
 
-    private final LicenseConfig licenseConfig = Mockito.mock(LicenseConfig.class);
+    private final AirgapInstanceConfig instanceConfig = Mockito.mock(AirgapInstanceConfig.class);
 
     private final WebFilterChain chain = Mockito.mock(WebFilterChain.class, new ReturnsMocks());
 
-    private final AirgapUnsupportedPathFilter airgapFilter = new AirgapUnsupportedPathFilter(licenseConfig);
+    private final AirgapUnsupportedPathFilter airgapFilter = new AirgapUnsupportedPathFilter(instanceConfig);
 
     @BeforeEach
     public void setup() {
         Mockito
-            .when(licenseConfig.isAirGapInstance())
+            .when(instanceConfig.isAirgapEnabled())
             .thenReturn(true);
     }
 
@@ -36,7 +36,7 @@ public class AirgapUnsupportedPathFilterTest {
         // Blocking request path
         MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(Url.APP_TEMPLATE_URL));
         // Non-airgapped instance
-        Mockito.when(licenseConfig.isAirGapInstance()).thenReturn(false);
+        Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(false);
         airgapFilter.filter(exchange, chain).block();
 
         // Verifying that the filter method of the next filter in the chain is called, which indicates that the request

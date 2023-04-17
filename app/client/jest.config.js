@@ -92,6 +92,7 @@ module.exports = {
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
       ),
+      airGapped: parseConfig("__APPSMITH_AIRGAP_ENABLED__"),
     },
   },
 };

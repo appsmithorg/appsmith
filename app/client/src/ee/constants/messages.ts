@@ -182,3 +182,6 @@ export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
 
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
+
+// Auth pages
+export const SIGNUP_PAGE_TITLE = () => `Create your account`;

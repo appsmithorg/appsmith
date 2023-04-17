@@ -160,7 +160,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
-    _.agHelper.AssertElementAbsence("[nam='arrow-right-s-fill']");
+    _.agHelper.AssertElementAbsence("[name='arrow-right-s-fill']");
     _.homePage.NavigateToHome();
   });
 

@@ -61,10 +61,17 @@ public class UserGroupController {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @GetMapping("/for-invite")
+    @GetMapping("/add-member")
     public Mono<ResponseDTO<List<UserGroupCompactDTO>>> getAllWithAddUserPermission() {
         log.debug("Going to get all resources  with Add User Permission from user group controller");
-        return service.getAllWithAddUserPermission().collectList()
+        return service.getAllWithAddUserPermission()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @GetMapping("/for-invite")
+    public Mono<ResponseDTO<List<UserGroupCompactDTO>>> getAllReadableGroups() {
+        log.debug("Going to get all resources  with read user group permission from user group controller");
+        return service.getAllReadableGroups()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

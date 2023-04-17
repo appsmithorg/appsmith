@@ -10,7 +10,6 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -34,6 +33,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.helpers.AppsmithComparators.permissionGroupInfoForWorkspaceAndApplicationMembersComparator;
+import static com.appsmith.server.helpers.AppsmithComparators.workspaceMembersComparator;
+
 @Service
 @Slf4j
 public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl implements UserWorkspaceService {
@@ -42,6 +44,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
     private final WorkspaceRepository workspaceRepository;
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
+    private final ApplicationMemberService applicationMemberService;
 
     public UserWorkspaceServiceImpl(SessionUserService sessionUserService,
                                     WorkspaceRepository workspaceRepository,
@@ -54,7 +57,8 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                                     TenantService tenantService,
                                     UserGroupRepository userGroupRepository,
                                     WorkspacePermission workspacePermission,
-                                    PermissionGroupPermission permissionGroupPermission) {
+                                    PermissionGroupPermission permissionGroupPermission,
+                                    ApplicationMemberService applicationMemberService) {
 
         super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
                 userDataService, permissionGroupService, tenantService, workspacePermission, permissionGroupPermission);
@@ -62,6 +66,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
         this.workspaceRepository = workspaceRepository;
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
+        this.applicationMemberService = applicationMemberService;
     }
 
     @Override
@@ -134,6 +139,87 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
     @Override
     public Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId) {
         Mono<List<MemberInfoDTO>> sortedOnlyUsersWorkspaceMembersMono = super.getWorkspaceMembers(workspaceId);
+        Mono<List<MemberInfoDTO>> unsortedOnlyUserGroupWorkspaceMembersMono = getUserGroupMembersForWorkspace(workspaceId);
+
+        Mono<List<MemberInfoDTO>> workspaceMembersMono = Flux.concat(unsortedOnlyUserGroupWorkspaceMembersMono, sortedOnlyUsersWorkspaceMembersMono)
+                .flatMap(Flux::fromIterable)
+                .collectList();
+        Mono<List<MemberInfoDTO>> workspaceApplicationMembersFlux = applicationMemberService.getAllApplicationsMembersForWorkspace(workspaceId).collectList();
+
+        return Mono.zip(workspaceMembersMono, workspaceApplicationMembersFlux)
+                .map(tuple -> getCombinedWorkspaceAndApplicationMembersList(tuple.getT1(), tuple.getT2()))
+                .map(memberList -> {
+                    memberList.sort(workspaceMembersComparator());
+                    return memberList;
+                });
+    }
+
+    /**
+     * Combines the workspace members list and application members list into a single list.
+     * First, create 2 maps:
+     * - Map 1: map of user ids to list of members with same user id.
+     * - Map 2: map of user group ids to list of members with the same user group id.
+     *
+     * From Map #1 and Map #2, generate unique members with list of roles.
+     * The list of roles will be sorted using the permissionGroupInfoForWorkspaceAndApplicationMembersComparator().
+     * Note: We will prepend an empty workspace role to the list of roles, if no default workspace role exist in the list.
+     * This is done in order to make sure, that if no default workspace role is assigned to a member, then a dummy
+     * workspace role is still at the top of the list.
+     *
+     * @param workspaceMembers
+     * @param applicationMembers
+     * @return
+     */
+    private List<MemberInfoDTO> getCombinedWorkspaceAndApplicationMembersList(List<MemberInfoDTO> workspaceMembers, List<MemberInfoDTO> applicationMembers) {
+        List<MemberInfoDTO> allMembers = new ArrayList<>();
+        Map<String, List<MemberInfoDTO>> userIdToDifferentRoleMembers = Stream.of(workspaceMembers, applicationMembers)
+                .flatMap(Collection::stream)
+                .filter(member -> !StringUtils.hasLength(member.getUserGroupId()))
+                .collect(Collectors.groupingBy(MemberInfoDTO::getUserId));
+        Map<String, List<MemberInfoDTO>> userGroupIdToDifferentRoleMembers = Stream.of(workspaceMembers, applicationMembers)
+                .flatMap(Collection::stream)
+                .filter(member -> StringUtils.hasLength(member.getUserGroupId()))
+                .collect(Collectors.groupingBy(MemberInfoDTO::getUserGroupId));
+
+        userIdToDifferentRoleMembers.forEach((userId, memberWithDifferentRoles) -> {
+            String username = memberWithDifferentRoles.get(0).getUsername();
+            String name = memberWithDifferentRoles.get(0).getName();
+            String photoId = memberWithDifferentRoles.get(0).getPhotoId();
+            List<PermissionGroupInfoDTO> roles = memberWithDifferentRoles.stream()
+                    .map(MemberInfoDTO::getRoles)
+                    .flatMap(Collection::stream)
+                    .sorted(permissionGroupInfoForWorkspaceAndApplicationMembersComparator())
+                    .toList();
+            List<PermissionGroupInfoDTO> finalRolesWithWorkspaceRole = checkAndPrependEmptyWorkspaceRoleNotPresent(roles);
+            MemberInfoDTO member = MemberInfoDTO.builder()
+                    .username(username)
+                    .name(name)
+                    .userId(userId)
+                    .photoId(photoId)
+                    .roles(finalRolesWithWorkspaceRole)
+                    .build();
+            allMembers.add(member);
+        });
+
+        userGroupIdToDifferentRoleMembers.forEach((userGroupId, memberWithDifferentRoles) -> {
+            String name = memberWithDifferentRoles.get(0).getName();
+            List<PermissionGroupInfoDTO> roles = memberWithDifferentRoles.stream()
+                    .map(MemberInfoDTO::getRoles)
+                    .flatMap(Collection::stream)
+                    .sorted(permissionGroupInfoForWorkspaceAndApplicationMembersComparator())
+                    .toList();
+            List<PermissionGroupInfoDTO> finalRolesWithWorkspaceRole = checkAndPrependEmptyWorkspaceRoleNotPresent(roles);
+            MemberInfoDTO member = MemberInfoDTO.builder()
+                    .name(name)
+                    .userGroupId(userGroupId)
+                    .roles(finalRolesWithWorkspaceRole)
+                    .build();
+            allMembers.add(member);
+        });
+
+        return allMembers;
+    }
+    private Mono<List<MemberInfoDTO>> getUserGroupMembersForWorkspace(String workspaceId) {
         Flux<PermissionGroup> permissionGroupFlux = this.getPermissionGroupsForWorkspace(workspaceId);
 
         Mono<List<MemberInfoDTO>> userGroupAndPermissionGroupDTOsMono = permissionGroupFlux
@@ -149,7 +235,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                 .collectMap(UserGroup::getId)
                 .cache();
 
-        userGroupAndPermissionGroupDTOsMono = userGroupAndPermissionGroupDTOsMono
+        return userGroupAndPermissionGroupDTOsMono
                 .zipWith(userGroupMapMono)
                 .map(tuple -> {
                     List<MemberInfoDTO> memberInfoDTOList = tuple.getT1();
@@ -161,15 +247,27 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                     });
                     return memberInfoDTOList;
                 });
+    }
 
-        return userGroupAndPermissionGroupDTOsMono.zipWith(sortedOnlyUsersWorkspaceMembersMono)
-                .map(tuple -> Stream.of(tuple.getT1(), tuple.getT2())
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList()))
-                .map(memberInfoDTOS -> {
-                    memberInfoDTOS.sort(AppsmithComparators.getWorkspaceMemberComparator());
-                    return memberInfoDTOS;
-                });
+    /**
+     * This is a utility to prepend a dummy workspace role to the list of roles, if no workspace role exists in the list of roles.
+     * @param roles
+     * @return
+     */
+    private List<PermissionGroupInfoDTO> checkAndPrependEmptyWorkspaceRoleNotPresent(List<PermissionGroupInfoDTO> roles) {
+        boolean isWorkspaceRolePresent = roles.stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
+        if (isWorkspaceRolePresent) {
+            return roles;
+        }
+
+        // Empty Workspace Role
+        PermissionGroupInfoDTO emptyWorkspaceRole = new PermissionGroupInfoDTO();
+        emptyWorkspaceRole.setEntityType(Workspace.class.getSimpleName());
+        // Creating a new list to avoid UnsupportedOperationException on adding the empty workspace role.
+        List<PermissionGroupInfoDTO> updatedRoles = new ArrayList<>();
+        updatedRoles.add(emptyWorkspaceRole);
+        updatedRoles.addAll(roles);
+        return updatedRoles;
     }
 
     // Create a list of all the PermissionGroup IDs to UserGroup IDs associations

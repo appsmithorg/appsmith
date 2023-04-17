@@ -223,6 +223,8 @@ Cypress.Commands.add("AssignRoleToUser", (Role, userEmail) => {
   cy.get(RBAC.addButton).click();
   cy.get(RBAC.inviteModal).should("be.visible");
   cy.get(RBAC.rolesTabInviteModal).click();
+  cy.get(RBAC.helperMessage).should("not.exist");
+  cy.get(RBAC.noUsersContent).should("not.exist");
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
   cy.xpath(RBAC.selectFromDropdownInviteModal).click();
@@ -247,6 +249,8 @@ Cypress.Commands.add("AssignGroupToUser", (Group, userEmail) => {
   cy.get(RBAC.addButton).click();
   cy.get(RBAC.inviteModal).should("be.visible");
   cy.get(RBAC.groupsTabInviteModal).click();
+  cy.get(RBAC.helperMessage).should("not.exist");
+  cy.get(RBAC.noUsersContent).should("not.exist");
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
   cy.xpath(RBAC.selectFromDropdownInviteModal).click();
@@ -524,6 +528,8 @@ Cypress.Commands.add(
     );
     cy.wait(2000);
     cy.get(RBAC.inviteButton).click();
+    cy.get(RBAC.helperMessage).should("not.exist");
+    cy.get(RBAC.noUsersContent).should("not.exist");
     cy.wait("@mockPostInvite")
       .its("request.headers")
       .should("have.property", "origin", "Cypress");

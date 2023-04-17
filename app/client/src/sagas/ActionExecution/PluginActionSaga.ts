@@ -6,6 +6,7 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -118,6 +119,7 @@ import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -564,6 +566,8 @@ function* runActionSaga(
   });
 
   const { id, paginationField } = reduxAction.payload;
+  // open response tab in debugger on exection of action.
+  yield call(openDebugger);
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
@@ -829,6 +833,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       name: "PluginExecutionError",
       message: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
     };
+
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
         yield call(executePluginActionSaga, pageAction);
@@ -844,6 +849,10 @@ function* executePageLoadAction(pageAction: PageAction) {
         };
       }
     }
+    // open response tab in debugger on exection of action on page load.
+    // Only if current page is the page on which the action is executed.
+    if (window.location.pathname.includes(pageAction.id))
+      yield call(openDebugger);
 
     if (isError) {
       AppsmithConsole.addErrors([
@@ -1077,6 +1086,12 @@ function* executePluginActionSaga(
 
     throw new PluginActionExecutionError("Response not valid", false);
   }
+}
+
+//Open debugger with response tab selected.
+function* openDebugger() {
+  yield put(showDebugger(true));
+  yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
 }
 
 export function* watchPluginActionExecutionSagas() {

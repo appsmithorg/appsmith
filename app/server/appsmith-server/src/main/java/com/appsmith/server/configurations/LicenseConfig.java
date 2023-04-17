@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 @Getter
 @Setter
@@ -30,6 +29,8 @@ public class LicenseConfig {
 
     @Autowired
     ConfigService configService;
+    @Autowired
+    AirgapInstanceConfig airgapInstanceConfig;
 
     @Value("${appsmith.license.key}")
     private String licenseKey;
@@ -38,12 +39,9 @@ public class LicenseConfig {
     @Value("${keygen.license.verify.key:}")
     private String publicVerificationKey;
 
-    @Value("${is.air.gap.instance:false}")
-    private boolean isAirGapInstance;
-
     @Bean
     public LicenseValidator licenseValidatorInstance() {
-        return this.isAirGapInstance()
+        return airgapInstanceConfig.isAirgapEnabled()
             ? new OfflineLicenseValidatorImpl(this, gson)
             : new OnlineLicenseValidatorImpl(cloudServicesConfig, configService, releaseNotesService);
     }

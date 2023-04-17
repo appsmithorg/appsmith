@@ -74,6 +74,11 @@ const StyledControlGroup = styled(ControlGroup)<{
       width: 100%;
       height: 100%;
       min-height: 32px;
+
+      .auto-layout & {
+        min-height: 36px;
+      }
+
       align-items: center;
       transition: none;
 

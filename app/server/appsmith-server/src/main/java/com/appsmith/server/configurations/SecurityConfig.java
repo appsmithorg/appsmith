@@ -95,7 +95,7 @@ public class SecurityConfig {
     private RedirectHelper redirectHelper;
 
     @Autowired
-    LicenseConfig licenseConfig;
+    AirgapInstanceConfig airgapInstanceConfig;
 
     @Value("${appsmith.oidc.jwt-signing-algo}")
     private String oidcJwtSigningAlgorithm;
@@ -132,7 +132,7 @@ public class SecurityConfig {
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
                 .csrf().disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
-                .addFilterAfter(new AirgapUnsupportedPathFilter(licenseConfig), SecurityWebFiltersOrder.CSRF)
+                .addFilterAfter(new AirgapUnsupportedPathFilter(airgapInstanceConfig), SecurityWebFiltersOrder.CSRF)
                 .anonymous().principal(createAnonymousUser())
                 .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required

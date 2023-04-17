@@ -1,6 +1,6 @@
 package com.appsmith.server.filters;
 
-import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +29,10 @@ import static com.appsmith.server.constants.ce.UrlCE.RELEASE_ITEMS;
 @Slf4j
 public class AirgapUnsupportedPathFilter implements WebFilter {
 
-    private final LicenseConfig licenseConfig;
+    private final AirgapInstanceConfig airgapInstanceConfig;
 
-    public AirgapUnsupportedPathFilter(LicenseConfig licenseConfig) {
-        this.licenseConfig = licenseConfig;
+    public AirgapUnsupportedPathFilter(AirgapInstanceConfig airgapInstanceConfig) {
+        this.airgapInstanceConfig = airgapInstanceConfig;
     }
 
     private static final String WILDCARD_SUFFIX = "/**";
@@ -49,7 +49,7 @@ public class AirgapUnsupportedPathFilter implements WebFilter {
     @NotNull
     @Override
     public Mono<Void> filter(@NotNull ServerWebExchange exchange, @NotNull WebFilterChain chain) {
-        if (!licenseConfig.isAirGapInstance() || !isRequestPathMatched(exchange.getRequest().getPath())) {
+        if (!airgapInstanceConfig.isAirgapEnabled() || !isRequestPathMatched(exchange.getRequest().getPath())) {
             return chain.filter(exchange);
         }
         log.info("Client is trying to access blocked URI path in air-gap instance {}", exchange.getRequest().getPath());

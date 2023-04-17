@@ -17,8 +17,217 @@ import {
   showReconnectDatasourcesModalSaga,
   fetchUnconfiguredDatasourceList,
 } from "ce/sagas/ApplicationSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { all, takeLatest } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxActionWithPromise } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ChangeAppUserRoleRequest,
+  DeleteApplicationUserRequest,
+  FetchAllAppRolesRequest,
+  FetchAllAppRolesResponse,
+  FetchAllAppUsersRequest,
+  FetchAllAppUsersResponse,
+  InviteUserToAppRequest,
+} from "@appsmith/api/ApplicationApi";
+import ApplicationApi from "@appsmith/api/ApplicationApi";
+import {
+  callAPI,
+  getResponseErrorMessage,
+  validateResponse,
+} from "sagas/ErrorSagas";
+import type { ApiResponse } from "api/ApiResponses";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+import { reset } from "redux-form";
+import type { User } from "constants/userConstants";
+import { getCurrentUser } from "selectors/usersSelectors";
+import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
+import { Toaster, Variant } from "design-system-old";
+
+export function* fetchAllAppUsersSaga(
+  action: ReduxAction<FetchAllAppUsersRequest>,
+) {
+  try {
+    const request: FetchAllAppUsersRequest = action.payload;
+    const response: FetchAllAppUsersResponse = yield call(
+      ApplicationApi.fetchApplicationUsers,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const users = response.data.map((user: any) => ({
+        ...user,
+        isDeleting: false,
+        isChangingRole: false,
+      }));
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_APP_USERS_SUCCESS,
+        payload: users,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_APP_USERS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchAllAppRolesSaga(
+  action: ReduxAction<FetchAllAppRolesRequest>,
+) {
+  try {
+    const request: FetchAllAppRolesRequest = action.payload;
+    const response: FetchAllAppRolesResponse = yield call(
+      ApplicationApi.fetchApplicationRoles,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_APP_ROLES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_APP_ROLES_ERROR,
+    });
+  }
+}
+
+export function* fetchAppDefaultRolesSaga() {
+  try {
+    const response: FetchAllAppRolesResponse = yield call(
+      ApplicationApi.fetchDefaultApplicationRoles,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_APP_DEFAULT_ROLES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APP_DEFAULT_ROLES_ERROR,
+    });
+  }
+}
+
+export function* inviteUsersToApplicationSaga(
+  action: ReduxActionWithPromise<{
+    data: InviteUserToAppRequest;
+  }>,
+) {
+  const { data, reject, resolve } = action.payload;
+  try {
+    const response: ApiResponse = yield callAPI(
+      ApplicationApi.inviteUsersToApplication,
+      {
+        usernames: data.usernames,
+        groups: data.groups,
+        applicationId: data.applicationId,
+        roleType: data.roleType,
+      },
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (!isValidResponse) {
+      let errorMessage = `${data.usernames}:  `;
+      errorMessage += getResponseErrorMessage(response);
+      yield call(reject, { _error: errorMessage });
+    }
+    yield put({
+      type: ReduxActionTypes.FETCH_ALL_APP_USERS_INIT,
+      payload: {
+        applicationId: data.applicationId,
+      },
+    });
+    yield call(resolve);
+    yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
+  } catch (error) {
+    yield call(reject, { _error: (error as Error).message });
+    yield put({
+      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deleteApplicationUserSaga(
+  action: ReduxAction<DeleteApplicationUserRequest>,
+) {
+  try {
+    const request: DeleteApplicationUserRequest = action.payload;
+    const response: ApiResponse & { data: any } = yield call(
+      ApplicationApi.deleteApplicationUser,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const currentUser: User | undefined = yield select(getCurrentUser);
+      if (currentUser?.username == action.payload.username) {
+        history.replace(APPLICATIONS_URL);
+      } else {
+        yield put({
+          type: ReduxActionTypes.DELETE_APPLICATION_USER_SUCCESS,
+          payload: {
+            username: action.payload.username,
+            userGroupId: action.payload.userGroupId,
+            applicationId: action.payload.applicationId,
+          },
+        });
+      }
+      Toaster.show({
+        text: `${
+          response.data?.username || response.data?.name
+        } has been removed successfully`,
+        variant: Variant.success,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_APPLICATION_USER_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* changeApplicationUserRoleSaga(
+  action: ReduxAction<ChangeAppUserRoleRequest>,
+) {
+  try {
+    const request: ChangeAppUserRoleRequest = action.payload;
+    const response: ApiResponse = yield call(
+      ApplicationApi.changeApplicationUserRole,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CHANGE_APPLICATION_USER_ROLE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CHANGE_APPLICATION_USER_ROLE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
 
 export default function* applicationSagas() {
   yield all([
@@ -61,6 +270,24 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
       fetchUnconfiguredDatasourceList,
+    ),
+    takeLatest(ReduxActionTypes.FETCH_ALL_APP_USERS_INIT, fetchAllAppUsersSaga),
+    takeLatest(ReduxActionTypes.FETCH_ALL_APP_ROLES_INIT, fetchAllAppRolesSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_APP_DEFAULT_ROLES_INIT,
+      fetchAppDefaultRolesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.INVITE_USERS_TO_APPLICATION_INIT,
+      inviteUsersToApplicationSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DELETE_APPLICATION_USER_INIT,
+      deleteApplicationUserSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CHANGE_APPLICATION_USER_ROLE_INIT,
+      changeApplicationUserRoleSaga,
     ),
   ]);
 }

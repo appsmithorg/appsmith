@@ -106,7 +106,7 @@ ff4j:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emailDomains
-            value: appsmith.com
+            value: team@appsmith.com
 
     - uid: LAZY_CANVAS_RENDERING
       enable: true

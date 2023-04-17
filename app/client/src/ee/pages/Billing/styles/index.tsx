@@ -64,6 +64,10 @@ export const CardLeftContent = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 20px;
+  overflow: hidden;
+  .cs-text {
+    word-break: break-word;
+  }
 `;
 
 export const CardTextWrapper = styled.div`
@@ -81,6 +85,7 @@ export const IconBadge = styled.div`
   border-radius: 50%;
   background-color: ${Colors.GRAY_100};
   pointer-events: none;
+  min-width: 48px;
 `;
 
 export const CardRightContent = styled.div`

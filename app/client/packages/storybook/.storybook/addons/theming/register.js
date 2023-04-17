@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { addons, types } from "@storybook/addons";
 import {
   Icons,
@@ -9,9 +9,9 @@ import {
   H6,
   ColorControl,
 } from "@storybook/components";
-
 import { useGlobals } from "@storybook/api";
-import { fontMetricsMap } from "@design-system/wds";
+import { fontMetricsMap } from "@design-system/widgets";
+import debounce from "lodash/debounce";
 
 const { Select } = Form;
 
@@ -61,6 +61,9 @@ addons.register("wds/theming", () => {
         });
       };
 
+      const colorChange = (value) => updateGlobal("accentColor", value);
+      const debouncedColorChange = useCallback(debounce(colorChange, 300), []);
+
       return (
         <WithTooltip
           trigger="click"
@@ -92,7 +95,7 @@ addons.register("wds/theming", () => {
                   label="Accent Color"
                   defaultValue={globals.accentColor}
                   value={globals.accentColor}
-                  onChange={(value) => updateGlobal("accentColor", value)}
+                  onChange={debouncedColorChange}
                 />
               </div>
 

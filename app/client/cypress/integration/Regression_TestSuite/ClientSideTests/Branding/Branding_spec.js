@@ -1,4 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 const locators = {
@@ -153,7 +155,7 @@ describe("Branding", () => {
     }
   });
 
-  it("checks branding on dashboard", () => {
+  it("checks branding on dashboard and checks if colorpicker has branding colors", () => {
     if (CURRENT_REPO === REPO.EE) {
       // naivagae to dashboard
       cy.get(locators.appsmithLogo).click();
@@ -179,6 +181,15 @@ describe("Branding", () => {
         "background-color",
         shades.primary,
       );
+
+      // create new app
+      cy.get(locators.createNewAppButton).eq(0).click();
+
+      _.appSettings.OpenAppSettings();
+      _.appSettings.GoToThemeSettings();
+
+      cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
+      cy.get(widgetsPage.colorPickerV2PopoverContent).contains("Brand Colors");
     }
   });
 

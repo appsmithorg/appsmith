@@ -13,6 +13,12 @@ on:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
         type: string
+        default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
 
   pull_request:
     branches: [release, master]
@@ -99,7 +105,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
-      
+
       - name: Run Eslint
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run lint:ci
@@ -133,7 +139,7 @@ jobs:
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
+        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
@@ -144,6 +150,9 @@ jobs:
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
           else
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
+          fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_AIRGAP_ENABLED=true
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
