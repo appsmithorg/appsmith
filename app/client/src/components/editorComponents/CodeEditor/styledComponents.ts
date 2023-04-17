@@ -389,7 +389,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     height: 20px;
     background: transparent;
     display: none;
-    color: #f86a2b;
     border: none;
     font-weight: bold;
     font-size: 14px;
@@ -397,9 +396,5 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     padding: 0 0 3px;
     margin: 0 !important;
     top: -2px;
-    &:hover {
-      background: #f86a2b;
-      color: white;
-    }
   }
 `;
