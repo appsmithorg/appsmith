@@ -496,10 +496,18 @@ function updateVerticalHighlightDropZone(
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
     const leftZone = previousHighlight
-      ? (highlight.posX - previousHighlight.posX) * zoneSize
+      ? (highlight.posX -
+          (highlight.posY < previousHighlight.posY + previousHighlight.height
+            ? previousHighlight.posX
+            : 0)) *
+        zoneSize
       : highlight.posX + DEFAULT_HIGHLIGHT_SIZE;
     const rightZone = nextHighlight
-      ? (nextHighlight.posX - highlight.posX) * zoneSize
+      ? ((highlight.posY + highlight.height > nextHighlight.posY
+          ? nextHighlight.posX
+          : canvasWidth) -
+          highlight.posX) *
+        zoneSize
       : canvasWidth - highlight.posX;
     highlights[index] = {
       ...highlight,

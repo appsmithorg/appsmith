@@ -90,7 +90,7 @@ export function updateWidgetPositions(
           firstTimeDSLUpdate,
         );
         widgets = payload.widgets;
-        height += payload.height + rowGap;
+        height += payload.height + rowGap; // Add rowGap after each layer.
       }
       // subtract rowGap from height to account for the last layer.
       height -= rowGap;
@@ -560,6 +560,8 @@ function updatePositionsForFlexWrap(
 
   for (const each of wrappedAlignments) {
     if (!each.length) break;
+    const totalColumns = each.reduce((acc, curr) => acc + curr.columns, 0);
+    if (!totalColumns) break;
     // if there is only one alignment in this row, this implies that it may be wrapped.
     const payload =
       each.length === 1
@@ -630,7 +632,7 @@ export function placeWrappedWidgets(
     widgets = result.widgets;
     startRow += height + rowGap;
   }
-
+  startRow -= rowGap;
   return { height: startRow - topRow, widgets };
 }
 
