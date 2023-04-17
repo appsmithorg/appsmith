@@ -45,6 +45,24 @@ jobs:
       - name: Print Head SHA
         id: pr
         run: |
-          echo "sha=cc5bf5b6053242b681dadba19b7ba947353990f4" >> $GITHUB_OUTPUT
+          echo "sha=40d62c34ecf4d89d1bd8eb1d864b928cf12616f4" >> $GITHUB_OUTPUT
       - run: |
           echo ${{steps.pr.outputs.sha}}
+
+      - name: get status-checks from pr
+        id: pr-status-check
+        run: |
+          status-link=`https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}`
+          status-check=`curl --silent $status-link|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context'`
+          echo "status=`echo $status-check|grep -v 'cypress\|Vercel\|DeepSource'|wc -l`" >> $GITHUB_OUTPUT
+      - run: |
+          echo ${{steps.pr-status-check.outputs.status}}
+
+      - name: get status-checks from check suite
+        id: suite-status-check
+        run: |
+          check-runs-link=`https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs`
+          check-runs-status=`curl --silent $check-runs-link|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name'`
+          echo "status=$check-runs-status" >> $GITHUB_OUTPUT
+      - run: |
+          echo ${{steps.suite-status-check.outputs.status}}
