@@ -22,10 +22,16 @@ jobs:
 
       - name: Find the latest workflow run comment
         uses: peter-evans/find-comment@v2
-        id: fc
+        id: find-comment
         with:
           issue-number: 22062
           body-includes: 'Tests running at:'
           direction: last
+      
+      - name: Get the workflowId
+        id: workflow
+        run: |
+          workflow = ${{ steps.find-comment.outputs.comment-body }}|grep "Tests running at:"|grep -Eo 'https://github[^ >]+'|awk -F/ '{print $8}'`
+          echo "workflow_id=$workflow" >> $GITHUB_OUTPUT
       - run: |
-          echo ${{ steps.fc.outputs.comment-body }}
+          echo ${{ steps.workflow.outputs.workflow_id }}
