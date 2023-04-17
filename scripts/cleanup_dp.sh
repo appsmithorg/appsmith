@@ -28,7 +28,7 @@ echo "Getting the pods"
 kubectl get pods
 
 ### Get list of helm charts
-deployed_charts="$(helm ls -A --filter 'ce[0-9]+' --output json | jq -r '.[].namespace')"
+deployed_charts="$(helm ls -A --filter 'ee[0-9]+' --output json | jq -r '.[].namespace')"
 
 for i in $deployed_charts
   do 
