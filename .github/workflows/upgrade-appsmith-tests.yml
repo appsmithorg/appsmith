@@ -53,8 +53,8 @@ jobs:
         id: pr_status_check
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}"
-          status_check=`curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context'`
-          echo "status=`echo $status_check|grep -c -v 'cypress\|Vercel\|DeepSource'`" >> $GITHUB_OUTPUT
+          curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context' >> check1
+          echo "status=`grep -c -v 'cypress\|Vercel\|DeepSource' check1`" >> $GITHUB_OUTPUT
       - run: |
           echo ${{steps.pr_status_check.outputs.status}}
 
@@ -62,7 +62,7 @@ jobs:
         id: suite_status_check
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs"
-          check_runs_status=`curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name'`
-          echo "status=`echo  $check_runs_status|grep -c -E 'ci-test-result|Check for Test Plan Approved label'`" >> $GITHUB_OUTPUT
+          curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> check2
+          echo "status=`grep -c -E 'ci-test-result|Check for Test Plan Approved label' check2`" >> $GITHUB_OUTPUT
       - run: |
           echo ${{steps.suite_status_check.outputs.status}}
