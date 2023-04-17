@@ -27,8 +27,8 @@ export const entityMarker: MarkHelper = (
 ) => {
   let markers: CodeMirror.TextMarker[] = [];
   if (from && to) {
-    const line = editor.getLine(to.line);
-    if (line) {
+    const toLine = editor.getLine(to.line);
+    if (toLine) {
       markers = editor.findMarks(
         {
           line: from.line,
@@ -36,7 +36,7 @@ export const entityMarker: MarkHelper = (
         },
         {
           line: to.line,
-          ch: line.length - 1,
+          ch: toLine.length - 1,
         },
       );
       clearMarkers(markers);
