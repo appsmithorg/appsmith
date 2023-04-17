@@ -33,6 +33,7 @@ const CheckboxCellWrapper = styled(CellWrapper)<{
 
     & .bp3-checkbox {
       gap: 0px;
+      width: 0 !important;
     }
   }
   & .bp3-disabled {
