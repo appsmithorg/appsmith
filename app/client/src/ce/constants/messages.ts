@@ -1560,14 +1560,14 @@ export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
   "Google sheets authorised file ids key";
 
 //Layout Conversion flow
-export const CONVERT = () => "CONVERT";
+export const CONVERT = () => "Convert";
 export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
 export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
-export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT = () => "Use Snapshot";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
@@ -1577,8 +1577,8 @@ export const SAVE_SNAPSHOT_TEXT = () =>
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
 export const RESTORING_SNAPSHOT = () => "Removing changes made";
-export const REFRESH_THE_APP = () => "REFRESH THE APP";
-export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const REFRESH_THE_APP = () => "Refresh The App";
+export const CONVERT_ANYWAYS = () => "Convert Anyways";
 export const CONVERSION_SUCCESS_HEADER = () => "All done";
 export const DISCARD_SNAPSHOT_TEXT = () =>
   "You are about to discard this snapshot:";
@@ -1607,8 +1607,8 @@ export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "Convert To Auto-Layout";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
-export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
-export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
+export const USE_SNAPSHOT_CTA = () => "Use Snapshot";
+export const DISCARD_SNAPSHOT_CTA = () => "Discard Snapshot";
 export const MORE_DETAILS = () => "More details";
 export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
   "To resolve this error please:";
@@ -1623,7 +1623,7 @@ export const SNAPSHOT_TIME_FROM_MESSAGE = (
 export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
   timeTillExpiration: string,
 ) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
-export const DISCARD = () => "DISCARD";
+export const DISCARD = () => "Discard";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
