@@ -47,7 +47,6 @@ const SidebarWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
   box-shadow: 1px 0px 0px ${Colors.GALLERY_2};

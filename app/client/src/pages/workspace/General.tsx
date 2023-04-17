@@ -170,6 +170,7 @@ export function GeneralSettings() {
           {!isFetchingApplications && (
             <Input
               data-testid="t--workspace-name-input"
+              defaultValue={currentWorkspace && currentWorkspace.name}
               isRequired
               label="Display name"
               labelPosition="top"
@@ -178,7 +179,6 @@ export function GeneralSettings() {
               renderAs="input"
               size="md"
               type="text"
-              value={currentWorkspace && currentWorkspace.name}
             />
           )}
         </Row>
@@ -210,7 +210,9 @@ export function GeneralSettings() {
           {!isFetchingApplications && (
             <Input
               data-testid="t--workspace-website-input"
-              isRequired
+              defaultValue={
+                (currentWorkspace && currentWorkspace.website) || ""
+              }
               label="Website"
               labelPosition="top"
               onChange={onWebsiteChange}
@@ -218,7 +220,6 @@ export function GeneralSettings() {
               renderAs="input"
               size="md"
               type="text"
-              value={(currentWorkspace && currentWorkspace.website) || ""}
             />
           )}
         </Row>
@@ -230,7 +231,7 @@ export function GeneralSettings() {
           {!isFetchingApplications && (
             <Input
               data-testid="t--workspace-email-input"
-              isRequired
+              defaultValue={(currentWorkspace && currentWorkspace.email) || ""}
               label="Email"
               labelPosition="top"
               onChange={onEmailChange}
@@ -238,7 +239,6 @@ export function GeneralSettings() {
               renderAs="input"
               size="md"
               type="text"
-              value={(currentWorkspace && currentWorkspace.email) || ""}
             />
           )}
         </Row>

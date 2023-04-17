@@ -141,7 +141,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
   return (
     <Modal onOpenChange={() => setIsOpen(true)} open={isOpen}>
       <ModalContent>
-        <ModalHeader onClose={onCloseHandler}>{props.title}</ModalHeader>
+        <ModalHeader>{props.title}</ModalHeader>
         <ModalBody>
           {updatedTabs && updatedTabs.length > 0 ? (
             <TabWrapper hasMessage={!!props.message}>
@@ -176,49 +176,6 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         </ModalBody>
       </ModalContent>
     </Modal>
-    // <Dialog
-    //   canOutsideClickClose={!!props.canOutsideClickClose}
-    //   headerIcon={props.headerIcon}
-    //   isOpen={isOpen}
-    //   noModalBodyMarginTop={props.noModalBodyMarginTop}
-    //   onClose={onCloseHandler}
-    //   onOpening={() => setIsOpen(true)}
-    //   setMaxWidth={props.setMaxWidth}
-    //   setModalClose={() => setIsOpen(false)}
-    //   title={props.title}
-    //   trigger={props.trigger}
-    // >
-    //   {updatedTabs && updatedTabs.length > 0 ? (
-    //     <TabWrapper hasMessage={!!props.message}>
-    //       {!props.message && (
-    //         <TabCloseBtnContainer
-    //           className="t--close-form-dialog"
-    //           onClick={onCloseHandler}
-    //         >
-    //           <Icon name="close-modal" size="lg" />
-    //         </TabCloseBtnContainer>
-    //       )}
-    //       {props.message && (
-    //         <LabelText type={TextType.P0}>{props.message}</LabelText>
-    //       )}
-    //       <TabComponent
-    //         onSelect={setSelectedTabIndex}
-    //         selectedIndex={selectedTabIndex}
-    //         tabs={updatedTabs}
-    //       />
-    //     </TabWrapper>
-    //   ) : (
-    //     <Form
-    //       {...props.customProps}
-    //       applicationId={props.applicationId}
-    //       message={props.message}
-    //       onCancel={() => setIsOpen(false)}
-    //       placeholder={props.placeholder}
-    //       selected={props.selected}
-    //       workspaceId={props.workspaceId}
-    //     />
-    //   )}
-    // </Dialog>
   );
 }
 

@@ -10397,10 +10397,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.14":
-  version "2.1.5-alpha.14"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.14.tgz#a79ceff05744a69f1f2298d3b7040c281489e51c"
-  integrity sha512-nc2Ka1t86lEhYLY0PMTXg6kPohxmGSh9NlTI0j9d4kMHFsRmVa2WaBoNeePEvledEJM4d8fXwmUd91rra4b/Hg==
+"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.20":
+  version "2.1.5-alpha.20"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.20.tgz#48d79c967f4b4c3e109b6d10356fe9646beaf377"
+  integrity sha512-/YvK+913JFsB/Z8Ik2BFCUp4U8Jp71h8ItdAvIM5v96l+Iv2Cjs1L6+lorY1hbij+/EcLt/V98hmE6UjpseOUQ==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"

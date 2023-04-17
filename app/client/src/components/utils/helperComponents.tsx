@@ -1,5 +1,4 @@
 import React from "react";
-// import { SearchInput } from "design-system-old";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
@@ -73,7 +72,6 @@ export function BackButton({ goTo }: { goTo?: string }) {
   };
 
   return (
-    // TODO (tanvi): probably have to replace this with a link
     <StyledBackButton
       className="t--admin-settings-back-button"
       kind="secondary"
