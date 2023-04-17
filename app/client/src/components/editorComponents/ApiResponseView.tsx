@@ -73,7 +73,8 @@ const ResponseContainer = styled.div`
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+  background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 
   .react-tabs__tab-panel {
     overflow: hidden;
@@ -85,7 +86,7 @@ const ResponseContainer = styled.div`
 const ResponseMetaInfo = styled.div`
   display: flex;
   ${BaseText} {
-    color: #768896;
+    color: var(--ads-v2-color-fg);
     margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
@@ -127,12 +128,6 @@ const TabbedViewWrapper = styled.div`
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
-`;
-
-export const SectionDivider = styled.div`
-  height: 1px;
-  width: 100%;
-  background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
 
 const Flex = styled.div`
