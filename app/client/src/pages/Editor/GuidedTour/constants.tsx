@@ -266,7 +266,7 @@ export const Steps: StepsType = {
         text: (
           <>
             This command will fetch the first 20 items in the user_data
-            database. Hit <b>RUN</b> to see the response.
+            database. Hit <b>Run</b> to see the response.
           </>
         ),
       },
@@ -355,7 +355,7 @@ export const Steps: StepsType = {
           }),
         );
       },
-      buttonText: "GOT IT",
+      buttonText: "Got it",
     },
   },
   [GUIDED_TOUR_STEPS.NAME_INPUT_BINDING]: {

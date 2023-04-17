@@ -15,7 +15,7 @@ function EndTour() {
   };
 
   return (
-    <Button kind="tertiary" onClick={endTour} size="sm">
+    <Button kind="tertiary" onClick={endTour} size="md">
       {createMessage(END_TUTORIAL)}
     </Button>
   );
