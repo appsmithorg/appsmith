@@ -53,7 +53,7 @@ jobs:
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}"
           curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context' >> ~/check1
-          echo "status=`grep -v 'cypress\|Vercel\|DeepSource' | wc -l ~/check1`" >> $GITHUB_OUTPUT
+          echo "status=`grep -v 'cypress\|Vercel\|DeepSource' ~/check1 | wc -l`" >> $GITHUB_OUTPUT
           echo "status1=0" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
@@ -71,8 +71,8 @@ jobs:
           elif [ ${{steps.pr_status_check.outputs.status1}} != 0 ]; then
             exit 1
           elif [ ${{steps.suite_status_check.outputs.status1}} != 0 ]; then
-            echo $(grep -v 'ci-test-result|Check for Test Plan Approved label'|wc -l ~/check2)
-            if [ $(grep -c -v 'ci-test-result|Check for Test Plan Approved label'|wc -l ~/check2) != 0 ]; then
+            echo $(grep -v 'ci-test-result|Check for Test Plan Approved label' ~/check2 | wc -l)
+            if [ $(grep -c -v 'ci-test-result|Check for Test Plan Approved label' ~/check2 | wc -l) != 0 ]; then
               exit 1
             else
               exit 0
