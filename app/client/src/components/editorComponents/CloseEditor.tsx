@@ -22,6 +22,7 @@ import styled from "styled-components";
 const StyledLink = styled(Link)`
   margin-left: 16px;
   margin-top: 8px;
+  width: fit-content;
 `;
 
 function CloseEditor() {
