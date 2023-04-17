@@ -1,6 +1,6 @@
 import React from "react";
 import { ImageInput } from "./ImageInput";
-import { TextType, Text } from "design-system-old";
+import { TextType, Text, Icon } from "design-system-old";
 import {
   createMessage,
   APP_NAVIGATION_SETTING,
@@ -11,6 +11,10 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import { logoImageValidation } from "./utils";
+import {
+  getIsDeletingNavigationLogo,
+  getIsUploadingNavigationLogo,
+} from "@appsmith/selectors/applicationSelectors";
 
 export type ButtonGroupSettingProps = {
   updateSetting: UpdateSetting;
@@ -20,6 +24,8 @@ export type ButtonGroupSettingProps = {
 const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
+  const isUploadingNavigationLogo = useSelector(getIsUploadingNavigationLogo);
+  const isDeletingNavigationLogo = useSelector(getIsDeletingNavigationLogo);
 
   const handleChange = (file: File) => {
     dispatch({
@@ -31,11 +37,34 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
     });
   };
 
+  const handleDelete = () => {
+    dispatch({
+      type: ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT,
+      payload: {
+        applicationId: applicationId,
+      },
+    });
+  };
+
   return (
     <div className={`pt-4 t--navigation-settings-logo`}>
-      <Text type={TextType.P1}>
-        {createMessage(APP_NAVIGATION_SETTING.logoLabel)}
-      </Text>
+      <div className="flex items-center">
+        <Text type={TextType.P1}>
+          {createMessage(APP_NAVIGATION_SETTING.logoLabel)}
+        </Text>
+
+        {navigationSetting?.logoAssetId?.length ? (
+          <button
+            className="flex items-center justify-center text-center h-7 w-7 ml-auto"
+            disabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
+            onClick={() => handleDelete()}
+          >
+            <Icon fillColor="#575757" name="trash" size="extraLarge" />
+          </button>
+        ) : (
+          ""
+        )}
+      </div>
       <div className="pt-1">
         <ImageInput
           className="t--settings-brand-logo-input"

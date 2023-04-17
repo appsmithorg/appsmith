@@ -15,6 +15,7 @@ import type {
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
+  DeleteNavigationLogoRequest,
   DuplicateApplicationRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
@@ -40,6 +41,7 @@ import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
+  deleteApplicationNavigationLogoSuccessAction,
   fetchApplication,
   getAllApplications,
   importApplicationSuccess,
@@ -974,7 +976,25 @@ export function* uploadNavigationLogoSaga(
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR,
+      type: ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deleteNavigationLogoSaga(
+  action: ReduxAction<DeleteNavigationLogoRequest>,
+) {
+  try {
+    const request: DeleteNavigationLogoRequest = action.payload;
+
+    yield call(ApplicationApi.deleteNavigationLogo, request);
+    yield put(deleteApplicationNavigationLogoSuccessAction());
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR,
       payload: {
         error,
       },

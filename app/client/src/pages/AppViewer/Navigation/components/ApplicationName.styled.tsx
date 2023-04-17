@@ -12,14 +12,13 @@ export const StyledApplicationName = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   navStyle: NavigationSetting["navStyle"];
-  forSidebar?: boolean;
   isMobile: boolean;
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getApplicationNameTextColor(primaryColor, navColorStyle)};
   font-size: ${THEMEING_TEXT_SIZES.base};
 
-  ${({ forSidebar, isMobile, navStyle }) => {
+  ${({ isMobile, navStyle }) => {
     if (isMobile) {
       return `max-width: ${APPLICATION_TITLE_MAX_WIDTH_MOBILE}px;`;
     } else if (
@@ -27,8 +26,6 @@ export const StyledApplicationName = styled.div<{
       !isMobile
     ) {
       return `max-width: 500px;`;
-    } else if (forSidebar) {
-      return `max-width: ${APPLICATION_TITLE_MAX_WIDTH - 40}px;`;
     } else {
       return `max-width: ${APPLICATION_TITLE_MAX_WIDTH}px;`;
     }

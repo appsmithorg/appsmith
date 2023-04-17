@@ -50,6 +50,7 @@ export const initialState: ApplicationsReduxState = {
   isSavingNavigationSetting: false,
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
+  isDeletingNavigationLogo: false,
 };
 
 export const handlers = {
@@ -640,6 +641,52 @@ export const handlers = {
       isUploadingNavigationLogo: false,
     };
   },
+  [ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isDeletingNavigationLogo: true,
+  }),
+  [ReduxActionTypes.DELETE_NAVIGATION_LOGO_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    const updatedNavigationSetting = Object.assign(
+      {},
+      state.currentApplication?.applicationDetail?.navigationSetting,
+      {
+        logoAssetId: "",
+      },
+    );
+
+    const updatedApplicationDetail = Object.assign(
+      {},
+      state.currentApplication?.applicationDetail,
+      {
+        navigationSetting: updatedNavigationSetting,
+      },
+    );
+
+    const updatedCurrentApplication = Object.assign(
+      {},
+      state.currentApplication,
+      {
+        applicationDetail: updatedApplicationDetail,
+      },
+    );
+
+    return Object.assign({}, state, {
+      isDeletingNavigationLogo: false,
+      currentApplication: updatedCurrentApplication,
+    });
+  },
+  [ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isDeletingNavigationLogo: false,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -673,6 +720,7 @@ export interface ApplicationsReduxState {
   isSavingNavigationSetting: boolean;
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;
+  isDeletingNavigationLogo: boolean;
 }
 
 export interface Application {

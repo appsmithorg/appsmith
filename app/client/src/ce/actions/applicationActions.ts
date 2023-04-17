@@ -117,6 +117,18 @@ export const updateApplicationNavigationLogoSuccessAction = (
   };
 };
 
+export const deleteApplicationNavigationLogoAction = () => {
+  return {
+    type: ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT,
+  };
+};
+
+export const deleteApplicationNavigationLogoSuccessAction = () => {
+  return {
+    type: ReduxActionTypes.DELETE_NAVIGATION_LOGO_SUCCESS,
+  };
+};
+
 export const publishApplication = (applicationId: string) => {
   return {
     type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,

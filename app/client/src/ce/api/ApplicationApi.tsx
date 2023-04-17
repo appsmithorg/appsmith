@@ -226,6 +226,10 @@ export interface UploadNavigationLogoRequest {
   onSuccessCallback?: () => void;
 }
 
+export interface DeleteNavigationLogoRequest {
+  applicationId: string;
+}
+
 export interface snapShotApplicationRequest {
   applicationId: string;
 }
@@ -377,6 +381,14 @@ export class ApplicationApi extends Api {
           "Content-Type": "multipart/form-data",
         },
       },
+    );
+  }
+
+  static deleteNavigationLogo(
+    request: DeleteNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
     );
   }
 

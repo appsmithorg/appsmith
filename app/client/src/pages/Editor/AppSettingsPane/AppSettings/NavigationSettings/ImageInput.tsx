@@ -1,10 +1,14 @@
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Button, Size, Spinner } from "design-system-old";
-import React, { memo, useRef } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { useSelector } from "react-redux";
-import { getIsUploadingNavigationLogo } from "@appsmith/selectors/applicationSelectors";
+import {
+  getIsDeletingNavigationLogo,
+  getIsUploadingNavigationLogo,
+} from "@appsmith/selectors/applicationSelectors";
 import styled from "styled-components";
+import classNames from "classnames";
 
 type ImageInputProps = {
   value?: any;
@@ -27,6 +31,8 @@ export const ImageInput = (props: ImageInputProps) => {
   const { className, onChange, validate, value } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isUploadingNavigationLogo = useSelector(getIsUploadingNavigationLogo);
+  const isDeletingNavigationLogo = useSelector(getIsDeletingNavigationLogo);
+  const [isLogoLoaded, setIsLogoLoaded] = useState(false);
 
   // trigger file input on click of upload logo button
   const onFileInputClick = () => {
@@ -35,6 +41,8 @@ export const ImageInput = (props: ImageInputProps) => {
 
   // on upload, pass the file to api
   const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsLogoLoaded(false);
+
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -47,24 +55,49 @@ export const ImageInput = (props: ImageInputProps) => {
       });
   };
 
+  useEffect(() => {
+    if (isDeletingNavigationLogo) {
+      setIsLogoLoaded(false);
+
+      // reset the input to accept the same file again if delete happens
+      if (fileInputRef?.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [isDeletingNavigationLogo]);
+
+  const renderLogo = () => {
+    if (isUploadingNavigationLogo || isDeletingNavigationLogo) {
+      return (
+        <div className="px-4 py-10 w-full flex justify-center">
+          <Spinner size="extraExtraExtraExtraLarge" />
+        </div>
+      );
+    }
+
+    if (value) {
+      return (
+        <StyledImg
+          alt="Your application's logo"
+          className={classNames({
+            hidden: !isLogoLoaded,
+          })}
+          onLoad={() => setIsLogoLoaded(true)}
+          src={`/api/v1/assets/${value}`}
+        />
+      );
+    } else {
+      return "No logo set";
+    }
+  };
+
   return (
     <div
       className={`relative flex items-center justify-center w-full border h-28 group ${
         className ? className : ""
       }`}
     >
-      {isUploadingNavigationLogo ? (
-        <div className="px-4 py-10 w-full flex justify-center">
-          <Spinner size="extraExtraExtraExtraLarge" />
-        </div>
-      ) : value ? (
-        <StyledImg
-          alt="Your application's logo"
-          src={`/api/v1/assets/${value}`}
-        />
-      ) : (
-        "No logo set"
-      )}
+      {renderLogo()}
 
       <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
         <Button
@@ -79,7 +112,7 @@ export const ImageInput = (props: ImageInputProps) => {
       </div>
 
       <input
-        accept="image/*"
+        accept="image/jpeg, image/png"
         className="hidden"
         onChange={onFileInputChange}
         ref={fileInputRef}

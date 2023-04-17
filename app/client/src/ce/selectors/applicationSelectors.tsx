@@ -220,6 +220,10 @@ export const getIsUploadingNavigationLogo = (state: AppState) => {
   return state.ui.applications.isUploadingNavigationLogo;
 };
 
+export const getIsDeletingNavigationLogo = (state: AppState) => {
+  return state.ui.applications.isDeletingNavigationLogo;
+};
+
 const DEFAULT_EVALUATION_VERSION = 2;
 
 export const selectEvaluationVersion = (state: AppState) =>

@@ -17,6 +17,7 @@ import {
   showReconnectDatasourcesModalSaga,
   fetchUnconfiguredDatasourceList,
   uploadNavigationLogoSaga,
+  deleteNavigationLogoSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -53,6 +54,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,
       uploadNavigationLogoSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT,
+      deleteNavigationLogoSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
     takeLatest(
