@@ -1,0 +1,76 @@
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { TestComponent } from "./TestComponent";
+import { Button } from "../Button";
+
+<Meta
+  title="Design-system/widgets/TestComponent/Primary button test"
+  component={TestComponent}
+/>
+
+export const Template = (args, { globals: { colorScheme } }) => (
+  <>
+    <h3>{args.title}</h3>
+    <div
+      style={{
+        padding: "50px",
+        background: "#fff",
+      }}
+    >
+      <TestComponent colorScheme={colorScheme}>
+        <Button {...args}>Test</Button>
+      </TestComponent>
+    </div>
+  </>
+);
+
+<Canvas>
+  <Story
+    name="primary"
+    args={{
+      title: "Primary",
+      variant: "primary",
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="primary hover"
+    args={{
+      title: "Primary hover",
+      variant: "primary",
+      isHover: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="primary active"
+    args={{
+      title: "Primary active",
+      variant: "primary",
+      isActive: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="primary focus"
+    args={{
+      title: "Primary active",
+      variant: "primary",
+      isFocused: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="primary disabled"
+    args={{
+      title: "Primary disabled",
+      variant: "primary",
+      isDisabled: true,
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
