@@ -1,9 +1,11 @@
 name: Cleanup Deploy Previews
 
 on:
-  # This line enables manual triggering of this workflow.
-  schedule:
-    - cron: 0 0 * * *
+  workflow_dispatch:
+#on:
+#  # This line enables manual triggering of this workflow.
+#  schedule:
+#    - cron: 0 0 * * *
 
 jobs:
   execute:
