@@ -26,7 +26,7 @@ jobs:
         with:
           issue-number: 22062
           body-includes: 'Tests running at:'
-          author: github-actions[bot]
+          comment-author: github-actions[bot]
           direction: last
       
       - name: Get the workflow run_id
@@ -54,7 +54,7 @@ jobs:
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}"
           curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context' >> ~/check1
           echo "status=`grep -c -v 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
-          echo "status1=1" >> $GITHUB_OUTPUT
+          echo "status1=0" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
@@ -62,7 +62,7 @@ jobs:
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs"
           curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> ~/check2
           echo "status=`grep -c -E 'ci-test-result|Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
-          echo "status1=0" >> $GITHUB_OUTPUT
+          echo "status1=2" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
         run: |
