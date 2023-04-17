@@ -36,7 +36,7 @@ jobs:
       - name: Get ci-test-result status from the run_id
         id: ci-test-result-status
         run: |
-          run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{ steps.workflow.outputs.run_id }}/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
+          run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
           echo "run_status= $run_status" >> $GITHUB_OUTPUT
 
       - run: |
