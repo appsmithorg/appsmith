@@ -71,9 +71,12 @@ jobs:
           elif [ ${{steps.pr_status_check.outputs.status1}} != 0 ]; then
             exit 1
           elif [ ${{steps.suite_status_check.outputs.status1}} != 0 ]; then
+            echo $(grep -c -v 'ci-test-result' ~/check2)
             if [ $(grep -c -v 'ci-test-result' ~/check2) != 0 ]; then
               exit 1
             else
               exit 0
             fi
+          else
+            exit 1
           fi
