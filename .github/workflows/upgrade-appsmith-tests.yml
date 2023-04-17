@@ -15,10 +15,6 @@ jobs:
       #     issue-number: ${{ github.event.client_payload.pull_request.number }}
       #     body: |
       #             found ci-merge-check ${{ github.event.client_payload.pull_request.number }}
-      
-      # Timestamp will be used to create cache key
-      - name: timestamp
-        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: Find the latest workflow run comment
         uses: peter-evans/find-comment@v2
@@ -39,7 +35,6 @@ jobs:
         run: |
           run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
           echo "run_status=$run_status" >> $GITHUB_OUTPUT
-          echo "run_status1=success" >> $GITHUB_OUTPUT
 
       - name: Print Head SHA
         id: pr
@@ -54,7 +49,6 @@ jobs:
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}"
           curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context' >> ~/check1
           echo "status=`grep -c -E 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
-          echo "status1=0" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
@@ -62,17 +56,15 @@ jobs:
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs"
           curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> ~/check2
           echo "status=`grep -c -E 'ci-test-result|Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
-          echo "status1=2" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
         run: |
-          if [ "${{ steps.ci-test-result-status.outputs.run_status1 }}" == "failure" ]; then
+          if [ "${{ steps.ci-test-result-status.outputs.run_status }}" == "failure" ]; then
             exit 1
-          elif [ ${{steps.pr_status_check.outputs.status1}} != 0 ]; then
+          elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
             exit 1
-          elif [ ${{steps.suite_status_check.outputs.status1}} != 0 ]; then
-            echo $(grep -c -E 'ci-test-result\|Check for Test Plan Approved label' ~/check2)
-            if [ $(grep -c --E 'ci-test-result\|Check for Test Plan Approved label' ~/check2 ) != 0 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.status }} != 0 ]; then
+            if [ $(grep -c 'Check for Test Plan Approved label' ~/check2 ) != 0 ]; then
               exit 1
             else
               exit 0
@@ -80,3 +72,21 @@ jobs:
           else
             exit 1
           fi
+
+      - name: automerge
+        if: success()
+        run: |
+          echo "can merge now."
+        # uses: "pascalgn/automerge-action@v0.15.5"
+        # env:
+        #   GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          
+      - name: Add a comment on the PR with status
+        if: failure()
+        run: |
+          echo "can't merge some checks are failed."
+        # uses: peter-evans/create-or-update-comment@v2
+        # with:
+        #   issue-number: ${{ github.event.client_payload.pull_request.number }}
+        #   body: |
+        #     Can't merge. Some checks are failed.
