@@ -1,8 +1,8 @@
 package com.appsmith.server.interfaces;
 
-import com.appsmith.external.interfaces.DeletableResource;
+import com.appsmith.external.interfaces.PublishableDTO;
 import com.appsmith.server.constants.ResourceModes;
 
 public interface PublishableResource {
-    DeletableResource select(ResourceModes mode);
+    PublishableDTO select(ResourceModes mode);
 }

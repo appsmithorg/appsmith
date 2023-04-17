@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.appsmith.external.interfaces.DeletableResource;
+import com.appsmith.external.interfaces.PublishableDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -313,7 +313,7 @@ public class ImportExportUtils {
         return Optional.ofNullable(plugin.getPluginName()).orElse(plugin.getPackageName());
     }
 
-    public static boolean isResourceDeleted(DeletableResource resource) {
+    public static boolean isResourceDeleted(PublishableDTO resource) {
         return resource == null || resource.getDeletedAt() != null;
     }
 

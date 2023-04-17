@@ -252,7 +252,7 @@ public class ImportExportHelper {
         return newPageRepository.findByApplicationId(applicationId, optionalPermission);
     }
 
-    public Mono<Application> fetchOrCreateApplicationForImport(String applicationId, Application applicationToImport,
+    public Mono<Application> fetchOrCreateApplicationForImport(String applicationId, String explicitApplicationId, Application applicationToImport,
             SerialiseApplicationObjective serialiseFor) {
 
         Mono<Application> applicationMono = applicationService.findById(applicationId,
@@ -261,7 +261,7 @@ public class ImportExportHelper {
         applicationMono = applicationMono.switchIfEmpty(Mono.defer(() -> {
             // If application id is not present, then create a new application
             //applicationToImport.setPages(applicationPages);
-            //applicationToImport.setPublishedPages(null);
+            applicationToImport.setExplicitId(explicitApplicationId);
             return applicationPageService.createOrUpdateSuffixedApplication(applicationToImport,
                     applicationToImport.getName(), 0);
         }));
@@ -334,7 +334,7 @@ public class ImportExportHelper {
      * @param workspaceId  workspace in which entity should be searched
      * @return next possible number in case of duplication
      */
-    private Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String workspaceId) {
+    public Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String workspaceId) {
         if (sourceEntity != null) {
             return sequenceService
                     .getNextAsSuffix(sourceEntity.getClass(), " for workspace with _id : " + workspaceId)
