@@ -73,7 +73,7 @@ jobs:
             exit 1
           fi
 
-      - name: automerge
+      - name: Auto merge if success
         if: success()
         run: |
           echo "can merge now."
@@ -81,7 +81,7 @@ jobs:
         # env:
         #   GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           
-      - name: Add a comment on the PR with status
+      - name: Add a comment on the PR if failed
         if: failure()
         run: |
           echo "can't merge some checks are failed."
