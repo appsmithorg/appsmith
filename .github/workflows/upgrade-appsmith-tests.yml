@@ -41,3 +41,15 @@ jobs:
 
       - run: |
           echo ${{ steps.ci-test-result-status.outputs.run_status }}
+
+      - name: Get PR Info
+        id: pr
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/:owner/:repo/pulls/:pull_number
+          owner: appsmithorg
+          repo: appsmith
+          pull_number: 22062
+
+      - name: Print Head SHA
+        run: echo "${{ steps.pr.outputs.data.head.sha }}"
