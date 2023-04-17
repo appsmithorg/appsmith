@@ -27,7 +27,5 @@ jobs:
           issue-number: 22062
           body-includes: 'Tests running at:'
           direction: last
-
-      - name: print find comment
-        run: |
-          echo $${{ steps.find_comment.outputs.result }}
+      - run: |
+          echo ${{ steps.fc.outputs.comment-body }}
