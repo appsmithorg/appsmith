@@ -180,7 +180,6 @@ function PageSettings(props: { page: Page }) {
         {isPageNameSaving && <TextLoaderIcon />}
         <Input
           defaultValue={pageName}
-          // @ts-expect-error: Input id prop is not available
           id="t--page-settings-name"
           isDisabled={!canManagePages}
           label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
@@ -188,6 +187,7 @@ function PageSettings(props: { page: Page }) {
           onChange={(value: string) =>
             setPageName(resolveAsSpaceChar(value, 30))
           }
+          // @ts-expect-error: onKeyPress does not exists on Input
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               savePageName();
@@ -246,7 +246,6 @@ function PageSettings(props: { page: Page }) {
         {isCustomSlugSaving && <TextLoaderIcon />}
         <Input
           defaultValue={customSlug}
-          // @ts-expect-error: Input id prop is not available
           id="t--page-settings-custom-slug"
           isDisabled={!canManagePages}
           label={PAGE_SETTINGS_PAGE_URL_LABEL()}
@@ -256,6 +255,7 @@ function PageSettings(props: { page: Page }) {
               ? specialCharacterCheckRegex.test(value) && setCustomSlug(value)
               : setCustomSlug(value)
           }
+          // @ts-expect-error: onKeyPress does not exists on Input
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveCustomSlug();

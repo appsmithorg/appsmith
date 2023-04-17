@@ -64,7 +64,6 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
     <SegmentedControl
       defaultValue={selectedOptionKey}
       isFullWidth={false}
-      // @ts-expect-error: Type mismatch
       onChange={onChangeBorder}
       options={buttonGroupOptions}
     />

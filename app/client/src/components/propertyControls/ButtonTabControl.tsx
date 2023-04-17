@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ToggleGroupOption } from "design-system";
-import { ToggleGroup } from "design-system";
+import { ToggleButtonGroup } from "design-system";
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -76,7 +76,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   render() {
     return (
-      <ToggleGroup
+      <ToggleButtonGroup
         onSelect={this.selectButton}
         options={this.props.options}
         ref={this.componentRef}

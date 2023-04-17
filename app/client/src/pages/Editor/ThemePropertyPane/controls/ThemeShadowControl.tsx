@@ -64,7 +64,6 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
     <SegmentedControl
       defaultValue={selectedOptionKey}
       isFullWidth={false}
-      // @ts-expect-error: Type mismatch
       onChange={onChangeShadow}
       options={buttonGroupOptions}
     />

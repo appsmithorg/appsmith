@@ -46,15 +46,14 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
     } = this.props;
     return (
       <NumberInput
-        //@ts-expect-error: Type mismatch
         max={max}
         min={min}
+        // @ts-expect-error: onBlur does not exists
         onBlur={onBlur}
         onChange={this.handleValueChange}
         onFocus={onFocus}
         placeholder={placeholderText}
-        //@ts-expect-error: Type mismatch
-        ref={(element) => {
+        ref={(element: HTMLInputElement) => {
           this.inputElement = element;
         }}
         scale={stepSize}

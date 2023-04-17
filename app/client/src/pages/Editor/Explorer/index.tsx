@@ -91,7 +91,6 @@ function ExplorerContent() {
       >
         <StyledSegmentedControl
           defaultValue={activeOption}
-          // @ts-expect-error: SegmentedControl onChange
           onChange={onChange}
           options={options}
         />

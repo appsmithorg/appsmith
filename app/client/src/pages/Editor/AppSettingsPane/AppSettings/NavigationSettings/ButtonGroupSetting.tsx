@@ -46,7 +46,6 @@ const ButtonGroupSetting = ({
       <div className="pt-1">
         <StyledSegmentedControl
           defaultValue={navigationSetting[keyName]}
-          // @ts-expect-error: onChange type mismatch
           onChange={onChange}
           options={visibleOptions}
         />

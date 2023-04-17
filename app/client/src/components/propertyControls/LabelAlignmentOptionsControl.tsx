@@ -62,7 +62,6 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
       <SegmentedControl
         defaultValue={propertyValue || Alignment.LEFT}
         isFullWidth={this.props.fullWidth}
-        // @ts-expect-error: type mismatch
         onChange={this.handleAlign}
         options={options}
         ref={this.componentRef}

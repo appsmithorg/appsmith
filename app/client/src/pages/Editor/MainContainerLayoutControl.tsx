@@ -22,7 +22,7 @@ const StyledSegmentedControl = styled(SegmentedControl)`
 interface AppsmithLayoutConfigOption {
   name: string;
   type: SupportedLayouts;
-  icon?: string;
+  icon: string;
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {
@@ -100,7 +100,6 @@ export function MainContainerLayoutControl() {
     <div className="pb-6 space-y-2 t--layout-control-wrapper">
       <StyledSegmentedControl
         defaultValue={appLayout.type}
-        // @ts-expect-error: Type error
         onChange={updateAppLayout}
         options={options}
       />

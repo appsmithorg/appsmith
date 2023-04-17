@@ -207,12 +207,12 @@ export function DraggableListCard(props: RenderComponentProps) {
          */}
         {showCheckbox && (
           <Checkbox
-            // @ts-expect-error: className prop does not exists
             className={`t--card-checkbox ${
               item.isChecked ? "t--checked" : "t--unchecked"
             }`}
             isDisabled={item.isCheckboxDisabled}
             isSelected={item.isChecked}
+            // @ts-expect-error: onChange FormEvent type error
             onChange={(isSelected: boolean) =>
               toggleCheckbox && toggleCheckbox(index, isSelected)
             }

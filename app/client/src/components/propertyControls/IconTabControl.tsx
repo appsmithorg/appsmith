@@ -69,7 +69,6 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
       <StyledSegmentedControl
         defaultValue={this.props.propertyValue}
         isFullWidth={this.props.fullWidth}
-        // @ts-expect-error: Type mismatch
         onChange={this.selectOption}
         options={this.props.options}
         ref={this.componentRef}
