@@ -71,8 +71,8 @@ jobs:
           elif [ ${{steps.pr_status_check.outputs.status1}} != 0 ]; then
             exit 1
           elif [ ${{steps.suite_status_check.outputs.status1}} != 0 ]; then
-            echo $(grep -v 'ci-test-result|Check for Test Plan Approved label' | wc -l ~/check2)
-            if [ $(grep -c -v 'ci-test-result|Check for Test Plan Approved label' | wc -l ~/check2) != 0 ]; then
+            echo $(grep -v 'ci-test-result|Check for Test Plan Approved label'|wc -l ~/check2)
+            if [ $(grep -c -v 'ci-test-result|Check for Test Plan Approved label'|wc -l ~/check2) != 0 ]; then
               exit 1
             else
               exit 0
