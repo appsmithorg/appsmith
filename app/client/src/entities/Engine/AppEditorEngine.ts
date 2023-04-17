@@ -53,6 +53,7 @@ import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
 } from "ce/sagas/userSagas";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -190,6 +191,9 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *completeChore() {
+    const isFirstTimeUserOnboardingComplete: boolean = yield select(
+      getFirstTimeUserOnboardingComplete,
+    );
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
@@ -198,6 +202,12 @@ export default class AppEditorEngine extends AppEngine {
       appName: currentApplication.name,
     });
     yield put(loadGuidedTourInit());
+    if (isFirstTimeUserOnboardingComplete) {
+      yield put({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+        payload: [],
+      });
+    }
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

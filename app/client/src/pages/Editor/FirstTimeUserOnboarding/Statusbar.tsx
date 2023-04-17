@@ -9,7 +9,6 @@ import { withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
-  getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
@@ -38,7 +37,6 @@ import {
 import { getTypographyByKey } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { onboardingCheckListUrl } from "RouteBuilder";
-import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
 
 const Wrapper = styled.div<{ active: boolean }>`
   width: 100%;
@@ -203,7 +201,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
-  const applicationId = useSelector(getCurrentApplicationId);
   if (isGenerateAppPage) {
     return null;
   }
@@ -214,7 +211,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     });
   };
   if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
-    dispatch(removeFirstTimeUserOnboardingApplicationId(applicationId));
     dispatch({
       type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
       payload: true,
@@ -230,16 +226,15 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         history.push(onboardingCheckListUrl({ pageId }));
       }}
     >
-      {!isFirstTimeUserOnboardingComplete && (
-        <StyledClose
-          className="hover-icons"
-          color={Colors.GREY_10}
-          data-cy="statusbar-skip"
-          icon="cross"
-          iconSize={14}
-          onClick={endFirstTimeUserOnboarding}
-        />
-      )}
+      <StyledClose
+        className="hover-icons"
+        color={Colors.GREY_10}
+        data-cy="statusbar-skip"
+        icon="cross"
+        iconSize={14}
+        onClick={endFirstTimeUserOnboarding}
+      />
+
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
