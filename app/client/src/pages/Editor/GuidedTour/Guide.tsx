@@ -217,7 +217,7 @@ const SuccessMessageWrapper = styled.div`
 
   .lottie-wrapper {
     height: 59px;
-    weight: 59px;
+    width: 59px;
   }
   .title-wrapper {
     display: flex;
@@ -438,7 +438,7 @@ function CompletionContent(props: CompletionContentProps) {
         <div className="wrapper info-wrapper">
           <Icon
             color="var(--ads-v2-color-fg-information)"
-            name={info?.icon}
+            name={info?.icon || "info"}
             size="lg"
           />
           <Description className="info">{info?.text}</Description>

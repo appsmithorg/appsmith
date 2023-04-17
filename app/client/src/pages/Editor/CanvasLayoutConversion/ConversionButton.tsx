@@ -27,6 +27,7 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
+// import type { AppState } from "ce/reducers";
 
 const Title = styled.h1`
   color: var(--ads-v2-color-fg-emphasis-plus);
@@ -48,15 +49,21 @@ function ConversionButton() {
     ? CONVERT_TO_FIXED_BUTTON
     : CONVERT_TO_AUTO_BUTTON;
 
-  const onOpenOrClose = (isOpen: boolean) => {
-    if (isOpen) {
-      setShowModal(isOpen);
-      dispatch(setConversionStart(CONVERSION_STATES.START));
-    } else {
-      setShowModal(isOpen);
+  const closeModal = (isOpen: boolean) => {
+    if (!isOpen) {
+      setShowModal(false);
       dispatch(setConversionStop());
     }
   };
+
+  const openModal = () => {
+    setShowModal(true);
+    dispatch(setConversionStart(CONVERSION_STATES.START));
+  };
+
+  // const conversionState = useSelector(
+  //   (state: AppState) => state.ui.layoutConversion.conversionState,
+  // );
 
   return (
     <>
@@ -64,14 +71,14 @@ function ConversionButton() {
         className="w-full !mb-5"
         id="t--layout-conversion-cta"
         kind="secondary"
-        onClick={() => onOpenOrClose(true)}
+        onClick={openModal}
         size="md"
       >
         {createMessage(buttonText)}
       </Button>
-      <Modal open={showModal}>
+      <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
-          <ModalHeader onClose={() => onOpenOrClose(false)}>
+          <ModalHeader>
             <div className="flex items-center gap-3">
               <Title>{createMessage(titleText)}</Title>
               <BetaCard />

@@ -59,23 +59,22 @@ export function SnapShotBannerCTA() {
 
   const dispatch = useDispatch();
 
-  const onOpenOrClose = (
-    isOpen: boolean,
-    conversionState?: CONVERSION_STATES,
-  ) => {
-    if (isOpen && conversionState) {
-      dispatch(setConversionStart(conversionState));
-      setShowModal(true);
-    } else {
-      dispatch(setConversionStop());
-      setShowModal(false);
-    }
-  };
-
   const modalHeader =
     conversionState === CONVERSION_STATES.SNAPSHOT_START
       ? createMessage(USE_SNAPSHOT_HEADER)
       : createMessage(DISCARD_SNAPSHOT_HEADER);
+
+  const closeModal = (isOpen: boolean) => {
+    if (!isOpen) {
+      setShowModal(false);
+      dispatch(setConversionStop());
+    }
+  };
+
+  const openModal = (conversionState: CONVERSION_STATES) => {
+    dispatch(setConversionStart(conversionState));
+    setShowModal(true);
+  };
 
   return (
     <>
@@ -86,14 +85,14 @@ export function SnapShotBannerCTA() {
             children: createMessage(USE_SNAPSHOT_CTA),
             onClick: (e) => {
               e.preventDefault();
-              onOpenOrClose(true, CONVERSION_STATES.SNAPSHOT_START);
+              openModal(CONVERSION_STATES.SNAPSHOT_START);
             },
           },
           {
             children: createMessage(DISCARD_SNAPSHOT_CTA),
             onClick: (e) => {
               e.preventDefault();
-              onOpenOrClose(true, CONVERSION_STATES.DISCARD_SNAPSHOT);
+              openModal(CONVERSION_STATES.DISCARD_SNAPSHOT);
             },
           },
         ]}
@@ -110,9 +109,9 @@ export function SnapShotBannerCTA() {
           <SubText>{createMessage(SNAPSHOT_BANNER_MESSAGE)}</SubText>
         </div>
       </Callout>
-      <Modal open={showModal}>
+      <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
-          <ModalHeader onClose={() => onOpenOrClose(false)}>
+          <ModalHeader>
             <ModalTitle>{modalHeader}</ModalTitle>
           </ModalHeader>
           <ModalBody>
