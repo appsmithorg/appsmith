@@ -1,7 +1,7 @@
 import range from "lodash/range";
 import kebabCase from "lodash/kebabCase";
-import { DarkTheme } from "./DarkTheme";
-import { LightTheme } from "./LightTheme";
+import { DarkModeTheme } from "./DarkModeTheme";
+import { LightModeTheme } from "./LightModeTheme";
 
 import type {
   ColorMode,
@@ -85,17 +85,17 @@ export class TokensAccessor {
     switch (true) {
       case this.isLightMode:
         return this.createTokenObject(
-          new LightTheme(this.seedColor).getColors(),
+          new LightModeTheme(this.seedColor).getColors(),
           "color",
         );
       case this.isDarkMode:
         return this.createTokenObject(
-          new DarkTheme(this.seedColor).getColors(),
+          new DarkModeTheme(this.seedColor).getColors(),
           "color",
         );
       default:
         return this.createTokenObject(
-          new LightTheme(this.seedColor).getColors(),
+          new LightModeTheme(this.seedColor).getColors(),
           "color",
         );
     }

@@ -29,11 +29,11 @@ export interface TokenSource {
   opacity?: TokenObj;
 }
 
-export type ColorMode = "light" | "dark";
-
 export type TokenObj = { [key: string]: string | number };
 
-export interface ColorTheme {
+export type ColorMode = "light" | "dark";
+
+export interface ColorModeTheme {
   getColors: () => {
     bg: string;
     bgAccent: string;
