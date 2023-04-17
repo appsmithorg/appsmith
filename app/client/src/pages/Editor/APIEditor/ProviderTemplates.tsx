@@ -33,6 +33,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -318,13 +319,12 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             {" Back"}
           </span>
           <br />
-
           <ProviderInfo>
             {providerDetails.imageUrl ? (
               <img
                 alt="provider"
                 className="providerImage"
-                src={providerDetails.imageUrl}
+                src={getAssetUrl(providerDetails.imageUrl)}
               />
             ) : (
               <div>

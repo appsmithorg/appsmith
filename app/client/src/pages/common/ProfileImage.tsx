@@ -47,7 +47,6 @@ export default function ProfileImage(props: {
   const backgroundColor = shouldRenderImage
     ? "transparent"
     : initialsAndColorCode[1];
-
   return (
     <Profile
       backgroundColor={backgroundColor}

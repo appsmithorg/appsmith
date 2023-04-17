@@ -19,6 +19,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;
@@ -79,7 +80,11 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
             }}
             to={APPLICATIONS_URL}
           >
-            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+            <img
+              alt="Logo"
+              className="h-6"
+              src={getAssetUrl(tenantConfig.brandLogoUrl)}
+            />
           </Link>
         )}
       </HeaderSection>

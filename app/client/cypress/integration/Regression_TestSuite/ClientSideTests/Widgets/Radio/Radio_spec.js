@@ -40,10 +40,10 @@ describe("Radio Widget Functionality", function () {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangeRadioselect);
+    cy.getAlert("onSelectionChange");
     cy.get(formWidgetsPage.defaultSelect);
-    cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
-      .get(commonlocators.dropdownSelectButton)
+    cy.get(".t--add-action-onSelectionChange")
+      .scrollIntoView()
       .click({ force: true })
       .type("2");
     cy.PublishtheApp();

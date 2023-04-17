@@ -1,7 +1,7 @@
 INSERT {
     name: "{{ nameInput.text }}",
     gender: "{{ genderDropdown.selectedOptionValue }}",
-    email: "{{ nameInput.text }}"
+    email: "{{ emailInput.text }}"
 } INTO users
 
 // nameInput and genderDropdown are example widgets, replace them with your widget names. To understand more please

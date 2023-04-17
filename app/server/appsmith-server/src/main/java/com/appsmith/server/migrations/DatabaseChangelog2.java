@@ -8,6 +8,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -815,7 +816,7 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
         dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
 
-        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,

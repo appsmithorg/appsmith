@@ -4,6 +4,14 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+
+export const DefaultDebuggerContext = {
+  scrollPosition: 0,
+  selectedDebuggerTab: "",
+  responseTabHeight: ActionExecutionResizerHeight,
+  errorCount: 0,
+};
 
 const initialState: DebuggerReduxState = {
   logs: [],
@@ -11,6 +19,7 @@ const initialState: DebuggerReduxState = {
   errors: {},
   expandId: "",
   hideErrors: true,
+  context: DefaultDebuggerContext,
 };
 
 // check the last message from the current log and update the occurrence count
@@ -101,6 +110,48 @@ const debuggerReducer = createImmerReducer(initialState, {
       ...initialState,
     };
   },
+  [ReduxActionTypes.SET_DEBUGGER_SELECTED_TAB]: (
+    state: DebuggerReduxState,
+    action: { selectedTab: string },
+  ) => {
+    state.context.selectedDebuggerTab = action.selectedTab;
+  },
+  [ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT]: (
+    state: DebuggerReduxState,
+    action: { height: number },
+  ) => {
+    state.context.responseTabHeight = action.height;
+  },
+  [ReduxActionTypes.SET_ERROR_COUNT]: (
+    state: DebuggerReduxState,
+    action: { count: number },
+  ) => {
+    state.context.errorCount = action.count;
+  },
+  [ReduxActionTypes.SET_RESPONSE_PANE_SCROLL_POSITION]: (
+    state: DebuggerReduxState,
+    action: { position: number },
+  ) => {
+    state.context.scrollPosition = action.position;
+  },
+  [ReduxActionTypes.TOGGLE_EXPAND_ERROR_LOG_ITEM]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<{ id: string; isExpanded: boolean }>,
+  ) => {
+    const { id, isExpanded } = action.payload;
+    const errors = JSON.parse(JSON.stringify(state.errors));
+    errors[id] = { ...errors[id], isExpanded };
+    return {
+      ...state,
+      errors,
+    };
+  },
+  [ReduxActionTypes.SET_DEBUGGER_CONTEXT]: (
+    state: DebuggerReduxState,
+    action: { context: DebuggerContext },
+  ) => {
+    state.context = action.context;
+  },
 });
 
 export interface DebuggerReduxState {
@@ -109,6 +160,14 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
+  context: DebuggerContext;
 }
+
+export type DebuggerContext = {
+  scrollPosition: number;
+  errorCount: number;
+  selectedDebuggerTab: string;
+  responseTabHeight: number;
+};
 
 export default debuggerReducer;

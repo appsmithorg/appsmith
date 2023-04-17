@@ -28,7 +28,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     private String id;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String name;
 
     @JsonView(Views.Public.class)
@@ -37,7 +37,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     String description;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     String slug;
 
     @JsonView(Views.Public.class)
@@ -47,7 +47,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Export.class})
     List<Layout> layouts;
 
     @Transient

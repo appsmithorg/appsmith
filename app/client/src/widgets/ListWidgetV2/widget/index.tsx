@@ -39,6 +39,11 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -149,6 +154,37 @@ class ListWidget extends BaseWidget<
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => ({
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/list",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      },
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      itemSpacing: "number",
+      selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+      selectedItemView: generateTypeDef(
+        widget.selectedItemView,
+        extraDefsToDefine,
+      ),
+      triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
+      triggeredItemView: generateTypeDef(
+        widget.triggeredItemView,
+        extraDefsToDefine,
+      ),
+      listData: generateTypeDef(widget.listData, extraDefsToDefine),
+      pageNo: generateTypeDef(widget.pageNo),
+      pageSize: generateTypeDef(widget.pageSize),
+      currentItemsView: generateTypeDef(
+        widget.currentItemsView,
+        extraDefsToDefine,
+      ),
+    });
   }
 
   static getDerivedPropertiesMap() {
@@ -525,6 +561,15 @@ class ListWidget extends BaseWidget<
         tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
+
+    //To Add Auto Layout flex layer for meta Canvas Widgets
+    if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
+      metaWidget.flexLayers = getMetaFlexLayers(
+        metaWidget.flexLayers,
+        options.rowReferences,
+      );
+    }
+
     if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
       metaWidget.dynamicHeight = "FIXED";
     }
@@ -1074,6 +1119,9 @@ class ListWidget extends BaseWidget<
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
+                // If Container Child Elements are clickable, we should not call the containers onItemClick Event
+                if (isTargetElementClickable(e)) return;
+
                 this.onItemClick(rowIndex);
               },
               onClickCapture: () => {

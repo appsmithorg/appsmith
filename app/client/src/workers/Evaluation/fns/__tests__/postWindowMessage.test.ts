@@ -50,6 +50,8 @@ describe("Post window message works", () => {
         triggerPropertyName: undefined,
       },
       eventType: undefined,
+      enableJSFnPostProcessors: true,
+      enableJSVarUpdateTracking: true,
     });
     TriggerEmitter.removeListener(BatchKey.process_batched_triggers, batchSpy);
     batchSpy.mockClear();
