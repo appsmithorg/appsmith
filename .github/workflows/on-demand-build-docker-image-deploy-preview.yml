@@ -20,6 +20,7 @@ jobs:
             skip-tests: `${{ github.event.client_payload.slash_command.args.named.skip-tests }}`.
             env: `${{ github.event.client_payload.slash_command.args.named.env }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
+            recreate: ${{ github.event.client_payload.slash_command.args.named.recreate }}.
 
   server-build:
     name: server-build
@@ -165,6 +166,15 @@ jobs:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
           fetch-depth: 0
 
+      - name: Install mongosh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+
       - name: Install relevant packages
         run: |
           which aws
@@ -185,6 +195,7 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           PULL_REQUEST_NUMBER: ${{ github.event.client_payload.pull_request.number }}
+          RECREATE: ${{ github.event.client_payload.slash_command.args.named.recreate }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
