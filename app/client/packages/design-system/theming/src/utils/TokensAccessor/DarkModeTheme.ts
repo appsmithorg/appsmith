@@ -50,6 +50,7 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.15,
+        c: 0,
       });
     }
 
@@ -111,6 +112,7 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.965,
+        c: 0,
       });
     }
 
@@ -125,6 +127,7 @@ export class DarkModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         return setLch(this.seedColor, {
           l: 0.79,
+          c: 0,
         });
       }
 
@@ -142,6 +145,7 @@ export class DarkModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         return setLch(this.seedColor, {
           l: 0.985,
+          c: 0,
         });
       }
 
@@ -154,6 +158,7 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.15,
+        c: 0,
       });
     }
 
@@ -168,6 +173,7 @@ export class DarkModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         return setLch(this.seedColor, {
           l: 0.985,
+          c: 0,
         });
       }
 
@@ -190,6 +196,7 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.15,
+        c: 0,
       });
     }
 

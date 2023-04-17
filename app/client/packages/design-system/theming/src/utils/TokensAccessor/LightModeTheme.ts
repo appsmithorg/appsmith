@@ -10,16 +10,17 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedChroma: number;
   private readonly seedHue: number;
   private readonly seedIsAchromatic: boolean;
+  private readonly seedIsCold: boolean;
 
   constructor(private color: ColorTypes) {
-    const { chroma, hex, hue, isAchromatic, lightness } = new ColorsAccessor(
-      color,
-    );
+    const { chroma, hex, hue, isAchromatic, isCold, lightness } =
+      new ColorsAccessor(color);
     this.seedColor = hex;
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
     this.seedIsAchromatic = isAchromatic;
+    this.seedIsCold = isCold;
   }
 
   public getColors = () => {
@@ -49,12 +50,13 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.985,
+        c: 0,
       });
     }
 
     return setLch(this.seedColor, {
       l: 0.985,
-      c: 0.016,
+      c: this.seedIsCold ? 0.006 : 0.004,
     });
   }
 
@@ -110,6 +112,7 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.12,
+        c: 0,
       });
     }
 
@@ -124,6 +127,7 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         return setLch(this.seedColor, {
           l: 0.25,
+          c: 0,
         });
       }
 
@@ -141,6 +145,7 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         return setLch(this.seedColor, {
           l: 0.985,
+          c: 0,
         });
       }
 
@@ -153,6 +158,7 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.15,
+        c: 0,
       });
     }
 
@@ -170,6 +176,7 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         return setLch(this.seedColor, {
           l: 0.15,
+          c: 0,
         });
       }
 
@@ -192,6 +199,7 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         l: 0.15,
+        c: 0,
       });
     }
 
