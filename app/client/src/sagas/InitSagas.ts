@@ -78,12 +78,13 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
 
-    // calls pages (to get currentApplicationData and pagesList)
+    // calls pages with pageId (to get currentApplicationData and pagesList)
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
     );
 
+    // can be called later
     // application/:applicationId -> append with default pageid
     // maybe git branches
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
@@ -93,6 +94,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     // gitbranch is being sent form API interceptor (from store if not the query params)
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
 
+    // call as a side effect to loadAppData?
     // edit mode - relies on application data
     // view mode - null
     yield call(engine.loadGit, applicationId);
