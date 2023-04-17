@@ -67,7 +67,7 @@ jobs:
       - name: Verify all the checks
         run: |
           status=0
-          if [ "${{ steps.ci-test-result-status.outputs.run_status }}" == "failed" ]; then
+          if [ "${{ steps.ci-test-result-status.outputs.run_status }}" == "failure" ]; then
             exit $((status+1))
           elif [ ${{steps.pr_status_check.outputs.status}} != 0 ]; then
             exit $((status+${{steps.pr_status_check.outputs.status}}))
