@@ -31,7 +31,7 @@ jobs:
       - name: Get the workflow run_id
         id: workflow
         run: |
-          echo "run_id= $(echo '${{ steps.find-comment.outputs.comment-body }}' | grep -o 'runs/[0-9]\+' | cut -d/ -f2)" >> $GITHUB_OUTPUT
+          echo "run_id=$(echo '${{ steps.find-comment.outputs.comment-body }}' | grep -o 'runs/[0-9]\+' | cut -d/ -f2)" >> $GITHUB_OUTPUT
       
       - name: Get ci-test-result status from the run_id
         id: ci-test-result-status
