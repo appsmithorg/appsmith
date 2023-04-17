@@ -188,6 +188,8 @@ export const Loading = styled(Spinner)`
   padding-top: 10px;
   margin: auto;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
 `;
 
 export const MailConfigContainer = styled.div`
@@ -497,7 +499,7 @@ function WorkspaceInviteUsersForm(props: any) {
             Invite
           </Button>
         </StyledInviteFieldGroup>
-        <LabelText type={TextType.P0}>
+        <LabelText data-testid="helper-message" type={TextType.P0}>
           <Icon name="user-3-line" size="sm" />
           {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
         </LabelText>
@@ -506,7 +508,7 @@ function WorkspaceInviteUsersForm(props: any) {
         ) : (
           <>
             {allUsers.length === 0 && (
-              <MailConfigContainer>
+              <MailConfigContainer data-testid="no-users-content">
                 <NoEmailConfigImage />
                 <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>

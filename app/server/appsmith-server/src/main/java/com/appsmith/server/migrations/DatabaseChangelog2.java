@@ -820,7 +820,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
-                        fieldName(QBranchAwareDomain.branchAwareDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                         .named("defaultApplicationId_gitSyncId_deleted_compound_index")
@@ -829,7 +829,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
-                        fieldName(QBranchAwareDomain.branchAwareDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                         .named("defaultApplicationId_gitSyncId_deleted_compound_index")
@@ -838,7 +838,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, NewPage.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
-                        fieldName(QBranchAwareDomain.branchAwareDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                         .named("defaultApplicationId_gitSyncId_deleted_compound_index")
@@ -2812,12 +2812,12 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "042", id = "add-oracle-plugin", author = "")
     public void addOraclePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
-        plugin.setName("Oracle Plugin");
+        plugin.setName("Oracle");
         plugin.setType(PluginType.DB);
         plugin.setPackageName("oracle-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle-db.jpg");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
         plugin.setDefaultInstall(true);
         try {
@@ -2826,5 +2826,13 @@ public class DatabaseChangelog2 {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "043", id = "update-oracle-plugin-name", author = "")
+    public void updateOraclePluginName(MongoTemplate mongoTemplate) {
+        Plugin oraclePlugin = mongoTemplate.findOne(query(where("packageName").is("oracle-plugin")), Plugin.class);
+        oraclePlugin.setName("Oracle");
+        oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.png");
+        mongoTemplate.save(oraclePlugin);
     }
 }

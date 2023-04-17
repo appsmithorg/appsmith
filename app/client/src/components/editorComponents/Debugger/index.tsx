@@ -13,6 +13,7 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
@@ -21,9 +22,8 @@ import { Button } from "design-system";
 import { Colors } from "constants/Colors";
 
 function Debugger() {
-  const showDebugger = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
   return showDebugger ? <DebuggerTabs /> : null;
 }
