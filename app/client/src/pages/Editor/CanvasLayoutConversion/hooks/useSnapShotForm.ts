@@ -26,7 +26,6 @@ import type { AppState } from "@appsmith/reducers";
 export const snapShotFlow = (
   dispatch: Dispatch<any>,
   readableSnapShotDetails: ReadableSnapShotDetails | undefined,
-  onCancel: () => void,
   backState?: CONVERSION_STATES,
 ): {
   [key: string]: ConversionProps;
@@ -83,7 +82,6 @@ export const snapShotFlow = (
       primaryButton: {
         text: createMessage(DISCARD),
         onClick: () => {
-          onCancel();
           dispatch({
             type: ReduxActionTypes.DELETE_SNAPSHOT,
           });
@@ -93,22 +91,18 @@ export const snapShotFlow = (
     [CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER]: {
       spinner: createMessage(RESTORING_SNAPSHOT),
     },
-    ...commonConversionFlows(dispatch, onCancel),
+    ...commonConversionFlows(dispatch),
   };
 };
 
-export const useSnapShotForm = (onCancel: () => void) => {
+export const useSnapShotForm = () => {
   const conversionState = useSelector(
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
   const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
   const dispatch = useDispatch();
 
-  const snapshotFlowStates = snapShotFlow(
-    dispatch,
-    readableSnapShotDetails,
-    onCancel,
-  );
+  const snapshotFlowStates = snapShotFlow(dispatch, readableSnapShotDetails);
 
   return snapshotFlowStates[conversionState] || {};
 };

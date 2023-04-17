@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import Debugger from "components/editorComponents/Debugger";
@@ -45,29 +44,11 @@ import {
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import {
-  createMessage,
-  SNAPSHOT_BANNER_MESSAGE,
-  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-} from "@appsmith/constants/messages";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { Callout } from "design-system";
-
-const Title = styled.h4`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-5);
-`;
-
-const SubText = styled.p`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-normal);
-  font-size: var(--ads-v2-font-size-4);
-`;
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -224,22 +205,7 @@ function WidgetsEditor() {
                 >
                   {shouldShowSnapShotBanner && (
                     <div className="absolute top-0 z-1 w-full">
-                      <Callout kind="warning">
-                        <div className="flex flex-col">
-                          <Title>
-                            {readableSnapShotDetails
-                              ? createMessage(
-                                  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-                                  readableSnapShotDetails.timeTillExpiration,
-                                )
-                              : ""}
-                          </Title>
-                          <SubText>
-                            {createMessage(SNAPSHOT_BANNER_MESSAGE)}
-                          </SubText>
-                          <SnapShotBannerCTA />
-                        </div>
-                      </Callout>
+                      <SnapShotBannerCTA />
                     </div>
                   )}
                   <CanvasContainer

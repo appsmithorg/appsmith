@@ -1,8 +1,11 @@
 import * as Sentry from "@sentry/react";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
+import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
+import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import { ConversionForm } from "./ConversionForm";
 import {
   createMessage,
@@ -10,67 +13,114 @@ import {
   DISCARD_SNAPSHOT_HEADER,
   USE_SNAPSHOT_CTA,
   USE_SNAPSHOT_HEADER,
+  SNAPSHOT_BANNER_MESSAGE,
+  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
 } from "@appsmith/constants/messages";
-import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import {
   setConversionStart,
   setConversionStop,
 } from "actions/autoLayoutActions";
-import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { useDispatch } from "react-redux";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Callout,
+} from "design-system";
 
-const Text = styled.h5`
-  color: var(--ads-v2-color-fg-emphasis-plus);
-  font-weight: 600;
+const Title = styled.h4`
+  color: var(--ads-v2-color-fg-emphasis);
+  font-weight: var(--ads-v2-font-weight-bold);
+  font-size: var(--ads-v2-font-size-5);
+`;
+
+const SubText = styled.p`
+  color: var(--ads-v2-color-fg-emphasis);
+  font-weight: var(--ads-v2-font-weight-normal);
   font-size: var(--ads-v2-font-size-4);
 `;
 
+const ModalTitle = styled.h1`
+  color: var(--ads-v2-color-fg-emphasis-plus);
+  font-weight: var(--ads-v2-font-weight-bold);
+  font-size: var(--ads-v2-font-size-10);
+`;
+
 export function SnapShotBannerCTA() {
+  const [showModal, setShowModal] = useState(false);
+
+  const conversionState = useSelector(
+    (state: AppState) => state.ui.layoutConversion.conversionState,
+  );
+
+  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+
+  const formProps = useSnapShotForm();
+
   const dispatch = useDispatch();
 
-  const handleOnOpenOrClose = (
+  const onOpenOrClose = (
     isOpen: boolean,
-    conversionState: CONVERSION_STATES,
+    conversionState?: CONVERSION_STATES,
   ) => {
-    if (isOpen) {
+    if (isOpen && conversionState) {
       dispatch(setConversionStart(conversionState));
+      setShowModal(true);
     } else {
       dispatch(setConversionStop());
+      setShowModal(false);
     }
   };
 
+  const modalHeader =
+    conversionState === CONVERSION_STATES.SNAPSHOT_START
+      ? createMessage(USE_SNAPSHOT_HEADER)
+      : createMessage(DISCARD_SNAPSHOT_HEADER);
+
   return (
-    <div className="flex gap-2">
-      <FormDialogComponent
-        Form={ConversionForm(useSnapShotForm)}
-        canEscapeKeyClose={false}
-        canOutsideClickClose={false}
-        isCloseButtonShown={false}
-        onOpenOrClose={(isOpen: boolean) =>
-          handleOnOpenOrClose(isOpen, CONVERSION_STATES.SNAPSHOT_START)
-        }
-        title={createMessage(USE_SNAPSHOT_HEADER)}
-        trigger={
-          <Text className="cursor-pointer pr-2">
-            {createMessage(USE_SNAPSHOT_CTA)}
-          </Text>
-        }
-      />
-      <FormDialogComponent
-        Form={ConversionForm(useSnapShotForm)}
-        canOutsideClickClose
-        isCloseButtonShown={false}
-        onOpenOrClose={(isOpen: boolean) =>
-          handleOnOpenOrClose(isOpen, CONVERSION_STATES.DISCARD_SNAPSHOT)
-        }
-        title={createMessage(DISCARD_SNAPSHOT_HEADER)}
-        trigger={
-          <Text className="cursor-pointer pl-2">
-            {createMessage(DISCARD_SNAPSHOT_CTA)}
-          </Text>
-        }
-      />
-    </div>
+    <>
+      <Callout
+        kind="warning"
+        links={[
+          {
+            children: createMessage(USE_SNAPSHOT_CTA),
+            onClick: (e) => {
+              e.preventDefault();
+              onOpenOrClose(true, CONVERSION_STATES.SNAPSHOT_START);
+            },
+          },
+          {
+            children: createMessage(DISCARD_SNAPSHOT_CTA),
+            onClick: (e) => {
+              e.preventDefault();
+              onOpenOrClose(true, CONVERSION_STATES.DISCARD_SNAPSHOT);
+            },
+          },
+        ]}
+      >
+        <div className="flex flex-col">
+          <Title>
+            {readableSnapShotDetails
+              ? createMessage(
+                  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+                  readableSnapShotDetails.timeTillExpiration,
+                )
+              : ""}
+          </Title>
+          <SubText>{createMessage(SNAPSHOT_BANNER_MESSAGE)}</SubText>
+        </div>
+      </Callout>
+      <Modal open={showModal}>
+        <ModalContent>
+          <ModalHeader onClose={() => onOpenOrClose(false)}>
+            <ModalTitle>{modalHeader}</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <ConversionForm {...formProps} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 

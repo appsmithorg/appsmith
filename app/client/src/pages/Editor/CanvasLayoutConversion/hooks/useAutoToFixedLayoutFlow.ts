@@ -32,7 +32,6 @@ import { commonConversionFlows } from "./CommonConversionFlows";
 //returns props for Auto to Fixed Layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
   dispatch: Dispatch<any>,
-  onCancel: () => void,
 ): {
   [key: string]: ConversionProps;
 } => {
@@ -149,7 +148,7 @@ export const useAutoToFixedLayoutFlow = (
     [CONVERSION_STATES.CONVERSION_SPINNER]: {
       spinner: createMessage(CONVERTING_APP),
     },
-    ...commonConversionFlows(dispatch, onCancel),
-    ...snapShotFlow(dispatch, readableSnapShotDetails, onCancel),
+    ...commonConversionFlows(dispatch),
+    ...snapShotFlow(dispatch, readableSnapShotDetails),
   };
 };
