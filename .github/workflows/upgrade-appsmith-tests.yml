@@ -52,8 +52,8 @@ jobs:
       - name: get status-checks from pr
         id: pr-status-check
         run: |
-          status-link=`https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}`
-          status-check=`curl --silent $status-link|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context'`
+          echo "status-link=https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}"
+          echo "status-check=`curl --silent $status-link|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context'`"
           echo "status=`echo $status-check|grep -v 'cypress\|Vercel\|DeepSource'|wc -l`" >> $GITHUB_OUTPUT
       - run: |
           echo ${{steps.pr-status-check.outputs.status}}
@@ -61,8 +61,8 @@ jobs:
       - name: get status-checks from check suite
         id: suite-status-check
         run: |
-          check-runs-link=`https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs`
-          check-runs-status=`curl --silent $check-runs-link|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name'`
+          echo "check-runs-link=`https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs`"
+          echo "check-runs-status=`curl --silent $check-runs-link|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name'`"
           echo "status=$check-runs-status" >> $GITHUB_OUTPUT
       - run: |
           echo ${{steps.suite-status-check.outputs.status}}
