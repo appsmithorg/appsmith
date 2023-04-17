@@ -1,9 +1,9 @@
 import React from "react";
-import { SearchInput } from "design-system-old";
+// import { SearchInput } from "design-system-old";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
-import { Button } from "design-system";
+import { Link } from "design-system";
 
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
@@ -20,28 +20,28 @@ export const HelpPopoverStyle = createGlobalStyle`
   }
 `;
 
-export const StyledBackButton = styled(Button)`
+export const StyledBackButton = styled(Link)`
   display: inline-flex;
-  margin: 0 0 20px 8px;
+  margin: 20px 0 20px 8px;
 `;
 
-export const StyledSearchInput = styled(SearchInput)`
-  > div {
-    border-radius: 1px;
-    border: 1px solid var(--appsmith-color-black-250);
-    color: var(--appsmith-color-black-700);
-    box-shadow: none;
-    margin: 0 16px 0 0;
+// export const StyledSearchInput = styled(SearchInput)`
+//   > div {
+//     border-radius: 1px;
+//     border: 1px solid var(--appsmith-color-black-250);
+//     color: var(--appsmith-color-black-700);
+//     box-shadow: none;
+//     margin: 0 16px 0 0;
 
-    &:active,
-    &:hover,
-    &:focus {
-      border: 1px solid var(--appsmith-color-black-250);
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06),
-        0px 1px 3px rgba(0, 0, 0, 0.1);
-    }
-  }
-`;
+//     &:active,
+//     &:hover,
+//     &:focus {
+//       border: 1px solid var(--appsmith-color-black-250);
+//       box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06),
+//         0px 1px 3px rgba(0, 0, 0, 0.1);
+//     }
+//   }
+// `;
 
 export const SettingsHeader = styled.h2`
   padding: 0px 8px;
@@ -76,9 +76,10 @@ export function BackButton({ goTo }: { goTo?: string }) {
     // TODO (tanvi): probably have to replace this with a link
     <StyledBackButton
       className="t--admin-settings-back-button"
-      kind="tertiary"
+      kind="secondary"
       onClick={onBack}
-      startIcon="chevron-left"
+      startIcon="back-control"
+      to="#"
     >
       Back
     </StyledBackButton>
