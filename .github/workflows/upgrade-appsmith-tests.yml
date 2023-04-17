@@ -28,9 +28,16 @@ jobs:
           body-includes: 'Tests running at:'
           direction: last
       
-      - name: Get the workflow run id
+      - name: Get the workflow run_id
         id: workflow
         run: |
           echo "run_id= $(echo '${{ steps.find-comment.outputs.comment-body }}' | grep -o 'runs/[0-9]\+' | cut -d/ -f2)" >> $GITHUB_OUTPUT
+      
+      - name: Get ci-test-result status from the run_id
+        id: ci-test-result-status
+        run: |
+          run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/$workflowid/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
+          echo "run_status= $run_status" >> $GITHUB_OUTPUT
+
       - run: |
-          echo ${{ steps.workflow.outputs.run_id }}
+          echo ${{ steps.ci-test-result-status.outputs.run_status }}
