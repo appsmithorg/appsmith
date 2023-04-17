@@ -4,22 +4,17 @@ import { useAutoToFixedLayoutFlow } from "./useAutoToFixedLayoutFlow";
 import { useFixedToAutoLayoutFlow } from "./useFixedToAutoLayoutFlow";
 
 //Hook that helps with rendering of conversion form based on the Flow
-export const useConversionForm = (
-  onCancel: () => void,
-  hookProps?: { isAutoLayout: boolean },
-) => {
+export const useConversionForm = (hookProps?: { isAutoLayout: boolean }) => {
   const dispatch = useDispatch();
   const conversionState = useSelector(
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
 
-  const autoToFixedWorkflow = useAutoToFixedLayoutFlow(dispatch, onCancel);
+  const autoToFixedWorkflow = useAutoToFixedLayoutFlow(dispatch);
 
-  const fixedToAutoWorkflow = useFixedToAutoLayoutFlow(dispatch, onCancel);
+  const fixedToAutoWorkflow = useFixedToAutoLayoutFlow(dispatch);
 
   return hookProps?.isAutoLayout
     ? autoToFixedWorkflow[conversionState] || {}
     : fixedToAutoWorkflow[conversionState] || {};
-
-  return {};
 };

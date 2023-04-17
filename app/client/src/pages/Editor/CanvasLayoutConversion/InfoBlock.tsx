@@ -1,6 +1,8 @@
-import { Colors } from "constants/Colors";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
 import React from "react";
+import styled from "styled-components";
+
+import { Colors } from "constants/Colors";
+import { Icon } from "design-system";
 
 export type InfoBlockProps = {
   icon: string;
@@ -8,24 +10,32 @@ export type InfoBlockProps = {
   info: string;
 };
 
+const Title = styled.h4`
+  color: var(--ads-v2-color-fg-emphasis);
+  font-weight: var(--ads-v2-font-weight-bold);
+  font-size: var(--ads-v2-font-size-6);
+`;
+
+const SubText = styled.p`
+  color: var(--ads-v2-color-fg);
+  font-weight: var(--ads-v2-font-weight-normal);
+  font-size: var(--ads-v2-font-size-4);
+`;
+
 export const InfoBlock = (props: InfoBlockProps) => {
   return (
     <div className="flex flex-row gap-2 pt-3">
       <Icon
-        clickable={false}
-        fillColor={Colors.PRIMARY_ORANGE}
+        color="var(--ads-v2-color-fg-brand)"
         name={props.icon}
-        size={IconSize.XXXL}
+        size="md"
         withWrapper
         wrapperColor={Colors.PRIMARY_ORANGE_OPAQUE}
       />
+
       <div className="flex flex-col">
-        <Text className="pb-1" type={TextType.H4}>
-          {props.header}
-        </Text>
-        <Text color={Colors.GRAY_500} type={TextType.P1} weight="400">
-          {props.info}
-        </Text>
+        <Title className="pb-1">{props.header}</Title>
+        <SubText>{props.info}</SubText>
       </div>
     </div>
   );

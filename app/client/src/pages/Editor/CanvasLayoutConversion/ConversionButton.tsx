@@ -1,11 +1,15 @@
 import * as Sentry from "@sentry/react";
+import React from "react";
+import styled from "styled-components";
 
-import React, { useCallback } from "react";
-
-import { Button, Category, Size, Text, TextType } from "design-system-old";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+} from "design-system";
 import { ConversionForm } from "./ConversionForm";
-import { useConversionForm } from "./hooks/useConversionForm";
 import { useDispatch } from "react-redux";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import {
@@ -22,9 +26,19 @@ import {
   setConversionStop,
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
+import { useConversionForm } from "./hooks/useConversionForm";
+// import type { AppState } from "ce/reducers";
+
+const Title = styled.h1`
+  color: var(--ads-v2-color-fg-emphasis-plus);
+  font-weight: var(--ads-v2-font-weight-bold);
+  font-size: var(--ads-v2-font-size-10);
+`;
 
 function ConversionButton() {
+  const [showModal, setShowModal] = React.useState(false);
   const isAutoLayout = getIsAutoLayout(store.getState());
+  const formProps = useConversionForm({ isAutoLayout });
   const dispatch = useDispatch();
 
   //Text base on if it is an Auto layout
@@ -35,44 +49,47 @@ function ConversionButton() {
     ? CONVERT_TO_FIXED_BUTTON
     : CONVERT_TO_AUTO_BUTTON;
 
-  const onOpenOrClose = useCallback((isOpen: boolean) => {
-    if (isOpen) {
-      dispatch(setConversionStart(CONVERSION_STATES.START));
-    } else {
+  const closeModal = (isOpen: boolean) => {
+    if (!isOpen) {
+      setShowModal(false);
       dispatch(setConversionStop());
     }
-  }, []);
-
-  const header = () => {
-    return (
-      <div className="flex items-center gap-3">
-        <Text type={TextType.H1}>{createMessage(titleText)}</Text>
-        <BetaCard />
-      </div>
-    );
   };
 
+  const openModal = () => {
+    setShowModal(true);
+    dispatch(setConversionStart(CONVERSION_STATES.START));
+  };
+
+  // const conversionState = useSelector(
+  //   (state: AppState) => state.ui.layoutConversion.conversionState,
+  // );
+
   return (
-    <FormDialogComponent
-      Form={ConversionForm<{ isAutoLayout: boolean }>(useConversionForm, {
-        isAutoLayout,
-      })}
-      canEscapeKeyClose={false}
-      canOutsideClickClose={false}
-      getHeader={header}
-      isCloseButtonShown={false}
-      onOpenOrClose={onOpenOrClose}
-      trigger={
-        <Button
-          category={Category.secondary}
-          className="mb-6"
-          fill
-          id="t--layout-conversion-cta"
-          size={Size.medium}
-          text={createMessage(buttonText)}
-        />
-      }
-    />
+    <>
+      <Button
+        className="w-full !mb-5"
+        id="t--layout-conversion-cta"
+        kind="secondary"
+        onClick={openModal}
+        size="md"
+      >
+        {createMessage(buttonText)}
+      </Button>
+      <Modal onOpenChange={closeModal} open={showModal}>
+        <ModalContent>
+          <ModalHeader>
+            <div className="flex items-center gap-3">
+              <Title>{createMessage(titleText)}</Title>
+              <BetaCard />
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <ConversionForm {...formProps} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 

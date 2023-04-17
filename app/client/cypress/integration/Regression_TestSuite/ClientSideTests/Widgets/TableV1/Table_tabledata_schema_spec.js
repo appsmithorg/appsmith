@@ -1,7 +1,7 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tablev1NewDsl.json");
+const dsl = require("../../../../../fixtures/swtchTableDsl.json");
 
 describe("Table Widget", function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
@@ -14,10 +14,7 @@ describe("Table Widget", function () {
       201,
     );
     cy.addDsl(dsl);
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 500 });
-    cy.wait(1000);
-    cy.wait("@updateLayout");
+    cy.wait(5000);
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput($el, jsContext);

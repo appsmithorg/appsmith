@@ -23,7 +23,6 @@ import { useState } from "react";
 import type { DropdownOption } from "design-system-old";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
@@ -33,7 +32,6 @@ import { commonConversionFlows } from "./CommonConversionFlows";
 //returns props for Auto to Fixed Layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
   dispatch: Dispatch<any>,
-  onCancel: () => void,
 ): {
   [key: string]: ConversionProps;
 } => {
@@ -55,7 +53,7 @@ export const useAutoToFixedLayoutFlow = (
           info: createMessage(BUILD_FIXED_LAYOUT_TEXT),
         },
         {
-          icon: "history-line",
+          icon: "history",
           header: createMessage(SAVE_SNAPSHOT),
           info: createMessage(SAVE_SNAPSHOT_TEXT),
         },
@@ -106,14 +104,11 @@ export const useAutoToFixedLayoutFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       bannerMessageDetails: {
         message: createMessage(CONVERSION_WARNING),
-        backgroundColor: Colors.WARNING_ORANGE,
-        iconName: "warning-line",
-        iconColor: Colors.WARNING_SOLID,
-        textColor: Colors.GRAY_800,
+        kind: "warning",
       },
       snapShotDetails: readableSnapShotDetails && {
         labelText: createMessage(SNAPSHOT_LABEL),
-        icon: "history-line",
+        icon: "history",
         text: createMessage(
           SNAPSHOT_TIME_FROM_MESSAGE,
           readableSnapShotDetails.timeSince,
@@ -153,7 +148,7 @@ export const useAutoToFixedLayoutFlow = (
     [CONVERSION_STATES.CONVERSION_SPINNER]: {
       spinner: createMessage(CONVERTING_APP),
     },
-    ...commonConversionFlows(dispatch, onCancel),
-    ...snapShotFlow(dispatch, readableSnapShotDetails, onCancel),
+    ...commonConversionFlows(dispatch),
+    ...snapShotFlow(dispatch, readableSnapShotDetails),
   };
 };
