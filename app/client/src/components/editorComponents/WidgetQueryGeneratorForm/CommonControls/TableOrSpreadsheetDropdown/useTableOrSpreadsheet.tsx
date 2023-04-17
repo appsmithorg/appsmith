@@ -7,20 +7,21 @@ import { PluginPackageName } from "entities/Action";
 import { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getDatasource,
+  getDatasourceLoading,
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
+  getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Bold, Label } from "../../styles";
 import type { DatasourceTableDropdownOption } from "../../types";
-import {
-  DEFAULT_DROPDOWN_OPTION,
-  PluginFormInputFieldMap,
-} from "../../constants";
+import { PluginFormInputFieldMap } from "../../constants";
 import {
   getGsheetSpreadsheets,
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
+import type { AppState } from "ce/reducers";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
@@ -28,10 +29,12 @@ export function useTableOrSpreadsheet() {
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
   const datasourceStructure = useSelector(
-    getDatasourceStructureById(config.datasource.id),
+    getDatasourceStructureById(config.datasource),
   );
 
-  const spreadSheets = useSelector(getGsheetSpreadsheets(config.datasource.id));
+  const isDatasourceLoading = useSelector(getDatasourceLoading);
+
+  const spreadSheets = useSelector(getGsheetSpreadsheets(config.datasource));
 
   const isFetchingSpreadsheets = useSelector(getIsFetchingGsheetSpreadsheets);
 
@@ -39,16 +42,20 @@ export function useTableOrSpreadsheet() {
     getIsFetchingDatasourceStructure,
   );
 
-  const selectedDatasourcePluginPackageName =
-    config.datasource.data.pluginPackageName;
+  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
+    getPluginPackageFromDatasourceId(state, config.datasource),
+  );
 
-  const pluginField: {
-    TABLE: string;
-    COLUMN: string;
-  } =
-    selectedDatasourcePluginPackageName &&
-    (PluginFormInputFieldMap[selectedDatasourcePluginPackageName] ||
-      PluginFormInputFieldMap.DEFAULT);
+  const selectedDatasource = useSelector((state: AppState) =>
+    getDatasource(state, config.datasource),
+  );
+
+  const fieldName: string = selectedDatasourcePluginPackageName
+    ? (
+        PluginFormInputFieldMap[selectedDatasourcePluginPackageName] ||
+        PluginFormInputFieldMap.DEFAULT
+      ).TABLE
+    : "table";
 
   const options: DropdownOption[] = useMemo(() => {
     if (
@@ -79,21 +86,29 @@ export function useTableOrSpreadsheet() {
 
   const onSelect = useCallback(
     (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
-      updateConfig("table", TableObj);
+      updateConfig("table", TableObj.value);
 
       if (
-        selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
+        selectedDatasourcePluginPackageName ===
+          PluginPackageName.GOOGLE_SHEETS &&
+        selectedDatasource?.pluginId
       ) {
         dispatch(
           fetchGheetSheets({
-            datasourceId: config.datasource.id,
-            pluginId: config.datasource.data.pluginId,
+            datasourceId: config.datasource,
+            pluginId: selectedDatasource?.pluginId,
             sheetUrl: TableObj.value || "",
           }),
         );
       }
     },
-    [updateConfig, selectedDatasourcePluginPackageName, config, dispatch],
+    [
+      updateConfig,
+      selectedDatasourcePluginPackageName,
+      config,
+      dispatch,
+      selectedDatasource,
+    ],
   );
 
   return {
@@ -103,13 +118,16 @@ export function useTableOrSpreadsheet() {
         : datasourceStructure?.error?.message,
     label: (
       <Label>
-        Select {pluginField?.TABLE} from <Bold>{config.datasource.label}</Bold>
+        Select {fieldName} from <Bold>{selectedDatasource?.name}</Bold>
       </Label>
     ),
     options,
-    isLoading: isFetchingSpreadsheets || isFetchingDatasourceStructure,
+    isLoading:
+      isFetchingSpreadsheets ||
+      isFetchingDatasourceStructure ||
+      isDatasourceLoading,
     onSelect,
-    selected: config.table,
-    show: config.datasource !== DEFAULT_DROPDOWN_OPTION,
+    selected: options.find((option) => option.value === config.table),
+    show: !!config.datasource,
   };
 }

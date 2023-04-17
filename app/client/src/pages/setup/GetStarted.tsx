@@ -84,6 +84,7 @@ const DROPDOWN_WIDTH = "400px";
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
+  props.handleSubmit;
   return (
     <StyledNonSuperUserForm>
       <Space />

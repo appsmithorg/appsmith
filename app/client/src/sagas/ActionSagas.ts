@@ -133,14 +133,10 @@ import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEdito
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 
 export function* createDefaultActionPayload(
-  action: ReduxAction<{
-    pageId: string;
-    datasourceId: string;
-    from: EventLocation;
-  }>,
+  pageId: string,
+  datasourceId: string,
+  from?: EventLocation,
 ) {
-  const { datasourceId, pageId } = action.payload;
-
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const actions: ActionDataState = yield select(getActions);
 
@@ -177,7 +173,7 @@ export function* createDefaultActionPayload(
     },
     eventData: {
       actionType: pluginType === PluginType.DB ? "Query" : "API",
-      from: action.payload.from,
+      from: from,
       dataSource: datasource.name,
     },
     actionConfiguration:
@@ -185,7 +181,7 @@ export function* createDefaultActionPayload(
   };
 }
 
-export function* getPulginDefaultValues(pluginId: string) {
+export function* getPulginActionDefaultValues(pluginId: string) {
   if (!pluginId) {
     return;
   }
@@ -207,49 +203,6 @@ export function* getPulginDefaultValues(pluginId: string) {
   return initialValues;
 }
 
-export function* createActionsForOneClickBindingSaga(
-  actionPayload: ReduxAction<
-    Partial<Action> & { eventData: any; pluginId: string }
-  >,
-) {
-  const { payload } = actionPayload;
-
-  try {
-    const response: ApiResponse<ActionCreateUpdateResponse> | undefined =
-      yield ActionAPI.createAction(payload);
-
-    if (!response) return { status: "failure" };
-
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      const pageName: string = yield select(
-        getCurrentPageNameByActionId,
-        response.data.id,
-      );
-
-      AnalyticsUtil.logEvent("CREATE_ACTION", {
-        id: response.data.id,
-        // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
-        actionName: response.data.name,
-        pageName: pageName,
-        ...actionPayload.payload.eventData,
-      });
-
-      AppsmithConsole.info({
-        text: `Action created from one click binding`,
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          id: response.data.id,
-          // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
-          name: response.data.name,
-        },
-      });
-      return { status: "success" };
-    }
-  } catch (e) {}
-  return { status: "failure" };
-}
-
 export function* createActionSaga(
   actionPayload: ReduxAction<
     Partial<Action> & { eventData: any; pluginId: string }
@@ -259,7 +212,7 @@ export function* createActionSaga(
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
       const initialValues: object = yield call(
-        getPulginDefaultValues,
+        getPulginActionDefaultValues,
         actionPayload.payload.pluginId,
       );
       payload = merge(initialValues, actionPayload.payload);

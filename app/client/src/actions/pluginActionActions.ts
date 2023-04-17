@@ -85,12 +85,17 @@ export const runActionViaShortcut = () => {
   };
 };
 
-export const runAction = (id: string, paginationField?: PaginationField) => {
+export const runAction = (
+  id: string,
+  paginationField?: PaginationField,
+  skipOpeningDebugger = false,
+) => {
   return {
     type: ReduxActionTypes.RUN_ACTION_REQUEST,
     payload: {
       id,
       paginationField,
+      skipOpeningDebugger,
     },
   };
 };

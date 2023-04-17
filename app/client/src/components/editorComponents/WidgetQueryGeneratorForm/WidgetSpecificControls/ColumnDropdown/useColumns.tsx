@@ -1,3 +1,4 @@
+import type { AppState } from "ce/reducers";
 import { Colors } from "constants/Colors";
 import { IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
@@ -9,9 +10,12 @@ import {
   getGsheetsColumns,
   getIsFetchingGsheetsColumns,
 } from "selectors/datasourceSelectors";
-import { getDatasourceTableColumns } from "selectors/entitiesSelector";
+import {
+  getDatasourceTableColumns,
+  getDatasourceTablePrimaryColumn,
+  getPluginPackageFromDatasourceId,
+} from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
-import { DEFAULT_DROPDOWN_OPTION } from "../../constants";
 
 export function useColumns(alias: string) {
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
@@ -19,17 +23,24 @@ export function useColumns(alias: string) {
   const isLoading = useSelector(getIsFetchingGsheetsColumns);
 
   const columns = useSelector(
-    getDatasourceTableColumns(config.datasource.id, config.table.id),
+    getDatasourceTableColumns(config.datasource, config.table),
   );
 
   const sheetColumns = useSelector(
-    getGsheetsColumns(config.sheet.id + "_" + config.sheet.data.sheetURL),
+    getGsheetsColumns(config.sheet + "_" + config.table),
+  );
+
+  const primaryColumn = useSelector(
+    getDatasourceTablePrimaryColumn(config.datasource, config.table),
+  );
+
+  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
+    getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
   const options = useMemo(() => {
     if (
-      config.datasource.data.pluginPackageName ===
-        PluginPackageName.GOOGLE_SHEETS &&
+      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
       isArray(sheetColumns?.value)
     ) {
       return sheetColumns.value.map((column: any) => {
@@ -63,27 +74,28 @@ export function useColumns(alias: string) {
     } else {
       return [];
     }
-  }, [columns, sheetColumns, config]);
+  }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
   const onSelect = useCallback(
     (column, columnObj) => {
-      updateConfig(alias, columnObj);
+      updateConfig(alias, columnObj.value);
     },
     [updateConfig, alias],
   );
 
   return {
     error:
-      config.datasource.data.pluginPackageName ===
-        PluginPackageName.GOOGLE_SHEETS && sheetColumns?.error,
+      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
+      sheetColumns?.error,
     options,
     isLoading,
     onSelect,
-    selected: get(config, alias, DEFAULT_DROPDOWN_OPTION),
+    selected: options.find((option) => option.value === get(config, alias)),
     show:
-      (config.datasource.data.pluginPackageName !==
+      (selectedDatasourcePluginPackageName !==
         PluginPackageName.GOOGLE_SHEETS ||
-        config.sheet.id !== DEFAULT_DROPDOWN_OPTION.id) &&
-      config.table.id !== DEFAULT_DROPDOWN_OPTION.id,
+        !!config.sheet) &&
+      !!config.table,
+    primaryColumn,
   };
 }

@@ -102,6 +102,7 @@ interface ReactTableComponentProps {
   disabledAddNewRowSave: boolean;
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
+  showConnectDataOverlay: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -150,6 +151,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
+    showConnectDataOverlay,
     sortTableColumn: _sortTableColumn,
     tableData,
     totalRecordsCount,
@@ -261,6 +263,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndex={selectedRowIndex}
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
+      showConnectDataOverlay={showConnectDataOverlay}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
       totalRecordsCount={totalRecordsCount}
@@ -329,6 +332,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
-    prev.canFreezeColumn === next.canFreezeColumn
+    prev.canFreezeColumn === next.canFreezeColumn &&
+    prev.showConnectDataOverlay === next.showConnectDataOverlay
   );
 });
