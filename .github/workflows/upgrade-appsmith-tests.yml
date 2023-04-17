@@ -61,7 +61,7 @@ jobs:
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs"
           curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> ~/check2
-          echo "status=`grep -c -E 'ci-test-result' ~/check2`" >> $GITHUB_OUTPUT
+          echo "status=`grep -c -E 'ci-test-result|Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
           echo "status1=2" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
@@ -71,8 +71,8 @@ jobs:
           elif [ ${{steps.pr_status_check.outputs.status1}} != 0 ]; then
             exit 1
           elif [ ${{steps.suite_status_check.outputs.status1}} != 0 ]; then
-            echo $(grep -c -v 'ci-test-result' ~/check2)
-            if [ $(grep -c -v 'ci-test-result' ~/check2) != 0 ]; then
+            echo $(grep -c 'Check for Test Plan Approved label' ~/check2)
+            if [ $(grep -c 'Check for Test Plan Approved label' ~/check2) != 0 ]; then
               exit 1
             else
               exit 0
