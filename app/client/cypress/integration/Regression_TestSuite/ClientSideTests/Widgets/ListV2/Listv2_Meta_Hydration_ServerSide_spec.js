@@ -105,35 +105,60 @@ describe("List widget v2 - meta hydration tests", () => {
 
   it("1. setup serverside data", () => {
     cy.wait(1000);
-    cy.createAndFillApi(
-      "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
-      "",
-    );
-    cy.RunAPI();
-    cy.SearchEntityandOpen("List1");
+    cy.NavigateToDatasourceEditor();
 
-    cy.wait(200);
+    // Click on sample(mock) user database.
+    cy.get(datasource.mockUserDatabase).click();
 
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector(
-            "List1",
-          )} ${containerWidgetSelector} .t--widget-selectwidget`,
-        )
-        .should("have.length", 3),
-    );
+    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    cy.get(`${datasource.datasourceCard}`)
+      .filter(":contains('Users')")
+      .first()
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({ force: true });
+      });
+    // Click the editing field
+    cy.get(".t--action-name-edit-field").click({ force: true });
 
-    //Change Default Selected Item
+    // Click the editing field
+    cy.get(queryLocators.queryNameField).type("Query1");
+
+    //.1: Click on Write query area
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.query).click({
+      force: true,
+    });
+
+    // writing query to get the schema
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type(
+        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
+        {
+          force: true,
+          parseSpecialCharSequences: false,
+        },
+      );
+    cy.WaitAutoSave();
+
+    cy.runQuery();
+
+    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+
+    cy.wait(1000);
+
     cy.openPropertyPane("listwidgetv2");
 
     testJsontextClear("items");
-    cy.testJsontext("items", "{{Api1.data}}");
+
+    cy.testJsontext("items", "{{Query1.data}}");
 
     cy.togglebar(commonlocators.serverSidePaginationCheckbox);
 
     cy.get(toggleJSButton("onpagechange")).click({ force: true });
-    cy.testJsontext("onpagechange", "{{Api1.run()}}");
+    cy.testJsontext("onpagechange", "{{Query1.run()}}");
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
@@ -175,6 +200,15 @@ describe("List widget v2 - meta hydration tests", () => {
         )
         .should("have.length", 3),
     );
+
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+        .first()
+        .get(".rc-select-selection-overflow-item .remove-icon")
+        .should("exist"),
+    );
+
     verifyMultiDropdownValuesCount(6, 2);
     //   SecondPage
     //   First Row
@@ -209,6 +243,14 @@ describe("List widget v2 - meta hydration tests", () => {
           )} ${containerWidgetSelector} .t--widget-selectwidget button`,
         )
         .should("have.length", 3),
+    );
+
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+        .first()
+        .get(".rc-select-selection-overflow-item .remove-icon")
+        .should("exist"),
     );
 
     cy.waitUntil(
@@ -259,6 +301,14 @@ describe("List widget v2 - meta hydration tests", () => {
           )} ${containerWidgetSelector} .t--widget-selectwidget button`,
         )
         .should("have.length", 3),
+    );
+
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+        .first()
+        .get(".rc-select-selection-overflow-item .remove-icon")
+        .should("exist"),
     );
 
     cy.waitUntil(
@@ -332,6 +382,14 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+        .first()
+        .get(".rc-select-selection-overflow-item .remove-icon")
+        .should("exist"),
+    );
+
     //   SecondPage
     //   First Row
     changeValueOfWidget("selectwidget", "Blue", 0);
@@ -364,6 +422,14 @@ describe("List widget v2 - meta hydration tests", () => {
           )} ${containerWidgetSelector} .t--widget-selectwidget button`,
         )
         .should("have.length", 3),
+    );
+
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+        .first()
+        .get(".rc-select-selection-overflow-item .remove-icon")
+        .should("exist"),
     );
 
     cy.waitUntil(
@@ -414,6 +480,14 @@ describe("List widget v2 - meta hydration tests", () => {
           )} ${containerWidgetSelector} .t--widget-selectwidget button`,
         )
         .should("have.length", 3),
+    );
+
+    cy.waitUntil(() =>
+      cy
+        .get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+        .first()
+        .get(".rc-select-selection-overflow-item .remove-icon")
+        .should("exist"),
     );
 
     cy.waitUntil(
