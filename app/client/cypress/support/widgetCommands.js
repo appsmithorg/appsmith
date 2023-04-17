@@ -496,6 +496,16 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
   });
 });
 
+Cypress.Commands.add("testJsonTextClearMultiline", (endp) => {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type(`{${modifierKey}}{a}`, { force: true })
+    .type(`{${modifierKey}}{del}`, { force: true });
+});
+
 Cypress.Commands.add("getCodeInput", ($selector, value) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
