@@ -28,11 +28,10 @@ jobs:
           body-includes: 'Tests running at:'
           direction: last
       
-      - name: Get the workflowId
+      - name: Get the workflow run id
         id: workflow
         run: |
-          workflow_comment = '${{ steps.find-comment.outputs.comment-body }}'
-          run = $(echo $workflow_comment | sed -n 's/.*\/\([0-9]*\)_.*$/\1/p')
+          run = $('${{ steps.find-comment.outputs.comment-body }}' | sed -n 's/.*\/\([0-9]*\)_.*$/\1/p')
           echo "run_id=$run" >> $GITHUB_OUTPUT
       - run: |
           echo ${{ steps.workflow.outputs.run_id }}
