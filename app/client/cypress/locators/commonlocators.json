@@ -218,5 +218,15 @@
   "listPaginateNextButtonDisabled":".t--widget-listwidgetv2 .rc-pagination-disabled .rc-pagination-item-link",
   "PropertyPaneSearchInput": ".t--property-pane-search-input-wrapper input",
   "BorderRadius0px": ".t--property-control-borderradius .t--button-group-0px",
-  "EnableFormatting": ".t--property-control-enableformatting input[type='checkbox']"
+  "EnableFormatting": ".t--property-control-enableformatting input[type='checkbox']",
+  "autoConvert": "#t--layout-conversion-cta",
+  "convert": "button:contains('CONVERT')",
+  "refreshApp": "button:contains('REFRESH THE APP')",
+  "autoConversionDialog": ".ads-dialog-trigger:contains('USE SNAPSHOT')",
+  "useSnapshot": "button:contains('USE SNAPSHOT')",
+  "discardSnapshot": "span:contains('DISCARD SNAPSHOT')",
+  "desktopOption": "//span[@name='desktop']/following-sibling::span",
+  "mobileOption": "//span[@name='mobile']/following-sibling::span",
+  "convertanyways": "button:contains('CONVERT ANYWAYS')",
+  "discard": "button:contains('DISCARD')"
 }
