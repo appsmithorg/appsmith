@@ -474,8 +474,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
             id="custom-tooltip"
             visible={this.state.isTooltipVisible}
           >
-            {/*<span className="hide-me" style={{ display: "none" }}>*/}
-            <span className="hide-me">
+            <span className="hide-me" style={{ display: "none" }}>
               I am a trigger. My only purpose is to fool typescript.
             </span>
           </StyledTooltip>
