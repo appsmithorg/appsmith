@@ -24,6 +24,7 @@ const StyledManageUsers = styled("a")<{ isApplicationInvite?: boolean }>`
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.6px;
+    line-height: normal;
   }
   .${Classes.ICON} {
     svg path {

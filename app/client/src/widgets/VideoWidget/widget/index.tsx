@@ -10,6 +10,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
+import type { AutocompletionDefinitions } from "widgets/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
@@ -185,6 +186,16 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       playing: "autoPlay",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+      "!url": "https://docs.appsmith.com/widget-reference/video",
+      playState: "number",
+      autoPlay: "bool",
     };
   }
 

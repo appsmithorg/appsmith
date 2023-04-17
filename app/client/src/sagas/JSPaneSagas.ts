@@ -223,6 +223,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
+
         if (updateCollection) {
           newActions.forEach((action) => {
             AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
@@ -242,7 +243,11 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   }
 }
 
-export function* makeUpdateJSCollection(jsUpdates: Record<string, JSUpdate>) {
+export function* makeUpdateJSCollection(
+  action: ReduxAction<Record<string, JSUpdate>>,
+) {
+  const jsUpdates: Record<string, JSUpdate> = action.payload;
+
   yield all(
     Object.keys(jsUpdates).map((key) =>
       call(handleEachUpdateJSCollection, jsUpdates[key]),
@@ -378,8 +383,10 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     );
     // open response tab in debugger on runnning js action.
-    yield put(showDebugger(true));
-    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    if (window.location.pathname.includes(collectionId)) {
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -405,8 +412,10 @@ export function* handleExecuteJSFunctionSaga(data: {
       });
   } catch (error) {
     // open response tab in debugger on runnning js action.
-    yield put(showDebugger(true));
-    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    if (window.location.pathname.includes(collectionId)) {
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
     AppsmithConsole.addErrors([
       {
         payload: {
