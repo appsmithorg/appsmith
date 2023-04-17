@@ -210,7 +210,7 @@ export const EditorWrapper = styled.div<{
     }
     `}
     .CodeMirror pre.CodeMirror-placeholder {
-      color: var(--ads-v2-color-fg-muted);
+      color: var(--ads-v2-color-fg-subtle);
     }
     ${(props) =>
       (props.size === EditorSize.COMPACT ||
