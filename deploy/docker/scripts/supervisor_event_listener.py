@@ -19,7 +19,7 @@ def write_stderr(s):
 
 def wait_until_backend_healthy():
     sleep_sec = 3
-    timeout_sec = 45
+    timeout_sec = 120
     for _ in range(timeout_sec//sleep_sec):
         if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
             write_stderr('\nBackend is healthy\n')
