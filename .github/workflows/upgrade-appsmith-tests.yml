@@ -31,7 +31,8 @@ jobs:
       - name: Get the workflowId
         id: workflow
         run: |
-          workflow = "${{ steps.find-comment.outputs.comment-body }}"|grep -Eo 'https://github[^ >]+'|awk -F/ '{print $8}'`
-          echo "workflow_id=$workflow" >> $GITHUB_OUTPUT
+          workflow_comment = '${{ steps.find-comment.outputs.comment-body }}'
+          run = $(echo $workflow_comment | sed -n 's/.*\/\([0-9]*\)_.*$/\1/p')
+          echo "run_id=$run" >> $GITHUB_OUTPUT
       - run: |
-          echo ${{ steps.workflow.outputs.workflow_id }}
+          echo ${{ steps.workflow.outputs.run_id }}
