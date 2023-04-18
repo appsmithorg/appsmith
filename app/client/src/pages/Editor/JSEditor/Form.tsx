@@ -71,6 +71,7 @@ import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import styled from "styled-components";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -279,10 +280,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
 
-  // Render debugger flag
-  const showDebugger = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setJsPaneConfigSelectedTabIndex(selectedIndex));
