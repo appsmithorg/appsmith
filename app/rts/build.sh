@@ -5,12 +5,12 @@ set -o errexit
 cd "$(dirname "$0")"
 rm -rf dist/
 # This is required for the first time build as node_modules is not present in the image
-yarn install --frozen-lockfile
+yarn install --immutable
 npx tsc && npx tsc-alias
 # Keep copy of all dependencies in node_modules_bkp
 mv node_modules node_modules_bkp
 # Install only production dependencies
-yarn install --production --frozen-lockfile
+yarn workspaces focus --production --frozen-lockfile
 
 # Copying node_modules directory into dist as rts server requires production dependencies to run server build properly. 
 # This was previously being done in dockerfile which was copying the symlinks to image rather than the whole directory of shared modules (e.g. AST)
