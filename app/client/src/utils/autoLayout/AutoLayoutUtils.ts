@@ -666,8 +666,8 @@ export function getAlignmentMarginInfo(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     "300": (arr): boolean[] => [false, false, false],
     "120": (arr): boolean[] => [
-      arr[0].columns > 0,
-      arr[1].columns + arr[2].columns > 0,
+      arr[0].columns > 0 && arr[1].columns + arr[2].columns > 0,
+      false,
       false,
     ],
     "210": (arr): boolean[] => [
