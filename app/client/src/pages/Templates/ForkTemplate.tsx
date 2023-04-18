@@ -79,9 +79,7 @@ function ForkTemplate({
         // title={createMessage(CHOOSE_WHERE_TO_FORK)}
       >
         <ModalContent>
-          <ModalHeader
-          // onClose={isImportingTemplate ? noop : onClose}
-          >
+          <ModalHeader>
             {/* <Icon name="fork-2" size="lg" /> */}
             {createMessage(CHOOSE_WHERE_TO_FORK)}
           </ModalHeader>
