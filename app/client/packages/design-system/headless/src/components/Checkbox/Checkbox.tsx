@@ -1,17 +1,16 @@
+import classNames from "classnames";
+import { mergeProps } from "@react-aria/utils";
 import { useFocusRing } from "@react-aria/focus";
 import React, { forwardRef, useRef } from "react";
 import { useCheckbox } from "@react-aria/checkbox";
 import { useHover } from "@react-aria/interactions";
 import CheckIcon from "remixicon-react/CheckLineIcon";
 import { useToggleState } from "@react-stately/toggle";
+import { useFocusableRef } from "@react-spectrum/utils";
+import type { FocusableRef } from "@react-types/shared";
 import SubtractIcon from "remixicon-react/SubtractLineIcon";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
-
-import classNames from "classnames";
-import { useFocusableRef } from "@react-spectrum/utils";
-import type { FocusableRef } from "@react-types/shared";
-import { mergeProps } from "@react-aria/utils";
 
 export interface CheckboxProps extends SpectrumCheckboxProps {
   id?: string;
