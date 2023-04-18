@@ -4,6 +4,7 @@
   "introModalWelcomeTourBtn": ".t--introduction-modal-welcome-tour-button",
   "introModalCloseBtn": ".t--how-appsmith-works-modal-close",
   "statusbar": ".t--onboarding-statusbar",
+  "statusbarClose": "[data-cy='statusbar-skip]",
   "checklistStatus": ".t--checklist-complete-status",
   "checklistDatasourceBtn": ".t--checklist-datasource-button",
   "checklistBack": ".t--checklist-back",

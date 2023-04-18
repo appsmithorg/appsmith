@@ -158,7 +158,7 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (isPreviewingNavigation && !inGuidedTour) {
+    if (isPreviewingNavigation && !guidedTourEnabled) {
       return (
         <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={

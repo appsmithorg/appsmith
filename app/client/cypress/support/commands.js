@@ -2092,6 +2092,7 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
   cy.document().its("body").type("{esc}");
 });
 
-Cypress.Commands.add("closeIntroModal", () => {
-  onboarding.CloseIntroModal();
+Cypress.Commands.add("skipSignposting", () => {
+  onboarding.closeIntroModal();
+  onboarding.skipSignposting();
 });

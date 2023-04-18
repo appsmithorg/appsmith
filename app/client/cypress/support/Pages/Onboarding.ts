@@ -65,11 +65,15 @@ export class Onboarding {
     });
   }
 
-  CloseIntroModal() {
+  closeIntroModal() {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
         this._aggregateHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
       }
     });
+  }
+
+  skipSignposting() {
+    this._aggregateHelper.GetNClick(OnboardingLocator.statusbarClose);
   }
 }
