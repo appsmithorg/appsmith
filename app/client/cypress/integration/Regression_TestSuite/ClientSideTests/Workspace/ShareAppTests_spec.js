@@ -100,7 +100,6 @@ describe("Create new workspace and share with a user", function () {
 
   it("5. login as uninvited user and then validate public access of Application", function () {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
-    cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
