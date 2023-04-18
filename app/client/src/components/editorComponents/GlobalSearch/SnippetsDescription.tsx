@@ -128,6 +128,10 @@ const SnippetContainer = styled.div`
         }
       }
     }
+    .cm-s-duotone-light.CodeMirror {
+      border-radius: var(--ads-v2-border-radius);
+      border: 1px solid var(--ads-v2-color-border);
+    }
   }
 `;
 
