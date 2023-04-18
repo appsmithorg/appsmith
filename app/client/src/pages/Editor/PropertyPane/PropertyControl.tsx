@@ -427,9 +427,12 @@ const PropertyControl = memo((props: Props) => {
 
       const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] =
         getOtherWidgetPropertyChanges(propertyName, propertyValue);
+
       let allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+
       if (selfUpdates) {
         allPropertiesToUpdates.push(selfUpdates);
+
         // ideally we should not allow updating another widget without any updates on its own.
         if (enhancementsToOtherWidgets && enhancementsToOtherWidgets.length) {
           allPropertiesToUpdates = allPropertiesToUpdates.concat(
@@ -437,6 +440,7 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
+
       return allPropertiesToUpdates;
     },
     [getOtherWidgetPropertyChanges, getWidgetsOwnUpdatesOnPropertyChange],
@@ -505,6 +509,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName: string,
       propertyValue: any,
       isUpdatedViaKeyboard?: boolean,
+      isDynamicPropertyPath?: boolean,
     ) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
@@ -521,6 +526,20 @@ const PropertyControl = memo((props: Props) => {
         );
 
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
+        const update = allPropertiesToUpdates[0];
+
+        if (isDynamicPropertyPath && update) {
+          allPropertiesToUpdates[0] = merge({}, update, {
+            dynamicUpdates: {
+              dynamicPropertyPathList: [
+                {
+                  key: propertyName,
+                },
+              ],
+            },
+          });
+        }
+
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
         onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
@@ -732,68 +751,66 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <ControlPropertyLabelContainer className="gap-1 flex justify-between items-center">
-            <div className="flex flex-row items-end gap-1">
-              <PropertyHelpLabel
-                label={label}
-                theme={props.theme}
-                tooltip={helpText}
-              />
-              {isConvertible && (
+          <ControlPropertyLabelContainer className="gap-1">
+            <PropertyHelpLabel
+              label={label}
+              theme={props.theme}
+              tooltip={helpText}
+            />
+            {isConvertible && (
+              <TooltipComponent
+                content={JS_TOGGLE_DISABLED_MESSAGE}
+                disabled={!isToggleDisabled}
+                hoverOpenDelay={200}
+                modifiers={tooltipModifier}
+                openOnTargetFocus={false}
+                position="auto"
+              >
+                <JSToggleButton
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
+              </TooltipComponent>
+            )}
+            {isPropertyDeviatedFromTheme && (
+              <>
                 <TooltipComponent
-                  content={JS_TOGGLE_DISABLED_MESSAGE}
-                  disabled={!isToggleDisabled}
-                  hoverOpenDelay={200}
-                  modifiers={tooltipModifier}
+                  content="Value deviated from theme"
                   openOnTargetFocus={false}
-                  position="auto"
                 >
-                  <JSToggleButton
-                    handleClick={() =>
-                      toggleDynamicProperty(propertyName, isDynamic)
-                    }
-                    isActive={isDynamic}
-                    isToggleDisabled={isToggleDisabled}
-                  />
+                  <div className="w-2 h-2 rounded-full bg-primary-500" />
                 </TooltipComponent>
-              )}
-              {isPropertyDeviatedFromTheme && (
-                <>
+                <button
+                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                  onClick={resetPropertyValueToTheme}
+                >
                   <TooltipComponent
-                    content="Value deviated from theme"
+                    boundary="viewport"
+                    content="Reset value"
                     openOnTargetFocus={false}
+                    position="top-right"
                   >
-                    <div className="w-2 h-2 rounded-full bg-primary-500" />
+                    <ResetIcon className="w-5 h-5" />
                   </TooltipComponent>
-                  <button
-                    className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                    onClick={resetPropertyValueToTheme}
-                  >
-                    <TooltipComponent
-                      boundary="viewport"
-                      content="Reset value"
-                      openOnTargetFocus={false}
-                      position="top-right"
-                    >
-                      <ResetIcon className="w-5 h-5" />
-                    </TooltipComponent>
-                  </button>
-                </>
-              )}
-            </div>
-            <button
-              className={clsx(
-                config.controlType !== "ACTION_SELECTOR" && "hidden",
-                `${config.label}`,
-                "add-action flex items-center justify-center text-center h-7 w-7",
-                isDynamic && "hidden",
-                `t--add-action-${config.label}`,
-              )}
-              disabled={false}
-              onClick={() => setShowEmptyBlock(true)}
-            >
-              <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
-            </button>
+                </button>
+              </>
+            )}
+            {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
+              <button
+                className={clsx(
+                  `${config.label}`,
+                  "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
+                  `t--add-action-${config.label}`,
+                )}
+                disabled={false}
+                onClick={() => setShowEmptyBlock(true)}
+              >
+                <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
+              </button>
+            )}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(
             config,
