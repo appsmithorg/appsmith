@@ -23,6 +23,7 @@ import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
+const onboardingLocators = require("../locators/FirstTimeUserOnboarding.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
@@ -2094,5 +2095,9 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
-  onboarding.skipSignposting();
+  cy.get("body").then(($body) => {
+    if ($body.find(onboardingLocators.statusbarClose).length) {
+      onboarding.skipSignposting();
+    }
+  });
 });
