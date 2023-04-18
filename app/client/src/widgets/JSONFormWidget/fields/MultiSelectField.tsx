@@ -100,6 +100,7 @@ function MultiSelectField({
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
+  const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
 
@@ -154,10 +155,7 @@ function MultiSelectField({
     }
   }, [schemaItem.defaultValue, passedDefaultValue]);
 
-  const componentValues = fieldValuesToComponentValues(
-    inputValue,
-    schemaItem.options,
-  );
+  const componentValues = fieldValuesToComponentValues(inputValue, options);
 
   const onFilterChange = useCallback(
     (value: string) => {
@@ -215,7 +213,7 @@ function MultiSelectField({
           onChange={onOptionChange}
           onFilterChange={onFilterChange}
           onFocus={onFocusHandler}
-          options={schemaItem.options || []}
+          options={options}
           placeholder={schemaItem.placeholderText || ""}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}
