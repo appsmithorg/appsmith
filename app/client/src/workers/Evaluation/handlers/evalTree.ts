@@ -27,7 +27,7 @@ import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToD
 import type { LintTreeSagaRequestData } from "workers/Linting/types";
 import { WorkerMessenger } from "../fns/utils/Messenger";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-export let replayMap: Record<string, ReplayEntity<any>>;
+export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
