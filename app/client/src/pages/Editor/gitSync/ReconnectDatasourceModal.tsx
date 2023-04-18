@@ -57,7 +57,10 @@ import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getOAuthAccessToken } from "actions/datasourceActions";
+import {
+  getOAuthAccessToken,
+  loadFilePickerAction,
+} from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
 
@@ -335,6 +338,7 @@ function ReconnectDatasourceModal() {
         pluginName,
       });
     } else if (queryDatasourceId) {
+      dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {

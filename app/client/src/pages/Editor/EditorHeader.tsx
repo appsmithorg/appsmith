@@ -468,36 +468,38 @@ export function EditorHeader(props: EditorHeaderProps) {
           >
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={applicationId}
-              canOutsideClickClose
-              isOpen={showAppInviteUsersDialog}
-              noModalBodyMarginTop
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              tabs={tabs}
-              trigger={
-                <Tooltip
-                  content={
-                    filteredSharedUserList.length
-                      ? createMessage(
-                          SHARE_BUTTON_TOOLTIP_WITH_USER(
-                            filteredSharedUserList.length,
-                          ),
-                        )
-                      : createMessage(SHARE_BUTTON_TOOLTIP)
-                  }
-                  // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  placement="bottom"
-                >
-                  <ShareButtonComponent />
-                </Tooltip>
-              }
-              workspaceId={workspaceId}
-            />
+            {applicationId && (
+              <FormDialogComponent
+                Form={AppInviteUsersForm}
+                applicationId={applicationId}
+                canOutsideClickClose
+                isOpen={showAppInviteUsersDialog}
+                noModalBodyMarginTop
+                placeholder={createMessage(
+                  INVITE_USERS_PLACEHOLDER,
+                  cloudHosting,
+                )}
+                tabs={tabs}
+                trigger={
+                  <Tooltip
+                    content={
+                      filteredSharedUserList.length
+                        ? createMessage(
+                            SHARE_BUTTON_TOOLTIP_WITH_USER(
+                              filteredSharedUserList.length,
+                            ),
+                          )
+                        : createMessage(SHARE_BUTTON_TOOLTIP)
+                    }
+                    // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    placement="bottom"
+                  >
+                    <ShareButtonComponent />
+                  </Tooltip>
+                }
+                workspaceId={workspaceId}
+              />
+            )}
             <DeploySection>
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

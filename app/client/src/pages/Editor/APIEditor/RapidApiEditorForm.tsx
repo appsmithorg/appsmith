@@ -21,6 +21,7 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getActionData } from "../../../selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const Form = styled.form`
   display: flex;
@@ -300,7 +301,9 @@ export default connect((state: AppState) => {
     state,
     "actionConfiguration.headers",
   );
-  const showDebugger = selector(state, "ui.debugger.isOpen");
+
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&

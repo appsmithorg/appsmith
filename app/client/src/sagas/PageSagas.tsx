@@ -72,7 +72,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
+import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -507,11 +507,17 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       payload: savePageRequest.dsl,
     });
 
-    captureInvalidDynamicBindingPath(
-      CanvasWidgetsNormalizer.denormalize("0", {
-        canvasWidgets: widgets,
-      }),
-    );
+    /**
+     * TODO: Reactivate the capturing or remove this block
+     * once the below issue has been fixed. Commenting to avoid
+     * Sentry quota to fill up
+     * https://github.com/appsmithorg/appsmith/issues/20744
+     */
+    // captureInvalidDynamicBindingPath(
+    //   CanvasWidgetsNormalizer.denormalize("0", {
+    //     canvasWidgets: widgets,
+    //   }),
+    // );
 
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
