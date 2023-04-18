@@ -136,6 +136,7 @@ describe("generateDataTreeJSAction", () => {
       myVar1: [],
       myVar2: {},
       ENTITY_TYPE: "JSACTION",
+      name: "JSObject2",
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
 
       myFun2: {
@@ -339,6 +340,7 @@ describe("generateDataTreeJSAction", () => {
     const expectedData = {
       myVar1: [],
       myVar2: {},
+      name: "JSObject2",
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return JSObject2.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
       myFun2: {
