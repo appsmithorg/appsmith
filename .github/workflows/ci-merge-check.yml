@@ -33,31 +33,36 @@ jobs:
       - name: Get ci-test-result status from the run_id
         id: ci-test-result-status
         run: |
-          run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100|jq -r '[ .jobs[] | select(.name | contains("ci-test-result")) | .conclusion ]'|grep -v  '\[\|\]'|sed "s/\"//g"|sed "s/ //g"`
-          echo "run_status=$run_status" >> $GITHUB_OUTPUT
+          run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100`
+          echo "run_result= `echo $run_status|jq -r '[.jobs[]|select(select(.name|contains("ci-test-result"))|.conclusion | contains("failure"))]|length'`" >> $GITHUB_OUTPUT
+          echo "ci_test_status= `echo $run_status|jq -r '[ .jobs[] | select (select(.name | contains("ci-test ")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
+          echo "perf_test_status= `echo $run_status|jq -r '[ .jobs[] | select (select(.name | contains("perf-test")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from pr
         id: pr_status_check
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.client_payload.pull_request.head.sha}}"
-          curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("success") | not) | .context' >> ~/check1
-          echo "status=`grep -c -v 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
+          echo "status=`curl --silent "$status_link"|jq -r '[.[]|select(select(.context|contains("mergefreeze")) | .state | contains("success") | not)]|length'`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.client_payload.pull_request.head.sha}}/check-runs"
-          curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> ~/check2
-          echo "status1=`grep -c 'Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
-          curl --silent "$check_runs_link"|jq -r '.check_runs[] | .name' >> ~/check3
-          echo "status2=`grep -c 'ci-test-result' ~/check3`" >> $GITHUB_OUTPUT
+          check_run_result = `curl --silent "$check_runs_link"`
+          echo "status1=`echo $check_run_result|jq -r '[.check_runs[]|select (select(.name|contains("Test Plan Approved"))|.conclusion|contains("success")|not)]|length'`" >> $GITHUB_OUTPUT
+          echo "status2=`echo $check_run_result|jq -r '[.check_runs[]|select(.name|contains("ci-test-result"))]|length'`" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
         id: verify_checks
         run: |
-          if [ "${{ steps.ci-test-result-status.outputs.run_status }}" == "failure" ]; then
-            echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
-            exit 1
+          if [ ${{ steps.ci-test-result-status.outputs.run_status }} == 1 ]; then
+            if [ ${{ steps.ci-test-result-status.outputs.ci_test_status }} == 1 ]; then
+              echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
+              exit 1
+            elif [ ${{ steps.ci-test-result-status.outputs.perf_test_status }} == 1 ]; then
+              echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge" >> $GITHUB_OUTPUT
+              exit 1
+            fi
           elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
             echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge" >> $GITHUB_OUTPUT
             exit 1
