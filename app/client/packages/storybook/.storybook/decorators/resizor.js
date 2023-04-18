@@ -1,19 +1,16 @@
 import React from "react";
-import { Resizable } from "re-resizable";
 
 export const resizor = (Story, args) => {
   const { parameters } = args;
 
   return (
-    <Resizable
-      enable={parameters.enableResizing ? true : false}
-      grid={[8, 8]}
-      defaultSize={{
+    <div
+      style={{
         width: parameters.width,
         height: parameters.height,
       }}
     >
       <Story />
-    </Resizable>
+    </div>
   );
 };

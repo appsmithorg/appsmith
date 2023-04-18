@@ -20,7 +20,7 @@ export interface CheckboxProps extends SpectrumCheckboxProps {
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 
-const Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
+export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   const {
     className,
     icon = <CheckIcon />,
@@ -48,7 +48,6 @@ const Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   });
 
   return (
-    // @ts-expect-error react and typescript has a conflict
     <label {...hoverProps} className={computedClassnames} ref={domRef}>
       <input
         {...mergeProps(inputProps, visuallyHiddenProps, focusProps)}
@@ -60,7 +59,4 @@ const Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
       {children}
     </label>
   );
-};
-
-const _Checkbox = forwardRef(Checkbox);
-export { _Checkbox as Checkbox };
+});

@@ -16,7 +16,7 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
     flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
   `};
 
-  div {
+  .label {
     min-height: calc(5 * var(--sizing-root-unit));
     display: flex;
     align-items: center;
@@ -29,7 +29,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   .icon {
     width: calc(5 * var(--sizing-root-unit));
     height: calc(5 * var(--sizing-root-unit));
-    border-width: var(--border-width-1)
+    border-width: var(--border-width-1);
     border-style: solid;
     border-radius: var(--border-radius-1);
     border-color: var(--color-bd-neutral);
@@ -83,7 +83,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   *-----------------------------------------------------------------------------
   */
   &.is-focused .icon {
-    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-bd-focus);
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
   /**
