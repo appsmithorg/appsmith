@@ -98,6 +98,8 @@ export const DefaultDimensionMap = {
 export const CONTAINER_GRID_PADDING =
   GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.6;
 
+export const AUTO_LAYOUT_CONTAINER_PADDING = 5;
+
 export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
