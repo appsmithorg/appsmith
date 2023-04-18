@@ -47,7 +47,6 @@ export enum SEARCH_CATEGORY_ID {
   NAVIGATION = "Navigate",
   INIT = "INIT",
   ACTION_OPERATION = "Create New",
-  ASK_AI = "Ask AI",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -83,11 +82,6 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
       {modText()} {shiftText()} {isMacOrIOS() ? "+" : "Plus"}
-    </>
-  ),
-  [SEARCH_CATEGORY_ID.ASK_AI]: (
-    <>
-      {modText()} {isMacOrIOS() ? "+" : ","}
     </>
   ),
 };
@@ -178,13 +172,6 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
     desc: createMessage(DOC_DESCRIPTION),
   },
-  [SEARCH_CATEGORY_ID.ASK_AI]: {
-    title: "Ask AI",
-    id: SEARCH_CATEGORY_ID.ASK_AI,
-    kind: SEARCH_ITEM_TYPES.category,
-    // id: SEARCH_CATEGORY_ID.DOCUMENTATION,
-    desc: "Ask you friendly neighbor AI",
-  },
   [SEARCH_CATEGORY_ID.INIT]: {
     id: SEARCH_CATEGORY_ID.INIT,
   },
@@ -200,8 +187,6 @@ export const isMenu = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.INIT;
 export const isActionOperation = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.ACTION_OPERATION;
-export const isAI = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.ASK_AI;
 
 export const getFilterCategoryList = () =>
   Object.values(filterCategories).filter((cat: SearchCategory) => {
