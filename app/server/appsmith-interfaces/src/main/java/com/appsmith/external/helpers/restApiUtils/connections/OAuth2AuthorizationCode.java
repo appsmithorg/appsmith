@@ -63,13 +63,9 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     }
 
     private static boolean isAuthenticationResponseValid(OAuth2 oAuth2) {
-        if (oAuth2.getAuthenticationResponse() == null
-                || isBlank(oAuth2.getAuthenticationResponse().getToken())
-                || isExpired(oAuth2)) {
-            return false;
-        }
-
-        return true;
+        return oAuth2.getAuthenticationResponse() != null
+                && !isBlank(oAuth2.getAuthenticationResponse().getToken())
+                && !oAuth2.isExpired();
     }
 
     public static Mono<OAuth2AuthorizationCode> create(DatasourceConfiguration datasourceConfiguration) {
@@ -90,18 +86,6 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
         updateConnection(connection, oAuth2);
         return Mono.just(connection);
-    }
-
-    private static boolean isExpired(OAuth2 oAuth2) {
-        if (oAuth2.getAuthenticationResponse().getExpiresAt() == null) {
-            return false;
-        }
-
-        OAuth2AuthorizationCode connection = new OAuth2AuthorizationCode();
-        Instant now = connection.clock.instant();
-        Instant expiresAt = oAuth2.getAuthenticationResponse().getExpiresAt();
-
-        return now.isAfter(expiresAt.minus(Duration.ofMinutes(1)));
     }
 
     private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {

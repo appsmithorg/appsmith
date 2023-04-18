@@ -112,8 +112,8 @@ public class OAuth2 extends AuthenticationDTO {
 
     @Override
     public boolean isExpired() {
-        return this.authenticationResponse == null
-                || this.authenticationResponse.expiresAt == null
-                || this.authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60));
+        return this.authenticationResponse != null
+                && this.authenticationResponse.expiresAt != null
+                && this.authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60));
     }
 }

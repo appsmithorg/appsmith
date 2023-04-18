@@ -35,6 +35,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.function.Predicate;
 
 @Setter
 @Getter
@@ -64,12 +65,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                         && x.getAuthenticationResponse().getToken() != null
                         && !x.getAuthenticationResponse().getToken().isBlank())
                 .filter(x -> x.getAuthenticationResponse().getExpiresAt() != null)
-                .filter(x -> {
-                    Instant now = connection.clock.instant();
-                    Instant expiresAt = x.getAuthenticationResponse().getExpiresAt();
-
-                    return now.isBefore(expiresAt.minus(Duration.ofMinutes(1)));
-                })
+                .filter(Predicate.not(OAuth2::isExpired))
                 // If invalid, regenerate token
                 .switchIfEmpty(connection.generateOAuth2Token(datasourceConfiguration))
                 // Store valid token

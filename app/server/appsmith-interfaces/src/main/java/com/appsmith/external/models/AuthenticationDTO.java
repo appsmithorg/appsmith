@@ -61,6 +61,12 @@ public class AuthenticationDTO implements AppsmithDomain {
         return Mono.just(Boolean.FALSE);
     }
 
+    /**
+     * This function has been added to check if Auth token is expired.
+     * By default, it is assume that the token is not expired.
+     * Override to provide custom check for token expiry.
+     * @return true if auth token is expired, else false
+     */
     @JsonIgnore
     public boolean isExpired() {
         return false;
