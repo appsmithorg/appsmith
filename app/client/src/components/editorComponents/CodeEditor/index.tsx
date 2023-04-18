@@ -24,6 +24,7 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 import type {
   DataTree,
@@ -388,6 +389,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -428,6 +430,26 @@ class CodeEditor extends Component<Props, State> {
     }
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
+  }
+
+  handleScrollCursorIntoView(cm: CodeMirror.Editor, event: any) {
+    event.preventDefault();
+
+    const delayedWork = () => {
+      if (!cm.getWrapperElement().classList.contains("CodeMirror-focused"))
+        return;
+
+      const cursorElement = cm
+        .getScrollerElement()
+        .getElementsByClassName("CodeMirror-cursor")[0];
+      if (cursorElement) {
+        scrollIntoView(cursorElement, {
+          block: "nearest",
+        });
+      }
+    };
+
+    setTimeout(delayedWork, 0);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
