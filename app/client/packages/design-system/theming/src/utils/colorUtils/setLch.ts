@@ -13,15 +13,15 @@ export const setLch = (
   const { c, h, l } = lch;
   let currentColor = parse(color);
 
-  if (l) {
+  if (l != null) {
     currentColor = setLightness(currentColor, l);
   }
 
-  if (c) {
+  if (c != null) {
     currentColor = setChroma(currentColor, c);
   }
 
-  if (h) {
+  if (h != null) {
     currentColor = setHue(currentColor, h);
   }
 
