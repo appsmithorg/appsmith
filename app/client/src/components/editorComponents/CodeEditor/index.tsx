@@ -133,7 +133,6 @@ import {
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -235,7 +234,6 @@ type State = {
       })
     | undefined;
   isDynamic: boolean;
-  aiOverlay: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -268,7 +266,6 @@ class CodeEditor extends Component<Props, State> {
       changeStarted: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
-      aiOverlay: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -827,7 +824,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    this.setState({ aiOverlay: false });
     // Check if it is a user focus
     const { sticky } = cm.getCursor();
     const isUserFocus = sticky !== null;
@@ -1055,13 +1051,9 @@ class CodeEditor extends Component<Props, State> {
         executeCommand: (payload: any) => {
           this.props.executeCommand({
             ...payload,
-            callback: (binding: string, aiOverlay: boolean) => {
-              if (aiOverlay !== undefined) {
-                this.setState({ aiOverlay });
-              } else {
-                const value = this.editor.getValue() + binding;
-                this.updatePropertyValue(value, value.length);
-              }
+            callback: (binding: string) => {
+              const value = this.editor.getValue() + binding;
+              this.updatePropertyValue(value, value.length);
             },
           });
         },
@@ -1191,10 +1183,6 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
-  aiPopoverOutsideClick = () => {
-    this.setState({ aiOverlay: false });
-  };
-
   render() {
     const {
       border,
@@ -1270,6 +1258,7 @@ class CodeEditor extends Component<Props, State> {
             text="/"
           />
         )}
+
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
@@ -1287,86 +1276,80 @@ class CodeEditor extends Component<Props, State> {
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
-          <AIWindow
-            isOpen={this.state.aiOverlay}
-            outsideClick={this.aiPopoverOutsideClick}
-            windowType="popover"
+          <EditorWrapper
+            border={border}
+            borderLess={borderLess}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            }`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            ctrlPressed={this.state.ctrlPressed}
+            disabled={disabled}
+            editorTheme={this.props.theme}
+            fillUp={fill}
+            hasError={isInvalid}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
+            isRawView={this.props.isRawView}
+            isReadOnly={this.props.isReadOnly}
+            onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
+            ref={this.editorWrapperRef}
+            size={size}
           >
-            <EditorWrapper
-              border={border}
-              borderLess={borderLess}
-              className={`${className} ${replayHighlightClass} ${
-                isInvalid ? "t--codemirror-has-error" : ""
-              }`}
-              codeEditorVisibleOverflow={codeEditorVisibleOverflow}
-              ctrlPressed={this.state.ctrlPressed}
-              disabled={disabled}
-              editorTheme={this.props.theme}
-              fillUp={fill}
-              hasError={isInvalid}
-              height={height}
-              hoverInteraction={hoverInteraction}
-              isFocused={this.state.isFocused}
-              isNotHover={this.state.isFocused || this.state.isOpened}
-              isRawView={this.props.isRawView}
-              isReadOnly={this.props.isReadOnly}
-              onMouseMove={this.handleLintTooltip}
-              onMouseOver={this.handleMouseMove}
-              ref={this.editorWrapperRef}
-              size={size}
-            >
-              {this.state.peekOverlayProps && (
-                <PeekOverlayPopUp
-                  hidePeekOverlay={() => this.hidePeekOverlay()}
-                  {...this.state.peekOverlayProps}
-                />
-              )}
-              {this.props.leftIcon && (
-                <IconContainer>{this.props.leftIcon}</IconContainer>
-              )}
+            {this.state.peekOverlayProps && (
+              <PeekOverlayPopUp
+                hidePeekOverlay={() => this.hidePeekOverlay()}
+                {...this.state.peekOverlayProps}
+              />
+            )}
+            {this.props.leftIcon && (
+              <IconContainer>{this.props.leftIcon}</IconContainer>
+            )}
 
-              {this.props.leftImage && (
-                <img
-                  alt="img"
-                  className="leftImageStyles"
-                  src={getAssetUrl(this.props.leftImage)}
-                />
-              )}
-              <div
-                className="CodeEditorTarget"
-                data-testid="code-editor-target"
-                ref={this.codeEditorTarget}
-                tabIndex={0}
+            {this.props.leftImage && (
+              <img
+                alt="img"
+                className="leftImageStyles"
+                src={getAssetUrl(this.props.leftImage)}
+              />
+            )}
+            <div
+              className="CodeEditorTarget"
+              data-testid="code-editor-target"
+              ref={this.codeEditorTarget}
+              tabIndex={0}
+            >
+              <BindingPrompt
+                editorTheme={this.props.theme}
+                isOpen={
+                  showBindingPrompt(
+                    showFeatures,
+                    input.value,
+                    this.state.hinterOpen,
+                  ) && !_.get(this.editor, "state.completionActive")
+                }
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
+            {this.props.link && (
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <BindingPrompt
-                  editorTheme={this.props.theme}
-                  isOpen={
-                    showBindingPrompt(
-                      showFeatures,
-                      input.value,
-                      this.state.hinterOpen,
-                    ) && !_.get(this.editor, "state.completionActive")
-                  }
-                  promptMessage={this.props.promptMessage}
-                  showLightningMenu={this.props.showLightningMenu}
-                />
-              </div>
-              {this.props.link && (
-                <a
-                  className="linkStyles"
-                  href={this.props.link}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  API documentation
-                </a>
-              )}
-              {this.props.rightIcon && (
-                <IconContainer>{this.props.rightIcon}</IconContainer>
-              )}
-              <ScrollIndicator containerRef={this.editorWrapperRef} />
-            </EditorWrapper>
-          </AIWindow>
+                API documentation
+              </a>
+            )}
+            {this.props.rightIcon && (
+              <IconContainer>{this.props.rightIcon}</IconContainer>
+            )}
+            <ScrollIndicator containerRef={this.editorWrapperRef} />
+          </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
     );
