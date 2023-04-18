@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
@@ -25,12 +26,13 @@ public interface DatasourceContextServiceCE {
      * @return DatasourceContext
      */
     Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
-                                                    Map<String, BaseDomain> environmentMap);
+                                                    Map<String, BaseDomain> environmentMap, PluginExecutor pluginExecutor);
 
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
 
     <T> Mono<T> retryOnce(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
-                          Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task);
+                          Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task,
+                          PluginExecutor pluginExecutor);
 
     Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier);
 

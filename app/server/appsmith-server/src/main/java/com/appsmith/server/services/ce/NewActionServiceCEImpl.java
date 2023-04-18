@@ -802,7 +802,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
                                             plugin,
                                             datasourceContextIdentifier,
-                                            environmentMap))
+                                            environmentMap, pluginExecutor))
                                     .flatMap(tuple2 -> {
                                         Datasource validatedDatasource = tuple2.getT1();
                                         DatasourceContext<?> resourceContext = tuple2.getT2();
@@ -884,16 +884,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param environmentMap
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> getDsContextForActionExecution(Datasource validatedDatasource, Plugin plugin,
-                                                                        DatasourceContextIdentifier datasourceContextIdentifier,
-                                                                        Map<String, BaseDomain> environmentMap) {
+    protected Mono<DatasourceContext<?>> getDsContextForActionExecution(
+            Datasource validatedDatasource,
+            Plugin plugin,
+            DatasourceContextIdentifier datasourceContextIdentifier,
+            Map<String, BaseDomain> environmentMap,
+            PluginExecutor<?> pluginExecutor) {
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource)
                     .tag("plugin", plugin.getPackageName())
                     .name(ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE)
                     .tap(Micrometer.observation(observationRegistry));
         }
-        return datasourceContextService.getDatasourceContext(validatedDatasource, datasourceContextIdentifier, environmentMap)
+        return datasourceContextService.getDatasourceContext(validatedDatasource, datasourceContextIdentifier, environmentMap, pluginExecutor)
                 .tag("plugin", plugin.getPackageName())
                 .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
                 .tap(Micrometer.observation(observationRegistry));

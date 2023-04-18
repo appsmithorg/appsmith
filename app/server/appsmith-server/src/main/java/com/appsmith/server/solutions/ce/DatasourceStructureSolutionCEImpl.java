@@ -97,7 +97,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                     .retryOnce(datasource2, datasourceContextIdentifier, environmentMap,
                                                resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                                        .getStructure(resourceContext.getConnection(),
-                                                                     datasource2.getDatasourceConfiguration())); // this datasourceConfiguration is unevaluated for DBAuth type.
+                                                                     datasource2.getDatasourceConfiguration()),
+                                               pluginExecutor); // this datasourceConfiguration is unevaluated for DBAuth type.
                         }))
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(

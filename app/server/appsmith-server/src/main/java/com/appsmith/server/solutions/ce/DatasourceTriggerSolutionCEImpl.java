@@ -106,7 +106,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                     return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
                                     return datasourceContextService.getDatasourceContext(datasource, datasourceContextIdentifier,
-                                                                                                     environmentMap);
+                                                                                                     environmentMap, pluginExecutor);
                                 }
                             })
                             // Now that we have the context (connection details), execute the action.

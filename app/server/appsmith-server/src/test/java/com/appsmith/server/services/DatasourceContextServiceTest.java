@@ -83,7 +83,7 @@ public class DatasourceContextServiceTest {
     @WithUserDetails(value = "api_user")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
         // Never require the datasource connectin to be stale
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
@@ -228,7 +228,7 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCachedDatasourceCreate() {
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);

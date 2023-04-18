@@ -204,26 +204,21 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 });
     }
 
-    public boolean getIsStale(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier) {
-        String datasourceId = datasource.getId();
-        return datasourceId != null
-                && datasourceContextMap.get(datasourceContextIdentifier) != null
-                && datasource.getUpdatedAt() != null
-                && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceContextIdentifier).getCreationTime());
-    }
-
     public boolean getIsStale(
-            Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier, PluginExecutor<Object> pluginExecutor) {
+            Datasource datasource,
+            DatasourceContextIdentifier datasourceContextIdentifier,
+            PluginExecutor pluginExecutor) {
         DatasourceContext<?> datasourceContext = datasourceContextMap.get(datasourceContextIdentifier);
-        return getIsStale(datasource, datasourceContextIdentifier)
-                || (datasource.getId() != null
-                    && datasourceContext != null
-                    && pluginExecutor.isConnectionStale(datasource.getDatasourceConfiguration()));
+        return datasource.getId() != null && datasourceContext != null
+                && ((datasource.getUpdatedAt() != null && datasource.getUpdatedAt().isAfter(datasourceContext.getCreationTime()))
+                    || pluginExecutor.isConnectionStale(datasourceContext.getConnection(), datasource.getDatasourceConfiguration()));
     }
 
-    protected boolean isValidDatasourceContextAvailable(Datasource datasource,
-                                                        DatasourceContextIdentifier datasourceContextIdentifier) {
-        boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
+    protected boolean isValidDatasourceContextAvailable(
+            Datasource datasource,
+            DatasourceContextIdentifier datasourceContextIdentifier,
+            PluginExecutor pluginExecutor) {
+        boolean isStale = getIsStale(datasource, datasourceContextIdentifier, pluginExecutor);
         return datasourceContextMap.get(datasourceContextIdentifier) != null
                 // The following condition happens when there's a timeout in the middle of destroying a connection and
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
@@ -232,13 +227,16 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
-                                                           Map<String, BaseDomain> environmentMap) {
+    public Mono<DatasourceContext<?>> getDatasourceContext(
+            Datasource datasource,
+            DatasourceContextIdentifier datasourceContextIdentifier,
+            Map<String, BaseDomain> environmentMap,
+            PluginExecutor pluginExecutor) {
         String datasourceId = datasource.getId();
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this " +
                     "scenario");
-        } else if (isValidDatasourceContextAvailable(datasource, datasourceContextIdentifier)) {
+        } else if (isValidDatasourceContextAvailable(datasource, datasourceContextIdentifier, pluginExecutor)) {
             log.debug("Resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
         }
@@ -247,10 +245,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     @Override
     public <T> Mono<T> retryOnce(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
-                                 Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task) {
+                                 Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task,
+                                 PluginExecutor pluginExecutor) {
 
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
-                .flatMap(datasource1 -> getDatasourceContext(datasource1, datasourceContextIdentifier, environmentMap))
+                .flatMap(datasource1 -> getDatasourceContext(datasource1, datasourceContextIdentifier, environmentMap, pluginExecutor))
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
