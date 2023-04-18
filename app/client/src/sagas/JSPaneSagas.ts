@@ -86,6 +86,8 @@ import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -221,6 +223,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
+
         if (updateCollection) {
           newActions.forEach((action) => {
             AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
@@ -240,7 +243,11 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   }
 }
 
-export function* makeUpdateJSCollection(jsUpdates: Record<string, JSUpdate>) {
+export function* makeUpdateJSCollection(
+  action: ReduxAction<Record<string, JSUpdate>>,
+) {
+  const jsUpdates: Record<string, JSUpdate> = action.payload;
+
   yield all(
     Object.keys(jsUpdates).map((key) =>
       call(handleEachUpdateJSCollection, jsUpdates[key]),
@@ -376,6 +383,11 @@ export function* handleExecuteJSFunctionSaga(data: {
       action,
       collectionId,
     );
+    // open response tab in debugger on runnning js action.
+    if (window.location.pathname.includes(collectionId)) {
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -401,6 +413,11 @@ export function* handleExecuteJSFunctionSaga(data: {
         variant: Variant.success,
       });
   } catch (error) {
+    // open response tab in debugger on runnning js action.
+    if (window.location.pathname.includes(collectionId)) {
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
     AppsmithConsole.addErrors([
       {
         payload: {
