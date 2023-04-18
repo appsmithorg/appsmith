@@ -1,6 +1,7 @@
 import React from "react";
 
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
@@ -9,6 +10,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
@@ -129,6 +131,16 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",
+      "!url": "https://docs.appsmith.com/widget-reference/progress",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      progress: "number",
+    };
   }
 
   static getPropertyPaneStyleConfig() {
