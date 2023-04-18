@@ -543,14 +543,15 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                 if (!Boolean.TRUE.equals(forkWithConfiguration)){
                                     DatasourceConfiguration dsConfig = new DatasourceConfiguration();
                                     dsConfig.setAuthentication(null);
-                                    //setting the isConfigured field to False, because `getApplicationImportDTO` func
-                                    // checks for this field and accordingly returns isPartialImport
-                                    templateDatasource.setIsConfigured(Boolean.FALSE);
                                     if (templateDatasource.getDatasourceConfiguration() != null){
                                         dsConfig.setConnection(templateDatasource.getDatasourceConfiguration().getConnection());
                                     }
                                     templateDatasource.setDatasourceConfiguration(dsConfig);
                                 }
+                                //updating the datasource isConfigured field, which will be used to return if the forking is a partialImport or not
+                                //post forking any application, datasource reconnection modal will appear based on isConfigured property
+                                //Ref: getApplicationImportDTO()
+                                templateDatasource.setIsConfigured(templateDatasource.getDatasourceConfiguration() != null && templateDatasource.getDatasourceConfiguration().getAuthentication() != null);
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });
