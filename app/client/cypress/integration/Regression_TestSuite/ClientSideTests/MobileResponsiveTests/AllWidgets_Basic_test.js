@@ -54,6 +54,7 @@ describe("Validating Mobile Views", function () {
         .then((newheight) => {
           height[widgets[i]] = newheight;
           cy.log(height[widgets[i]]);
+          cy.log(i);
         });
       heightPromises.push(heightPromise);
 
@@ -63,6 +64,7 @@ describe("Validating Mobile Views", function () {
         .then((newwidth) => {
           width[widgets[i]] = newwidth;
           cy.log(width[widgets[i]]);
+          cy.log(i);
         });
       widthPromises.push(widthPromise);
     }
