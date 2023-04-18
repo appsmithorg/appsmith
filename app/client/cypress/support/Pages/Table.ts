@@ -351,11 +351,15 @@ export class Table {
     cy.get(this._publishSearchInput).first().type(searchTxt);
   }
 
+  public resetSearch() {
+    this.agHelper.GetNClick(this._searchBoxCross);
+  }
+
   public RemoveSearchTextNVerify(
     cellDataAfterSearchRemoved: string,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    this.agHelper.GetNClick(this._searchBoxCross);
+    this.resetSearch();
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftSearchRemoved: any) => {
         expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
@@ -395,6 +399,12 @@ export class Table {
     //this.agHelper.ClickButton("APPLY")
   }
 
+  public RemoveFilter(toClose = true, removeOne = false, index = 0) {
+    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
+    else this.agHelper.GetNClick(this._clearAllFilter);
+    if (toClose) this.CloseFilter();
+  }
+
   public RemoveFilterNVerify(
     cellDataAfterFilterRemoved: string,
     toClose = true,
@@ -402,9 +412,7 @@ export class Table {
     index = 0,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
-    else this.agHelper.GetNClick(this._clearAllFilter);
-    if (toClose) this.CloseFilter();
+    this.RemoveFilter(toClose, removeOne, index);
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftFilterRemoved: any) => {
         expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
