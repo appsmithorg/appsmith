@@ -330,7 +330,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                       <MenuItem
                         className="t--datasource-option-edit"
                         onSelect={editDatasource}
-                        startIcon="pencil-icon-fill"
+                        startIcon="pencil-fill-icon"
                       >
                         Edit
                       </MenuItem>
