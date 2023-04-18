@@ -87,10 +87,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.client_payload.pull_request.number }}
-          MERGE_REQUIRED_APPROVALS: "1"
+          MERGE_REQUIRED_APPROVALS: 1
 
       - name: Add comment once merge is success-full
-        if: steps.automerge.outputs.mergeResult == "merged"
+        if: steps.automerge.outputs.mergeResult == 'merged'
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
@@ -98,7 +98,7 @@ jobs:
             Pull request ${{ steps.automerge.outputs.pullRequestNumber }} Auto-merged!
 
       - name: Comment if it is not merged
-        if: steps.automerge.outputs.mergeResult != "merged"
+        if: steps.automerge.outputs.mergeResult != 'merged'
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
