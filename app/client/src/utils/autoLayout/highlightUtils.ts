@@ -384,12 +384,8 @@ function getPositionForInitialHighlight(
   columnSpace: number,
   startPosition: number | undefined,
 ): number {
-  const containerWidth = 64 * columnSpace;
-  const endPosition =
-    containerWidth +
-    (canvasId !== MAIN_CONTAINER_WIDGET_ID
-      ? FLEXBOX_PADDING
-      : FLEXBOX_PADDING / 2);
+  const containerWidth = GridDefaults.DEFAULT_GRID_COLUMNS * columnSpace;
+  const endPosition = containerWidth + FLEXBOX_PADDING / 2;
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
@@ -480,12 +476,18 @@ function updateVerticalHighlightDropZone(
   for (const [index, highlight] of highlights.entries()) {
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
-    const leftZone = previousHighlight
-      ? (highlight.posX - previousHighlight.posX) * zoneSize
-      : highlight.posX + DEFAULT_HIGHLIGHT_SIZE;
-    const rightZone = nextHighlight
-      ? (nextHighlight.posX - highlight.posX) * zoneSize
-      : canvasWidth - highlight.posX;
+    const leftZone = Math.max(
+      previousHighlight
+        ? (highlight.posX - previousHighlight.posX) * zoneSize
+        : highlight.posX + DEFAULT_HIGHLIGHT_SIZE,
+      4,
+    );
+    const rightZone = Math.max(
+      nextHighlight
+        ? (nextHighlight.posX - highlight.posX) * zoneSize
+        : canvasWidth - highlight.posX,
+      4,
+    );
     highlights[index] = {
       ...highlight,
       dropZone: {
