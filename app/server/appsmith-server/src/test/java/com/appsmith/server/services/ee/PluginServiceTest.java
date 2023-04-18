@@ -34,12 +34,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.appsmith.external.constants.PluginConstants.PackageName.AMAZON_S3_PLUGIN;
-import static com.appsmith.external.constants.PluginConstants.PackageName.DYNAMO_PLUGIN;
-import static com.appsmith.external.constants.PluginConstants.PackageName.FIRESTORE_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.GOOGLE_SHEETS_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.RAPID_API_PLUGIN;
-import static com.appsmith.external.constants.PluginConstants.PackageName.REDSHIFT_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.SAAS_PLUGIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,8 +60,7 @@ public class PluginServiceTest {
     PluginManager pluginManager;
 
     final Set<String> unsupportedPluginPackageNameInAirgap = Set.of(
-        SAAS_PLUGIN, RAPID_API_PLUGIN, FIRESTORE_PLUGIN, REDSHIFT_PLUGIN, DYNAMO_PLUGIN,
-        AMAZON_S3_PLUGIN, GOOGLE_SHEETS_PLUGIN
+        SAAS_PLUGIN, RAPID_API_PLUGIN, GOOGLE_SHEETS_PLUGIN
     );
 
     @BeforeEach
