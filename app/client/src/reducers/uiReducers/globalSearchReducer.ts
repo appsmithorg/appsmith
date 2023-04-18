@@ -121,9 +121,12 @@ const globalSearchReducer = createReducer(initialState, {
     ...state,
     recentEntitiesRestored: true,
   }),
-  [ReduxActionTypes.TOGGLE_AI_WINDOW]: (state: GlobalSearchReduxState) => ({
+  [ReduxActionTypes.TOGGLE_AI_WINDOW]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
     ...state,
-    isAIWindowOpen: !state.isAIWindowOpen,
+    isAIWindowOpen: action.payload,
   }),
 });
 export interface GlobalSearchReduxState {
