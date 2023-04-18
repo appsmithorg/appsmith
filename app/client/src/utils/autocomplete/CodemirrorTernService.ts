@@ -377,7 +377,7 @@ class CodeMirrorTernService {
           origins: true,
           caseInsensitive: true,
           guess: false,
-          inLiteral: false,
+          inLiteral: true,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
