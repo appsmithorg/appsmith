@@ -71,7 +71,7 @@ jobs:
           elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
             echo "msg=There's merge freeze. Can't Merge, please try after mergefreeze is lifted" >> $GITHUB_OUTPUT
             exit 1
-          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]; then
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
           else
