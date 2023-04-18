@@ -34,11 +34,11 @@ jobs:
         id: ci_test_result_status
         run: |
           run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100`
-          echo "run_result=`echo $run_status | jq -r '[.jobs[] | select( select(.name | contains("ci-test-result")) | .conclusion | contains("failure")) ] | length'`" >> $GITHUB_OUTPUT                                    
+          echo "ci_test_result=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test-result")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT                                    
           echo "ci_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test ")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
           echo "perf_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("perf-test")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
       - run: |
-          echo ${{steps.ci_test_result_status.outputs.run_status}}
+          echo ${{steps.ci_test_result_status.outputs.ci_test_result}}
           echo ${{steps.ci_test_result_status.outputs.ci_test_status}}
           echo ${{steps.ci_test_result_status.outputs.perf_test_status}}
 
@@ -59,7 +59,7 @@ jobs:
       - name: Verify all the checks
         id: verify_checks
         run: |
-          if [ ${{ steps.ci_test_result_status.outputs.run_status }} == 1 ]; then
+          if [ ${{ steps.ci_test_result_status.outputs.ci_test_result }} == 1 ]; then
             if [ ${{ steps.ci_test_result_status.outputs.ci_test_status }} == 1 ]; then
               echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
               exit 1
