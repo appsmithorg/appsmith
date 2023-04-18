@@ -21,7 +21,7 @@ jobs:
         id: find-comment
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body-includes: 'Tests running at:'
+          body-includes: 'Appsmith External Integration Test Workflow'
           comment-author: github-actions[bot]
           direction: last
       
@@ -39,14 +39,14 @@ jobs:
       - name: get status-checks from pr
         id: pr_status_check
         run: |
-          status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.pull_request.head.sha}}"
+          status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.client_payload.pull_request.head.sha}}"
           curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("success") | not) | .context' >> ~/check1
           echo "status=`grep -c -v 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
-          check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs"
+          check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.client_payload.pull_request.head.sha}}/check-runs"
           curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> ~/check2
           echo "status1=`grep -c 'Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
           curl --silent "$check_runs_link"|jq -r '.check_runs[] | .name' >> ~/check3
@@ -67,8 +67,11 @@ jobs:
           elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
-          else
+          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]; then
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "msg=Some checks have failed. Can't merge" >> $GITHUB_OUTPUT
             exit 1
           fi
 
