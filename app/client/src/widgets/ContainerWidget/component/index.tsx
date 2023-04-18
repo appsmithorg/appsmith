@@ -187,7 +187,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={
           props.shouldScrollContents &&
-          props.appPositioningType !== AppPositioningTypes.AUTO
+          props.appPositioningType !== AppPositioningTypes.AUTO // Disable scrollbar on autolayout canvas as it meddles with canvas drag and highlight position.
         }
         type={props.type}
         widgetId={props.widgetId}
