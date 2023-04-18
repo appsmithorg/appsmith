@@ -30,6 +30,7 @@ const initialState: GlobalSearchReduxState = {
     onEnter: SnippetAction.COPY,
     hideOuterBindings: false,
   },
+  isAIWindowOpen: false,
 };
 
 const globalSearchReducer = createReducer(initialState, {
@@ -120,6 +121,10 @@ const globalSearchReducer = createReducer(initialState, {
     ...state,
     recentEntitiesRestored: true,
   }),
+  [ReduxActionTypes.TOGGLE_AI_WINDOW]: (state: GlobalSearchReduxState) => ({
+    ...state,
+    isAIWindowOpen: !state.isAIWindowOpen,
+  }),
 });
 export interface GlobalSearchReduxState {
   query: string;
@@ -141,6 +146,7 @@ export interface GlobalSearchReduxState {
     evaluatedArguments: any;
     hideOuterBindings: boolean;
   };
+  isAIWindowOpen: boolean;
 }
 
 export default globalSearchReducer;
