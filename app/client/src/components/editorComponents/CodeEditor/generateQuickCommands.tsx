@@ -14,6 +14,7 @@ import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import MagicIcon from "remixicon-react/MagicLineIcon";
+import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -165,21 +166,6 @@ export const generateQuickCommands = (
         },
       }),
   });
-  const askGPT: CommandsCompletion = generateCreateNewCommand({
-    text: "",
-    displayText: "Ask AI",
-    shortcut: Shortcuts.ASK_AI,
-    action: () =>
-      executeCommand({
-        actionType: SlashCommand.ASK_AI,
-        args: {
-          entityType: currentEntityType,
-          expectedType: expectedType,
-          entityId: entityId,
-          propertyPath: propertyPath,
-        },
-      }),
-  });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
@@ -256,7 +242,28 @@ export const generateQuickCommands = (
     recentEntities,
     5,
   );
-  const actionCommands = [askGPT, newBinding, insertSnippet];
+  const actionCommands = [newBinding, insertSnippet];
+
+  // Adding this hack in the interest of time.
+  // TODO: Refactor slash commands generation for easier code splitting
+  if (addAISlashCommand) {
+    const askGPT: CommandsCompletion = generateCreateNewCommand({
+      text: "",
+      displayText: "Ask AI",
+      shortcut: Shortcuts.ASK_AI,
+      action: () =>
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: {
+            entityType: currentEntityType,
+            expectedType: expectedType,
+            entityId: entityId,
+            propertyPath: propertyPath,
+          },
+        }),
+    });
+    actionCommands.unshift(askGPT);
+  }
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),

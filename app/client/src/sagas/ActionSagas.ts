@@ -958,6 +958,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       if (callback) callback(`{{${API.payload.name}.data}}`);
       break;
     case SlashCommand.ASK_AI:
+      yield put({ type: ReduxActionTypes.TOGGLE_AI_WINDOW, payload: true });
       break;
   }
 }
