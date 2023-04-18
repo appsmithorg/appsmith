@@ -21,6 +21,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px
@@ -176,7 +177,8 @@ class CurlImportForm extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
   const { pageId: destinationPageId } = props.match.params;
 
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   if (destinationPageId) {
     return {

@@ -127,6 +127,7 @@ import {
   getDebuggerSelectedTab,
   getErrorCount,
   getResponsePaneHeight,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
@@ -245,9 +246,10 @@ const SecondaryWrapper = styled.div`
 
 const HelpSection = styled.div``;
 
-const ResponseContentWrapper = styled.div`
+const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   overflow-y: auto;
   display: grid;
+  height: ${(props) => (props.isError ? "" : "100%")};
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -816,7 +818,7 @@ export function EditorJSONtoForm(props: Props) {
       key: "response",
       title: "Response",
       panelComponent: (
-        <ResponseContentWrapper>
+        <ResponseContentWrapper isError={!!error}>
           {error && (
             <ResponseTabErrorContainer>
               <ResponseTabErrorContent>
@@ -964,10 +966,8 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
-  // Render debugger flag
-  const showDebuggerFlag = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const renderDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
@@ -1132,7 +1132,7 @@ export function EditorJSONtoForm(props: Props) {
                 ]}
               />
             </TabContainerView>
-            {showDebuggerFlag && (
+            {renderDebugger && (
               <TabbedViewContainer
                 className="t--query-bottom-pane-container"
                 ref={panelRef}
