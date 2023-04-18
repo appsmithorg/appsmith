@@ -42,15 +42,15 @@ jobs:
         id: pr_status_check
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/a0936f9c899eabfc9a0dd953a206247881dac0e6"
-          echo "status=`curl --silent "$status_link"|jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "status=`curl --silent $status_link | jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/a0936f9c899eabfc9a0dd953a206247881dac0e6/check-runs"
-          check_run_result = `curl --silent $check_runs_link`
-          echo "status1=`echo $check_run_result|jq -r '[.check_runs[]|select (select(.name | contains("Test Plan Approved")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
-          echo "status2=`echo $check_run_result|jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
+          check_run_result=`curl --silent $check_runs_link`
+          echo "status1=`echo $check_run_result | jq -r '[.check_runs[]|select (select(.name | contains("Test Plan Approved")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "status2=`echo $check_run_result | jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
         id: verify_checks
