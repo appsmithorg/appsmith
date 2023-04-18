@@ -561,14 +561,13 @@ function updatePositionsForFlexWrap(
   for (const each of wrappedAlignments) {
     if (!each.length) break;
     const totalColumns = each.reduce((acc, curr) => acc + curr.columns, 0);
-    if (!totalColumns) break;
     // if there is only one alignment in this row, this implies that it may be wrapped.
     const payload =
       each.length === 1
         ? placeWrappedWidgets(widgets, each[0], top, isMobile, rowGap)
         : placeWidgetsWithoutWrap(widgets, each, top, isMobile);
     widgets = payload.widgets;
-    top += payload.height + rowGap;
+    top += payload.height + (totalColumns > 0 ? rowGap : 0);
     continue;
   }
   // adjust the top position to account for the last row
@@ -632,7 +631,7 @@ export function placeWrappedWidgets(
     widgets = result.widgets;
     startRow += height + rowGap;
   }
-  startRow -= rowGap;
+  startRow -= rows?.length ? rowGap : 0;
   return { height: startRow - topRow, widgets };
 }
 

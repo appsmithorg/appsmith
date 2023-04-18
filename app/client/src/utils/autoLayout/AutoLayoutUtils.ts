@@ -661,17 +661,26 @@ export function getAlignmentMarginInfo(
     resIndex,
   );
   const marginInfo: {
-    [key: string]: (arr?: AlignmentColumnData[]) => boolean[];
+    [key: string]: (arr: AlignmentColumnData[]) => boolean[];
   } = {
-    "300": (): boolean[] => [false, false, false],
-    "120": (arr): boolean[] =>
-      arr && arr[1].columns + arr[2].columns > 0
-        ? [true, false, false]
-        : [false, false, false],
-    "210": (arr): boolean[] =>
-      arr && arr[2].columns > 0 ? [true, true, false] : [false, false, false],
-    "111": (arr): boolean[] =>
-      arr && arr[2].columns > 0 ? [true, true, false] : [true, false, false],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    "300": (arr): boolean[] => [false, false, false],
+    "120": (arr): boolean[] => [
+      arr[0].columns > 0,
+      arr[1].columns + arr[2].columns > 0,
+      false,
+    ],
+    "210": (arr): boolean[] => [
+      arr[0].columns > 0 && arr[2].columns > 0,
+      arr[1].columns > 0 && arr[2].columns > 0,
+      false,
+    ],
+    "111": (arr): boolean[] => [
+      arr[0].columns > 0,
+      arr[1].columns > 0 && arr[2].columns > 0,
+      false,
+    ],
   };
+
   return marginInfo[wrapInfo.map((x) => x.length).join("")](arr);
 }
