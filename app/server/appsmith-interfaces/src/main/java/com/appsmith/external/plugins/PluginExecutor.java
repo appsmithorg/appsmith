@@ -75,13 +75,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
-     * By default, the connection is not considered stale if all the other checks are passed.
+     * By default, the connection is not considered valid if all the other checks are passed.
      * This function can be overridden if additional steps are required to check if the connection
-     * for a plugin is stale or not.
+     * for a plugin is valid or not.
      * @param datasourceConfiguration
      * @return boolean
      */
-    default boolean isConnectionStale(C connection, DatasourceConfiguration datasourceConfiguration) {
+    default boolean isConnectionValid(C connection, DatasourceConfiguration datasourceConfiguration) {
         return false;
     }
 

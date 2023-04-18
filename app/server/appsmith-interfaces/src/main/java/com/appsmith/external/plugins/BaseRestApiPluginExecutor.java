@@ -79,7 +79,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     }
 
     @Override
-    public boolean isConnectionStale(APIConnection connection, DatasourceConfiguration datasourceConfiguration) {
+    public boolean isConnectionValid(APIConnection connection, DatasourceConfiguration datasourceConfiguration) {
         return datasourceConfiguration.getAuthentication().isExpired();
     }
 

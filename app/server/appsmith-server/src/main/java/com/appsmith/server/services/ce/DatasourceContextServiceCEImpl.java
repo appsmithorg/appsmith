@@ -211,7 +211,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         DatasourceContext<?> datasourceContext = datasourceContextMap.get(datasourceContextIdentifier);
         return datasource.getId() != null && datasourceContext != null
                 && ((datasource.getUpdatedAt() != null && datasource.getUpdatedAt().isAfter(datasourceContext.getCreationTime()))
-                    || pluginExecutor.isConnectionStale(datasourceContext.getConnection(), datasource.getDatasourceConfiguration()));
+                    || pluginExecutor.isConnectionValid(datasourceContext.getConnection(), datasource.getDatasourceConfiguration()));
     }
 
     protected boolean isValidDatasourceContextAvailable(
