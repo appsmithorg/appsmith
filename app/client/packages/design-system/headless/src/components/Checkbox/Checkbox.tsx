@@ -13,7 +13,6 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
 
 export interface CheckboxProps extends SpectrumCheckboxProps {
-  id?: string;
   icon?: React.ReactNode;
   className?: string;
 }
