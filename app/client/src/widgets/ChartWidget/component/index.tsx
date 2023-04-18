@@ -56,6 +56,7 @@ export interface ChartComponentProps {
   chartName: string;
   chartType: ChartType;
   customFusionChartConfig: CustomFusionChartConfig;
+  hasOnDataPointClick: boolean;
   isVisible?: boolean;
   isLoading: boolean;
   setAdaptiveYMin: boolean;
@@ -71,7 +72,7 @@ export interface ChartComponentProps {
 }
 
 const CanvasContainer = styled.div<
-  Omit<ChartComponentProps, "onDataPointClick">
+  Omit<ChartComponentProps, "onDataPointClick" | "hasOnDataPointClick">
 >`
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
@@ -509,10 +510,18 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   render() {
     //eslint-disable-next-line  @typescript-eslint/no-unused-vars
-    const { onDataPointClick, ...rest } = this.props;
+    const { hasOnDataPointClick, onDataPointClick, ...rest } = this.props;
+
+    // Avoid propagating the click events to upwards
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const onClick = hasOnDataPointClick
+      ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation()
+      : undefined;
+
     return (
       <CanvasContainer
         className={this.props.isLoading ? "bp3-skeleton" : ""}
+        onClick={onClick}
         {...rest}
         id={this.chartContainerId}
       />

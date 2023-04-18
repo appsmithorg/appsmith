@@ -51,6 +51,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
   deleteTempDSFromDraft,
+  loadFilePickerAction,
   removeTempDatasource,
   setDatasourceViewMode,
   toggleSaveActionFlag,
@@ -64,6 +65,7 @@ import {
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -97,6 +99,7 @@ interface DatasourceFormFunctions {
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
   createTempDatasource: (data: any) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
+  loadFilePickerAction: () => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -183,6 +186,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     if (!this.props.viewMode) {
       this.blockRoutes();
     }
+    this.props.loadFilePickerAction();
   }
 
   componentWillUnmount() {
@@ -389,8 +393,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
-              gsheetProjectID={gsheetProjectID}
-              gsheetToken={gsheetToken}
               isInvalid={this.validate()}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
@@ -408,6 +410,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onSave={this.onSave}
           saveButtonText={createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
         />
+        {!!gsheetToken ? (
+          <GoogleSheetFilePicker
+            datasourceId={datasourceId}
+            gsheetProjectID={gsheetProjectID}
+            gsheetToken={gsheetToken}
+          />
+        ) : null}
       </>
     );
   };
@@ -497,6 +506,7 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
     dispatch(setDatasourceViewMode(viewMode)),
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
+  loadFilePickerAction: () => dispatch(loadFilePickerAction()),
 });
 
 export default connect(
