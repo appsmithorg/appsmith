@@ -7,7 +7,7 @@ import { Button } from "../Button";
   component={TestComponent}
 />
 
-export const Template = (args, { globals: { colorScheme } }) => {
+export const Template = (args, { globals: { colorMode } }) => {
   return (
     <>
       <h3>{args.title}</h3>
@@ -17,7 +17,7 @@ export const Template = (args, { globals: { colorScheme } }) => {
           background: "#fff",
         }}
       >
-        <TestComponent colorScheme={colorScheme}>
+        <TestComponent colorMode={colorMode}>
           <Button {...args}>Test</Button>
         </TestComponent>
       </div>
