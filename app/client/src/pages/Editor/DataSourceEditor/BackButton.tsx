@@ -39,7 +39,7 @@ function BackButton() {
       target="_self"
       to={goBack()}
     >
-      Back
+      Go back
     </Back>
   );
 }
