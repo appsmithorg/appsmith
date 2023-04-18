@@ -312,6 +312,8 @@ Cypress.Commands.add("LogOut", () => {
     headers: {
       "X-Requested-By": "Appsmith",
     },
+  }).then((response) => {
+    expect(response.status).equal(200); //Verifying logout is success
   });
 });
 
