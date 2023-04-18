@@ -40,44 +40,67 @@ jobs:
         id: pr_status_check
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.pull_request.head.sha}}"
-          curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("pending")) | .context' >> ~/check1
-          echo "status=`grep -c -E 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
+          curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("success") | not) | .context' >> ~/check1
+          echo "status=`grep -c -v 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
-          check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.pull_request.head.sha}}/check-runs"
+          check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{steps.pr.outputs.sha}}/check-runs"
           curl --silent "$check_runs_link"|jq -r '.check_runs[] | select(.conclusion | contains("success") | not ) | .name' >> ~/check2
-          echo "status=`grep -c -E 'ci-test-result|Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
+          echo "status1=`grep -c 'Check for Test Plan Approved label' ~/check2`" >> $GITHUB_OUTPUT
+          curl --silent "$check_runs_link"|jq -r '.check_runs[] | .name' >> ~/check3
+          echo "status2=`grep -c 'ci-test-result' ~/check3`" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
+        id: verify_checks
         run: |
           if [ "${{ steps.ci-test-result-status.outputs.run_status }}" == "failure" ]; then
+            echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
+            exit 1
+          elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
+            echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge" >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
+            echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted" >> $GITHUB_OUTPUT
             exit 1
-          elif [ ${{ steps.suite_status_check.outputs.status }} != 0 ]; then
-            if [ $(grep -c 'Check for Test Plan Approved label' ~/check2 ) != 0 ]; then
-              exit 1
-            else
-              exit 0
-            fi
+          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
+            echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
+            exit 0
           else
+            echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
             exit 1
           fi
 
-      - name: automerge
-        if: success()
-        run: |
-          echo "can merge now."
-        # uses: "pascalgn/automerge-action@v0.15.5"
-        # env:
-        #   GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          
-      - name: Add a comment on the PR with status
-        if: failure()
+      - name: Add a comment on the PR after all checks
+        if: always() 
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Can't merge. Other checks failing.
+            ${{steps.verify_checks.outputs.msg}}
+
+      - name: Auto merge if above checks are success and have 1 approval
+        if: success()
+        id: automerge
+        uses: "pascalgn/automerge-action@v0.15.5"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST: ${{ github.event.client_payload.pull_request.number }}
+          MERGE_REQUIRED_APPROVALS: "1"
+
+      - name: Add comment once merge is success-full
+        if: steps.automerge.outputs.mergeResult == "merged"
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Pull request ${{ steps.automerge.outputs.pullRequestNumber }} Auto-merged!
+
+      - name: Comment if it is not merged
+        if: steps.automerge.outputs.mergeResult != "merged"
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Please try /ci-merge-check after at-least 1 peer approval. Can't merge this now.
