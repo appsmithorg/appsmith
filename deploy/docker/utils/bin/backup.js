@@ -23,8 +23,6 @@ async function run() {
       }
     });
 
-    utils.stop(['backend', 'rts']);
-
     console.log('Available free space at /appsmith-stacks');
     const availSpaceInBytes = getAvailableBackupSpaceInBytes();
     console.log('\n');
@@ -52,24 +50,6 @@ async function run() {
 
     if (command_args.includes('--upload-to-s3')){
       await aws.uploadArchiveToS3Bucket(archivePath);
-      const oldArchivePaths = []
-      await fsPromises.readdir(Constants.BACKUP_PATH).then(filenames => {
-        for (let filename of filenames) {
-          if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
-            const filePath = Constants.BACKUP_PATH + '/' + filename;
-            if (filePath !== archivePath){
-              oldArchivePaths.push(filePath)
-            }
-            }}}).catch(err => {
-              console.log(err);
-          });
-      for(let filepath of oldArchivePaths){
-        console.log('Deleteing: ' + filepath)
-        await fsPromises.rm(filepath);
-      }
-    }
-    else{
-      await postBackupCleanup();
     }
 
   } catch (err) {
@@ -89,7 +69,7 @@ async function run() {
       }
     }
   } finally {
-    utils.start(['backend', 'rts']);
+    await postBackupCleanup();
     process.exit(errorCode);
   }
 }

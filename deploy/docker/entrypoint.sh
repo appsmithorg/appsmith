@@ -65,7 +65,7 @@ init_env_file() {
     )
     local generated_appsmith_supervisor_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
+      echo ""
     )
 
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
@@ -470,6 +470,17 @@ seed_embedded_postgres(){
     psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
 }
 
+configure_cron(){
+  # Cron for auto backup
+  local backup_cron_file="/etc/cron.d/backup"
+  if [[ -n "${APPSMITH_BACKUP_CRON_EXPRESSION:-}" ]]; then
+    echo "${APPSMITH_BACKUP_CRON_EXPRESSION} root appsmithctl backup --upload-to-s3" > "$backup_cron_file"
+    chmod 0644 "$backup_cron_file"
+  elif [[ -e $backup_cron_file ]]; then
+    rm "$backup_cron_file"
+  fi
+}
+
 safe_init_postgres(){
 runEmbeddedPostgres=1
 # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
@@ -504,6 +515,8 @@ check_redis_compatible_page_size
 safe_init_postgres
 
 configure_supervisord
+
+configure_cron
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
 if ! [[ -e "$CREDENTIAL_PATH" ]]; then
